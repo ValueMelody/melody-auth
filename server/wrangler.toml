@@ -1,0 +1,21 @@
+name = "melody-oauth"
+compatibility_date = "2023-12-01"
+
+# [vars]
+# MY_VAR = "my-variable"
+
+# [[kv_namespaces]]
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "melody-oauth"
+database_id = "58a2e0aa-98b1-41a5-b6ea-b38ae9055cc9" #Replace with your own d1 database id
+
+# [ai]
+# binding = "AI"
