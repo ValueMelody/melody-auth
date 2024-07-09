@@ -1,0 +1,43 @@
+{
+  "env": {
+    "es2021": true
+  },
+  "extends": [
+    "standard"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "ignorePatterns": ["**/dist/*"],
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts"]
+    },
+    "import/resolver": {
+      "typescript": {
+        "project": [
+          "server/tsconfig.json"
+        ]
+      }
+    }
+  },
+  "rules": {
+    "import/order": "error",
+    "object-property-newline": "error",
+    "object-curly-newline": ["error", { "multiline": true, "minProperties": 2 }],
+    "newline-per-chained-call": ["error", { "ignoreChainWithDepth": 2 }],
+    "function-paren-newline": ["error", { "minItems": 2 }],
+    "function-call-argument-newline": ["error"],
+    "arrow-parens": "error",
+    "indent": ["error", 2],
+    "object-shorthand": "error",
+    "max-len": ["error", { "code": 120, "tabWidth": 2 }],
+    "@typescript-eslint/member-delimiter-style": "error",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    "comma-dangle": "off",
+    "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
+    "no-undef": "off"
+  }
+}
