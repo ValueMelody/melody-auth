@@ -1,10 +1,12 @@
 import {
   errorConfig, localeConfig,
 } from 'configs'
-import { appModel } from 'models'
+import {
+  appModel, userModel,
+} from 'models'
 
-export const verifyApp = async (
-  clientId: string, redirectUri: string, db: D1Database,
+export const getAppEntity = async (
+  db: D1Database, clientId: string, redirectUri: string,
 ) => {
   const app = await appModel.getByClientId(
     db,
@@ -14,4 +16,17 @@ export const verifyApp = async (
   if (!app.redirectUris.includes(redirectUri)) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongRedirectUri)
   }
+  return app
+}
+
+export const getUserEntityByEmailAndPassword = async (
+  db: D1Database, email: string, password: string,
+) => {
+  const user = await userModel.getByEmailAndPassword(
+    db,
+    email,
+    password,
+  )
+  if (!user) throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+  return user
 }

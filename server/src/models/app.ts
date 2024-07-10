@@ -4,6 +4,8 @@ export interface Common {
   id: number;
   clientId: string;
   secret: string;
+  createdAt: string;
+  updatedAt: string;
   deletedAt: string | null;
 }
 
