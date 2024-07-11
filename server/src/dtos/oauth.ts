@@ -11,8 +11,9 @@ export enum AuthorizeCodeChallengeMethod {
   Plain = 'plain',
 }
 
-enum TokenGrantType {
+export enum TokenGrantType {
   AuthorizationCode = 'authorization_code',
+  RefreshToken = 'refresh_token',
 }
 
 export class GetAuthorizeReqQueryDto {
@@ -67,7 +68,7 @@ export class PostAuthorizeReqBodyWithPasswordDto extends GetAuthorizeReqQueryDto
   }
 }
 
-export class PostTokenReqBodyDto {
+export class PostTokenAuthCodeReqBodyDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
@@ -79,9 +80,23 @@ export class PostTokenReqBodyDto {
   @IsNotEmpty()
     codeVerifier: string
 
-  constructor (dto: PostTokenReqBodyDto) {
-    this.grantType = dto.grantType.toLowerCase()
+  constructor (dto: PostTokenAuthCodeReqBodyDto) {
+    this.grantType = dto.grantType
     this.code = dto.code
     this.codeVerifier = dto.codeVerifier
+  }
+}
+
+export class PostTokenRefreshTokenReqBodyDto {
+  @IsEnum(TokenGrantType)
+    grantType: string
+
+  @IsString()
+  @IsNotEmpty()
+    refreshToken: string
+
+  constructor (dto: PostTokenRefreshTokenReqBodyDto) {
+    this.grantType = dto.grantType
+    this.refreshToken = dto.refreshToken
   }
 }
