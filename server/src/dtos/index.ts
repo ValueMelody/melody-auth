@@ -1,1 +1,1 @@
-export * as requestDto from 'dtos/request'
+export * as oauthDto from 'dtos/oauth'

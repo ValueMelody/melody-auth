@@ -4,8 +4,8 @@
   "workspaces": ["server"],
   "scripts": {
     "type:check": "npm run type:check -w=server",
-    "lint:check": "eslint ./ --ext .ts",
-    "lint:fix": "eslint ./ --fix --ext .ts"
+    "lint:check": "eslint ./ --ext .ts,.tsx",
+    "lint:fix": "eslint ./ --fix --ext .ts,.tsx"
   },
   "devDependencies": {
     "eslint": "^8.52.0",

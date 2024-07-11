@@ -2,7 +2,7 @@ import { dbConfig } from 'configs'
 
 export interface Record {
   id: number;
-  authId: string;
+  oauthId: string;
   email: string | null;
   password: string | null;
   createdAt: string;

@@ -1,10 +1,12 @@
 export enum Error {
   NoApp = 'No app found',
-  WrongRedirectUri = 'Wrong redirect uri provided',
+  WrongRedirectUri = 'Invalid redirect uri',
   NoUser = 'No user found',
+  WrongCode = 'Invalid code',
+  WrongCodeVerifier = 'Invalid code verifier',
 }
 
-export enum AuthorizePage {
+export enum AuthorizePasswordPage {
   EmailLabel = 'Email',
   PasswordLabel = 'Password',
   SubmitBtn = 'Login',

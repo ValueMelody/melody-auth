@@ -6,5 +6,6 @@ CREATE TABLE [app] (
   "redirectUris" text NOT NULL DEFAULT "",
   "createdAt" text DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" text DEFAULT CURRENT_TIMESTAMP,
-  "deletedAt" text DEFAULT null
+  "deletedAt" text DEFAULT null,
+  UNIQUE(clientId)
 );
