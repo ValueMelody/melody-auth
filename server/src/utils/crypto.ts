@@ -1,3 +1,5 @@
+import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
+
 export const sha256 = async (text: string): Promise<string> => {
   const content = new TextEncoder().encode(text)
   const digest = await crypto.subtle.digest(
@@ -43,4 +45,17 @@ export const genCodeChallenger = async (verifier: string): Promise<string> => {
     content,
   )
   return base64UrlEncode(digest)
+}
+
+export const isValidCodeChallenge = async (
+  codeVerifier: string,
+  codeChallenge: string,
+  codeChallengeMethod: string,
+) => {
+  if (codeChallengeMethod === AuthorizeCodeChallengeMethod.Plain) {
+    return codeVerifier === codeChallenge
+  } else {
+    const calculatedValue = await genCodeChallenger(codeVerifier)
+    return calculatedValue === codeChallenge
+  }
 }

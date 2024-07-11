@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { BlankSchema } from 'hono/types'
 import { oauthDto } from 'dtos'
+import { typeConfig } from 'configs'
 
 export type Bindings = {
   DB: D1Database;
@@ -11,9 +12,12 @@ export type Bindings = {
   ID_TOKEN_JWT_SECRET: string;
 };
 
-export type App = Hono<{
+export type Context = {
   Bindings: Bindings;
-}, BlankSchema, '/'>
+  Variables: { AccessTokenBody?: typeConfig.AccessTokenBody };
+}
+
+export type App = Hono<Context, BlankSchema, '/'>
 
 export interface AuthCodeBody {
   request: oauthDto.GetAuthorizeReqQueryDto;
