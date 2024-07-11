@@ -170,7 +170,10 @@ export const load = (app: typeConfig.App) => {
           result.refresh_token_expires_on = refreshTokenExpiresAt
 
           await c.env.KV.put(
-            `${kvConfig.BaseKey.RefreshToken}-${refreshToken}`,
+            kvConfig.getKey(
+              kvConfig.BaseKey.RefreshToken,
+              refreshToken,
+            ),
             '1',
             { expirationTtl: refreshTokenExpiresIn },
           )
@@ -203,7 +206,10 @@ export const load = (app: typeConfig.App) => {
         })
         await validateUtil.dto(bodyDto)
 
-        const tokenInKv = await c.env.KV.get(`${kvConfig.BaseKey.RefreshToken}-${bodyDto.refreshToken}`)
+        const tokenInKv = await c.env.KV.get(kvConfig.getKey(
+          kvConfig.BaseKey.RefreshToken,
+          bodyDto.refreshToken,
+        ))
         if (!tokenInKv) throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
 
         let refreshTokenBody: typeConfig.RefreshTokenBody
@@ -237,6 +243,29 @@ export const load = (app: typeConfig.App) => {
           token_type: 'Bearer',
         })
       }
+    },
+  )
+
+  app.post(
+    `${BaseRoute}/logout`,
+    async (c) => {
+      const reqBody = await c.req.parseBody()
+      const bodyDto = new oauthDto.PostLogoutReqBodyDto({
+        refreshToken: String(reqBody.refresh_token),
+        postLogoutRedirectUri: reqBody.post_logout_redirect_uri ? String(reqBody.post_logout_redirect_uri) : '',
+      })
+      await validateUtil.dto(bodyDto)
+
+      await c.env.KV.delete(kvConfig.getKey(
+        kvConfig.BaseKey.RefreshToken,
+        bodyDto.refreshToken,
+      ))
+
+      if (bodyDto.postLogoutRedirectUri) {
+        return c.redirect(bodyDto.postLogoutRedirectUri)
+      }
+
+      return c.json({ message: localeConfig.Message.LogoutSuccess })
     },
   )
 }

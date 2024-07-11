@@ -100,3 +100,17 @@ export class PostTokenRefreshTokenReqBodyDto {
     this.refreshToken = dto.refreshToken
   }
 }
+
+export class PostLogoutReqBodyDto {
+  @IsString()
+  @IsNotEmpty()
+    refreshToken: string
+
+  @IsString()
+    postLogoutRedirectUri: string
+
+  constructor (dto: PostLogoutReqBodyDto) {
+    this.refreshToken = dto.refreshToken
+    this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
+  }
+}

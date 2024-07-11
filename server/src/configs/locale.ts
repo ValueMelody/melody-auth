@@ -8,6 +8,10 @@ export enum Error {
   WrongRefreshToken = 'Invalid refresh_token',
 }
 
+export enum Message {
+  LogoutSuccess = 'Logged out successfully',
+}
+
 export enum AuthorizePasswordPage {
   EmailLabel = 'Email',
   PasswordLabel = 'Password',
