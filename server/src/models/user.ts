@@ -12,6 +12,16 @@ export interface Record {
 
 const TableName = dbConfig.TableName.User
 
+export const getByOauthId = async (
+  db: D1Database,
+  oauthId: string,
+) => {
+  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE oauthId = $1 AND deletedAt IS NULL`)
+    .bind(oauthId)
+  const user = await stmt.first() as Record | null
+  return user
+}
+
 export const getByEmailAndPassword = async (
   db: D1Database, email: string, password: string,
 ) => {

@@ -12,7 +12,7 @@ export class Forbidden {
 }
 
 export class UnAuthorized {
-  constructor (message: string) {
+  constructor (message?: string) {
     return new HTTPException(
       401,
       getOption(message),
