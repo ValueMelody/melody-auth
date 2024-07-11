@@ -15,12 +15,24 @@ export type App = Hono<{
   Bindings: Bindings;
 }, BlankSchema, '/'>
 
-export interface AuthorizationCodeBody {
+export interface AuthCodeBody {
   request: oauthDto.GetAuthorizeReqQueryDto;
   user: {
     oauthId: string;
     email: string | null;
   };
+  exp: number;
+}
+
+export interface AccessTokenBody {
+  sub: string;
+  scope: string[];
+  exp: number;
+}
+
+export interface RefreshTokenBody {
+  sub: string;
+  scope: string[];
   exp: number;
 }
 

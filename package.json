@@ -1,6 +1,11 @@
 {
   "name": "melody-oauth",
   "version": "0.0.1",
+  "description": "An out-of-the-box OAuth system built on Cloudflare's infrastructure",
+  "keywords": ["oauth", "oauth2", "Cloudflare", "Cloudflare Workers", "Authentication"],
+  "license": "MIT",
+  "author": "Baozier",
+  "repository": "https://github.com/ValueMelody/melody-oauth",
   "workspaces": ["server"],
   "scripts": {
     "type:check": "npm run type:check -w=server",

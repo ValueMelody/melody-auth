@@ -1,9 +1,11 @@
 export enum Error {
   NoApp = 'No app found',
-  WrongRedirectUri = 'Invalid redirect uri',
+  WrongRedirectUri = 'Invalid redirect_uri',
   NoUser = 'No user found',
   WrongCode = 'Invalid code',
-  WrongCodeVerifier = 'Invalid code verifier',
+  WrongCodeVerifier = 'Invalid code_verifier',
+  WrongGrantType = 'Invalid grant_type',
+  WrongRefreshToken = 'Invalid refresh_token',
 }
 
 export enum AuthorizePasswordPage {
