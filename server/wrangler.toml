@@ -1,8 +1,11 @@
 name = "melody-oauth"
 compatibility_date = "2023-12-01"
 
-# [vars]
-# MY_VAR = "my-variable"
+[vars]
+AUTHORIZATION_CODE_EXPIRES_IN=60
+ACCESS_TOKEN_EXPIRES_IN=1800
+REFRESH_TOKEN_EXPIRES_IN=25200
+ID_TOKEN_EXPIRES_IN=1800
 
 [[kv_namespaces]]
 binding = "KV"

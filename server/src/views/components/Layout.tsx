@@ -1,4 +1,4 @@
-import { html } from "hono/html";
+import { html } from 'hono/html'
 
 const Layout = ({ children }: { children: any }) => html`
   <!doctype html>

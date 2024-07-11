@@ -1,5 +1,5 @@
-export const encryptPassword = async (password: string) => {
-  const content = new TextEncoder().encode(password)
+export const sha256 = async (text: string): Promise<string> => {
+  const content = new TextEncoder().encode(text)
   const digest = await crypto.subtle.digest(
     { name: 'SHA-256' },
     content,
@@ -10,4 +10,37 @@ export const encryptPassword = async (password: string) => {
     '0',
   )).join('')
   return hashHex
+}
+
+const base64UrlEncode = (buffer: ArrayBuffer) => {
+  let binary = ''
+  const bytes = new Uint8Array(buffer)
+  const len = bytes.byteLength
+
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+
+  return btoa(binary)
+    .replace(
+      /\+/g,
+      '-',
+    )
+    .replace(
+      /\//g,
+      '_',
+    )
+    .replace(
+      /=+$/,
+      '',
+    )
+}
+
+export const genCodeChallenger = async (verifier: string): Promise<string> => {
+  const content = new TextEncoder().encode(verifier)
+  const digest = await crypto.subtle.digest(
+    { name: 'SHA-256' },
+    content,
+  )
+  return base64UrlEncode(digest)
 }

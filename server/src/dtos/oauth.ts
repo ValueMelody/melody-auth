@@ -6,6 +6,15 @@ enum AuthorizeResponseType {
   Code = 'code',
 }
 
+export enum AuthorizeCodeChallengeMethod {
+  S256 = 's256',
+  Plain = 'plain',
+}
+
+enum TokenGrantType {
+  AuthorizationCode = 'authorization_code',
+}
+
 export class GetAuthorizeReqQueryDto {
   @IsString()
   @IsNotEmpty()
@@ -22,6 +31,13 @@ export class GetAuthorizeReqQueryDto {
   @IsNotEmpty()
     state: string
 
+  @IsString()
+  @IsNotEmpty()
+    codeChallenge: string
+
+  @IsEnum(AuthorizeCodeChallengeMethod)
+    codeChallengeMethod: string
+
   @IsString({ each: true })
   @ArrayMinSize(1)
     scope: string[]
@@ -30,7 +46,9 @@ export class GetAuthorizeReqQueryDto {
     this.clientId = dto.clientId.toLowerCase()
     this.redirectUri = dto.redirectUri.toLowerCase()
     this.responseType = dto.responseType.toLowerCase()
-    this.state = dto.state.toLowerCase()
+    this.state = dto.state
+    this.codeChallenge = dto.codeChallenge
+    this.codeChallengeMethod = dto.codeChallengeMethod.toLowerCase()
     this.scope = dto.scope.map((val) => val.toLowerCase())
   }
 }
@@ -46,5 +64,24 @@ export class PostAuthorizeReqBodyWithPasswordDto extends GetAuthorizeReqQueryDto
     super(dto)
     this.email = dto.email.toLowerCase()
     this.password = dto.password
+  }
+}
+
+export class PostTokenReqBodyDto {
+  @IsEnum(TokenGrantType)
+    grantType: string
+
+  @IsString()
+  @IsNotEmpty()
+    code: string
+
+  @IsString()
+  @IsNotEmpty()
+    codeVerifier: string
+
+  constructor (dto: PostTokenReqBodyDto) {
+    this.grantType = dto.grantType.toLowerCase()
+    this.code = dto.code
+    this.codeVerifier = dto.codeVerifier
   }
 }

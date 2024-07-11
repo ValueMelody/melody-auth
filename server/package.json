@@ -11,8 +11,6 @@
     "dev:db:import": "wrangler d1 execute melody-oauth --local --file=./scripts/db.sql"
   },
   "dependencies": {
-    "@cfworker/uuid": "^1.12.4",
-    "@node-oauth/oauth2-server": "^5.1.0",
     "class-validator": "^0.14.1",
     "hono": "^4.4.12"
   },
