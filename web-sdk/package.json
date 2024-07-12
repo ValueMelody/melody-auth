@@ -1,0 +1,6 @@
+{
+  "name": "web-sdk",
+  "scripts": {
+    "type:check": "tsc --noEmit"
+  }
+}

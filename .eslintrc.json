@@ -1,9 +1,11 @@
 {
   "env": {
-    "es2021": true
+    "es2021": true,
+    "browser": true
   },
   "extends": [
-    "standard"
+    "standard",
+    "plugin:react/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "ignorePatterns": ["**/dist/*"],
@@ -11,6 +13,9 @@
     "@typescript-eslint"
   ],
   "settings": {
+    "react": {
+      "version": "18.2.0"
+    },
     "import/parsers": {
       "@typescript-eslint/parser": [".ts"]
     },
@@ -23,6 +28,16 @@
     }
   },
   "rules": {
+    "react/no-unknown-property": "off",
+    "react/jsx-closing-bracket-location": "error",
+    "react/jsx-max-props-per-line": "error",
+    "react/jsx-indent-props": ["error", 2],
+    "react/jsx-first-prop-new-line": ["error",  "multiline"],
+    "react/jsx-indent": ["error", 2],
+    "react/jsx-closing-tag-location": "error",
+    "jsx-quotes": ["error", "prefer-single"],
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
     "import/order": "error",
     "object-property-newline": "error",
     "object-curly-newline": ["error", { "multiline": true, "minProperties": 2 }],

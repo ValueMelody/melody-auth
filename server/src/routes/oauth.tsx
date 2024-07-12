@@ -120,7 +120,7 @@ export const load = (app: typeConfig.App) => {
           scope,
         )
 
-        const result: { [key: string]: string | number | string[] } = {
+        const result: PostTokenByAuthCode = {
           access_token: accessToken,
           expires_in: accessTokenExpiresIn,
           expires_on: accessTokenExpiresAt,
@@ -192,12 +192,14 @@ export const load = (app: typeConfig.App) => {
           refreshTokenBody.scope,
         )
 
-        return c.json({
+        const result: PostTokenByRefreshToken = {
           access_token: accessToken,
           expires_in: accessTokenExpiresIn,
           expires_on: accessTokenExpiresAt,
           token_type: 'Bearer',
-        })
+        }
+
+        return c.json(result)
       }
     },
   )
@@ -236,12 +238,15 @@ export const load = (app: typeConfig.App) => {
         c.env.DB,
         accessTokenBody.sub,
       )
-      return c.json({
+
+      const result: GetUserInfo = {
         oauthId: user.oauthId,
         email: user.email,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-      })
+      }
+
+      return c.json(result)
     },
   )
 }
