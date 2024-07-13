@@ -3,3 +3,5 @@ dist/
 node_modules/
 .dev.vars
 .next/
+.env
+.env.local

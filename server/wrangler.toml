@@ -11,14 +11,7 @@ ID_TOKEN_EXPIRES_IN=1800
 binding = "KV"
 id = "c5e387463b9a40dd90811f9cf89b6166" #Replace with your own kv id
 
-# [[r2_buckets]]
-# binding = "MY_BUCKET"
-# bucket_name = "my-bucket"
-
 [[d1_databases]]
 binding = "DB"
 database_name = "melody-oauth"
 database_id = "58a2e0aa-98b1-41a5-b6ea-b38ae9055cc9" #Replace with your own d1 id
-
-# [ai]
-# binding = "AI"
