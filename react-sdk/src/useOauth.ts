@@ -4,7 +4,7 @@ import {
 } from 'react'
 import {
   loginRedirect as rawLoginRedirect, logout,
-  exchangeTokenByAuthCode, exchangeTokenByRefreshToken,
+  exchangeTokenByRefreshToken, getUserInfo,
 } from 'web-sdk'
 import oauthContext, { OauthContext } from './context'
 
@@ -24,24 +24,6 @@ export const useOauth = () => {
     [state.refreshTokenStorage],
   )
 
-  const setup = useCallback(
-    async () => {
-      const res = await exchangeTokenByAuthCode(state.config)
-      if (res?.accessTokenStorage) {
-        dispatch({
-          type: 'setAccessTokenStorage', payload: res.accessTokenStorage,
-        })
-      }
-
-      if (res?.refreshTokenStorage) {
-        dispatch({
-          type: 'setRefreshTokenStorage', payload: res.refreshTokenStorage,
-        })
-      }
-    },
-    [state.config, dispatch],
-  )
-
   const loginRedirect = useCallback(
     () => {
       rawLoginRedirect(state.config)
@@ -58,6 +40,7 @@ export const useOauth = () => {
       localOnly?: boolean;
     }) => {
       if (!accessToken) return
+
       await logout(
         state.config,
         accessToken,
@@ -65,12 +48,7 @@ export const useOauth = () => {
         postLogoutRedirectUri,
         localOnly,
       )
-      dispatch({
-        type: 'setAccessTokenStorage', payload: null,
-      })
-      dispatch({
-        type: 'setRefreshTokenStorage', payload: null,
-      })
+      dispatch({ type: 'logout' })
     },
     [state.config, accessToken, refreshToken, dispatch],
   )
@@ -103,12 +81,30 @@ export const useOauth = () => {
     [state.accessTokenStorage, state.refreshTokenStorage, state.config, dispatch],
   )
 
+  const acquireUserInfo = useCallback(
+    async () => {
+      if (state.userInfo) return state.userInfo
+
+      const accessToken = await acquireToken()
+      const res = await getUserInfo(
+        state.config,
+        { accessToken },
+      )
+
+      dispatch({
+        type: 'setUserInfo', payload: res,
+      })
+      return res
+    },
+    [acquireToken, state.config, state.userInfo, dispatch],
+  )
+
   return {
     loginRedirect,
-    setup,
     accessToken,
     refreshToken,
     acquireToken,
+    acquireUserInfo,
     logoutRedirect,
   }
 }

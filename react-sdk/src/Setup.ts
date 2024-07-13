@@ -1,14 +1,41 @@
-import { useEffect } from 'react'
+import {
+  useContext, useEffect,
+} from 'react'
+import { exchangeTokenByAuthCode } from 'web-sdk'
 import { useOauth } from './useOauth'
+import oauthContext, { OauthContext } from './context'
 
 const Setup = () => {
-  const { setup } = useOauth()
+  const { acquireToken } = useOauth()
+  const context = useContext<OauthContext>(oauthContext)
+  const {
+    state, dispatch,
+  } = context
 
   useEffect(
     () => {
-      setup()
+      if (state.accessTokenStorage && state.refreshTokenStorage) return
+
+      if (state.refreshTokenStorage && !state.accessTokenStorage) {
+        acquireToken()
+        return
+      }
+
+      exchangeTokenByAuthCode(state.config)
+        .then((res) => {
+          if (res?.accessTokenStorage) {
+            dispatch({
+              type: 'setAccessTokenStorage', payload: res.accessTokenStorage,
+            })
+          }
+          if (res?.refreshTokenStorage) {
+            dispatch({
+              type: 'setRefreshTokenStorage', payload: res.refreshTokenStorage,
+            })
+          }
+        })
     },
-    [setup],
+    [dispatch, state.accessTokenStorage, state.config, acquireToken, state.refreshTokenStorage],
   )
 
   return null

@@ -4,19 +4,22 @@ import {
 import {
   AccessTokenStorage, RefreshTokenStorage,
 } from 'web-sdk/dist/definitions'
-import { ProviderConfig } from '../../global'
+import {
+  GetUserInfo, ProviderConfig,
+} from '../../global'
 
 export interface OauthState {
   config: ProviderConfig;
   refreshTokenStorage: RefreshTokenStorage | null;
   accessTokenStorage: AccessTokenStorage | null;
-  isLoading: boolean;
+  userInfo: GetUserInfo | null;
 }
 
 export type DispatchAction =
-  | { type: 'setIsLoading'; payload: boolean }
   | { type: 'setRefreshTokenStorage'; payload: RefreshTokenStorage | null }
   | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage | null }
+  | { type: 'setUserInfo'; payload: GetUserInfo | null }
+  | { type: 'logout' }
 
 export type OauthDispatch = Dispatch<DispatchAction>
 
