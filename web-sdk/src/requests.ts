@@ -1,4 +1,8 @@
-export interface CommonProps extends ProviderProps {
+import {
+  ProviderConfig, PostTokenByAuthCode, PostTokenByRefreshToken, GetUserInfo,
+} from '../../global'
+
+export interface CommonParam extends ProviderConfig {
   setIsLoading: (val: boolean) => void;
 }
 
@@ -8,8 +12,7 @@ export const getAuthorize = async (
     clientId,
     scopes = [],
     redirectUri,
-    setIsLoading,
-  }: CommonProps, {
+  }: CommonParam, {
     state,
     codeChallenge,
   }: {
@@ -18,9 +21,12 @@ export const getAuthorize = async (
 },
 ) => {
   const combinedScopes = [...scopes, 'openid', 'profile', 'offline_access']
-  const scopeQueries = combinedScopes.reduce((
-    scopeQueries, scope,
-  ) => `${scopeQueries}&scope=${scope}`)
+  const scopeQueries = combinedScopes.reduce(
+    (
+      scopeQueries, scope,
+    ) => `${scopeQueries}&scope=${scope}`,
+    '',
+  )
   const url = baseUri +
     '/oauth2/authorize?response_type=code&state=' +
     state +
@@ -30,21 +36,17 @@ export const getAuthorize = async (
     redirectUri +
     '&code_challenge=' +
     codeChallenge +
-    '&code_challenge_type=S256' +
+    '&code_challenge_method=S256' +
     scopeQueries
-  setIsLoading(true)
-  await fetch(
-    url,
-    { method: 'GET' },
-  )
-  setIsLoading(false)
+
+  window.location.href = url
 }
 
 export const getUserInfo = async (
   {
     baseUri,
     setIsLoading,
-  }: CommonProps, { accessToken }: {
+  }: CommonParam, { accessToken }: {
   accessToken: string;
 },
 ) => {
@@ -66,9 +68,11 @@ export const postLogout = async (
   {
     baseUri,
     setIsLoading,
-    postLogoutRedirectUri,
-  }: CommonProps, { refreshToken }: {
+  }: CommonParam, {
+    refreshToken, postLogoutRedirectUri,
+  }: {
   refreshToken: string;
+  postLogoutRedirectUri: string;
 },
 ) => {
   const url = `${baseUri}/oauth2/logout`
@@ -92,7 +96,7 @@ export const postTokenByAuthCode = async (
     baseUri,
     setIsLoading,
     redirectUri,
-  }: CommonProps, {
+  }: CommonParam, {
     code,
     codeVerifier,
   }: {
@@ -125,7 +129,7 @@ export const postTokenByRefreshToken = async (
   {
     baseUri,
     setIsLoading,
-  }: CommonProps, { refreshToken }: {
+  }: CommonParam, { refreshToken }: {
   refreshToken: string;
 },
 ) => {

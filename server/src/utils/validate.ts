@@ -1,13 +1,10 @@
-import { HTTPException } from 'hono/http-exception'
 import { validateOrReject } from 'class-validator'
+import { errorConfig } from 'configs'
 
 export const dto = async (dto: object) => {
   try {
     await validateOrReject(dto)
   } catch (e) {
-    throw new HTTPException(
-      400,
-      { message: JSON.stringify(e) },
-    )
+    throw new errorConfig.Forbidden(JSON.stringify(e))
   }
 }

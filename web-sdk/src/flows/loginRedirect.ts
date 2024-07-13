@@ -1,12 +1,12 @@
-import { SessionStorageKey } from 'definitions'
+import { SessionStorageKey } from '../definitions'
 import {
   genCodeVerifierAndChallenge, genAuthorizeState,
-} from 'generators'
+} from '../generators'
 import {
-  CommonProps, getAuthorize,
-} from 'requests'
+  CommonParam, getAuthorize,
+} from '../requests'
 
-export const loginRedirect = async (common: CommonProps) => {
+export const loginRedirect = async (common: CommonParam) => {
   const state = genAuthorizeState(21)
   const {
     codeChallenge, codeVerifier,
@@ -27,6 +27,6 @@ export const loginRedirect = async (common: CommonProps) => {
       },
     )
   } catch (e) {
-    throw new Error('Failed to initial authorize flow')
+    throw new Error(`Failed to initial authorize flow: ${e}`)
   }
 }

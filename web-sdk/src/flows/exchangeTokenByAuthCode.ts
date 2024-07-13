@@ -1,12 +1,12 @@
 import {
   AccessTokenStorage, RefreshTokenStorage, SessionStorageKey, StorageKey,
-} from 'definitions'
+} from '../definitions'
 import {
-  CommonProps,
+  CommonParam,
   postTokenByAuthCode,
-} from 'requests'
+} from '../requests'
 
-export const exchangeTokenByAuthCode = async (common: CommonProps) => {
+export const exchangeTokenByAuthCode = async (common: CommonParam) => {
   const params = window.location.search.substring(1).split('&')
     .map((param) => param.split('='))
   const stateParam = params.find(([key]) => key === 'state')

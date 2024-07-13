@@ -1,10 +1,10 @@
 import {
-  CommonProps,
+  CommonParam,
   getUserInfo,
-} from 'requests'
+} from '../requests'
 
 export const fetchUserInfo = async (
-  common: CommonProps, accessToken: string,
+  common: CommonParam, accessToken: string,
 ) => {
   try {
     const result = await getUserInfo(

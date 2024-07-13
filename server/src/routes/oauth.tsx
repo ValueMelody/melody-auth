@@ -1,4 +1,7 @@
 import {
+  GetUserInfo, PostTokenByAuthCode, PostTokenByRefreshToken,
+} from '../../../global'
+import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
 import { oauthDto } from 'dtos'

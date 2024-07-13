@@ -1,17 +1,19 @@
-import { StorageKey } from 'definitions'
+import { StorageKey } from '../definitions'
 import {
-  CommonProps,
+  CommonParam,
   postLogout,
-} from 'requests'
+} from '../requests'
 
 export const logout = async (
-  common: CommonProps, refreshToken: string, localOnly: boolean = false,
+  common: CommonParam, refreshToken: string, postLogoutRedirectUri: string, localOnly: boolean = false,
 ) => {
   try {
     if (!localOnly) {
       await postLogout(
         common,
-        { refreshToken },
+        {
+          refreshToken, postLogoutRedirectUri,
+        },
       )
     }
 
