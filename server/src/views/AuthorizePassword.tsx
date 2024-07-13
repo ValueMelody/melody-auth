@@ -30,16 +30,20 @@ const AuthorizePassword = ({ queryDto }: {
                 })
             })
             .then((response) => {
-              const body = response.json();
-              if (response.ok) return body;
-              throw new Error(response.statusText);
+              if (!response.ok) {
+                return response.text().then(text => {
+                  throw new Error(text);
+                });
+              }
+              return response.json();
             })
             .then((data) => {
               var url = data.redirectUri + "?state=" + data.state + "&code=" + data.code;
               window.location.href = url;
-              return false
+              return true
             })
             .catch((error) => {
+              console.error("Login failed: " + error)
               return false;
             });
             return false;
@@ -47,7 +51,7 @@ const AuthorizePassword = ({ queryDto }: {
         </script>
       `}
       <form
-        id='password-signin-form'
+        autocomplete='on'
         onsubmit='return handleSubmit()'
       >
         <section class='flex-col gap-4'>
@@ -62,6 +66,7 @@ const AuthorizePassword = ({ queryDto }: {
               type='email'
               id='form-email'
               name='email'
+              autocomplete='email'
             />
           </section>
           <section class='flex-col gap-2'>
@@ -75,6 +80,7 @@ const AuthorizePassword = ({ queryDto }: {
               type='password'
               id='form-password'
               name='password'
+              autocomplete='current-password'
             />
           </section>
           <input

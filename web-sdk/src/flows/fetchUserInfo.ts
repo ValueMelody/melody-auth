@@ -1,14 +1,12 @@
-import {
-  CommonParam,
-  getUserInfo,
-} from '../requests'
+import { ProviderConfig } from '../../../global'
+import { getUserInfo } from '../requests'
 
 export const fetchUserInfo = async (
-  common: CommonParam, accessToken: string,
+  config: ProviderConfig, accessToken: string,
 ) => {
   try {
     const result = await getUserInfo(
-      common,
+      config,
       { accessToken },
     )
 

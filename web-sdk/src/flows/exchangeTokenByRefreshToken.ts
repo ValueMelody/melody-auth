@@ -1,17 +1,13 @@
-import {
-  AccessTokenStorage, StorageKey,
-} from '../definitions'
-import {
-  CommonParam,
-  postTokenByRefreshToken,
-} from '../requests'
+import { ProviderConfig } from '../../../global'
+import { AccessTokenStorage } from '../definitions'
+import { postTokenByRefreshToken } from '../requests'
 
 export const exchangeTokenByRefreshToken = async (
-  common: CommonParam, refreshToken: string,
+  config: ProviderConfig, refreshToken: string,
 ) => {
   try {
     const result = await postTokenByRefreshToken(
-      common,
+      config,
       { refreshToken },
     )
     const accessTokenStorage: AccessTokenStorage = {
@@ -19,12 +15,6 @@ export const exchangeTokenByRefreshToken = async (
       expiresIn: result.expires_in,
       expiresOn: result.expires_on,
     }
-
-    const storage = common.storage === 'localStorage' ? window.localStorage : window.sessionStorage
-    storage.setItem(
-      StorageKey.AccessToken,
-      JSON.stringify(accessTokenStorage),
-    )
 
     return accessTokenStorage
   } catch (e) {

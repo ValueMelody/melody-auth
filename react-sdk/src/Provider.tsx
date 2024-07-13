@@ -2,6 +2,7 @@ import React, {
   ReactNode, useReducer,
 } from 'react'
 import { ProviderConfig } from '../../global'
+import Setup from './Setup'
 import oauthContext, {
   OauthState, DispatchAction,
 } from './context'
@@ -18,6 +19,14 @@ const reducer = (
     return {
       ...state, isLoading: action.payload,
     }
+  case 'setAccessTokenStorage':
+    return {
+      ...state, accessTokenStorage: action.payload,
+    }
+  case 'setRefreshTokenStorage':
+    return {
+      ...state, refreshTokenStorage: action.payload,
+    }
   }
 }
 
@@ -30,6 +39,8 @@ export const OauthProvider = ({
     {
       config,
       isLoading: true,
+      accessTokenStorage: null,
+      refreshTokenStorage: null,
     },
   )
 
@@ -39,6 +50,7 @@ export const OauthProvider = ({
         state, dispatch,
       }}
     >
+      <Setup />
       {children}
     </oauthContext.Provider>
   )
