@@ -1,13 +1,13 @@
 import {
   AccessTokenStorage, StorageKey,
-} from 'definitions'
+} from '../definitions'
 import {
-  CommonProps,
+  CommonParam,
   postTokenByRefreshToken,
-} from 'requests'
+} from '../requests'
 
 export const exchangeTokenByRefreshToken = async (
-  common: CommonProps, refreshToken: string,
+  common: CommonParam, refreshToken: string,
 ) => {
   try {
     const result = await postTokenByRefreshToken(

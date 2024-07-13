@@ -2,23 +2,37 @@
   "name": "melody-oauth",
   "version": "0.0.1",
   "description": "An out-of-the-box OAuth system built on Cloudflare's infrastructure",
-  "keywords": ["oauth", "oauth2", "Cloudflare", "Cloudflare Workers", "Authentication"],
+  "keywords": [
+    "oauth",
+    "oauth2",
+    "Cloudflare",
+    "Cloudflare Workers",
+    "Authentication"
+  ],
   "license": "MIT",
   "author": "Baozier",
   "repository": "https://github.com/ValueMelody/melody-oauth",
-  "workspaces": ["server", "web-sdk"],
+  "workspaces": [
+    "server",
+    "web-sdk",
+    "react-sdk",
+    "react-example"
+  ],
   "scripts": {
-    "type:check": "npm run type:check -w=server && npm run type:check -w=web-sdk",
+    "type:check": "npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk",
     "lint:check": "eslint ./ --ext .ts,.tsx",
-    "lint:fix": "eslint ./ --fix --ext .ts,.tsx"
+    "lint:fix": "eslint ./ --fix --ext .ts,.tsx",
+    "build": "npm run build -w=web-sdk && npm run build -w=react-sdk"
   },
   "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^8.52.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
-    "@typescript-eslint/eslint-plugin": "^7.15.0",
-    "@typescript-eslint/parser": "^7.15.0",
-    "eslint-plugin-react": "^7.34.2"
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.2"
   }
 }
