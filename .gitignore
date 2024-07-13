@@ -2,4 +2,4 @@ dist/
 .wrangler
 node_modules/
 .dev.vars
-.next
+.next/
