@@ -14,6 +14,7 @@ import {
 } from 'utils'
 import AuthorizePassword from 'views/AuthorizePassword'
 import { authMiddleware } from 'middlewares'
+import { Forbidden } from 'configs/error'
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
 
@@ -210,7 +211,11 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/logout`,
+    authMiddleware.accessToken,
     async (c) => {
+      const accessTokenBody = c.get('AccessTokenBody')
+      if (!accessTokenBody) throw new errorConfig.Forbidden()
+
       const reqBody = await c.req.parseBody()
       const bodyDto = new oauthDto.PostLogoutReqBodyDto({
         refreshToken: String(reqBody.refresh_token),
@@ -218,16 +223,21 @@ export const load = (app: typeConfig.App) => {
       })
       await validateUtil.dto(bodyDto)
 
+      const refreshTokenBody = await jwtService.getRefreshTokenBody(
+        c,
+        bodyDto.refreshToken,
+      )
+      if (accessTokenBody.sub !== refreshTokenBody.sub) throw new Forbidden(localeConfig.Error.WrongRefreshToken)
+
       await kvService.invalidRefreshToken(
         c.env.KV,
         bodyDto.refreshToken,
       )
 
-      if (bodyDto.postLogoutRedirectUri) {
-        return c.redirect(bodyDto.postLogoutRedirectUri)
-      }
-
-      return c.json({ message: localeConfig.Message.LogoutSuccess })
+      return c.json({
+        message: localeConfig.Message.LogoutSuccess,
+        postLogoutRedirectUri: bodyDto.postLogoutRedirectUri,
+      })
     },
   )
 

@@ -15,8 +15,8 @@ export interface OauthState {
 
 export type DispatchAction =
   | { type: 'setIsLoading'; payload: boolean }
-  | { type: 'setRefreshTokenStorage'; payload: RefreshTokenStorage }
-  | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage }
+  | { type: 'setRefreshTokenStorage'; payload: RefreshTokenStorage | null }
+  | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage | null }
 
 export type OauthDispatch = Dispatch<DispatchAction>
 
