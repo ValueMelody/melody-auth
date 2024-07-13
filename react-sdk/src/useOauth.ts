@@ -24,6 +24,15 @@ export const useOauth = () => {
     [state.refreshTokenStorage],
   )
 
+  const isAuthenticated = useMemo(
+    () => state.isAuthenticated,
+    [state.isAuthenticated],
+  )
+  const isAuthenticating = useMemo(
+    () => state.isAuthenticating,
+    [state.isAuthenticating],
+  )
+
   const loginRedirect = useCallback(
     () => {
       rawLoginRedirect(state.config)
@@ -106,5 +115,7 @@ export const useOauth = () => {
     acquireToken,
     acquireUserInfo,
     logoutRedirect,
+    isAuthenticated,
+    isAuthenticating,
   }
 }

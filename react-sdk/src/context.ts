@@ -13,12 +13,15 @@ export interface OauthState {
   refreshTokenStorage: RefreshTokenStorage | null;
   accessTokenStorage: AccessTokenStorage | null;
   userInfo: GetUserInfo | null;
+  isAuthenticated: boolean;
+  isAuthenticating: boolean;
 }
 
 export type DispatchAction =
-  | { type: 'setRefreshTokenStorage'; payload: RefreshTokenStorage | null }
-  | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage | null }
+  | { type: 'setRefreshTokenStorage'; payload: RefreshTokenStorage }
+  | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage }
   | { type: 'setUserInfo'; payload: GetUserInfo | null }
+  | { type: 'setIsAuthenticating'; payload: boolean }
   | { type: 'logout' }
 
 export type OauthDispatch = Dispatch<DispatchAction>

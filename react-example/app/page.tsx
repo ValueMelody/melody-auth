@@ -11,7 +11,7 @@ export default function Home () {
 
   const {
     loginRedirect, accessToken, refreshToken, acquireToken,
-    logoutRedirect, acquireUserInfo,
+    logoutRedirect, acquireUserInfo, isAuthenticated, isAuthenticating,
   } = useOauth()
 
   const handleClick = () => {
@@ -42,6 +42,10 @@ export default function Home () {
         <button onClick={handleClick}>
           Login
         </button>
+      </section>
+      <section>
+        <p>IsAuthenticated: {isAuthenticated ? 'True' : 'False'}</p>
+        <p>IsAuthenticating: {isAuthenticating ? 'True' : 'False'}</p>
       </section>
       <section>
         {accessToken && <p>Access Token: {accessToken}</p>}

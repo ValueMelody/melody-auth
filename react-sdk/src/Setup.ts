@@ -14,10 +14,12 @@ const Setup = () => {
 
   useEffect(
     () => {
-      if (state.accessTokenStorage && state.refreshTokenStorage) return
+      if (state.accessTokenStorage) return
 
       if (state.refreshTokenStorage && !state.accessTokenStorage) {
-        acquireToken()
+        acquireToken().catch(() => dispatch({
+          type: 'setIsAuthenticating', payload: false,
+        }))
         return
       }
 
@@ -27,6 +29,10 @@ const Setup = () => {
             dispatch({
               type: 'setAccessTokenStorage', payload: res.accessTokenStorage,
             })
+          } else {
+            dispatch({
+              type: 'setIsAuthenticating', payload: false,
+            })
           }
           if (res?.refreshTokenStorage) {
             dispatch({
@@ -34,6 +40,9 @@ const Setup = () => {
             })
           }
         })
+        .catch(() => dispatch({
+          type: 'setIsAuthenticating', payload: false,
+        }))
     },
     [dispatch, state.accessTokenStorage, state.config, acquireToken, state.refreshTokenStorage],
   )
