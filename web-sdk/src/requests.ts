@@ -125,7 +125,7 @@ export const postTokenByRefreshToken = async (
   const url = `${baseUri}/oauth2/token`
   const body = {
     grant_type: 'refresh_token',
-    refreshToken,
+    refresh_token: refreshToken,
   }
   const urlEncodedData = new URLSearchParams(body).toString()
 
@@ -133,9 +133,16 @@ export const postTokenByRefreshToken = async (
     url,
     {
       method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: urlEncodedData,
     },
   )
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text)
+  }
+
   const data: PostTokenByRefreshToken = await res.json()
 
   return data
