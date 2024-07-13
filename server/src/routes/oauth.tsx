@@ -79,6 +79,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/token`,
     async (c) => {
       const reqBody = await c.req.parseBody()
+
       const grantType = String(reqBody.grant_type).toLowerCase()
 
       if (

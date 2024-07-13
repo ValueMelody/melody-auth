@@ -1,12 +1,11 @@
+import { ProviderConfig } from '../../../global'
 import { SessionStorageKey } from '../definitions'
 import {
   genCodeVerifierAndChallenge, genAuthorizeState,
 } from '../generators'
-import {
-  CommonParam, getAuthorize,
-} from '../requests'
+import { getAuthorize } from '../requests'
 
-export const loginRedirect = async (common: CommonParam) => {
+export const loginRedirect = async (config: ProviderConfig) => {
   const state = genAuthorizeState(21)
   const {
     codeChallenge, codeVerifier,
@@ -21,7 +20,7 @@ export const loginRedirect = async (common: CommonParam) => {
   )
   try {
     await getAuthorize(
-      common,
+      config,
       {
         state, codeChallenge,
       },

@@ -1,24 +1,21 @@
+import { ProviderConfig } from '../../../global'
 import { StorageKey } from '../definitions'
-import {
-  CommonParam,
-  postLogout,
-} from '../requests'
+import { postLogout } from '../requests'
 
 export const logout = async (
-  common: CommonParam, refreshToken: string, postLogoutRedirectUri: string, localOnly: boolean = false,
+  config: ProviderConfig, refreshToken: string, postLogoutRedirectUri: string, localOnly: boolean = false,
 ) => {
   try {
     if (!localOnly) {
       await postLogout(
-        common,
+        config,
         {
           refreshToken, postLogoutRedirectUri,
         },
       )
     }
 
-    const storage = common.storage === 'localStorage' ? window.localStorage : window.sessionStorage
-    storage.removeItem(StorageKey.AccessToken)
+    const storage = config.storage === 'localStorage' ? window.localStorage : window.sessionStorage
     storage.removeItem(StorageKey.RefreshToken)
 
     return true

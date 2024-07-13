@@ -2,17 +2,13 @@ import {
   ProviderConfig, PostTokenByAuthCode, PostTokenByRefreshToken, GetUserInfo,
 } from '../../global'
 
-export interface CommonParam extends ProviderConfig {
-  setIsLoading: (val: boolean) => void;
-}
-
 export const getAuthorize = async (
   {
     baseUri,
     clientId,
     scopes = [],
     redirectUri,
-  }: CommonParam, {
+  }: ProviderConfig, {
     state,
     codeChallenge,
   }: {
@@ -43,15 +39,11 @@ export const getAuthorize = async (
 }
 
 export const getUserInfo = async (
-  {
-    baseUri,
-    setIsLoading,
-  }: CommonParam, { accessToken }: {
+  { baseUri }: ProviderConfig, { accessToken }: {
   accessToken: string;
 },
 ) => {
   const url = `${baseUri}/oauth2/userinfo`
-  setIsLoading(true)
   const res = await fetch(
     url,
     {
@@ -60,15 +52,11 @@ export const getUserInfo = async (
     },
   )
   const data: GetUserInfo = await res.json()
-  setIsLoading(false)
   return data
 }
 
 export const postLogout = async (
-  {
-    baseUri,
-    setIsLoading,
-  }: CommonParam, {
+  { baseUri }: ProviderConfig, {
     refreshToken, postLogoutRedirectUri,
   }: {
   refreshToken: string;
@@ -80,7 +68,7 @@ export const postLogout = async (
     refreshToken, postLogoutRedirectUri,
   }
   const urlEncodedData = new URLSearchParams(data).toString()
-  setIsLoading(true)
+
   await fetch(
     url,
     {
@@ -88,15 +76,13 @@ export const postLogout = async (
       body: urlEncodedData,
     },
   )
-  setIsLoading(false)
 }
 
 export const postTokenByAuthCode = async (
   {
     baseUri,
-    setIsLoading,
     redirectUri,
-  }: CommonParam, {
+  }: ProviderConfig, {
     code,
     codeVerifier,
   }: {
@@ -112,24 +98,27 @@ export const postTokenByAuthCode = async (
     code_verifier: codeVerifier,
   }
   const urlEncodedData = new URLSearchParams(body).toString()
-  setIsLoading(true)
+
   const res = await fetch(
     url,
     {
       method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: urlEncodedData,
     },
   )
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text)
+  }
+
   const data: PostTokenByAuthCode = await res.json()
-  setIsLoading(false)
   return data
 }
 
 export const postTokenByRefreshToken = async (
-  {
-    baseUri,
-    setIsLoading,
-  }: CommonParam, { refreshToken }: {
+  { baseUri }: ProviderConfig, { refreshToken }: {
   refreshToken: string;
 },
 ) => {
@@ -139,7 +128,7 @@ export const postTokenByRefreshToken = async (
     refreshToken,
   }
   const urlEncodedData = new URLSearchParams(body).toString()
-  setIsLoading(true)
+
   const res = await fetch(
     url,
     {
@@ -148,6 +137,6 @@ export const postTokenByRefreshToken = async (
     },
   )
   const data: PostTokenByRefreshToken = await res.json()
-  setIsLoading(false)
+
   return data
 }
