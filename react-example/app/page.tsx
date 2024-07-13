@@ -8,6 +8,7 @@ export default function Home () {
 
   const {
     loginRedirect, accessToken, refreshToken, acquireToken,
+    logoutRedirect,
   } = useOauth()
 
   const handleClick = () => {
@@ -19,23 +20,36 @@ export default function Home () {
     setAcquiredToken(token)
   }
 
+  const handleLogout = () => {
+    logoutRedirect({ postLogoutRedirectUri: '/' })
+  }
+
   return (
-    <main>
-      <button onClick={handleClick}>
-        Login
-      </button>
+    <main
+      style={{
+        display: 'flex', flexDirection: 'column', gap: 16,
+      }}
+    >
+      <div>
+        <button onClick={handleClick}>
+          Login
+        </button>
+      </div>
       <section>
         {accessToken && <p>Access Token: {accessToken}</p>}
         {refreshToken && <p>Refresh Token: {refreshToken}</p>}
-        {accessToken && (
-          <div>
-            <button onClick={handleClickAcquireToken}>
-              Acquire Token
-            </button>
-            {acquiredToken && <p>{acquiredToken}</p>}
-          </div>
-        )}
+        <div>
+          <button onClick={handleClickAcquireToken}>
+            Acquire Token
+          </button>
+          {acquiredToken && <p>{acquiredToken}</p>}
+        </div>
       </section>
+      <div>
+        <button onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
     </main>
   )
 }

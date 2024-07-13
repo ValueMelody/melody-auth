@@ -3,23 +3,28 @@ import { StorageKey } from '../definitions'
 import { postLogout } from '../requests'
 
 export const logout = async (
-  config: ProviderConfig, refreshToken: string, postLogoutRedirectUri: string, localOnly: boolean = false,
+  config: ProviderConfig,
+  accessToken: string,
+  refreshToken: string | null,
+  postLogoutRedirectUri: string,
+  localOnly: boolean,
 ) => {
-  try {
-    if (!localOnly) {
+  if (!localOnly && refreshToken) {
+    try {
       await postLogout(
         config,
         {
-          refreshToken, postLogoutRedirectUri,
+          accessToken, refreshToken, postLogoutRedirectUri,
         },
       )
+    } catch (e) {
+      throw new Error(`Failed to logout: ${e}`)
     }
-
-    const storage = config.storage === 'localStorage' ? window.localStorage : window.sessionStorage
-    storage.removeItem(StorageKey.RefreshToken)
-
-    return true
-  } catch (e) {
-    throw new Error('Failed to logout.')
   }
+
+  const storage = config.storage === 'localStorage' ? window.localStorage : window.sessionStorage
+  storage.removeItem(StorageKey.RefreshToken)
+
+  if (postLogoutRedirectUri) window.location.href = postLogoutRedirectUri
+  return true
 }

@@ -57,25 +57,36 @@ export const getUserInfo = async (
 
 export const postLogout = async (
   { baseUri }: ProviderConfig, {
-    refreshToken, postLogoutRedirectUri,
+    accessToken, refreshToken, postLogoutRedirectUri,
   }: {
+  accessToken: string;
   refreshToken: string;
   postLogoutRedirectUri: string;
 },
 ) => {
   const url = `${baseUri}/oauth2/logout`
   const data = {
-    refreshToken, postLogoutRedirectUri,
+    refresh_token: refreshToken,
+    post_logout_redirect_uri: postLogoutRedirectUri,
   }
   const urlEncodedData = new URLSearchParams(data).toString()
 
-  await fetch(
+  const res = await fetch(
     url,
     {
       method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
       body: urlEncodedData,
     },
   )
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text)
+  }
 }
 
 export const postTokenByAuthCode = async (

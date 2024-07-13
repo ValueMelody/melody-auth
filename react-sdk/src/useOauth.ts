@@ -3,7 +3,8 @@ import {
   useMemo,
 } from 'react'
 import {
-  loginRedirect as rawLoginRedirect, exchangeTokenByAuthCode, exchangeTokenByRefreshToken,
+  loginRedirect as rawLoginRedirect, logout,
+  exchangeTokenByAuthCode, exchangeTokenByRefreshToken,
 } from 'web-sdk'
 import oauthContext, { OauthContext } from './context'
 
@@ -48,6 +49,32 @@ export const useOauth = () => {
     [state.config],
   )
 
+  const logoutRedirect = useCallback(
+    async ({
+      postLogoutRedirectUri = '',
+      localOnly = false,
+    }: {
+      postLogoutRedirectUri?: string;
+      localOnly?: boolean;
+    }) => {
+      if (!accessToken) return
+      await logout(
+        state.config,
+        accessToken,
+        refreshToken,
+        postLogoutRedirectUri,
+        localOnly,
+      )
+      dispatch({
+        type: 'setAccessTokenStorage', payload: null,
+      })
+      dispatch({
+        type: 'setRefreshTokenStorage', payload: null,
+      })
+    },
+    [state.config, accessToken, refreshToken, dispatch],
+  )
+
   const acquireToken = useCallback(
     async () => {
       const currentTimeStamp = new Date().getTime() / 1000
@@ -77,6 +104,11 @@ export const useOauth = () => {
   )
 
   return {
-    loginRedirect, setup, accessToken, refreshToken, acquireToken,
+    loginRedirect,
+    setup,
+    accessToken,
+    refreshToken,
+    acquireToken,
+    logoutRedirect,
   }
 }
