@@ -9,9 +9,9 @@ export default function RootLayout ({ children }: {
   return (
     <html lang='en'>
       <OauthProvider
-        clientId='12345'
-        redirectUri='http://localhost:3000'
-        baseUri='http://localhost:8787'
+        clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
+        redirectUri={process.env.NEXT_PUBLIC_REDIRECT_URI ?? ''}
+        baseUri={process.env.NEXT_PUBLIC_BASE_URI ?? ''}
       >
         <body>
           {children}
