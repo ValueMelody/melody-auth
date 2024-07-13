@@ -1,14 +1,17 @@
 'use client'
 
-import { useOauth } from '@melody-oauth/react'
+import {
+  useOauth, UserInfo,
+} from '@melody-oauth/react'
 import { useState } from 'react'
 
 export default function Home () {
   const [acquiredToken, setAcquiredToken] = useState('')
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
 
   const {
     loginRedirect, accessToken, refreshToken, acquireToken,
-    logoutRedirect,
+    logoutRedirect, acquireUserInfo,
   } = useOauth()
 
   const handleClick = () => {
@@ -24,32 +27,45 @@ export default function Home () {
     logoutRedirect({ postLogoutRedirectUri: '/' })
   }
 
+  const handleClickAcquireUserInfo = async () => {
+    const userInfo = await acquireUserInfo()
+    setUserInfo(userInfo)
+  }
+
   return (
     <main
       style={{
         display: 'flex', flexDirection: 'column', gap: 16,
       }}
     >
-      <div>
+      <section>
         <button onClick={handleClick}>
           Login
         </button>
-      </div>
+      </section>
       <section>
         {accessToken && <p>Access Token: {accessToken}</p>}
         {refreshToken && <p>Refresh Token: {refreshToken}</p>}
-        <div>
-          <button onClick={handleClickAcquireToken}>
-            Acquire Token
-          </button>
-          {acquiredToken && <p>{acquiredToken}</p>}
-        </div>
       </section>
-      <div>
+      <section>
+        <button onClick={handleClickAcquireToken}>
+          Acquire Token
+        </button>
+        {acquiredToken && <p>{acquiredToken}</p>}
+      </section>
+      <section>
+        <button onClick={handleClickAcquireUserInfo}>
+          Acquire User Info
+        </button>
+        {userInfo && (
+          <p>{JSON.stringify(userInfo)}</p>
+        )}
+      </section>
+      <section>
         <button onClick={handleLogout}>
           Logout
         </button>
-      </div>
+      </section>
     </main>
   )
 }

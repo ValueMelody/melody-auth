@@ -4,7 +4,6 @@ export enum SessionStorageKey {
 }
 
 export enum StorageKey {
-  AccessToken = 'melody-oauth-access-token',
   RefreshToken = 'melody-oauth-refresh-token',
 }
 

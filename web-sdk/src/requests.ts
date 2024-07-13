@@ -51,6 +51,12 @@ export const getUserInfo = async (
       headers: { Authorization: `Bearer ${accessToken}` },
     },
   )
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text)
+  }
+
   const data: GetUserInfo = await res.json()
   return data
 }

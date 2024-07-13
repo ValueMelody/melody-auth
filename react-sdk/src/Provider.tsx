@@ -1,6 +1,9 @@
 import React, {
   ReactNode, useReducer,
 } from 'react'
+import {
+  RefreshTokenStorage, StorageKey,
+} from 'web-sdk/dist/definitions'
 import { ProviderConfig } from '../../global'
 import Setup from './Setup'
 import oauthContext, {
@@ -15,10 +18,6 @@ const reducer = (
   state: OauthState, action: DispatchAction,
 ) => {
   switch (action.type) {
-  case 'setIsLoading':
-    return {
-      ...state, isLoading: action.payload,
-    }
   case 'setAccessTokenStorage':
     return {
       ...state, accessTokenStorage: action.payload,
@@ -27,6 +26,17 @@ const reducer = (
     return {
       ...state, refreshTokenStorage: action.payload,
     }
+  case 'setUserInfo':
+    return {
+      ...state, userInfo: action.payload,
+    }
+  case 'logout':
+    return {
+      ...state,
+      accessTokenStorage: null,
+      refreshTokenStorage: null,
+      userInfo: null,
+    }
   }
 }
 
@@ -34,13 +44,16 @@ export const OauthProvider = ({
   children,
   ...config
 }: ProviderProps) => {
+  const storage = config.storage === 'localStorage' ? window.localStorage : window.sessionStorage
+  const refreshTokenStorage = storage.getItem(StorageKey.RefreshToken)
+
   const [state, dispatch] = useReducer(
     reducer,
     {
       config,
-      isLoading: true,
+      userInfo: null,
       accessTokenStorage: null,
-      refreshTokenStorage: null,
+      refreshTokenStorage: refreshTokenStorage ? JSON.parse(refreshTokenStorage) as RefreshTokenStorage : null,
     },
   )
 
