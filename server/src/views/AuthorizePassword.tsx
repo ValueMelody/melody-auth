@@ -4,6 +4,11 @@ import Layout from 'views/components/Layout'
 import { oauthDto } from 'dtos'
 import AuthorizeCommonFields from 'views/components/AuthorizeCommonFields'
 import PoweredBy from 'views/components/PoweredBy'
+import { validateEmail } from 'views/scripts/email'
+import {
+  handleError, parseCommonFormFields, parseResponse, resetError,
+} from 'views/scripts/form'
+import { validatePassword } from 'views/scripts/password'
 
 const AuthorizePassword = ({
   queryDto, logoUrl, enableSignUp, queryString,
@@ -15,48 +20,6 @@ const AuthorizePassword = ({
 }) => {
   return (
     <Layout>
-      {html`
-        <script>
-          function handleSubmit () {
-            fetch('/oauth2/authorize-password', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  email: document.getElementById('form-email').value,
-                  password: document.getElementById('form-password').value,
-                  clientId: document.getElementById('form-clientId').value,
-                  redirectUri: document.getElementById('form-redirectUri').value,
-                  responseType: document.getElementById('form-responseType').value,
-                  state: document.getElementById('form-state').value,
-                  codeChallenge: document.getElementById('form-code-challenge').value,
-                  codeChallengeMethod: document.getElementById('form-code-challenge-method').value,
-                  scope: document.getElementById('form-scope').value.split(','),
-                })
-            })
-            .then((response) => {
-              if (!response.ok) {
-                return response.text().then(text => {
-                  throw new Error(text);
-                });
-              }
-              return response.json();
-            })
-            .then((data) => {
-              var url = data.redirectUri + "?state=" + data.state + "&code=" + data.code;
-              window.location.href = url;
-              return true
-            })
-            .catch((error) => {
-              console.error("Login failed: " + error)
-              return false;
-            });
-            return false;
-          }
-        </script>
-      `}
       <section class='flex-col items-center gap-4'>
         {!!logoUrl && (
           <img
@@ -68,10 +31,14 @@ const AuthorizePassword = ({
         <h1>{localeConfig.AuthorizePasswordPage.Title}</h1>
         <form
           autocomplete='on'
-          onsubmit='return handleSubmit()'
+          onsubmit='return handleSubmit(event)'
         >
           <section class='flex-col gap-4'>
             <AuthorizeCommonFields queryDto={queryDto} />
+            <div
+              id='submit-error'
+              class='alert mt-4 hidden'>
+            </div>
             <button
               class='button mt-4'
               type='submit'
@@ -90,6 +57,38 @@ const AuthorizePassword = ({
         )}
         <PoweredBy />
       </section>
+      {html`
+        <script>
+          ${resetError()}
+          function handleSubmit (e) {
+            e.preventDefault();
+            ${validateEmail()}
+            ${validatePassword()}
+            fetch('/oauth2/authorize-password', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  ${parseCommonFormFields()}
+                })
+            })
+            .then((response) => {
+              ${parseResponse()}
+            })
+            .then((data) => {
+              var url = data.redirectUri + "?state=" + data.state + "&code=" + data.code;
+              window.location.href = url;
+              return true
+            })
+            .catch((error) => {
+              ${handleError()}
+            });
+            return false;
+          }
+        </script>
+      `}
     </Layout>
   )
 }

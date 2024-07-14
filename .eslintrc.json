@@ -47,7 +47,7 @@
     "arrow-parens": "error",
     "indent": ["error", 2],
     "object-shorthand": "error",
-    "max-len": ["error", { "code": 120, "tabWidth": 2 }],
+    "max-len": ["error", { "code": 120, "tabWidth": 2, "ignoreStrings": true }],
     "@typescript-eslint/member-delimiter-style": "error",
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "error",

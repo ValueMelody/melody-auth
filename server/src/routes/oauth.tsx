@@ -350,6 +350,12 @@ export const load = (app: typeConfig.App) => {
         updatedAt: user.updatedAt,
       }
 
+      const { ENABLE_NAMES: enableNames } = env(c)
+      if (enableNames) {
+        result.firstName = user.firstName
+        result.lastName = user.lastName
+      }
+
       return c.json(result)
     },
   )

@@ -20,6 +20,7 @@ const Layout = ({ children }: { children: any }) => html`
           .justify-between { justify-content: space-between; }
           .justify-center { justify-content: center; }
           .items-center { align-items: center; }
+          .hidden { display: none; }
           .text-sm { font-size: 14px; }
           .text-red { color: red; }
           .p-2 { padding: 8px; }
@@ -73,6 +74,14 @@ const Layout = ({ children }: { children: any }) => html`
           }
           .label {
             font-weight: 500;
+          }
+          .alert {
+            background-color: red;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            width: auto;
           }
         </style>
       </head>

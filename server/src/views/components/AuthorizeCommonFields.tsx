@@ -1,6 +1,7 @@
 import { localeConfig } from 'configs'
 import { oauthDto } from 'dtos'
 import RequiredSymbol from 'views/components/RequiredSymbol'
+import FieldError from 'views/components/FieldError'
 
 const AuthorizeCommonFields = ({ queryDto }: {
   queryDto: oauthDto.GetAuthorizeReqQueryDto;
@@ -22,6 +23,7 @@ const AuthorizeCommonFields = ({ queryDto }: {
           name='email'
           autocomplete='email'
         />
+        <FieldError id='email-error' />
       </section>
       <section class='flex-col gap-2'>
         <label
@@ -38,6 +40,7 @@ const AuthorizeCommonFields = ({ queryDto }: {
           name='password'
           autocomplete='current-password'
         />
+        <FieldError id='password-error' />
       </section>
       <input
         type='hidden'
