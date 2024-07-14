@@ -32,8 +32,7 @@ export const genAuthCode = async (
   request: oauthDto.GetAuthorizeReqQueryDto,
   user: userModel.Record,
 ) => {
-  const { AUTHORIZATION_CODE_EXPIRES_IN } = env(c)
-  const codeExpiresIn = Number(AUTHORIZATION_CODE_EXPIRES_IN)
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
   const codeExpiresAt = currentTimestamp + codeExpiresIn
   const authBody: typeConfig.AuthCodeBody = {
     request,
@@ -90,8 +89,7 @@ export const genAccessToken = async (
   oauthId: string,
   scope: string[],
 ) => {
-  const { ACCESS_TOKEN_EXPIRES_IN } = env(c)
-  const accessTokenExpiresIn = Number(ACCESS_TOKEN_EXPIRES_IN)
+  const { ACCESS_TOKEN_EXPIRES_IN: accessTokenExpiresIn } = env(c)
   const accessTokenExpiresAt = currentTimestamp + accessTokenExpiresIn
   const accessTokenBody: typeConfig.AccessTokenBody = {
     sub: oauthId,
@@ -115,8 +113,7 @@ export const genRefreshToken = async (
   oauthId: string,
   scope: string[],
 ) => {
-  const { REFRESH_TOKEN_EXPIRES_IN } = env(c)
-  const refreshTokenExpiresIn = Number(REFRESH_TOKEN_EXPIRES_IN)
+  const { REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn } = env(c)
   const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
   const refreshTokenBody: typeConfig.RefreshTokenBody = {
     sub: oauthId,
@@ -141,8 +138,7 @@ export const genIdToken = async (
   oauthId: string,
   email: string | null,
 ) => {
-  const { ID_TOKEN_EXPIRES_IN } = env(c)
-  const idTokenExpiresIn = Number(ID_TOKEN_EXPIRES_IN)
+  const { ID_TOKEN_EXPIRES_IN: idTokenExpiresIn } = env(c)
   const idTokenExpiresAt = currentTimestamp + idTokenExpiresIn
   const idToken = await sign(
     {

@@ -13,15 +13,21 @@ const Layout = ({ children }: { children: any }) => html`
           body { padding: 0; margin: 0; font-family: "Inter", sans-serif; font-size: 16px; }
           a { text-decoration: none; }
           p { padding: 0; margin: 0; }
+          h1 { padding: 0; margin: 0; }
           .flex-row { display: flex; flex-direction: row; }
           .flex-col { display: flex; flex-direction: column; }
           .flex-wrap { flex-wrap: wrap; }
           .justify-between { justify-content: space-between; }
           .justify-center { justify-content: center; }
           .items-center { align-items: center; }
+          .text-sm { font-size: 14px; }
+          .text-red { color: red; }
           .p-2 { padding: 8px; }
           .p-4 { padding: 16px; }
+          .ml-2 { margin-left: 8px; }
           .mt-4 { margin-top: 16px; }
+          .mt-8 { margin-top: 32px; }
+          .mb-4 { margin-bottom: 16px; }
           .gap-4 { gap: 16px; }
           .gap-2 { gap: 8px; }
           .rounded-lg { border-radius: 16px; }
@@ -32,17 +38,31 @@ const Layout = ({ children }: { children: any }) => html`
             width: 100%;
           }
           .container {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);;
             background-color: white;
             padding: 32px;
+          }
+          .logo {
+            width: 40px;
           }
           .button {
             background-color: white;
             cursor: pointer;
             border: 1px solid lightgray;
-            padding: 12px;
+            padding: 8px;
             border-radius: 8px;
             font-weight: 500;
             font-size: 16px;
+          }
+          .button-text {
+            background-color: unset;
+            cursor: pointer;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            color: darkslategray;
           }
           .input {
             background-color: white;

@@ -10,6 +10,14 @@ export type Bindings = {
   ACCESS_TOKEN_JWT_SECRET: string;
   REFRESH_TOKEN_JWT_SECRET: string;
   ID_TOKEN_JWT_SECRET: string;
+  AUTHORIZATION_CODE_EXPIRES_IN: number;
+  ACCESS_TOKEN_EXPIRES_IN: number;
+  REFRESH_TOKEN_EXPIRES_IN: number;
+  ID_TOKEN_EXPIRES_IN: number;
+  COMPANY_LOGO_URL: string;
+  ENABLE_SIGN_UP: boolean;
+  ENABLE_NAMES: boolean;
+  NAMES_IS_REQUIRED: boolean;
 };
 
 export type Context = {

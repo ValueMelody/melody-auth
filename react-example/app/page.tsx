@@ -62,7 +62,8 @@ export default function Home () {
           Acquire User Info
         </button>
         {userInfo && (
-          <p>{JSON.stringify(userInfo)}</p>
+          <p>{JSON.stringify(userInfo)}
+          </p>
         )}
       </section>
       <section>

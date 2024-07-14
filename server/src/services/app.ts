@@ -10,7 +10,9 @@ export const verifyClientRequest = async (
     db,
     clientId,
   )
-  if (!app) throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
+  if (!app) {
+    throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
+  }
   if (!app.redirectUris.includes(redirectUri)) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongRedirectUri)
   }

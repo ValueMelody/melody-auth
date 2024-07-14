@@ -31,5 +31,7 @@ export const validateRefreshToken = async (
     kvConfig.BaseKey.RefreshToken,
     refreshToken,
   ))
-  if (!tokenInKv) throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+  if (!tokenInKv) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+  }
 }
