@@ -6,6 +6,10 @@ AUTHORIZATION_CODE_EXPIRES_IN=60
 ACCESS_TOKEN_EXPIRES_IN=1800
 REFRESH_TOKEN_EXPIRES_IN=25200
 ID_TOKEN_EXPIRES_IN=1800
+COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
+ENABLE_SIGN_UP=true
+ENABLE_NAMES=true
+NAMES_IS_REQUIRED=false
 
 [[kv_namespaces]]
 binding = "KV"

@@ -17,7 +17,9 @@ export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {
 
   window.sessionStorage.removeItem(SessionStorageKey.State)
 
-  if (state !== stateParam[1]) throw new Error('Invalid state')
+  if (state !== stateParam[1]) {
+    throw new Error('Invalid state')
+  }
 
   const codeVerifier = window.sessionStorage.getItem(SessionStorageKey.CodeVerifier)
   window.sessionStorage.removeItem(SessionStorageKey.CodeVerifier)

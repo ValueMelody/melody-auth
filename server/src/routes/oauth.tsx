@@ -1,3 +1,5 @@
+import { env } from 'hono/adapter'
+import { Context } from 'hono'
 import {
   GetUserInfo, PostTokenByAuthCode, PostTokenByRefreshToken,
 } from '../../../global'
@@ -15,31 +17,113 @@ import {
 import AuthorizePassword from 'views/AuthorizePassword'
 import { authMiddleware } from 'middlewares'
 import { Forbidden } from 'configs/error'
+import AuthorizeAccount from 'views/AuthorizeAccount'
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
+
+const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new oauthDto.GetAuthorizeReqQueryDto({
+    clientId: c.req.query('client_id') ?? '',
+    redirectUri: c.req.query('redirect_uri') ?? '',
+    responseType: c.req.query('response_type') ?? '',
+    state: c.req.query('state') ?? '',
+    codeChallenge: c.req.query('code_challenge') ?? '',
+    codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
+    scope: c.req.queries('scope') ?? [],
+  })
+  await validateUtil.dto(queryDto)
+
+  await appService.verifyClientRequest(
+    c.env.DB,
+    queryDto.clientId,
+    queryDto.redirectUri,
+  )
+
+  return queryDto
+}
+
+const getQueryString = (c: Context<typeConfig.Context>) => c.req.url.split('?')[1]
 
 export const load = (app: typeConfig.App) => {
   app.get(
     `${BaseRoute}/authorize`,
     async (c) => {
-      const queryDto = new oauthDto.GetAuthorizeReqQueryDto({
-        clientId: c.req.query('client_id') ?? '',
-        redirectUri: c.req.query('redirect_uri') ?? '',
-        responseType: c.req.query('response_type') ?? '',
-        state: c.req.query('state') ?? '',
-        codeChallenge: c.req.query('code_challenge') ?? '',
-        codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
-        scope: c.req.queries('scope') ?? [],
-      })
-      await validateUtil.dto(queryDto)
+      const queryDto = await getAuthorizeGuard(c)
+
+      const {
+        COMPANY_LOGO_URL: logoUrl,
+        ENABLE_SIGN_UP: enableSignUp,
+      } = env(c)
+
+      const queryString = getQueryString(c)
+
+      return c.html(<AuthorizePassword
+        queryString={queryString}
+        queryDto={queryDto}
+        logoUrl={logoUrl}
+        enableSignUp={enableSignUp}
+      />)
+    },
+  )
+
+  app.get(
+    `${BaseRoute}/authorize-account`,
+    async (c) => {
+      const queryDto = await getAuthorizeGuard(c)
+
+      const {
+        COMPANY_LOGO_URL: logoUrl,
+        ENABLE_NAMES: enableNames,
+        NAMES_IS_REQUIRED: namesIsRequired,
+      } = env(c)
+
+      const queryString = getQueryString(c)
+
+      return c.html(<AuthorizeAccount
+        queryString={queryString}
+        queryDto={queryDto}
+        logoUrl={logoUrl}
+        enableNames={enableNames}
+        namesIsRequired={namesIsRequired}
+      />)
+    },
+  )
+
+  app.post(
+    `${BaseRoute}/authorize-account`,
+    async (c) => {
+      const reqBody = await c.req.json()
+      const { NAMES_IS_REQUIRED: namesIsRequired } = env(c)
+      const bodyDto = namesIsRequired
+        ? new oauthDto.PostAuthorizeReqBodyWithRequiredNamesDto(reqBody)
+        : new oauthDto.PostAuthorizeReqBodyWithNamesDto(reqBody)
+      await validateUtil.dto(bodyDto)
 
       await appService.verifyClientRequest(
         c.env.DB,
-        queryDto.clientId,
-        queryDto.redirectUri,
+        bodyDto.clientId,
+        bodyDto.redirectUri,
       )
 
-      return c.html(<AuthorizePassword queryDto={queryDto} />)
+      const password = await cryptoUtil.sha256(bodyDto.password)
+      const user = await userService.createAccountWithPassword(
+        c.env.DB,
+        bodyDto.email,
+        password,
+        bodyDto.firstName,
+        bodyDto.lastName,
+      )
+
+      const { authCode } = await jwtService.genAuthCode(
+        c,
+        timeUtil.getCurrentTimestamp(),
+        new oauthDto.GetAuthorizeReqQueryDto(bodyDto),
+        user,
+      )
+
+      return c.json({
+        code: authCode, redirectUri: bodyDto.redirectUri, state: bodyDto.state,
+      })
     },
   )
 
@@ -108,7 +192,9 @@ export const load = (app: typeConfig.App) => {
           authInfo.request.codeChallenge,
           authInfo.request.codeChallengeMethod,
         )
-        if (!isValidChallenge) throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
+        if (!isValidChallenge) {
+          throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
+        }
 
         const currentTimestamp = timeUtil.getCurrentTimestamp()
         const oauthId = authInfo.user.oauthId
@@ -219,7 +305,9 @@ export const load = (app: typeConfig.App) => {
       const reqBody = await c.req.parseBody()
       const bodyDto = new oauthDto.PostLogoutReqBodyDto({
         refreshToken: String(reqBody.refresh_token),
-        postLogoutRedirectUri: reqBody.post_logout_redirect_uri ? String(reqBody.post_logout_redirect_uri) : '',
+        postLogoutRedirectUri: reqBody.post_logout_redirect_uri
+          ? String(reqBody.post_logout_redirect_uri)
+          : '',
       })
       await validateUtil.dto(bodyDto)
 
@@ -227,7 +315,9 @@ export const load = (app: typeConfig.App) => {
         c,
         bodyDto.refreshToken,
       )
-      if (accessTokenBody.sub !== refreshTokenBody.sub) throw new Forbidden(localeConfig.Error.WrongRefreshToken)
+      if (accessTokenBody.sub !== refreshTokenBody.sub) {
+        throw new Forbidden(localeConfig.Error.WrongRefreshToken)
+      }
 
       await kvService.invalidRefreshToken(
         c.env.KV,

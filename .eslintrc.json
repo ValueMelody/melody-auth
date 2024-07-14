@@ -30,7 +30,6 @@
   },
   "rules": {
     "react/no-unknown-property": "off",
-    "react/jsx-closing-bracket-location": "error",
     "react/jsx-max-props-per-line": "error",
     "react/jsx-indent-props": ["error", 2],
     "react/jsx-first-prop-new-line": ["error",  "multiline"],
