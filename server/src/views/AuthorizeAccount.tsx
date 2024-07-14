@@ -1,10 +1,21 @@
 import { html } from 'hono/html'
+import { validateEmail } from './scripts/email'
+import {
+  validateConfirmPassword, validatePassword,
+} from './scripts/password'
+import FieldError from './components/FieldError'
+import {
+  validateFirstName, validateLastName,
+} from './scripts/name'
 import { localeConfig } from 'configs'
 import Layout from 'views/components/Layout'
 import { oauthDto } from 'dtos'
 import AuthorizeCommonFields from 'views/components/AuthorizeCommonFields'
 import RequiredSymbol from 'views/components/RequiredSymbol'
 import PoweredBy from 'views/components/PoweredBy'
+import {
+  handleError, parseCommonFormFields, parseResponse, resetError,
+} from 'views/scripts/form'
 
 const AuthorizeAccount = ({
   queryDto, logoUrl, enableNames, namesIsRequired, queryString,
@@ -17,50 +28,6 @@ const AuthorizeAccount = ({
 }) => {
   return (
     <Layout>
-      {html`
-        <script>
-          function handleSubmit () {
-            fetch('/oauth2/authorize-account', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  email: document.getElementById('form-email').value,
-                  password: document.getElementById('form-password').value,
-                  firstName: document.getElementById('form-firstName').value,
-                  lastName: document.getElementById('form-lastName').value,
-                  clientId: document.getElementById('form-clientId').value,
-                  redirectUri: document.getElementById('form-redirectUri').value,
-                  responseType: document.getElementById('form-responseType').value,
-                  state: document.getElementById('form-state').value,
-                  codeChallenge: document.getElementById('form-code-challenge').value,
-                  codeChallengeMethod: document.getElementById('form-code-challenge-method').value,
-                  scope: document.getElementById('form-scope').value.split(','),
-                })
-            })
-            .then((response) => {
-              if (!response.ok) {
-                return response.text().then(text => {
-                  throw new Error(text);
-                });
-              }
-              return response.json();
-            })
-            .then((data) => {
-              var url = data.redirectUri + "?state=" + data.state + "&code=" + data.code;
-              window.location.href = url;
-              return true
-            })
-            .catch((error) => {
-              console.error("Login failed: " + error)
-              return false;
-            });
-            return false;
-          }
-        </script>
-      `}
       <section class='flex-col items-center gap-4'>
         {!!logoUrl && (
           <img
@@ -72,7 +39,7 @@ const AuthorizeAccount = ({
         <h1>{localeConfig.AuthorizeAccountPage.Title}</h1>
         <form
           autocomplete='on'
-          onsubmit='return handleSubmit()'
+          onsubmit='return handleSubmit(event)'
         >
           <section class='flex-col gap-4'>
             <AuthorizeCommonFields queryDto={queryDto} />
@@ -90,6 +57,7 @@ const AuthorizeAccount = ({
                 id='form-confirmPassword'
                 name='confirmPassword'
               />
+              <FieldError id='confirmPassword-error' />
             </section>
             {enableNames && (
               <>
@@ -108,6 +76,7 @@ const AuthorizeAccount = ({
                       id='form-firstName'
                       name='firstName'
                     />
+                    <FieldError id='firstName-error' />
                   </section>
                   <section class='flex-col gap-2'>
                     <label
@@ -123,10 +92,15 @@ const AuthorizeAccount = ({
                       id='form-lastName'
                       name='lastName'
                     />
+                    <FieldError id='lastName-error' />
                   </section>
                 </section>
               </>
             )}
+            <div
+              id='submit-error'
+              class='alert mt-4 hidden'>
+            </div>
             <button
               class='button mt-4'
               type='submit'
@@ -143,6 +117,43 @@ const AuthorizeAccount = ({
         </a>
         <PoweredBy />
       </section>
+      {html`
+        <script>
+          ${resetError()}
+          function handleSubmit (e) {
+            e.preventDefault();
+            ${validateEmail()}
+            ${validatePassword()}
+            ${validateConfirmPassword()}
+            ${enableNames && namesIsRequired ? validateFirstName() : ''}
+            ${enableNames && namesIsRequired ? validateLastName() : ''}
+            fetch('/oauth2/authorize-account', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  firstName: document.getElementById('form-firstName').value,
+                  lastName: document.getElementById('form-lastName').value,
+                  ${parseCommonFormFields()}
+                })
+            })
+            .then((response) => {
+              ${parseResponse()}
+            })
+            .then((data) => {
+              var url = data.redirectUri + "?state=" + data.state + "&code=" + data.code;
+              window.location.href = url;
+              return true
+            })
+            .catch((error) => {
+              ${handleError()}
+            });
+            return false;
+          }
+        </script>
+      `}
     </Layout>
   )
 }

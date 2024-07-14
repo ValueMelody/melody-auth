@@ -21,6 +21,8 @@ export interface PostTokenByRefreshToken {
 export interface GetUserInfo {
   oauthId: string;
   email: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
   createdAt: string;
   updatedAt: string;
 }
