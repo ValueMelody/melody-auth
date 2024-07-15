@@ -16,7 +16,10 @@ export enum AuthorizeCodeChallengeMethod {
 export enum TokenGrantType {
   AuthorizationCode = 'authorization_code',
   RefreshToken = 'refresh_token',
+  ClientCredentials = 'client_credentials',
 }
+
+const parseScope = (scope: string[]) => scope.map((s) => s.trim().toLowerCase())
 
 export class GetAuthorizeReqQueryDto {
   @IsString()
@@ -52,7 +55,7 @@ export class GetAuthorizeReqQueryDto {
     this.state = dto.state
     this.codeChallenge = dto.codeChallenge
     this.codeChallengeMethod = dto.codeChallengeMethod.toLowerCase()
-    this.scope = dto.scope.map((val) => val.toLowerCase())
+    this.scope = parseScope(dto.scope)
   }
 }
 
@@ -146,6 +149,30 @@ export class PostTokenRefreshTokenReqBodyDto {
   constructor (dto: PostTokenRefreshTokenReqBodyDto) {
     this.grantType = dto.grantType
     this.refreshToken = dto.refreshToken
+  }
+}
+
+export class PostTokenClientCredentialsReqBodyDto {
+  @IsEnum(TokenGrantType)
+    grantType: string
+
+  @IsString()
+  @IsNotEmpty()
+    clientId: string
+
+  @IsString()
+  @IsNotEmpty()
+    secret: string
+
+  @IsString({ each: true })
+  @ArrayMinSize(1)
+    scope: string[]
+
+  constructor (dto: PostTokenClientCredentialsReqBodyDto) {
+    this.grantType = dto.grantType.toLowerCase()
+    this.clientId = dto.clientId
+    this.secret = dto.secret
+    this.scope = parseScope(dto.scope)
   }
 }
 

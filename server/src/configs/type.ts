@@ -7,11 +7,13 @@ export type Bindings = {
   DB: D1Database;
   KV: KVNamespace;
   AUTHORIZATION_CODE_JWT_SECRET: string;
-  ACCESS_TOKEN_JWT_SECRET: string;
+  SPA_ACCESS_TOKEN_JWT_SECRET: string;
+  S2S_ACCESS_TOKEN_JWT_SECRET: string;
   REFRESH_TOKEN_JWT_SECRET: string;
   ID_TOKEN_JWT_SECRET: string;
   AUTHORIZATION_CODE_EXPIRES_IN: number;
-  ACCESS_TOKEN_EXPIRES_IN: number;
+  SPA_ACCESS_TOKEN_EXPIRES_IN: number;
+  S2S_ACCESS_TOKEN_EXPIRES_IN: number;
   REFRESH_TOKEN_EXPIRES_IN: number;
   ID_TOKEN_EXPIRES_IN: number;
   COMPANY_LOGO_URL: string;
@@ -52,4 +54,9 @@ export enum Scope {
   OpenId = 'openid',
   Profile = 'profile',
   OfflineAccess = 'offline_access',
+}
+
+export enum ClientType {
+  SPA = 'spa',
+  S2S = 's2s',
 }

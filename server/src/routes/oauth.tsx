@@ -1,7 +1,7 @@
 import { env } from 'hono/adapter'
 import { Context } from 'hono'
 import {
-  GetUserInfo, PostTokenByAuthCode, PostTokenByRefreshToken,
+  GetUserInfo, PostTokenByAuthCode, PostTokenByClientCredentials, PostTokenByRefreshToken,
 } from '../../../global'
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
@@ -14,12 +14,16 @@ import {
 import {
   cryptoUtil, timeUtil, validateUtil,
 } from 'utils'
-import AuthorizePassword from 'views/AuthorizePassword'
 import { authMiddleware } from 'middlewares'
-import { Forbidden } from 'configs/error'
+import { appModel } from 'models'
+import AuthorizePassword from 'views/AuthorizePassword'
 import AuthorizeAccount from 'views/AuthorizeAccount'
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
+
+const getValidScopes = (
+  scopes: string[], app: appModel.Record,
+) => scopes.filter((scope) => app.scopes.includes(scope))
 
 const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
   const queryDto = new oauthDto.GetAuthorizeReqQueryDto({
@@ -33,13 +37,21 @@ const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
   })
   await validateUtil.dto(queryDto)
 
-  await appService.verifyClientRequest(
+  const app = await appService.verifySPAClientRequest(
     c.env.DB,
     queryDto.clientId,
     queryDto.redirectUri,
   )
 
-  return queryDto
+  const validScopes = getValidScopes(
+    queryDto.scope,
+    app,
+  )
+
+  return {
+    ...queryDto,
+    scope: validScopes,
+  }
 }
 
 const getQueryString = (c: Context<typeConfig.Context>) => c.req.url.split('?')[1]
@@ -92,14 +104,18 @@ export const load = (app: typeConfig.App) => {
   app.post(
     `${BaseRoute}/authorize-account`,
     async (c) => {
+      const {
+        NAMES_IS_REQUIRED: namesIsRequired, ENABLE_SIGN_UP: enableSignUp,
+      } = env(c)
+      if (!enableSignUp) throw new errorConfig.UnAuthorized()
+
       const reqBody = await c.req.json()
-      const { NAMES_IS_REQUIRED: namesIsRequired } = env(c)
       const bodyDto = namesIsRequired
         ? new oauthDto.PostAuthorizeReqBodyWithRequiredNamesDto(reqBody)
         : new oauthDto.PostAuthorizeReqBodyWithNamesDto(reqBody)
       await validateUtil.dto(bodyDto)
 
-      await appService.verifyClientRequest(
+      const app = await appService.verifySPAClientRequest(
         c.env.DB,
         bodyDto.clientId,
         bodyDto.redirectUri,
@@ -113,11 +129,18 @@ export const load = (app: typeConfig.App) => {
         bodyDto.firstName,
         bodyDto.lastName,
       )
+      const validScopes = getValidScopes(
+        bodyDto.scope,
+        app,
+      )
 
       const { authCode } = await jwtService.genAuthCode(
         c,
         timeUtil.getCurrentTimestamp(),
-        new oauthDto.GetAuthorizeReqQueryDto(bodyDto),
+        new oauthDto.GetAuthorizeReqQueryDto({
+          ...bodyDto,
+          scope: validScopes,
+        }),
         user,
       )
 
@@ -134,7 +157,7 @@ export const load = (app: typeConfig.App) => {
       const bodyDto = new oauthDto.PostAuthorizeReqBodyWithPasswordDto(reqBody)
       await validateUtil.dto(bodyDto)
 
-      await appService.verifyClientRequest(
+      const app = await appService.verifySPAClientRequest(
         c.env.DB,
         bodyDto.clientId,
         bodyDto.redirectUri,
@@ -147,10 +170,18 @@ export const load = (app: typeConfig.App) => {
         password,
       )
 
+      const validScopes = getValidScopes(
+        bodyDto.scope,
+        app,
+      )
+
       const { authCode } = await jwtService.genAuthCode(
         c,
         timeUtil.getCurrentTimestamp(),
-        new oauthDto.GetAuthorizeReqQueryDto(bodyDto),
+        new oauthDto.GetAuthorizeReqQueryDto({
+          ...bodyDto,
+          scope: validScopes,
+        }),
         user,
       )
 
@@ -166,13 +197,7 @@ export const load = (app: typeConfig.App) => {
       const reqBody = await c.req.parseBody()
 
       const grantType = String(reqBody.grant_type).toLowerCase()
-
-      if (
-        grantType !== oauthDto.TokenGrantType.AuthorizationCode &&
-        grantType !== oauthDto.TokenGrantType.RefreshToken
-      ) {
-        throw new errorConfig.Forbidden(localeConfig.Error.WrongGrantType)
-      }
+      const currentTimestamp = timeUtil.getCurrentTimestamp()
 
       if (grantType === oauthDto.TokenGrantType.AuthorizationCode) {
         const bodyDto = new oauthDto.PostTokenAuthCodeReqBodyDto({
@@ -196,7 +221,6 @@ export const load = (app: typeConfig.App) => {
           throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
         }
 
-        const currentTimestamp = timeUtil.getCurrentTimestamp()
         const oauthId = authInfo.user.oauthId
         const scope = authInfo.request.scope
 
@@ -206,6 +230,7 @@ export const load = (app: typeConfig.App) => {
           accessTokenExpiresAt,
         } = await jwtService.genAccessToken(
           c,
+          typeConfig.ClientType.SPA,
           currentTimestamp,
           oauthId,
           scope,
@@ -254,7 +279,7 @@ export const load = (app: typeConfig.App) => {
         }
 
         return c.json(result)
-      } else {
+      } else if (grantType === oauthDto.TokenGrantType.RefreshToken) {
         const bodyDto = new oauthDto.PostTokenRefreshTokenReqBodyDto({
           grantType: String(reqBody.grant_type),
           refreshToken: String(reqBody.refresh_token),
@@ -271,13 +296,13 @@ export const load = (app: typeConfig.App) => {
           bodyDto.refreshToken,
         )
 
-        const currentTimestamp = timeUtil.getCurrentTimestamp()
         const {
           accessToken,
           accessTokenExpiresIn,
           accessTokenExpiresAt,
         } = await jwtService.genAccessToken(
           c,
+          typeConfig.ClientType.SPA,
           currentTimestamp,
           refreshTokenBody.sub,
           refreshTokenBody.scope,
@@ -291,13 +316,56 @@ export const load = (app: typeConfig.App) => {
         }
 
         return c.json(result)
+      } else if (grantType === oauthDto.TokenGrantType.ClientCredentials) {
+        const bodyDto = new oauthDto.PostTokenClientCredentialsReqBodyDto({
+          grantType: String(reqBody.grant_type),
+          clientId: String(reqBody.client_id),
+          secret: String(reqBody.client_secret),
+          scope: reqBody.scope ? String(reqBody.scope).split(',') : [],
+        })
+        await validateUtil.dto(bodyDto)
+
+        const app = await appService.verifyS2SClientRequest(
+          c.env.DB,
+          bodyDto.clientId,
+          bodyDto.secret,
+        )
+
+        const validScopes = getValidScopes(
+          bodyDto.scope,
+          app,
+        )
+
+        const {
+          accessToken,
+          accessTokenExpiresIn,
+          accessTokenExpiresAt,
+        } = await jwtService.genAccessToken(
+          c,
+          typeConfig.ClientType.S2S,
+          currentTimestamp,
+          bodyDto.clientId,
+          validScopes,
+        )
+
+        const result: PostTokenByClientCredentials = {
+          access_token: accessToken,
+          expires_in: accessTokenExpiresIn,
+          expires_on: accessTokenExpiresAt,
+          token_type: 'Bearer',
+          scope: validScopes,
+        }
+
+        return c.json(result)
+      } else {
+        throw new errorConfig.Forbidden(localeConfig.Error.WrongGrantType)
       }
     },
   )
 
   app.post(
     `${BaseRoute}/logout`,
-    authMiddleware.accessToken,
+    authMiddleware.spaAccessToken,
     async (c) => {
       const accessTokenBody = c.get('AccessTokenBody')
       if (!accessTokenBody) throw new errorConfig.Forbidden()
@@ -316,7 +384,7 @@ export const load = (app: typeConfig.App) => {
         bodyDto.refreshToken,
       )
       if (accessTokenBody.sub !== refreshTokenBody.sub) {
-        throw new Forbidden(localeConfig.Error.WrongRefreshToken)
+        throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
       }
 
       await kvService.invalidRefreshToken(
@@ -333,10 +401,13 @@ export const load = (app: typeConfig.App) => {
 
   app.get(
     `${BaseRoute}/userinfo`,
-    authMiddleware.accessToken,
+    authMiddleware.spaAccessToken,
     async (c) => {
       const accessTokenBody = c.get('AccessTokenBody')
       if (!accessTokenBody) throw new errorConfig.Forbidden()
+      if (!accessTokenBody.scope.includes(typeConfig.Scope.Profile)) {
+        throw new errorConfig.UnAuthorized(localeConfig.Error.WrongScope)
+      }
 
       const user = await userService.getUserInfo(
         c.env.DB,

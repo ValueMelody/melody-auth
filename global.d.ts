@@ -18,6 +18,14 @@ export interface PostTokenByRefreshToken {
   token_type: 'Bearer';
 }
 
+export interface PostTokenByClientCredentials {
+  access_token: string;
+  expires_in: number;
+  expires_on: number;
+  token_type: 'Bearer';
+  scope: string[];
+}
+
 export interface GetUserInfo {
   oauthId: string;
   email: string | null;

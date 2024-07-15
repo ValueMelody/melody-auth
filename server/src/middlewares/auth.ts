@@ -3,12 +3,13 @@ import { bearerAuth } from 'hono/bearer-auth'
 import { typeConfig } from 'configs'
 import { jwtService } from 'services'
 
-export const accessToken = bearerAuth({
+export const spaAccessToken = bearerAuth({
   verifyToken: async (
     token, c: Context<typeConfig.Context>,
   ) => {
     const accessTokenBody = await jwtService.getAccessTokenBody(
       c,
+      typeConfig.ClientType.SPA,
       token,
     )
 

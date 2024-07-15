@@ -1,5 +1,7 @@
 export enum Error {
   NoApp = 'No app found',
+  WrongClientType = 'Wrong client type',
+  WrongClientSecret = 'Wrong client secret',
   EmailTaken = 'The email address is already in use.',
   WrongRedirectUri = 'Invalid redirect_uri',
   NoUser = 'No user found',
@@ -8,6 +10,7 @@ export enum Error {
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
   WrongRefreshToken = 'Invalid refresh_token',
+  WrongScope = 'Insufficient scope',
 }
 
 export enum Message {
