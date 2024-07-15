@@ -46,7 +46,7 @@ export class GetAuthorizeReqQueryDto {
 
   @IsString({ each: true })
   @ArrayMinSize(1)
-    scope: string[]
+    scopes: string[]
 
   constructor (dto: GetAuthorizeReqQueryDto) {
     this.clientId = dto.clientId.toLowerCase()
@@ -55,7 +55,7 @@ export class GetAuthorizeReqQueryDto {
     this.state = dto.state
     this.codeChallenge = dto.codeChallenge
     this.codeChallengeMethod = dto.codeChallengeMethod.toLowerCase()
-    this.scope = parseScope(dto.scope)
+    this.scopes = parseScope(dto.scopes)
   }
 }
 

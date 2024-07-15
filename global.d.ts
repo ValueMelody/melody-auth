@@ -4,7 +4,7 @@ export interface PostTokenByAuthCode {
   expires_on: number;
   not_before: number;
   token_type: 'Bearer';
-  scope: string[];
+  scope: string;
   refresh_token?: string;
   refresh_token_expires_in?: number;
   refresh_token_expires_on?: number;
@@ -23,7 +23,7 @@ export interface PostTokenByClientCredentials {
   expires_in: number;
   expires_on: number;
   token_type: 'Bearer';
-  scope: string[];
+  scope: string;
 }
 
 export interface GetUserInfo {

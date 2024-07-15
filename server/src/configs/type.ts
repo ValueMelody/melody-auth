@@ -40,13 +40,13 @@ export interface AuthCodeBody {
 
 export interface AccessTokenBody {
   sub: string;
-  scope: string[];
+  scope: string;
   exp: number;
 }
 
 export interface RefreshTokenBody {
   sub: string;
-  scope: string[];
+  scope: string;
   exp: number;
 }
 

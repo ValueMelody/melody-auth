@@ -33,7 +33,7 @@ const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
     state: c.req.query('state') ?? '',
     codeChallenge: c.req.query('code_challenge') ?? '',
     codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
-    scope: c.req.queries('scope') ?? [],
+    scopes: c.req.queries('scope') ?? [],
   })
   await validateUtil.dto(queryDto)
 
@@ -44,7 +44,7 @@ const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
   )
 
   const validScopes = getValidScopes(
-    queryDto.scope,
+    queryDto.scopes,
     app,
   )
 
@@ -130,7 +130,7 @@ export const load = (app: typeConfig.App) => {
         bodyDto.lastName,
       )
       const validScopes = getValidScopes(
-        bodyDto.scope,
+        bodyDto.scopes,
         app,
       )
 
@@ -139,7 +139,7 @@ export const load = (app: typeConfig.App) => {
         timeUtil.getCurrentTimestamp(),
         new oauthDto.GetAuthorizeReqQueryDto({
           ...bodyDto,
-          scope: validScopes,
+          scopes: validScopes,
         }),
         user,
       )
@@ -154,6 +154,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/authorize-password`,
     async (c) => {
       const reqBody = await c.req.json()
+
       const bodyDto = new oauthDto.PostAuthorizeReqBodyWithPasswordDto(reqBody)
       await validateUtil.dto(bodyDto)
 
@@ -171,7 +172,7 @@ export const load = (app: typeConfig.App) => {
       )
 
       const validScopes = getValidScopes(
-        bodyDto.scope,
+        bodyDto.scopes,
         app,
       )
 
@@ -180,7 +181,7 @@ export const load = (app: typeConfig.App) => {
         timeUtil.getCurrentTimestamp(),
         new oauthDto.GetAuthorizeReqQueryDto({
           ...bodyDto,
-          scope: validScopes,
+          scopes: validScopes,
         }),
         user,
       )
@@ -222,7 +223,7 @@ export const load = (app: typeConfig.App) => {
         }
 
         const oauthId = authInfo.user.oauthId
-        const scope = authInfo.request.scope
+        const scope = authInfo.request.scopes.join(' ')
 
         const {
           accessToken,
@@ -242,10 +243,10 @@ export const load = (app: typeConfig.App) => {
           expires_on: accessTokenExpiresAt,
           not_before: currentTimestamp,
           token_type: 'Bearer',
-          scope: authInfo.request.scope,
+          scope: authInfo.request.scopes.join(' '),
         }
 
-        if (authInfo.request.scope.includes(typeConfig.Scope.OfflineAccess)) {
+        if (authInfo.request.scopes.includes(typeConfig.Scope.OfflineAccess)) {
           const {
             refreshToken,
             refreshTokenExpiresIn,
@@ -267,7 +268,7 @@ export const load = (app: typeConfig.App) => {
           )
         }
 
-        if (authInfo.request.scope.includes(typeConfig.Scope.OpenId)) {
+        if (authInfo.request.scopes.includes(typeConfig.Scope.OpenId)) {
           const { idToken } = await jwtService.genIdToken(
             c,
             currentTimestamp,
@@ -345,7 +346,7 @@ export const load = (app: typeConfig.App) => {
           typeConfig.ClientType.S2S,
           currentTimestamp,
           bodyDto.clientId,
-          validScopes,
+          validScopes.join(' '),
         )
 
         const result: PostTokenByClientCredentials = {
@@ -353,7 +354,7 @@ export const load = (app: typeConfig.App) => {
           expires_in: accessTokenExpiresIn,
           expires_on: accessTokenExpiresAt,
           token_type: 'Bearer',
-          scope: validScopes,
+          scope: validScopes.join(' '),
         }
 
         return c.json(result)
