@@ -1,5 +1,6 @@
 import { dbConfig } from 'configs'
 import { ClientType } from 'configs/type'
+import { formatUtil } from 'utils'
 
 export interface Common {
   id: number;
@@ -26,7 +27,7 @@ const TableName = dbConfig.TableName.App
 const format = (raw: Raw): Record => {
   return {
     ...raw,
-    redirectUris: raw.redirectUris.split(',').map((url) => url.trim().toLowerCase()),
+    redirectUris: raw.redirectUris.split(',').map((url) => formatUtil.stripEndingSlash(url.trim().toLowerCase())),
     scopes: raw.scopes.split(',').map((scope) => scope.trim().toLowerCase()),
   }
 }

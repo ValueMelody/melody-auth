@@ -103,6 +103,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-account`,
+    authMiddleware.authorizeCsrf,
     async (c) => {
       const {
         NAMES_IS_REQUIRED: namesIsRequired, ENABLE_SIGN_UP: enableSignUp,
@@ -152,6 +153,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-password`,
+    authMiddleware.authorizeCsrf,
     async (c) => {
       const reqBody = await c.req.json()
 

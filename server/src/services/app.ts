@@ -3,6 +3,7 @@ import {
   typeConfig,
 } from 'configs'
 import { appModel } from 'models'
+import { formatUtil } from 'utils'
 
 export const verifySPAClientRequest = async (
   db: D1Database, clientId: string, redirectUri: string,
@@ -18,7 +19,7 @@ export const verifySPAClientRequest = async (
   if (app.type !== typeConfig.ClientType.SPA) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
   }
-  if (!app.redirectUris.includes(redirectUri)) {
+  if (!app.redirectUris.includes(formatUtil.stripEndingSlash(redirectUri))) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongRedirectUri)
   }
   return app

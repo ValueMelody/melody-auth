@@ -17,6 +17,7 @@ export type Bindings = {
   REFRESH_TOKEN_EXPIRES_IN: number;
   ID_TOKEN_EXPIRES_IN: number;
   COMPANY_LOGO_URL: string;
+  OAUTH_SERVER_URL: string;
   ENABLE_SIGN_UP: boolean;
   ENABLE_NAMES: boolean;
   NAMES_IS_REQUIRED: boolean;
