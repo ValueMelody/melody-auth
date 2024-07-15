@@ -62,9 +62,9 @@ const AuthorizeCommonFields = ({ queryDto }: {
       />
       <input
         type='hidden'
-        id='form-scope'
-        name='scope'
-        value={queryDto.scope}
+        id='form-scopes'
+        name='scopes'
+        value={queryDto.scopes}
       />
       <input
         type='hidden'

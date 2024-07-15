@@ -16,7 +16,10 @@ export const getAuthorize = async (
   codeChallenge: string;
 },
 ) => {
-  const combinedScopes = [...scopes, 'openid', 'profile', 'offline_access']
+  const combinedScopes = scopes.map((scope) => scope.trim().toLowerCase());
+  ['openid', 'profile', 'offline_access'].forEach((scope) => {
+    if (!combinedScopes.includes(scope)) combinedScopes.push(scope)
+  })
   const scopeQueries = combinedScopes.reduce(
     (
       scopeQueries, scope,

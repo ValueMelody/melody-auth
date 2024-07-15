@@ -48,7 +48,7 @@ export const parseCommonFormFields = () => html`
   state: document.getElementById('form-state').value,
   codeChallenge: document.getElementById('form-code-challenge').value,
   codeChallengeMethod: document.getElementById('form-code-challenge-method').value,
-  scope: document.getElementById('form-scope').value.split(','),
+  scopes: document.getElementById('form-scopes').value.split(','),
 `
 
 export const handleError = () => html`

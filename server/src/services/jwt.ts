@@ -101,7 +101,7 @@ export const genAccessToken = async (
   type: typeConfig.ClientType,
   currentTimestamp: number,
   sub: string,
-  scope: string[],
+  scope: string,
 ) => {
   const {
     SPA_ACCESS_TOKEN_EXPIRES_IN,
@@ -138,7 +138,7 @@ export const genRefreshToken = async (
   c: Context<typeConfig.Context>,
   currentTimestamp: number,
   oauthId: string,
-  scope: string[],
+  scope: string,
 ) => {
   const {
     REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn,
