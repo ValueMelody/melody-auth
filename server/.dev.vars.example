@@ -1,4 +1,6 @@
 AUTHORIZATION_CODE_JWT_SECRET=aaa # This must be replace with a strong secret
-ACCESS_TOKEN_JWT_SECRET=bbb # This must be replace with a strong secret
+SPA_ACCESS_TOKEN_JWT_SECRET=bbb # This must be replace with a strong secret
 REFRESH_TOKEN_JWT_SECRET=ccc # This must be replace with a strong secret
 ID_TOKEN_JWT_SECRET=ddd # This must be replace with a strong secret
+CLIENT_SECRET_ENCRYPT_KEY=eee # This must be replace with a strong secret
+S2S_ACCESS_TOKEN_JWT_SECRET=fff # This must be replace with a strong secret

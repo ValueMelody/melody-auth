@@ -32,7 +32,10 @@ export const genAuthCode = async (
   request: oauthDto.GetAuthorizeReqQueryDto,
   user: userModel.Record,
 ) => {
-  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    AUTHORIZATION_CODE_JWT_SECRET: jwtSecret,
+  } = env(c)
   const codeExpiresAt = currentTimestamp + codeExpiresIn
   const authBody: typeConfig.AuthCodeBody = {
     request,
@@ -45,7 +48,7 @@ export const genAuthCode = async (
 
   const authCode = await sign(
     authBody as unknown as JWTPayload,
-    c.env.AUTHORIZATION_CODE_JWT_SECRET,
+    jwtSecret,
   )
 
   return { authCode }
@@ -68,13 +71,23 @@ export const getRefreshTokenBody = async (
 }
 
 export const getAccessTokenBody = async (
-  context: Context<typeConfig.Context>, accessToken: string,
+  context: Context<typeConfig.Context>,
+  type: typeConfig.ClientType,
+  accessToken: string,
 ) => {
+  const {
+    SPA_ACCESS_TOKEN_JWT_SECRET,
+    S2S_ACCESS_TOKEN_JWT_SECRET,
+  } = env(context)
+  const jwtSecret = type === typeConfig.ClientType.SPA
+    ? SPA_ACCESS_TOKEN_JWT_SECRET
+    : S2S_ACCESS_TOKEN_JWT_SECRET
+
   let accessTokenBody: typeConfig.AccessTokenBody
   try {
     accessTokenBody = await verify(
       accessToken,
-      context.env.ACCESS_TOKEN_JWT_SECRET,
+      jwtSecret,
     ) as unknown as typeConfig.AccessTokenBody
   } catch (e) {
     throw new errorConfig.UnAuthorized()
@@ -84,21 +97,35 @@ export const getAccessTokenBody = async (
 }
 
 export const genAccessToken = async (
-  c: Context<typeConfig.Context>,
+  context: Context<typeConfig.Context>,
+  type: typeConfig.ClientType,
   currentTimestamp: number,
-  oauthId: string,
+  sub: string,
   scope: string[],
 ) => {
-  const { ACCESS_TOKEN_EXPIRES_IN: accessTokenExpiresIn } = env(c)
+  const {
+    SPA_ACCESS_TOKEN_EXPIRES_IN,
+    S2S_ACCESS_TOKEN_EXPIRES_IN,
+    SPA_ACCESS_TOKEN_JWT_SECRET,
+    S2S_ACCESS_TOKEN_JWT_SECRET,
+  } = env(context)
+
+  const isSpa = type === typeConfig.ClientType.SPA
+  const accessTokenExpiresIn = isSpa
+    ? SPA_ACCESS_TOKEN_EXPIRES_IN
+    : S2S_ACCESS_TOKEN_EXPIRES_IN
+  const accessTokenSecret = isSpa
+    ? SPA_ACCESS_TOKEN_JWT_SECRET
+    : S2S_ACCESS_TOKEN_JWT_SECRET
   const accessTokenExpiresAt = currentTimestamp + accessTokenExpiresIn
   const accessTokenBody: typeConfig.AccessTokenBody = {
-    sub: oauthId,
+    sub,
     scope,
     exp: accessTokenExpiresAt,
   }
   const accessToken = await sign(
     accessTokenBody as unknown as JWTPayload,
-    c.env.ACCESS_TOKEN_JWT_SECRET,
+    accessTokenSecret,
   )
   return {
     accessToken,
@@ -113,7 +140,10 @@ export const genRefreshToken = async (
   oauthId: string,
   scope: string[],
 ) => {
-  const { REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn } = env(c)
+  const {
+    REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn,
+    REFRESH_TOKEN_JWT_SECRET: jwtSecret,
+  } = env(c)
   const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
   const refreshTokenBody: typeConfig.RefreshTokenBody = {
     sub: oauthId,
@@ -122,7 +152,7 @@ export const genRefreshToken = async (
   }
   const refreshToken = await sign(
     refreshTokenBody as unknown as JWTPayload,
-    c.env.REFRESH_TOKEN_JWT_SECRET,
+    jwtSecret,
   )
   return {
     refreshToken,
@@ -138,7 +168,10 @@ export const genIdToken = async (
   oauthId: string,
   email: string | null,
 ) => {
-  const { ID_TOKEN_EXPIRES_IN: idTokenExpiresIn } = env(c)
+  const {
+    ID_TOKEN_EXPIRES_IN: idTokenExpiresIn,
+    ID_TOKEN_JWT_SECRET: jwtSecret,
+  } = env(c)
   const idTokenExpiresAt = currentTimestamp + idTokenExpiresIn
   const idToken = await sign(
     {
@@ -149,7 +182,7 @@ export const genIdToken = async (
       iat: currentTimestamp,
       email,
     },
-    c.env.ID_TOKEN_JWT_SECRET,
+    jwtSecret,
   )
   return { idToken }
 }
