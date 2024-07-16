@@ -72,3 +72,16 @@ export const handleError = () => html`
   errorEl.innerHTML = msg;
   return false;
 `
+
+export const handleRedirect = () => html`
+  var queryString = "?state=" + data.state + "&code=" + data.code;
+  if (data.requireConsent) {
+    queryString += "&redirect_uri=" + data.redirectUri;
+    var url = "/oauth2/authorize-consent" + queryString
+    window.location.href = url;
+  } else {
+    var url = data.redirectUri + queryString;
+    window.location.href = url;
+  }
+  return true
+`

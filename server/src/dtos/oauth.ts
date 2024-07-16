@@ -19,7 +19,7 @@ export enum TokenGrantType {
   ClientCredentials = 'client_credentials',
 }
 
-const parseScope = (scope: string[]) => scope.map((s) => s.trim().toLowerCase())
+const parseScopes = (scope: string[]) => scope.map((s) => s.trim().toLowerCase())
 
 export class GetAuthorizeReqQueryDto {
   @IsString()
@@ -55,7 +55,27 @@ export class GetAuthorizeReqQueryDto {
     this.state = dto.state
     this.codeChallenge = dto.codeChallenge
     this.codeChallengeMethod = dto.codeChallengeMethod.toLowerCase()
-    this.scopes = parseScope(dto.scopes)
+    this.scopes = parseScopes(dto.scopes)
+  }
+}
+
+export class GetAuthorizeConsentReqQueryDto {
+  @IsString()
+  @IsNotEmpty()
+    state: string
+
+  @IsString()
+  @IsNotEmpty()
+    code: string
+
+  @IsString()
+  @IsNotEmpty()
+    redirectUri: string
+
+  constructor (dto: GetAuthorizeConsentReqQueryDto) {
+    this.state = dto.state
+    this.code = dto.code
+    this.redirectUri = dto.redirectUri
   }
 }
 
@@ -166,13 +186,13 @@ export class PostTokenClientCredentialsReqBodyDto {
 
   @IsString({ each: true })
   @ArrayMinSize(1)
-    scope: string[]
+    scopes: string[]
 
   constructor (dto: PostTokenClientCredentialsReqBodyDto) {
     this.grantType = dto.grantType.toLowerCase()
     this.clientId = dto.clientId
     this.secret = dto.secret
-    this.scope = parseScope(dto.scope)
+    this.scopes = parseScopes(dto.scopes)
   }
 }
 

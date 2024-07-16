@@ -21,6 +21,7 @@ export type Bindings = {
   ENABLE_SIGN_UP: boolean;
   ENABLE_NAMES: boolean;
   NAMES_IS_REQUIRED: boolean;
+  ENABLE_USER_APP_CONSENT: boolean;
 };
 
 export type Context = {
@@ -33,9 +34,11 @@ export type App = Hono<Context, BlankSchema, '/'>
 export interface AuthCodeBody {
   request: oauthDto.GetAuthorizeReqQueryDto;
   user: {
+    id: number;
     oauthId: string;
     email: string | null;
   };
+  appId: number;
   exp: number;
 }
 

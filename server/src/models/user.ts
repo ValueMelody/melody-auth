@@ -1,5 +1,5 @@
 import { dbConfig } from 'configs'
-import { getDbCurrentTime } from 'utils/time'
+import { timeUtil } from 'utils'
 
 export interface Record {
   id: number;
@@ -106,7 +106,7 @@ export const update = async (
 
   const parsedUpdate = {
     ...update,
-    updatedAt: getDbCurrentTime(),
+    updatedAt: timeUtil.getDbCurrentTime(),
   }
   const updateKeys: (keyof Update)[] = ['password', 'firstName', 'lastName', 'deletedAt', 'updatedAt']
   updateKeys.forEach((

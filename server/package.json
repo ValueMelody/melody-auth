@@ -2,13 +2,12 @@
   "name": "server",
   "scripts": {
     "deploy": "wrangler deploy --minify src/index.tsx",
-    "db:import": "wrangler d1 execute melody-oauth --remote --file=./scripts/db.sql",
     "type:check": "tsc --noEmit",
-    "migration:create": "wrangler d1 migrations create melody-oauth",
+    "db:import": "wrangler d1 execute melody-oauth --remote --file=./scripts/db.sql",
     "migration:apply": "wrangler d1 migrations apply melody-oauth --remote",
     "dev": "wrangler dev src/index.tsx",
-    "dev:migration:apply": "wrangler d1 migrations apply melody-oauth --local",
-    "dev:db:import": "wrangler d1 execute melody-oauth --local --file=./scripts/db.sql"
+    "dev:db:import": "wrangler d1 execute melody-oauth --local --file=./scripts/db.sql",
+    "dev:migration:apply": "wrangler d1 migrations apply melody-oauth --local"
   },
   "dependencies": {
     "class-validator": "^0.14.1",

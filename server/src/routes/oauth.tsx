@@ -9,21 +9,18 @@ import {
 import { oauthDto } from 'dtos'
 import {
   appService,
+  consentService,
   jwtService, kvService, userService,
 } from 'services'
 import {
-  cryptoUtil, timeUtil, validateUtil,
+  cryptoUtil, formatUtil, timeUtil, validateUtil,
 } from 'utils'
 import { authMiddleware } from 'middlewares'
-import { appModel } from 'models'
 import AuthorizePassword from 'views/AuthorizePassword'
 import AuthorizeAccount from 'views/AuthorizeAccount'
+import AuthorizeConsent from 'views/AuthorizeConsent'
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
-
-const getValidScopes = (
-  scopes: string[], app: appModel.Record,
-) => scopes.filter((scope) => app.scopes.includes(scope))
 
 const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
   const queryDto = new oauthDto.GetAuthorizeReqQueryDto({
@@ -43,18 +40,16 @@ const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
     queryDto.redirectUri,
   )
 
-  const validScopes = getValidScopes(
+  const validScopes = formatUtil.getValidScopes(
     queryDto.scopes,
     app,
   )
 
   return {
     ...queryDto,
-    scope: validScopes,
+    scopes: validScopes,
   }
 }
-
-const getQueryString = (c: Context<typeConfig.Context>) => c.req.url.split('?')[1]
 
 export const load = (app: typeConfig.App) => {
   app.get(
@@ -67,7 +62,7 @@ export const load = (app: typeConfig.App) => {
         ENABLE_SIGN_UP: enableSignUp,
       } = env(c)
 
-      const queryString = getQueryString(c)
+      const queryString = formatUtil.getQueryString(c)
 
       return c.html(<AuthorizePassword
         queryString={queryString}
@@ -89,7 +84,7 @@ export const load = (app: typeConfig.App) => {
         NAMES_IS_REQUIRED: namesIsRequired,
       } = env(c)
 
-      const queryString = getQueryString(c)
+      const queryString = formatUtil.getQueryString(c)
 
       return c.html(<AuthorizeAccount
         queryString={queryString}
@@ -101,12 +96,44 @@ export const load = (app: typeConfig.App) => {
     },
   )
 
+  app.get(
+    `${BaseRoute}/authorize-consent`,
+    async (c) => {
+      const queryDto = new oauthDto.GetAuthorizeConsentReqQueryDto({
+        state: c.req.query('state') ?? '',
+        redirectUri: c.req.query('redirect_uri') ?? '',
+        code: c.req.query('code') ?? '',
+      })
+
+      const authInfo = await jwtService.getAuthCodeBody(
+        c,
+        queryDto.code,
+      )
+
+      const app = await appService.verifySPAClientRequest(
+        c.env.DB,
+        authInfo.request.clientId,
+        queryDto.redirectUri,
+      )
+
+      const { COMPANY_LOGO_URL: logoUrl } = env(c)
+
+      return c.html(<AuthorizeConsent
+        logoUrl={logoUrl}
+        scopes={authInfo.request.scopes}
+        appName={app.name}
+        queryDto={queryDto}
+      />)
+    },
+  )
+
   app.post(
     `${BaseRoute}/authorize-account`,
     authMiddleware.authorizeCsrf,
     async (c) => {
       const {
-        NAMES_IS_REQUIRED: namesIsRequired, ENABLE_SIGN_UP: enableSignUp,
+        NAMES_IS_REQUIRED: namesIsRequired,
+        ENABLE_SIGN_UP: enableSignUp,
       } = env(c)
       if (!enableSignUp) throw new errorConfig.UnAuthorized()
 
@@ -130,23 +157,27 @@ export const load = (app: typeConfig.App) => {
         bodyDto.firstName,
         bodyDto.lastName,
       )
-      const validScopes = getValidScopes(
-        bodyDto.scopes,
-        app,
-      )
 
       const { authCode } = await jwtService.genAuthCode(
         c,
         timeUtil.getCurrentTimestamp(),
-        new oauthDto.GetAuthorizeReqQueryDto({
-          ...bodyDto,
-          scopes: validScopes,
-        }),
+        app.id,
+        new oauthDto.GetAuthorizeReqQueryDto(bodyDto),
         user,
       )
 
+      const requireConsent = await consentService.shouldCollectConsent(
+        c,
+        user.id,
+        app.id,
+      )
+
       return c.json({
-        code: authCode, redirectUri: bodyDto.redirectUri, state: bodyDto.state,
+        code: authCode,
+        redirectUri: bodyDto.redirectUri,
+        state: bodyDto.state,
+        scopes: bodyDto.scopes,
+        requireConsent,
       })
     },
   )
@@ -173,23 +204,56 @@ export const load = (app: typeConfig.App) => {
         password,
       )
 
-      const validScopes = getValidScopes(
-        bodyDto.scopes,
-        app,
-      )
-
       const { authCode } = await jwtService.genAuthCode(
         c,
         timeUtil.getCurrentTimestamp(),
-        new oauthDto.GetAuthorizeReqQueryDto({
-          ...bodyDto,
-          scopes: validScopes,
-        }),
+        app.id,
+        new oauthDto.GetAuthorizeReqQueryDto(bodyDto),
         user,
       )
 
+      const requireConsent = await consentService.shouldCollectConsent(
+        c,
+        user.id,
+        app.id,
+      )
+
       return c.json({
-        code: authCode, redirectUri: bodyDto.redirectUri, state: bodyDto.state,
+        code: authCode,
+        redirectUri: bodyDto.redirectUri,
+        state: bodyDto.state,
+        scopes: bodyDto.scopes,
+        requireConsent,
+      })
+    },
+  )
+
+  app.post(
+    `${BaseRoute}/authorize-consent`,
+    authMiddleware.authorizeCsrf,
+    async (c) => {
+      const reqBody = await c.req.json()
+
+      const bodyDto = new oauthDto.GetAuthorizeConsentReqQueryDto(reqBody)
+      await validateUtil.dto(bodyDto)
+
+      const authInfo = await jwtService.getAuthCodeBody(
+        c,
+        bodyDto.code,
+      )
+
+      const userId = authInfo.user.id
+      const appId = authInfo.appId
+      await consentService.createUserAppConsent(
+        c.env.DB,
+        userId,
+        appId,
+      )
+
+      return c.json({
+        code: bodyDto.code,
+        redirectUri: bodyDto.redirectUri,
+        state: bodyDto.state,
       })
     },
   )
@@ -223,6 +287,13 @@ export const load = (app: typeConfig.App) => {
         if (!isValidChallenge) {
           throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
         }
+
+        const requireConsent = await consentService.shouldCollectConsent(
+          c,
+          authInfo.user.id,
+          authInfo.appId,
+        )
+        if (requireConsent) throw new errorConfig.UnAuthorized(localeConfig.Error.NoConsent)
 
         const oauthId = authInfo.user.oauthId
         const scope = authInfo.request.scopes.join(' ')
@@ -324,7 +395,7 @@ export const load = (app: typeConfig.App) => {
           grantType: String(reqBody.grant_type),
           clientId: String(reqBody.client_id),
           secret: String(reqBody.client_secret),
-          scope: reqBody.scope ? String(reqBody.scope).split(',') : [],
+          scopes: reqBody.scope ? String(reqBody.scope).split(',') : [],
         })
         await validateUtil.dto(bodyDto)
 
@@ -334,8 +405,8 @@ export const load = (app: typeConfig.App) => {
           bodyDto.secret,
         )
 
-        const validScopes = getValidScopes(
-          bodyDto.scope,
+        const validScopes = formatUtil.getValidScopes(
+          bodyDto.scopes,
           app,
         )
 

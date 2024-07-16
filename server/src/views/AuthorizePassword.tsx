@@ -6,7 +6,7 @@ import AuthorizeCommonFields from 'views/components/AuthorizeCommonFields'
 import PoweredBy from 'views/components/PoweredBy'
 import { validateEmail } from 'views/scripts/email'
 import {
-  handleError, parseCommonFormFields, parseResponse, resetError,
+  handleError, handleRedirect, parseCommonFormFields, parseResponse, resetError,
 } from 'views/scripts/form'
 import { validatePassword } from 'views/scripts/password'
 
@@ -78,9 +78,7 @@ const AuthorizePassword = ({
               ${parseResponse()}
             })
             .then((data) => {
-              var url = data.redirectUri + "?state=" + data.state + "&code=" + data.code;
-              window.location.href = url;
-              return true
+              ${handleRedirect()}
             })
             .catch((error) => {
               ${handleError()}
