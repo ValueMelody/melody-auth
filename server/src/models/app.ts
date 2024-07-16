@@ -5,6 +5,7 @@ import { formatUtil } from 'utils'
 export interface Common {
   id: number;
   clientId: string;
+  name: string;
   type: ClientType;
   secret: string;
   createdAt: string;

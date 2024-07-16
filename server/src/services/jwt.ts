@@ -29,6 +29,7 @@ export const getAuthCodeBody = async (
 export const genAuthCode = async (
   c: Context<typeConfig.Context>,
   currentTimestamp: number,
+  appId: number,
   request: oauthDto.GetAuthorizeReqQueryDto,
   user: userModel.Record,
 ) => {
@@ -40,9 +41,11 @@ export const genAuthCode = async (
   const authBody: typeConfig.AuthCodeBody = {
     request,
     user: {
+      id: user.id,
       oauthId: user.oauthId,
       email: user.email,
     },
+    appId,
     exp: codeExpiresAt,
   }
 
@@ -171,11 +174,12 @@ export const genIdToken = async (
   const {
     ID_TOKEN_EXPIRES_IN: idTokenExpiresIn,
     ID_TOKEN_JWT_SECRET: jwtSecret,
+    OAUTH_SERVER_URL: oauthServerUrl,
   } = env(c)
   const idTokenExpiresAt = currentTimestamp + idTokenExpiresIn
   const idToken = await sign(
     {
-      iss: 'Melody Oauth',
+      iss: oauthServerUrl,
       sub: oauthId,
       aud: clientId,
       exp: idTokenExpiresAt,

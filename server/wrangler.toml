@@ -12,6 +12,7 @@ COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/
 ENABLE_SIGN_UP=true
 ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
+ENABLE_USER_APP_CONSENT=true
 
 [[kv_namespaces]]
 binding = "KV"

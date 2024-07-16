@@ -2,6 +2,7 @@
 CREATE TABLE [app] (
   "id" integer PRIMARY KEY,
   "clientId" text NOT NULL,
+  "name" text NOT NULL,
   "type" text NOT NULL,
   "secret" text NOT NULL,
   "scopes" text NOT NULL DEFAULT "",

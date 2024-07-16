@@ -29,10 +29,13 @@ const Layout = ({ children }: { children: any }) => html`
           .mt-4 { margin-top: 16px; }
           .mt-8 { margin-top: 32px; }
           .mb-4 { margin-bottom: 16px; }
+          .gap-8 { gap: 32px; }
           .gap-4 { gap: 16px; }
           .gap-2 { gap: 8px; }
+          .border { border: 1px solid lightgray; }
           .rounded-lg { border-radius: 16px; }
           .rounded-md { border-radius: 8px; }
+          .w-full { width: 100%; }
           .main {
             background-color: lightgray;
             height: 100vh;
@@ -50,6 +53,15 @@ const Layout = ({ children }: { children: any }) => html`
             background-color: white;
             cursor: pointer;
             border: 1px solid lightgray;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 16px;
+          }
+          .button-outline {
+            background-color: white;
+            cursor: pointer;
+            border: none;
             padding: 8px;
             border-radius: 8px;
             font-weight: 500;

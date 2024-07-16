@@ -5,7 +5,9 @@ export enum Error {
   EmailTaken = 'The email address is already in use.',
   WrongRedirectUri = 'Invalid redirect_uri',
   NoUser = 'No user found',
+  NoConsent = 'User consent required',
   CanNotCreateUser = 'Failed to create user',
+  CanNotCreateConsent = 'Failed to create consent',
   WrongCode = 'Invalid code',
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
@@ -31,6 +33,13 @@ export enum AuthorizePasswordPage {
   SubmitBtn = 'Login',
   Title = 'Authentication',
   SignUpBtn = 'Create a new account.',
+}
+
+export enum AuthorizeConsentPage {
+  Title = 'Authorize app',
+  RequestAccess = 'is requesting access to your account.',
+  DeclineBtn = 'Decline',
+  AcceptBtn = 'Accept',
 }
 
 export enum AuthorizeAccountPage {
