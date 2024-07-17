@@ -1,7 +1,7 @@
 {
   "name": "melody-auth",
   "version": "0.0.1",
-  "description": "An out-of-the-box authentication system built on Cloudflare's infrastructure.",
+  "description": "A turnkey authentication system leveraging Cloudflare's infrastructure. It provides a robust and user-friendly solution for implementing your own authentication system with minimal configuration required.",
   "keywords": [
     "oauth",
     "oauth2",

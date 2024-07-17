@@ -1,22 +1,36 @@
 # Melody Auth
 
-**Melody Auth** is an out-of-the-box authentication system built on Cloudflare's infrastructure. It offers a seamless and secure way to host your own authentication system with minimal setup.
+**Melody Auth** is a turnkey authentication system leveraging Cloudflare's infrastructure. It provides a robust and user-friendly solution for implementing your own authentication system with minimal configuration required.
 
-## Why Melody Auth
+## Why Choose Melody Auth?
 
-- **Cloudflare Integration**: Leverages Cloudflare's robust infrastructure for high availability and security.
-- **Easy Setup**: Quick and straightforward installation process.
-- **Extensible**: Easily customizable to fit your specific needs.
-- **Secure**: Built with security best practices to protect user data.
+- **Effortless Deployment**: Streamlined installation process for rapid implementation.
+- **Flexible Customization**: Adaptable to your unique authentication requirements.
+- **Robust Security**: Engineered with industry-standard security practices to safeguard user information.
+- **Transparent Architecture**: Full source code visibility, enabling thorough audits and modifications.
+- **Cloudflare-Powered**: Utilizes Cloudflare's global infrastructure for exceptional reliability and enhanced security measures.
 
-## Project Structure
+## Project Architecture
 
-The Melody Auth project consists of the following components:
+Melody Auth comprises four key components:
 
-- **server**: An authentication server based on the Hono web framework.
-- **react-sdk**: A React package to interact with the authentication server on frontend.
-- **node-sdk**: A Node package to interact with the authentication server on backend.
-- **admin-panel**: A web app to manage app configs and user data.
+1. **Authentication Server**
+   - Built on the Hono web framework
+   - Handles core authentication logic and processes
+
+2. **React SDK**
+   - Frontend integration package
+   - Facilitates seamless interaction between React applications and the auth server
+
+3. **Node.js SDK**
+   - Backend integration package
+   - Enables server-side applications to communicate with the auth server
+
+4. **Admin Dashboard**
+   - Web-based management interface
+   - Provides tools for:
+     - Configuring application settings
+     - Managing user data
 
 ## License
 
