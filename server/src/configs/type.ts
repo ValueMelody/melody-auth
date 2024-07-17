@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { BlankSchema } from 'hono/types'
+import { Session } from 'hono-sessions'
 import { oauthDto } from 'dtos'
 import { typeConfig } from 'configs'
 
@@ -11,11 +12,13 @@ export type Bindings = {
   S2S_ACCESS_TOKEN_JWT_SECRET: string;
   REFRESH_TOKEN_JWT_SECRET: string;
   ID_TOKEN_JWT_SECRET: string;
+  SERVER_SESSION_SECRET: string;
   AUTHORIZATION_CODE_EXPIRES_IN: number;
   SPA_ACCESS_TOKEN_EXPIRES_IN: number;
   S2S_ACCESS_TOKEN_EXPIRES_IN: number;
   REFRESH_TOKEN_EXPIRES_IN: number;
   ID_TOKEN_EXPIRES_IN: number;
+  SERVER_SESSION_EXPIRES_IN: number;
   COMPANY_LOGO_URL: string;
   OAUTH_SERVER_URL: string;
   ENABLE_SIGN_UP: boolean;
@@ -26,7 +29,11 @@ export type Bindings = {
 
 export type Context = {
   Bindings: Bindings;
-  Variables: { AccessTokenBody?: typeConfig.AccessTokenBody };
+  Variables: {
+    access_token_body?: typeConfig.AccessTokenBody;
+    session: Session;
+    session_key_rotation: boolean;
+  };
 }
 
 export type App = Hono<Context, BlankSchema, '/'>
@@ -45,12 +52,15 @@ export interface AuthCodeBody {
 export interface AccessTokenBody {
   sub: string;
   scope: string;
+  iat: number;
   exp: number;
 }
 
 export interface RefreshTokenBody {
   sub: string;
+  azp: string;
   scope: string;
+  iat: number;
   exp: number;
 }
 
@@ -63,4 +73,8 @@ export enum Scope {
 export enum ClientType {
   SPA = 'spa',
   S2S = 's2s',
+}
+
+export enum SessionKey {
+  AuthInfo = 'authInfo',
 }
