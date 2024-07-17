@@ -22,7 +22,7 @@ export type Bindings = {
   ID_TOKEN_EXPIRES_IN: number;
   SERVER_SESSION_EXPIRES_IN: number;
   COMPANY_LOGO_URL: string;
-  OAUTH_SERVER_URL: string;
+  AUTH_SERVER_URL: string;
   ENABLE_SIGN_UP: boolean;
   ENABLE_NAMES: boolean;
   NAMES_IS_REQUIRED: boolean;
@@ -45,7 +45,7 @@ export interface AuthCodeBody {
   request: oauthDto.GetAuthorizeReqQueryDto;
   user: {
     id: number;
-    oauthId: string;
+    authId: string;
     email: string | null;
   };
   appId: number;

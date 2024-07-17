@@ -328,7 +328,7 @@ export const load = (app: typeConfig.App) => {
         )
         if (requireConsent) throw new errorConfig.UnAuthorized(localeConfig.Error.NoConsent)
 
-        const oauthId = authInfo.user.oauthId
+        const authId = authInfo.user.authId
         const scope = authInfo.request.scopes.join(' ')
 
         const {
@@ -339,7 +339,7 @@ export const load = (app: typeConfig.App) => {
           c,
           typeConfig.ClientType.SPA,
           currentTimestamp,
-          oauthId,
+          authId,
           scope,
         )
 
@@ -360,7 +360,7 @@ export const load = (app: typeConfig.App) => {
           } = await jwtService.genRefreshToken(
             c,
             currentTimestamp,
-            oauthId,
+            authId,
             authInfo.request.clientId,
             scope,
           )
@@ -380,7 +380,7 @@ export const load = (app: typeConfig.App) => {
             c,
             currentTimestamp,
             authInfo.request.clientId,
-            oauthId,
+            authId,
             authInfo.user.email,
           )
           result.id_token = idToken
@@ -500,8 +500,8 @@ export const load = (app: typeConfig.App) => {
         bodyDto.refreshToken,
       )
 
-      const { OAUTH_SERVER_URL } = env(c)
-      const redirectUri = `${formatUtil.stripEndingSlash(OAUTH_SERVER_URL)}${BaseRoute}/logout`
+      const { AUTH_SERVER_URL } = env(c)
+      const redirectUri = `${formatUtil.stripEndingSlash(AUTH_SERVER_URL)}${BaseRoute}/logout`
 
       return c.json({
         message: localeConfig.Message.LogoutSuccess,
@@ -544,7 +544,7 @@ export const load = (app: typeConfig.App) => {
       )
 
       const result: GetUserInfo = {
-        oauthId: user.oauthId,
+        authId: user.authId,
         email: user.email,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,

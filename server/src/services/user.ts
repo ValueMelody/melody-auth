@@ -5,11 +5,11 @@ import { Forbidden } from 'configs/error'
 import { userModel } from 'models'
 
 export const getUserInfo = async (
-  db: D1Database, oauthId: string,
+  db: D1Database, authId: string,
 ) => {
-  const user = await userModel.getByOauthId(
+  const user = await userModel.getByAuthId(
     db,
-    oauthId,
+    authId,
   )
   if (!user) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
@@ -53,7 +53,7 @@ export const createAccountWithPassword = async (
     : await userModel.create(
       db,
       {
-        oauthId: crypto.randomUUID(),
+        authId: crypto.randomUUID(),
         email,
         password,
         firstName,

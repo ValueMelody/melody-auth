@@ -3,7 +3,7 @@ import { timeUtil } from 'utils'
 
 export interface Record {
   id: number;
-  oauthId: string;
+  authId: string;
   email: string | null;
   password: string | null;
   firstName: string | null;
@@ -19,7 +19,7 @@ export interface Record {
 }
 
 export interface Create {
-  oauthId: string;
+  authId: string;
   email: string | null;
   password: string | null;
   firstName: string | null;
@@ -46,12 +46,12 @@ export const getById = async (
   return user
 }
 
-export const getByOauthId = async (
+export const getByAuthId = async (
   db: D1Database,
-  oauthId: string,
+  authId: string,
 ) => {
-  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE oauthId = $1 AND deletedAt IS NULL`)
-    .bind(oauthId)
+  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE authId = $1 AND deletedAt IS NULL`)
+    .bind(authId)
   const user = await stmt.first() as Record | null
   return user
 }
@@ -82,7 +82,7 @@ export const getByEmail = async (
 export const create = async (
   db: D1Database, create: Create,
 ) => {
-  const createKeys: (keyof Create)[] = ['oauthId', 'email', 'password', 'firstName', 'lastName']
+  const createKeys: (keyof Create)[] = ['authId', 'email', 'password', 'firstName', 'lastName']
   const createValues: string[] = []
   const createBinds: (string | null)[] = []
   createKeys.forEach((

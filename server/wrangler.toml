@@ -1,4 +1,4 @@
-name = "melody-oauth"
+name = "melody-auth"
 compatibility_date = "2023-12-01"
 
 [vars]
@@ -9,21 +9,21 @@ S2S_ACCESS_TOKEN_EXPIRES_IN=3600
 ID_TOKEN_EXPIRES_IN=1800
 SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
 
-OAUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
+AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
 
 ENABLE_SIGN_UP=true
 ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
-ENABLE_EMAIL_VERIFICATION=true # Need a valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS in env var
+ENABLE_EMAIL_VERIFICATION=false # Need a valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS in env var
 ENABLE_PASSWORD_RESET=true # Need a valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS in env var
 
 [[kv_namespaces]]
 binding = "KV"
-id = "c5e387463b9a40dd90811f9cf89b6166" # Replace with your own KV id
+id = "7d9be060a7bc48919251b37caa7e1fcd" # Replace with your own KV id
 
 [[d1_databases]]
 binding = "DB"
-database_name = "melody-oauth"
-database_id = "58a2e0aa-98b1-41a5-b6ea-b38ae9055cc9" # Replace with your own D1 id
+database_name = "melody-auth"
+database_id = "87a3b0b4-a232-4047-a72a-3d65890387ba" # Replace with your own D1 id

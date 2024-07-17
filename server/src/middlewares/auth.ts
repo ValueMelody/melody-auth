@@ -45,7 +45,7 @@ export const authorizeCsrf = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
   const origin = c.req.header('origin')
-  const { OAUTH_SERVER_URL: serverUrl } = env(c)
+  const { AUTH_SERVER_URL: serverUrl } = env(c)
 
   if (formatUtil.stripEndingSlash(serverUrl) !== origin) {
     throw new errorConfig.Forbidden()

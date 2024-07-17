@@ -52,13 +52,13 @@ export enum AuthorizeAccountPage {
 }
 
 export enum EmailVerificationEmail {
-  Subject = 'Welcome to Melody Oauth, please verify your email address',
-  Title = 'Welcome to Melody Oauth',
+  Subject = 'Welcome to Melody Auth, please verify your email address',
+  Title = 'Welcome to Melody Auth',
   Desc = 'Thanks for signing up! Please verify your email address with us, your verification code is',
   ExpiryText = 'This link will be expired after 2 hour',
   VerifyBtn = 'Verify your email',
 }
 
 export enum CommonPage {
-  PoweredBy = 'Powered by Melody Oauth',
+  PoweredBy = 'Powered by Melody Auth',
 }

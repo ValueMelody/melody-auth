@@ -6,8 +6,8 @@ import {
 } from 'web-sdk/dist/definitions'
 import { ProviderConfig } from '../../global'
 import Setup from './Setup'
-import oauthContext, {
-  OauthState, DispatchAction,
+import authContext, {
+  AuthState, DispatchAction,
 } from './context'
 
 export interface ProviderProps extends ProviderConfig {
@@ -15,7 +15,7 @@ export interface ProviderProps extends ProviderConfig {
 }
 
 const reducer = (
-  state: OauthState, action: DispatchAction,
+  state: AuthState, action: DispatchAction,
 ) => {
   switch (action.type) {
   case 'setAccessTokenStorage':
@@ -49,7 +49,7 @@ const reducer = (
   }
 }
 
-export const OauthProvider = ({
+export const AuthProvider = ({
   children,
   ...config
 }: ProviderProps) => {
@@ -84,13 +84,13 @@ export const OauthProvider = ({
   )
 
   return (
-    <oauthContext.Provider
+    <authContext.Provider
       value={{
         state, dispatch,
       }}
     >
       <Setup />
       {children}
-    </oauthContext.Provider>
+    </authContext.Provider>
   )
 }

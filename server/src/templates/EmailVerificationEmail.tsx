@@ -3,11 +3,11 @@ import Layout from 'templates/components/Layout'
 import PoweredBy from 'templates/components/PoweredBy'
 
 const EmailVerificationEmail = ({
-  logoUrl, verificationCode, oauthId,
+  logoUrl, verificationCode, authId,
 }: {
   logoUrl: string;
   verificationCode: string;
-  oauthId: string;
+  authId: string;
 }) => {
   return (
     <Layout>
@@ -23,7 +23,7 @@ const EmailVerificationEmail = ({
         <p>{localeConfig.EmailVerificationEmail.Desc}: {verificationCode}</p>
         <a
           class='button-text mt-4'
-          href={`/account/verify-email?code=${verificationCode}&id=${oauthId}`}
+          href={`/account/verify-email?code=${verificationCode}&id=${authId}`}
         >
           {localeConfig.EmailVerificationEmail.VerifyBtn}
         </a>

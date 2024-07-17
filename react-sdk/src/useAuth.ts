@@ -6,10 +6,10 @@ import {
   loginRedirect as rawLoginRedirect, logout,
   exchangeTokenByRefreshToken, getUserInfo,
 } from 'web-sdk'
-import oauthContext, { OauthContext } from './context'
+import authContext, { AuthContext } from './context'
 
-export const useOauth = () => {
-  const context = useContext<OauthContext>(oauthContext)
+export const useAuth = () => {
+  const context = useContext<AuthContext>(authContext)
   const {
     state, dispatch,
   } = context
