@@ -27,7 +27,7 @@ export interface PostTokenByClientCredentials {
 }
 
 export interface GetUserInfo {
-  oauthId: string;
+  authId: string;
   email: string | null;
   firstName?: string | null;
   lastName?: string | null;

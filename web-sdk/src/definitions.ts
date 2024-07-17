@@ -1,10 +1,10 @@
 export enum SessionStorageKey {
-  State = 'melody-oauth-state',
-  CodeVerifier = 'melody-oauth-code-verifier',
+  State = 'melody-auth-state',
+  CodeVerifier = 'melody-auth-code-verifier',
 }
 
 export enum StorageKey {
-  RefreshToken = 'melody-oauth-refresh-token',
+  RefreshToken = 'melody-auth-refresh-token',
 }
 
 export interface AccessTokenStorage {

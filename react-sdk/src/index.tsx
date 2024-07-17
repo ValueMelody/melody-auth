@@ -1,10 +1,10 @@
 import { GetUserInfo } from '../../global'
-import { OauthProvider } from './Provider'
-import { useOauth } from './useOauth'
+import { AuthProvider } from './Provider'
+import { useAuth } from './useAuth'
 
 export type UserInfo = GetUserInfo
 
 export {
-  OauthProvider,
-  useOauth,
+  AuthProvider,
+  useAuth,
 }

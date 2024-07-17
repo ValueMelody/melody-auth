@@ -1,8 +1,8 @@
 'use client'
 
 import {
-  useOauth, UserInfo,
-} from '@melody-oauth/react'
+  useAuth, UserInfo,
+} from '@melody-auth/react'
 import { useState } from 'react'
 
 export default function Home () {
@@ -12,7 +12,7 @@ export default function Home () {
   const {
     loginRedirect, accessToken, refreshToken, acquireToken,
     logoutRedirect, acquireUserInfo, isAuthenticated, isAuthenticating,
-  } = useOauth()
+  } = useAuth()
 
   const handleClick = () => {
     loginRedirect()

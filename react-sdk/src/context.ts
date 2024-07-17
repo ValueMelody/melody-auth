@@ -8,7 +8,7 @@ import {
   GetUserInfo, ProviderConfig,
 } from '../../global'
 
-export interface OauthState {
+export interface AuthState {
   config: ProviderConfig;
   refreshTokenStorage: RefreshTokenStorage | null;
   accessTokenStorage: AccessTokenStorage | null;
@@ -24,13 +24,13 @@ export type DispatchAction =
   | { type: 'setIsAuthenticating'; payload: boolean }
   | { type: 'logout' }
 
-export type OauthDispatch = Dispatch<DispatchAction>
+export type AuthDispatch = Dispatch<DispatchAction>
 
-export interface OauthContext {
-  state: OauthState;
-  dispatch: OauthDispatch;
+export interface AuthContext {
+  state: AuthState;
+  dispatch: AuthDispatch;
 }
 
-const oauthContext = createContext<OauthContext>({} as OauthContext)
+const authContext = createContext<AuthContext>({} as AuthContext)
 
-export default oauthContext
+export default authContext

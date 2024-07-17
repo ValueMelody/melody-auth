@@ -2,12 +2,12 @@ import {
   useContext, useEffect,
 } from 'react'
 import { exchangeTokenByAuthCode } from 'web-sdk'
-import { useOauth } from './useOauth'
-import oauthContext, { OauthContext } from './context'
+import { useAuth } from './useAuth'
+import authContext, { AuthContext } from './context'
 
 const Setup = () => {
-  const { acquireToken } = useOauth()
-  const context = useContext<OauthContext>(oauthContext)
+  const { acquireToken } = useAuth()
+  const context = useContext<AuthContext>(authContext)
   const {
     state, dispatch,
   } = context

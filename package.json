@@ -1,17 +1,18 @@
 {
-  "name": "melody-oauth",
+  "name": "melody-auth",
   "version": "0.0.1",
-  "description": "An out-of-the-box OAuth system built on Cloudflare's infrastructure",
+  "description": "An out-of-the-box authentication system built on Cloudflare's infrastructure.",
   "keywords": [
     "oauth",
     "oauth2",
     "Cloudflare",
     "Cloudflare Workers",
-    "Authentication"
+    "Authentication Service",
+    "Identity Provider"
   ],
   "license": "MIT",
   "author": "Baozier",
-  "repository": "https://github.com/ValueMelody/melody-oauth",
+  "repository": "https://github.com/ValueMelody/melody-auth",
   "workspaces": [
     "server",
     "web-sdk",
