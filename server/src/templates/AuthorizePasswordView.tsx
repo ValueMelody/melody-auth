@@ -1,14 +1,14 @@
 import { html } from 'hono/html'
 import { localeConfig } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout from 'templates/components/Layout'
 import { oauthDto } from 'dtos'
-import AuthorizeCommonFields from 'views/components/AuthorizeCommonFields'
-import PoweredBy from 'views/components/PoweredBy'
-import { validateEmail } from 'views/scripts/email'
+import AuthorizeCommonFields from 'templates/components/AuthorizeCommonFields'
+import PoweredBy from 'templates/components/PoweredBy'
+import { validateEmail } from 'templates/scripts/email'
 import {
   handleError, handleRedirect, parseCommonFormFields, parseResponse, resetError,
-} from 'views/scripts/form'
-import { validatePassword } from 'views/scripts/password'
+} from 'templates/scripts/form'
+import { validatePassword } from 'templates/scripts/password'
 
 const AuthorizePassword = ({
   queryDto, logoUrl, enableSignUp, queryString,

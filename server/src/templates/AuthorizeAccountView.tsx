@@ -1,21 +1,21 @@
 import { html } from 'hono/html'
-import { validateEmail } from './scripts/email'
+import { validateEmail } from 'templates/scripts/email'
 import {
   validateConfirmPassword, validatePassword,
-} from './scripts/password'
-import FieldError from './components/FieldError'
+} from 'templates/scripts/password'
+import FieldError from 'templates/components/FieldError'
 import {
   validateFirstName, validateLastName,
-} from './scripts/name'
+} from 'templates/scripts/name'
 import { localeConfig } from 'configs'
-import Layout from 'views/components/Layout'
 import { oauthDto } from 'dtos'
-import AuthorizeCommonFields from 'views/components/AuthorizeCommonFields'
-import RequiredSymbol from 'views/components/RequiredSymbol'
-import PoweredBy from 'views/components/PoweredBy'
+import Layout from 'templates/components/Layout'
+import AuthorizeCommonFields from 'templates/components/AuthorizeCommonFields'
+import RequiredSymbol from 'templates/components/RequiredSymbol'
+import PoweredBy from 'templates/components/PoweredBy'
 import {
   handleError, handleRedirect, parseCommonFormFields, parseResponse, resetError,
-} from 'views/scripts/form'
+} from 'templates/scripts/form'
 
 const AuthorizeAccount = ({
   queryDto, logoUrl, enableNames, namesIsRequired, queryString,

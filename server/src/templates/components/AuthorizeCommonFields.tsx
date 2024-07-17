@@ -1,7 +1,7 @@
 import { localeConfig } from 'configs'
 import { oauthDto } from 'dtos'
-import RequiredSymbol from 'views/components/RequiredSymbol'
-import FieldError from 'views/components/FieldError'
+import RequiredSymbol from 'templates/components/RequiredSymbol'
+import FieldError from 'templates/components/FieldError'
 
 const AuthorizeCommonFields = ({ queryDto }: {
   queryDto: oauthDto.GetAuthorizeReqQueryDto;

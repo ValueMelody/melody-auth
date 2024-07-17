@@ -59,3 +59,14 @@ export const isValidCodeChallenge = async (
     return calculatedValue === codeChallenge
   }
 }
+
+export const genRandomString = (length: number) => {
+  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let randomString = ''
+  const array = new Uint8Array(length)
+  crypto.getRandomValues(array)
+  for (let i = 0; i < length; i++) {
+    randomString += charset[array[i] % charset.length]
+  }
+  return randomString
+}

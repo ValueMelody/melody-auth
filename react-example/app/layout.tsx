@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { OauthProvider } from '@melody-oauth/react'
 
 export default function RootLayout ({ children }: {

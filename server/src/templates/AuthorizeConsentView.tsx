@@ -1,11 +1,11 @@
 import { html } from 'hono/html'
 import { localeConfig } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout from 'templates/components/Layout'
 import { oauthDto } from 'dtos'
-import PoweredBy from 'views/components/PoweredBy'
+import PoweredBy from 'templates/components/PoweredBy'
 import {
   handleError, handleRedirect, parseResponse,
-} from 'views/scripts/form'
+} from 'templates/scripts/form'
 
 const AuthorizeConsent = ({
   queryDto, logoUrl, appName, scopes,
