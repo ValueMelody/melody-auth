@@ -35,9 +35,11 @@ export const useOauth = () => {
 
   const loginRedirect = useCallback(
     () => {
+      if (state.isAuthenticating) throw new Error('Please wait until isAuthenticating=false')
+      if (state.isAuthenticated) throw new Error('Already authenticated, please logout first')
       rawLoginRedirect(state.config)
     },
-    [state.config],
+    [state.config, state.isAuthenticating, state.isAuthenticated],
   )
 
   const logoutRedirect = useCallback(

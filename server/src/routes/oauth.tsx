@@ -10,7 +10,7 @@ import { oauthDto } from 'dtos'
 import {
   appService,
   consentService,
-  jwtService, kvService, userService,
+  jwtService, kvService, sessionService, userService,
 } from 'services'
 import {
   cryptoUtil, formatUtil, timeUtil, validateUtil,
@@ -30,7 +30,7 @@ const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
     state: c.req.query('state') ?? '',
     codeChallenge: c.req.query('code_challenge') ?? '',
     codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
-    scopes: c.req.queries('scope') ?? [],
+    scopes: c.req.query('scope')?.split(' ') ?? [],
   })
   await validateUtil.dto(queryDto)
 
@@ -56,6 +56,23 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/authorize`,
     async (c) => {
       const queryDto = await getAuthorizeGuard(c)
+
+      const stored = sessionService.getAuthInfoSession(
+        c,
+        queryDto.clientId,
+      )
+      if (stored && stored.request.clientId === queryDto.clientId) {
+        const { authCode } = await jwtService.genAuthCode(
+          c,
+          timeUtil.getCurrentTimestamp(),
+          stored.appId,
+          queryDto,
+          stored.user,
+        )
+
+        const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
+        return c.redirect(url)
+      }
 
       const {
         COMPANY_LOGO_URL: logoUrl,
@@ -204,11 +221,12 @@ export const load = (app: typeConfig.App) => {
         password,
       )
 
+      const request = new oauthDto.GetAuthorizeReqQueryDto(bodyDto)
       const { authCode } = await jwtService.genAuthCode(
         c,
         timeUtil.getCurrentTimestamp(),
         app.id,
-        new oauthDto.GetAuthorizeReqQueryDto(bodyDto),
+        request,
         user,
       )
 
@@ -217,6 +235,15 @@ export const load = (app: typeConfig.App) => {
         user.id,
         app.id,
       )
+
+      if (!requireConsent) {
+        sessionService.setAuthInfoSession(
+          c,
+          app.id,
+          user,
+          request,
+        )
+      }
 
       return c.json({
         code: authCode,
@@ -328,6 +355,7 @@ export const load = (app: typeConfig.App) => {
             c,
             currentTimestamp,
             oauthId,
+            authInfo.request.clientId,
             scope,
           )
           result.refresh_token = refreshToken
@@ -441,7 +469,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/logout`,
     authMiddleware.spaAccessToken,
     async (c) => {
-      const accessTokenBody = c.get('AccessTokenBody')
+      const accessTokenBody = c.get('access_token_body')
       if (!accessTokenBody) throw new errorConfig.Forbidden()
 
       const reqBody = await c.req.parseBody()
@@ -466,10 +494,31 @@ export const load = (app: typeConfig.App) => {
         bodyDto.refreshToken,
       )
 
+      const { OAUTH_SERVER_URL } = env(c)
+      const redirectUri = `${formatUtil.stripEndingSlash(OAUTH_SERVER_URL)}${BaseRoute}/logout`
+
       return c.json({
         message: localeConfig.Message.LogoutSuccess,
-        postLogoutRedirectUri: bodyDto.postLogoutRedirectUri,
+        redirectUri:
+          `${redirectUri}?post_logout_redirect_uri=${bodyDto.postLogoutRedirectUri}&client_id=${refreshTokenBody.azp}`,
       })
+    },
+  )
+
+  app.get(
+    `${BaseRoute}/logout`,
+    async (c) => {
+      const postLogoutRedirectUri = c.req.query('post_logout_redirect_uri')
+      const clientId = c.req.query('client_id')
+
+      if (!postLogoutRedirectUri || !clientId) throw new errorConfig.Forbidden()
+
+      sessionService.removeAuthInfoSession(
+        c,
+        clientId,
+      )
+
+      return c.redirect(postLogoutRedirectUri)
     },
   )
 
@@ -477,7 +526,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/userinfo`,
     authMiddleware.spaAccessToken,
     async (c) => {
-      const accessTokenBody = c.get('AccessTokenBody')
+      const accessTokenBody = c.get('access_token_body')
       if (!accessTokenBody) throw new errorConfig.Forbidden()
       if (!accessTokenBody.scope.includes(typeConfig.Scope.Profile)) {
         throw new errorConfig.UnAuthorized(localeConfig.Error.WrongScope)

@@ -24,7 +24,7 @@ export default function Home () {
   }
 
   const handleLogout = () => {
-    logoutRedirect({ postLogoutRedirectUri: '/' })
+    logoutRedirect({ postLogoutRedirectUri: 'http://localhost:3000/' })
   }
 
   const handleClickAcquireUserInfo = async () => {

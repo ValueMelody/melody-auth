@@ -9,9 +9,10 @@ export const logout = async (
   postLogoutRedirectUri: string,
   localOnly: boolean,
 ) => {
+  let redirectUri = postLogoutRedirectUri
   if (!localOnly && refreshToken) {
     try {
-      await postLogout(
+      redirectUri = await postLogout(
         config,
         {
           accessToken, refreshToken, postLogoutRedirectUri,
@@ -26,6 +27,5 @@ export const logout = async (
 
   storage.removeItem(StorageKey.RefreshToken)
 
-  if (postLogoutRedirectUri) window.location.href = postLogoutRedirectUri
-  return true
+  window.location.href = redirectUri
 }

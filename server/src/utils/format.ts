@@ -14,3 +14,7 @@ export const getValidScopes = (
 ) => scopes.filter((scope) => app.scopes.includes(scope))
 
 export const getQueryString = (c: Context<typeConfig.Context>) => c.req.url.split('?')[1]
+
+export const getAuthInfoSessionKeyByClientId = (clientId: string) => {
+  return `${typeConfig.SessionKey.AuthInfo}-${clientId}`
+}

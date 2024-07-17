@@ -124,6 +124,7 @@ export const genAccessToken = async (
   const accessTokenBody: typeConfig.AccessTokenBody = {
     sub,
     scope,
+    iat: currentTimestamp,
     exp: accessTokenExpiresAt,
   }
   const accessToken = await sign(
@@ -141,6 +142,7 @@ export const genRefreshToken = async (
   c: Context<typeConfig.Context>,
   currentTimestamp: number,
   oauthId: string,
+  clientId: string,
   scope: string,
 ) => {
   const {
@@ -150,7 +152,9 @@ export const genRefreshToken = async (
   const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
   const refreshTokenBody: typeConfig.RefreshTokenBody = {
     sub: oauthId,
+    azp: clientId,
     scope,
+    iat: currentTimestamp,
     exp: refreshTokenExpiresAt,
   }
   const refreshToken = await sign(
@@ -181,7 +185,7 @@ export const genIdToken = async (
     {
       iss: oauthServerUrl,
       sub: oauthId,
-      aud: clientId,
+      azp: clientId,
       exp: idTokenExpiresAt,
       iat: currentTimestamp,
       email,
