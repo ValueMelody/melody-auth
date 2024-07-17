@@ -10,15 +10,16 @@ import { oauthDto } from 'dtos'
 import {
   appService,
   consentService,
+  emailService,
   jwtService, kvService, sessionService, userService,
 } from 'services'
 import {
   cryptoUtil, formatUtil, timeUtil, validateUtil,
 } from 'utils'
 import { authMiddleware } from 'middlewares'
-import AuthorizePassword from 'views/AuthorizePassword'
-import AuthorizeAccount from 'views/AuthorizeAccount'
-import AuthorizeConsent from 'views/AuthorizeConsent'
+import {
+  AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
+} from 'templates'
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
 
@@ -81,7 +82,7 @@ export const load = (app: typeConfig.App) => {
 
       const queryString = formatUtil.getQueryString(c)
 
-      return c.html(<AuthorizePassword
+      return c.html(<AuthorizePasswordView
         queryString={queryString}
         queryDto={queryDto}
         logoUrl={logoUrl}
@@ -103,7 +104,7 @@ export const load = (app: typeConfig.App) => {
 
       const queryString = formatUtil.getQueryString(c)
 
-      return c.html(<AuthorizeAccount
+      return c.html(<AuthorizeAccountView
         queryString={queryString}
         queryDto={queryDto}
         logoUrl={logoUrl}
@@ -135,7 +136,7 @@ export const load = (app: typeConfig.App) => {
 
       const { COMPANY_LOGO_URL: logoUrl } = env(c)
 
-      return c.html(<AuthorizeConsent
+      return c.html(<AuthorizeConsentView
         logoUrl={logoUrl}
         scopes={authInfo.request.scopes}
         appName={app.name}
@@ -173,6 +174,11 @@ export const load = (app: typeConfig.App) => {
         password,
         bodyDto.firstName,
         bodyDto.lastName,
+      )
+
+      await emailService.sendEmailVerificationEmail(
+        c,
+        user,
       )
 
       const { authCode } = await jwtService.genAuthCode(

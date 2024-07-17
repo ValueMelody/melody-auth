@@ -13,6 +13,8 @@ export type Bindings = {
   REFRESH_TOKEN_JWT_SECRET: string;
   ID_TOKEN_JWT_SECRET: string;
   SERVER_SESSION_SECRET: string;
+  SENDGRID_API_KEY: string;
+  SENDGRID_SENDER_ADDRESS: string;
   AUTHORIZATION_CODE_EXPIRES_IN: number;
   SPA_ACCESS_TOKEN_EXPIRES_IN: number;
   S2S_ACCESS_TOKEN_EXPIRES_IN: number;
@@ -25,6 +27,7 @@ export type Bindings = {
   ENABLE_NAMES: boolean;
   NAMES_IS_REQUIRED: boolean;
   ENABLE_USER_APP_CONSENT: boolean;
+  ENABLE_EMAIL_VERIFICATION: boolean;
 };
 
 export type Context = {

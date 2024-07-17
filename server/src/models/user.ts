@@ -8,6 +8,11 @@ export interface Record {
   password: string | null;
   firstName: string | null;
   lastName: string | null;
+  emailVerified: number;
+  emailVerificationCode: string | null;
+  emailVerificationCodeExpiresOn: number | null;
+  passwordResetCode: string | null;
+  passwordResetCodeExpiresOn: number | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
