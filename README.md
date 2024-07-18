@@ -1,33 +1,27 @@
 # Melody Auth
 
-**Melody Auth** is a turnkey authentication system leveraging Cloudflare's infrastructure. It provides a robust and user-friendly solution for implementing your own authentication system with minimal configuration required.
+**Melody Auth** is a turnkey authentication system leveraging Cloudflare’s infrastructure. It provides a robust and user-friendly solution for implementing your own authentication system with minimal configuration required.
 
-## Why Choose Melody Auth?
+## Highlight
 
-- **Effortless Deployment**: Streamlined installation process for rapid implementation.
-- **Flexible Customization**: Adaptable to your unique authentication requirements.
-- **Robust Security**: Engineered with industry-standard security practices to safeguard user information.
-- **Transparent Architecture**: Full source code visibility, enabling thorough audits and modifications.
-- **Cloudflare-Powered**: Utilizes Cloudflare's global infrastructure for exceptional reliability and enhanced security measures.
-
-## Project Architecture
-
-Melody Auth comprises four key components:
-
-1. **Authentication Server**
-   - Built on the Hono web framework
-   - Handles core authentication logic and processes
-   - Enables user management through REST API
+1. **Self-Hosted**
+   - Deploy the entire system within minutes
+   - Leverage Cloudflare's infrastructure to minimize DevOps overhead
+   - Full access to the source code
 
 2. **React SDK**
-   - Frontend integration package
-   - Facilitates seamless interaction between React applications and the auth server
+   - Enables smooth integration between React applications and the authentication server
 
-3. **Admin Dashboard**
-   - Web-based management interface
-   - Provides tools for:
-     - Configuring application settings
-     - Managing user data
+3. **Client-Side PKCE Authentication Flow**
+   - Implements Proof Key for Code Exchange (PKCE) for enhanced security
+   - Protects against authorization code interception attacks
+
+4. **Server-to-Server REST API**
+   - Secure communication channel for backend services
+   - Facilitates token validation and user management
+
+5. **Admin Panel**
+   - Web interface for managing configurations and users
 
 ## License
 

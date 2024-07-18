@@ -4,7 +4,7 @@ import {
 
 export const getAuthorize = async (
   {
-    baseUri,
+    serverUri,
     clientId,
     scopes = [],
     redirectUri,
@@ -20,7 +20,7 @@ export const getAuthorize = async (
   ['openid', 'profile', 'offline_access'].forEach((scope) => {
     if (!combinedScopes.includes(scope)) combinedScopes.push(scope)
   })
-  const url = baseUri +
+  const url = serverUri +
     '/oauth2/authorize?response_type=code&state=' +
     state +
     '&client_id=' +
@@ -36,11 +36,11 @@ export const getAuthorize = async (
 }
 
 export const getUserInfo = async (
-  { baseUri }: ProviderConfig, { accessToken }: {
+  { serverUri }: ProviderConfig, { accessToken }: {
   accessToken: string;
 },
 ) => {
-  const url = `${baseUri}/oauth2/userinfo`
+  const url = `${serverUri}/oauth2/userinfo`
   const res = await fetch(
     url,
     {
@@ -59,7 +59,7 @@ export const getUserInfo = async (
 }
 
 export const postLogout = async (
-  { baseUri }: ProviderConfig, {
+  { serverUri }: ProviderConfig, {
     accessToken, refreshToken, postLogoutRedirectUri,
   }: {
   accessToken: string;
@@ -67,7 +67,7 @@ export const postLogout = async (
   postLogoutRedirectUri: string;
 },
 ) => {
-  const url = `${baseUri}/oauth2/logout`
+  const url = `${serverUri}/oauth2/logout`
   const data = {
     refresh_token: refreshToken,
     post_logout_redirect_uri: postLogoutRedirectUri,
@@ -97,7 +97,7 @@ export const postLogout = async (
 
 export const postTokenByAuthCode = async (
   {
-    baseUri,
+    serverUri,
     redirectUri,
   }: ProviderConfig, {
     code,
@@ -107,7 +107,7 @@ export const postTokenByAuthCode = async (
   codeVerifier: string;
 },
 ) => {
-  const url = `${baseUri}/oauth2/token`
+  const url = `${serverUri}/oauth2/token`
   const body = {
     grant_type: 'authorization_code',
     code,
@@ -135,11 +135,11 @@ export const postTokenByAuthCode = async (
 }
 
 export const postTokenByRefreshToken = async (
-  { baseUri }: ProviderConfig, { refreshToken }: {
+  { serverUri }: ProviderConfig, { refreshToken }: {
   refreshToken: string;
 },
 ) => {
-  const url = `${baseUri}/oauth2/token`
+  const url = `${serverUri}/oauth2/token`
   const body = {
     grant_type: 'refresh_token',
     refresh_token: refreshToken,

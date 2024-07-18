@@ -36,7 +36,7 @@ export interface GetUserInfo {
 }
 
 export interface ProviderConfig {
-  baseUri: string;
+  serverUri: string;
   clientId: string;
   redirectUri: string;
   scopes?: string[];
