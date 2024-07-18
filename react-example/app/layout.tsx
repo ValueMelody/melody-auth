@@ -10,7 +10,7 @@ export default function RootLayout ({ children }: {
       <AuthProvider
         clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
         redirectUri={process.env.NEXT_PUBLIC_REDIRECT_URI ?? ''}
-        baseUri={process.env.NEXT_PUBLIC_BASE_URI ?? ''}
+        serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
       >
         <body>
           {children}
