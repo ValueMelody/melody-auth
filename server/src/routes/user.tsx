@@ -21,7 +21,10 @@ export const load = (app: typeConfig.App) => {
     accessTokenMiddleware.s2sReadUser,
     async (c) => {
       const authId = c.req.param('authId')
-      const user = await userModel.getByAuthId(c.env.DB, authId)
+      const user = await userModel.getByAuthId(
+        c.env.DB,
+        authId,
+      )
       return c.json({ user })
     },
   )
