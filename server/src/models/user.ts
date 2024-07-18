@@ -36,6 +36,12 @@ export interface Update {
 
 const TableName = dbConfig.TableName.User
 
+export const getAll = async (db: D1Database) => {
+  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE deletedAt IS NULL`)
+  const { results: users }: { results: Record[] } = await stmt.all()
+  return users
+}
+
 export const getById = async (
   db: D1Database,
   id: number,

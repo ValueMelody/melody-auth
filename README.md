@@ -17,16 +17,13 @@ Melody Auth comprises four key components:
 1. **Authentication Server**
    - Built on the Hono web framework
    - Handles core authentication logic and processes
+   - Enables user management through REST API
 
 2. **React SDK**
    - Frontend integration package
    - Facilitates seamless interaction between React applications and the auth server
 
-3. **Node.js SDK**
-   - Backend integration package
-   - Enables server-side applications to communicate with the auth server
-
-4. **Admin Dashboard**
+3. **Admin Dashboard**
    - Web-based management interface
    - Provides tools for:
      - Configuring application settings

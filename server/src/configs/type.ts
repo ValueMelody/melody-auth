@@ -71,6 +71,7 @@ export enum Scope {
   OpenId = 'openid',
   Profile = 'profile',
   OfflineAccess = 'offline_access',
+  READ_USER = 'read_user',
 }
 
 export enum ClientType {

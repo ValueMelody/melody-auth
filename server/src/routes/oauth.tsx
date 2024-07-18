@@ -16,7 +16,9 @@ import {
 import {
   cryptoUtil, formatUtil, timeUtil, validateUtil,
 } from 'utils'
-import { authMiddleware } from 'middlewares'
+import {
+  accessTokenMiddleware, csrfMiddleware,
+} from 'middlewares'
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
 } from 'templates'
@@ -147,7 +149,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-account`,
-    authMiddleware.authorizeCsrf,
+    csrfMiddleware.oAuthAuthorize,
     async (c) => {
       const {
         NAMES_IS_REQUIRED: namesIsRequired,
@@ -207,7 +209,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-password`,
-    authMiddleware.authorizeCsrf,
+    csrfMiddleware.oAuthAuthorize,
     async (c) => {
       const reqBody = await c.req.json()
 
@@ -263,7 +265,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-consent`,
-    authMiddleware.authorizeCsrf,
+    csrfMiddleware.oAuthAuthorize,
     async (c) => {
       const reqBody = await c.req.json()
 
@@ -473,10 +475,9 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/logout`,
-    authMiddleware.spaAccessToken,
+    accessTokenMiddleware.spa,
     async (c) => {
-      const accessTokenBody = c.get('access_token_body')
-      if (!accessTokenBody) throw new errorConfig.Forbidden()
+      const accessTokenBody = c.get('access_token_body')!
 
       const reqBody = await c.req.parseBody()
       const bodyDto = new oauthDto.PostLogoutReqBodyDto({
@@ -530,11 +531,11 @@ export const load = (app: typeConfig.App) => {
 
   app.get(
     `${BaseRoute}/userinfo`,
-    authMiddleware.spaAccessToken,
+    accessTokenMiddleware.spaProfile,
     async (c) => {
       const accessTokenBody = c.get('access_token_body')
       if (!accessTokenBody) throw new errorConfig.Forbidden()
-      if (!accessTokenBody.scope.includes(typeConfig.Scope.Profile)) {
+      if (!accessTokenBody.scope?.split(' ').includes(typeConfig.Scope.Profile)) {
         throw new errorConfig.UnAuthorized(localeConfig.Error.WrongScope)
       }
 
