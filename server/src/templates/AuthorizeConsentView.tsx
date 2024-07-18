@@ -1,5 +1,7 @@
 import { html } from 'hono/html'
-import { localeConfig, routeConfig } from 'configs'
+import {
+  localeConfig, routeConfig,
+} from 'configs'
 import Layout from 'templates/components/Layout'
 import { identityDto } from 'dtos'
 import PoweredBy from 'templates/components/PoweredBy'

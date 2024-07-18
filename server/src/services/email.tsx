@@ -48,4 +48,6 @@ export const sendEmailVerificationEmail = async (
       }),
     },
   )
+  console.log(1111)
+  console.log(res)
 }

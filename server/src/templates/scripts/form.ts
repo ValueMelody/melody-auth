@@ -1,5 +1,7 @@
 import { html } from 'hono/html'
-import { localeConfig, routeConfig } from 'configs'
+import {
+  localeConfig, routeConfig,
+} from 'configs'
 
 export const resetError = () => html`
   window.addEventListener('load', function () {

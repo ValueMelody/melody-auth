@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { typeConfig } from 'configs'
 import {
-  oauthRoute, userRoute, identityRoute
+  oauthRoute, userRoute, identityRoute,
 } from 'routes'
 import { setupMiddleware } from 'middlewares'
 

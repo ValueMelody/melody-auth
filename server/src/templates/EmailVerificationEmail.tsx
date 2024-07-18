@@ -1,4 +1,6 @@
-import { localeConfig, routeConfig } from 'configs'
+import {
+  localeConfig, routeConfig,
+} from 'configs'
 import Layout from 'templates/components/Layout'
 import PoweredBy from 'templates/components/PoweredBy'
 

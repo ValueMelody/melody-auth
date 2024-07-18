@@ -7,7 +7,9 @@ import FieldError from 'templates/components/FieldError'
 import {
   validateFirstName, validateLastName,
 } from 'templates/scripts/name'
-import { localeConfig, routeConfig } from 'configs'
+import {
+  localeConfig, routeConfig,
+} from 'configs'
 import { oauthDto } from 'dtos'
 import Layout from 'templates/components/Layout'
 import AuthorizeCommonFields from 'templates/components/AuthorizeCommonFields'
