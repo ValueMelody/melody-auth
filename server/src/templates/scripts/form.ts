@@ -1,5 +1,5 @@
 import { html } from 'hono/html'
-import { localeConfig } from 'configs'
+import { localeConfig, routeConfig } from 'configs'
 
 export const resetError = () => html`
   window.addEventListener('load', function () {
@@ -77,7 +77,7 @@ export const handleRedirect = () => html`
   var queryString = "?state=" + data.state + "&code=" + data.code;
   if (data.requireConsent) {
     queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "/oauth2/authorize-consent" + queryString
+    var url = "${routeConfig.InternalRoute.Identity}/authorize-consent" + queryString
     window.location.href = url;
   } else {
     var url = data.redirectUri + queryString;

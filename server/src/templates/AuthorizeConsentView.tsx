@@ -1,7 +1,7 @@
 import { html } from 'hono/html'
-import { localeConfig } from 'configs'
+import { localeConfig, routeConfig } from 'configs'
 import Layout from 'templates/components/Layout'
-import { oauthDto } from 'dtos'
+import { identityDto } from 'dtos'
 import PoweredBy from 'templates/components/PoweredBy'
 import {
   handleError, handleRedirect, parseResponse,
@@ -10,7 +10,7 @@ import {
 const AuthorizeConsent = ({
   queryDto, logoUrl, appName, scopes,
 }: {
-  queryDto: oauthDto.GetAuthorizeConsentReqQueryDto;
+  queryDto: identityDto.GetAuthorizeConsentReqQueryDto;
   logoUrl: string;
   appName: string;
   scopes: string[];
@@ -23,7 +23,7 @@ const AuthorizeConsent = ({
             window.location.href = "${queryDto.redirectUri}";
           }
           function handleAccept() {
-            fetch('/oauth2/authorize-consent', {
+            fetch('${routeConfig.InternalRoute.Identity}/authorize-consent', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

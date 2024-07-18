@@ -1,5 +1,5 @@
 import { html } from 'hono/html'
-import { localeConfig } from 'configs'
+import { localeConfig, routeConfig } from 'configs'
 import Layout from 'templates/components/Layout'
 import { oauthDto } from 'dtos'
 import AuthorizeCommonFields from 'templates/components/AuthorizeCommonFields'
@@ -50,7 +50,7 @@ const AuthorizePassword = ({
         {enableSignUp && (
           <a
             class='button-text mt-4'
-            href={`/oauth2/authorize-account?${queryString}`}
+            href={`${routeConfig.InternalRoute.Identity}/authorize-account?${queryString}`}
           >
             {localeConfig.AuthorizePasswordPage.SignUpBtn}
           </a>
@@ -64,7 +64,7 @@ const AuthorizePassword = ({
             e.preventDefault();
             ${validateEmail()}
             ${validatePassword()}
-            fetch('/oauth2/authorize-password', {
+            fetch('${routeConfig.InternalRoute.Identity}/authorize-password', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

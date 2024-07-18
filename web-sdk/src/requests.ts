@@ -21,7 +21,7 @@ export const getAuthorize = async (
     if (!combinedScopes.includes(scope)) combinedScopes.push(scope)
   })
   const url = serverUri +
-    '/oauth2/authorize?response_type=code&state=' +
+    '/oauth2/v1/authorize?response_type=code&state=' +
     state +
     '&client_id=' +
     clientId +
@@ -40,7 +40,7 @@ export const getUserInfo = async (
   accessToken: string;
 },
 ) => {
-  const url = `${serverUri}/oauth2/userinfo`
+  const url = `${serverUri}/oauth2/v1/userinfo`
   const res = await fetch(
     url,
     {
@@ -67,7 +67,7 @@ export const postLogout = async (
   postLogoutRedirectUri: string;
 },
 ) => {
-  const url = `${serverUri}/oauth2/logout`
+  const url = `${serverUri}/identity/v1/logout`
   const data = {
     refresh_token: refreshToken,
     post_logout_redirect_uri: postLogoutRedirectUri,
@@ -107,7 +107,7 @@ export const postTokenByAuthCode = async (
   codeVerifier: string;
 },
 ) => {
-  const url = `${serverUri}/oauth2/token`
+  const url = `${serverUri}/oauth2/v1/token`
   const body = {
     grant_type: 'authorization_code',
     code,
@@ -139,7 +139,7 @@ export const postTokenByRefreshToken = async (
   refreshToken: string;
 },
 ) => {
-  const url = `${serverUri}/oauth2/token`
+  const url = `${serverUri}/oauth2/v1/token`
   const body = {
     grant_type: 'refresh_token',
     refresh_token: refreshToken,

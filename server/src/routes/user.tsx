@@ -4,7 +4,7 @@ import {
 import { accessTokenMiddleware } from 'middlewares'
 import { userModel } from 'models'
 
-const BaseRoute = routeConfig.InternalRoute.Users
+const BaseRoute = routeConfig.InternalRoute.ApiUsers
 
 export const load = (app: typeConfig.App) => {
   app.get(

@@ -93,7 +93,8 @@ const Layout = ({ children }: { children: any }) => html`
             border-radius: 8px;
             padding: 8px 16px;
             font-size: 14px;
-            width: auto;
+            width: 240px;
+            align-self: center;
           }
         </style>
       </head>
