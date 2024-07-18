@@ -1,4 +1,6 @@
-import { localeConfig } from 'configs'
+import {
+  localeConfig, routeConfig,
+} from 'configs'
 import Layout from 'templates/components/Layout'
 import PoweredBy from 'templates/components/PoweredBy'
 
@@ -23,7 +25,7 @@ const EmailVerificationEmail = ({
         <p>{localeConfig.EmailVerificationEmail.Desc}: {verificationCode}</p>
         <a
           class='button-text mt-4'
-          href={`/account/verify-email?code=${verificationCode}&id=${authId}`}
+          href={`${routeConfig.InternalRoute.Identity}/verify-email?code=${verificationCode}&id=${authId}`}
         >
           {localeConfig.EmailVerificationEmail.VerifyBtn}
         </a>

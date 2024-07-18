@@ -7,7 +7,9 @@ import FieldError from 'templates/components/FieldError'
 import {
   validateFirstName, validateLastName,
 } from 'templates/scripts/name'
-import { localeConfig } from 'configs'
+import {
+  localeConfig, routeConfig,
+} from 'configs'
 import { oauthDto } from 'dtos'
 import Layout from 'templates/components/Layout'
 import AuthorizeCommonFields from 'templates/components/AuthorizeCommonFields'
@@ -111,7 +113,7 @@ const AuthorizeAccount = ({
         </form>
         <a
           class='button-text mt-4'
-          href={`/oauth2/authorize?${queryString}`}
+          href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
         >
           {localeConfig.AuthorizeAccountPage.SignInBtn}
         </a>
@@ -127,7 +129,7 @@ const AuthorizeAccount = ({
             ${validateConfirmPassword()}
             ${enableNames && namesIsRequired ? validateFirstName() : ''}
             ${enableNames && namesIsRequired ? validateLastName() : ''}
-            fetch('/oauth2/authorize-account', {
+            fetch('${routeConfig.InternalRoute.Identity}/authorize-account', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

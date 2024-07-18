@@ -1,7 +1,5 @@
 import {
-  ArrayMinSize, IsEnum, IsString, IsEmail, IsStrongPassword, IsNotEmpty,
-  IsOptional,
-  Length,
+  ArrayMinSize, IsEnum, IsString, IsNotEmpty,
 } from 'class-validator'
 
 enum AuthorizeResponseType {
@@ -59,86 +57,6 @@ export class GetAuthorizeReqQueryDto {
   }
 }
 
-export class GetAuthorizeConsentReqQueryDto {
-  @IsString()
-  @IsNotEmpty()
-    state: string
-
-  @IsString()
-  @IsNotEmpty()
-    code: string
-
-  @IsString()
-  @IsNotEmpty()
-    redirectUri: string
-
-  constructor (dto: GetAuthorizeConsentReqQueryDto) {
-    this.state = dto.state
-    this.code = dto.code
-    this.redirectUri = dto.redirectUri
-  }
-}
-
-export class PostAuthorizeReqBodyWithPasswordDto extends GetAuthorizeReqQueryDto {
-  @IsEmail()
-    email: string
-
-  @IsStrongPassword()
-    password: string
-
-  constructor (dto: PostAuthorizeReqBodyWithPasswordDto) {
-    super(dto)
-    this.email = dto.email.toLowerCase()
-    this.password = dto.password
-  }
-}
-
-export class PostAuthorizeReqBodyWithNamesDto extends PostAuthorizeReqBodyWithPasswordDto {
-  @IsString()
-  @Length(
-    0,
-    50,
-  )
-  @IsOptional()
-    firstName: string | null
-
-  @IsString()
-  @Length(
-    0,
-    50,
-  )
-  @IsOptional()
-    lastName: string | null
-
-  constructor (dto: PostAuthorizeReqBodyWithNamesDto) {
-    super(dto)
-    this.firstName = dto.firstName ?? null
-    this.lastName = dto.lastName ?? null
-  }
-}
-
-export class PostAuthorizeReqBodyWithRequiredNamesDto extends PostAuthorizeReqBodyWithPasswordDto {
-  @IsString()
-  @Length(
-    1,
-    50,
-  )
-    firstName: string | null
-
-  @IsString()
-  @Length(
-    1,
-    50,
-  )
-    lastName: string | null
-
-  constructor (dto: PostAuthorizeReqBodyWithRequiredNamesDto) {
-    super(dto)
-    this.firstName = dto.firstName
-    this.lastName = dto.lastName
-  }
-}
-
 export class PostTokenAuthCodeReqBodyDto {
   @IsEnum(TokenGrantType)
     grantType: string
@@ -193,19 +111,5 @@ export class PostTokenClientCredentialsReqBodyDto {
     this.clientId = dto.clientId
     this.secret = dto.secret
     this.scopes = parseScopes(dto.scopes)
-  }
-}
-
-export class PostLogoutReqBodyDto {
-  @IsString()
-  @IsNotEmpty()
-    refreshToken: string
-
-  @IsString()
-    postLogoutRedirectUri: string
-
-  constructor (dto: PostLogoutReqBodyDto) {
-    this.refreshToken = dto.refreshToken
-    this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
   }
 }

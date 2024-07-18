@@ -1,5 +1,4 @@
 import { env } from 'hono/adapter'
-import { Context } from 'hono'
 import {
   GetUserInfo, PostTokenByAuthCode, PostTokenByClientCredentials, PostTokenByRefreshToken,
 } from '../../../global'
@@ -10,55 +9,23 @@ import { oauthDto } from 'dtos'
 import {
   appService,
   consentService,
-  emailService,
   jwtService, kvService, sessionService, userService,
 } from 'services'
 import {
-  cryptoUtil, formatUtil, timeUtil, validateUtil,
+  cryptoUtil, formatUtil, timeUtil,
 } from 'utils'
+import { accessTokenMiddleware } from 'middlewares'
 import {
-  accessTokenMiddleware, csrfMiddleware,
-} from 'middlewares'
-import {
-  AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
-} from 'templates'
+  getAuthorizeReqHandler, postTokenReqHandler,
+} from 'handlers'
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
-
-const getAuthorizeGuard = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new oauthDto.GetAuthorizeReqQueryDto({
-    clientId: c.req.query('client_id') ?? '',
-    redirectUri: c.req.query('redirect_uri') ?? '',
-    responseType: c.req.query('response_type') ?? '',
-    state: c.req.query('state') ?? '',
-    codeChallenge: c.req.query('code_challenge') ?? '',
-    codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
-    scopes: c.req.query('scope')?.split(' ') ?? [],
-  })
-  await validateUtil.dto(queryDto)
-
-  const app = await appService.verifySPAClientRequest(
-    c.env.DB,
-    queryDto.clientId,
-    queryDto.redirectUri,
-  )
-
-  const validScopes = formatUtil.getValidScopes(
-    queryDto.scopes,
-    app,
-  )
-
-  return {
-    ...queryDto,
-    scopes: validScopes,
-  }
-}
 
 export const load = (app: typeConfig.App) => {
   app.get(
     `${BaseRoute}/authorize`,
     async (c) => {
-      const queryDto = await getAuthorizeGuard(c)
+      const queryDto = await getAuthorizeReqHandler.parse(c)
 
       const stored = sessionService.getAuthInfoSession(
         c,
@@ -77,219 +44,8 @@ export const load = (app: typeConfig.App) => {
         return c.redirect(url)
       }
 
-      const {
-        COMPANY_LOGO_URL: logoUrl,
-        ENABLE_SIGN_UP: enableSignUp,
-      } = env(c)
-
       const queryString = formatUtil.getQueryString(c)
-
-      return c.html(<AuthorizePasswordView
-        queryString={queryString}
-        queryDto={queryDto}
-        logoUrl={logoUrl}
-        enableSignUp={enableSignUp}
-      />)
-    },
-  )
-
-  app.get(
-    `${BaseRoute}/authorize-account`,
-    async (c) => {
-      const queryDto = await getAuthorizeGuard(c)
-
-      const {
-        COMPANY_LOGO_URL: logoUrl,
-        ENABLE_NAMES: enableNames,
-        NAMES_IS_REQUIRED: namesIsRequired,
-      } = env(c)
-
-      const queryString = formatUtil.getQueryString(c)
-
-      return c.html(<AuthorizeAccountView
-        queryString={queryString}
-        queryDto={queryDto}
-        logoUrl={logoUrl}
-        enableNames={enableNames}
-        namesIsRequired={namesIsRequired}
-      />)
-    },
-  )
-
-  app.get(
-    `${BaseRoute}/authorize-consent`,
-    async (c) => {
-      const queryDto = new oauthDto.GetAuthorizeConsentReqQueryDto({
-        state: c.req.query('state') ?? '',
-        redirectUri: c.req.query('redirect_uri') ?? '',
-        code: c.req.query('code') ?? '',
-      })
-
-      const authInfo = await jwtService.getAuthCodeBody(
-        c,
-        queryDto.code,
-      )
-
-      const app = await appService.verifySPAClientRequest(
-        c.env.DB,
-        authInfo.request.clientId,
-        queryDto.redirectUri,
-      )
-
-      const { COMPANY_LOGO_URL: logoUrl } = env(c)
-
-      return c.html(<AuthorizeConsentView
-        logoUrl={logoUrl}
-        scopes={authInfo.request.scopes}
-        appName={app.name}
-        queryDto={queryDto}
-      />)
-    },
-  )
-
-  app.post(
-    `${BaseRoute}/authorize-account`,
-    csrfMiddleware.oAuthAuthorize,
-    async (c) => {
-      const {
-        NAMES_IS_REQUIRED: namesIsRequired,
-        ENABLE_SIGN_UP: enableSignUp,
-      } = env(c)
-      if (!enableSignUp) throw new errorConfig.UnAuthorized()
-
-      const reqBody = await c.req.json()
-      const bodyDto = namesIsRequired
-        ? new oauthDto.PostAuthorizeReqBodyWithRequiredNamesDto(reqBody)
-        : new oauthDto.PostAuthorizeReqBodyWithNamesDto(reqBody)
-      await validateUtil.dto(bodyDto)
-
-      const app = await appService.verifySPAClientRequest(
-        c.env.DB,
-        bodyDto.clientId,
-        bodyDto.redirectUri,
-      )
-
-      const password = await cryptoUtil.sha256(bodyDto.password)
-      const user = await userService.createAccountWithPassword(
-        c.env.DB,
-        bodyDto.email,
-        password,
-        bodyDto.firstName,
-        bodyDto.lastName,
-      )
-
-      await emailService.sendEmailVerificationEmail(
-        c,
-        user,
-      )
-
-      const { authCode } = await jwtService.genAuthCode(
-        c,
-        timeUtil.getCurrentTimestamp(),
-        app.id,
-        new oauthDto.GetAuthorizeReqQueryDto(bodyDto),
-        user,
-      )
-
-      const requireConsent = await consentService.shouldCollectConsent(
-        c,
-        user.id,
-        app.id,
-      )
-
-      return c.json({
-        code: authCode,
-        redirectUri: bodyDto.redirectUri,
-        state: bodyDto.state,
-        scopes: bodyDto.scopes,
-        requireConsent,
-      })
-    },
-  )
-
-  app.post(
-    `${BaseRoute}/authorize-password`,
-    csrfMiddleware.oAuthAuthorize,
-    async (c) => {
-      const reqBody = await c.req.json()
-
-      const bodyDto = new oauthDto.PostAuthorizeReqBodyWithPasswordDto(reqBody)
-      await validateUtil.dto(bodyDto)
-
-      const app = await appService.verifySPAClientRequest(
-        c.env.DB,
-        bodyDto.clientId,
-        bodyDto.redirectUri,
-      )
-
-      const password = await cryptoUtil.sha256(bodyDto.password)
-      const user = await userService.verifyPasswordSignIn(
-        c.env.DB,
-        bodyDto.email,
-        password,
-      )
-
-      const request = new oauthDto.GetAuthorizeReqQueryDto(bodyDto)
-      const { authCode } = await jwtService.genAuthCode(
-        c,
-        timeUtil.getCurrentTimestamp(),
-        app.id,
-        request,
-        user,
-      )
-
-      const requireConsent = await consentService.shouldCollectConsent(
-        c,
-        user.id,
-        app.id,
-      )
-
-      if (!requireConsent) {
-        sessionService.setAuthInfoSession(
-          c,
-          app.id,
-          user,
-          request,
-        )
-      }
-
-      return c.json({
-        code: authCode,
-        redirectUri: bodyDto.redirectUri,
-        state: bodyDto.state,
-        scopes: bodyDto.scopes,
-        requireConsent,
-      })
-    },
-  )
-
-  app.post(
-    `${BaseRoute}/authorize-consent`,
-    csrfMiddleware.oAuthAuthorize,
-    async (c) => {
-      const reqBody = await c.req.json()
-
-      const bodyDto = new oauthDto.GetAuthorizeConsentReqQueryDto(reqBody)
-      await validateUtil.dto(bodyDto)
-
-      const authInfo = await jwtService.getAuthCodeBody(
-        c,
-        bodyDto.code,
-      )
-
-      const userId = authInfo.user.id
-      const appId = authInfo.appId
-      await consentService.createUserAppConsent(
-        c.env.DB,
-        userId,
-        appId,
-      )
-
-      return c.json({
-        code: bodyDto.code,
-        redirectUri: bodyDto.redirectUri,
-        state: bodyDto.state,
-      })
+      return c.redirect(`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`)
     },
   )
 
@@ -302,12 +58,7 @@ export const load = (app: typeConfig.App) => {
       const currentTimestamp = timeUtil.getCurrentTimestamp()
 
       if (grantType === oauthDto.TokenGrantType.AuthorizationCode) {
-        const bodyDto = new oauthDto.PostTokenAuthCodeReqBodyDto({
-          grantType: String(reqBody.grant_type),
-          code: String(reqBody.code),
-          codeVerifier: String(reqBody.code_verifier),
-        })
-        await validateUtil.dto(bodyDto)
+        const bodyDto = await postTokenReqHandler.parseAuthCode(c)
 
         const authInfo = await jwtService.getAuthCodeBody(
           c,
@@ -390,11 +141,7 @@ export const load = (app: typeConfig.App) => {
 
         return c.json(result)
       } else if (grantType === oauthDto.TokenGrantType.RefreshToken) {
-        const bodyDto = new oauthDto.PostTokenRefreshTokenReqBodyDto({
-          grantType: String(reqBody.grant_type),
-          refreshToken: String(reqBody.refresh_token),
-        })
-        await validateUtil.dto(bodyDto)
+        const bodyDto = await postTokenReqHandler.parseRefreshToken(c)
 
         await kvService.validateRefreshToken(
           c.env.KV,
@@ -427,13 +174,7 @@ export const load = (app: typeConfig.App) => {
 
         return c.json(result)
       } else if (grantType === oauthDto.TokenGrantType.ClientCredentials) {
-        const bodyDto = new oauthDto.PostTokenClientCredentialsReqBodyDto({
-          grantType: String(reqBody.grant_type),
-          clientId: String(reqBody.client_id),
-          secret: String(reqBody.client_secret),
-          scopes: reqBody.scope ? String(reqBody.scope).split(',') : [],
-        })
-        await validateUtil.dto(bodyDto)
+        const bodyDto = await postTokenReqHandler.parseClientCredentials(c)
 
         const app = await appService.verifyS2SClientRequest(
           c.env.DB,
@@ -473,45 +214,6 @@ export const load = (app: typeConfig.App) => {
     },
   )
 
-  app.post(
-    `${BaseRoute}/logout`,
-    accessTokenMiddleware.spa,
-    async (c) => {
-      const accessTokenBody = c.get('access_token_body')!
-
-      const reqBody = await c.req.parseBody()
-      const bodyDto = new oauthDto.PostLogoutReqBodyDto({
-        refreshToken: String(reqBody.refresh_token),
-        postLogoutRedirectUri: reqBody.post_logout_redirect_uri
-          ? String(reqBody.post_logout_redirect_uri)
-          : '',
-      })
-      await validateUtil.dto(bodyDto)
-
-      const refreshTokenBody = await jwtService.getRefreshTokenBody(
-        c,
-        bodyDto.refreshToken,
-      )
-      if (accessTokenBody.sub !== refreshTokenBody.sub) {
-        throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
-      }
-
-      await kvService.invalidRefreshToken(
-        c.env.KV,
-        bodyDto.refreshToken,
-      )
-
-      const { AUTH_SERVER_URL } = env(c)
-      const redirectUri = `${formatUtil.stripEndingSlash(AUTH_SERVER_URL)}${BaseRoute}/logout`
-
-      return c.json({
-        message: localeConfig.Message.LogoutSuccess,
-        redirectUri:
-          `${redirectUri}?post_logout_redirect_uri=${bodyDto.postLogoutRedirectUri}&client_id=${refreshTokenBody.azp}`,
-      })
-    },
-  )
-
   app.get(
     `${BaseRoute}/logout`,
     async (c) => {
@@ -533,11 +235,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/userinfo`,
     accessTokenMiddleware.spaProfile,
     async (c) => {
-      const accessTokenBody = c.get('access_token_body')
-      if (!accessTokenBody) throw new errorConfig.Forbidden()
-      if (!accessTokenBody.scope?.split(' ').includes(typeConfig.Scope.Profile)) {
-        throw new errorConfig.UnAuthorized(localeConfig.Error.WrongScope)
-      }
+      const accessTokenBody = c.get('access_token_body')!
 
       const user = await userService.getUserInfo(
         c.env.DB,
