@@ -21,7 +21,7 @@ export const parse = async (c: Context<typeConfig.Context>) => {
   await validateUtil.dto(queryDto)
 
   const app = await appService.verifySPAClientRequest(
-    c.env.DB,
+    c,
     queryDto.clientId,
     queryDto.redirectUri,
   )

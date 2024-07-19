@@ -7,7 +7,7 @@ import {
 } from 'configs'
 import { formatUtil } from 'utils'
 
-export const oAuthAuthorize = async (
+export const serverOrigin = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
   const origin = c.req.header('origin')

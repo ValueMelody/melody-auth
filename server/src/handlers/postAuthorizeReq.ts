@@ -7,10 +7,14 @@ export const parseAccount = async (
   c: Context<typeConfig.Context>, namesIsRequired: boolean,
 ) => {
   const reqBody = await c.req.json()
+  const parsedBody = {
+    ...reqBody,
+    scopes: reqBody.scope.split(' '),
+  }
 
   const bodyDto = namesIsRequired
-    ? new identityDto.PostAuthorizeReqBodyWithRequiredNamesDto(reqBody)
-    : new identityDto.PostAuthorizeReqBodyWithNamesDto(reqBody)
+    ? new identityDto.PostAuthorizeReqBodyWithRequiredNamesDto(parsedBody)
+    : new identityDto.PostAuthorizeReqBodyWithNamesDto(parsedBody)
   await validateUtil.dto(bodyDto)
 
   return bodyDto
@@ -19,7 +23,10 @@ export const parseAccount = async (
 export const parsePassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeReqBodyWithPasswordDto(reqBody)
+  const bodyDto = new identityDto.PostAuthorizeReqBodyWithPasswordDto({
+    ...reqBody,
+    scopes: reqBody.scope.split(' '),
+  })
   await validateUtil.dto(bodyDto)
 
   return bodyDto

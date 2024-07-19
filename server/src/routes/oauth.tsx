@@ -1,6 +1,5 @@
-import { env } from 'hono/adapter'
 import {
-  GetUserInfo, PostTokenByAuthCode, PostTokenByClientCredentials, PostTokenByRefreshToken,
+  PostTokenByAuthCode, PostTokenByClientCredentials, PostTokenByRefreshToken,
 } from '../../../global'
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
@@ -16,7 +15,7 @@ import {
 } from 'utils'
 import { accessTokenMiddleware } from 'middlewares'
 import {
-  getAuthorizeReqHandler, postTokenReqHandler,
+  getAuthorizeReqHandler, logoutReqHandler, postTokenReqHandler,
 } from 'handlers'
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
@@ -177,7 +176,7 @@ export const load = (app: typeConfig.App) => {
         const bodyDto = await postTokenReqHandler.parseClientCredentials(c)
 
         const app = await appService.verifyS2SClientRequest(
-          c.env.DB,
+          c,
           bodyDto.clientId,
           bodyDto.secret,
         )
@@ -217,17 +216,14 @@ export const load = (app: typeConfig.App) => {
   app.get(
     `${BaseRoute}/logout`,
     async (c) => {
-      const postLogoutRedirectUri = c.req.query('post_logout_redirect_uri')
-      const clientId = c.req.query('client_id')
-
-      if (!postLogoutRedirectUri || !clientId) throw new errorConfig.Forbidden()
+      const queryDto = await logoutReqHandler.parseGet(c)
 
       sessionService.removeAuthInfoSession(
         c,
-        clientId,
+        queryDto.clientId,
       )
 
-      return c.redirect(postLogoutRedirectUri)
+      return c.redirect(queryDto.postLogoutRedirectUri)
     },
   )
 
@@ -238,24 +234,11 @@ export const load = (app: typeConfig.App) => {
       const accessTokenBody = c.get('access_token_body')!
 
       const user = await userService.getUserInfo(
-        c.env.DB,
+        c,
         accessTokenBody.sub,
       )
 
-      const result: GetUserInfo = {
-        authId: user.authId,
-        email: user.email,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      }
-
-      const { ENABLE_NAMES: enableNames } = env(c)
-      if (enableNames) {
-        result.firstName = user.firstName
-        result.lastName = user.lastName
-      }
-
-      return c.json(result)
+      return c.json(user)
     },
   )
 }

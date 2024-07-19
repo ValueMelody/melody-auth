@@ -9,6 +9,7 @@ export enum Error {
   CanNotCreateUser = 'Failed to create user',
   CanNotCreateConsent = 'Failed to create consent',
   WrongCode = 'Invalid code',
+  CodeExpired = 'Code expired',
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
   WrongRefreshToken = 'Invalid refresh_token',
@@ -17,13 +18,13 @@ export enum Error {
 
 export enum Message {
   AuthFailed = 'Authentication Failed',
-  LogoutSuccess = 'Logged out successfully',
   EmailIsRequired = 'Email is required.',
   WrongEmailFormat = 'Wrong email format.',
   PasswordIsRequired = 'Password is required.',
   PasswordNotMatch = 'The password and confirm password do not match.',
   FirstNameIsEmpty = 'First name can not be empty.',
   LastNameIsEmpty = 'Last name can not be empty.',
+  VerificationCodeLength = 'Verification code can only be 8 characters',
   WeakPassword = 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
 }
 
@@ -51,14 +52,21 @@ export enum AuthorizeAccountPage {
   SignUpBtn = 'Confirm',
 }
 
-export enum EmailVerificationEmail {
+export enum VerifyEmailPage {
+  Title = 'Verify your email',
+  Desc = 'Enter your verification code received by email',
+  VerifyBtn = 'Verify',
+  Success = 'Verification Success! You can close this page now.',
+}
+
+export enum CommonContent {
+  PoweredBy = 'Powered by Melody Auth',
+}
+
+export enum EmailVerificationTemplate {
   Subject = 'Welcome to Melody Auth, please verify your email address',
   Title = 'Welcome to Melody Auth',
   Desc = 'Thanks for signing up! Please verify your email address with us, your verification code is',
   ExpiryText = 'This link will be expired after 2 hour',
   VerifyBtn = 'Verify your email',
-}
-
-export enum CommonPage {
-  PoweredBy = 'Powered by Melody Auth',
 }
