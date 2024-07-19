@@ -7,6 +7,8 @@ import { typeConfig } from 'configs'
 export type Bindings = {
   DB: D1Database;
   KV: KVNamespace;
+  ENVIRONMENT: string;
+  DEV_EMAIL_RECEIVER: string;
   AUTHORIZATION_CODE_JWT_SECRET: string;
   SPA_ACCESS_TOKEN_JWT_SECRET: string;
   S2S_ACCESS_TOKEN_JWT_SECRET: string;

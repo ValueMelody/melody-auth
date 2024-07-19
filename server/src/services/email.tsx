@@ -16,6 +16,8 @@ export const sendEmailVerificationEmail = async (
     SENDGRID_SENDER_ADDRESS: sendgridSender,
     COMPANY_LOGO_URL: logoUrl,
     AUTH_SERVER_URL: serverUrl,
+    ENVIRONMENT: environment,
+    DEV_EMAIL_RECEIVER: devEmailReceiver
   } = env(c)
   if (!enableEmailVerification || !sendgridApiKey || !sendgridSender || !user.email) return null
   const verificationCode = cryptoUtil.genRandomString(8)
@@ -42,7 +44,7 @@ export const sendEmailVerificationEmail = async (
         personalizations: [
           {
             to: [
-              { email: user.email },
+              { email: environment === 'prod' ? user.email : devEmailReceiver },
             ],
           },
         ],

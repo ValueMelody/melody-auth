@@ -1,3 +1,6 @@
+ENVIRONMENT = dev # Set to prod in production env
+DEV_EMAIL_RECEIVER=test@mail.com # When the ENVIRONMENT is not set to 'prod', all emails intended for users will be sent to this email address instead.
+
 AUTHORIZATION_CODE_JWT_SECRET=aaa # This must be replace with a strong secret
 SPA_ACCESS_TOKEN_JWT_SECRET=bbb # This must be replace with a strong secret
 S2S_ACCESS_TOKEN_JWT_SECRET=ccc # This must be replace with a strong secret
