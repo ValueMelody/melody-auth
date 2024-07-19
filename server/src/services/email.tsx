@@ -17,7 +17,7 @@ export const sendEmailVerificationEmail = async (
     COMPANY_LOGO_URL: logoUrl,
     AUTH_SERVER_URL: serverUrl,
     ENVIRONMENT: environment,
-    DEV_EMAIL_RECEIVER: devEmailReceiver
+    DEV_EMAIL_RECEIVER: devEmailReceiver,
   } = env(c)
   if (!enableEmailVerification || !sendgridApiKey || !sendgridSender || !user.email) return null
   const verificationCode = cryptoUtil.genRandomString(8)
