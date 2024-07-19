@@ -12,6 +12,9 @@ actions:
   - text: React SDK
     link: /react-sdk.html
     type: secondary
+  - text: S2S API
+    link: /s2s-api.html
+    type: secondary
 
 features:
   - title: Effortless Deployment
