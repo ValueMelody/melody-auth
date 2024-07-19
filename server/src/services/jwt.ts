@@ -44,6 +44,8 @@ export const genAuthCode = async (
       id: user.id,
       authId: user.authId,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
     },
     appId,
     exp: codeExpiresAt,
@@ -171,9 +173,7 @@ export const genRefreshToken = async (
 export const genIdToken = async (
   c: Context<typeConfig.Context>,
   currentTimestamp: number,
-  clientId: string,
-  authId: string,
-  email: string | null,
+  authInfo: typeConfig.AuthCodeBody,
 ) => {
   const {
     ID_TOKEN_EXPIRES_IN: idTokenExpiresIn,
@@ -184,11 +184,13 @@ export const genIdToken = async (
   const idToken = await sign(
     {
       iss: authServerUrl,
-      sub: authId,
-      azp: clientId,
+      sub: authInfo.user.authId,
+      azp: authInfo.request.clientId,
       exp: idTokenExpiresAt,
       iat: currentTimestamp,
-      email,
+      email: authInfo.user.email,
+      first_name: authInfo.user.firstName,
+      last_name: authInfo.user.lastName,
     },
     jwtSecret,
   )
