@@ -12,7 +12,7 @@ import {
   formatUtil, timeUtil,
 } from 'utils'
 import {
-  accessTokenMiddleware, csrfMiddleware,
+  authMiddleware, csrfMiddleware,
 } from 'middlewares'
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
@@ -232,7 +232,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/logout`,
-    accessTokenMiddleware.spa,
+    authMiddleware.spa,
     async (c) => {
       const bodyDto = await logoutReqHandler.parsePost(c)
 

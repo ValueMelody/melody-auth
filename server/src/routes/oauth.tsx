@@ -13,7 +13,7 @@ import {
 import {
   cryptoUtil, formatUtil, timeUtil,
 } from 'utils'
-import { accessTokenMiddleware } from 'middlewares'
+import { authMiddleware } from 'middlewares'
 import {
   getAuthorizeReqHandler, logoutReqHandler, postTokenReqHandler,
 } from 'handlers'
@@ -50,6 +50,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/token`,
+    authMiddleware.s2sBasicAuth,
     async (c) => {
       const reqBody = await c.req.parseBody()
 
@@ -173,12 +174,13 @@ export const load = (app: typeConfig.App) => {
 
         return c.json(result)
       } else if (grantType === oauthDto.TokenGrantType.ClientCredentials) {
+        const basicAuth = c.get('basic_auth_body')!
         const bodyDto = await postTokenReqHandler.parseClientCredentials(c)
 
         const app = await appService.verifyS2SClientRequest(
           c,
-          bodyDto.clientId,
-          bodyDto.secret,
+          basicAuth.username,
+          basicAuth.password,
         )
 
         const validScopes = formatUtil.getValidScopes(
@@ -194,7 +196,7 @@ export const load = (app: typeConfig.App) => {
           c,
           typeConfig.ClientType.S2S,
           currentTimestamp,
-          bodyDto.clientId,
+          basicAuth.username,
           validScopes.join(' '),
         )
 
@@ -229,7 +231,7 @@ export const load = (app: typeConfig.App) => {
 
   app.get(
     `${BaseRoute}/userinfo`,
-    accessTokenMiddleware.spaProfile,
+    authMiddleware.spaProfile,
     async (c) => {
       const accessTokenBody = c.get('access_token_body')!
 
