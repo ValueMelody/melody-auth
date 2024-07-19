@@ -8,7 +8,7 @@ import Layout from 'views/components/Layout'
 import AuthorizeCommonFields from 'views/components/AuthorizeCommonFields'
 import RequiredSymbol from 'views/components/RequiredSymbol'
 import {
-  authorizeFormScript, requestScript, responseScript, validateScript,
+  authorizeFormScript, requestScript, resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
 import SubmitButton from 'views/components/SubmitButton'
 import SubmitError from 'views/components/SubmitError'
@@ -99,7 +99,11 @@ const AuthorizeAccount = ({
       </a>
       {html`
         <script>
-          ${authorizeFormScript.resetAuthorizeFormError()}
+          ${resetErrorScript.resetEmailError()}
+          ${resetErrorScript.resetPasswordError()}
+          ${resetErrorScript.resetConfirmPasswordError()}
+          ${resetErrorScript.resetFirstNameError()}
+          ${resetErrorScript.resetLastNameError()}
           function handleSubmit (e) {
             e.preventDefault();
             ${validateScript.email()}

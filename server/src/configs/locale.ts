@@ -34,6 +34,7 @@ export enum AuthorizePasswordPage {
   SubmitBtn = 'Login',
   Title = 'Authentication',
   SignUpBtn = 'Create a new account.',
+  PasswordResetBtn = 'Reset password',
 }
 
 export enum AuthorizeConsentPage {
@@ -52,11 +53,24 @@ export enum AuthorizeAccountPage {
   SignUpBtn = 'Confirm',
 }
 
+export enum AuthorizeResetPage {
+  Title = 'Reset your password',
+  Desc = 'Enter your email address, we will send you a reset code by email',
+  SendBtn = 'Send',
+  ResetBtn = 'Reset',
+  EmailLabel = 'Email',
+  CodeLabel = 'Code',
+  PasswordLabel = 'Password',
+  ConfirmPasswordLabel = 'Confirm Password',
+  Success = 'Password reset success!',
+  SignInBtn = 'Sign in',
+}
+
 export enum VerifyEmailPage {
   Title = 'Verify your email',
   Desc = 'Enter your verification code received by email',
   VerifyBtn = 'Verify',
-  Success = 'Verification Success! You can close this page now.',
+  Success = 'Verification success! You can close this page now.',
 }
 
 export enum CommonContent {
@@ -69,4 +83,10 @@ export enum EmailVerificationTemplate {
   Desc = 'Thanks for signing up! Please verify your email address with us, your verification code is',
   ExpiryText = 'This link will be expired after 2 hour',
   VerifyBtn = 'Verify your email',
+}
+
+export enum PasswordResetTemplate {
+  Subject = 'Reset your password',
+  Title = 'Reset your password',
+  Desc = 'Here is your reset code, this code will be expired after 2 hour',
 }

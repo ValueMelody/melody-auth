@@ -3,35 +3,6 @@ import {
   localeConfig, routeConfig,
 } from 'configs'
 
-export const resetAuthorizeFormError = () => html`
-  window.addEventListener('load', function () {
-    document.getElementById('form-email').addEventListener('input', function () {
-      document.getElementById('email-error').classList.add('hidden');
-    });
-    document.getElementById('form-password').addEventListener('input', function () {
-      document.getElementById('password-error').classList.add('hidden');
-    });
-    var confirmPasswordEl = document.getElementById('form-confirmPassword')
-    if (confirmPasswordEl) {
-      confirmPasswordEl.addEventListener('input', function () {
-        document.getElementById('confirmPassword-error').classList.add('hidden');
-      });
-    }
-    var firstNameEl = document.getElementById('form-firstName')
-    if (firstNameEl) {
-      firstNameEl.addEventListener('input', function () {
-        document.getElementById('firstName-error').classList.add('hidden');
-      });
-    }
-    var lastNameEl = document.getElementById('form-lastName')
-    if (lastNameEl) {
-      lastNameEl.addEventListener('input', function () {
-        document.getElementById('lastName-error').classList.add('hidden');
-      });
-    }
-  });
-`
-
 export const handleAuthorizeFormError = () => html`
   var msg = "${localeConfig.Message.AuthFailed}";
   var errorString = String(error)

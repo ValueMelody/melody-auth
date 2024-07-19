@@ -41,3 +41,25 @@ export const handleVerifyEmailFormError = () => html`
   errorEl.innerHTML = msg;
   return false;
 `
+
+export const handleAuthorizeResetError = () => html`
+  var msg = "${localeConfig.Message.AuthFailed}";
+  var errorString = String(error)
+  console.error(msg + ": " + error)
+  if (errorString.indexOf("isEmail") !== -1) {
+    msg = "${localeConfig.Message.WrongEmailFormat}";
+  } else if (errorString.indexOf("isStrongPassword") !== -1) {
+    msg = "${localeConfig.Message.WeakPassword}";
+  } else if (errorString.indexOf("${localeConfig.Error.WrongCode}") !== -1) {
+    msg = "${localeConfig.Error.WrongCode}";
+  } else if (errorString.indexOf("${localeConfig.Error.CodeExpired}") !== -1) {
+    msg = "${localeConfig.Error.CodeExpired}";
+  } else if (errorString.indexOf("constraints") !== -1) {
+    var constraints = JSON.parse(error.message)[0].constraints
+    msg = Object.values(constraints).join('.');
+  }
+  var errorEl = document.getElementById('submit-error');
+  errorEl.classList.remove('hidden');
+  errorEl.innerHTML = msg;
+  return false;
+`

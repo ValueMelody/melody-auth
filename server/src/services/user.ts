@@ -100,7 +100,7 @@ export const createAccountWithPassword = async (
 export const sendEmailVerification = async (
   c: Context<typeConfig.Context>, user: userModel.Record,
 ) => {
-  const verificationCode = await emailService.sendEmailVerificationEmail(
+  const verificationCode = await emailService.sendEmailVerification(
     c,
     user,
   )
@@ -124,7 +124,7 @@ export const verifyUserEmail = async (
     c.env.DB,
     bodyDto.id,
   )
-  if (!user || user.emailVerificationCode !== bodyDto.code) {
+  if (!user || !user.emailVerificationCode || user.emailVerificationCode !== bodyDto.code) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
   }
 
@@ -140,6 +140,62 @@ export const verifyUserEmail = async (
       emailVerified: 1,
       emailVerificationCode: null,
       emailVerificationCodeExpiresOn: null,
+    },
+  )
+}
+
+export const sendPasswordReset = async (
+  c: Context<typeConfig.Context>, email: string,
+) => {
+  const user = await userModel.getByEmail(
+    c.env.DB,
+    email,
+  )
+  if (!user) return true
+
+  const resetCode = await emailService.sendPasswordReset(
+    c,
+    user,
+  )
+  if (resetCode) {
+    await userModel.update(
+      c.env.DB,
+      user.id,
+      {
+        passwordResetCode: resetCode,
+        passwordResetCodeExpiresOn: timeUtil.getCurrentTimestamp() + 7200,
+      },
+    )
+  }
+
+  return true
+}
+
+export const resetUserPassword = async (
+  c: Context<typeConfig.Context>,
+  bodyDto: identityDto.PostAuthorizeResetReqBodyDto,
+) => {
+  const user = await userModel.getByEmail(
+    c.env.DB,
+    bodyDto.email,
+  )
+  if (!user || !user.passwordResetCode || user.passwordResetCode !== bodyDto.code) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  }
+
+  const currentTimeStamp = timeUtil.getCurrentTimestamp()
+  if (!user.passwordResetCodeExpiresOn || currentTimeStamp > user.passwordResetCodeExpiresOn) {
+    throw new errorConfig.Forbidden(localeConfig.Error.CodeExpired)
+  }
+
+  const password = await cryptoUtil.sha256(bodyDto.password)
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    {
+      password,
+      passwordResetCode: null,
+      passwordResetCodeExpiresOn: null,
     },
   )
 }

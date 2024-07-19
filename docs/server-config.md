@@ -38,6 +38,10 @@ The Melody Auth server provides various customizable configurations. You can cha
 - **Default:** true
 - **Description:** Determines if user sign-up is allowed. If set to false, the sign-up button will be suppressed on the sign-in page.
 
+## ENABLE_PASSWORD_RESET
+- **Default:** true
+- **Description:** Determines if user password reset is allowed. If set to false, the reset password button will be suppressed on the sign-in page. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+
 ## ENABLE_NAMES
 - **Default:** true
 - **Description:** Provides fields for users to enter their first and last names during sign-up. If set to false, the first and last name fields will not show up on the sign-up page.
@@ -52,4 +56,4 @@ The Melody Auth server provides various customizable configurations. You can cha
 
 ## ENABLE_EMAIL_VERIFICATION
 - **Default:** true
-- **Description:** If set to true, users will receive an email to verify their email address after signing up. (To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+- **Description:** If set to true, users will receive an email to verify their email address after signing up. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)

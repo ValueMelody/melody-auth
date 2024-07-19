@@ -7,7 +7,7 @@ import Layout from 'views/components/Layout'
 import { identityDto } from 'dtos'
 import FieldError from 'views/components/FieldError'
 import {
-  requestScript, responseScript, validateScript,
+  requestScript, resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
 
 const VerifyEmail = ({
@@ -56,12 +56,7 @@ const VerifyEmail = ({
       </section>
       {html`
         <script>
-          var codeEl = document.getElementById('form-code')
-          if (codeEl) {
-            codeEl.addEventListener('input', function () {
-              document.getElementById('code-error').classList.add('hidden');
-            });
-          }
+          ${resetErrorScript.resetCodeError()}
           function handleSubmit (e) {
             e.preventDefault();
             ${validateScript.verificationCode()}

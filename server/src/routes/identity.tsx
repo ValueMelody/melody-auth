@@ -12,11 +12,12 @@ import {
   formatUtil, timeUtil,
 } from 'utils'
 import {
-  authMiddleware, csrfMiddleware,
+  authMiddleware, configMiddleware,
 } from 'middlewares'
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
   VerifyEmailView,
+  AuthorizeResetView,
 } from 'views'
 import {
   getAuthorizeReqHandler, logoutReqHandler, postAuthorizeReqHandler,
@@ -34,7 +35,12 @@ export const load = (app: typeConfig.App) => {
       const {
         COMPANY_LOGO_URL: logoUrl,
         ENABLE_SIGN_UP: enableSignUp,
+        ENABLE_PASSWORD_RESET: enablePasswordReset,
+        SENDGRID_API_KEY: sendgridKey,
+        SENDGRID_SENDER_ADDRESS: sendgridSender,
       } = env(c)
+
+      const allowPasswordReset = enablePasswordReset && !!sendgridKey && !!sendgridSender
 
       const queryString = formatUtil.getQueryString(c)
 
@@ -43,7 +49,57 @@ export const load = (app: typeConfig.App) => {
         queryDto={queryDto}
         logoUrl={logoUrl}
         enableSignUp={enableSignUp}
+        enablePasswordReset={allowPasswordReset}
       />)
+    },
+  )
+
+  app.get(
+    `${BaseRoute}/authorize-reset`,
+    configMiddleware.enablePasswordReset,
+    async (c) => {
+      const { COMPANY_LOGO_URL: logoUrl } = env(c)
+
+      const queryString = formatUtil.getQueryString(c)
+
+      return c.html(<AuthorizeResetView
+        queryString={queryString}
+        logoUrl={logoUrl}
+      />)
+    },
+  )
+
+  app.post(
+    `${BaseRoute}/reset-code`,
+    configMiddleware.serverUrl,
+    configMiddleware.enablePasswordReset,
+    async (c) => {
+      const reqBody = await c.req.json()
+      const email = String(reqBody.email)?.trim()
+        .toLowerCase()
+      if (!email) throw new errorConfig.Forbidden()
+
+      await userService.sendPasswordReset(
+        c,
+        email,
+      )
+      return c.json({ success: true })
+    },
+  )
+
+  app.post(
+    `${BaseRoute}/authorize-reset`,
+    configMiddleware.serverUrl,
+    configMiddleware.enablePasswordReset,
+    async (c) => {
+      const bodyDto = await postAuthorizeReqHandler.parseReset(c)
+
+      await userService.resetUserPassword(
+        c,
+        bodyDto,
+      )
+
+      return c.json({ success: true })
     },
   )
 
@@ -99,7 +155,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-account`,
-    csrfMiddleware.serverOrigin,
+    configMiddleware.serverUrl,
     async (c) => {
       const {
         NAMES_IS_REQUIRED: namesIsRequired,
@@ -154,7 +210,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-password`,
-    csrfMiddleware.serverOrigin,
+    configMiddleware.serverUrl,
     async (c) => {
       const bodyDto = await postAuthorizeReqHandler.parsePassword(c)
 
@@ -205,7 +261,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-consent`,
-    csrfMiddleware.serverOrigin,
+    configMiddleware.serverUrl,
     async (c) => {
       const bodyDto = await postAuthorizeReqHandler.parseConsent(c)
 
@@ -263,6 +319,7 @@ export const load = (app: typeConfig.App) => {
 
   app.get(
     `${BaseRoute}/verify-email`,
+    configMiddleware.enableEmailVerification,
     async (c) => {
       const queryDto = await verifyEmailReqHandler.parseGet(c)
 
@@ -277,6 +334,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/verify-email`,
+    configMiddleware.enableEmailVerification,
     async (c) => {
       const bodyDto = await verifyEmailReqHandler.parsePost(c)
 

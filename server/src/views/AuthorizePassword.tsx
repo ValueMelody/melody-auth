@@ -6,17 +6,18 @@ import Layout from 'views/components/Layout'
 import { oauthDto } from 'dtos'
 import AuthorizeCommonFields from 'views/components/AuthorizeCommonFields'
 import {
-  authorizeFormScript, requestScript, responseScript, validateScript,
+  authorizeFormScript, requestScript, resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
 import SubmitButton from 'views/components/SubmitButton'
 import SubmitError from 'views/components/SubmitError'
 
 const AuthorizePassword = ({
-  queryDto, logoUrl, enableSignUp, queryString,
+  queryDto, logoUrl, enableSignUp, enablePasswordReset, queryString,
 }: {
   queryDto: oauthDto.GetAuthorizeReqQueryDto;
   logoUrl: string;
   enableSignUp: boolean;
+  enablePasswordReset: boolean;
   queryString: string;
 }) => {
   return (
@@ -34,17 +35,30 @@ const AuthorizePassword = ({
           />
         </section>
       </form>
-      {enableSignUp && (
-        <a
-          class='button-text mt-4'
-          href={`${routeConfig.InternalRoute.Identity}/authorize-account?${queryString}`}
-        >
-          {localeConfig.AuthorizePasswordPage.SignUpBtn}
-        </a>
+      {(enableSignUp || enablePasswordReset) && (
+        <section class='flex-col gap-2 mt-4'>
+          {enableSignUp && (
+            <a
+              class='button-text'
+              href={`${routeConfig.InternalRoute.Identity}/authorize-account?${queryString}`}
+            >
+              {localeConfig.AuthorizePasswordPage.SignUpBtn}
+            </a>
+          )}
+          {enablePasswordReset && (
+            <a
+              class='button-text'
+              href={`${routeConfig.InternalRoute.Identity}/authorize-reset?${queryString}`}
+            >
+              {localeConfig.AuthorizePasswordPage.PasswordResetBtn}
+            </a>
+          )}
+        </section>
       )}
       {html`
         <script>
-          ${authorizeFormScript.resetAuthorizeFormError()}
+          ${resetErrorScript.resetEmailError()}
+          ${resetErrorScript.resetPasswordError()}
           function handleSubmit (e) {
             e.preventDefault();
             ${validateScript.email()}
