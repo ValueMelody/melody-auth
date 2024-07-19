@@ -132,9 +132,7 @@ export const load = (app: typeConfig.App) => {
           const { idToken } = await jwtService.genIdToken(
             c,
             currentTimestamp,
-            authInfo.request.clientId,
-            authId,
-            authInfo.user.email,
+            authInfo,
           )
           result.id_token = idToken
         }

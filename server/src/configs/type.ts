@@ -50,6 +50,8 @@ export interface AuthCodeBody {
     id: number;
     authId: string;
     email: string | null;
+    firstName: string | null;
+    lastName: string | null;
   };
   appId: number;
   exp: number;
