@@ -146,7 +146,7 @@ export const genRefreshToken = async (
   scope: string,
 ) => {
   const {
-    REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn,
+    SPA_REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn,
     REFRESH_TOKEN_JWT_SECRET: jwtSecret,
   } = env(c)
   const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
