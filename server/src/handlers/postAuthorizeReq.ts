@@ -40,3 +40,16 @@ export const parseConsent = async (c: Context<typeConfig.Context>) => {
 
   return bodyDto
 }
+
+export const parseReset = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const queryDto = new identityDto.PostAuthorizeResetReqBodyDto({
+    email: String(reqBody.email),
+    code: String(reqBody.code),
+    password: String(reqBody.password),
+  })
+  await validateUtil.dto(queryDto)
+
+  return queryDto
+}

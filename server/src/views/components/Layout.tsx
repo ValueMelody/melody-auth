@@ -9,6 +9,7 @@ const Layout = ({
     <head>
       <meta charset="utf-8">
       <title>Melody Auth</title>
+      <link rel="icon" type="image/x-icon" href="${logoUrl}">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,6 +76,7 @@ const Layout = ({
         }
         .button-text {
           background-color: unset;
+          text-align: center;
           cursor: pointer;
           border: none;
           padding: 8px;

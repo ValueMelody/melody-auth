@@ -35,6 +35,8 @@ export interface Update {
   emailVerified?: number;
   emailVerificationCode?: string | null;
   emailVerificationCodeExpiresOn?: number | null;
+  passwordResetCode?: string | null;
+  passwordResetCodeExpiresOn?: number | null;
 }
 
 const TableName = dbConfig.TableName.User
@@ -122,7 +124,11 @@ export const update = async (
     ...update,
     updatedAt: timeUtil.getDbCurrentTime(),
   }
-  const updateKeys: (keyof Update)[] = ['password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'emailVerified', 'emailVerificationCode', 'emailVerificationCodeExpiresOn']
+  const updateKeys: (keyof Update)[] = [
+    'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt',
+    'emailVerified', 'emailVerificationCode', 'emailVerificationCodeExpiresOn',
+    'passwordResetCode', 'passwordResetCodeExpiresOn',
+  ]
   updateKeys.forEach((key) => {
     const value = parsedUpdate[key]
     if (value === undefined) return

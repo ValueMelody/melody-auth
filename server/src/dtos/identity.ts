@@ -120,3 +120,26 @@ export class PostVerifyEmailReqBodyDto extends GetVerifyEmailReqQueryDto {
     this.code = dto.code.trim()
   }
 }
+
+export class PostAuthorizeResetReqBodyDto {
+  @IsString()
+  @Length(
+    8,
+    8,
+  )
+    code: string
+
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  @IsStrongPassword()
+  @IsNotEmpty()
+    password: string
+
+  constructor (dto: PostAuthorizeResetReqBodyDto) {
+    this.email = dto.email.trim().toLowerCase()
+    this.password = dto.password.trim()
+    this.code = dto.code.trim()
+  }
+}
