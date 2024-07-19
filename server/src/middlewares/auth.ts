@@ -1,8 +1,10 @@
-import { Context, Next } from 'hono'
+import {
+  Context, Next,
+} from 'hono'
 import { bearerAuth } from 'hono/bearer-auth'
+import { basicAuth } from 'hono/basic-auth'
 import { typeConfig } from 'configs'
 import { jwtService } from 'services'
-import { basicAuth } from 'hono/basic-auth'
 import { oauthDto } from 'dtos'
 
 const parseToken = async (
@@ -93,13 +95,23 @@ export const s2sBasicAuth = async (
   const grantType = String(reqBody.grant_type).toLowerCase()
   if (grantType === oauthDto.TokenGrantType.ClientCredentials) {
     const authGuard = basicAuth({
-      verifyUser: (username, password, c: Context<typeConfig.Context>) => {
+      verifyUser: (
+        username, password, c: Context<typeConfig.Context>,
+      ) => {
         if (!username || !password) return false
-        c.set('basic_auth_body', { username, password })
+        c.set(
+          'basic_auth_body',
+          {
+            username, password,
+          },
+        )
         return true
       },
     })
-    return authGuard(c, next)
+    return authGuard(
+      c,
+      next,
+    )
   } else {
     await next()
   }
