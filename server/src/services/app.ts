@@ -1,3 +1,4 @@
+import { Context } from 'hono'
 import {
   errorConfig, localeConfig,
   typeConfig,
@@ -6,10 +7,10 @@ import { appModel } from 'models'
 import { formatUtil } from 'utils'
 
 export const verifySPAClientRequest = async (
-  db: D1Database, clientId: string, redirectUri: string,
+  c: Context<typeConfig.Context>, clientId: string, redirectUri: string,
 ) => {
   const app = await appModel.getByClientId(
-    db,
+    c.env.DB,
     clientId,
   )
   if (!app) {
@@ -26,10 +27,10 @@ export const verifySPAClientRequest = async (
 }
 
 export const verifyS2SClientRequest = async (
-  db: D1Database, clientId: string, clientSecret: string,
+  c: Context<typeConfig.Context>, clientId: string, clientSecret: string,
 ) => {
   const app = await appModel.getByClientId(
-    db,
+    c.env.DB,
     clientId,
   )
   if (!app) {

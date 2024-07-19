@@ -17,7 +17,7 @@ export enum TokenGrantType {
   ClientCredentials = 'client_credentials',
 }
 
-const parseScopes = (scope: string[]) => scope.map((s) => s.trim().toLowerCase())
+const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())
 
 export class GetAuthorizeReqQueryDto {
   @IsString()
@@ -111,5 +111,20 @@ export class PostTokenClientCredentialsReqBodyDto {
     this.clientId = dto.clientId
     this.secret = dto.secret
     this.scopes = parseScopes(dto.scopes)
+  }
+}
+
+export class GetLogoutReqBodyDto {
+  @IsString()
+  @IsNotEmpty()
+    postLogoutRedirectUri: string
+
+  @IsString()
+  @IsNotEmpty()
+    clientId: string
+
+  constructor (dto: GetLogoutReqBodyDto) {
+    this.clientId = dto.clientId.trim()
+    this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
   }
 }

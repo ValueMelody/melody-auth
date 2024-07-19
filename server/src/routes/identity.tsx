@@ -6,20 +6,21 @@ import { oauthDto } from 'dtos'
 import {
   appService,
   consentService,
-  emailService,
   jwtService, kvService, sessionService, userService,
 } from 'services'
 import {
-  cryptoUtil, formatUtil, timeUtil,
+  formatUtil, timeUtil,
 } from 'utils'
 import {
   accessTokenMiddleware, csrfMiddleware,
 } from 'middlewares'
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
-} from 'templates'
+  VerifyEmailView,
+} from 'views'
 import {
-  getAuthorizeReqHandler, postAuthorizeReqHandler, postLogoutReqHandler,
+  getAuthorizeReqHandler, logoutReqHandler, postAuthorizeReqHandler,
+  verifyEmailReqHandler,
 } from 'handlers'
 
 const BaseRoute = routeConfig.InternalRoute.Identity
@@ -80,7 +81,7 @@ export const load = (app: typeConfig.App) => {
       )
 
       const app = await appService.verifySPAClientRequest(
-        c.env.DB,
+        c,
         authInfo.request.clientId,
         queryDto.redirectUri,
       )
@@ -98,7 +99,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-account`,
-    csrfMiddleware.oAuthAuthorize,
+    csrfMiddleware.serverOrigin,
     async (c) => {
       const {
         NAMES_IS_REQUIRED: namesIsRequired,
@@ -112,21 +113,17 @@ export const load = (app: typeConfig.App) => {
       )
 
       const app = await appService.verifySPAClientRequest(
-        c.env.DB,
+        c,
         bodyDto.clientId,
         bodyDto.redirectUri,
       )
 
-      const password = await cryptoUtil.sha256(bodyDto.password)
       const user = await userService.createAccountWithPassword(
-        c.env.DB,
-        bodyDto.email,
-        password,
-        bodyDto.firstName,
-        bodyDto.lastName,
+        c,
+        bodyDto,
       )
 
-      await emailService.sendEmailVerificationEmail(
+      await userService.sendEmailVerification(
         c,
         user,
       )
@@ -157,21 +154,19 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-password`,
-    csrfMiddleware.oAuthAuthorize,
+    csrfMiddleware.serverOrigin,
     async (c) => {
       const bodyDto = await postAuthorizeReqHandler.parsePassword(c)
 
       const app = await appService.verifySPAClientRequest(
-        c.env.DB,
+        c,
         bodyDto.clientId,
         bodyDto.redirectUri,
       )
 
-      const password = await cryptoUtil.sha256(bodyDto.password)
       const user = await userService.verifyPasswordSignIn(
-        c.env.DB,
-        bodyDto.email,
-        password,
+        c,
+        bodyDto,
       )
 
       const request = new oauthDto.GetAuthorizeReqQueryDto(bodyDto)
@@ -210,7 +205,7 @@ export const load = (app: typeConfig.App) => {
 
   app.post(
     `${BaseRoute}/authorize-consent`,
-    csrfMiddleware.oAuthAuthorize,
+    csrfMiddleware.serverOrigin,
     async (c) => {
       const bodyDto = await postAuthorizeReqHandler.parseConsent(c)
 
@@ -222,7 +217,7 @@ export const load = (app: typeConfig.App) => {
       const userId = authInfo.user.id
       const appId = authInfo.appId
       await consentService.createUserAppConsent(
-        c.env.DB,
+        c,
         userId,
         appId,
       )
@@ -239,7 +234,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/logout`,
     accessTokenMiddleware.spa,
     async (c) => {
-      const bodyDto = await postLogoutReqHandler.parse(c)
+      const bodyDto = await logoutReqHandler.parsePost(c)
 
       const accessTokenBody = c.get('access_token_body')!
       const refreshTokenBody = await jwtService.getRefreshTokenBody(
@@ -259,10 +254,38 @@ export const load = (app: typeConfig.App) => {
       const redirectUri = `${formatUtil.stripEndingSlash(AUTH_SERVER_URL)}${routeConfig.InternalRoute.OAuth}/logout`
 
       return c.json({
-        message: localeConfig.Message.LogoutSuccess,
+        success: true,
         redirectUri:
           `${redirectUri}?post_logout_redirect_uri=${bodyDto.postLogoutRedirectUri}&client_id=${refreshTokenBody.azp}`,
       })
+    },
+  )
+
+  app.get(
+    `${BaseRoute}/verify-email`,
+    async (c) => {
+      const queryDto = await verifyEmailReqHandler.parseGet(c)
+
+      const { COMPANY_LOGO_URL: logoUrl } = env(c)
+
+      return c.html(<VerifyEmailView
+        logoUrl={logoUrl}
+        queryDto={queryDto}
+      />)
+    },
+  )
+
+  app.post(
+    `${BaseRoute}/verify-email`,
+    async (c) => {
+      const bodyDto = await verifyEmailReqHandler.parsePost(c)
+
+      await userService.verifyUserEmail(
+        c,
+        bodyDto,
+      )
+
+      return c.json({ success: true })
     },
   )
 }

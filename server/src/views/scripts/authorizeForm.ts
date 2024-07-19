@@ -3,7 +3,7 @@ import {
   localeConfig, routeConfig,
 } from 'configs'
 
-export const resetError = () => html`
+export const resetAuthorizeFormError = () => html`
   window.addEventListener('load', function () {
     document.getElementById('form-email').addEventListener('input', function () {
       document.getElementById('email-error').classList.add('hidden');
@@ -32,28 +32,7 @@ export const resetError = () => html`
   });
 `
 
-export const parseResponse = () => html`
-  if (!response.ok) {
-    return response.text().then(text => {
-      throw new Error(text);
-    });
-  }
-  return response.json();
-`
-
-export const parseCommonFormFields = () => html`
-  email: document.getElementById('form-email').value,
-  password: document.getElementById('form-password').value,
-  clientId: document.getElementById('form-clientId').value,
-  redirectUri: document.getElementById('form-redirectUri').value,
-  responseType: document.getElementById('form-responseType').value,
-  state: document.getElementById('form-state').value,
-  codeChallenge: document.getElementById('form-code-challenge').value,
-  codeChallengeMethod: document.getElementById('form-code-challenge-method').value,
-  scopes: document.getElementById('form-scopes').value.split(','),
-`
-
-export const handleError = () => html`
+export const handleAuthorizeFormError = () => html`
   var msg = "${localeConfig.Message.AuthFailed}";
   var errorString = String(error)
   console.error(msg + ": " + error)
@@ -75,7 +54,7 @@ export const handleError = () => html`
   return false;
 `
 
-export const handleRedirect = () => html`
+export const handleAuthorizeFormRedirect = () => html`
   var queryString = "?state=" + data.state + "&code=" + data.code;
   if (data.requireConsent) {
     queryString += "&redirect_uri=" + data.redirectUri;

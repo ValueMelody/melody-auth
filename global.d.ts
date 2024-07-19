@@ -31,6 +31,7 @@ export interface GetUserInfo {
   email: string | null;
   firstName?: string | null;
   lastName?: string | null;
+  emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
 }

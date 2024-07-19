@@ -20,11 +20,11 @@ export const shouldCollectConsent = async (
 }
 
 export const createUserAppConsent = async (
-  db: D1Database, userId: number, appId: number,
+  c: Context<typeConfig.Context>, userId: number, appId: number,
 ) => {
   const includeDeleted = true
   const consent = await userAppConsentModel.getByUserAndApp(
-    db,
+    c.env.DB,
     userId,
     appId,
     includeDeleted,
@@ -33,12 +33,12 @@ export const createUserAppConsent = async (
 
   const newConsent = consent
     ? await userAppConsentModel.update(
-      db,
+      c.env.DB,
       consent.id,
       { deletedAt: null },
     )
     : await userAppConsentModel.create(
-      db,
+      c.env.DB,
       {
         userId,
         appId,

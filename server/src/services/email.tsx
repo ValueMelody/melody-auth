@@ -4,7 +4,7 @@ import {
   localeConfig, typeConfig,
 } from 'configs'
 import { userModel } from 'models'
-import { EmailVerificationEmail } from 'templates'
+import { EmailVerificationTemplate } from 'templates'
 import { cryptoUtil } from 'utils'
 
 export const sendEmailVerificationEmail = async (
@@ -15,10 +15,12 @@ export const sendEmailVerificationEmail = async (
     SENDGRID_API_KEY: sendgridApiKey,
     SENDGRID_SENDER_ADDRESS: sendgridSender,
     COMPANY_LOGO_URL: logoUrl,
+    AUTH_SERVER_URL: serverUrl,
   } = env(c)
-  if (!enableEmailVerification || !sendgridApiKey || !sendgridSender) return null
+  if (!enableEmailVerification || !sendgridApiKey || !sendgridSender || !user.email) return null
   const verificationCode = cryptoUtil.genRandomString(8)
-  const content = (<EmailVerificationEmail
+  const content = (<EmailVerificationTemplate
+    serverUrl={serverUrl}
     authId={user.authId}
     verificationCode={verificationCode}
     logoUrl={logoUrl} />).toString()
@@ -32,7 +34,7 @@ export const sendEmailVerificationEmail = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        subject: localeConfig.EmailVerificationEmail.Subject,
+        subject: localeConfig.EmailVerificationTemplate.Subject,
         content: [{
           type: 'text/html',
           value: content,
@@ -40,7 +42,7 @@ export const sendEmailVerificationEmail = async (
         personalizations: [
           {
             to: [
-              { email: 'byn9826@gmail.com' },
+              { email: user.email },
             ],
           },
         ],
@@ -48,6 +50,6 @@ export const sendEmailVerificationEmail = async (
       }),
     },
   )
-  console.log(1111)
-  console.log(res)
+
+  return res.ok ? verificationCode : null
 }

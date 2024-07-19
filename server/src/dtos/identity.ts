@@ -96,3 +96,27 @@ export class PostLogoutReqBodyDto {
     this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
   }
 }
+
+export class GetVerifyEmailReqQueryDto {
+  @IsString()
+  @IsNotEmpty()
+    id: string
+
+  constructor (dto: GetVerifyEmailReqQueryDto) {
+    this.id = dto.id.trim()
+  }
+}
+
+export class PostVerifyEmailReqBodyDto extends GetVerifyEmailReqQueryDto {
+  @IsString()
+  @Length(
+    8,
+    8,
+  )
+    code: string
+
+  constructor (dto: PostVerifyEmailReqBodyDto) {
+    super(dto)
+    this.code = dto.code.trim()
+  }
+}

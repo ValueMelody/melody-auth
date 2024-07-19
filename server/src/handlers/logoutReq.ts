@@ -1,9 +1,11 @@
 import { Context } from 'hono'
 import { typeConfig } from 'configs'
-import { identityDto } from 'dtos'
+import {
+  identityDto, oauthDto,
+} from 'dtos'
 import { validateUtil } from 'utils'
 
-export const parse = async (c: Context<typeConfig.Context>) => {
+export const parsePost = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.parseBody()
   const bodyDto = new identityDto.PostLogoutReqBodyDto({
     refreshToken: String(reqBody.refresh_token),
@@ -13,4 +15,14 @@ export const parse = async (c: Context<typeConfig.Context>) => {
   })
   await validateUtil.dto(bodyDto)
   return bodyDto
+}
+
+export const parseGet = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new oauthDto.GetLogoutReqBodyDto({
+    clientId: c.req.query('client_id') ?? '',
+    postLogoutRedirectUri: c.req.query('post_logout_redirect_uri') ?? '',
+  })
+
+  await validateUtil.dto(queryDto)
+  return queryDto
 }
