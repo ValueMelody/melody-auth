@@ -94,22 +94,12 @@ export class PostTokenClientCredentialsReqBodyDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
-  @IsString()
-  @IsNotEmpty()
-    clientId: string
-
-  @IsString()
-  @IsNotEmpty()
-    secret: string
-
   @IsString({ each: true })
   @ArrayMinSize(1)
     scopes: string[]
 
   constructor (dto: PostTokenClientCredentialsReqBodyDto) {
     this.grantType = dto.grantType.toLowerCase()
-    this.clientId = dto.clientId
-    this.secret = dto.secret
     this.scopes = parseScopes(dto.scopes)
   }
 }

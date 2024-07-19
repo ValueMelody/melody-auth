@@ -36,6 +36,7 @@ export type Context = {
   Bindings: Bindings;
   Variables: {
     access_token_body?: typeConfig.AccessTokenBody;
+    basic_auth_body?: typeConfig.BasicAuthBody;
     session: Session;
     session_key_rotation: boolean;
   };
@@ -59,6 +60,11 @@ export interface AccessTokenBody {
   scope: string;
   iat: number;
   exp: number;
+}
+
+export interface BasicAuthBody {
+  username: string;
+  password: string;
 }
 
 export interface RefreshTokenBody {
