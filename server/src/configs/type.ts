@@ -83,6 +83,7 @@ export enum Scope {
   Profile = 'profile',
   OfflineAccess = 'offline_access',
   READ_USER = 'read_user',
+  WRITE_USER = 'write_user',
 }
 
 export enum ClientType {

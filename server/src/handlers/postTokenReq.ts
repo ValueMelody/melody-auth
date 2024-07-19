@@ -33,7 +33,7 @@ export const parseClientCredentials = async (c: Context<typeConfig.Context>) => 
 
   const bodyDto = new oauthDto.PostTokenClientCredentialsReqBodyDto({
     grantType: String(reqBody.grant_type),
-    scopes: reqBody.scope ? String(reqBody.scope).split(',') : [],
+    scopes: reqBody.scope ? String(reqBody.scope).split(' ') : [],
   })
   await validateUtil.dto(bodyDto)
 
