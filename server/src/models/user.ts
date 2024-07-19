@@ -41,8 +41,12 @@ export interface Update {
 
 const TableName = dbConfig.TableName.User
 
-export const getAll = async (db: D1Database) => {
-  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE deletedAt IS NULL`)
+export const getAll = async (
+  db: D1Database, includeDeleted: boolean = false,
+) => {
+  let query = `SELECT * FROM ${TableName}`
+  if (!includeDeleted) query = `${query} WHERE deletedAt IS NULL`
+  const stmt = db.prepare(query)
   const { results: users }: { results: Record[] } = await stmt.all()
   return users
 }
@@ -60,8 +64,11 @@ export const getById = async (
 export const getByAuthId = async (
   db: D1Database,
   authId: string,
+  includeDeleted: boolean = false,
 ) => {
-  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE authId = $1 AND deletedAt IS NULL`)
+  let query = `SELECT * FROM ${TableName} WHERE authId = $1`
+  if (!includeDeleted) query = `${query} AND deletedAt IS NULL`
+  const stmt = db.prepare(query)
     .bind(authId)
   const user = await stmt.first() as Record | null
   return user

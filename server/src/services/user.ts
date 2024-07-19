@@ -44,6 +44,20 @@ export const getUserInfo = async (
   return result
 }
 
+export const getUserByAuthId = async (
+  c: Context<typeConfig.Context>,
+  authId: string,
+  includeDeleted: boolean = false,
+) => {
+  const user = await userModel.getByAuthId(
+    c.env.DB,
+    authId,
+    includeDeleted,
+  )
+  if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  return user
+}
+
 export const verifyPasswordSignIn = async (
   c: Context<typeConfig.Context>, bodyDto: PostAuthorizeReqBodyWithPasswordDto,
 ) => {
@@ -70,26 +84,19 @@ export const createAccountWithPassword = async (
     bodyDto.email,
     includeDeleted,
   )
-  if (user && !user.deletedAt) throw new Forbidden(localeConfig.Error.EmailTaken)
 
-  const newUser = user
-    ? await userModel.update(
-      c.env.DB,
-      user.id,
-      {
-        password, firstName: bodyDto.firstName, lastName: bodyDto.lastName, deletedAt: null,
-      },
-    )
-    : await userModel.create(
-      c.env.DB,
-      {
-        authId: crypto.randomUUID(),
-        email: bodyDto.email,
-        password,
-        firstName: bodyDto.firstName,
-        lastName: bodyDto.lastName,
-      },
-    )
+  if (user) throw new Forbidden(user.deletedAt ? localeConfig.Error.UserDisabled : localeConfig.Error.EmailTaken)
+
+  const newUser = await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      email: bodyDto.email,
+      password,
+      firstName: bodyDto.firstName,
+      lastName: bodyDto.lastName,
+    },
+  )
 
   if (!newUser) {
     throw new errorConfig.InternalServerError(localeConfig.Error.CanNotCreateUser)

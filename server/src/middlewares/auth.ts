@@ -88,6 +88,29 @@ export const s2sReadUser = bearerAuth({
   },
 })
 
+export const s2sWriteUser = bearerAuth({
+  verifyToken: async (
+    token, c: Context<typeConfig.Context>,
+  ) => {
+    const accessTokenBody = await parseToken(
+      c,
+      token,
+      typeConfig.ClientType.S2S,
+    )
+    if (!accessTokenBody) return false
+
+    const scopes = accessTokenBody.scope?.split(' ') ?? []
+    if (!scopes.includes(typeConfig.Scope.WRITE_USER)) return false
+
+    c.set(
+      'access_token_body',
+      accessTokenBody,
+    )
+
+    return true
+  },
+})
+
 export const s2sBasicAuth = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

@@ -20,6 +20,15 @@ export class Forbidden {
   }
 }
 
+export class NotFound {
+  constructor (message?: string) {
+    return new HTTPException(
+      400,
+      getOption(message),
+    )
+  }
+}
+
 export class UnAuthorized {
   constructor (message?: string) {
     return new HTTPException(

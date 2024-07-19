@@ -5,6 +5,8 @@ export enum Error {
   EmailTaken = 'The email address is already in use.',
   WrongRedirectUri = 'Invalid redirect_uri',
   NoUser = 'No user found',
+  UserDisabled = 'This account has been disabled',
+  EmailAlreadyVerified = 'Email already verified',
   NoConsent = 'User consent required',
   CanNotCreateUser = 'Failed to create user',
   CanNotCreateConsent = 'Failed to create consent',
