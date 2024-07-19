@@ -4,7 +4,7 @@ compatibility_date = "2023-12-01"
 [vars]
 AUTHORIZATION_CODE_EXPIRES_IN=60
 SPA_ACCESS_TOKEN_EXPIRES_IN=1800
-REFRESH_TOKEN_EXPIRES_IN=25200
+SPA_REFRESH_TOKEN_EXPIRES_IN=604800
 S2S_ACCESS_TOKEN_EXPIRES_IN=3600
 ID_TOKEN_EXPIRES_IN=1800
 SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
@@ -12,11 +12,11 @@ SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
 AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
 
-ENABLE_SIGN_UP=true # If set to false, sign up will be suppressed
-ENABLE_NAMES=true # If set to false, firstName and lastName will not be collected during sign up.
-NAMES_IS_REQUIRED=false # If set to true, users will be required to provide their firstName and lastName during sign up.
-ENABLE_USER_APP_CONSENT=true # If set to true, users will be required to consent grant permission to each app during authentication.
-ENABLE_EMAIL_VERIFICATION=true # To enable email functionality, set valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS environment variables. If set to true, user will receive a verification email upon sign up.
+ENABLE_SIGN_UP=true
+ENABLE_NAMES=true
+NAMES_IS_REQUIRED=false
+ENABLE_USER_APP_CONSENT=true
+ENABLE_EMAIL_VERIFICATION=true # To enable email functionality, set valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS environment variables
 
 [[kv_namespaces]]
 binding = "KV"
