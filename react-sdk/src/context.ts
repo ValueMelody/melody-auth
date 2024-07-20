@@ -22,7 +22,6 @@ export type DispatchAction =
   | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage }
   | { type: 'setUserInfo'; payload: GetUserInfo | null }
   | { type: 'setIsAuthenticating'; payload: boolean }
-  | { type: 'logout' }
 
 export type AuthDispatch = Dispatch<DispatchAction>
 

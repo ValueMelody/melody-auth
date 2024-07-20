@@ -1,5 +1,6 @@
 import {
   useContext, useEffect,
+  useRef,
 } from 'react'
 import { exchangeTokenByAuthCode } from 'web-sdk'
 import { useAuth } from './useAuth'
@@ -12,8 +13,14 @@ const Setup = () => {
     state, dispatch,
   } = context
 
+  const initialized = useRef(false)
+
   useEffect(
     () => {
+      if (initialized.current) return
+
+      initialized.current = true
+
       if (state.accessTokenStorage) return
 
       if (state.refreshTokenStorage && !state.accessTokenStorage) {
@@ -40,9 +47,11 @@ const Setup = () => {
             })
           }
         })
-        .catch(() => dispatch({
-          type: 'setIsAuthenticating', payload: false,
-        }))
+        .catch(() => {
+          dispatch({
+            type: 'setIsAuthenticating', payload: false,
+          })
+        })
     },
     [dispatch, state.accessTokenStorage, state.config, acquireToken, state.refreshTokenStorage],
   )

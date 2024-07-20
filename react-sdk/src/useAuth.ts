@@ -59,9 +59,8 @@ export const useAuth = () => {
         postLogoutRedirectUri,
         localOnly,
       )
-      dispatch({ type: 'logout' })
     },
-    [state.config, accessToken, refreshToken, dispatch],
+    [state.config, accessToken, refreshToken],
   )
 
   const acquireToken = useCallback(
