@@ -1,9 +1,9 @@
 # S2S API
 
-Melody Auth S2S API provides abilities for server app to manage resources.
+Melody Auth S2S API provides capabilities for server applications to manage resources.
 
 ## Get Started
-Obtain a s2s access_token from /token endpoint by using your clientId, and clientScret as basic auth header. Use this access_token as bearer header to other requests.
+To get started, obtain an access_token from the /token endpoint by using your clientId and clientSecret as the Basic Auth header. Use this access_token as a Bearer token in the Authorization header for subsequent requests.
 
 - HTTP Method: `POST`
 - Content Type: `application/x-www-form-urlencoded`
@@ -13,8 +13,8 @@ Obtain a s2s access_token from /token endpoint by using your clientId, and clien
 
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
-| ``grant_type`` | 'client_credentials' | true | Indicate we are exchange token using client credentials |
-| ``scope`` | 'read_user write_user' | true | Request required scopes |
+| ``grant_type`` | 'client_credentials' | true | Indicates the use of client credentials to exchange for a token |
+| ``scope`` | string | true | Scopes requested (e.g., 'read_user write_user') |
 
 
 ### Request example

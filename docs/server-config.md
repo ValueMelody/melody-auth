@@ -54,6 +54,10 @@ The Melody Auth server provides various customizable configurations. You can cha
 - **Default:** true
 - **Description:** Requires users to consent to grant access to each app after authentication.
 
+## ENABLE_USER_ROLE
+- **Default:** true
+- **Description:** Enable role-based access control system, required for admin panel.
+
 ## ENABLE_EMAIL_VERIFICATION
 - **Default:** true
 - **Description:** If set to true, users will receive an email to verify their email address after signing up. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)

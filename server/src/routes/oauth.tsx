@@ -8,7 +8,7 @@ import { oauthDto } from 'dtos'
 import {
   appService,
   consentService,
-  jwtService, kvService, sessionService, userService,
+  jwtService, kvService, roleService, sessionService, userService,
 } from 'services'
 import {
   cryptoUtil, formatUtil, timeUtil,
@@ -81,6 +81,10 @@ export const load = (app: typeConfig.App) => {
         )
         if (requireConsent) throw new errorConfig.UnAuthorized(localeConfig.Error.NoConsent)
 
+        const userRoles = await roleService.getUserRoles(
+          c,
+          authInfo.user.id,
+        )
         const authId = authInfo.user.authId
         const scope = authInfo.request.scopes.join(' ')
 
@@ -94,6 +98,7 @@ export const load = (app: typeConfig.App) => {
           currentTimestamp,
           authId,
           scope,
+          userRoles,
         )
 
         const result: PostTokenByAuthCode = {
@@ -116,6 +121,7 @@ export const load = (app: typeConfig.App) => {
             authId,
             authInfo.request.clientId,
             scope,
+            userRoles,
           )
           result.refresh_token = refreshToken
           result.refresh_token_expires_in = refreshTokenExpiresIn
@@ -133,6 +139,7 @@ export const load = (app: typeConfig.App) => {
             c,
             currentTimestamp,
             authInfo,
+            userRoles,
           )
           result.id_token = idToken
         }
@@ -161,6 +168,7 @@ export const load = (app: typeConfig.App) => {
           currentTimestamp,
           refreshTokenBody.sub,
           refreshTokenBody.scope,
+          refreshTokenBody.roles,
         )
 
         const result: PostTokenByRefreshToken = {

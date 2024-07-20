@@ -13,11 +13,12 @@ AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
 
 ENABLE_SIGN_UP=true
-ENABLE_PASSWORD_RESET=true
+ENABLE_PASSWORD_RESET=true # Requires enable email function first. To enable email functionality, set valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS environment variables
 ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
-ENABLE_EMAIL_VERIFICATION=true # To enable email functionality, set valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS environment variables
+ENABLE_EMAIL_VERIFICATION=true # Requires enable email function first. To enable email functionality, set valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS environment variables
+ENABLE_USER_ROLE=true
 
 [[kv_namespaces]]
 binding = "KV"
