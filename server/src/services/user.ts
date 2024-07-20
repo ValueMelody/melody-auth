@@ -11,7 +11,9 @@ import {
   PostAuthorizeReqBodyWithNamesDto, PostAuthorizeReqBodyWithPasswordDto,
 } from 'dtos/identity'
 import { userModel } from 'models'
-import { emailService } from 'services'
+import {
+  emailService, roleService,
+} from 'services'
 import {
   cryptoUtil, timeUtil,
 } from 'utils'
@@ -35,10 +37,21 @@ export const getUserInfo = async (
     emailVerified: !!user.emailVerified,
   }
 
-  const { ENABLE_NAMES: enableNames } = env(c)
+  const {
+    ENABLE_NAMES: enableNames,
+    ENABLE_USER_ROLE: enableRoles,
+  } = env(c)
   if (enableNames) {
     result.firstName = user.firstName
     result.lastName = user.lastName
+  }
+
+  if (enableRoles) {
+    const roles = await roleService.getUserRoles(
+      c,
+      user.id,
+    )
+    if (roles) result.roles = roles
   }
 
   return result

@@ -3,12 +3,14 @@
   "version": "0.0.1",
   "description": "A turnkey authentication system that can be self-hosted on Cloudflare's infrastructure.",
   "keywords": [
-    "oauth",
-    "oauth2",
-    "Cloudflare",
-    "Cloudflare Workers",
-    "Authentication Service",
-    "Identity Provider"
+    "Sign In",
+    "Sign Up",
+    "Sign Out",
+    "Email Verification",
+    "Reset Password",
+    "Oauth Authorize",
+    "Oauth Code Exchange",
+    "User Role"
   ],
   "license": "MIT",
   "author": "Baozier",
@@ -17,7 +19,7 @@
     "server",
     "web-sdk",
     "react-sdk",
-    "react-example"
+    "admin-panel"
   ],
   "scripts": {
     "type:check": "npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk",

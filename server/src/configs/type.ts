@@ -31,6 +31,7 @@ export type Bindings = {
   NAMES_IS_REQUIRED: boolean;
   ENABLE_USER_APP_CONSENT: boolean;
   ENABLE_EMAIL_VERIFICATION: boolean;
+  ENABLE_USER_ROLE: boolean;
 };
 
 export type Context = {
@@ -63,6 +64,7 @@ export interface AccessTokenBody {
   scope: string;
   iat: number;
   exp: number;
+  roles?: string[];
 }
 
 export interface BasicAuthBody {
@@ -76,6 +78,19 @@ export interface RefreshTokenBody {
   scope: string;
   iat: number;
   exp: number;
+  roles?: string[];
+}
+
+export interface IdTokenBody {
+  iss: string;
+  sub: string;
+  azp: string;
+  exp: number;
+  iat: number;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  roles?: string[];
 }
 
 export enum Scope {

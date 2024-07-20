@@ -107,6 +107,7 @@ export const genAccessToken = async (
   currentTimestamp: number,
   sub: string,
   scope: string,
+  roles?: string[] | null,
 ) => {
   const {
     SPA_ACCESS_TOKEN_EXPIRES_IN,
@@ -129,6 +130,8 @@ export const genAccessToken = async (
     iat: currentTimestamp,
     exp: accessTokenExpiresAt,
   }
+  if (roles) accessTokenBody.roles = roles
+
   const accessToken = await sign(
     accessTokenBody as unknown as JWTPayload,
     accessTokenSecret,
@@ -146,6 +149,7 @@ export const genRefreshToken = async (
   authId: string,
   clientId: string,
   scope: string,
+  roles?: string[] | null,
 ) => {
   const {
     SPA_REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn,
@@ -159,6 +163,7 @@ export const genRefreshToken = async (
     iat: currentTimestamp,
     exp: refreshTokenExpiresAt,
   }
+  if (roles) refreshTokenBody.roles = roles
   const refreshToken = await sign(
     refreshTokenBody as unknown as JWTPayload,
     jwtSecret,
@@ -174,6 +179,7 @@ export const genIdToken = async (
   c: Context<typeConfig.Context>,
   currentTimestamp: number,
   authInfo: typeConfig.AuthCodeBody,
+  roles?: string[] | null,
 ) => {
   const {
     ID_TOKEN_EXPIRES_IN: idTokenExpiresIn,
@@ -181,17 +187,19 @@ export const genIdToken = async (
     AUTH_SERVER_URL: authServerUrl,
   } = env(c)
   const idTokenExpiresAt = currentTimestamp + idTokenExpiresIn
+  const body: typeConfig.IdTokenBody = {
+    iss: authServerUrl,
+    sub: authInfo.user.authId,
+    azp: authInfo.request.clientId,
+    exp: idTokenExpiresAt,
+    iat: currentTimestamp,
+    email: authInfo.user.email,
+    first_name: authInfo.user.firstName,
+    last_name: authInfo.user.lastName,
+  }
+  if (roles) body.roles = roles
   const idToken = await sign(
-    {
-      iss: authServerUrl,
-      sub: authInfo.user.authId,
-      azp: authInfo.request.clientId,
-      exp: idTokenExpiresAt,
-      iat: currentTimestamp,
-      email: authInfo.user.email,
-      first_name: authInfo.user.firstName,
-      last_name: authInfo.user.lastName,
-    },
+    body as unknown as JWTPayload,
     jwtSecret,
   )
   return { idToken }
