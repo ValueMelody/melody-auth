@@ -1,0 +1,7 @@
+{
+  "layout": {
+    "blocked": "Only super admin can access this app.",
+    "brand": "Melody Auth",
+    "logout": "Logout"
+  }
+}

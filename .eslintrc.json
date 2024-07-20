@@ -24,7 +24,8 @@
     "import/resolver": {
       "typescript": {
         "project": [
-          "server/tsconfig.json"
+          "server/tsconfig.json",
+          "admin-panel/tsconfig.json"
         ]
       }
     }

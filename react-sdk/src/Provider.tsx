@@ -37,15 +37,6 @@ const reducer = (
     return {
       ...state, isAuthenticating: action.payload,
     }
-  case 'logout':
-    return {
-      ...state,
-      isAuthenticating: false,
-      isAuthenticated: false,
-      accessTokenStorage: null,
-      refreshTokenStorage: null,
-      userInfo: null,
-    }
   }
 }
 
