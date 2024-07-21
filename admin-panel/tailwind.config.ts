@@ -5,7 +5,8 @@ import {
 
 const config: Config = {
   content: [
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
     content({ base: '../' }),
   ],
   plugins: [

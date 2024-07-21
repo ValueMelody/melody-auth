@@ -30,10 +30,12 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/:authId`,
     authMiddleware.s2sReadUser,
     async (c) => {
+      const includeDeleted = c.req.query('include_disabled') === 'true'
       const authId = c.req.param('authId')
       const user = await userService.getUserByAuthId(
         c,
         authId,
+        includeDeleted,
       )
       return c.json({ user })
     },

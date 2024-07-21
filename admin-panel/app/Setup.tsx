@@ -13,6 +13,8 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
 import { userInfoSignal } from 'signals'
+import useCurrentLocale from 'hooks/useCurrentLocale'
+import { routeTool } from 'tools'
 
 const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()
@@ -60,6 +62,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
 const LayoutSetup = ({ children } : PropsWithChildren) => {
   const t = useTranslations()
+  const local = useCurrentLocale()
   const { logoutRedirect } = useAuth()
 
   const handleLogout = () => {
@@ -83,6 +86,20 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
         </Navbar.Brand>
         <Navbar.Toggle />
         <Navbar.Collapse>
+          <Navbar.Link
+            as={Link}
+            href={`/${local}${routeTool.Internal.Dashboard}`}
+            className='flex items-center h-6'
+          >
+            {t('layout.dashboard')}
+          </Navbar.Link>
+          <Navbar.Link
+            as={Link}
+            className='flex items-center h-6'
+            href={`/${local}${routeTool.Internal.Users}`}
+          >
+            {t('layout.users')}
+          </Navbar.Link>
           <Navbar.Link
             onClick={handleLogout}
             href='#'

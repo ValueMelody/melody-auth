@@ -3,12 +3,23 @@
     "blocked": "Only super admin can access this app.",
     "brand": "Melody Auth",
     "logout": "Logout",
-    "users": "Manage Users"
+    "users": "Manage Users",
+    "dashboard": "Dashboard"
   },
   "users": {
     "authId": "Auth ID",
     "email": "Email",
     "name": "Name",
-    "status": "Status"
+    "status": "Status",
+    "emailVerified": "Email Is Verified",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "property": "Property",
+    "value": "Value",
+    "disabled": "Disabled",
+    "active": "Active",
+    "roles": "Roles"
   }
 }
