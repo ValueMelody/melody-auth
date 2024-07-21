@@ -82,6 +82,12 @@ fetch('/api/v1/users', {
 - Content Type: `application/json`
 - URL: `[melody_auth_server_url]/api/v1/users/:authId`
 
+### Query Parameters
+
+| Property | Type | Required | Description |
+| -------- | ---- | -------- | ----------- |
+| ``include_disabled`` | 'true' | false | If disabled users should be included. |
+
 ### Request example
 
 ``` js

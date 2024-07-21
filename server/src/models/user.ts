@@ -18,6 +18,19 @@ export interface Record {
   deletedAt: string | null;
 }
 
+export interface ApiRecord {
+  id: number;
+  authId: string;
+  email: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  emailVerified: boolean;
+  roles?: string[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
 export interface Create {
   authId: string;
   email: string | null;
@@ -40,6 +53,28 @@ export interface Update {
 }
 
 const TableName = dbConfig.TableName.User
+
+export const convertToApiRecord = (
+  record: Record,
+  enabledNames: boolean,
+  roles: string[] | null,
+): ApiRecord => {
+  const result: ApiRecord = {
+    id: record.id,
+    authId: record.authId,
+    email: record.email,
+    emailVerified: !!record.emailVerified,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    deletedAt: record.deletedAt,
+  }
+  if (roles) result.roles = roles
+  if (enabledNames) {
+    result.firstName = record.firstName
+    result.lastName = record.lastName
+  }
+  return result
+}
 
 export const getAll = async (
   db: D1Database, includeDeleted: boolean = false,

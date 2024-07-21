@@ -68,7 +68,25 @@ export const getUserByAuthId = async (
     includeDeleted,
   )
   if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
-  return user
+
+  const {
+    ENABLE_USER_ROLE: enableRoles,
+    ENABLE_NAMES: enableNames,
+  } = env(c)
+
+  const roles = enableRoles
+    ? await roleService.getUserRoles(
+      c,
+      user.id,
+    )
+    : null
+
+  const result = userModel.convertToApiRecord(
+    user,
+    enableNames,
+    roles,
+  )
+  return result
 }
 
 export const verifyPasswordSignIn = async (
