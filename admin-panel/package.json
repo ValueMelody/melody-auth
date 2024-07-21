@@ -11,6 +11,7 @@
     "@heroicons/react": "^2.1.4",
     "@preact/signals-react": "^2.1.0",
     "flowbite-react": "^0.10.1",
+    "jsonwebtoken": "^9.0.2",
     "next": "14.2.5",
     "next-intl": "^3.15.0",
     "react": "^18",

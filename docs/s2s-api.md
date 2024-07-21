@@ -62,7 +62,7 @@ fetch('/oauth2/v1/token', {
 
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
-| ``includeDisabled`` | 'true' | false | If disabled users should be included. |
+| ``include_disabled`` | 'true' | false | If disabled users should be included. |
 
 ### Request example
 
