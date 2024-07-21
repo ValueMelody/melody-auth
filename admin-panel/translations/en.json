@@ -2,6 +2,13 @@
   "layout": {
     "blocked": "Only super admin can access this app.",
     "brand": "Melody Auth",
-    "logout": "Logout"
+    "logout": "Logout",
+    "users": "Manage Users"
+  },
+  "users": {
+    "authId": "Auth ID",
+    "email": "Email",
+    "name": "Name",
+    "status": "Status"
   }
 }

@@ -63,7 +63,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
   const { logoutRedirect } = useAuth()
 
   const handleLogout = () => {
-    logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI })
+    logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
   }
 
   return (
@@ -91,7 +91,9 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
           </Navbar.Link>
         </Navbar.Collapse>
       </Navbar>
-      {children}
+      <section className='p-6'>
+        {children}
+      </section>
     </>
   )
 }
@@ -100,7 +102,7 @@ const Setup = ({ children } : PropsWithChildren) => {
   return (
     <AuthProvider
       clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
-      redirectUri={process.env.NEXT_PUBLIC_REDIRECT_URI ?? ''}
+      redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/en/dashboard` ?? ''}
       serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
     >
       <AuthSetup>

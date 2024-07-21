@@ -17,7 +17,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}`,
     authMiddleware.s2sReadUser,
     async (c) => {
-      const includeDeleted = c.req.query('includeDisabled') === 'true'
+      const includeDeleted = c.req.query('include_disabled') === 'true'
       const users = await userModel.getAll(
         c.env.DB,
         includeDeleted,
