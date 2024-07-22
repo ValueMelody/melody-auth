@@ -47,11 +47,11 @@ export const load = (app: typeConfig.App) => {
     configMiddleware.enableEmailVerification,
     async (c) => {
       const authId = c.req.param('authId')
-      const user = await userService.getUserByAuthId(
-        c,
+      const user = await userModel.getByAuthId(
+        c.env.DB,
         authId,
       )
-
+      if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
       if (user.emailVerified) throw new errorConfig.Forbidden(localeConfig.Error.EmailAlreadyVerified)
 
       await userService.sendEmailVerification(

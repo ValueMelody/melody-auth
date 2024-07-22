@@ -20,6 +20,10 @@
     "value": "Value",
     "disabled": "Disabled",
     "active": "Active",
-    "roles": "Roles"
+    "roles": "Roles",
+    "enable": "Enable",
+    "disable": "Disable",
+    "resend": "Resend Email",
+    "sent": "Email Sent"
   }
 }

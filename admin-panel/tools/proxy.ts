@@ -2,16 +2,22 @@ export const sendNextRequest = async ({
   endpoint,
   method,
   token,
+  body,
 }: {
   endpoint: string;
-  method: 'GET';
+  method: 'GET' | 'POST' | 'PUT';
   token: string;
+  body: object;
 }) => {
   const res = await fetch(
     endpoint,
     {
       method,
-      headers: { Authorization: `bearer ${token}` },
+      headers: {
+        Authorization: `bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     },
   )
   if (res.ok) {

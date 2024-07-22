@@ -2,11 +2,13 @@
 
 import { useAuth } from '@melody-auth/react'
 import {
-  Badge, Table,
+  Badge, Button, Table,
+  TableCell,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
+  useCallback,
   useEffect, useState,
 } from 'react'
 import UserEmailVerified from 'components/UserEmailVerified'
@@ -19,23 +21,60 @@ const Page = () => {
   const t = useTranslations()
 
   const [user, setUser] = useState()
+  const [emailResent, setEmailResent] = useState(false)
   const { acquireToken } = useAuth()
+
+  const getUser = useCallback(
+    async () => {
+      const token = await acquireToken()
+      const data = await proxyTool.sendNextRequest({
+        endpoint: `/api/users/${authId}`,
+        method: 'GET',
+        token,
+      })
+      setUser(data.user)
+    },
+    [acquireToken, authId],
+  )
+
+  const enableUser = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}`,
+      method: 'PUT',
+      token,
+      body: { action: 'enable' },
+    })
+    if (result) await getUser()
+  }
+
+  const disableUser = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}`,
+      method: 'PUT',
+      token,
+      body: { action: 'disable' },
+    })
+    if (result) await getUser()
+  }
+
+  const handleResendVerifyEmail = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}`,
+      method: 'POST',
+      token,
+      body: { action: 'verify-email' },
+    })
+    if (result) setEmailResent(true)
+  }
 
   useEffect(
     () => {
-      const getUser = async () => {
-        const token = await acquireToken()
-        const data = await proxyTool.sendNextRequest({
-          endpoint: `/api/users/${authId}`,
-          method: 'GET',
-          token,
-        })
-        setUser(data.user)
-      }
-
       getUser()
     },
-    [acquireToken, authId],
+    [getUser],
   )
 
   if (!user) return null
@@ -47,6 +86,7 @@ const Page = () => {
           <Table.Head>
             <Table.HeadCell>{t('users.property')}</Table.HeadCell>
             <Table.HeadCell>{t('users.value')}</Table.HeadCell>
+            <Table.HeadCell />
           </Table.Head>
           <Table.Body className='divide-y'>
             <Table.Row>
@@ -62,11 +102,32 @@ const Page = () => {
               <Table.Cell>
                 <UserStatus user={user} />
               </Table.Cell>
+              <TableCell>
+                <Button
+                  size='xs'
+                  onClick={user.deletedAt ? enableUser : disableUser}>
+                  {user.deletedAt ? t('users.enable') : t('users.disable')}
+                </Button>
+              </TableCell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.emailVerified')}</Table.Cell>
               <Table.Cell>
                 <UserEmailVerified user={user} />
+              </Table.Cell>
+              <Table.Cell>
+                {!user.deletedAt && !user.emailVerified && !emailResent && (
+                  <Button
+                    size='xs'
+                    onClick={handleResendVerifyEmail}>
+                    {t('users.resend')}
+                  </Button>
+                )}
+                {!user.deletedAt && !user.emailVerified && emailResent && (
+                  <div className='flex'>
+                    <Badge>{t('users.sent')}</Badge>
+                  </div>
+                )}
               </Table.Cell>
             </Table.Row>
             <Table.Row>
