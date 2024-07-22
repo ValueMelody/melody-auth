@@ -75,7 +75,7 @@ export const sendS2SRequest = async ({
   uri,
 }: {
   uri: string;
-  method: 'GET';
+  method: 'GET' | 'POST' | 'PUT';
 }) => {
   const token = await obtainS2SAccessToken()
 
