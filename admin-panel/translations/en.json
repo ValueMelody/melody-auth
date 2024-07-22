@@ -6,6 +6,12 @@
     "users": "Manage Users",
     "dashboard": "Dashboard"
   },
+  "dashboard": {
+    "configs": "Configs",
+    "configName": "Name",
+    "configValue": "Value",
+    "configSeconds": "seconds"
+  },
   "users": {
     "authId": "Auth ID",
     "email": "Email",

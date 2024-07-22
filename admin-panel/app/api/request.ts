@@ -80,7 +80,7 @@ export const sendS2SRequest = async ({
   const token = await obtainS2SAccessToken()
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URI}/api/v1${uri}`,
+    `${process.env.NEXT_PUBLIC_SERVER_URI}${uri}`,
     {
       method,
       headers: { Authorization: `Bearer ${token}` },
