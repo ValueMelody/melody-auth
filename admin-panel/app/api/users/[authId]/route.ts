@@ -17,7 +17,7 @@ export async function GET (
 
   const data = await sendS2SRequest({
     method: 'GET',
-    uri: `/users/${authId}?include_disabled=true`,
+    uri: `/api/v1/users/${authId}?include_disabled=true`,
   })
   return NextResponse.json(data)
 }
@@ -34,7 +34,7 @@ export async function POST (
 
   await sendS2SRequest({
     method: 'POST',
-    uri: `/users/${authId}/${reqBody.action}`,
+    uri: `/api/v1/users/${authId}/${reqBody.action}`,
   })
 
   return NextResponse.json({ success: true })
@@ -52,7 +52,7 @@ export async function PUT (
 
   await sendS2SRequest({
     method: 'PUT',
-    uri: `/users/${authId}/${reqBody.action}`,
+    uri: `/api/v1/users/${authId}/${reqBody.action}`,
   })
 
   return NextResponse.json({ success: true })

@@ -6,15 +6,15 @@ export const sendNextRequest = async ({
 }: {
   endpoint: string;
   method: 'GET' | 'POST' | 'PUT';
-  token: string;
-  body: object;
+  token?: string;
+  body?: object;
 }) => {
   const res = await fetch(
     endpoint,
     {
       method,
       headers: {
-        Authorization: `bearer ${token}`,
+        Authorization: token ? `bearer ${token}` : '',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
