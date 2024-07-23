@@ -57,6 +57,25 @@ export const getUserInfo = async (
   return result
 }
 
+export const getUsers = async (
+  c: Context<typeConfig.Context>,
+  includeDeleted: boolean = false,
+) => {
+  const users = await userModel.getAll(
+    c.env.DB,
+    includeDeleted,
+  )
+
+  const { ENABLE_NAMES: enableNames } = env(c)
+
+  const result = users.map((user) => userModel.convertToApiRecord(
+    user,
+    enableNames,
+    null,
+  ))
+  return result
+}
+
 export const getUserByAuthId = async (
   c: Context<typeConfig.Context>,
   authId: string,
@@ -136,7 +155,7 @@ export const createAccountWithPassword = async (
 }
 
 export const sendEmailVerification = async (
-  c: Context<typeConfig.Context>, user: userModel.Record,
+  c: Context<typeConfig.Context>, user: userModel.Record | userModel.ApiRecord,
 ) => {
   const verificationCode = await emailService.sendEmailVerification(
     c,
@@ -235,5 +254,41 @@ export const resetUserPassword = async (
       passwordResetCode: null,
       passwordResetCodeExpiresOn: null,
     },
+  )
+}
+
+export const enableUser = async (
+  c: Context<typeConfig.Context>,
+  authId: string,
+) => {
+  const includeDeleted = true
+  const user = await getUserByAuthId(
+    c,
+    authId,
+    includeDeleted,
+  )
+
+  if (!user.deletedAt) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    { deletedAt: null },
+  )
+}
+
+export const disableUser = async (
+  c: Context<typeConfig.Context>,
+  authId: string,
+) => {
+  const user = await getUserByAuthId(
+    c,
+    authId,
+  )
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    { deletedAt: timeUtil.getDbCurrentTime() },
   )
 }

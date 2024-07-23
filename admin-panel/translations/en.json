@@ -4,13 +4,32 @@
     "brand": "Melody Auth",
     "logout": "Logout",
     "users": "Manage Users",
+    "apps": "Manage Apps",
     "dashboard": "Dashboard"
+  },
+  "common": {
+    "enable": "Enable",
+    "disable": "Disable",
+    "disabled": "Disabled",
+    "active": "Active",
+    "property": "Property",
+    "value": "Value",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At"
   },
   "dashboard": {
     "configs": "Configs",
     "configName": "Name",
     "configValue": "Value",
     "configSeconds": "seconds"
+  },
+  "apps": {
+    "clientId": "Client ID",
+    "name": "Name",
+    "status": "Status",
+    "type": "Type",
+    "scopes": "Scopes",
+    "redirectUris": "Redirect Uris"
   },
   "users": {
     "authId": "Auth ID",
@@ -20,15 +39,7 @@
     "emailVerified": "Email Is Verified",
     "firstName": "First Name",
     "lastName": "Last Name",
-    "createdAt": "Created At",
-    "updatedAt": "Updated At",
-    "property": "Property",
-    "value": "Value",
-    "disabled": "Disabled",
-    "active": "Active",
     "roles": "Roles",
-    "enable": "Enable",
-    "disable": "Disable",
     "resend": "Resend Email",
     "sent": "Email Sent"
   }

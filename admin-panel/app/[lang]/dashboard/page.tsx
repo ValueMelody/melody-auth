@@ -37,12 +37,18 @@ const Page = () => {
 
   return (
     <section className='flex flex-col gap-8'>
-      <section className='flex items-center'>
+      <section className='flex items-center gap-8'>
         <Button
           size='sm'
           as={Link}
           href={`/${local}/${routeTool.Internal.Users}`}>
           {t('layout.users')}
+        </Button>
+        <Button
+          size='sm'
+          as={Link}
+          href={`/${local}/${routeTool.Internal.Apps}`}>
+          {t('layout.apps')}
         </Button>
       </section>
       {configs && (

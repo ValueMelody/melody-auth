@@ -12,8 +12,9 @@ import {
   useEffect, useState,
 } from 'react'
 import UserEmailVerified from 'components/UserEmailVerified'
-import UserStatus from 'components/UserStatus'
 import { proxyTool } from 'tools'
+import EntityStatus from 'components/EntityStatus'
+import ChangeStatusButton from 'components/ChangeStatusButton'
 
 const Page = () => {
   const { authId } = useParams()
@@ -84,8 +85,8 @@ const Page = () => {
       <section>
         <Table>
           <Table.Head>
-            <Table.HeadCell>{t('users.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('users.value')}</Table.HeadCell>
+            <Table.HeadCell>{t('common.property')}</Table.HeadCell>
+            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
             <Table.HeadCell />
           </Table.Head>
           <Table.Body className='divide-y'>
@@ -100,14 +101,14 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('users.status')}</Table.Cell>
               <Table.Cell>
-                <UserStatus user={user} />
+                <EntityStatus isEnabled={!user.deletedAt} />
               </Table.Cell>
               <TableCell>
-                <Button
-                  size='xs'
-                  onClick={user.deletedAt ? enableUser : disableUser}>
-                  {user.deletedAt ? t('users.enable') : t('users.disable')}
-                </Button>
+                <ChangeStatusButton
+                  isEnabled={!user.deletedAt}
+                  onEnable={enableUser}
+                  onDisable={disableUser}
+                />
               </TableCell>
             </Table.Row>
             <Table.Row>
@@ -152,11 +153,11 @@ const Page = () => {
               <Table.Cell>{user.lastName}</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>{t('users.createdAt')}</Table.Cell>
+              <Table.Cell>{t('common.createdAt')}</Table.Cell>
               <Table.Cell>{user.createdAt} UTC</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>{t('users.updatedAt')}</Table.Cell>
+              <Table.Cell>{t('common.updatedAt')}</Table.Cell>
               <Table.Cell>{user.updatedAt} UTC</Table.Cell>
             </Table.Row>
           </Table.Body>

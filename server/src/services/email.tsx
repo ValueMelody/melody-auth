@@ -50,7 +50,7 @@ export const sendSendgridEmail = async (
 }
 
 export const sendEmailVerification = async (
-  c: Context<typeConfig.Context>, user: userModel.Record,
+  c: Context<typeConfig.Context>, user: userModel.Record | userModel.ApiRecord,
 ) => {
   const {
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,

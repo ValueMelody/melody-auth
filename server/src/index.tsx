@@ -3,7 +3,7 @@ import { cors } from 'hono/cors'
 import { typeConfig } from 'configs'
 import {
   oauthRoute, userRoute, identityRoute,
-  otherRoute,
+  otherRoute, appRoute,
 } from 'routes'
 import { setupMiddleware } from 'middlewares'
 
@@ -17,7 +17,8 @@ app.use(
 
 otherRoute.load(app)
 oauthRoute.load(app)
-userRoute.load(app)
 identityRoute.load(app)
+userRoute.load(app)
+appRoute.load(app)
 
 export default app
