@@ -99,6 +99,8 @@ export enum Scope {
   OfflineAccess = 'offline_access',
   READ_USER = 'read_user',
   WRITE_USER = 'write_user',
+  READ_APP = 'read_app',
+  WRITE_APP = 'write_app',
 }
 
 export enum ClientType {

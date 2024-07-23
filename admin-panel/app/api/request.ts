@@ -39,7 +39,7 @@ export const obtainS2SAccessToken = async () => {
 
   const body = {
     grant_type: 'client_credentials',
-    scope: 'read_user write_user',
+    scope: 'read_user write_user read_app write_app',
   }
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URI}/oauth2/v1/token`,

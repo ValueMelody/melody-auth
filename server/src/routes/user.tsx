@@ -6,9 +6,7 @@ import {
 import {
   authMiddleware, configMiddleware,
 } from 'middlewares'
-import { userModel } from 'models'
 import { userService } from 'services'
-import { timeUtil } from 'utils'
 
 const BaseRoute = routeConfig.InternalRoute.ApiUsers
 
@@ -18,8 +16,8 @@ export const load = (app: typeConfig.App) => {
     authMiddleware.s2sReadUser,
     async (c) => {
       const includeDeleted = c.req.query('include_disabled') === 'true'
-      const users = await userModel.getAll(
-        c.env.DB,
+      const users = await userService.getUsers(
+        c,
         includeDeleted,
       )
       return c.json({ users })
@@ -47,11 +45,11 @@ export const load = (app: typeConfig.App) => {
     configMiddleware.enableEmailVerification,
     async (c) => {
       const authId = c.req.param('authId')
-      const user = await userModel.getByAuthId(
-        c.env.DB,
+      const user = await userService.getUserByAuthId(
+        c,
         authId,
       )
-      if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+
       if (user.emailVerified) throw new errorConfig.Forbidden(localeConfig.Error.EmailAlreadyVerified)
 
       await userService.sendEmailVerification(
@@ -67,19 +65,9 @@ export const load = (app: typeConfig.App) => {
     authMiddleware.s2sWriteUser,
     async (c) => {
       const authId = c.req.param('authId')
-      const includeDeleted = true
-      const user = await userService.getUserByAuthId(
+      await userService.enableUser(
         c,
         authId,
-        includeDeleted,
-      )
-
-      if (!user.deletedAt) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
-
-      await userModel.update(
-        c.env.DB,
-        user.id,
-        { deletedAt: null },
       )
 
       return c.json({ success: true })
@@ -91,15 +79,9 @@ export const load = (app: typeConfig.App) => {
     authMiddleware.s2sWriteUser,
     async (c) => {
       const authId = c.req.param('authId')
-      const user = await userService.getUserByAuthId(
+      await userService.disableUser(
         c,
         authId,
-      )
-
-      await userModel.update(
-        c.env.DB,
-        user.id,
-        { deletedAt: timeUtil.getDbCurrentTime() },
       )
       return c.json({ success: true })
     },

@@ -101,6 +101,13 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
             {t('layout.users')}
           </Navbar.Link>
           <Navbar.Link
+            as={Link}
+            className='flex items-center h-6'
+            href={`/${local}${routeTool.Internal.Apps}`}
+          >
+            {t('layout.apps')}
+          </Navbar.Link>
+          <Navbar.Link
             onClick={handleLogout}
             href='#'
             className='flex items-center gap-2'>
