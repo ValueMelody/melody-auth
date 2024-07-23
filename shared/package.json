@@ -1,0 +1,8 @@
+{
+  "name": "shared",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc --build",
+    "type:check": "tsc --noEmit"
+  }
+}

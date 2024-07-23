@@ -3,12 +3,15 @@ import {
 } from 'hono'
 import { bearerAuth } from 'hono/bearer-auth'
 import { basicAuth } from 'hono/basic-auth'
+import {
+  ClientType, Scope,
+} from 'shared'
 import { typeConfig } from 'configs'
 import { jwtService } from 'services'
 import { oauthDto } from 'dtos'
 
 const parseToken = async (
-  c: Context<typeConfig.Context>, token: string, type: typeConfig.ClientType,
+  c: Context<typeConfig.Context>, token: string, type: ClientType,
 ) => {
   if (!token) return false
 
@@ -29,7 +32,7 @@ export const spa = bearerAuth({
     const accessTokenBody = await parseToken(
       c,
       token,
-      typeConfig.ClientType.SPA,
+      ClientType.SPA,
     )
     if (!accessTokenBody) return false
 
@@ -49,12 +52,12 @@ export const spaProfile = bearerAuth({
     const accessTokenBody = await parseToken(
       c,
       token,
-      typeConfig.ClientType.SPA,
+      ClientType.SPA,
     )
     if (!accessTokenBody) return false
 
     const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(typeConfig.Scope.Profile)) return false
+    if (!scopes.includes(Scope.Profile)) return false
 
     c.set(
       'access_token_body',
@@ -72,12 +75,12 @@ export const s2sReadUser = bearerAuth({
     const accessTokenBody = await parseToken(
       c,
       token,
-      typeConfig.ClientType.S2S,
+      ClientType.S2S,
     )
     if (!accessTokenBody) return false
 
     const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(typeConfig.Scope.READ_USER)) return false
+    if (!scopes.includes(Scope.READ_USER)) return false
 
     c.set(
       'access_token_body',
@@ -95,12 +98,12 @@ export const s2sWriteUser = bearerAuth({
     const accessTokenBody = await parseToken(
       c,
       token,
-      typeConfig.ClientType.S2S,
+      ClientType.S2S,
     )
     if (!accessTokenBody) return false
 
     const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(typeConfig.Scope.WRITE_USER)) return false
+    if (!scopes.includes(Scope.WRITE_USER)) return false
 
     c.set(
       'access_token_body',
@@ -118,12 +121,12 @@ export const s2sReadApp = bearerAuth({
     const accessTokenBody = await parseToken(
       c,
       token,
-      typeConfig.ClientType.S2S,
+      ClientType.S2S,
     )
     if (!accessTokenBody) return false
 
     const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(typeConfig.Scope.READ_APP)) return false
+    if (!scopes.includes(Scope.READ_APP)) return false
 
     c.set(
       'access_token_body',
@@ -141,12 +144,12 @@ export const s2sWriteApp = bearerAuth({
     const accessTokenBody = await parseToken(
       c,
       token,
-      typeConfig.ClientType.S2S,
+      ClientType.S2S,
     )
     if (!accessTokenBody) return false
 
     const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(typeConfig.Scope.WRITE_APP)) return false
+    if (!scopes.includes(Scope.WRITE_APP)) return false
 
     c.set(
       'access_token_body',

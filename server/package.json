@@ -12,7 +12,8 @@
   "dependencies": {
     "class-validator": "^0.14.1",
     "hono": "^4.4.12",
-    "hono-sessions": "^0.5.8"
+    "hono-sessions": "^0.5.8",
+    "shared": "*"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240529.0",

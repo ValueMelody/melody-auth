@@ -15,10 +15,14 @@
     "property": "Property",
     "value": "Value",
     "createdAt": "Created At",
-    "updatedAt": "Updated At"
+    "updatedAt": "Updated At",
+    "create": "Create",
+    "options": "Options:",
+    "save": "Save",
+    "fieldIsRequired": "This field is required."
   },
   "dashboard": {
-    "configs": "Configs",
+    "configs": "System Configs",
     "configName": "Name",
     "configValue": "Value",
     "configSeconds": "seconds"
@@ -29,7 +33,7 @@
     "status": "Status",
     "type": "Type",
     "scopes": "Scopes",
-    "redirectUris": "Redirect Uris"
+    "redirectUris": "Redirect URIs"
   },
   "users": {
     "authId": "Auth ID",

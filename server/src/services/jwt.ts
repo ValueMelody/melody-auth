@@ -4,6 +4,7 @@ import {
   sign, verify,
 } from 'hono/jwt'
 import { JWTPayload } from 'hono/utils/jwt/types'
+import { ClientType } from 'shared'
 import {
   errorConfig, localeConfig, typeConfig,
 } from 'configs'
@@ -77,14 +78,14 @@ export const getRefreshTokenBody = async (
 
 export const getAccessTokenBody = async (
   context: Context<typeConfig.Context>,
-  type: typeConfig.ClientType,
+  type: ClientType,
   accessToken: string,
 ) => {
   const {
     SPA_ACCESS_TOKEN_JWT_SECRET,
     S2S_ACCESS_TOKEN_JWT_SECRET,
   } = env(context)
-  const jwtSecret = type === typeConfig.ClientType.SPA
+  const jwtSecret = type === ClientType.SPA
     ? SPA_ACCESS_TOKEN_JWT_SECRET
     : S2S_ACCESS_TOKEN_JWT_SECRET
 
@@ -103,7 +104,7 @@ export const getAccessTokenBody = async (
 
 export const genAccessToken = async (
   context: Context<typeConfig.Context>,
-  type: typeConfig.ClientType,
+  type: ClientType,
   currentTimestamp: number,
   sub: string,
   scope: string,
@@ -116,7 +117,7 @@ export const genAccessToken = async (
     S2S_ACCESS_TOKEN_JWT_SECRET,
   } = env(context)
 
-  const isSpa = type === typeConfig.ClientType.SPA
+  const isSpa = type === ClientType.SPA
   const accessTokenExpiresIn = isSpa
     ? SPA_ACCESS_TOKEN_EXPIRES_IN
     : S2S_ACCESS_TOKEN_EXPIRES_IN

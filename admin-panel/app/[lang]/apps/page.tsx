@@ -12,7 +12,9 @@ import {
 } from 'react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import EntityStatus from 'components/EntityStatus'
-import { proxyTool } from 'tools'
+import {
+  proxyTool, routeTool,
+} from 'tools'
 import AppScopes from 'components/AppScopes'
 
 const Page = () => {
@@ -41,6 +43,13 @@ const Page = () => {
 
   return (
     <section>
+      <div className='mb-6 flex'>
+        <Button
+          as={Link}
+          href={`/${locale}${routeTool.Internal.Apps}/new`}
+          size='sm'>{t('common.create')}
+        </Button>
+      </div>
       <Table>
         <Table.Head>
           <Table.HeadCell>{t('apps.clientId')}</Table.HeadCell>

@@ -1,5 +1,5 @@
+import { ClientType } from 'shared'
 import { dbConfig } from 'configs'
-import { ClientType } from 'configs/type'
 import {
   formatUtil, timeUtil,
 } from 'utils'
