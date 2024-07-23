@@ -36,27 +36,27 @@ const Page = () => {
     [acquireToken, id],
   )
 
-  const enableApp = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/apps/${id}`,
-      method: 'PUT',
-      token,
-      body: { action: 'enable' },
-    })
-    if (result) await getApp()
-  }
+  // const enableApp = async () => {
+  //   const token = await acquireToken()
+  //   const result = await proxyTool.sendNextRequest({
+  //     endpoint: `/api/apps/${id}`,
+  //     method: 'PUT',
+  //     token,
+  //     body: { action: 'enable' },
+  //   })
+  //   if (result) await getApp()
+  // }
 
-  const disableApp = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/apps/${id}`,
-      method: 'PUT',
-      token,
-      body: { action: 'disable' },
-    })
-    if (result) await getApp()
-  }
+  // const disableApp = async () => {
+  //   const token = await acquireToken()
+  //   const result = await proxyTool.sendNextRequest({
+  //     endpoint: `/api/apps/${id}`,
+  //     method: 'PUT',
+  //     token,
+  //     body: { action: 'disable' },
+  //   })
+  //   if (result) await getApp()
+  // }
 
   useEffect(
     () => {

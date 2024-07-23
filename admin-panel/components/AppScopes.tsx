@@ -1,4 +1,4 @@
-import { Badge } from "flowbite-react"
+import { Badge } from 'flowbite-react'
 
 const AppScopes = ({ app }) => {
   return (

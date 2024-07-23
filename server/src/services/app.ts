@@ -4,7 +4,9 @@ import {
   typeConfig,
 } from 'configs'
 import { appModel } from 'models'
-import { formatUtil, timeUtil } from 'utils'
+import {
+  formatUtil, timeUtil,
+} from 'utils'
 
 export const verifySPAClientRequest = async (
   c: Context<typeConfig.Context>, clientId: string, redirectUri: string,

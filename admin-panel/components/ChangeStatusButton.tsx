@@ -1,10 +1,10 @@
-import { Button } from "flowbite-react";
-import { useTranslations } from "next-intl";
+import { Button } from 'flowbite-react'
+import { useTranslations } from 'next-intl'
 
 export const ChangeStatusButton = ({
   isEnabled,
   onEnable,
-  onDisable
+  onDisable,
 }: {
   isEnabled: boolean;
   onEnable: () => void;

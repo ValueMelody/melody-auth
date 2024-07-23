@@ -1,6 +1,8 @@
 import { dbConfig } from 'configs'
 import { ClientType } from 'configs/type'
-import { formatUtil, timeUtil } from 'utils'
+import {
+  formatUtil, timeUtil,
+} from 'utils'
 
 export interface Common {
   id: number;
@@ -68,7 +70,6 @@ export const getById = async (
 
   return format(app)
 }
-
 
 export const update = async (
   db: D1Database, id: number, update: Update,
