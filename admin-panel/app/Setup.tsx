@@ -62,7 +62,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
 const LayoutSetup = ({ children } : PropsWithChildren) => {
   const t = useTranslations()
-  const local = useCurrentLocale()
+  const locale = useCurrentLocale()
   const { logoutRedirect } = useAuth()
 
   const handleLogout = () => {
@@ -88,7 +88,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
         <Navbar.Collapse>
           <Navbar.Link
             as={Link}
-            href={`/${local}${routeTool.Internal.Dashboard}`}
+            href={`/${locale}${routeTool.Internal.Dashboard}`}
             className='flex items-center h-6'
           >
             {t('layout.dashboard')}
@@ -96,14 +96,14 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
           <Navbar.Link
             as={Link}
             className='flex items-center h-6'
-            href={`/${local}${routeTool.Internal.Users}`}
+            href={`/${locale}${routeTool.Internal.Users}`}
           >
             {t('layout.users')}
           </Navbar.Link>
           <Navbar.Link
             as={Link}
             className='flex items-center h-6'
-            href={`/${local}${routeTool.Internal.Apps}`}
+            href={`/${locale}${routeTool.Internal.Apps}`}
           >
             {t('layout.apps')}
           </Navbar.Link>

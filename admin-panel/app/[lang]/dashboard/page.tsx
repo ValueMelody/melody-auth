@@ -1,21 +1,14 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import {
-  Button, Table,
-} from 'flowbite-react'
-import Link from 'next/link'
+import { Table } from 'flowbite-react'
 import {
   useEffect, useState,
 } from 'react'
-import useCurrentLocale from 'hooks/useCurrentLocale'
-import {
-  proxyTool, routeTool,
-} from 'tools'
+import { proxyTool } from 'tools'
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 
 const Page = () => {
-  const local = useCurrentLocale()
   const t = useTranslations()
 
   const [configs, setConfigs] = useState(null)
@@ -37,20 +30,6 @@ const Page = () => {
 
   return (
     <section className='flex flex-col gap-8'>
-      <section className='flex items-center gap-8'>
-        <Button
-          size='sm'
-          as={Link}
-          href={`/${local}/${routeTool.Internal.Users}`}>
-          {t('layout.users')}
-        </Button>
-        <Button
-          size='sm'
-          as={Link}
-          href={`/${local}/${routeTool.Internal.Apps}`}>
-          {t('layout.apps')}
-        </Button>
-      </section>
       {configs && (
         <section className='flex flex-col gap-4'>
           <h2 className='text-lg font-bold'>{t('dashboard.configs')}</h2>

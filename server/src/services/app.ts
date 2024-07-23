@@ -1,4 +1,5 @@
 import { Context } from 'hono'
+import { ClientType } from 'shared'
 import {
   errorConfig, localeConfig,
   typeConfig,
@@ -19,7 +20,7 @@ export const verifySPAClientRequest = async (
     throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
   }
 
-  if (app.type !== typeConfig.ClientType.SPA) {
+  if (app.type !== ClientType.SPA) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
   }
   if (!app.redirectUris.includes(formatUtil.stripEndingSlash(redirectUri))) {
@@ -38,7 +39,7 @@ export const verifyS2SClientRequest = async (
   if (!app) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
   }
-  if (app.type !== typeConfig.ClientType.S2S) {
+  if (app.type !== ClientType.S2S) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
   }
   if (app.secret !== clientSecret) {

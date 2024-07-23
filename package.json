@@ -16,16 +16,17 @@
   "author": "Baozier",
   "repository": "https://github.com/ValueMelody/melody-auth",
   "workspaces": [
+    "shared",
     "server",
     "web-sdk",
     "react-sdk",
     "admin-panel"
   ],
   "scripts": {
-    "type:check": "npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk",
+    "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk",
     "lint:check": "eslint ./ --ext .ts,.tsx",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx",
-    "build": "npm run build -w=web-sdk && npm run build -w=react-sdk",
+    "build": "npm run build -w=shared &&  npm run build -w=web-sdk && npm run build -w=react-sdk",
     "docs:build": "vuepress build docs",
     "docs:dev": "vuepress dev docs"
   },

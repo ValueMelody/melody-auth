@@ -1,4 +1,7 @@
 import {
+  ClientType, Scope,
+} from 'shared'
+import {
   PostTokenByAuthCode, PostTokenByClientCredentials, PostTokenByRefreshToken,
 } from '../../../global'
 import {
@@ -94,7 +97,7 @@ export const load = (app: typeConfig.App) => {
           accessTokenExpiresAt,
         } = await jwtService.genAccessToken(
           c,
-          typeConfig.ClientType.SPA,
+          ClientType.SPA,
           currentTimestamp,
           authId,
           scope,
@@ -110,7 +113,7 @@ export const load = (app: typeConfig.App) => {
           scope: authInfo.request.scopes.join(' '),
         }
 
-        if (authInfo.request.scopes.includes(typeConfig.Scope.OfflineAccess)) {
+        if (authInfo.request.scopes.includes(Scope.OfflineAccess)) {
           const {
             refreshToken,
             refreshTokenExpiresIn,
@@ -134,7 +137,7 @@ export const load = (app: typeConfig.App) => {
           )
         }
 
-        if (authInfo.request.scopes.includes(typeConfig.Scope.OpenId)) {
+        if (authInfo.request.scopes.includes(Scope.OpenId)) {
           const { idToken } = await jwtService.genIdToken(
             c,
             currentTimestamp,
@@ -164,7 +167,7 @@ export const load = (app: typeConfig.App) => {
           accessTokenExpiresAt,
         } = await jwtService.genAccessToken(
           c,
-          typeConfig.ClientType.SPA,
+          ClientType.SPA,
           currentTimestamp,
           refreshTokenBody.sub,
           refreshTokenBody.scope,
@@ -200,7 +203,7 @@ export const load = (app: typeConfig.App) => {
           accessTokenExpiresAt,
         } = await jwtService.genAccessToken(
           c,
-          typeConfig.ClientType.S2S,
+          ClientType.S2S,
           currentTimestamp,
           basicAuth.username,
           validScopes.join(' '),

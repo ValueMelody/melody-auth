@@ -10,7 +10,6 @@
     ],
     "types": [
       "@cloudflare/workers-types",
-      "../global.d.ts"
     ],
     "experimentalDecorators": true,
     "baseUrl": "./src",

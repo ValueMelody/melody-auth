@@ -1,4 +1,5 @@
 import { env } from 'hono/adapter'
+import { Scope } from 'shared'
 import {
   routeConfig, typeConfig,
 } from 'configs'
@@ -42,7 +43,7 @@ export const load = (app: typeConfig.App) => {
         authorization_endpoint: `${oauthRoot}/authorize`,
         token_endpoint: `${oauthRoot}/token`,
         userinfo_endpoint: `${oauthRoot}/userinfo`,
-        scopes_supported: Object.values(typeConfig.Scope),
+        scopes_supported: Object.values(Scope),
         response_types_supported: ['code'],
         grant_types_supported: Object.values(oauthDto.TokenGrantType),
         token_endpoint_auth_methods_supported: ['client_secret_basic'],
