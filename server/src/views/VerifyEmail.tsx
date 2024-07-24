@@ -13,7 +13,7 @@ import {
 const VerifyEmail = ({
   queryDto, logoUrl,
 }: {
-  queryDto: identityDto.GetVerifyEmailReqQueryDto;
+  queryDto: identityDto.GetVerifyEmailReqDto;
   logoUrl: string;
 }) => {
   return (

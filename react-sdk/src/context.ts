@@ -2,17 +2,15 @@ import {
   createContext, Dispatch,
 } from 'react'
 import {
+  GetUserInfoRes, ProviderConfig,
   AccessTokenStorage, RefreshTokenStorage,
-} from 'web-sdk/dist/definitions'
-import {
-  GetUserInfo, ProviderConfig,
-} from '../../global'
+} from 'shared'
 
 export interface AuthState {
   config: ProviderConfig;
   refreshTokenStorage: RefreshTokenStorage | null;
   accessTokenStorage: AccessTokenStorage | null;
-  userInfo: GetUserInfo | null;
+  userInfo: GetUserInfoRes | null;
   isAuthenticated: boolean;
   isAuthenticating: boolean;
 }
@@ -20,7 +18,7 @@ export interface AuthState {
 export type DispatchAction =
   | { type: 'setRefreshTokenStorage'; payload: RefreshTokenStorage }
   | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage }
-  | { type: 'setUserInfo'; payload: GetUserInfo | null }
+  | { type: 'setUserInfo'; payload: GetUserInfoRes | null }
   | { type: 'setIsAuthenticating'; payload: boolean }
 
 export type AuthDispatch = Dispatch<DispatchAction>

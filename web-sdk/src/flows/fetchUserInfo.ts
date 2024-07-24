@@ -1,4 +1,4 @@
-import { ProviderConfig } from '../../../global'
+import { ProviderConfig } from 'shared'
 import { getUserInfo } from '../requests'
 
 export const fetchUserInfo = async (

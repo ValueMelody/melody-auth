@@ -1,5 +1,0 @@
-export * as logoutReqHandler from 'handlers/logoutReq'
-export * as postTokenReqHandler from 'handlers/postTokenReq'
-export * as getAuthorizeReqHandler from 'handlers/getAuthorizeReq'
-export * as postAuthorizeReqHandler from 'handlers/postAuthorizeReq'
-export * as verifyEmailReqHandler from 'handlers/verifyEmailReq'

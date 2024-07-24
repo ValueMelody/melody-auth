@@ -31,7 +31,7 @@ export const genAuthCode = async (
   c: Context<typeConfig.Context>,
   currentTimestamp: number,
   appId: number,
-  request: oauthDto.GetAuthorizeReqQueryDto,
+  request: oauthDto.GetAuthorizeReqDto,
   user: userModel.Record,
 ) => {
   const {

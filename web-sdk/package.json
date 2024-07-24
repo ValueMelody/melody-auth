@@ -4,5 +4,8 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc --build",
     "type:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "shared": "*"
   }
 }

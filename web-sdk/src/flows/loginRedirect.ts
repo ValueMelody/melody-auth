@@ -1,5 +1,6 @@
-import { ProviderConfig } from '../../../global'
-import { SessionStorageKey } from '../definitions'
+import {
+  ProviderConfig, SessionStorageKey,
+} from 'shared'
 import {
   genCodeVerifierAndChallenge, genAuthorizeState,
 } from '../generators'

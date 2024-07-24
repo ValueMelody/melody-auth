@@ -1,7 +1,6 @@
-import { ProviderConfig } from '../../../global'
 import {
-  AccessTokenStorage, RefreshTokenStorage, SessionStorageKey, StorageKey,
-} from '../definitions'
+  ProviderConfig, AccessTokenStorage, RefreshTokenStorage, SessionStorageKey, StorageKey,
+} from 'shared'
 import { postTokenByAuthCode } from '../requests'
 
 export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {

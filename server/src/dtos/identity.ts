@@ -3,21 +3,21 @@ import {
 } from 'class-validator'
 import { oauthDto } from 'dtos'
 
-export class PostAuthorizeReqBodyWithPasswordDto extends oauthDto.GetAuthorizeReqQueryDto {
+export class PostAuthorizeReqWithPasswordDto extends oauthDto.GetAuthorizeReqDto {
   @IsEmail()
     email: string
 
   @IsStrongPassword()
     password: string
 
-  constructor (dto: PostAuthorizeReqBodyWithPasswordDto) {
+  constructor (dto: PostAuthorizeReqWithPasswordDto) {
     super(dto)
     this.email = dto.email.toLowerCase()
     this.password = dto.password
   }
 }
 
-export class PostAuthorizeReqBodyWithNamesDto extends PostAuthorizeReqBodyWithPasswordDto {
+export class PostAuthorizeReqWithNamesDto extends PostAuthorizeReqWithPasswordDto {
   @IsString()
   @Length(
     0,
@@ -34,14 +34,14 @@ export class PostAuthorizeReqBodyWithNamesDto extends PostAuthorizeReqBodyWithPa
   @IsOptional()
     lastName: string | null
 
-  constructor (dto: PostAuthorizeReqBodyWithNamesDto) {
+  constructor (dto: PostAuthorizeReqWithNamesDto) {
     super(dto)
     this.firstName = dto.firstName ?? null
     this.lastName = dto.lastName ?? null
   }
 }
 
-export class PostAuthorizeReqBodyWithRequiredNamesDto extends PostAuthorizeReqBodyWithPasswordDto {
+export class PostAuthorizeReqWithRequiredNamesDto extends PostAuthorizeReqWithPasswordDto {
   @IsString()
   @Length(
     1,
@@ -56,14 +56,14 @@ export class PostAuthorizeReqBodyWithRequiredNamesDto extends PostAuthorizeReqBo
   )
     lastName: string | null
 
-  constructor (dto: PostAuthorizeReqBodyWithRequiredNamesDto) {
+  constructor (dto: PostAuthorizeReqWithRequiredNamesDto) {
     super(dto)
     this.firstName = dto.firstName
     this.lastName = dto.lastName
   }
 }
 
-export class GetAuthorizeConsentReqQueryDto {
+export class GetAuthorizeConsentReqDto {
   @IsString()
   @IsNotEmpty()
     state: string
@@ -76,14 +76,14 @@ export class GetAuthorizeConsentReqQueryDto {
   @IsNotEmpty()
     redirectUri: string
 
-  constructor (dto: GetAuthorizeConsentReqQueryDto) {
+  constructor (dto: GetAuthorizeConsentReqDto) {
     this.state = dto.state
     this.code = dto.code
     this.redirectUri = dto.redirectUri
   }
 }
 
-export class PostLogoutReqBodyDto {
+export class PostLogoutReqDto {
   @IsString()
   @IsNotEmpty()
     refreshToken: string
@@ -91,23 +91,23 @@ export class PostLogoutReqBodyDto {
   @IsString()
     postLogoutRedirectUri: string
 
-  constructor (dto: PostLogoutReqBodyDto) {
+  constructor (dto: PostLogoutReqDto) {
     this.refreshToken = dto.refreshToken
     this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
   }
 }
 
-export class GetVerifyEmailReqQueryDto {
+export class GetVerifyEmailReqDto {
   @IsString()
   @IsNotEmpty()
     id: string
 
-  constructor (dto: GetVerifyEmailReqQueryDto) {
+  constructor (dto: GetVerifyEmailReqDto) {
     this.id = dto.id.trim()
   }
 }
 
-export class PostVerifyEmailReqBodyDto extends GetVerifyEmailReqQueryDto {
+export class PostVerifyEmailReqDto extends GetVerifyEmailReqDto {
   @IsString()
   @Length(
     8,
@@ -115,13 +115,13 @@ export class PostVerifyEmailReqBodyDto extends GetVerifyEmailReqQueryDto {
   )
     code: string
 
-  constructor (dto: PostVerifyEmailReqBodyDto) {
+  constructor (dto: PostVerifyEmailReqDto) {
     super(dto)
     this.code = dto.code.trim()
   }
 }
 
-export class PostAuthorizeResetReqBodyDto {
+export class PostAuthorizeResetReqDto {
   @IsString()
   @Length(
     8,
@@ -137,7 +137,7 @@ export class PostAuthorizeResetReqBodyDto {
   @IsNotEmpty()
     password: string
 
-  constructor (dto: PostAuthorizeResetReqBodyDto) {
+  constructor (dto: PostAuthorizeResetReqDto) {
     this.email = dto.email.trim().toLowerCase()
     this.password = dto.password.trim()
     this.code = dto.code.trim()

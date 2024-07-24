@@ -47,7 +47,7 @@ export type Context = {
 export type App = Hono<Context, BlankSchema, '/'>
 
 export interface AuthCodeBody {
-  request: oauthDto.GetAuthorizeReqQueryDto;
+  request: oauthDto.GetAuthorizeReqDto;
   user: {
     id: number;
     authId: string;

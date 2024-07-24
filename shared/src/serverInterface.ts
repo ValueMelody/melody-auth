@@ -26,7 +26,7 @@ export interface PostTokenByClientCredentials {
   scope: string;
 }
 
-export interface GetUserInfo {
+export interface GetUserInfoRes {
   authId: string;
   email: string | null;
   firstName?: string | null;
@@ -35,12 +35,4 @@ export interface GetUserInfo {
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface ProviderConfig {
-  serverUri: string;
-  clientId: string;
-  redirectUri: string;
-  scopes?: string[];
-  storage?: 'sessionStorage' | 'localStorage';
 }

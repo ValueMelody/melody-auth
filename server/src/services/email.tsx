@@ -1,5 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { genRandomString } from 'shared'
 import {
   localeConfig, typeConfig,
 } from 'configs'
@@ -7,7 +8,6 @@ import { userModel } from 'models'
 import {
   EmailVerificationTemplate, PasswordResetTemplate,
 } from 'templates'
-import { cryptoUtil } from 'utils'
 
 export const sendSendgridEmail = async (
   c: Context<typeConfig.Context>,
@@ -60,7 +60,7 @@ export const sendEmailVerification = async (
     AUTH_SERVER_URL: serverUrl,
   } = env(c)
   if (!enableEmailVerification || !sendgridApiKey || !sendgridSender || !user.email) return null
-  const verificationCode = cryptoUtil.genRandomString(8)
+  const verificationCode = genRandomString(8)
   const content = (<EmailVerificationTemplate
     serverUrl={serverUrl}
     authId={user.authId}
@@ -87,7 +87,7 @@ export const sendPasswordReset = async (
     COMPANY_LOGO_URL: logoUrl,
   } = env(c)
   if (!enablePasswordReset || !sendgridApiKey || !sendgridSender || !user.email) return null
-  const resetCode = cryptoUtil.genRandomString(8)
+  const resetCode = genRandomString(8)
   const content = (<PasswordResetTemplate
     resetCode={resetCode}
     logoUrl={logoUrl} />).toString()

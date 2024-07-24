@@ -1,5 +1,6 @@
-import { ProviderConfig } from '../../../global'
-import { StorageKey } from '../definitions'
+import {
+  ProviderConfig, StorageKey,
+} from 'shared'
 import { postLogout } from '../requests'
 
 export const logout = async (

@@ -14,7 +14,7 @@ import SubmitError from 'views/components/SubmitError'
 const AuthorizePassword = ({
   queryDto, logoUrl, enableSignUp, enablePasswordReset, queryString,
 }: {
-  queryDto: oauthDto.GetAuthorizeReqQueryDto;
+  queryDto: oauthDto.GetAuthorizeReqDto;
   logoUrl: string;
   enableSignUp: boolean;
   enablePasswordReset: boolean;

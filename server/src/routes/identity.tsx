@@ -20,9 +20,8 @@ import {
   AuthorizeResetView,
 } from 'views'
 import {
-  getAuthorizeReqHandler, logoutReqHandler, postAuthorizeReqHandler,
-  verifyEmailReqHandler,
-} from 'handlers'
+  identityValidator, oauthValidator,
+} from 'validators'
 
 const BaseRoute = routeConfig.InternalRoute.Identity
 
@@ -30,7 +29,7 @@ export const load = (app: typeConfig.App) => {
   app.get(
     `${BaseRoute}/authorize-password`,
     async (c) => {
-      const queryDto = await getAuthorizeReqHandler.parse(c)
+      const queryDto = await oauthValidator.getAuthorize(c)
 
       const {
         COMPANY_LOGO_URL: logoUrl,
@@ -92,7 +91,7 @@ export const load = (app: typeConfig.App) => {
     configMiddleware.serverUrl,
     configMiddleware.enablePasswordReset,
     async (c) => {
-      const bodyDto = await postAuthorizeReqHandler.parseReset(c)
+      const bodyDto = await identityValidator.postAuthorizeReset(c)
 
       await userService.resetUserPassword(
         c,
@@ -106,7 +105,7 @@ export const load = (app: typeConfig.App) => {
   app.get(
     `${BaseRoute}/authorize-account`,
     async (c) => {
-      const queryDto = await getAuthorizeReqHandler.parse(c)
+      const queryDto = await oauthValidator.getAuthorize(c)
 
       const {
         COMPANY_LOGO_URL: logoUrl,
@@ -129,7 +128,7 @@ export const load = (app: typeConfig.App) => {
   app.get(
     `${BaseRoute}/authorize-consent`,
     async (c) => {
-      const queryDto = await getAuthorizeReqHandler.parseConsent(c)
+      const queryDto = await identityValidator.getAuthorizeConsent(c)
 
       const authInfo = await jwtService.getAuthCodeBody(
         c,
@@ -163,7 +162,7 @@ export const load = (app: typeConfig.App) => {
       } = env(c)
       if (!enableSignUp) throw new errorConfig.UnAuthorized()
 
-      const bodyDto = await postAuthorizeReqHandler.parseAccount(
+      const bodyDto = await identityValidator.postAuthorizeAccount(
         c,
         namesIsRequired,
       )
@@ -188,7 +187,7 @@ export const load = (app: typeConfig.App) => {
         c,
         timeUtil.getCurrentTimestamp(),
         app.id,
-        new oauthDto.GetAuthorizeReqQueryDto(bodyDto),
+        new oauthDto.GetAuthorizeReqDto(bodyDto),
         user,
       )
 
@@ -212,7 +211,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/authorize-password`,
     configMiddleware.serverUrl,
     async (c) => {
-      const bodyDto = await postAuthorizeReqHandler.parsePassword(c)
+      const bodyDto = await identityValidator.postAuthorizePassword(c)
 
       const app = await appService.verifySPAClientRequest(
         c,
@@ -225,7 +224,7 @@ export const load = (app: typeConfig.App) => {
         bodyDto,
       )
 
-      const request = new oauthDto.GetAuthorizeReqQueryDto(bodyDto)
+      const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
       const { authCode } = await jwtService.genAuthCode(
         c,
         timeUtil.getCurrentTimestamp(),
@@ -263,7 +262,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/authorize-consent`,
     configMiddleware.serverUrl,
     async (c) => {
-      const bodyDto = await postAuthorizeReqHandler.parseConsent(c)
+      const bodyDto = await identityValidator.postAuthorizeConsent(c)
 
       const authInfo = await jwtService.getAuthCodeBody(
         c,
@@ -290,7 +289,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/logout`,
     authMiddleware.spa,
     async (c) => {
-      const bodyDto = await logoutReqHandler.parsePost(c)
+      const bodyDto = await identityValidator.postLogout(c)
 
       const accessTokenBody = c.get('access_token_body')!
       const refreshTokenBody = await jwtService.getRefreshTokenBody(
@@ -321,7 +320,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/verify-email`,
     configMiddleware.enableEmailVerification,
     async (c) => {
-      const queryDto = await verifyEmailReqHandler.parseGet(c)
+      const queryDto = await identityValidator.getVerifyEmail(c)
 
       const { COMPANY_LOGO_URL: logoUrl } = env(c)
 
@@ -336,7 +335,7 @@ export const load = (app: typeConfig.App) => {
     `${BaseRoute}/verify-email`,
     configMiddleware.enableEmailVerification,
     async (c) => {
-      const bodyDto = await verifyEmailReqHandler.parsePost(c)
+      const bodyDto = await identityValidator.postVerifyEmail(c)
 
       await userService.verifyUserEmail(
         c,
