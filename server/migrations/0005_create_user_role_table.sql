@@ -10,3 +10,4 @@ CREATE TABLE [user_role] (
   FOREIGN KEY(userId) REFERENCES user(id)
   FOREIGN KEY(roleId) REFERENCES role(id)
 );
+INSERT INTO user_role ("userId", "roleId") values (1, 1);

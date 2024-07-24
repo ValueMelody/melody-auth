@@ -15,7 +15,6 @@ import EntityStatus from 'components/EntityStatus'
 import {
   proxyTool, routeTool,
 } from 'tools'
-import AppScopes from 'components/AppScopes'
 
 const Page = () => {
   const t = useTranslations()
@@ -56,7 +55,6 @@ const Page = () => {
           <Table.HeadCell>{t('apps.name')}</Table.HeadCell>
           <Table.HeadCell>{t('apps.status')}</Table.HeadCell>
           <Table.HeadCell>{t('apps.type')}</Table.HeadCell>
-          <Table.HeadCell>{t('apps.scopes')}</Table.HeadCell>
           <Table.HeadCell />
         </Table.Head>
         <Table.Body className='divide-y'>
@@ -69,9 +67,6 @@ const Page = () => {
               </Table.Cell>
               <Table.Cell>
                 {app.type.toUpperCase()}
-              </Table.Cell>
-              <Table.Cell>
-                <AppScopes app={app} />
               </Table.Cell>
               <Table.Cell>
                 <Button

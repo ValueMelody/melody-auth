@@ -7,7 +7,7 @@ import {
   AuthProvider, useAuth,
 } from '@melody-auth/react'
 import {
-  Alert, Navbar, Spinner,
+  Alert, Button, Navbar, Spinner,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
@@ -21,8 +21,12 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
   const {
     isAuthenticating, isAuthenticated, acquireUserInfo,
-    loginRedirect,
+    loginRedirect, logoutRedirect,
   } = useAuth()
+
+  const handleLogout = () => {
+    logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
+  }
 
   useEffect(
     () => {
@@ -51,10 +55,14 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
   if (!userInfoSignal.value?.roles?.includes('super_admin')) {
     return (
-      <div className='w-full h-screen flex items-center justify-center'>
+      <div className='w-full h-screen flex flex-col gap-8 items-center justify-center'>
         <Alert color='failure'>
           {t('layout.blocked')}
         </Alert>
+        <Button
+          color='gray'
+          onClick={handleLogout}>{t('layout.logout')}
+        </Button>
       </div>
     )
   }
@@ -128,7 +136,7 @@ const Setup = ({ children } : PropsWithChildren) => {
   return (
     <AuthProvider
       clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
-      redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/en/dashboard` ?? ''}
+      redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/en/dashboard`}
       serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
     >
       <AuthSetup>

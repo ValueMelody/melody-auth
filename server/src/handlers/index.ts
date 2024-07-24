@@ -1,0 +1,5 @@
+export * as oauthHandler from 'handlers/oauth'
+export * as otherHandler from 'handlers/other'
+export * as userHandler from 'handlers/user'
+export * as appHandler from 'handlers/app'
+export * as identityHandler from 'handlers/identity'

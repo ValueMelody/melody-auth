@@ -1,4 +1,4 @@
-export interface PostTokenByAuthCode {
+export interface PostTokenByAuthCodeRes {
   access_token: string;
   expires_in: number;
   expires_on: number;
@@ -11,14 +11,14 @@ export interface PostTokenByAuthCode {
   id_token?: string;
 }
 
-export interface PostTokenByRefreshToken {
+export interface PostTokenByRefreshTokenRes {
   access_token: string;
   expires_in: number;
   expires_on: number;
   token_type: 'Bearer';
 }
 
-export interface PostTokenByClientCredentials {
+export interface PostTokenByClientCredentialsRes {
   access_token: string;
   expires_in: number;
   expires_on: number;

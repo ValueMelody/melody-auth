@@ -35,7 +35,7 @@ export enum AuthorizePasswordPage {
   PasswordLabel = 'Password',
   SubmitBtn = 'Login',
   Title = 'Authentication',
-  SignUpBtn = 'Create a new account.',
+  SignUpBtn = 'Create a new account',
   PasswordResetBtn = 'Reset password',
 }
 

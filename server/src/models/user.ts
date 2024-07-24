@@ -1,4 +1,4 @@
-import { dbConfig } from 'configs'
+import { adapterConfig } from 'configs'
 import { timeUtil } from 'utils'
 
 export interface Record {
@@ -52,11 +52,11 @@ export interface Update {
   passwordResetCodeExpiresOn?: number | null;
 }
 
-const TableName = dbConfig.TableName.User
+const TableName = adapterConfig.TableName.User
 
 export const convertToApiRecord = (
   record: Record,
-  enabledNames: boolean,
+  enableNames: boolean,
   roles: string[] | null,
 ): ApiRecord => {
   const result: ApiRecord = {
@@ -69,7 +69,7 @@ export const convertToApiRecord = (
     deletedAt: record.deletedAt,
   }
   if (roles) result.roles = roles
-  if (enabledNames) {
+  if (enableNames) {
     result.firstName = record.firstName
     result.lastName = record.lastName
   }

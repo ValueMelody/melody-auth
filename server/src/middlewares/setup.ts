@@ -5,7 +5,10 @@ import { env } from 'hono/adapter'
 import {
   CookieStore, sessionMiddleware,
 } from 'hono-sessions'
-import { typeConfig } from 'configs'
+import {
+  errorConfig, typeConfig,
+} from 'configs'
+import { formatUtil } from 'utils'
 
 const store = new CookieStore()
 
@@ -34,4 +37,17 @@ export const session = async (
     c,
     next,
   )
+}
+
+export const validOrigin = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const origin = c.req.header('origin')
+  const { AUTH_SERVER_URL: serverUrl } = env(c)
+
+  if (formatUtil.stripEndingSlash(serverUrl) !== origin) {
+    throw new errorConfig.Forbidden()
+  }
+
+  await next()
 }

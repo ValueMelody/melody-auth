@@ -1,6 +1,6 @@
 import {
   ProviderConfig, GetUserInfoRes,
-  PostTokenByAuthCode, PostTokenByRefreshToken,
+  PostTokenByAuthCodeRes, PostTokenByRefreshTokenRes,
 } from 'shared'
 
 export const getAuthorize = async (
@@ -131,7 +131,7 @@ export const postTokenByAuthCode = async (
     throw new Error(text)
   }
 
-  const data: PostTokenByAuthCode = await res.json()
+  const data: PostTokenByAuthCodeRes = await res.json()
   return data
 }
 
@@ -161,7 +161,7 @@ export const postTokenByRefreshToken = async (
     throw new Error(text)
   }
 
-  const data: PostTokenByRefreshToken = await res.json()
+  const data: PostTokenByRefreshTokenRes = await res.json()
 
   return data
 }

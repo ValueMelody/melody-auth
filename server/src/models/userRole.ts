@@ -1,28 +1,29 @@
-import { dbConfig } from 'configs'
+import { adapterConfig } from 'configs'
 
 export interface Record {
   id: number;
   userId: number;
   roleId: number;
-  roleName?: string;
+  roleName: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
 }
 
-const TableName = dbConfig.TableName.UserRole
+const TableName = adapterConfig.TableName.UserRole
 
 export const getAllByUserId = async (
   db: D1Database,
   userId: number,
 ) => {
   const query = `
-    SELECT ${dbConfig.TableName.UserRole}.id, ${dbConfig.TableName.UserRole}.userId,
-    ${dbConfig.TableName.UserRole}.roleId, ${dbConfig.TableName.Role}.name as roleName,
-    ${dbConfig.TableName.UserRole}.createdAt, ${dbConfig.TableName.UserRole}.updatedAt,
-    ${dbConfig.TableName.UserRole}.deletedAt
-    FROM ${TableName} LEFT JOIN role ON role.id = user_role.roleId
-    WHERE userId = $1 AND ${dbConfig.TableName.UserRole}.deletedAt IS NULL
+    SELECT ${TableName}.id, ${TableName}.userId,
+    ${TableName}.roleId, ${adapterConfig.TableName.Role}.name as roleName,
+    ${TableName}.createdAt, ${TableName}.updatedAt,
+    ${TableName}.deletedAt
+    FROM ${TableName} LEFT JOIN ${adapterConfig.TableName.Role}
+      ON ${adapterConfig.TableName.Role}.id = ${TableName}.roleId
+    WHERE userId = $1 AND ${TableName}.deletedAt IS NULL
   `
   const stmt = db.prepare(query)
     .bind(userId)

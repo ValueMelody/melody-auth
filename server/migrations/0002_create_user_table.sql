@@ -16,3 +16,4 @@ CREATE TABLE [user] (
   "deletedAt" text DEFAULT null,
   UNIQUE(authId)
 );
+INSERT INTO user ("authId", "email", "password") values ("d638bb77-2883-4bce-ad4c-9fe01319fb86", "byn9826@gmail.com", "1d707811988069ca760826861d6d63a10e8c3b7f171c4441a6472ea58c11711b");
