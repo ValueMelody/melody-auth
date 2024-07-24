@@ -2,9 +2,8 @@ import {
   ReactNode, useEffect, useReducer,
 } from 'react'
 import {
-  RefreshTokenStorage, StorageKey,
-} from 'web-sdk/dist/definitions'
-import { ProviderConfig } from '../../global'
+  ProviderConfig, RefreshTokenStorage, StorageKey,
+} from 'shared'
 import Setup from './Setup'
 import authContext, {
   AuthState, DispatchAction,

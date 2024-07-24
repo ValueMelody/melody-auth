@@ -12,3 +12,12 @@ export enum Scope {
   READ_APP = 'read_app',
   WRITE_APP = 'write_app',
 }
+
+export enum SessionStorageKey {
+  State = 'melody-auth-state',
+  CodeVerifier = 'melody-auth-code-verifier',
+}
+
+export enum StorageKey {
+  RefreshToken = 'melody-auth-refresh-token',
+}

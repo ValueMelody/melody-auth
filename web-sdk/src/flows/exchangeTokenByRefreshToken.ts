@@ -1,5 +1,6 @@
-import { ProviderConfig } from '../../../global'
-import { AccessTokenStorage } from '../definitions'
+import {
+  ProviderConfig, AccessTokenStorage,
+} from 'shared'
 import { postTokenByRefreshToken } from '../requests'
 
 export const exchangeTokenByRefreshToken = async (

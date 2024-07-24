@@ -1,9 +1,7 @@
 import {
-  ClientType, Scope,
+  ClientType, PostTokenByAuthCode, Scope, PostTokenByClientCredentials,
+  PostTokenByRefreshToken,
 } from 'shared'
-import {
-  PostTokenByAuthCode, PostTokenByClientCredentials, PostTokenByRefreshToken,
-} from '../../../global'
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
@@ -17,9 +15,7 @@ import {
   cryptoUtil, formatUtil, timeUtil,
 } from 'utils'
 import { authMiddleware } from 'middlewares'
-import {
-  getAuthorizeReqHandler, logoutReqHandler, postTokenReqHandler,
-} from 'handlers'
+import { oauthValidator } from 'validators'
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
 
@@ -27,7 +23,7 @@ export const load = (app: typeConfig.App) => {
   app.get(
     `${BaseRoute}/authorize`,
     async (c) => {
-      const queryDto = await getAuthorizeReqHandler.parse(c)
+      const queryDto = await oauthValidator.getAuthorize(c)
 
       const stored = sessionService.getAuthInfoSession(
         c,
@@ -61,7 +57,7 @@ export const load = (app: typeConfig.App) => {
       const currentTimestamp = timeUtil.getCurrentTimestamp()
 
       if (grantType === oauthDto.TokenGrantType.AuthorizationCode) {
-        const bodyDto = await postTokenReqHandler.parseAuthCode(c)
+        const bodyDto = await oauthValidator.postTokenAuthCode(c)
 
         const authInfo = await jwtService.getAuthCodeBody(
           c,
@@ -149,7 +145,7 @@ export const load = (app: typeConfig.App) => {
 
         return c.json(result)
       } else if (grantType === oauthDto.TokenGrantType.RefreshToken) {
-        const bodyDto = await postTokenReqHandler.parseRefreshToken(c)
+        const bodyDto = await oauthValidator.postTokenRefreshToken(c)
 
         await kvService.validateRefreshToken(
           c.env.KV,
@@ -184,7 +180,7 @@ export const load = (app: typeConfig.App) => {
         return c.json(result)
       } else if (grantType === oauthDto.TokenGrantType.ClientCredentials) {
         const basicAuth = c.get('basic_auth_body')!
-        const bodyDto = await postTokenReqHandler.parseClientCredentials(c)
+        const bodyDto = await oauthValidator.postTokenClientCredentials(c)
 
         const app = await appService.verifyS2SClientRequest(
           c,
@@ -227,7 +223,7 @@ export const load = (app: typeConfig.App) => {
   app.get(
     `${BaseRoute}/logout`,
     async (c) => {
-      const queryDto = await logoutReqHandler.parseGet(c)
+      const queryDto = await oauthValidator.getLogout(c)
 
       sessionService.removeAuthInfoSession(
         c,

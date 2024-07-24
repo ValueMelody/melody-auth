@@ -1,6 +1,7 @@
 import {
-  ProviderConfig, PostTokenByAuthCode, PostTokenByRefreshToken, GetUserInfo,
-} from '../../global'
+  ProviderConfig, GetUserInfoRes,
+  PostTokenByAuthCode, PostTokenByRefreshToken,
+} from 'shared'
 
 export const getAuthorize = async (
   {
@@ -54,7 +55,7 @@ export const getUserInfo = async (
     throw new Error(text)
   }
 
-  const data: GetUserInfo = await res.json()
+  const data: GetUserInfoRes = await res.json()
   return data
 }
 

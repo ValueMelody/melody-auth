@@ -51,9 +51,11 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
   if (!userInfoSignal.value?.roles?.includes('super_admin')) {
     return (
-      <Alert color='failure'>
-        {t('layout.blocked')}
-      </Alert>
+      <div className='w-full h-screen flex items-center justify-center'>
+        <Alert color='failure'>
+          {t('layout.blocked')}
+        </Alert>
+      </div>
     )
   }
 

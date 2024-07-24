@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { GetUserInfo } from '../../../global'
+import { GetUserInfoRes } from 'shared'
 import {
   errorConfig, localeConfig,
   typeConfig,
@@ -8,7 +8,7 @@ import {
 import { Forbidden } from 'configs/error'
 import { identityDto } from 'dtos'
 import {
-  PostAuthorizeReqBodyWithNamesDto, PostAuthorizeReqBodyWithPasswordDto,
+  PostAuthorizeReqWithNamesDto, PostAuthorizeReqWithPasswordDto,
 } from 'dtos/identity'
 import { userModel } from 'models'
 import {
@@ -29,7 +29,7 @@ export const getUserInfo = async (
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
 
-  const result: GetUserInfo = {
+  const result: GetUserInfoRes = {
     authId: user.authId,
     email: user.email,
     createdAt: user.createdAt,
@@ -109,7 +109,7 @@ export const getUserByAuthId = async (
 }
 
 export const verifyPasswordSignIn = async (
-  c: Context<typeConfig.Context>, bodyDto: PostAuthorizeReqBodyWithPasswordDto,
+  c: Context<typeConfig.Context>, bodyDto: PostAuthorizeReqWithPasswordDto,
 ) => {
   const password = await cryptoUtil.sha256(bodyDto.password)
   const user = await userModel.getByEmailAndPassword(
@@ -124,7 +124,7 @@ export const verifyPasswordSignIn = async (
 }
 
 export const createAccountWithPassword = async (
-  c: Context<typeConfig.Context>, bodyDto: PostAuthorizeReqBodyWithNamesDto,
+  c: Context<typeConfig.Context>, bodyDto: PostAuthorizeReqWithNamesDto,
 ) => {
   const password = await cryptoUtil.sha256(bodyDto.password)
 
@@ -175,7 +175,7 @@ export const sendEmailVerification = async (
 
 export const verifyUserEmail = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostVerifyEmailReqBodyDto,
+  bodyDto: identityDto.PostVerifyEmailReqDto,
 ) => {
   const user = await userModel.getByAuthId(
     c.env.DB,
@@ -230,7 +230,7 @@ export const sendPasswordReset = async (
 
 export const resetUserPassword = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostAuthorizeResetReqBodyDto,
+  bodyDto: identityDto.PostAuthorizeResetReqDto,
 ) => {
   const user = await userModel.getByEmail(
     c.env.DB,

@@ -11,7 +11,7 @@ export const setAuthInfoSession = (
   c: Context<typeConfig.Context>,
   appId: number,
   user: userModel.Record,
-  request: oauthDto.GetAuthorizeReqQueryDto,
+  request: oauthDto.GetAuthorizeReqDto,
 ) => {
   const { SERVER_SESSION_EXPIRES_IN: sessionExpiresIn } = env(c)
   if (sessionExpiresIn) {
@@ -39,7 +39,7 @@ export const getAuthInfoSession = (
     const stored = session.get(key) as {
       appId: number;
       user: userModel.Record;
-      request: oauthDto.GetAuthorizeReqQueryDto;
+      request: oauthDto.GetAuthorizeReqDto;
       expiresOn: number;
     }
     if (!stored || timeUtil.getCurrentTimestamp() > stored.expiresOn) return null

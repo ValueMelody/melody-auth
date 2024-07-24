@@ -16,7 +16,7 @@ import SubmitError from 'views/components/SubmitError'
 const AuthorizeAccount = ({
   queryDto, logoUrl, enableNames, namesIsRequired, queryString,
 }: {
-  queryDto: oauthDto.GetAuthorizeReqQueryDto;
+  queryDto: oauthDto.GetAuthorizeReqDto;
   logoUrl: string;
   enableNames: boolean;
   namesIsRequired: boolean;

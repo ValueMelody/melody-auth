@@ -1,8 +1,8 @@
-import { GetUserInfo } from '../../global'
+import { GetUserInfoRes } from 'shared'
 import { AuthProvider } from './Provider'
 import { useAuth } from './useAuth'
 
-export type UserInfo = GetUserInfo
+export type UserInfo = GetUserInfoRes
 
 export {
   AuthProvider,

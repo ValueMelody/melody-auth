@@ -8,7 +8,7 @@ export const jsonHeader = () => html`
   },
 `
 
-export const parseAuthorizeFieldValues = (queryDto: oauthDto.GetAuthorizeReqQueryDto) => html`
+export const parseAuthorizeFieldValues = (queryDto: oauthDto.GetAuthorizeReqDto) => html`
   email: document.getElementById('form-email').value,
   password: document.getElementById('form-password').value,
   clientId: "${queryDto.clientId}",
