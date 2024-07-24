@@ -92,7 +92,3 @@ export interface IdTokenBody {
   last_name: string | null;
   roles?: string[];
 }
-
-export enum SessionKey {
-  AuthInfo = 'authInfo',
-}

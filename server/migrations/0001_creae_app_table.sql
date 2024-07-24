@@ -5,10 +5,11 @@ CREATE TABLE [app] (
   "name" text NOT NULL,
   "type" text NOT NULL,
   "secret" text NOT NULL,
-  "scopes" text NOT NULL DEFAULT "",
   "redirectUris" text NOT NULL DEFAULT "",
   "createdAt" text DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" text DEFAULT CURRENT_TIMESTAMP,
   "deletedAt" text DEFAULT null,
   UNIQUE(clientId)
 );
+INSERT INTO app ("clientId", "name", "type", "secret", "redirectUris") values ("12345", "test-spa", "spa", "abc", "http://localhost:3000/en/dashboard");
+INSERT INTO app ("clientId", "name", "type", "secret", "redirectUris") values ("23456", "test-s2s", "s2s", "bcd", "");

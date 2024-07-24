@@ -1,4 +1,4 @@
-import { dbConfig } from 'configs'
+import { adapterConfig } from 'configs'
 import { timeUtil } from 'utils'
 
 export interface Record {
@@ -20,7 +20,7 @@ export interface Update {
   updatedAt?: string | null;
 }
 
-const TableName = dbConfig.TableName.UserAppConsent
+const TableName = adapterConfig.TableName.UserAppConsent
 
 export const getById = async (
   db: D1Database,

@@ -8,6 +8,7 @@ import { appModel } from 'models'
 import {
   formatUtil, timeUtil,
 } from 'utils'
+import { scopeService } from 'services'
 
 export const verifySPAClientRequest = async (
   c: Context<typeConfig.Context>, clientId: string, redirectUri: string,
@@ -73,7 +74,15 @@ export const getAppById = async (
 
   if (!app) throw new errorConfig.NotFound()
 
-  return app
+  const scopes = await scopeService.getAppScopes(
+    c,
+    app.id,
+  )
+  const result = appModel.convertToApiRecord(
+    app,
+    scopes,
+  )
+  return result
 }
 
 export const enableApp = async (

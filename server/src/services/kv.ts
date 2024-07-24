@@ -1,13 +1,13 @@
 import {
-  errorConfig, kvConfig, localeConfig,
+  errorConfig, adapterConfig, localeConfig,
 } from 'configs'
 
 export const storeRefreshToken = async (
   kv: KVNamespace, refreshToken: string, expiresIn: number,
 ) => {
   await kv.put(
-    kvConfig.getKey(
-      kvConfig.BaseKey.RefreshToken,
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.RefreshToken,
       refreshToken,
     ),
     '1',
@@ -18,8 +18,8 @@ export const storeRefreshToken = async (
 export const invalidRefreshToken = async (
   kv: KVNamespace, refreshToken: string,
 ) => {
-  await kv.delete(kvConfig.getKey(
-    kvConfig.BaseKey.RefreshToken,
+  await kv.delete(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.RefreshToken,
     refreshToken,
   ))
 }
@@ -27,8 +27,8 @@ export const invalidRefreshToken = async (
 export const validateRefreshToken = async (
   kv: KVNamespace, refreshToken: string,
 ) => {
-  const tokenInKv = await kv.get(kvConfig.getKey(
-    kvConfig.BaseKey.RefreshToken,
+  const tokenInKv = await kv.get(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.RefreshToken,
     refreshToken,
   ))
   if (!tokenInKv) {

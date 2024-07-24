@@ -1,5 +1,5 @@
 import { ClientType } from 'shared'
-import { dbConfig } from 'configs'
+import { adapterConfig } from 'configs'
 import {
   formatUtil, timeUtil,
 } from 'utils'
@@ -17,26 +17,37 @@ export interface Common {
 
 export interface Raw extends Common {
   redirectUris: string;
-  scopes: string;
 }
 
 export interface Record extends Common {
   redirectUris: string[];
-  scopes: string[];
+}
+
+export interface ApiRecord extends Record {
+  scopes?: string[];
 }
 
 export interface Update {
   deletedAt?: string | null;
 }
 
-const TableName = dbConfig.TableName.App
+const TableName = adapterConfig.TableName.App
 
 const format = (raw: Raw): Record => {
   return {
     ...raw,
     redirectUris: raw.redirectUris ? raw.redirectUris.split(',').map((url) => formatUtil.stripEndingSlash(url.trim().toLowerCase())) : [],
-    scopes: raw.scopes ? raw.scopes.split(',').map((scope) => scope.trim().toLowerCase()) : [],
   }
+}
+
+export const convertToApiRecord = (
+  record: Record,
+  scopes: string[] | null,
+): ApiRecord => {
+  const result: ApiRecord = record
+  if (scopes) result.scopes = scopes
+
+  return result
 }
 
 export const getByClientId = async (
