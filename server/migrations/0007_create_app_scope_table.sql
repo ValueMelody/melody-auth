@@ -17,3 +17,7 @@ INSERT INTO app_scope ("appId", "scopeId") values (2, 4);
 INSERT INTO app_scope ("appId", "scopeId") values (2, 5);
 INSERT INTO app_scope ("appId", "scopeId") values (2, 6);
 INSERT INTO app_scope ("appId", "scopeId") values (2, 7);
+INSERT INTO app_scope ("appId", "scopeId") values (2, 8);
+INSERT INTO app_scope ("appId", "scopeId") values (2, 9);
+INSERT INTO app_scope ("appId", "scopeId") values (2, 10);
+INSERT INTO app_scope ("appId", "scopeId") values (2, 11);

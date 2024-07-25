@@ -4,6 +4,7 @@
     "brand": "Melody Auth",
     "logout": "Logout",
     "users": "Manage Users",
+    "roles": "Manage Roles",
     "apps": "Manage Apps",
     "dashboard": "Dashboard"
   },
@@ -19,6 +20,8 @@
     "create": "Create",
     "options": "Options:",
     "save": "Save",
+    "system": "System",
+    "status": "Status",
     "fieldIsRequired": "This field is required."
   },
   "dashboard": {
@@ -46,5 +49,11 @@
     "roles": "Roles",
     "resend": "Resend Email",
     "sent": "Email Sent"
+  },
+  "roles": {
+    "title": "Roles",
+    "name": "Name",
+    "status": "Status",
+    "new": "Create a role"
   }
 }

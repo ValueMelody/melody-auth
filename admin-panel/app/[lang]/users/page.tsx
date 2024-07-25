@@ -1,12 +1,8 @@
 'use client'
 
-import { PencilSquareIcon } from '@heroicons/react/16/solid'
 import { useAuth } from '@melody-auth/react'
-import {
-  Button, Table,
-} from 'flowbite-react'
+import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 import {
   useEffect, useState,
 } from 'react'
@@ -14,6 +10,7 @@ import useCurrentLocale from 'hooks/useCurrentLocale'
 import UserEmailVerified from 'components/UserEmailVerified'
 import { proxyTool } from 'tools'
 import EntityStatus from 'components/EntityStatus'
+import EditLink from 'components/EditLink'
 
 const Page = () => {
   const t = useTranslations()
@@ -63,13 +60,9 @@ const Page = () => {
               </Table.Cell>
               <Table.Cell>{`${user.firstName ?? ''} ${user.lastName ?? ''}`} </Table.Cell>
               <Table.Cell>
-                <Button
-                  as={Link}
+                <EditLink
                   href={`/${locale}/users/${user.authId}`}
-                  color='gray'
-                  size='sm'>
-                  <PencilSquareIcon className='w-4 h-4' />
-                </Button>
+                />
               </Table.Cell>
             </Table.Row>
           ))}
