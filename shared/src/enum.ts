@@ -11,6 +11,14 @@ export enum Scope {
   WRITE_USER = 'write_user',
   READ_APP = 'read_app',
   WRITE_APP = 'write_app',
+  READ_ROLE = 'read_role',
+  WRITE_ROLE= 'write_role',
+  READ_SCOPE = 'read_scope',
+  WRITE_SCOPE = 'write_scope',
+}
+
+export enum Role {
+  SuperAdmin = 'super_admin',
 }
 
 export enum SessionStorageKey {

@@ -1,6 +1,9 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
+import {
+  Role, Scope,
+} from 'shared'
 
 let accessToken: string | null = null
 let accessTokenExpiresOn: number | null = null
@@ -28,7 +31,7 @@ export const verifyAccessToken = () => {
   )
   if (!tokenBody) throwForbiddenError()
 
-  if (!tokenBody.roles || !tokenBody.roles.includes('super_admin')) throwForbiddenError()
+  if (!tokenBody.roles || !tokenBody.roles.includes(Role.SuperAdmin)) throwForbiddenError()
 }
 
 export const obtainS2SAccessToken = async () => {
@@ -39,7 +42,7 @@ export const obtainS2SAccessToken = async () => {
 
   const body = {
     grant_type: 'client_credentials',
-    scope: 'read_user write_user read_app write_app',
+    scope: `${Scope.READ_USER} ${Scope.WRITE_USER} ${Scope.READ_APP} ${Scope.WRITE_APP} ${Scope.READ_ROLE} ${Scope.WRITE_ROLE}`,
   }
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URI}/oauth2/v1/token`,
@@ -73,9 +76,11 @@ export const obtainS2SAccessToken = async () => {
 export const sendS2SRequest = async ({
   method,
   uri,
+  body,
 }: {
   uri: string;
   method: 'GET' | 'POST' | 'PUT';
+  body?: string;
 }) => {
   const token = await obtainS2SAccessToken()
 
@@ -83,7 +88,11 @@ export const sendS2SRequest = async ({
     `${process.env.NEXT_PUBLIC_SERVER_URI}${uri}`,
     {
       method,
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: body ?? undefined,
     },
   )
   if (res.ok) {

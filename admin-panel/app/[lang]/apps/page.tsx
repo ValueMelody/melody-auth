@@ -1,6 +1,5 @@
 'use client'
 
-import { PencilSquareIcon } from '@heroicons/react/16/solid'
 import { useAuth } from '@melody-auth/react'
 import {
   Button, Table,
@@ -15,6 +14,7 @@ import EntityStatus from 'components/EntityStatus'
 import {
   proxyTool, routeTool,
 } from 'tools'
+import EditLink from 'components/EditLink'
 
 const Page = () => {
   const t = useTranslations()
@@ -69,13 +69,9 @@ const Page = () => {
                 {app.type.toUpperCase()}
               </Table.Cell>
               <Table.Cell>
-                <Button
-                  as={Link}
+                <EditLink
                   href={`/${locale}/apps/${app.id}`}
-                  color='gray'
-                  size='sm'>
-                  <PencilSquareIcon className='w-4 h-4' />
-                </Button>
+                />
               </Table.Cell>
             </Table.Row>
           ))}

@@ -12,6 +12,7 @@ import {
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
+import { Role } from 'shared'
 import { userInfoSignal } from 'signals'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import { routeTool } from 'tools'
@@ -53,7 +54,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     return
   }
 
-  if (!userInfoSignal.value?.roles?.includes('super_admin')) {
+  if (!userInfoSignal.value?.roles?.includes(Role.SuperAdmin)) {
     return (
       <div className='w-full h-screen flex flex-col gap-8 items-center justify-center'>
         <Alert color='failure'>
@@ -109,6 +110,13 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
             href={`/${locale}${routeTool.Internal.Users}`}
           >
             {t('layout.users')}
+          </Navbar.Link>
+          <Navbar.Link
+            as={Link}
+            className='flex items-center h-6'
+            href={`/${locale}${routeTool.Internal.Roles}`}
+          >
+            {t('layout.roles')}
           </Navbar.Link>
           <Navbar.Link
             as={Link}

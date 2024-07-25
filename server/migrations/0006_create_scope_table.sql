@@ -15,3 +15,7 @@ INSERT INTO scope ("name", "type") values ("read_user", "s2s");
 INSERT INTO scope ("name", "type") values ("write_user", "s2s");
 INSERT INTO scope ("name", "type") values ("read_app", "s2s");
 INSERT INTO scope ("name", "type") values ("write_app", "s2s");
+INSERT INTO scope ("name", "type") values ("read_scope", "s2s");
+INSERT INTO scope ("name", "type") values ("write_scope", "s2s");
+INSERT INTO scope ("name", "type") values ("read_role", "s2s");
+INSERT INTO scope ("name", "type") values ("write_role", "s2s");
