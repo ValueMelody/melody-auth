@@ -1,69 +1,58 @@
 'use client'
 
 import {
-  Button,
   Checkbox,
   Label,
-  Select,
   Table,
   TextInput,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import {
+  useEffect,
   useMemo, useState,
 } from 'react'
-import { PlusIcon } from '@heroicons/react/16/solid'
 import { useAuth } from '@melody-auth/react'
-import {
-  ClientType, Scope,
-} from 'shared'
+import { ClientType } from 'shared'
 import useEditApp from '../useEditApp'
-import { proxyTool } from 'tools'
+import RedirectUriEditor from '../RedirectUriEditor'
+import {
+  proxyTool, routeTool,
+} from 'tools'
+import PageTitle from 'components/PageTitle'
+import SaveButton from 'components/SaveButton'
+import SubmitError from 'components/SubmitError'
+import FieldError from 'components/FieldError'
+import ClientTypeSelector from 'components/ClientTypeSelector'
+import useLocaleRouter from 'hooks/useLocaleRoute'
 
 const Page = () => {
   const t = useTranslations()
+  const router = useLocaleRouter()
 
   const { acquireToken } = useAuth()
   const {
     values, errors, onChange,
   } = useEditApp()
   const [showErrors, setShowErrors] = useState(false)
+  const [scopes, setScopes] = useState([])
 
   const availableScopes = useMemo(
-    () => {
-      if (values.type === ClientType.SPA) {
-        return [Scope.OfflineAccess, Scope.OpenId, Scope.Profile]
-      }
-
-      if (values.type === ClientType.S2S) {
-        return [Scope.ReadUser, Scope.WriteUser, Scope.ReadApp, Scope.WriteApp]
-      }
-
-      return []
-    },
-    [values.type],
+    () => scopes.filter((scope) => scope.type === values.type),
+    [values.type, scopes],
   )
 
-  const handleAddMoreUri = () => {
-    onChange(
-      'redirectUris',
-      [...values.redirectUris, ''],
-    )
-  }
+  useEffect(
+    () => {
+      const getScopes = async () => {
+        const token = await acquireToken()
+        const data = await proxyTool.getScopes(token)
+        setScopes(data.scopes)
+      }
 
-  const handleUpdateUri = (
-    targetIndex: number, value: string,
-  ) => {
-    const newUris = values.redirectUris.map((
-      uri, index,
-    ) => {
-      return targetIndex === index ? value : uri
-    })
-    onChange(
-      'redirectUris',
-      newUris,
-    )
-  }
+      getScopes()
+    },
+    [acquireToken],
+  )
 
   const handleUpdateType = (newType: string) => {
     if (newType !== values.type) {
@@ -78,7 +67,7 @@ const Page = () => {
     }
   }
 
-  const handleUpdateScopes = (scope: Scope) => {
+  const handleToggleAppScope = (scope: string) => {
     const newScopes = values.scopes.includes(scope)
       ? values.scopes.filter((currentScope) => currentScope !== scope)
       : [...values.scopes, scope]
@@ -95,17 +84,30 @@ const Page = () => {
     }
 
     const token = await acquireToken()
-    await proxyTool.sendNextRequest({
+    const res = await proxyTool.sendNextRequest({
       endpoint: '/api/apps',
       method: 'POST',
       token,
-      body: { data: values },
+      body: {
+        data: {
+          ...values,
+          redirectUris: values.redirectUris.map((uri) => uri.trim().toLowerCase()).filter((uri) => !!uri),
+        },
+      },
     })
+
+    if (res.app?.id) {
+      router.push(`${routeTool.Internal.Apps}/${res.app.id}`)
+    }
   }
 
   return (
     <section>
       <section>
+        <PageTitle
+          className='mb-6'
+          title={t('apps.new')}
+        />
         <Table>
           <Table.Head>
             <Table.HeadCell>{t('common.property')}</Table.HeadCell>
@@ -120,21 +122,19 @@ const Page = () => {
                     'name',
                     e.target.value,
                   )}
-                  value={values.name} />
-                {showErrors && <p className='text-red-600 mt-2'>{errors.name}</p>}
+                  value={values.name}
+                />
+                {showErrors && <FieldError error={errors.name} />}
               </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('apps.type')}</Table.Cell>
               <Table.Cell>
-                <Select
+                <ClientTypeSelector
                   value={values.type}
-                  onChange={(e) => handleUpdateType(e.target.value)}>
-                  <option disabled></option>
-                  <option value={ClientType.SPA}>SPA</option>
-                  <option value={ClientType.S2S}>S2S</option>
-                </Select>
-                {showErrors && <p className='text-red-600 mt-2'>{errors.type}</p>}
+                  onChange={handleUpdateType}
+                />
+                {showErrors && <FieldError error={errors.type} />}
               </Table.Cell>
             </Table.Row>
             {!!availableScopes.length && (
@@ -144,14 +144,16 @@ const Page = () => {
                   <section className='flex flex-col gap-4'>
                     {availableScopes.map((scope) => (
                       <div
-                        key={scope}
+                        key={scope.id}
                         className='flex items-center gap-2'>
                         <Checkbox
-                          onChange={() => handleUpdateScopes(scope)}
-                          value={String(values.scopes.includes(scope))}
-                          id={scope} />
-                        <Label htmlFor={scope}>
-                          {scope}
+                          id={scope.id}
+                          onChange={() => handleToggleAppScope(scope.name)}
+                          checked={values.scopes.includes(scope.name)} />
+                        <Label
+                          htmlFor={scope.id}
+                          className='flex'>
+                          {scope.name}
                         </Label>
                       </div>
                     ))}
@@ -164,37 +166,23 @@ const Page = () => {
               <Table.Row>
                 <Table.Cell>{t('apps.redirectUris')}</Table.Cell>
                 <Table.Cell>
-                  <section className='flex flex-col gap-4'>
-                    {
-                      values.redirectUris.map((
-                        uri, index,
-                      ) => (
-                        <TextInput
-                          onChange={(e) => handleUpdateUri(
-                            index,
-                            e.target.value,
-                          )}
-                          key={index}
-                          value={uri} />
-                      ))
-                    }
-                  </section>
-                  <Button
-                    onClick={handleAddMoreUri}
-                    className='mt-4'
-                    size='xs'><PlusIcon className='w-4 h-4' />
-                  </Button>
+                  <RedirectUriEditor
+                    redirectUris={values.redirectUris}
+                    onChange={(uris) => onChange(
+                      'redirectUris',
+                      uris,
+                    )}
+                  />
                 </Table.Cell>
               </Table.Row>
             )}
           </Table.Body>
         </Table>
       </section>
-      <Button
+      <SubmitError />
+      <SaveButton
         onClick={handleSubmit}
-        className='mt-6'>
-        {t('common.save')}
-      </Button>
+      />
     </section>
   )
 }

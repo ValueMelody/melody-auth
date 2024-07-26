@@ -27,7 +27,7 @@ export const getRole = async (c: Context<typeConfig.Context>) => {
 export const postRole = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new roleDto.PostRoleReqDto({ name: String(reqBody.name) })
+  const bodyDto = new roleDto.PostRoleReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const role = await roleService.createRole(

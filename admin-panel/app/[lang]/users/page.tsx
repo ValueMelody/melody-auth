@@ -14,6 +14,7 @@ import EditLink from 'components/EditLink'
 import useSignalValue from 'app/useSignalValue'
 import { userInfoSignal } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
+import PageTitle from 'components/PageTitle'
 
 const Page = () => {
   const t = useTranslations()
@@ -42,6 +43,9 @@ const Page = () => {
 
   return (
     <section>
+      <PageTitle
+        className='mb-6'
+        title={t('users.title')} />
       <Table>
         <Table.Head>
           <Table.HeadCell>{t('users.authId')}</Table.HeadCell>

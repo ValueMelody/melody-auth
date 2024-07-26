@@ -1,4 +1,5 @@
 import { adapterConfig } from 'configs'
+import { validateUtil } from 'utils'
 
 export interface Record {
   id: number;
@@ -8,6 +9,11 @@ export interface Record {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+}
+
+export interface Create {
+  appId: number;
+  scopeId: number;
 }
 
 const TableName = adapterConfig.TableName.AppScope
@@ -29,4 +35,16 @@ export const getAllByAppId = async (
     .bind(appId)
   const { results: appScopes }: { results: Record[] } = await stmt.all()
   return appScopes
+}
+
+export const create = async (
+  db: D1Database, create: Create,
+) => {
+  const query = `INSERT INTO ${TableName} (appId, scopeId) values ($1, $2)`
+  const stmt = db.prepare(query).bind(
+    create.appId,
+    create.scopeId,
+  )
+  const result = await validateUtil.d1Run(stmt)
+  return result.success
 }

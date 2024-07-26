@@ -33,7 +33,11 @@
     "configSeconds": "seconds"
   },
   "apps": {
+    "title": "Apps",
+    "app": "App",
+    "new": "Create an app",
     "clientId": "Client ID",
+    "clientSecret": "Client Secret",
     "name": "Name",
     "status": "Status",
     "type": "Type",
@@ -41,6 +45,8 @@
     "redirectUris": "Redirect URIs"
   },
   "users": {
+    "title": "Users",
+    "user": "User",
     "authId": "Auth ID",
     "email": "Email",
     "name": "Name",
@@ -55,12 +61,14 @@
   },
   "roles": {
     "title": "Roles",
+    "role": "Role",
     "name": "Name",
     "status": "Status",
     "new": "Create a role"
   },
   "scopes": {
     "title": "Scopes",
+    "scope": "Scope",
     "name": "Name",
     "status": "Status",
     "type": "Client Type",

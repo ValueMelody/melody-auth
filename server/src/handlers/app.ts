@@ -1,6 +1,8 @@
 import { Context } from 'hono'
 import { typeConfig } from 'configs'
 import { appService } from 'services'
+import { validateUtil } from 'utils'
+import { appDto } from 'dtos'
 
 export const getApps = async (c: Context<typeConfig.Context>) => {
   const includeDeleted = c.req.query('include_disabled') === 'true'
@@ -18,6 +20,33 @@ export const getApp = async (c: Context<typeConfig.Context>) => {
     c,
     id,
     includeDeleted,
+  )
+  return c.json({ app })
+}
+
+export const postApp = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new appDto.PostAppReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const app = await appService.createApp(
+    c,
+    bodyDto,
+  )
+  return c.json({ app })
+}
+
+export const putApp = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+  const bodyDto = new appDto.PutAppReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const id = c.req.param('id')
+  const app = await appService.updateApp(
+    c,
+    Number(id),
+    bodyDto,
   )
   return c.json({ app })
 }

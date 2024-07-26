@@ -2,6 +2,7 @@
 
 import { useAuth } from '@melody-auth/react'
 import {
+  Button,
   Table,
   TableCell,
 } from 'flowbite-react'
@@ -11,9 +12,12 @@ import {
   useCallback,
   useEffect, useState,
 } from 'react'
+import RedirectUriEditor from '../RedirectUriEditor'
 import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import AppScopes from 'components/AppScopes'
+import PageTitle from 'components/PageTitle'
+import ClientTypeLabel from 'components/ClientTypeLabel'
 
 const Page = () => {
   const { id } = useParams()
@@ -21,6 +25,7 @@ const Page = () => {
   const t = useTranslations()
 
   const [app, setApp] = useState()
+  const [redirectUris, setRedirectUris] = useState<string[]>([])
   const { acquireToken } = useAuth()
 
   const getApp = useCallback(
@@ -32,31 +37,10 @@ const Page = () => {
         token,
       })
       setApp(data.app)
+      setRedirectUris(data.app.redirectUris)
     },
     [acquireToken, id],
   )
-
-  // const enableApp = async () => {
-  //   const token = await acquireToken()
-  //   const result = await proxyTool.sendNextRequest({
-  //     endpoint: `/api/apps/${id}`,
-  //     method: 'PUT',
-  //     token,
-  //     body: { action: 'enable' },
-  //   })
-  //   if (result) await getApp()
-  // }
-
-  // const disableApp = async () => {
-  //   const token = await acquireToken()
-  //   const result = await proxyTool.sendNextRequest({
-  //     endpoint: `/api/apps/${id}`,
-  //     method: 'PUT',
-  //     token,
-  //     body: { action: 'disable' },
-  //   })
-  //   if (result) await getApp()
-  // }
 
   useEffect(
     () => {
@@ -65,10 +49,26 @@ const Page = () => {
     [getApp],
   )
 
+  const handleSaveRedirectUris = async () => {
+    const token = await acquireToken()
+    const res = await proxyTool.sendNextRequest({
+      endpoint: `/api/apps/${id}`,
+      method: 'PUT',
+      token,
+      body: { data: { redirectUris: redirectUris.map((uri) => uri.trim()).filter((uri) => !!uri) } },
+    })
+    if (res?.app) {
+      getApp()
+    }
+  }
+
   if (!app) return null
 
   return (
     <section>
+      <PageTitle
+        className='mb-6'
+        title={t('apps.app')} />
       <section>
         <Table>
           <Table.Head>
@@ -78,12 +78,16 @@ const Page = () => {
           </Table.Head>
           <Table.Body className='divide-y'>
             <Table.Row>
+              <Table.Cell>{t('apps.name')}</Table.Cell>
+              <Table.Cell>{app.name}</Table.Cell>
+            </Table.Row>
+            <Table.Row>
               <Table.Cell>{t('apps.clientId')}</Table.Cell>
               <Table.Cell>{app.clientId}</Table.Cell>
             </Table.Row>
             <Table.Row>
-              <Table.Cell>{t('apps.name')}</Table.Cell>
-              <Table.Cell>{app.name}</Table.Cell>
+              <Table.Cell>{t('apps.clientSecret')}</Table.Cell>
+              <Table.Cell className='break-all'>{app.secret}</Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('apps.status')}</Table.Cell>
@@ -96,7 +100,7 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('apps.type')}</Table.Cell>
               <Table.Cell>
-                {app.type.toUpperCase()}
+                <ClientTypeLabel type={app.type} />
               </Table.Cell>
               <Table.Cell />
             </Table.Row>
@@ -108,7 +112,19 @@ const Page = () => {
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('apps.redirectUris')}</Table.Cell>
-              <Table.Cell>{app.redirectUris}</Table.Cell>
+              <Table.Cell>
+                <RedirectUriEditor
+                  redirectUris={redirectUris}
+                  onChange={setRedirectUris}
+                />
+              </Table.Cell>
+              <Table.Cell>
+                <Button
+                  size='xs'
+                  onClick={handleSaveRedirectUris}>
+                  {t('common.save')}
+                </Button>
+              </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('common.createdAt')}</Table.Cell>

@@ -18,6 +18,7 @@ import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import ClientTypeLabel from 'components/ClientTypeLabel'
+import PageTitle from 'components/PageTitle'
 
 const Page = () => {
   const { id } = useParams()
@@ -74,6 +75,9 @@ const Page = () => {
 
   return (
     <section>
+      <PageTitle
+        className='mb-6'
+        title={t('scopes.scope')} />
       <section>
         <Table>
           <Table.Head>

@@ -17,6 +17,7 @@ import EntityStatusLabel from 'components/EntityStatusLabel'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
+import PageTitle from 'components/PageTitle'
 
 const Page = () => {
   const { id } = useParams()
@@ -73,6 +74,9 @@ const Page = () => {
 
   return (
     <section>
+      <PageTitle
+        className='mb-6'
+        title={t('roles.role')} />
       <section>
         <Table>
           <Table.Head>
