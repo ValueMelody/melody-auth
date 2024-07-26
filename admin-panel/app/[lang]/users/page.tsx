@@ -11,6 +11,9 @@ import UserEmailVerified from 'components/UserEmailVerified'
 import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
+import useSignalValue from 'app/useSignalValue'
+import { userInfoSignal } from 'signals'
+import IsSelfLabel from 'components/IsSelfLabel'
 
 const Page = () => {
   const t = useTranslations()
@@ -18,6 +21,7 @@ const Page = () => {
 
   const [users, setUsers] = useState([])
   const { acquireToken } = useAuth()
+  const userInfo = useSignalValue(userInfoSignal)
 
   useEffect(
     () => {
@@ -50,7 +54,12 @@ const Page = () => {
         <Table.Body className='divide-y'>
           {users.map((user) => (
             <Table.Row key={user.id}>
-              <Table.Cell>{user.authId}</Table.Cell>
+              <Table.Cell>
+                <div className='flex items-center gap-2'>
+                  {user.authId}
+                  {user.authId === userInfo.authId && <IsSelfLabel />}
+                </div>
+              </Table.Cell>
               <Table.Cell>{user.email}</Table.Cell>
               <Table.Cell>
                 <EntityStatusLabel isEnabled={!user.deletedAt} />

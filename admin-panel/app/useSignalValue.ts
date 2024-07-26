@@ -12,7 +12,6 @@ const useSignalValue = (signal) => {
       })
 
       return () => {
-        signal.value = ''
         unsubscribe()
       }
     },

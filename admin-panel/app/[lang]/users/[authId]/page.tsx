@@ -2,19 +2,23 @@
 
 import { useAuth } from '@melody-auth/react'
 import {
-  Badge, Button, Table,
+  Badge, Button, Checkbox, Label, Table,
   TableCell,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
   useCallback,
-  useEffect, useState,
+  useEffect, useMemo, useState,
 } from 'react'
+import { CheckIcon } from '@heroicons/react/16/solid'
 import UserEmailVerified from 'components/UserEmailVerified'
 import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import ChangeStatusButton from 'components/ChangeStatusButton'
+import useSignalValue from 'app/useSignalValue'
+import { userInfoSignal } from 'signals'
+import IsSelfLabel from 'components/IsSelfLabel'
 
 const Page = () => {
   const { authId } = useParams()
@@ -22,8 +26,18 @@ const Page = () => {
   const t = useTranslations()
 
   const [user, setUser] = useState()
+  const [roles, setRoles] = useState([])
   const [emailResent, setEmailResent] = useState(false)
+  const [rolesSaved, setRolesSaved] = useState(false)
   const { acquireToken } = useAuth()
+  const [userRoles, setUserRoles] = useState<string[]>([])
+
+  const userInfo = useSignalValue(userInfoSignal)
+
+  const isSelf = useMemo(
+    () => userInfo.authId === user?.authId,
+    [user, userInfo],
+  )
 
   const getUser = useCallback(
     async () => {
@@ -34,6 +48,7 @@ const Page = () => {
         token,
       })
       setUser(data.user)
+      setUserRoles(data.user.roles)
     },
     [acquireToken, authId],
   )
@@ -60,6 +75,22 @@ const Page = () => {
     if (result) await getUser()
   }
 
+  const handleSaveRoles = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}`,
+      method: 'PUT',
+      token,
+      body: {
+        action: 'roles', data: { roles: userRoles },
+      },
+    })
+    if (result) {
+      await getUser()
+      setRolesSaved(true)
+    }
+  }
+
   const handleResendVerifyEmail = async () => {
     const token = await acquireToken()
     const result = await proxyTool.sendNextRequest({
@@ -71,11 +102,26 @@ const Page = () => {
     if (result) setEmailResent(true)
   }
 
+  const handleToggleUserRole = (role: string) => {
+    const newRoles = userRoles.includes(role)
+      ? userRoles.filter((userRole) => role !== userRole)
+      : [...userRoles, role]
+    setUserRoles(newRoles)
+    setRolesSaved(false)
+  }
+
   useEffect(
     () => {
+      const getRoles = async () => {
+        const token = await acquireToken()
+        const data = await proxyTool.getRoles(token)
+        setRoles(data.roles.filter((role) => !role.deletedAt))
+      }
+
       getUser()
+      getRoles()
     },
-    [getUser],
+    [getUser, acquireToken],
   )
 
   if (!user) return null
@@ -92,7 +138,14 @@ const Page = () => {
           <Table.Body className='divide-y'>
             <Table.Row>
               <Table.Cell>{t('users.authId')}</Table.Cell>
-              <Table.Cell>{user.authId}</Table.Cell>
+              <Table.Cell>
+                <div className='flex items-center gap-2'>
+                  {user.authId}
+                  {isSelf && (
+                    <IsSelfLabel />
+                  )}
+                </div>
+              </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.email')}</Table.Cell>
@@ -104,11 +157,13 @@ const Page = () => {
                 <EntityStatusLabel isEnabled={!user.deletedAt} />
               </Table.Cell>
               <TableCell>
-                <ChangeStatusButton
-                  isEnabled={!user.deletedAt}
-                  onEnable={enableUser}
-                  onDisable={disableUser}
-                />
+                {!isSelf && (
+                  <ChangeStatusButton
+                    isEnabled={!user.deletedAt}
+                    onEnable={enableUser}
+                    onDisable={disableUser}
+                  />
+                )}
               </TableCell>
             </Table.Row>
             <Table.Row>
@@ -134,13 +189,34 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('users.roles')}</Table.Cell>
               <Table.Cell>
-                <div className='flex items-center gap2'>
-                  {user.roles?.map((role) => (
-                    <Badge
-                      key={role}
-                      role={role}>{role}
-                    </Badge>
+                <div className='flex items-center gap-6'>
+                  {roles.map((role) => (
+                    <div
+                      key={role.id}
+                      className='flex items-center gap-2'>
+                      <Checkbox
+                        id={role.id}
+                        onChange={() => handleToggleUserRole(role.name)}
+                        checked={userRoles.includes(role.name)} />
+                      <Label
+                        htmlFor={role.id}
+                        className='flex'>
+                        {role.name}
+                      </Label>
+                    </div>
                   ))}
+                </div>
+              </Table.Cell>
+              <Table.Cell>
+                <div className='flex items-center gap-2'>
+                  <Button
+                    size='xs'
+                    onClick={handleSaveRoles}>
+                    {t('common.save')}
+                  </Button>
+                  {rolesSaved && <CheckIcon
+                    className='w-6 h-6'
+                    color='green' />}
                 </div>
               </Table.Cell>
             </Table.Row>

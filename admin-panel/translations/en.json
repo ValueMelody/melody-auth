@@ -21,6 +21,7 @@
     "create": "Create",
     "options": "Options:",
     "save": "Save",
+    "Saved": "Saved",
     "system": "System",
     "status": "Status",
     "fieldIsRequired": "This field is required."
@@ -49,7 +50,8 @@
     "lastName": "Last Name",
     "roles": "Roles",
     "resend": "Resend Email",
-    "sent": "Email Sent"
+    "sent": "Email Sent",
+    "you": "You"
   },
   "roles": {
     "title": "Roles",
