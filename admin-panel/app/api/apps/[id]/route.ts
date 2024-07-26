@@ -1,4 +1,6 @@
-import { sendS2SRequest } from 'app/api/request'
+import {
+  sendS2SRequest, throwForbiddenError,
+} from 'app/api/request'
 
 type Params = {
   id: string;
@@ -12,5 +14,20 @@ export async function GET (
   return sendS2SRequest({
     method: 'GET',
     uri: `/api/v1/apps/${id}?include_disabled=true`,
+  })
+}
+
+export async function PUT (
+  request: Request, context: { params: Params },
+) {
+  const id = context.params.id
+
+  const reqBody = await request.json()
+  if (!reqBody || !reqBody.data) return throwForbiddenError()
+
+  return sendS2SRequest({
+    method: 'PUT',
+    uri: `/api/v1/apps/${id}`,
+    body: JSON.stringify(reqBody.data),
   })
 }

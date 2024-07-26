@@ -1,6 +1,7 @@
 import { adapterConfig } from 'configs'
 import {
-  timeUtil, validateUtil,
+  formatUtil,
+  validateUtil,
 } from 'utils'
 
 export interface Record {
@@ -61,26 +62,16 @@ export const create = async (
 export const update = async (
   db: D1Database, id: number, update: Update,
 ) => {
-  const setQueries: string[] = []
-  const binds = []
-
-  const parsedUpdate = {
-    ...update,
-    updatedAt: timeUtil.getDbCurrentTime(),
-  }
   const updateKeys: (keyof Update)[] = [
     'deletedAt',
   ]
-  updateKeys.forEach((key) => {
-    const value = parsedUpdate[key]
-    if (value === undefined) return
-    setQueries.push(`${key} = $${setQueries.length + 1}`)
-    binds.push(value)
-  })
-
-  binds.push(id)
-  const query = `UPDATE ${TableName} set ${setQueries.join(',')} where id = $${setQueries.length + 1}`
-  const stmt = db.prepare(query).bind(...binds)
+  const stmt = formatUtil.d1UpdateQuery(
+    db,
+    TableName,
+    id,
+    updateKeys,
+    update,
+  )
 
   const result = await validateUtil.d1Run(stmt)
   return result.success

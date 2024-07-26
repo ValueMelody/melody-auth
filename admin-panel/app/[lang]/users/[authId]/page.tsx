@@ -19,6 +19,7 @@ import ChangeStatusButton from 'components/ChangeStatusButton'
 import useSignalValue from 'app/useSignalValue'
 import { userInfoSignal } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
+import PageTitle from 'components/PageTitle'
 
 const Page = () => {
   const { authId } = useParams()
@@ -128,6 +129,9 @@ const Page = () => {
 
   return (
     <section>
+      <PageTitle
+        className='mb-6'
+        title={t('users.user')} />
       <section>
         <Table>
           <Table.Head>

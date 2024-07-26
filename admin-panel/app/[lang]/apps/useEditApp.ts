@@ -2,14 +2,13 @@ import {
   useMemo, useState,
 } from 'react'
 import { useTranslations } from 'next-intl'
-import { Scope } from 'shared'
 
 const useEditApp = () => {
   const t = useTranslations()
 
   const [name, setName] = useState('')
   const [type, setType] = useState('')
-  const [scopes, setScopes] = useState<Scope[]>([])
+  const [scopes, setScopes] = useState<string[]>([])
   const [redirectUris, setRedirectUris] = useState([''])
 
   const values = useMemo(
@@ -39,7 +38,7 @@ const useEditApp = () => {
       setType(value as string)
       break
     case 'scopes':
-      setScopes(value as Scope[])
+      setScopes(value as string[])
       break
     case 'redirectUris':
       setRedirectUris(value as string[])

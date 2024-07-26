@@ -1,7 +1,7 @@
 import { ClientType } from 'shared'
 import { adapterConfig } from 'configs'
 import {
-  formatUtil, timeUtil,
+  formatUtil,
   validateUtil,
 } from 'utils'
 
@@ -28,7 +28,14 @@ export interface ApiRecord extends Record {
   scopes?: string[];
 }
 
+export interface Create {
+  name: string;
+  type: ClientType;
+  redirectUris: string;
+}
+
 export interface Update {
+  redirectUris?: string;
   deletedAt?: string | null;
 }
 
@@ -37,7 +44,7 @@ const TableName = adapterConfig.TableName.App
 const format = (raw: Raw): Record => {
   return {
     ...raw,
-    redirectUris: raw.redirectUris ? raw.redirectUris.split(',').map((url) => formatUtil.stripEndingSlash(url.trim().toLowerCase())) : [],
+    redirectUris: raw.redirectUris ? raw.redirectUris.split(',') : [],
   }
 }
 
@@ -83,29 +90,37 @@ export const getById = async (
   return format(app)
 }
 
+export const create = async (
+  db: D1Database, create: Create,
+) => {
+  const query = `INSERT INTO ${TableName} (name, type, redirectUris) values ($1, $2, $3)`
+  const stmt = db.prepare(query).bind(
+    create.name,
+    create.type,
+    create.redirectUris,
+  )
+  const result = await validateUtil.d1Run(stmt)
+  if (!result.success) return null
+  const id = result.meta.last_row_id
+  return getById(
+    db,
+    id,
+  )
+}
+
 export const update = async (
   db: D1Database, id: number, update: Update,
 ) => {
-  const setQueries: string[] = []
-  const binds = []
-
-  const parsedUpdate = {
-    ...update,
-    updatedAt: timeUtil.getDbCurrentTime(),
-  }
   const updateKeys: (keyof Update)[] = [
-    'deletedAt',
+    'redirectUris', 'deletedAt',
   ]
-  updateKeys.forEach((key) => {
-    const value = parsedUpdate[key]
-    if (value === undefined) return
-    setQueries.push(`${key} = $${setQueries.length + 1}`)
-    binds.push(value)
-  })
-
-  binds.push(id)
-  const query = `UPDATE ${TableName} set ${setQueries.join(',')} where id = $${setQueries.length + 1}`
-  const stmt = db.prepare(query).bind(...binds)
+  const stmt = formatUtil.d1UpdateQuery(
+    db,
+    TableName,
+    id,
+    updateKeys,
+    update,
+  )
 
   const result = await validateUtil.d1Run(stmt)
   if (!result.success) return null

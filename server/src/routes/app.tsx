@@ -19,6 +19,18 @@ export const load = (app: typeConfig.App) => {
     appHandler.getApp,
   )
 
+  app.post(
+    `${BaseRoute}`,
+    authMiddleware.s2sWriteApp,
+    appHandler.postApp,
+  )
+
+  app.put(
+    `${BaseRoute}/:id`,
+    authMiddleware.s2sWriteApp,
+    appHandler.putApp,
+  )
+
   app.put(
     `${BaseRoute}/:id/enable`,
     authMiddleware.s2sWriteApp,

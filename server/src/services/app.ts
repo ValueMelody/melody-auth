@@ -4,11 +4,14 @@ import {
   errorConfig, localeConfig,
   typeConfig,
 } from 'configs'
-import { appModel } from 'models'
+import {
+  appModel, appScopeModel, scopeModel,
+} from 'models'
 import {
   formatUtil, timeUtil,
 } from 'utils'
 import { scopeService } from 'services'
+import { appDto } from 'dtos'
 
 export const verifySPAClientRequest = async (
   c: Context<typeConfig.Context>, clientId: string, redirectUri: string,
@@ -17,6 +20,7 @@ export const verifySPAClientRequest = async (
     c.env.DB,
     clientId,
   )
+
   if (!app) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
   }
@@ -83,6 +87,53 @@ export const getAppById = async (
     scopes,
   )
   return result
+}
+
+export const createApp = async (
+  c: Context<typeConfig.Context>,
+  dto: appDto.PostAppReqDto,
+): Promise<appModel.ApiRecord> => {
+  const app = await appModel.create(
+    c.env.DB,
+    {
+      name: dto.name,
+      type: dto.type,
+      redirectUris: dto.redirectUris.join(','),
+    },
+  )
+
+  if (!app) throw new errorConfig.InternalServerError()
+
+  const scopes = dto.scopes
+  if (scopes.length) {
+    const allScopes = await scopeModel.getAll(c.env.DB)
+    const targetScopes = allScopes.filter((scope) => scopes.includes(scope.name))
+    for (const scope of targetScopes) {
+      await appScopeModel.create(
+        c.env.DB,
+        {
+          appId: app.id, scopeId: scope.id,
+        },
+      )
+    }
+  }
+  return {
+    ...app,
+    scopes,
+  }
+}
+
+export const updateApp = async (
+  c: Context<typeConfig.Context>,
+  appId: number,
+  dto: appDto.PutAppReqDto,
+) => {
+  const app = await appModel.update(
+    c.env.DB,
+    appId,
+    { redirectUris: dto.redirectUris.join(',') },
+  )
+  return app
 }
 
 export const enableApp = async (

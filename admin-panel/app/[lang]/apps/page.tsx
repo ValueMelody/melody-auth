@@ -1,11 +1,8 @@
 'use client'
 
 import { useAuth } from '@melody-auth/react'
-import {
-  Button, Table,
-} from 'flowbite-react'
+import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 import {
   useEffect, useState,
 } from 'react'
@@ -15,6 +12,9 @@ import {
   proxyTool, routeTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
+import PageTitle from 'components/PageTitle'
+import CreateButton from 'components/CreateButton'
+import ClientTypeLabel from 'components/ClientTypeLabel'
 
 const Page = () => {
   const t = useTranslations()
@@ -42,17 +42,16 @@ const Page = () => {
 
   return (
     <section>
-      <div className='mb-6 flex'>
-        <Button
-          as={Link}
+      <div className='mb-6 flex items-center gap-4'>
+        <PageTitle title={t('apps.title')} />
+        <CreateButton
           href={`/${locale}${routeTool.Internal.Apps}/new`}
-          size='sm'>{t('common.create')}
-        </Button>
+        />
       </div>
       <Table>
         <Table.Head>
-          <Table.HeadCell>{t('apps.clientId')}</Table.HeadCell>
           <Table.HeadCell>{t('apps.name')}</Table.HeadCell>
+          <Table.HeadCell>{t('apps.clientId')}</Table.HeadCell>
           <Table.HeadCell>{t('apps.status')}</Table.HeadCell>
           <Table.HeadCell>{t('apps.type')}</Table.HeadCell>
           <Table.HeadCell />
@@ -60,13 +59,13 @@ const Page = () => {
         <Table.Body className='divide-y'>
           {apps.map((app) => (
             <Table.Row key={app.id}>
-              <Table.Cell>{app.id}</Table.Cell>
               <Table.Cell>{app.name}</Table.Cell>
+              <Table.Cell>{app.clientId}</Table.Cell>
               <Table.Cell>
                 <EntityStatusLabel isEnabled={!app.deletedAt} />
               </Table.Cell>
               <Table.Cell>
-                {app.type.toUpperCase()}
+                <ClientTypeLabel type={app.type} />
               </Table.Cell>
               <Table.Cell>
                 <EditLink

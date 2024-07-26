@@ -50,7 +50,8 @@ const Page = () => {
     <section>
       <PageTitle
         className='mb-6'
-        title={t('roles.new')} />
+        title={t('roles.new')}
+      />
       <section>
         <Table>
           <Table.Head>

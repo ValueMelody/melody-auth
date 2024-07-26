@@ -47,7 +47,7 @@ export class GetAuthorizeReqDto {
     scopes: string[]
 
   constructor (dto: GetAuthorizeReqDto) {
-    this.clientId = dto.clientId.toLowerCase()
+    this.clientId = dto.clientId
     this.redirectUri = dto.redirectUri.toLowerCase()
     this.responseType = dto.responseType.toLowerCase()
     this.state = dto.state
