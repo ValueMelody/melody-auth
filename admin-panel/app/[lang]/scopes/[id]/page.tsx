@@ -11,24 +11,25 @@ import {
   useCallback,
   useEffect, useState,
 } from 'react'
-import useEditRole from '../useEditRole'
+import useEditScope from '../useEditScope'
 import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
+import ClientTypeLabel from 'components/ClientTypeLabel'
 
 const Page = () => {
   const { id } = useParams()
 
   const t = useTranslations()
 
-  const [role, setRole] = useState()
+  const [scope, setScope] = useState()
   const { acquireToken } = useAuth()
 
   const {
     values, errors, onChange,
-  } = useEditRole(role)
+  } = useEditScope(scope)
   const [showErrors, setShowErrors] = useState(false)
 
   const handleSave = async () => {
@@ -39,37 +40,37 @@ const Page = () => {
 
     const token = await acquireToken()
     const res = await proxyTool.sendNextRequest({
-      endpoint: `/api/roles/${id}`,
+      endpoint: `/api/scopes/${id}`,
       method: 'PUT',
       token,
       body: { data: values },
     })
-    if (res?.role) {
-      getRole()
+    if (res?.scope) {
+      getScope()
     }
   }
 
-  const getRole = useCallback(
+  const getScope = useCallback(
     async () => {
       const token = await acquireToken()
       const data = await proxyTool.sendNextRequest({
-        endpoint: `/api/roles/${id}`,
+        endpoint: `/api/scopes/${id}`,
         method: 'GET',
         token,
       })
-      setRole(data.role)
+      setScope(data.scope)
     },
     [acquireToken, id],
   )
 
   useEffect(
     () => {
-      getRole()
+      getScope()
     },
-    [getRole],
+    [getScope],
   )
 
-  if (!role) return null
+  if (!scope) return null
 
   return (
     <section>
@@ -82,7 +83,7 @@ const Page = () => {
           </Table.Head>
           <Table.Body className='divide-y'>
             <Table.Row>
-              <Table.Cell>{t('roles.name')}</Table.Cell>
+              <Table.Cell>{t('scopes.name')}</Table.Cell>
               <Table.Cell>
                 <TextInput
                   onChange={(e) => onChange(
@@ -96,23 +97,29 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('common.status')}</Table.Cell>
               <Table.Cell>
-                <EntityStatusLabel isEnabled={!role.deletedAt} />
+                <EntityStatusLabel isEnabled={!scope.deletedAt} />
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell>{t('scopes.type')}</Table.Cell>
+              <Table.Cell>
+                <ClientTypeLabel type={scope.type} />
               </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('common.createdAt')}</Table.Cell>
-              <Table.Cell>{role.createdAt} UTC</Table.Cell>
+              <Table.Cell>{scope.createdAt} UTC</Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('common.updatedAt')}</Table.Cell>
-              <Table.Cell>{role.updatedAt} UTC</Table.Cell>
+              <Table.Cell>{scope.updatedAt} UTC</Table.Cell>
             </Table.Row>
           </Table.Body>
         </Table>
       </section>
       <SubmitError />
       <SaveButton
-        disabled={!values.name || values.name === role.name}
+        disabled={!values.name || values.name === scope.name}
         onClick={handleSave}
       />
     </section>

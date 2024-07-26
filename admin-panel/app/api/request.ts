@@ -11,11 +11,9 @@ let accessTokenExpiresOn: number | null = null
 const basicAuth = btoa(`${process.env.SERVER_CLIENT_ID}:${process.env.SERVER_CLIENT_SECRET}`)
 
 export const throwForbiddenError = (message?: string) => {
-  throw NextResponse.json(
-    {},
-    {
-      status: 400, statusText: message,
-    },
+  return new NextResponse(
+    message,
+    { status: 400 },
   )
 }
 
@@ -23,15 +21,18 @@ export const verifyAccessToken = () => {
   const headersList = headers()
   const authHeader = headersList.get('authorization')
   const accessToken = authHeader?.split(' ')[1]
-  if (!accessToken) throwForbiddenError()
+  console.log(accessToken)
+  if (!accessToken) return false
 
   const tokenBody = jwt.verify(
     accessToken,
     process.env.CLIENT_JWT_SECRET,
   )
-  if (!tokenBody) throwForbiddenError()
+  if (!tokenBody) return false
 
-  if (!tokenBody.roles || !tokenBody.roles.includes(Role.SuperAdmin)) throwForbiddenError()
+  if (!tokenBody.roles || !tokenBody.roles.includes(Role.SuperAdmin)) return false
+
+  return true
 }
 
 export const obtainS2SAccessToken = async () => {
@@ -42,7 +43,7 @@ export const obtainS2SAccessToken = async () => {
 
   const body = {
     grant_type: 'client_credentials',
-    scope: `${Scope.READ_USER} ${Scope.WRITE_USER} ${Scope.READ_APP} ${Scope.WRITE_APP} ${Scope.READ_ROLE} ${Scope.WRITE_ROLE}`,
+    scope: `${Scope.ReadUser} ${Scope.WriteUser} ${Scope.ReadApp} ${Scope.WriteApp} ${Scope.ReadRole} ${Scope.WriteRole} ${Scope.ReadScope} ${Scope.WriteScope}`,
   }
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URI}/oauth2/v1/token`,
@@ -57,19 +58,13 @@ export const obtainS2SAccessToken = async () => {
   )
   if (res.ok) {
     const data = await res.json()
-    if (!data.scope || !data.access_token || !data.expires_on) {
-      throwForbiddenError()
-    }
-
-    if (!data.scope.includes('read_user')) throwForbiddenError('read_user scope required.')
-    if (!data.scope.includes('write_user')) throwForbiddenError('write_user scope required.')
 
     accessToken = data.access_token
     accessTokenExpiresOn = data.expires_on
 
     return accessToken
   } else {
-    throwForbiddenError()
+    return false
   }
 }
 
@@ -82,7 +77,11 @@ export const sendS2SRequest = async ({
   method: 'GET' | 'POST' | 'PUT';
   body?: string;
 }) => {
+  const isValid = verifyAccessToken()
+  if (!isValid) return throwForbiddenError()
+
   const token = await obtainS2SAccessToken()
+  if (!token) return throwForbiddenError()
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URI}${uri}`,
@@ -97,8 +96,9 @@ export const sendS2SRequest = async ({
   )
   if (res.ok) {
     const data = await res.json()
-    return data
+    return NextResponse.json(data)
   } else {
-    throwForbiddenError()
+    const error = await res.text()
+    return throwForbiddenError(error)
   }
 }

@@ -6,7 +6,7 @@ import {
 export async function GET () {
   return sendS2SRequest({
     method: 'GET',
-    uri: '/api/v1/roles?include_disabled=true',
+    uri: '/api/v1/scopes?include_disabled=true',
   })
 }
 
@@ -16,7 +16,7 @@ export async function POST (request: Request) {
 
   return sendS2SRequest({
     method: 'POST',
-    uri: '/api/v1/roles',
+    uri: '/api/v1/scopes',
     body: JSON.stringify(reqBody.data),
   })
 }

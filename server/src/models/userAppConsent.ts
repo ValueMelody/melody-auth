@@ -1,5 +1,7 @@
 import { adapterConfig } from 'configs'
-import { timeUtil } from 'utils'
+import {
+  timeUtil, validateUtil,
+} from 'utils'
 
 export interface Record {
   id: number;
@@ -40,7 +42,7 @@ export const create = async (
     create.userId,
     create.appId,
   )
-  const result = await stmt.run()
+  const result = await validateUtil.d1Run(stmt)
   if (!result.success) return null
   const id = result.meta.last_row_id
   return getById(
@@ -58,7 +60,7 @@ export const update = async (
     update.deletedAt,
     id,
   )
-  const result = await stmt.run()
+  const result = await validateUtil.d1Run(stmt)
   if (!result.success) return null
   return getById(
     db,

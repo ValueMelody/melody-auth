@@ -7,7 +7,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useAuth } from '@melody-auth/react'
-import useEditRole from '../useEditRole'
+import useEditScope from '../useEditScope'
 import {
   proxyTool, routeTool,
 } from 'tools'
@@ -15,6 +15,7 @@ import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import FieldError from 'components/FieldError'
+import ClientTypeSelector from 'components/ClientTypeSelector'
 import SubmitError from 'components/SubmitError'
 
 const Page = () => {
@@ -24,7 +25,7 @@ const Page = () => {
   const { acquireToken } = useAuth()
   const {
     values, errors, onChange,
-  } = useEditRole()
+  } = useEditScope()
   const [showErrors, setShowErrors] = useState(false)
 
   const handleSubmit = async () => {
@@ -35,14 +36,13 @@ const Page = () => {
 
     const token = await acquireToken()
     const res = await proxyTool.sendNextRequest({
-      endpoint: '/api/roles',
+      endpoint: '/api/scopes',
       method: 'POST',
       token,
       body: { data: values },
     })
-
-    if (res?.role?.id) {
-      router.push(`${routeTool.Internal.Roles}/${res.role.id}`)
+    if (res?.scope?.id) {
+      router.push(`${routeTool.Internal.Scopes}/${res.scope.id}`)
     }
   }
 
@@ -50,7 +50,7 @@ const Page = () => {
     <section>
       <PageTitle
         className='mb-6'
-        title={t('roles.new')} />
+        title={t('scopes.new')} />
       <section>
         <Table>
           <Table.Head>
@@ -59,7 +59,7 @@ const Page = () => {
           </Table.Head>
           <Table.Body className='divide-y'>
             <Table.Row>
-              <Table.Cell>{t('roles.name')}</Table.Cell>
+              <Table.Cell>{t('scopes.name')}</Table.Cell>
               <Table.Cell>
                 <TextInput
                   onChange={(e) => onChange(
@@ -68,6 +68,19 @@ const Page = () => {
                   )}
                   value={values.name} />
                 {showErrors && <FieldError error={errors.name} />}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell>{t('scopes.type')}</Table.Cell>
+              <Table.Cell>
+                <ClientTypeSelector
+                  value={values.type}
+                  onChange={(val: string) => onChange(
+                    'type',
+                    val,
+                  )}
+                />
+                {showErrors && <FieldError error={errors.type} />}
               </Table.Cell>
             </Table.Row>
           </Table.Body>

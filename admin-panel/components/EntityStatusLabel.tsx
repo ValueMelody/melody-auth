@@ -1,7 +1,7 @@
 import { Badge } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 
-const EntityStatus = ({ isEnabled }: {
+const EntityStatusLabel = ({ isEnabled }: {
   isEnabled: boolean;
 }) => {
   const t = useTranslations()
@@ -17,4 +17,4 @@ const EntityStatus = ({ isEnabled }: {
   )
 }
 
-export default EntityStatus
+export default EntityStatusLabel

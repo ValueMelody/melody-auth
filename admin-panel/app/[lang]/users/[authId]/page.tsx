@@ -13,7 +13,7 @@ import {
 } from 'react'
 import UserEmailVerified from 'components/UserEmailVerified'
 import { proxyTool } from 'tools'
-import EntityStatus from 'components/EntityStatus'
+import EntityStatusLabel from 'components/EntityStatusLabel'
 import ChangeStatusButton from 'components/ChangeStatusButton'
 
 const Page = () => {
@@ -101,7 +101,7 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('users.status')}</Table.Cell>
               <Table.Cell>
-                <EntityStatus isEnabled={!user.deletedAt} />
+                <EntityStatusLabel isEnabled={!user.deletedAt} />
               </Table.Cell>
               <TableCell>
                 <ChangeStatusButton

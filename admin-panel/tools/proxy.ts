@@ -1,3 +1,5 @@
+import { errorSignal } from 'signals'
+
 export const sendNextRequest = async ({
   endpoint,
   method,
@@ -21,9 +23,11 @@ export const sendNextRequest = async ({
     },
   )
   if (res.ok) {
+    errorSignal.value = ''
     const data = await res.json()
     return data
   } else {
-    throw new Error('Can not fetch data')
+    const msg = await res.text()
+    errorSignal.value = msg
   }
 }

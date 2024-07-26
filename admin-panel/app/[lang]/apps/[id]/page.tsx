@@ -12,7 +12,7 @@ import {
   useEffect, useState,
 } from 'react'
 import { proxyTool } from 'tools'
-import EntityStatus from 'components/EntityStatus'
+import EntityStatusLabel from 'components/EntityStatusLabel'
 import AppScopes from 'components/AppScopes'
 
 const Page = () => {
@@ -88,7 +88,7 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('apps.status')}</Table.Cell>
               <Table.Cell>
-                <EntityStatus isEnabled={!app.deletedAt} />
+                <EntityStatusLabel isEnabled={!app.deletedAt} />
               </Table.Cell>
               <TableCell>
               </TableCell>

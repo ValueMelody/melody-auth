@@ -36,7 +36,7 @@ const Page = () => {
       }
 
       if (values.type === ClientType.S2S) {
-        return [Scope.READ_USER, Scope.WRITE_USER, Scope.READ_APP, Scope.WRITE_APP]
+        return [Scope.ReadUser, Scope.WriteUser, Scope.ReadApp, Scope.WriteApp]
       }
 
       return []
@@ -88,7 +88,6 @@ const Page = () => {
     )
   }
 
-  console.log(errors)
   const handleSubmit = async () => {
     if (Object.values(errors).some((val) => !!val)) {
       setShowErrors(true)

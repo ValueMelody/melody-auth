@@ -68,26 +68,36 @@ export const spaProfile = bearerAuth({
   },
 })
 
+const s2sScopeGuard = async (
+  c: Context<typeConfig.Context>, token: string, scope: Scope,
+) => {
+  const accessTokenBody = await parseToken(
+    c,
+    token,
+    ClientType.S2S,
+  )
+  if (!accessTokenBody) return false
+
+  const scopes = accessTokenBody.scope?.split(' ') ?? []
+  if (!scopes.includes(scope)) return false
+
+  c.set(
+    'access_token_body',
+    accessTokenBody,
+  )
+
+  return true
+}
+
 export const s2sReadUser = bearerAuth({
   verifyToken: async (
     token, c: Context<typeConfig.Context>,
   ) => {
-    const accessTokenBody = await parseToken(
+    return s2sScopeGuard(
       c,
       token,
-      ClientType.S2S,
+      Scope.ReadUser,
     )
-    if (!accessTokenBody) return false
-
-    const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(Scope.READ_USER)) return false
-
-    c.set(
-      'access_token_body',
-      accessTokenBody,
-    )
-
-    return true
   },
 })
 
@@ -95,22 +105,11 @@ export const s2sWriteUser = bearerAuth({
   verifyToken: async (
     token, c: Context<typeConfig.Context>,
   ) => {
-    const accessTokenBody = await parseToken(
+    return s2sScopeGuard(
       c,
       token,
-      ClientType.S2S,
+      Scope.WriteUser,
     )
-    if (!accessTokenBody) return false
-
-    const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(Scope.WRITE_USER)) return false
-
-    c.set(
-      'access_token_body',
-      accessTokenBody,
-    )
-
-    return true
   },
 })
 
@@ -118,22 +117,11 @@ export const s2sReadApp = bearerAuth({
   verifyToken: async (
     token, c: Context<typeConfig.Context>,
   ) => {
-    const accessTokenBody = await parseToken(
+    return s2sScopeGuard(
       c,
       token,
-      ClientType.S2S,
+      Scope.ReadApp,
     )
-    if (!accessTokenBody) return false
-
-    const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(Scope.READ_APP)) return false
-
-    c.set(
-      'access_token_body',
-      accessTokenBody,
-    )
-
-    return true
   },
 })
 
@@ -141,22 +129,11 @@ export const s2sWriteApp = bearerAuth({
   verifyToken: async (
     token, c: Context<typeConfig.Context>,
   ) => {
-    const accessTokenBody = await parseToken(
+    return s2sScopeGuard(
       c,
       token,
-      ClientType.S2S,
+      Scope.WriteApp,
     )
-    if (!accessTokenBody) return false
-
-    const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(Scope.WRITE_APP)) return false
-
-    c.set(
-      'access_token_body',
-      accessTokenBody,
-    )
-
-    return true
   },
 })
 
@@ -164,22 +141,11 @@ export const s2sReadRole = bearerAuth({
   verifyToken: async (
     token, c: Context<typeConfig.Context>,
   ) => {
-    const accessTokenBody = await parseToken(
+    return s2sScopeGuard(
       c,
       token,
-      ClientType.S2S,
+      Scope.ReadRole,
     )
-    if (!accessTokenBody) return false
-
-    const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(Scope.READ_ROLE)) return false
-
-    c.set(
-      'access_token_body',
-      accessTokenBody,
-    )
-
-    return true
   },
 })
 
@@ -187,22 +153,35 @@ export const s2sWriteRole = bearerAuth({
   verifyToken: async (
     token, c: Context<typeConfig.Context>,
   ) => {
-    const accessTokenBody = await parseToken(
+    return s2sScopeGuard(
       c,
       token,
-      ClientType.S2S,
+      Scope.WriteRole,
     )
-    if (!accessTokenBody) return false
+  },
+})
 
-    const scopes = accessTokenBody.scope?.split(' ') ?? []
-    if (!scopes.includes(Scope.WRITE_ROLE)) return false
-
-    c.set(
-      'access_token_body',
-      accessTokenBody,
+export const s2sReadScope = bearerAuth({
+  verifyToken: async (
+    token, c: Context<typeConfig.Context>,
+  ) => {
+    return s2sScopeGuard(
+      c,
+      token,
+      Scope.ReadScope,
     )
+  },
+})
 
-    return true
+export const s2sWriteScope = bearerAuth({
+  verifyToken: async (
+    token, c: Context<typeConfig.Context>,
+  ) => {
+    return s2sScopeGuard(
+      c,
+      token,
+      Scope.WriteScope,
+    )
   },
 })
 

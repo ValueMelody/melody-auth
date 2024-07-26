@@ -5,6 +5,7 @@ import { Table } from 'flowbite-react'
 import {
   useEffect, useState,
 } from 'react'
+import { useAuth } from '@melody-auth/react'
 import { proxyTool } from 'tools'
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 
@@ -12,20 +13,23 @@ const Page = () => {
   const t = useTranslations()
 
   const [configs, setConfigs] = useState(null)
+  const { acquireToken } = useAuth()
 
   useEffect(
     () => {
       const getInfo = async () => {
+        const token = await acquireToken()
         const data = await proxyTool.sendNextRequest({
           endpoint: '/api/info',
           method: 'GET',
+          token,
         })
         setConfigs(data.configs)
       }
 
       getInfo()
     },
-    [],
+    [acquireToken],
   )
 
   return (

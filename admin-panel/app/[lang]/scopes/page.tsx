@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import {
   useEffect, useState,
 } from 'react'
-import { Role } from 'shared'
+import { Scope } from 'shared'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import {
@@ -16,29 +16,30 @@ import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
 import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
+import ClientTypeLabel from 'components/ClientTypeLabel'
 
-const isSystem = (name: string) => name === Role.SuperAdmin
+const isSystem = (name: string) => Object.values(Scope).some((scope) => scope === name)
 
 const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const [roles, setRoles] = useState([])
+  const [scopes, setScopes] = useState([])
   const { acquireToken } = useAuth()
 
   useEffect(
     () => {
-      const getRoles = async () => {
+      const getScopes = async () => {
         const token = await acquireToken()
         const data = await proxyTool.sendNextRequest({
-          endpoint: '/api/roles',
+          endpoint: '/api/scopes',
           method: 'GET',
           token,
         })
-        setRoles(data.roles)
+        setScopes(data.scopes)
       }
 
-      getRoles()
+      getScopes()
     },
     [acquireToken],
   )
@@ -46,33 +47,37 @@ const Page = () => {
   return (
     <section>
       <div className='mb-6 flex items-center gap-4'>
-        <PageTitle title={t('roles.title')} />
+        <PageTitle title={t('scopes.title')} />
         <CreateButton
-          href={`/${locale}${routeTool.Internal.Roles}/new`}
+          href={`/${locale}${routeTool.Internal.Scopes}/new`}
         />
       </div>
       <Table>
         <Table.Head>
-          <Table.HeadCell>{t('roles.name')}</Table.HeadCell>
-          <Table.HeadCell>{t('roles.status')}</Table.HeadCell>
+          <Table.HeadCell>{t('scopes.name')}</Table.HeadCell>
+          <Table.HeadCell>{t('scopes.type')}</Table.HeadCell>
+          <Table.HeadCell>{t('scopes.status')}</Table.HeadCell>
           <Table.HeadCell />
         </Table.Head>
         <Table.Body className='divide-y'>
-          {roles.map((role) => (
-            <Table.Row key={role.id}>
+          {scopes.map((scope) => (
+            <Table.Row key={scope.id}>
               <Table.Cell>
                 <div className='flex items-center gap-2'>
-                  {role.name}
-                  {isSystem(role.name) && <SystemLabel />}
+                  {scope.name}
+                  {isSystem(scope.name) && <SystemLabel />}
                 </div>
               </Table.Cell>
               <Table.Cell>
-                <EntityStatusLabel isEnabled={!role.deletedAt} />
+                <ClientTypeLabel type={scope.type} />
               </Table.Cell>
               <Table.Cell>
-                {!isSystem(role.name) && (
+                <EntityStatusLabel isEnabled={!scope.deletedAt} />
+              </Table.Cell>
+              <Table.Cell>
+                {!isSystem(scope.name) && (
                   <EditLink
-                    href={`/${locale}/roles/${role.id}`}
+                    href={`/${locale}/scopes/${scope.id}`}
                   />
                 )}
               </Table.Cell>

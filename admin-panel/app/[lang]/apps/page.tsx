@@ -10,7 +10,7 @@ import {
   useEffect, useState,
 } from 'react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
-import EntityStatus from 'components/EntityStatus'
+import EntityStatusLabel from 'components/EntityStatusLabel'
 import {
   proxyTool, routeTool,
 } from 'tools'
@@ -63,7 +63,7 @@ const Page = () => {
               <Table.Cell>{app.id}</Table.Cell>
               <Table.Cell>{app.name}</Table.Cell>
               <Table.Cell>
-                <EntityStatus isEnabled={!app.deletedAt} />
+                <EntityStatusLabel isEnabled={!app.deletedAt} />
               </Table.Cell>
               <Table.Cell>
                 {app.type.toUpperCase()}
