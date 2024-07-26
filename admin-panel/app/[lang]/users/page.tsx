@@ -9,7 +9,7 @@ import {
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import UserEmailVerified from 'components/UserEmailVerified'
 import { proxyTool } from 'tools'
-import EntityStatus from 'components/EntityStatus'
+import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
 
 const Page = () => {
@@ -53,7 +53,7 @@ const Page = () => {
               <Table.Cell>{user.authId}</Table.Cell>
               <Table.Cell>{user.email}</Table.Cell>
               <Table.Cell>
-                <EntityStatus isEnabled={!user.deletedAt} />
+                <EntityStatusLabel isEnabled={!user.deletedAt} />
               </Table.Cell>
               <Table.Cell>
                 <UserEmailVerified user={user} />

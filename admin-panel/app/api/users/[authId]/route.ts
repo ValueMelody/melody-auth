@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server'
 import {
-  verifyAccessToken, sendS2SRequest,
+  sendS2SRequest,
   throwForbiddenError,
 } from 'app/api/request'
 
@@ -11,49 +10,38 @@ type Params = {
 export async function GET (
   request: Request, context: { params: Params },
 ) {
-  verifyAccessToken()
-
   const authId = context.params.authId
 
-  const data = await sendS2SRequest({
+  return sendS2SRequest({
     method: 'GET',
     uri: `/api/v1/users/${authId}?include_disabled=true`,
   })
-  return NextResponse.json(data)
 }
 
 export async function POST (
   request: Request, context: { params: Params },
 ) {
-  verifyAccessToken()
-
   const authId = context.params.authId
 
   const reqBody = await request.json()
-  if (!reqBody || !reqBody.action) throwForbiddenError()
+  if (!reqBody || !reqBody.action) return throwForbiddenError()
 
-  await sendS2SRequest({
+  return sendS2SRequest({
     method: 'POST',
     uri: `/api/v1/users/${authId}/${reqBody.action}`,
   })
-
-  return NextResponse.json({ success: true })
 }
 
 export async function PUT (
   request: Request, context: { params: Params },
 ) {
-  verifyAccessToken()
-
   const authId = context.params.authId
 
   const reqBody = await request.json()
-  if (!reqBody || !reqBody.action) throwForbiddenError()
+  if (!reqBody || !reqBody.action) return throwForbiddenError()
 
-  await sendS2SRequest({
+  return sendS2SRequest({
     method: 'PUT',
     uri: `/api/v1/users/${authId}/${reqBody.action}`,
   })
-
-  return NextResponse.json({ success: true })
 }

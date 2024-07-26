@@ -1,3 +1,4 @@
+import { ClientType } from 'shared'
 import { adapterConfig } from 'configs'
 import {
   timeUtil, validateUtil,
@@ -6,6 +7,7 @@ import {
 export interface Record {
   id: number;
   name: string;
+  type: ClientType;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -13,6 +15,7 @@ export interface Record {
 
 export interface Create {
   name: string;
+  type: ClientType;
 }
 
 export interface Update {
@@ -20,7 +23,7 @@ export interface Update {
   deletedAt?: string | null;
 }
 
-const TableName = adapterConfig.TableName.Role
+const TableName = adapterConfig.TableName.Scope
 
 export const getAll = async (
   db: D1Database, includeDeleted: boolean = false,
@@ -28,8 +31,8 @@ export const getAll = async (
   let query = `SELECT * FROM ${TableName}`
   if (!includeDeleted) query = `${query} WHERE deletedAt IS NULL`
   const stmt = db.prepare(query)
-  const { results: roles }: { results: Record[] } = await stmt.all()
-  return roles
+  const { results: scopes }: { results: Record[] } = await stmt.all()
+  return scopes
 }
 
 export const getById = async (
@@ -42,15 +45,18 @@ export const getById = async (
 
   const stmt = db.prepare(query)
     .bind(id)
-  const role = await stmt.first() as Record | null
-  return role
+  const scope = await stmt.first() as Record | null
+  return scope
 }
 
 export const create = async (
   db: D1Database, create: Create,
 ) => {
-  const query = `INSERT INTO ${TableName} (name) values ($1)`
-  const stmt = db.prepare(query).bind(create.name)
+  const query = `INSERT INTO ${TableName} (name, type) values ($1, $2)`
+  const stmt = db.prepare(query).bind(
+    create.name,
+    create.type,
+  )
   const result = await validateUtil.d1Run(stmt)
   if (!result.success) return null
   const id = result.meta.last_row_id

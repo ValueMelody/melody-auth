@@ -1,5 +1,7 @@
 import { adapterConfig } from 'configs'
-import { timeUtil } from 'utils'
+import {
+  timeUtil, validateUtil,
+} from 'utils'
 
 export interface Record {
   id: number;
@@ -147,7 +149,7 @@ export const create = async (
   const query = `INSERT INTO ${TableName} (${createKeys.join(',')}) values (${createValues.join(',')})`
 
   const stmt = db.prepare(query).bind(...createBinds)
-  const result = await stmt.run()
+  const result = await validateUtil.d1Run(stmt)
   if (!result.success) return null
   const id = result.meta.last_row_id
   return getById(
@@ -182,7 +184,7 @@ export const update = async (
   const query = `UPDATE ${TableName} set ${setQueries.join(',')} where id = $${setQueries.length + 1}`
   const stmt = db.prepare(query).bind(...binds)
 
-  const result = await stmt.run()
+  const result = await validateUtil.d1Run(stmt)
   if (!result.success) return null
   return getById(
     db,

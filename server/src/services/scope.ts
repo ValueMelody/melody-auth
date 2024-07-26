@@ -1,9 +1,69 @@
 import { Context } from 'hono'
-import { typeConfig } from 'configs'
-import { oauthDto } from 'dtos'
-import { appScopeModel } from 'models'
+import {
+  errorConfig, typeConfig,
+} from 'configs'
+import {
+  oauthDto, scopeDto,
+} from 'dtos'
+import {
+  appScopeModel, scopeModel,
+} from 'models'
 import { appService } from 'services'
 import { validateUtil } from 'utils'
+
+export const getScopes = async (
+  c: Context<typeConfig.Context>,
+  includeDeleted: boolean = false,
+) => {
+  const roles = await scopeModel.getAll(
+    c.env.DB,
+    includeDeleted,
+  )
+
+  return roles
+}
+
+export const getScopeById = async (
+  c: Context<typeConfig.Context>,
+  id: number,
+  includeDeleted: boolean = false,
+) => {
+  const scope = await scopeModel.getById(
+    c.env.DB,
+    id,
+    includeDeleted,
+  )
+
+  if (!scope) throw new errorConfig.NotFound()
+
+  return scope
+}
+
+export const createScope = async (
+  c: Context<typeConfig.Context>,
+  dto: scopeDto.PostScopeReqDto,
+) => {
+  const scope = await scopeModel.create(
+    c.env.DB,
+    {
+      name: dto.name, type: dto.type,
+    },
+  )
+  return scope
+}
+
+export const updateScope = async (
+  c: Context<typeConfig.Context>,
+  scopeId: number,
+  dto: scopeDto.PutScopeReqDto,
+) => {
+  const role = await scopeModel.update(
+    c.env.DB,
+    scopeId,
+    { name: dto.name },
+  )
+  return role
+}
 
 export const getAppScopes = async (
   c: Context<typeConfig.Context>, appId: number,

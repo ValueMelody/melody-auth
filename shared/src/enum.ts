@@ -7,14 +7,14 @@ export enum Scope {
   OpenId = 'openid',
   Profile = 'profile',
   OfflineAccess = 'offline_access',
-  READ_USER = 'read_user',
-  WRITE_USER = 'write_user',
-  READ_APP = 'read_app',
-  WRITE_APP = 'write_app',
-  READ_ROLE = 'read_role',
-  WRITE_ROLE= 'write_role',
-  READ_SCOPE = 'read_scope',
-  WRITE_SCOPE = 'write_scope',
+  ReadUser = 'read_user',
+  WriteUser = 'write_user',
+  ReadApp = 'read_app',
+  WriteApp = 'write_app',
+  ReadRole = 'read_role',
+  WriteRole= 'write_role',
+  ReadScope = 'read_scope',
+  WriteScope = 'write_scope',
 }
 
 export enum Role {

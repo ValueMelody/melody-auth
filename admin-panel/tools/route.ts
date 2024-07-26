@@ -3,4 +3,5 @@ export enum Internal {
   Users = '/users',
   Roles = '/roles',
   Apps = '/apps',
+  Scopes = '/scopes',
 }

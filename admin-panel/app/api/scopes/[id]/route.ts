@@ -14,7 +14,7 @@ export async function GET (
 
   return sendS2SRequest({
     method: 'GET',
-    uri: `/api/v1/roles/${id}?include_disabled=true`,
+    uri: `/api/v1/scopes/${id}?include_disabled=true`,
   })
 }
 
@@ -28,7 +28,7 @@ export async function PUT (
 
   return sendS2SRequest({
     method: 'PUT',
-    uri: `/api/v1/roles/${id}`,
+    uri: `/api/v1/scopes/${id}`,
     body: JSON.stringify(reqBody.data),
   })
 }

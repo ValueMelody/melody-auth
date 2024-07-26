@@ -16,6 +16,7 @@ export enum Error {
   WrongGrantType = 'Invalid grant_type',
   WrongRefreshToken = 'Invalid refresh_token',
   WrongScope = 'Insufficient scope',
+  UniqueKey = 'Unique key constraint failed',
 }
 
 export enum Message {
