@@ -31,3 +31,19 @@ export const sendNextRequest = async ({
     errorSignal.value = msg
   }
 }
+
+export const getScopes = async (token: string) => {
+  return sendNextRequest({
+    endpoint: '/api/scopes',
+    method: 'GET',
+    token,
+  })
+}
+
+export const getRoles = async (token: string) => {
+  return sendNextRequest({
+    endpoint: '/api/roles',
+    method: 'GET',
+    token,
+  })
+}

@@ -13,6 +13,7 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
 import { Role } from 'shared'
+import useSignalValue from './useSignalValue'
 import { userInfoSignal } from 'signals'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import { routeTool } from 'tools'
@@ -25,6 +26,8 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     loginRedirect, logoutRedirect,
   } = useAuth()
 
+  const userInfo = useSignalValue(userInfoSignal)
+
   const handleLogout = () => {
     logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
   }
@@ -32,8 +35,8 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   useEffect(
     () => {
       const getUserInfo = async () => {
-        const userInfo = await acquireUserInfo()
-        if (userInfo) userInfoSignal.value = userInfo
+        const info = await acquireUserInfo()
+        if (info) userInfoSignal.value = info
       }
 
       if (isAuthenticated) getUserInfo()
@@ -54,7 +57,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     return
   }
 
-  if (!userInfoSignal.value?.roles?.includes(Role.SuperAdmin)) {
+  if (!userInfo?.roles?.includes(Role.SuperAdmin)) {
     return (
       <div className='w-full h-screen flex flex-col gap-8 items-center justify-center'>
         <Alert color='failure'>

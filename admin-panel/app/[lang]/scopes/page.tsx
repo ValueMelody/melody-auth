@@ -31,11 +31,7 @@ const Page = () => {
     () => {
       const getScopes = async () => {
         const token = await acquireToken()
-        const data = await proxyTool.sendNextRequest({
-          endpoint: '/api/scopes',
-          method: 'GET',
-          token,
-        })
+        const data = await proxyTool.getScopes(token)
         setScopes(data.scopes)
       }
 

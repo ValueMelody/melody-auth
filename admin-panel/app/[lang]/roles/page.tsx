@@ -30,11 +30,7 @@ const Page = () => {
     () => {
       const getRoles = async () => {
         const token = await acquireToken()
-        const data = await proxyTool.sendNextRequest({
-          endpoint: '/api/roles',
-          method: 'GET',
-          token,
-        })
+        const data = await proxyTool.getRoles(token)
         setRoles(data.roles)
       }
 

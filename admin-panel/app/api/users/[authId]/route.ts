@@ -43,5 +43,6 @@ export async function PUT (
   return sendS2SRequest({
     method: 'PUT',
     uri: `/api/v1/users/${authId}/${reqBody.action}`,
+    body: JSON.stringify(reqBody.data),
   })
 }

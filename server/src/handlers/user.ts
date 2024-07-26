@@ -3,6 +3,8 @@ import {
   errorConfig, localeConfig, typeConfig,
 } from 'configs'
 import { userService } from 'services'
+import { userDto } from 'dtos'
+import { validateUtil } from 'utils'
 
 export const getUsers = async (c: Context<typeConfig.Context>) => {
   const includeDeleted = c.req.query('include_disabled') === 'true'
@@ -55,6 +57,22 @@ export const disableUser = async (c: Context<typeConfig.Context>) => {
   await userService.disableUser(
     c,
     authId,
+  )
+  return c.json({ success: true })
+}
+
+export const updateRoles = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  const reqBody = await c.req.json()
+
+  const bodyDto = new userDto.PutUserRolesReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  await userService.updateRoles(
+    c,
+    authId,
+    bodyDto.roles,
   )
   return c.json({ success: true })
 }

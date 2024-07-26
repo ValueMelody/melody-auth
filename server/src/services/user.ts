@@ -10,7 +10,9 @@ import { identityDto } from 'dtos'
 import {
   PostAuthorizeReqWithNamesDto, PostAuthorizeReqWithPasswordDto,
 } from 'dtos/identity'
-import { userModel } from 'models'
+import {
+  roleModel, userModel, userRoleModel,
+} from 'models'
 import {
   emailService, roleService,
 } from 'services'
@@ -291,4 +293,65 @@ export const disableUser = async (
     user.id,
     { deletedAt: timeUtil.getDbCurrentTime() },
   )
+}
+
+export const updateRoles = async (
+  c: Context<typeConfig.Context>,
+  authId: string,
+  roles: string[],
+) => {
+  const user = await getUserByAuthId(
+    c,
+    authId,
+  )
+
+  const allRoles = await roleModel.getAll(c.env.DB)
+  const targetRoles = allRoles.filter((role) => roles.includes(role.name))
+
+  const includeDeleted = true
+  const userRoles = await userRoleModel.getAllByUserId(
+    c.env.DB,
+    user.id,
+    includeDeleted,
+  )
+
+  const recordsToDisable = userRoles.filter((userRole) => {
+    if (userRole.deletedAt) return false
+    return targetRoles.every((role) => role.id !== userRole.roleId)
+  })
+
+  const recordsToEnable = userRoles.filter((userRole) => {
+    if (!userRole.deletedAt) return false
+    return targetRoles.some((role) => role.id === userRole.roleId)
+  })
+
+  const recordsToCreate = targetRoles.filter((role) => userRoles.every((userRole) => userRole.roleId !== role.id))
+
+  const deletedAt = timeUtil.getDbCurrentTime()
+  for (const recordToDisable of recordsToDisable) {
+    await userRoleModel.update(
+      c.env.DB,
+      recordToDisable.id,
+      { deletedAt },
+    )
+  }
+
+  for (const recordToEnable of recordsToEnable) {
+    await userRoleModel.update(
+      c.env.DB,
+      recordToEnable.id,
+      { deletedAt: null },
+    )
+  }
+
+  for (const recordToCreate of recordsToCreate) {
+    await userRoleModel.create(
+      c.env.DB,
+      {
+        userId: user.id, roleId: recordToCreate.id,
+      },
+    )
+  }
+
+  return true
 }

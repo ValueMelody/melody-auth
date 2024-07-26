@@ -39,4 +39,10 @@ export const load = (app: typeConfig.App) => {
     authMiddleware.s2sWriteUser,
     userHandler.disableUser,
   )
+
+  app.put(
+    `${BaseRoute}/:authId/roles`,
+    authMiddleware.s2sWriteUser,
+    userHandler.updateRoles,
+  )
 }
