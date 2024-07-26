@@ -21,7 +21,7 @@ export const verifyAccessToken = () => {
   const headersList = headers()
   const authHeader = headersList.get('authorization')
   const accessToken = authHeader?.split(' ')[1]
-  console.log(accessToken)
+
   if (!accessToken) return false
 
   const tokenBody = jwt.verify(
