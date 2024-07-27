@@ -105,11 +105,7 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
-  const {
-    NAMES_IS_REQUIRED: namesIsRequired,
-    ENABLE_SIGN_UP: enableSignUp,
-  } = env(c)
-  if (!enableSignUp) throw new errorConfig.UnAuthorized()
+  const { NAMES_IS_REQUIRED: namesIsRequired } = env(c)
 
   const reqBody = await c.req.json()
   const parsedBody = {
@@ -225,15 +221,15 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   })
   await validateUtil.dto(bodyDto)
 
+  const user = await userService.verifyPasswordSignIn(
+    c,
+    bodyDto,
+  )
+
   const app = await appService.verifySPAClientRequest(
     c,
     bodyDto.clientId,
     bodyDto.redirectUri,
-  )
-
-  const user = await userService.verifyPasswordSignIn(
-    c,
-    bodyDto,
   )
 
   const request = new oauthDto.GetAuthorizeReqDto(bodyDto)

@@ -32,6 +32,9 @@ export const getUserInfo = async (
   if (!user) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
+  if (!user.isActive) {
+    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  }
 
   const result: GetUserInfoRes = {
     authId: user.authId,
@@ -117,6 +120,9 @@ export const verifyPasswordSignIn = async (
   if (!user) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
+  if (!user.isActive) {
+    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  }
   return user
 }
 
@@ -151,6 +157,8 @@ export const sendEmailVerification = async (
   c: Context<typeConfig.Context>,
   user: userModel.Record | userModel.ApiRecord,
 ): Promise<true> => {
+  if (!user.isActive) throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+
   const verificationCode = await emailService.sendEmailVerification(
     c,
     user,
@@ -179,6 +187,9 @@ export const verifyUserEmail = async (
   if (!user || !user.emailVerificationCode || user.emailVerificationCode !== bodyDto.code) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
   }
+  if (!user.isActive) {
+    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  }
 
   const currentTimeStamp = timeUtil.getCurrentTimestamp()
   if (!user.emailVerificationCodeExpiresOn || currentTimeStamp > user.emailVerificationCodeExpiresOn) {
@@ -206,7 +217,7 @@ export const sendPasswordReset = async (
     c.env.DB,
     email,
   )
-  if (!user) return true
+  if (!user || !user.isActive) return true
 
   const resetCode = await emailService.sendPasswordReset(
     c,
@@ -236,6 +247,9 @@ export const resetUserPassword = async (
   )
   if (!user || !user.passwordResetCode || user.passwordResetCode !== bodyDto.code) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  }
+  if (!user.isActive) {
+    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
   const currentTimeStamp = timeUtil.getCurrentTimestamp()

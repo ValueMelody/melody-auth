@@ -6,6 +6,16 @@ import {
   errorConfig, typeConfig,
 } from 'configs'
 
+export const enableSignUp = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_SIGN_UP: enableSignUp } = env(c)
+
+  if (!enableSignUp) throw new errorConfig.Forbidden()
+
+  await next()
+}
+
 export const enablePasswordReset = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

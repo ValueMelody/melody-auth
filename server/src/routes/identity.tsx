@@ -23,12 +23,14 @@ export const load = (app: typeConfig.App) => {
 
   app.get(
     `${BaseRoute}/authorize-account`,
+    configMiddleware.enableSignUp,
     identityHandler.getAuthorizeAccount,
   )
 
   app.post(
     `${BaseRoute}/authorize-account`,
     setupMiddleware.validOrigin,
+    configMiddleware.enableSignUp,
     identityHandler.postAuthorizeAccount,
   )
 
