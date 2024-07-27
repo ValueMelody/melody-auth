@@ -6,7 +6,7 @@ CREATE TABLE [user_app_consent] (
   "createdAt" text DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" text DEFAULT CURRENT_TIMESTAMP,
   "deletedAt" text DEFAULT null,
-  UNIQUE(userId, appId)
   FOREIGN KEY(userId) REFERENCES user(id)
   FOREIGN KEY(appId) REFERENCES app(id)
 );
+CREATE UNIQUE INDEX idx_unique_user_app ON user_app_consent (userId, appId) WHERE deletedAt IS NULL;

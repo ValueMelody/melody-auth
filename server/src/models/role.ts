@@ -1,4 +1,6 @@
-import { adapterConfig } from 'configs'
+import {
+  adapterConfig, errorConfig,
+} from 'configs'
 import {
   formatUtil,
   validateUtil,
@@ -18,16 +20,14 @@ export interface Create {
 
 export interface Update {
   name?: string;
+  updatedAt?: string;
   deletedAt?: string | null;
 }
 
 const TableName = adapterConfig.TableName.Role
 
-export const getAll = async (
-  db: D1Database, includeDeleted: boolean = false,
-) => {
-  let query = `SELECT * FROM ${TableName}`
-  if (!includeDeleted) query = `${query} WHERE deletedAt IS NULL`
+export const getAll = async (db: D1Database): Promise<Record[]> => {
+  const query = `SELECT * FROM ${TableName} WHERE deletedAt IS NULL ORDER BY id ASC`
   const stmt = db.prepare(query)
   const { results: roles }: { results: Record[] } = await stmt.all()
   return roles
@@ -36,10 +36,8 @@ export const getAll = async (
 export const getById = async (
   db: D1Database,
   id: number,
-  includeDeleted: boolean = false,
-) => {
-  let query = `SELECT * FROM ${TableName} WHERE id = $1`
-  if (!includeDeleted) query = `${query} AND deletedAt IS NULL`
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND deletedAt IS NULL`
 
   const stmt = db.prepare(query)
     .bind(id)
@@ -49,23 +47,25 @@ export const getById = async (
 
 export const create = async (
   db: D1Database, create: Create,
-) => {
+): Promise<Record> => {
   const query = `INSERT INTO ${TableName} (name) values ($1)`
   const stmt = db.prepare(query).bind(create.name)
   const result = await validateUtil.d1Run(stmt)
-  if (!result.success) return null
+  if (!result.success) throw new errorConfig.InternalServerError()
   const id = result.meta.last_row_id
-  return getById(
+  const record = await getById(
     db,
     id,
   )
+  if (!record) throw new errorConfig.InternalServerError()
+  return record
 }
 
 export const update = async (
   db: D1Database, id: number, update: Update,
-) => {
+): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
-    'name', 'deletedAt',
+    'name', 'deletedAt', 'updatedAt',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,
@@ -76,9 +76,11 @@ export const update = async (
   )
 
   const result = await validateUtil.d1Run(stmt)
-  if (!result.success) return null
-  return getById(
+  if (!result.success) throw new errorConfig.InternalServerError()
+  const record = await getById(
     db,
     id,
   )
+  if (!record) throw new errorConfig.InternalServerError()
+  return record
 }

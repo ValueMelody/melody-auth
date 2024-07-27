@@ -14,16 +14,16 @@ import { scopeService } from 'services'
 import { appDto } from 'dtos'
 
 export const verifySPAClientRequest = async (
-  c: Context<typeConfig.Context>, clientId: string, redirectUri: string,
-) => {
+  c: Context<typeConfig.Context>,
+  clientId: string,
+  redirectUri: string,
+): Promise<appModel.Record> => {
   const app = await appModel.getByClientId(
     c.env.DB,
     clientId,
   )
 
-  if (!app) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
-  }
+  if (!app) throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
 
   if (app.type !== ClientType.SPA) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
@@ -35,15 +35,16 @@ export const verifySPAClientRequest = async (
 }
 
 export const verifyS2SClientRequest = async (
-  c: Context<typeConfig.Context>, clientId: string, clientSecret: string,
-) => {
+  c: Context<typeConfig.Context>,
+  clientId: string,
+  clientSecret: string,
+): Promise<appModel.Record> => {
   const app = await appModel.getByClientId(
     c.env.DB,
     clientId,
   )
-  if (!app) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
-  }
+  if (!app) throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
+
   if (app.type !== ClientType.S2S) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
   }
@@ -53,14 +54,8 @@ export const verifyS2SClientRequest = async (
   return app
 }
 
-export const getApps = async (
-  c: Context<typeConfig.Context>,
-  includeDeleted: boolean = false,
-) => {
-  const apps = await appModel.getAll(
-    c.env.DB,
-    includeDeleted,
-  )
+export const getApps = async (c: Context<typeConfig.Context>): Promise<appModel.Record[]> => {
+  const apps = await appModel.getAll(c.env.DB)
 
   return apps
 }
@@ -68,12 +63,10 @@ export const getApps = async (
 export const getAppById = async (
   c: Context<typeConfig.Context>,
   id: number,
-  includeDeleted: boolean = false,
-) => {
+): Promise<appModel.ApiRecord> => {
   const app = await appModel.getById(
     c.env.DB,
     id,
-    includeDeleted,
   )
 
   if (!app) throw new errorConfig.NotFound()
@@ -82,11 +75,10 @@ export const getAppById = async (
     c,
     app.id,
   )
-  const result = appModel.convertToApiRecord(
-    app,
-    scopes,
-  )
-  return result
+
+  return {
+    ...app, scopes,
+  }
 }
 
 export const createApp = async (
@@ -102,24 +94,21 @@ export const createApp = async (
     },
   )
 
-  if (!app) throw new errorConfig.InternalServerError()
-
   const scopes = dto.scopes
-  if (scopes.length) {
-    const allScopes = await scopeModel.getAll(c.env.DB)
-    const targetScopes = allScopes.filter((scope) => scopes.includes(scope.name))
-    for (const scope of targetScopes) {
-      await appScopeModel.create(
-        c.env.DB,
-        {
-          appId: app.id, scopeId: scope.id,
-        },
-      )
-    }
+  const allScopes = scopes.length ? await scopeModel.getAll(c.env.DB) : []
+  const targetScopes = allScopes.filter((scope) => scopes.includes(scope.name))
+  for (const scope of targetScopes) {
+    await appScopeModel.create(
+      c.env.DB,
+      {
+        appId: app.id, scopeId: scope.id,
+      },
+    )
   }
+
   return {
     ...app,
-    scopes,
+    scopes: targetScopes.map((scope) => scope.name),
   }
 }
 
@@ -127,47 +116,53 @@ export const updateApp = async (
   c: Context<typeConfig.Context>,
   appId: number,
   dto: appDto.PutAppReqDto,
-) => {
+): Promise<appModel.ApiRecord> => {
   const app = await appModel.update(
     c.env.DB,
     appId,
-    { redirectUris: dto.redirectUris.join(',') },
-  )
-  return app
-}
-
-export const enableApp = async (
-  c: Context<typeConfig.Context>,
-  id: number,
-) => {
-  const includeDeleted = true
-  const app = await getAppById(
-    c,
-    id,
-    includeDeleted,
+    {
+      redirectUris: dto.redirectUris ? dto.redirectUris.join(',') : undefined,
+      name: dto.name,
+      isActive: dto.isActive,
+    },
   )
 
-  if (!app.deletedAt) throw new errorConfig.NotFound(localeConfig.Error.NoApp)
-
-  await appModel.update(
+  const appScopes = await appScopeModel.getAllByAppId(
     c.env.DB,
     app.id,
-    { deletedAt: null },
-  )
-}
-
-export const disableApp = async (
-  c: Context<typeConfig.Context>,
-  id: number,
-) => {
-  const app = await getAppById(
-    c,
-    id,
   )
 
-  await appModel.update(
-    c.env.DB,
-    app.id,
-    { deletedAt: timeUtil.getDbCurrentTime() },
-  )
+  if (dto.scopes) {
+    const scopesToDelete = appScopes.filter((appScope) => !dto.scopes?.includes(appScope.scopeName))
+
+    const allScopes = await scopeModel.getAll(c.env.DB)
+    const scopeNamesToCreate = dto.scopes.filter((scope) => appScopes.every((appScope) => appScope.scopeName !== scope))
+    const scopesToCreate = scopeNamesToCreate.map((name) => {
+      const matched = allScopes.find((scope) => scope.name === name)
+      if (!matched) throw new errorConfig.InternalServerError()
+      return matched
+    })
+
+    const currentTime = timeUtil.getDbCurrentTime()
+    for (const scopeToDelete of scopesToDelete) {
+      await appScopeModel.update(
+        c.env.DB,
+        scopeToDelete.id,
+        { deletedAt: currentTime },
+      )
+    }
+    for (const scopeToCreate of scopesToCreate) {
+      await appScopeModel.create(
+        c.env.DB,
+        {
+          appId: app.id, scopeId: scopeToCreate.id,
+        },
+      )
+    }
+  }
+
+  return {
+    ...app,
+    scopes: dto.scopes ?? appScopes.map((appScope) => appScope.scopeName),
+  }
 }

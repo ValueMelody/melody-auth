@@ -22,7 +22,7 @@ import {
 
 export const getUserInfo = async (
   c: Context<typeConfig.Context>, authId: string,
-) => {
+): Promise<GetUserInfoRes> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
     authId,
@@ -59,14 +59,8 @@ export const getUserInfo = async (
   return result
 }
 
-export const getUsers = async (
-  c: Context<typeConfig.Context>,
-  includeDeleted: boolean = false,
-) => {
-  const users = await userModel.getAll(
-    c.env.DB,
-    includeDeleted,
-  )
+export const getUsers = async (c: Context<typeConfig.Context>): Promise<userModel.ApiRecord[]> => {
+  const users = await userModel.getAll(c.env.DB)
 
   const { ENABLE_NAMES: enableNames } = env(c)
 
@@ -81,12 +75,10 @@ export const getUsers = async (
 export const getUserByAuthId = async (
   c: Context<typeConfig.Context>,
   authId: string,
-  includeDeleted: boolean = false,
-) => {
+): Promise<userModel.ApiRecord> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
     authId,
-    includeDeleted,
   )
   if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
 
@@ -111,8 +103,9 @@ export const getUserByAuthId = async (
 }
 
 export const verifyPasswordSignIn = async (
-  c: Context<typeConfig.Context>, bodyDto: PostAuthorizeReqWithPasswordDto,
-) => {
+  c: Context<typeConfig.Context>,
+  bodyDto: PostAuthorizeReqWithPasswordDto,
+): Promise<userModel.Record> => {
   const password = await cryptoUtil.sha256(bodyDto.password)
   const user = await userModel.getByEmailAndPassword(
     c.env.DB,
@@ -126,18 +119,17 @@ export const verifyPasswordSignIn = async (
 }
 
 export const createAccountWithPassword = async (
-  c: Context<typeConfig.Context>, bodyDto: PostAuthorizeReqWithNamesDto,
-) => {
+  c: Context<typeConfig.Context>,
+  bodyDto: PostAuthorizeReqWithNamesDto,
+): Promise<userModel.Record> => {
   const password = await cryptoUtil.sha256(bodyDto.password)
 
-  const includeDeleted = true
   const user = await userModel.getByEmail(
     c.env.DB,
     bodyDto.email,
-    includeDeleted,
   )
 
-  if (user) throw new Forbidden(user.deletedAt ? localeConfig.Error.UserDisabled : localeConfig.Error.EmailTaken)
+  if (user) throw new Forbidden(localeConfig.Error.EmailTaken)
 
   const newUser = await userModel.create(
     c.env.DB,
@@ -150,15 +142,13 @@ export const createAccountWithPassword = async (
     },
   )
 
-  if (!newUser) {
-    throw new errorConfig.InternalServerError(localeConfig.Error.CanNotCreateUser)
-  }
   return newUser
 }
 
 export const sendEmailVerification = async (
-  c: Context<typeConfig.Context>, user: userModel.Record | userModel.ApiRecord,
-) => {
+  c: Context<typeConfig.Context>,
+  user: userModel.Record | userModel.ApiRecord,
+): Promise<true> => {
   const verificationCode = await emailService.sendEmailVerification(
     c,
     user,
@@ -173,12 +163,13 @@ export const sendEmailVerification = async (
       },
     )
   }
+  return true
 }
 
 export const verifyUserEmail = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostVerifyEmailReqDto,
-) => {
+): Promise<true> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
     bodyDto.id,
@@ -201,11 +192,14 @@ export const verifyUserEmail = async (
       emailVerificationCodeExpiresOn: null,
     },
   )
+
+  return true
 }
 
 export const sendPasswordReset = async (
-  c: Context<typeConfig.Context>, email: string,
-) => {
+  c: Context<typeConfig.Context>,
+  email: string,
+): Promise<true> => {
   const user = await userModel.getByEmail(
     c.env.DB,
     email,
@@ -233,7 +227,7 @@ export const sendPasswordReset = async (
 export const resetUserPassword = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostAuthorizeResetReqDto,
-) => {
+): Promise<true> => {
   const user = await userModel.getByEmail(
     c.env.DB,
     bodyDto.email,
@@ -257,49 +251,14 @@ export const resetUserPassword = async (
       passwordResetCodeExpiresOn: null,
     },
   )
-}
-
-export const enableUser = async (
-  c: Context<typeConfig.Context>,
-  authId: string,
-) => {
-  const includeDeleted = true
-  const user = await getUserByAuthId(
-    c,
-    authId,
-    includeDeleted,
-  )
-
-  if (!user.deletedAt) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
-
-  await userModel.update(
-    c.env.DB,
-    user.id,
-    { deletedAt: null },
-  )
-}
-
-export const disableUser = async (
-  c: Context<typeConfig.Context>,
-  authId: string,
-) => {
-  const user = await getUserByAuthId(
-    c,
-    authId,
-  )
-
-  await userModel.update(
-    c.env.DB,
-    user.id,
-    { deletedAt: timeUtil.getDbCurrentTime() },
-  )
+  return true
 }
 
 export const updateRoles = async (
   c: Context<typeConfig.Context>,
   authId: string,
   roles: string[],
-) => {
+): Promise<true> => {
   const user = await getUserByAuthId(
     c,
     authId,
@@ -308,39 +267,20 @@ export const updateRoles = async (
   const allRoles = await roleModel.getAll(c.env.DB)
   const targetRoles = allRoles.filter((role) => roles.includes(role.name))
 
-  const includeDeleted = true
   const userRoles = await userRoleModel.getAllByUserId(
     c.env.DB,
     user.id,
-    includeDeleted,
   )
 
-  const recordsToDisable = userRoles.filter((userRole) => {
-    if (userRole.deletedAt) return false
-    return targetRoles.every((role) => role.id !== userRole.roleId)
-  })
-
-  const recordsToEnable = userRoles.filter((userRole) => {
-    if (!userRole.deletedAt) return false
-    return targetRoles.some((role) => role.id === userRole.roleId)
-  })
-
+  const recordsToDisable = userRoles.filter((userRole) => targetRoles.every((role) => role.id !== userRole.roleId))
   const recordsToCreate = targetRoles.filter((role) => userRoles.every((userRole) => userRole.roleId !== role.id))
 
-  const deletedAt = timeUtil.getDbCurrentTime()
+  const currentTime = timeUtil.getDbCurrentTime()
   for (const recordToDisable of recordsToDisable) {
     await userRoleModel.update(
       c.env.DB,
       recordToDisable.id,
-      { deletedAt },
-    )
-  }
-
-  for (const recordToEnable of recordsToEnable) {
-    await userRoleModel.update(
-      c.env.DB,
-      recordToEnable.id,
-      { deletedAt: null },
+      { deletedAt: currentTime },
     )
   }
 

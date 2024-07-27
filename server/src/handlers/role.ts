@@ -5,21 +5,15 @@ import { roleDto } from 'dtos'
 import { validateUtil } from 'utils'
 
 export const getRoles = async (c: Context<typeConfig.Context>) => {
-  const includeDeleted = c.req.query('include_disabled') === 'true'
-  const roles = await roleService.getRoles(
-    c,
-    includeDeleted,
-  )
+  const roles = await roleService.getRoles(c)
   return c.json({ roles })
 }
 
 export const getRole = async (c: Context<typeConfig.Context>) => {
-  const includeDeleted = c.req.query('include_disabled') === 'true'
   const id = Number(c.req.param('id'))
   const role = await roleService.getRoleById(
     c,
     id,
-    includeDeleted,
   )
   return c.json({ role })
 }

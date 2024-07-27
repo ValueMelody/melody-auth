@@ -6,8 +6,8 @@ CREATE TABLE [user_role] (
   "createdAt" text DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" text DEFAULT CURRENT_TIMESTAMP,
   "deletedAt" text DEFAULT null,
-  UNIQUE(userId, roleId)
   FOREIGN KEY(userId) REFERENCES user(id)
   FOREIGN KEY(roleId) REFERENCES role(id)
 );
+CREATE UNIQUE INDEX idx_unique_user_role ON user_role (userId, roleId) WHERE deletedAt IS NULL;
 INSERT INTO user_role ("userId", "roleId") values (1, 1);

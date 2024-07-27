@@ -11,27 +11,19 @@ import {
 import { appService } from 'services'
 import { validateUtil } from 'utils'
 
-export const getScopes = async (
-  c: Context<typeConfig.Context>,
-  includeDeleted: boolean = false,
-) => {
-  const roles = await scopeModel.getAll(
-    c.env.DB,
-    includeDeleted,
-  )
+export const getScopes = async (c: Context<typeConfig.Context>): Promise<scopeModel.Record[]> => {
+  const scopes = await scopeModel.getAll(c.env.DB)
 
-  return roles
+  return scopes
 }
 
 export const getScopeById = async (
   c: Context<typeConfig.Context>,
   id: number,
-  includeDeleted: boolean = false,
-) => {
+): Promise<scopeModel.Record> => {
   const scope = await scopeModel.getById(
     c.env.DB,
     id,
-    includeDeleted,
   )
 
   if (!scope) throw new errorConfig.NotFound()
@@ -42,7 +34,7 @@ export const getScopeById = async (
 export const createScope = async (
   c: Context<typeConfig.Context>,
   dto: scopeDto.PostScopeReqDto,
-) => {
+): Promise<scopeModel.Record> => {
   const scope = await scopeModel.create(
     c.env.DB,
     {
@@ -56,7 +48,7 @@ export const updateScope = async (
   c: Context<typeConfig.Context>,
   scopeId: number,
   dto: scopeDto.PutScopeReqDto,
-) => {
+): Promise<scopeModel.Record> => {
   const role = await scopeModel.update(
     c.env.DB,
     scopeId,
@@ -67,7 +59,7 @@ export const updateScope = async (
 
 export const getAppScopes = async (
   c: Context<typeConfig.Context>, appId: number,
-) => {
+): Promise<string[]> => {
   const appScopes = await appScopeModel.getAllByAppId(
     c.env.DB,
     appId,
@@ -78,7 +70,7 @@ export const getAppScopes = async (
 
 export const verifyAppScopes = async (
   c: Context<typeConfig.Context>, appId: number, scopes: string[],
-) => {
+): Promise<string[]> => {
   const validScopes = await getAppScopes(
     c,
     appId,
@@ -86,7 +78,7 @@ export const verifyAppScopes = async (
   return scopes.filter((scope) => validScopes.includes(scope))
 }
 
-export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>) => {
+export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeReqDto> => {
   const queryDto = new oauthDto.GetAuthorizeReqDto({
     clientId: c.req.query('client_id') ?? '',
     redirectUri: c.req.query('redirect_uri') ?? '',

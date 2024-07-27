@@ -1,12 +1,13 @@
 import {
+  IsBoolean,
   IsEnum,
-  IsNotEmpty, IsString, Length,
+  IsNotEmpty, IsOptional, IsString, Length,
 } from 'class-validator'
 import { ClientType } from 'shared'
 import { formatUtil } from 'utils'
 
-const formatRedirectUri = (redirectUris?: string[]) => redirectUris
-  ?.map((uri) => formatUtil.stripEndingSlash(uri.trim().toLowerCase())) ?? []
+const formatRedirectUri = (redirectUris: string[]) => redirectUris
+  .map((uri) => formatUtil.stripEndingSlash(uri.trim().toLowerCase())) ?? []
 
 export class PostAppReqDto {
   @IsString()
@@ -18,12 +19,15 @@ export class PostAppReqDto {
     name: string
 
   @IsEnum(ClientType)
+  @IsNotEmpty()
     type: ClientType
 
   @IsString({ each: true })
+  @IsNotEmpty()
     scopes: string[]
 
   @IsString({ each: true })
+  @IsNotEmpty()
     redirectUris: string[]
 
   constructor (dto: PostAppReqDto) {
@@ -36,9 +40,29 @@ export class PostAppReqDto {
 
 export class PutAppReqDto {
   @IsString({ each: true })
-    redirectUris: string[]
+  @IsOptional()
+    redirectUris?: string[]
+
+  @IsString()
+  @Length(
+    1,
+    50,
+  )
+  @IsOptional()
+    name?: string
+
+  @IsBoolean()
+  @IsOptional()
+    isActive?: boolean
+
+  @IsString({ each: true })
+  @IsOptional()
+    scopes?: string[]
 
   constructor (dto: PutAppReqDto) {
-    this.redirectUris = formatRedirectUri(dto.redirectUris)
+    this.redirectUris = dto.redirectUris ? formatRedirectUri(dto.redirectUris) : undefined
+    this.name = dto.name
+    this.isActive = dto.isActive
+    this.scopes = dto.scopes
   }
 }

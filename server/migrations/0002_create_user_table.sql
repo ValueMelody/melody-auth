@@ -11,9 +11,10 @@ CREATE TABLE [user] (
   "emailVerificationCodeExpiresOn" integer DEFAULT null,
   "passwordResetCode" text DEFAULT null,
   "passwordResetCodeExpiresOn" integer DEFAULT null,
+  "isActive" integer DEFAULT 1,
   "createdAt" text DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" text DEFAULT CURRENT_TIMESTAMP,
-  "deletedAt" text DEFAULT null,
-  UNIQUE(authId)
+  "deletedAt" text DEFAULT null
 );
+CREATE UNIQUE INDEX idx_unique_user_authId ON user (authId) WHERE deletedAt IS NULL;
 INSERT INTO user ("authId", "email", "password") values ("d638bb77-2883-4bce-ad4c-9fe01319fb86", "byn9826@gmail.com", "1d707811988069ca760826861d6d63a10e8c3b7f171c4441a6472ea58c11711b");

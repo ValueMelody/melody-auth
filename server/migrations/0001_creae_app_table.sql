@@ -107,8 +107,8 @@ CREATE TABLE [app] (
   "createdAt" text DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" text DEFAULT CURRENT_TIMESTAMP,
   "deletedAt" text DEFAULT null,
-  UNIQUE(clientId)
-  UNIQUE(name)
+  "isActive" integer DEFAULT 1
 );
+CREATE UNIQUE INDEX idx_unique_app_clientId ON app (clientId) WHERE deletedAt IS NULL;
 INSERT INTO app ("name", "type", "redirectUris") values ("Admin Panel (SPA)", "spa", "http://localhost:3000/en/dashboard");
 INSERT INTO app ("name", "type") values ("Admin Panel (S2S)", "s2s");

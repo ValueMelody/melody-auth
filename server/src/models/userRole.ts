@@ -15,6 +15,7 @@ export interface Record {
 }
 
 export interface Update {
+  updatedAt?: string;
   deletedAt?: string | null;
 }
 
@@ -28,18 +29,16 @@ const TableName = adapterConfig.TableName.UserRole
 export const getAllByUserId = async (
   db: D1Database,
   userId: number,
-  includeDeleted: boolean = false,
-) => {
-  let query = `
+): Promise<Record[]> => {
+  const query = `
     SELECT ${TableName}.id, ${TableName}.userId,
     ${TableName}.roleId, ${adapterConfig.TableName.Role}.name as roleName,
     ${TableName}.createdAt, ${TableName}.updatedAt,
     ${TableName}.deletedAt
     FROM ${TableName} LEFT JOIN ${adapterConfig.TableName.Role}
       ON ${adapterConfig.TableName.Role}.id = ${TableName}.roleId
-    WHERE userId = $1
+    WHERE userId = $1 AND ${TableName}.deletedAt IS NULL
   `
-  if (!includeDeleted) query = `${query} AND ${TableName}.deletedAt IS NULL`
 
   const stmt = db.prepare(query)
     .bind(userId)
@@ -49,7 +48,7 @@ export const getAllByUserId = async (
 
 export const create = async (
   db: D1Database, create: Create,
-) => {
+): Promise<true> => {
   const query = `INSERT INTO ${TableName} (userId, roleId) values ($1, $2)`
   const stmt = db.prepare(query).bind(
     create.userId,
@@ -61,9 +60,9 @@ export const create = async (
 
 export const update = async (
   db: D1Database, id: number, update: Update,
-) => {
+): Promise<true> => {
   const updateKeys: (keyof Update)[] = [
-    'deletedAt',
+    'deletedAt', 'updatedAt',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,
