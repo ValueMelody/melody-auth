@@ -19,7 +19,7 @@ const Setup = () => {
     () => {
       if (initialized.current) return
 
-      initialized.current = true
+      if (state.checkedStorage) initialized.current = true
 
       if (state.accessTokenStorage) return
 
@@ -30,30 +30,32 @@ const Setup = () => {
         return
       }
 
-      exchangeTokenByAuthCode(state.config)
-        .then((res) => {
-          if (res?.accessTokenStorage) {
-            dispatch({
-              type: 'setAccessTokenStorage', payload: res.accessTokenStorage,
-            })
-          } else {
+      if (state.checkedStorage) {
+        exchangeTokenByAuthCode(state.config)
+          .then((res) => {
+            if (res?.accessTokenStorage) {
+              dispatch({
+                type: 'setAccessTokenStorage', payload: res.accessTokenStorage,
+              })
+            } else {
+              dispatch({
+                type: 'setIsAuthenticating', payload: false,
+              })
+            }
+            if (res?.refreshTokenStorage) {
+              dispatch({
+                type: 'setRefreshTokenStorage', payload: res.refreshTokenStorage,
+              })
+            }
+          })
+          .catch(() => {
             dispatch({
               type: 'setIsAuthenticating', payload: false,
             })
-          }
-          if (res?.refreshTokenStorage) {
-            dispatch({
-              type: 'setRefreshTokenStorage', payload: res.refreshTokenStorage,
-            })
-          }
-        })
-        .catch(() => {
-          dispatch({
-            type: 'setIsAuthenticating', payload: false,
           })
-        })
+      }
     },
-    [dispatch, state.accessTokenStorage, state.config, acquireToken, state.refreshTokenStorage],
+    [dispatch, state.checkedStorage, state.accessTokenStorage, state.config, acquireToken, state.refreshTokenStorage],
   )
 
   return null

@@ -26,7 +26,9 @@ const reducer = (
     }
   case 'setRefreshTokenStorage':
     return {
-      ...state, refreshTokenStorage: action.payload,
+      ...state,
+      refreshTokenStorage: action.payload,
+      checkedStorage: true,
     }
   case 'setUserInfo':
     return {
@@ -35,6 +37,10 @@ const reducer = (
   case 'setIsAuthenticating':
     return {
       ...state, isAuthenticating: action.payload,
+    }
+  case 'setCheckedStorage':
+    return {
+      ...state, checkedStorage: action.payload,
     }
   }
 }
@@ -52,23 +58,30 @@ export const AuthProvider = ({
       userInfo: null,
       accessTokenStorage: null,
       refreshTokenStorage: null,
+      checkedStorage: false,
     },
   )
 
   useEffect(
     () => {
       if (typeof window === 'undefined') return
+
       const storage = config.storage === 'localStorage' ? window.localStorage : window.sessionStorage
       const stored = storage.getItem(StorageKey.RefreshToken)
-      if (!stored) return
-      const parsed: RefreshTokenStorage = JSON.parse(stored)
-      const currentTimestamp = new Date().getTime() / 1000
-      const isValid = parsed.refreshToken && parsed.expiresOn && parsed.expiresOn >= currentTimestamp + 5
-      if (isValid) {
-        dispatch({
-          type: 'setRefreshTokenStorage', payload: parsed,
-        })
+      if (stored) {
+        const parsed: RefreshTokenStorage = JSON.parse(stored)
+        const currentTimestamp = new Date().getTime() / 1000
+        const isValid = parsed.refreshToken && parsed.expiresOn && parsed.expiresOn >= currentTimestamp + 5
+        if (isValid) {
+          dispatch({
+            type: 'setRefreshTokenStorage', payload: parsed,
+          })
+          return
+        }
       }
+      dispatch({
+        type: 'setCheckedStorage', payload: true,
+      })
     },
     [config.storage],
   )
