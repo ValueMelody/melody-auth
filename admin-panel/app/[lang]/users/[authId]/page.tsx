@@ -176,7 +176,7 @@ const Page = () => {
               <Table.Cell>{t('users.roles')}</Table.Cell>
               <Table.Cell>
                 <div className='flex items-center gap-6'>
-                  {roles.map((role) => (
+                  {roles?.map((role) => (
                     <div
                       key={role.id}
                       className='flex items-center gap-2'>

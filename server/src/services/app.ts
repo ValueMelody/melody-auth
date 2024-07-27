@@ -24,6 +24,7 @@ export const verifySPAClientRequest = async (
   )
 
   if (!app) throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
+  if (!app.isActive) throw new errorConfig.Forbidden(localeConfig.Error.AppDisabled)
 
   if (app.type !== ClientType.SPA) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
@@ -44,6 +45,7 @@ export const verifyS2SClientRequest = async (
     clientId,
   )
   if (!app) throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
+  if (!app.isActive) throw new errorConfig.Forbidden(localeConfig.Error.AppDisabled)
 
   if (app.type !== ClientType.S2S) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
