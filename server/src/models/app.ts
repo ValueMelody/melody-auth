@@ -41,7 +41,7 @@ export interface Create {
 export interface Update {
   name?: string;
   redirectUris?: string;
-  isActive?: boolean;
+  isActive?: number;
   deletedAt?: string | null;
   updatedAt?: string;
 }
@@ -67,7 +67,7 @@ export const getByClientId = async (
 }
 
 export const getAll = async (db: D1Database): Promise<Record[]> => {
-  const query = `SELECT * FROM ${TableName} WHERE deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE deletedAt IS NULL ORDER BY id ASC`
   const stmt = db.prepare(query)
   const { results: apps }: { results: Raw[] } = await stmt.all()
   return apps.map((app) => format(app))

@@ -8,7 +8,6 @@ import {
 } from 'react'
 import { Scope } from 'shared'
 import useCurrentLocale from 'hooks/useCurrentLocale'
-import EntityStatusLabel from 'components/EntityStatusLabel'
 import {
   proxyTool, routeTool,
 } from 'tools'
@@ -52,7 +51,6 @@ const Page = () => {
         <Table.Head>
           <Table.HeadCell>{t('scopes.name')}</Table.HeadCell>
           <Table.HeadCell>{t('scopes.type')}</Table.HeadCell>
-          <Table.HeadCell>{t('scopes.status')}</Table.HeadCell>
           <Table.HeadCell />
         </Table.Head>
         <Table.Body className='divide-y'>
@@ -66,9 +64,6 @@ const Page = () => {
               </Table.Cell>
               <Table.Cell>
                 <ClientTypeLabel type={scope.type} />
-              </Table.Cell>
-              <Table.Cell>
-                <EntityStatusLabel isEnabled={!scope.deletedAt} />
               </Table.Cell>
               <Table.Cell>
                 {!isSystem(scope.name) && (

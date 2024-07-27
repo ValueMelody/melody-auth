@@ -21,16 +21,16 @@ export const load = (app: typeConfig.App) => {
     userHandler.getUser,
   )
 
+  app.put(
+    `${BaseRoute}/:authId`,
+    authMiddleware.s2sWriteUser,
+    userHandler.putUser,
+  )
+
   app.post(
     `${BaseRoute}/:authId/verify-email`,
     authMiddleware.s2sWriteUser,
     configMiddleware.enableEmailVerification,
     userHandler.verifyEmail,
-  )
-
-  app.put(
-    `${BaseRoute}/:authId/roles`,
-    authMiddleware.s2sWriteUser,
-    userHandler.updateRoles,
   )
 }

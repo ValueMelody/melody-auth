@@ -62,7 +62,7 @@ const Page = () => {
               <Table.Cell>{app.name}</Table.Cell>
               <Table.Cell>{app.clientId}</Table.Cell>
               <Table.Cell>
-                <EntityStatusLabel isEnabled={!app.deletedAt} />
+                <EntityStatusLabel isEnabled={app.isActive} />
               </Table.Cell>
               <Table.Cell>
                 <ClientTypeLabel type={app.type} />

@@ -36,18 +36,17 @@ export const verifyEmail = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
-export const updateRoles = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
-
+export const putUser = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
-
-  const bodyDto = new userDto.PutUserRolesReqDto(reqBody)
+  const bodyDto = new userDto.PutUserReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  await userService.updateRoles(
+  const authId = c.req.param('authId')
+
+  const user = await userService.updateUser(
     c,
     authId,
-    bodyDto.roles,
+    bodyDto,
   )
-  return c.json({ success: true })
+  return c.json({ user })
 }

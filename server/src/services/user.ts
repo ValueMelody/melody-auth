@@ -6,7 +6,9 @@ import {
   typeConfig,
 } from 'configs'
 import { Forbidden } from 'configs/error'
-import { identityDto } from 'dtos'
+import {
+  identityDto, userDto,
+} from 'dtos'
 import {
   PostAuthorizeReqWithNamesDto, PostAuthorizeReqWithPasswordDto,
 } from 'dtos/identity'
@@ -254,44 +256,78 @@ export const resetUserPassword = async (
   return true
 }
 
-export const updateRoles = async (
+export const updateUser = async (
   c: Context<typeConfig.Context>,
   authId: string,
-  roles: string[],
-): Promise<true> => {
-  const user = await getUserByAuthId(
-    c,
+  dto: userDto.PutUserReqDto,
+): Promise<userModel.ApiRecord> => {
+  const user = await userModel.getByAuthId(
+    c.env.DB,
     authId,
   )
 
-  const allRoles = await roleModel.getAll(c.env.DB)
-  const targetRoles = allRoles.filter((role) => roles.includes(role.name))
+  if (!user) throw new errorConfig.NotFound()
 
-  const userRoles = await userRoleModel.getAllByUserId(
-    c.env.DB,
-    user.id,
+  const updateObj: userModel.Update = {
+    firstName: dto.firstName,
+    lastName: dto.lastName,
+  }
+  if (dto.isActive !== undefined) updateObj.isActive = dto.isActive ? 1 : 0
+
+  const updatedUser = Object.keys(updateObj).length
+    ? await userModel.update(
+      c.env.DB,
+      user.id,
+      updateObj,
+    )
+    : user
+
+  const {
+    ENABLE_NAMES: enableNames,
+    ENABLE_USER_ROLE: enableRoles,
+  } = env(c)
+
+  const userRoles = enableRoles
+    ? await userRoleModel.getAllByUserId(
+      c.env.DB,
+      user.id,
+    )
+    : null
+
+  if (dto.roles && userRoles) {
+    const allRoles = await roleModel.getAll(c.env.DB)
+    const targetRoles = allRoles.filter((role) => !!dto.roles?.includes(role.name))
+
+    const recordsToDisable = userRoles.filter((userRole) => targetRoles.every((role) => role.id !== userRole.roleId))
+    const recordsToCreate = targetRoles.filter((role) => userRoles.every((userRole) => userRole.roleId !== role.id))
+
+    const currentTime = timeUtil.getDbCurrentTime()
+    for (const recordToDisable of recordsToDisable) {
+      await userRoleModel.update(
+        c.env.DB,
+        recordToDisable.id,
+        { deletedAt: currentTime },
+      )
+    }
+
+    for (const recordToCreate of recordsToCreate) {
+      await userRoleModel.create(
+        c.env.DB,
+        {
+          userId: user.id, roleId: recordToCreate.id,
+        },
+      )
+    }
+  }
+
+  const roleNames = enableRoles && dto.roles ? dto.roles : null
+  const potentialRoleNames = enableRoles && !dto.roles
+    ? (userRoles || []).map((userRole) => userRole.roleName)
+    : roleNames
+
+  return userModel.convertToApiRecord(
+    updatedUser,
+    enableNames,
+    potentialRoleNames,
   )
-
-  const recordsToDisable = userRoles.filter((userRole) => targetRoles.every((role) => role.id !== userRole.roleId))
-  const recordsToCreate = targetRoles.filter((role) => userRoles.every((userRole) => userRole.roleId !== role.id))
-
-  const currentTime = timeUtil.getDbCurrentTime()
-  for (const recordToDisable of recordsToDisable) {
-    await userRoleModel.update(
-      c.env.DB,
-      recordToDisable.id,
-      { deletedAt: currentTime },
-    )
-  }
-
-  for (const recordToCreate of recordsToCreate) {
-    await userRoleModel.create(
-      c.env.DB,
-      {
-        userId: user.id, roleId: recordToCreate.id,
-      },
-    )
-  }
-
-  return true
 }

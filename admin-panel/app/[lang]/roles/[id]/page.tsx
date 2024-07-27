@@ -13,7 +13,6 @@ import {
 } from 'react'
 import useEditRole from '../useEditRole'
 import { proxyTool } from 'tools'
-import EntityStatusLabel from 'components/EntityStatusLabel'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
@@ -95,12 +94,6 @@ const Page = () => {
                   )}
                   value={values.name} />
                 {showErrors && <FieldError error={errors.name} />}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.status')}</Table.Cell>
-              <Table.Cell>
-                <EntityStatusLabel isEnabled={!role.deletedAt} />
               </Table.Cell>
             </Table.Row>
             <Table.Row>

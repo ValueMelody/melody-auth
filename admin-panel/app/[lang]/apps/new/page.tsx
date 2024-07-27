@@ -1,8 +1,6 @@
 'use client'
 
 import {
-  Checkbox,
-  Label,
   Table,
   TextInput,
 } from 'flowbite-react'
@@ -24,6 +22,7 @@ import SubmitError from 'components/SubmitError'
 import FieldError from 'components/FieldError'
 import ClientTypeSelector from 'components/ClientTypeSelector'
 import useLocaleRouter from 'hooks/useLocaleRoute'
+import ScopesEditor from 'components/ScopesEditor'
 
 const Page = () => {
   const t = useTranslations()
@@ -141,23 +140,11 @@ const Page = () => {
               <Table.Row>
                 <Table.Cell>{t('apps.scopes')}</Table.Cell>
                 <Table.Cell>
-                  <section className='flex flex-col gap-4'>
-                    {availableScopes.map((scope) => (
-                      <div
-                        key={scope.id}
-                        className='flex items-center gap-2'>
-                        <Checkbox
-                          id={scope.id}
-                          onChange={() => handleToggleAppScope(scope.name)}
-                          checked={values.scopes.includes(scope.name)} />
-                        <Label
-                          htmlFor={scope.id}
-                          className='flex'>
-                          {scope.name}
-                        </Label>
-                      </div>
-                    ))}
-                  </section>
+                  <ScopesEditor
+                    scopes={availableScopes}
+                    value={values.scopes}
+                    onToggleScope={handleToggleAppScope}
+                  />
                   {showErrors && <p className='text-red-600 mt-2'>{errors.scopes}</p>}
                 </Table.Cell>
               </Table.Row>
