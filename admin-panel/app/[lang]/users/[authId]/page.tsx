@@ -3,7 +3,7 @@
 import { useAuth } from '@melody-auth/react'
 import {
   Badge, Button, Checkbox, Label, Table,
-  TableCell,
+  ToggleSwitch,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
@@ -11,15 +11,15 @@ import {
   useCallback,
   useEffect, useMemo, useState,
 } from 'react'
-import { CheckIcon } from '@heroicons/react/16/solid'
 import UserEmailVerified from 'components/UserEmailVerified'
 import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
-import ChangeStatusButton from 'components/ChangeStatusButton'
 import useSignalValue from 'app/useSignalValue'
 import { userInfoSignal } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
+import SubmitError from 'components/SubmitError'
+import SaveButton from 'components/SaveButton'
 
 const Page = () => {
   const { authId } = useParams()
@@ -27,13 +27,24 @@ const Page = () => {
   const t = useTranslations()
 
   const [user, setUser] = useState()
-  const [roles, setRoles] = useState([])
+  const [roles, setRoles] = useState()
+  const [isActive, setIsActive] = useState()
   const [emailResent, setEmailResent] = useState(false)
-  const [rolesSaved, setRolesSaved] = useState(false)
   const { acquireToken } = useAuth()
   const [userRoles, setUserRoles] = useState<string[]>([])
 
   const userInfo = useSignalValue(userInfoSignal)
+
+  const updateObj = useMemo(
+    () => {
+      if (!user) return {}
+      const obj = {}
+      if (userRoles !== user.roles) obj.roles = userRoles
+      if (isActive !== user.isActive) obj.isActive = isActive
+      return obj
+    },
+    [user, userRoles, isActive],
+  )
 
   const isSelf = useMemo(
     () => userInfo.authId === user?.authId,
@@ -49,47 +60,21 @@ const Page = () => {
         token,
       })
       setUser(data.user)
+      setIsActive(data.user.isActive)
       setUserRoles(data.user.roles)
     },
     [acquireToken, authId],
   )
 
-  const enableUser = async () => {
+  const handleSave = async () => {
     const token = await acquireToken()
     const result = await proxyTool.sendNextRequest({
       endpoint: `/api/users/${authId}`,
       method: 'PUT',
       token,
-      body: { action: 'enable' },
+      body: { data: updateObj },
     })
     if (result) await getUser()
-  }
-
-  const disableUser = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}`,
-      method: 'PUT',
-      token,
-      body: { action: 'disable' },
-    })
-    if (result) await getUser()
-  }
-
-  const handleSaveRoles = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}`,
-      method: 'PUT',
-      token,
-      body: {
-        action: 'roles', data: { roles: userRoles },
-      },
-    })
-    if (result) {
-      await getUser()
-      setRolesSaved(true)
-    }
   }
 
   const handleResendVerifyEmail = async () => {
@@ -108,7 +93,6 @@ const Page = () => {
       ? userRoles.filter((userRole) => role !== userRole)
       : [...userRoles, role]
     setUserRoles(newRoles)
-    setRolesSaved(false)
   }
 
   useEffect(
@@ -116,7 +100,7 @@ const Page = () => {
       const getRoles = async () => {
         const token = await acquireToken()
         const data = await proxyTool.getRoles(token)
-        setRoles(data.roles.filter((role) => !role.deletedAt))
+        setRoles(data.roles)
       }
 
       getUser()
@@ -131,7 +115,8 @@ const Page = () => {
     <section>
       <PageTitle
         className='mb-6'
-        title={t('users.user')} />
+        title={t('users.user')}
+      />
       <section>
         <Table>
           <Table.Head>
@@ -158,17 +143,14 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('users.status')}</Table.Cell>
               <Table.Cell>
-                <EntityStatusLabel isEnabled={!user.deletedAt} />
-              </Table.Cell>
-              <TableCell>
+                {isSelf && <EntityStatusLabel isEnabled={user.isActive} />}
                 {!isSelf && (
-                  <ChangeStatusButton
-                    isEnabled={!user.deletedAt}
-                    onEnable={enableUser}
-                    onDisable={disableUser}
+                  <ToggleSwitch
+                    checked={isActive}
+                    onChange={() => setIsActive(!isActive)}
                   />
                 )}
-              </TableCell>
+              </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.emailVerified')}</Table.Cell>
@@ -176,14 +158,14 @@ const Page = () => {
                 <UserEmailVerified user={user} />
               </Table.Cell>
               <Table.Cell>
-                {!user.deletedAt && !user.emailVerified && !emailResent && (
+                {user.isActive && !user.emailVerified && !emailResent && (
                   <Button
                     size='xs'
                     onClick={handleResendVerifyEmail}>
                     {t('users.resend')}
                   </Button>
                 )}
-                {!user.deletedAt && !user.emailVerified && emailResent && (
+                {user.isActive && !user.emailVerified && emailResent && (
                   <div className='flex'>
                     <Badge>{t('users.sent')}</Badge>
                   </div>
@@ -211,18 +193,6 @@ const Page = () => {
                   ))}
                 </div>
               </Table.Cell>
-              <Table.Cell>
-                <div className='flex items-center gap-2'>
-                  <Button
-                    size='xs'
-                    onClick={handleSaveRoles}>
-                    {t('common.save')}
-                  </Button>
-                  {rolesSaved && <CheckIcon
-                    className='w-6 h-6'
-                    color='green' />}
-                </div>
-              </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.firstName')}</Table.Cell>
@@ -243,6 +213,11 @@ const Page = () => {
           </Table.Body>
         </Table>
       </section>
+      <SubmitError />
+      <SaveButton
+        disabled={!Object.keys(updateObj).length}
+        onClick={handleSave}
+      />
     </section>
   )
 }

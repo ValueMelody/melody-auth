@@ -117,15 +117,24 @@ export const updateApp = async (
   appId: number,
   dto: appDto.PutAppReqDto,
 ): Promise<appModel.ApiRecord> => {
-  const app = await appModel.update(
-    c.env.DB,
-    appId,
-    {
-      redirectUris: dto.redirectUris ? dto.redirectUris.join(',') : undefined,
-      name: dto.name,
-      isActive: dto.isActive,
-    },
-  )
+  const updateDto: appModel.Update = {
+    redirectUris: dto.redirectUris ? dto.redirectUris.join(',') : undefined,
+    name: dto.name,
+  }
+  if (dto.isActive !== undefined) updateDto.isActive = dto.isActive ? 1 : 0
+
+  const app = Object.keys(updateDto).length
+    ? await appModel.update(
+      c.env.DB,
+      appId,
+      updateDto,
+    )
+    : await appModel.getById(
+      c.env.DB,
+      appId,
+    )
+
+  if (!app) throw new errorConfig.NotFound()
 
   const appScopes = await appScopeModel.getAllByAppId(
     c.env.DB,

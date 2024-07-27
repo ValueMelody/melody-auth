@@ -38,11 +38,11 @@ export async function PUT (
   const authId = context.params.authId
 
   const reqBody = await request.json()
-  if (!reqBody || !reqBody.action) return throwForbiddenError()
+  if (!reqBody) return throwForbiddenError()
 
   return sendS2SRequest({
     method: 'PUT',
-    uri: `/api/v1/users/${authId}/${reqBody.action}`,
+    uri: reqBody.action ? `/api/v1/users/${authId}/${reqBody.action}` : `/api/v1/users/${authId}`,
     body: JSON.stringify(reqBody.data),
   })
 }

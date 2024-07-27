@@ -66,7 +66,7 @@ const Page = () => {
               </Table.Cell>
               <Table.Cell>{user.email}</Table.Cell>
               <Table.Cell>
-                <EntityStatusLabel isEnabled={!user.deletedAt} />
+                <EntityStatusLabel isEnabled={user.isActive} />
               </Table.Cell>
               <Table.Cell>
                 <UserEmailVerified user={user} />

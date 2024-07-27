@@ -8,7 +8,6 @@ import {
 } from 'react'
 import { Role } from 'shared'
 import useCurrentLocale from 'hooks/useCurrentLocale'
-import EntityStatusLabel from 'components/EntityStatusLabel'
 import {
   proxyTool, routeTool,
 } from 'tools'
@@ -50,7 +49,6 @@ const Page = () => {
       <Table>
         <Table.Head>
           <Table.HeadCell>{t('roles.name')}</Table.HeadCell>
-          <Table.HeadCell>{t('roles.status')}</Table.HeadCell>
           <Table.HeadCell />
         </Table.Head>
         <Table.Body className='divide-y'>
@@ -61,9 +59,6 @@ const Page = () => {
                   {role.name}
                   {isSystem(role.name) && <SystemLabel />}
                 </div>
-              </Table.Cell>
-              <Table.Cell>
-                <EntityStatusLabel isEnabled={!role.deletedAt} />
               </Table.Cell>
               <Table.Cell>
                 {!isSystem(role.name) && (
