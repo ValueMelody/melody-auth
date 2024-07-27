@@ -5,21 +5,15 @@ import { scopeDto } from 'dtos'
 import { validateUtil } from 'utils'
 
 export const getScopes = async (c: Context<typeConfig.Context>) => {
-  const includeDeleted = c.req.query('include_disabled') === 'true'
-  const scopes = await scopeService.getScopes(
-    c,
-    includeDeleted,
-  )
+  const scopes = await scopeService.getScopes(c)
   return c.json({ scopes })
 }
 
 export const getScope = async (c: Context<typeConfig.Context>) => {
-  const includeDeleted = c.req.query('include_disabled') === 'true'
   const id = Number(c.req.param('id'))
   const scope = await scopeService.getScopeById(
     c,
     id,
-    includeDeleted,
   )
   return c.json({ scope })
 }

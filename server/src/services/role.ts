@@ -8,14 +8,8 @@ import {
 } from 'models'
 import { roleDto } from 'dtos'
 
-export const getRoles = async (
-  c: Context<typeConfig.Context>,
-  includeDeleted: boolean = false,
-) => {
-  const roles = await roleModel.getAll(
-    c.env.DB,
-    includeDeleted,
-  )
+export const getRoles = async (c: Context<typeConfig.Context>): Promise<roleModel.Record[]> => {
+  const roles = await roleModel.getAll(c.env.DB)
 
   return roles
 }
@@ -23,12 +17,10 @@ export const getRoles = async (
 export const getRoleById = async (
   c: Context<typeConfig.Context>,
   id: number,
-  includeDeleted: boolean = false,
-) => {
+): Promise<roleModel.Record> => {
   const role = await roleModel.getById(
     c.env.DB,
     id,
-    includeDeleted,
   )
 
   if (!role) throw new errorConfig.NotFound()
@@ -38,7 +30,7 @@ export const getRoleById = async (
 
 export const getUserRoles = async (
   c: Context<typeConfig.Context>, userId: number,
-) => {
+): Promise<string[] | null> => {
   const { ENABLE_USER_ROLE } = env(c)
   if (!ENABLE_USER_ROLE) return null
 
@@ -52,7 +44,7 @@ export const getUserRoles = async (
 export const createRole = async (
   c: Context<typeConfig.Context>,
   dto: roleDto.PostRoleReqDto,
-) => {
+): Promise<roleModel.Record> => {
   const role = await roleModel.create(
     c.env.DB,
     { name: dto.name },
@@ -64,7 +56,7 @@ export const updateRole = async (
   c: Context<typeConfig.Context>,
   roleId: number,
   dto: roleDto.PutRoleReqDto,
-) => {
+): Promise<roleModel.Record> => {
   const role = await roleModel.update(
     c.env.DB,
     roleId,

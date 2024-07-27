@@ -54,7 +54,7 @@ const Page = () => {
           </Table.Row>
           <Table.Row>
             <Table.Cell>COMPANY_LOGO_URL</Table.Cell>
-            <Table.Cell>{configs.COMPANY_LOGO_URL}</Table.Cell>
+            <Table.Cell className='break-all'>{configs.COMPANY_LOGO_URL}</Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>ENABLE_NAMES</Table.Cell>

@@ -5,9 +5,9 @@ CREATE TABLE [scope] (
   "type" text NOT NULL,
   "createdAt" text DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" text DEFAULT CURRENT_TIMESTAMP,
-  "deletedAt" text DEFAULT null,
-  UNIQUE(name)
+  "deletedAt" text DEFAULT null
 );
+CREATE UNIQUE INDEX idx_unique_scope_name ON scope (name) WHERE deletedAt IS NULL;
 INSERT INTO scope ("name", "type") values ("openid", "spa");
 INSERT INTO scope ("name", "type") values ("profile", "spa");
 INSERT INTO scope ("name", "type") values ("offline_access", "spa");
