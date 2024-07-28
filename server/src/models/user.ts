@@ -103,14 +103,16 @@ export const convertToApiRecord = (
 export const convertToApiRecordWithRoles = (
   record: Record,
   enableNames: boolean,
-  roles: string[] | null,
+  roles: string[],
 ): ApiRecordWithRoles => {
   const result: ApiRecordWithRoles = convertToApiRecord(
     record,
     enableNames,
   )
-  if (roles) result.roles = roles
-  return result
+  return {
+    ...result,
+    roles,
+  }
 }
 
 export const getAll = async (db: D1Database): Promise<Record[]> => {

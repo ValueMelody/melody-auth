@@ -18,7 +18,6 @@ ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
 ENABLE_EMAIL_VERIFICATION=true # Requires enable email function first. To enable email functionality, set valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS environment variables
-ENABLE_USER_ROLE=true
 
 [[kv_namespaces]]
 binding = "KV"
