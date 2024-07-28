@@ -15,12 +15,33 @@ app.use(
   setupMiddleware.session,
 )
 
-otherRoute.load(app)
-oauthRoute.load(app)
-identityRoute.load(app)
-userRoute.load(app)
-roleRoute.load(app)
-scopeRoute.load(app)
-appRoute.load(app)
+app.route(
+  '/',
+  scopeRoute,
+)
+app.route(
+  '/',
+  roleRoute,
+)
+app.route(
+  '/',
+  appRoute,
+)
+app.route(
+  '/',
+  userRoute,
+)
+app.route(
+  '/',
+  identityRoute,
+)
+app.route(
+  '/',
+  oauthRoute,
+)
+app.route(
+  '/',
+  otherRoute,
+)
 
 export default app

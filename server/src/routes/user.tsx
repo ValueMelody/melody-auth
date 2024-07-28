@@ -1,3 +1,4 @@
+import { Hono } from 'hono'
 import {
   routeConfig, typeConfig,
 } from 'configs'
@@ -7,30 +8,117 @@ import {
 } from 'middlewares'
 
 const BaseRoute = routeConfig.InternalRoute.ApiUsers
+const userRoutes = new Hono<typeConfig.Context>()
+export default userRoutes
 
-export const load = (app: typeConfig.App) => {
-  app.get(
-    `${BaseRoute}`,
-    authMiddleware.s2sReadUser,
-    userHandler.getUsers,
-  )
+/**
+ * @swagger
+ * /api/v1/users:
+ *   get:
+ *     summary: Get a list of users
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ */
+userRoutes.get(
+  `${BaseRoute}`,
+  authMiddleware.s2sReadUser,
+  userHandler.getUsers,
+)
 
-  app.get(
-    `${BaseRoute}/:authId`,
-    authMiddleware.s2sReadUser,
-    userHandler.getUser,
-  )
+/**
+ * @swagger
+ * /api/v1/users/{authId}:
+ *   get:
+ *     summary: Get a single user by authId
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       200:
+ *         description: A single user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserDetail'
+ */
+userRoutes.get(
+  `${BaseRoute}/:authId`,
+  authMiddleware.s2sReadUser,
+  userHandler.getUser,
+)
 
-  app.put(
-    `${BaseRoute}/:authId`,
-    authMiddleware.s2sWriteUser,
-    userHandler.putUser,
-  )
+/**
+ * @swagger
+ * /api/v1/users/{authId}:
+ *   put:
+ *     summary: Update an existing user by authId
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PutUserReq'
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserDetail'
+ */
+userRoutes.put(
+  `${BaseRoute}/:authId`,
+  authMiddleware.s2sWriteUser,
+  userHandler.putUser,
+)
 
-  app.post(
-    `${BaseRoute}/:authId/verify-email`,
-    authMiddleware.s2sWriteUser,
-    configMiddleware.enableEmailVerification,
-    userHandler.verifyEmail,
-  )
-}
+/**
+ * @swagger
+ * /api/v1/users/{authId}/verify-email:
+ *   post:
+ *     summary: Send a verification email to the user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The authId of the user who will receive the verification email
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ */
+userRoutes.post(
+  `${BaseRoute}/:authId/verify-email`,
+  authMiddleware.s2sWriteUser,
+  configMiddleware.enableEmailVerification,
+  userHandler.verifyEmail,
+)

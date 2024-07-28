@@ -1,14 +1,25 @@
-import { typeConfig } from 'configs'
+import { swaggerUI } from '@hono/swagger-ui'
+import { Hono } from 'hono'
+import swaggerSpec from '../scripts/swagger.json'
 import { otherHandler } from 'handlers'
+import { typeConfig } from 'configs'
 
-export const load = (app: typeConfig.App) => {
-  app.get(
-    '/info',
-    otherHandler.getSystemInfo,
-  )
+const otherRoutes = new Hono<typeConfig.Context>()
+export default otherRoutes
 
-  app.get(
-    '/.well-known/openid-configuration',
-    otherHandler.getOpenidConfig,
-  )
-}
+otherRoutes.get(
+  '/info',
+  otherHandler.getSystemInfo,
+)
+
+otherRoutes.get(
+  '/.well-known/openid-configuration',
+  otherHandler.getOpenidConfig,
+)
+
+otherRoutes.get(
+  '/api/v1/swagger',
+  swaggerUI({
+    spec: swaggerSpec,
+  }),
+)
