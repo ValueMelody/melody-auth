@@ -331,20 +331,6 @@
       }
     }
   },
-  "security": [
-    {
-      "oauth2": [
-        "read_app",
-        "write_app",
-        "read_user",
-        "write_user",
-        "read_role",
-        "write_role",
-        "read_scope",
-        "write_scope"
-      ]
-    }
-  ],
   "paths": {
     "/api/v1/scopes": {
       "get": {
