@@ -1,5 +1,4 @@
 import { Context } from 'hono'
-import { env } from 'hono/adapter'
 import {
   errorConfig, typeConfig,
 } from 'configs'
@@ -30,10 +29,7 @@ export const getRoleById = async (
 
 export const getUserRoles = async (
   c: Context<typeConfig.Context>, userId: number,
-): Promise<string[] | null> => {
-  const { ENABLE_USER_ROLE } = env(c)
-  if (!ENABLE_USER_ROLE) return null
-
+): Promise<string[]> => {
   const roles = await userRoleModel.getAllByUserId(
     c.env.DB,
     userId,

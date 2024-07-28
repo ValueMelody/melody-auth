@@ -93,12 +93,6 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
-            <Table.Cell>ENABLE_USER_ROLE</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_USER_ROLE} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
             <Table.Cell>AUTHORIZATION_CODE_EXPIRES_IN</Table.Cell>
             <Table.Cell>{configs.AUTHORIZATION_CODE_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
           </Table.Row>

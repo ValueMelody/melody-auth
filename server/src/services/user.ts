@@ -36,29 +36,24 @@ export const getUserInfo = async (
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
+  const roles = await roleService.getUserRoles(
+    c,
+    user.id,
+  )
+
   const result: GetUserInfoRes = {
     authId: user.authId,
     email: user.email,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     emailVerified: !!user.emailVerified,
+    roles,
   }
 
-  const {
-    ENABLE_NAMES: enableNames,
-    ENABLE_USER_ROLE: enableRoles,
-  } = env(c)
+  const { ENABLE_NAMES: enableNames } = env(c)
   if (enableNames) {
     result.firstName = user.firstName
     result.lastName = user.lastName
-  }
-
-  if (enableRoles) {
-    const roles = await roleService.getUserRoles(
-      c,
-      user.id,
-    )
-    if (roles) result.roles = roles
   }
 
   return result
@@ -86,17 +81,12 @@ export const getUserByAuthId = async (
   )
   if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
 
-  const {
-    ENABLE_USER_ROLE: enableRoles,
-    ENABLE_NAMES: enableNames,
-  } = env(c)
+  const { ENABLE_NAMES: enableNames } = env(c)
 
-  const roles = enableRoles
-    ? await roleService.getUserRoles(
-      c,
-      user.id,
-    )
-    : null
+  const roles = await roleService.getUserRoles(
+    c,
+    user.id,
+  )
 
   const result = userModel.convertToApiRecordWithRoles(
     user,
@@ -295,17 +285,12 @@ export const updateUser = async (
     )
     : user
 
-  const {
-    ENABLE_NAMES: enableNames,
-    ENABLE_USER_ROLE: enableRoles,
-  } = env(c)
+  const { ENABLE_NAMES: enableNames } = env(c)
 
-  const userRoles = enableRoles
-    ? await userRoleModel.getAllByUserId(
-      c.env.DB,
-      user.id,
-    )
-    : null
+  const userRoles = await userRoleModel.getAllByUserId(
+    c.env.DB,
+    user.id,
+  )
 
   if (dto.roles && userRoles) {
     const allRoles = await roleModel.getAll(c.env.DB)
@@ -333,14 +318,11 @@ export const updateUser = async (
     }
   }
 
-  const roleNames = enableRoles && dto.roles ? dto.roles : null
-  const potentialRoleNames = enableRoles && !dto.roles
-    ? (userRoles || []).map((userRole) => userRole.roleName)
-    : roleNames
+  const roleNames = dto.roles ?? (userRoles).map((userRole) => userRole.roleName)
 
   return userModel.convertToApiRecordWithRoles(
     updatedUser,
     enableNames,
-    potentialRoleNames,
+    roleNames,
   )
 }
