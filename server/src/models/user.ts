@@ -105,7 +105,10 @@ export const convertToApiRecordWithRoles = (
   enableNames: boolean,
   roles: string[] | null,
 ): ApiRecordWithRoles => {
-  const result: ApiRecordWithRoles = convertToApiRecord(record, enableNames)
+  const result: ApiRecordWithRoles = convertToApiRecord(
+    record,
+    enableNames,
+  )
   if (roles) result.roles = roles
   return result
 }

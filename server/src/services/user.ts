@@ -64,9 +64,7 @@ export const getUserInfo = async (
   return result
 }
 
-export const getUsers = async (
-  c: Context<typeConfig.Context>
-): Promise<userModel.ApiRecord[]> => {
+export const getUsers = async (c: Context<typeConfig.Context>): Promise<userModel.ApiRecord[]> => {
   const users = await userModel.getAll(c.env.DB)
 
   const { ENABLE_NAMES: enableNames } = env(c)

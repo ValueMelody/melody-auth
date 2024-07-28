@@ -18,10 +18,9 @@
 
 4. **Server-to-Server REST API**
    - Secure communication channel for backend services
-   - Facilitates token validation and user management
 
 5. **Admin Panel**
-   - Web interface for managing configurations and users
+   - Web interface for managing apps, users, scopes and roles
 
 ## License
 
