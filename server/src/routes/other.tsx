@@ -19,5 +19,7 @@ otherRoutes.get(
 
 otherRoutes.get(
   '/api/v1/swagger',
-  swaggerUI({ spec: swaggerSpec, url: '/' }),
+  swaggerUI({
+    spec: swaggerSpec, url: '/',
+  }),
 )
