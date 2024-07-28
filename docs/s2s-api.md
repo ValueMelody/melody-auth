@@ -9,7 +9,7 @@ To get started, obtain an access_token from the /token endpoint by using your cl
 - Content Type: `application/x-www-form-urlencoded`
 - URL: `[melody_auth_server_url]/oauth2/v1/token`
 
-### Parameters
+### Token Request Parameters
 
 | Property | Type | Required | Description |
 | -------- | ---- | -------- | ----------- |
@@ -17,7 +17,7 @@ To get started, obtain an access_token from the /token endpoint by using your cl
 | ``scope`` | string | true | Scopes requested (e.g., 'read_user write_user') |
 
 
-### Request example
+### Token Request example
 
 ``` js
 const credentials = `${clientId}:${clientSecret}`;
@@ -39,8 +39,7 @@ fetch('/oauth2/v1/token', {
 })
 ```
 
-
-## Response example
+### Token Response example
 
 ``` JSON
 {
@@ -50,106 +49,4 @@ fetch('/oauth2/v1/token', {
   "token_type":"Bearer",
   "scope":"read_user write_user"
 }
-```
-
-## Get Users
-
-- HTTP Method: `GET`
-- Content Type: `application/json`
-- URL: `[melody_auth_server_url]/api/v1/users`
-
-### Query Parameters
-
-| Property | Type | Required | Description |
-| -------- | ---- | -------- | ----------- |
-| ``include_disabled`` | 'true' | false | If disabled users should be included. |
-
-### Request example
-
-``` js
-fetch('/api/v1/users', {
-  method: 'GET',
-  headers: {
-    'Content-type': 'application/json',
-    'Authorization': `bearer ${access_token}`
-  },
-})
-```
-
-## Get User
-
-- HTTP Method: `GET`
-- Content Type: `application/json`
-- URL: `[melody_auth_server_url]/api/v1/users/:authId`
-
-### Query Parameters
-
-| Property | Type | Required | Description |
-| -------- | ---- | -------- | ----------- |
-| ``include_disabled`` | 'true' | false | If disabled users should be included. |
-
-### Request example
-
-``` js
-fetch('/api/v1/users/d638bb77-2883-4bce-ad4c-9fe01319fb86', {
-  method: 'GET',
-  headers: {
-    'Content-type': 'application/json',
-    'Authorization': `bearer ${access_token}`
-  },
-})
-```
-
-## Disable User
-
-- HTTP Method: `PUT`
-- Content Type: `application/json`
-- URL: `[melody_auth_server_url]/api/v1/users/:authId/disable`
-
-### Request example
-
-``` js
-fetch('/api/v1/users/d638bb77-2883-4bce-ad4c-9fe01319fb86/disable', {
-  method: 'PUT',
-  headers: {
-    'Content-type': 'application/json',
-    'Authorization': `bearer ${access_token}`
-  },
-})
-```
-
-## Enable User
-
-- HTTP Method: `PUT`
-- Content Type: `application/json`
-- URL: `[melody_auth_server_url]/api/v1/users/:authId/enable`
-
-### Request example
-
-``` js
-fetch('/api/v1/users/d638bb77-2883-4bce-ad4c-9fe01319fb86/enable', {
-  method: 'PUT',
-  headers: {
-    'Content-type': 'application/json',
-    'Authorization': `bearer ${access_token}`
-  },
-})
-```
-
-## Send Verification Email
-
-- HTTP Method: `POST`
-- Content Type: `application/json`
-- URL: `[melody_auth_server_url]/api/v1/users/:authId/verify-email`
-
-### Request example
-
-``` js
-fetch('/api/v1/users/d638bb77-2883-4bce-ad4c-9fe01319fb86/verify-email', {
-  method: 'POST',
-  headers: {
-    'Content-type': 'application/json',
-    'Authorization': `bearer ${access_token}`
-  },
-})
 ```

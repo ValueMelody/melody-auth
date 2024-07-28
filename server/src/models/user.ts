@@ -40,10 +40,13 @@ export interface ApiRecord {
   lastName?: string | null;
   emailVerified: boolean;
   isActive: boolean;
-  roles?: string[];
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+}
+
+export interface ApiRecordWithRoles extends ApiRecord {
+  roles?: string[];
 }
 
 export interface Create {
@@ -79,7 +82,6 @@ export const convertToRecord = (raw: Raw): Record => ({
 export const convertToApiRecord = (
   record: Record,
   enableNames: boolean,
-  roles: string[] | null,
 ): ApiRecord => {
   const result: ApiRecord = {
     id: record.id,
@@ -91,11 +93,23 @@ export const convertToApiRecord = (
     updatedAt: record.updatedAt,
     deletedAt: record.deletedAt,
   }
-  if (roles) result.roles = roles
   if (enableNames) {
     result.firstName = record.firstName
     result.lastName = record.lastName
   }
+  return result
+}
+
+export const convertToApiRecordWithRoles = (
+  record: Record,
+  enableNames: boolean,
+  roles: string[] | null,
+): ApiRecordWithRoles => {
+  const result: ApiRecordWithRoles = convertToApiRecord(
+    record,
+    enableNames,
+  )
+  if (roles) result.roles = roles
   return result
 }
 

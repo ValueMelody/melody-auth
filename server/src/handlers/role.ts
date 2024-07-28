@@ -29,6 +29,7 @@ export const postRole = async (c: Context<typeConfig.Context>) => {
     bodyDto,
   )
 
+  c.status(201)
   return c.json({ role })
 }
 

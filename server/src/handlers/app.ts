@@ -28,6 +28,8 @@ export const postApp = async (c: Context<typeConfig.Context>) => {
     c,
     bodyDto,
   )
+
+  c.status(201)
   return c.json({ app })
 }
 
@@ -43,25 +45,4 @@ export const putApp = async (c: Context<typeConfig.Context>) => {
     bodyDto,
   )
   return c.json({ app })
-}
-
-export const enableApp = async (c: Context<typeConfig.Context>) => {
-  const id = c.req.param('id')
-  await appService.updateApp(
-    c,
-    Number(id),
-    { isActive: true },
-  )
-
-  return c.json({ success: true })
-}
-
-export const disableApp = async (c: Context<typeConfig.Context>) => {
-  const id = c.req.param('id')
-  await appService.updateApp(
-    c,
-    Number(id),
-    { isActive: false },
-  )
-  return c.json({ success: true })
 }
