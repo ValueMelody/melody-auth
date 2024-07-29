@@ -5,6 +5,8 @@ import { oauthDto } from 'dtos'
 import {
   routeConfig, typeConfig,
 } from 'configs'
+import { kvService } from 'services'
+import { cryptoUtil } from 'utils'
 
 export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
   const environment = env(c)
@@ -42,7 +44,14 @@ export const getOpenidConfig = async (c: Context<typeConfig.Context>) => {
     grant_types_supported: Object.values(oauthDto.TokenGrantType),
     token_endpoint_auth_methods_supported: ['client_secret_basic'],
     claims_supported: ['sub', 'email', 'first_name', 'last_name'],
-    id_token_signing_alg_values_supported: ['HS256'],
+    id_token_signing_alg_values_supported: ['RS256'],
+    jwks_uri: `${serverUrl}/.well-known/jwks.json`,
     code_challenge_methods_supported: ['plain', 'S256'],
   })
+}
+
+export const getJwks = async (c: Context<typeConfig.Context>) => {
+  const publicKey = await kvService.getJwtPublicSecret(c.env.KV)
+  const jwk = await cryptoUtil.secretToJwk(publicKey)
+  return c.json({ keys: [jwk] })
 }

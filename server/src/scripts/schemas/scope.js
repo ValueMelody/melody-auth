@@ -9,10 +9,10 @@ const Scope = {
     },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },
-    "deletedAt": {
-      "type": "string",
-      "nullable": true
-    }
+    deletedAt: {
+      type: 'string',
+      nullable: true,
+    },
   },
 }
 
@@ -45,5 +45,5 @@ const PostScopeReq = {
 }
 
 module.exports = {
-  Scope, PutScopeReq, PostScopeReq
+  Scope, PutScopeReq, PostScopeReq,
 }

@@ -1,9 +1,17 @@
 const fs = require('fs')
-const swaggerJsdoc = require('swagger-jsdoc');
-const { Scope, PutScopeReq, PostScopeReq } = require('./schemas/scope')
-const { Role, PutRoleReq, PostRoleReq } = require('./schemas/role')
-const { App, AppDetail, PostAppReq, PutAppReq } = require('./schemas/app')
-const { User, UserDetail, PutUserReq } = require('./schemas/user')
+const swaggerJsdoc = require('swagger-jsdoc')
+const {
+  Scope, PutScopeReq, PostScopeReq,
+} = require('./schemas/scope')
+const {
+  Role, PutRoleReq, PostRoleReq,
+} = require('./schemas/role')
+const {
+  App, AppDetail, PostAppReq, PutAppReq,
+} = require('./schemas/app')
+const {
+  User, UserDetail, PutUserReq,
+} = require('./schemas/user')
 
 const options = {
   definition: {
@@ -20,14 +28,14 @@ const options = {
             clientCredentials: {
               tokenUrl: '/oauth2/v1/token',
               scopes: {
-                'read_app': 'Read access to app',
-                'write_app': 'Write access to app',
-                'read_user': 'Read access to user',
-                'write_user': 'Write access to user',
-                'read_role': 'Read access to role',
-                'write_role': 'Write access to role',
-                'read_scope': 'Read access to scope',
-                'write_scope': 'Write access to scope',
+                read_app: 'Read access to app',
+                write_app: 'Write access to app',
+                read_user: 'Read access to user',
+                write_user: 'Write access to user',
+                read_role: 'Read access to role',
+                write_role: 'Write access to role',
+                read_scope: 'Read access to scope',
+                write_scope: 'Write access to scope',
               },
             },
           },
@@ -46,7 +54,7 @@ const options = {
         PutAppReq,
         User,
         UserDetail,
-        PutUserReq
+        PutUserReq,
       },
     },
   },
@@ -56,8 +64,16 @@ const options = {
     './src/routes/app.tsx',
     './src/routes/user.tsx',
   ],
-};
+}
 
-const swaggerSpec = swaggerJsdoc(options);
+const swaggerSpec = swaggerJsdoc(options)
 
-fs.writeFileSync('./src/scripts/swagger.json', JSON.stringify(swaggerSpec, null, 2), 'utf-8');
+fs.writeFileSync(
+  './src/scripts/swagger.json',
+  JSON.stringify(
+    swaggerSpec,
+    null,
+    2,
+  ),
+  'utf-8',
+)

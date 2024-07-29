@@ -5,10 +5,10 @@ const Role = {
     name: { type: 'string' },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },
-    "deletedAt": {
-      "type": "string",
-      "nullable": true
-    }
+    deletedAt: {
+      type: 'string',
+      nullable: true,
+    },
   },
 }
 
@@ -31,5 +31,5 @@ const PostRoleReq = {
 }
 
 module.exports = {
-  Role, PutRoleReq, PostRoleReq
+  Role, PutRoleReq, PostRoleReq,
 }

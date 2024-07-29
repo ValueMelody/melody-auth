@@ -18,6 +18,11 @@ otherRoutes.get(
 )
 
 otherRoutes.get(
+  '/.well-known/jwks.json',
+  otherHandler.getJwks,
+)
+
+otherRoutes.get(
   '/api/v1/swagger',
   swaggerUI({
     spec: swaggerSpec, url: '/',

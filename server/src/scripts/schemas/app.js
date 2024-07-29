@@ -1,40 +1,24 @@
 const App = {
   type: 'object',
   properties: {
-    id: {
-      type: 'number',
-    },
-    clientId: {
-      type: 'string',
-    },
-    name: {
-      type: 'string',
-    },
-    isActive: {
-      type: 'boolean',
-    },
+    id: { type: 'number' },
+    clientId: { type: 'string' },
+    name: { type: 'string' },
+    isActive: { type: 'boolean' },
     type: {
       type: 'string',
       enum: ['spa', 's2s'],
     },
-    secret: {
-      type: 'string',
-    },
+    secret: { type: 'string' },
     redirectUris: {
       type: 'array',
-      items: {
-        type: 'string',
-      },
+      items: { type: 'string' },
     },
-    createdAt: {
+    createdAt: { type: 'string' },
+    updatedAt: { type: 'string' },
+    deletedAt: {
       type: 'string',
-    },
-    updatedAt: {
-      type: 'string',
-    },
-    "deletedAt": {
-      "type": "string",
-      "nullable": true
+      nullable: true,
     },
   },
 }
@@ -47,10 +31,8 @@ const AppDetail = {
       properties: {
         scopes: {
           type: 'array',
-          items: {
-            type: 'string',
-          },
-        }
+          items: { type: 'string' },
+        },
       },
     },
   ],
@@ -70,15 +52,11 @@ const PostAppReq = {
     },
     scopes: {
       type: 'array',
-      items: {
-        type: 'string',
-      },
+      items: { type: 'string' },
     },
     redirectUris: {
       type: 'array',
-      items: {
-        type: 'string',
-      },
+      items: { type: 'string' },
     },
   },
   required: ['name', 'type', 'scopes', 'redirectUris'],
@@ -89,27 +67,21 @@ const PutAppReq = {
   properties: {
     redirectUris: {
       type: 'array',
-      items: {
-        type: 'string',
-      },
+      items: { type: 'string' },
     },
     name: {
       type: 'string',
       minLength: 1,
       maxLength: 50,
     },
-    isActive: {
-      type: 'boolean',
-    },
+    isActive: { type: 'boolean' },
     scopes: {
       type: 'array',
-      items: {
-        type: 'string',
-      },
+      items: { type: 'string' },
     },
-  }
+  },
 }
 
 module.exports = {
-  App, AppDetail, PostAppReq, PutAppReq
+  App, AppDetail, PostAppReq, PutAppReq,
 }

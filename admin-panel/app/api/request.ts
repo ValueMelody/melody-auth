@@ -1,9 +1,10 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
+import { verify } from 'jsonwebtoken'
 import {
   Role, Scope,
 } from 'shared'
+const jwksClient = require('jwks-rsa')
 
 let accessToken: string | null = null
 let accessTokenExpiresOn: number | null = null
@@ -17,17 +18,59 @@ export const throwForbiddenError = (message?: string) => {
   )
 }
 
-export const verifyAccessToken = () => {
+const client = jwksClient({ jwksUri: `${process.env.NEXT_PUBLIC_SERVER_URI}/.well-known/jwks.json` })
+
+const getKey = (
+  header, callback,
+) => {
+  client.getSigningKey(
+    header.kid,
+    (
+      err, key,
+    ) => {
+      if (err) {
+        callback(err)
+      } else {
+        const signingKey = key.publicKey || key.rsaPublicKey
+        callback(
+          null,
+          signingKey,
+        )
+      }
+    },
+  )
+}
+
+const verifyJwtToken = (token: string) => {
+  return new Promise((
+    resolve, reject,
+  ) => {
+    verify(
+      token,
+      getKey,
+      {},
+      (
+        err, decoded,
+      ) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(decoded)
+        }
+      },
+    )
+  })
+}
+
+export const verifyAccessToken = async () => {
   const headersList = headers()
   const authHeader = headersList.get('authorization')
   const accessToken = authHeader?.split(' ')[1]
 
   if (!accessToken) return false
 
-  const tokenBody = jwt.verify(
-    accessToken,
-    process.env.CLIENT_JWT_SECRET,
-  )
+  const tokenBody = await verifyJwtToken(accessToken)
+
   if (!tokenBody) return false
 
   if (!tokenBody.roles || !tokenBody.roles.includes(Role.SuperAdmin)) return false
@@ -77,7 +120,7 @@ export const sendS2SRequest = async ({
   method: 'GET' | 'POST' | 'PUT';
   body?: string;
 }) => {
-  const isValid = verifyAccessToken()
+  const isValid = await verifyAccessToken()
   if (!isValid) return throwForbiddenError()
 
   const token = await obtainS2SAccessToken()

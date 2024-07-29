@@ -1,12 +1,8 @@
 const User = {
   type: 'object',
   properties: {
-    id: {
-      type: 'number',
-    },
-    authId: {
-      type: 'string',
-    },
+    id: { type: 'number' },
+    authId: { type: 'string' },
     email: {
       type: 'string',
       nullable: true,
@@ -19,23 +15,15 @@ const User = {
       type: 'string',
       nullable: true,
     },
-    emailVerified: {
-      type: 'boolean',
-    },
-    isActive: {
-      type: 'boolean',
-    },
-    createdAt: {
-      type: 'string',
-    },
-    updatedAt: {
-      type: 'string',
-    },
+    emailVerified: { type: 'boolean' },
+    isActive: { type: 'boolean' },
+    createdAt: { type: 'string' },
+    updatedAt: { type: 'string' },
     deletedAt: {
       type: 'string',
       nullable: true,
     },
-  }
+  },
 }
 
 const UserDetail = {
@@ -46,10 +34,8 @@ const UserDetail = {
       properties: {
         roles: {
           type: 'array',
-          items: {
-            type: 'string',
-          },
-          nullable: true
+          items: { type: 'string' },
+          nullable: true,
         },
       },
     },
@@ -59,24 +45,16 @@ const UserDetail = {
 const PutUserReq = {
   type: 'object',
   properties: {
-    firstName: {
-      type: 'string',
-    },
-    lastName: {
-      type: 'string',
-    },
-    isActive: {
-      type: 'boolean',
-    },
+    firstName: { type: 'string' },
+    lastName: { type: 'string' },
+    isActive: { type: 'boolean' },
     roles: {
       type: 'array',
-      items: {
-        type: 'string',
-      },
+      items: { type: 'string' },
     },
   },
 }
 
 module.exports = {
-  User, UserDetail, PutUserReq
+  User, UserDetail, PutUserReq,
 }

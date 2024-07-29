@@ -2,6 +2,18 @@ import {
   errorConfig, adapterConfig, localeConfig,
 } from 'configs'
 
+export const getJwtPrivateSecret = async (kv: KVNamespace) => {
+  const secretInKv = await kv.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+  if (!secretInKv) throw new errorConfig.Forbidden()
+  return secretInKv
+}
+
+export const getJwtPublicSecret = async (kv: KVNamespace) => {
+  const secretInKv = await kv.get(adapterConfig.BaseKVKey.JwtPublicSecret)
+  if (!secretInKv) throw new errorConfig.Forbidden()
+  return secretInKv
+}
+
 export const storeRefreshToken = async (
   kv: KVNamespace, refreshToken: string, expiresIn: number,
 ) => {
