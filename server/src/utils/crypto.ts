@@ -27,3 +27,67 @@ export const isValidCodeChallenge = async (
     return calculatedValue === codeChallenge
   }
 }
+
+const pemToArrayBuffer = (pem: string): ArrayBuffer => {
+  const base64 = pem
+    .replace(
+      /-----BEGIN PUBLIC KEY-----/,
+      '',
+    )
+    .replace(
+      /-----END PUBLIC KEY-----/,
+      '',
+    )
+    .replace(
+      /\n/g,
+      '',
+    )
+  const binary = atob(base64)
+  const buffer = new ArrayBuffer(binary.length)
+  const view = new Uint8Array(buffer)
+  for (let i = 0; i < binary.length; i++) {
+    view[i] = binary.charCodeAt(i)
+  }
+  return buffer
+}
+
+const genJwkKeyId = async (keyData: ArrayBuffer): Promise<string> => {
+  const hash = await crypto.subtle.digest(
+    'SHA-256',
+    keyData,
+  )
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(
+      2,
+      '0',
+    ))
+    .join('')
+}
+
+export const secretToJwk = async (key: string) => {
+  const keyData = pemToArrayBuffer(key)
+  const publicKey = await crypto.subtle.importKey(
+    'spki',
+    keyData,
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256',
+    },
+    true,
+    ['verify'],
+  )
+
+  const jwk = await crypto.subtle.exportKey(
+    'jwk',
+    publicKey,
+  ) as JsonWebKey
+
+  return {
+    kty: jwk.kty,
+    n: jwk.n,
+    e: jwk.e,
+    alg: 'RS256',
+    use: 'sig',
+    kid: await genJwkKeyId(keyData),
+  }
+}

@@ -10,6 +10,7 @@ import {
 } from 'configs'
 import { oauthDto } from 'dtos'
 import { userModel } from 'models'
+import { kvService } from 'services'
 
 export const getAuthCodeBody = async (
   context: Context<typeConfig.Context>, authCode: string,
@@ -81,19 +82,14 @@ export const getAccessTokenBody = async (
   type: ClientType,
   accessToken: string,
 ) => {
-  const {
-    SPA_ACCESS_TOKEN_JWT_SECRET,
-    S2S_ACCESS_TOKEN_JWT_SECRET,
-  } = env(context)
-  const jwtSecret = type === ClientType.SPA
-    ? SPA_ACCESS_TOKEN_JWT_SECRET
-    : S2S_ACCESS_TOKEN_JWT_SECRET
+  const publicSecret = await kvService.getJwtPublicSecret(context.env.KV)
 
   let accessTokenBody: typeConfig.AccessTokenBody
   try {
     accessTokenBody = await verify(
       accessToken,
-      jwtSecret,
+      publicSecret,
+      'RS256',
     ) as unknown as typeConfig.AccessTokenBody
   } catch (e) {
     throw new errorConfig.UnAuthorized()
@@ -113,17 +109,13 @@ export const genAccessToken = async (
   const {
     SPA_ACCESS_TOKEN_EXPIRES_IN,
     S2S_ACCESS_TOKEN_EXPIRES_IN,
-    SPA_ACCESS_TOKEN_JWT_SECRET,
-    S2S_ACCESS_TOKEN_JWT_SECRET,
   } = env(context)
 
   const isSpa = type === ClientType.SPA
   const accessTokenExpiresIn = isSpa
     ? SPA_ACCESS_TOKEN_EXPIRES_IN
     : S2S_ACCESS_TOKEN_EXPIRES_IN
-  const accessTokenSecret = isSpa
-    ? SPA_ACCESS_TOKEN_JWT_SECRET
-    : S2S_ACCESS_TOKEN_JWT_SECRET
+  const privateSecret = await kvService.getJwtPrivateSecret(context.env.KV)
   const accessTokenExpiresAt = currentTimestamp + accessTokenExpiresIn
   const accessTokenBody: typeConfig.AccessTokenBody = {
     sub,
@@ -135,7 +127,8 @@ export const genAccessToken = async (
 
   const accessToken = await sign(
     accessTokenBody as unknown as JWTPayload,
-    accessTokenSecret,
+    privateSecret,
+    'RS256',
   )
   return {
     accessToken,
@@ -184,7 +177,6 @@ export const genIdToken = async (
 ) => {
   const {
     ID_TOKEN_EXPIRES_IN: idTokenExpiresIn,
-    ID_TOKEN_JWT_SECRET: jwtSecret,
     AUTH_SERVER_URL: authServerUrl,
   } = env(c)
   const idTokenExpiresAt = currentTimestamp + idTokenExpiresIn
@@ -199,9 +191,13 @@ export const genIdToken = async (
     last_name: authInfo.user.lastName,
   }
   if (roles) body.roles = roles
+
+  const privateSecret = await kvService.getJwtPrivateSecret(c.env.KV)
+
   const idToken = await sign(
     body as unknown as JWTPayload,
-    jwtSecret,
+    privateSecret,
+    'RS256',
   )
   return { idToken }
 }
