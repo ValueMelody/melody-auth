@@ -1,7 +1,7 @@
 ENVIRONMENT = dev # Set to prod in production env
-DEV_EMAIL_RECEIVER=test@mail.com # When the ENVIRONMENT is not set to 'prod', all emails intended for users will be sent to this email address instead.
-
-SERVER_SESSION_SECRET=gggggggggggggggggggggggggggggggg # This must be replace with a strong secret with at least 32 characters
+DEV_EMAIL_RECEIVER= # When the ENVIRONMENT is not set to 'prod', all emails intended for users will be sent to this email address instead.
 
 SENDGRID_API_KEY= # Put your own SendGrid api key here
-SENDGRID_SENDER_ADDRESS=app@valuemelody.com # Put your own SendGrid sender address here
+SENDGRID_SENDER_ADDRESS= # Put your own SendGrid sender address here
+
+SERVER_SESSION_SECRET=gggggggggggggggggggggggggggggggg # This must be replace with a strong secret with at least 32 characters
