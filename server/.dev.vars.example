@@ -3,5 +3,3 @@ DEV_EMAIL_RECEIVER= # When the ENVIRONMENT is not set to 'prod', all emails inte
 
 SENDGRID_API_KEY= # Put your own SendGrid api key here
 SENDGRID_SENDER_ADDRESS= # Put your own SendGrid sender address here
-
-SERVER_SESSION_SECRET=gggggggggggggggggggggggggggggggg # This must be replace with a strong secret with at least 32 characters

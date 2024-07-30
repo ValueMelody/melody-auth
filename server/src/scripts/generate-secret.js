@@ -1,5 +1,6 @@
 const { exec } = require('child_process')
 const fs = require('fs')
+const crypto = require('crypto')
 const jose = require('node-jose')
 
 const PRIVATE_KEY_FILE = 'jwt_private_key.pem'
@@ -26,8 +27,14 @@ async function generateRSAKeyPair () {
     publicKey,
   )
 
+  const sessionSecret = crypto.randomBytes(20).toString('hex')
+
   exec(
-    `wrangler kv key put jwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV --local && wrangler kv key put jwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV --local`,
+    `
+      wrangler kv key put jwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV --local \
+      && wrangler kv key put jwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV --local \
+      && wrangler kv key put sessionSecret ${sessionSecret} --binding=KV --local
+    `,
     (
       error, stdout, stderr,
     ) => {

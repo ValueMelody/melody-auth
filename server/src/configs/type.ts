@@ -10,7 +10,6 @@ export type Bindings = {
   KV: KVNamespace;
   ENVIRONMENT: string;
   DEV_EMAIL_RECEIVER: string;
-  SERVER_SESSION_SECRET: string;
   SENDGRID_API_KEY: string;
   SENDGRID_SENDER_ADDRESS: string;
   AUTHORIZATION_CODE_EXPIRES_IN: number;
