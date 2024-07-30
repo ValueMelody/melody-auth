@@ -1,5 +1,6 @@
 import {
   errorConfig, adapterConfig, localeConfig,
+  typeConfig,
 } from 'configs'
 
 export const getJwtPrivateSecret = async (kv: KVNamespace) => {
@@ -14,15 +15,51 @@ export const getJwtPublicSecret = async (kv: KVNamespace) => {
   return secretInKv
 }
 
+export const storeAuthCode = async (
+  kv: KVNamespace,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+  expiresIn: number,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.AuthCode,
+      authCode,
+    ),
+    JSON.stringify(authCodeBody),
+    { expirationTtl: expiresIn },
+  )
+}
+
+export const getAuthCodeBody = async (
+  kv: KVNamespace, authCode: string,
+): Promise<typeConfig.AuthCodeBody> => {
+  const codeInKv = await kv.get(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.AuthCode,
+    authCode,
+  ))
+  if (!codeInKv) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  }
+  const codeBody = JSON.parse(codeInKv)
+  if (!codeBody) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  }
+  return codeBody
+}
+
 export const storeRefreshToken = async (
-  kv: KVNamespace, refreshToken: string, expiresIn: number,
+  kv: KVNamespace,
+  refreshToken: string,
+  value: typeConfig.RefreshTokenBody,
+  expiresIn: number,
 ) => {
   await kv.put(
     adapterConfig.getKVKey(
       adapterConfig.BaseKVKey.RefreshToken,
       refreshToken,
     ),
-    '1',
+    JSON.stringify(value),
     { expirationTtl: expiresIn },
   )
 }
@@ -36,9 +73,9 @@ export const invalidRefreshToken = async (
   ))
 }
 
-export const validateRefreshToken = async (
+export const getRefreshTokenBody = async (
   kv: KVNamespace, refreshToken: string,
-) => {
+): Promise<typeConfig.RefreshTokenBody> => {
   const tokenInKv = await kv.get(adapterConfig.getKVKey(
     adapterConfig.BaseKVKey.RefreshToken,
     refreshToken,
@@ -46,4 +83,9 @@ export const validateRefreshToken = async (
   if (!tokenInKv) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
   }
+  const tokenBody = JSON.parse(tokenInKv)
+  if (!tokenBody) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+  }
+  return tokenBody
 }

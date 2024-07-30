@@ -3,14 +3,13 @@ import { BlankSchema } from 'hono/types'
 import { Session } from 'hono-sessions'
 import { oauthDto } from 'dtos'
 import { typeConfig } from 'configs'
+import { userModel } from 'models'
 
 export type Bindings = {
   DB: D1Database;
   KV: KVNamespace;
   ENVIRONMENT: string;
   DEV_EMAIL_RECEIVER: string;
-  AUTHORIZATION_CODE_JWT_SECRET: string;
-  REFRESH_TOKEN_JWT_SECRET: string;
   SERVER_SESSION_SECRET: string;
   SENDGRID_API_KEY: string;
   SENDGRID_SENDER_ADDRESS: string;
@@ -44,19 +43,13 @@ export type App = Hono<Context, BlankSchema, '/'>
 
 export interface AuthCodeBody {
   request: oauthDto.GetAuthorizeReqDto;
-  user: {
-    id: number;
-    authId: string;
-    email: string | null;
-    firstName: string | null;
-    lastName: string | null;
-  };
+  user: userModel.Record;
   appId: number;
-  exp: number;
 }
 
 export interface AccessTokenBody {
   sub: string;
+  azp: string;
   scope: string;
   iat: number;
   exp: number;
@@ -69,12 +62,10 @@ export interface BasicAuthBody {
 }
 
 export interface RefreshTokenBody {
-  sub: string;
-  azp: string;
+  authId: string;
+  clientId: string;
   scope: string;
-  iat: number;
-  exp: number;
-  roles?: string[];
+  roles: string[];
 }
 
 export interface IdTokenBody {

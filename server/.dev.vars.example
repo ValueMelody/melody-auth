@@ -1,8 +1,6 @@
 ENVIRONMENT = dev # Set to prod in production env
 DEV_EMAIL_RECEIVER=test@mail.com # When the ENVIRONMENT is not set to 'prod', all emails intended for users will be sent to this email address instead.
 
-AUTHORIZATION_CODE_JWT_SECRET=aaa # This must be replace with a strong secret
-REFRESH_TOKEN_JWT_SECRET=ddd # This must be replace with a strong secret
 SERVER_SESSION_SECRET=gggggggggggggggggggggggggggggggg # This must be replace with a strong secret with at least 32 characters
 
 SENDGRID_API_KEY= # Put your own SendGrid api key here

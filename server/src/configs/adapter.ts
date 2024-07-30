@@ -10,6 +10,7 @@ export enum TableName {
 
 export enum BaseKVKey {
   RefreshToken = 'refreshToken',
+  AuthCode = 'authCode',
   JwtPublicSecret = 'jwtPublicSecret',
   JwtPrivateSecret = 'jwtPrivateSecret',
 }

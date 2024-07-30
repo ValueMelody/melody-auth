@@ -1,5 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { genRandomString } from 'shared'
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
@@ -7,10 +8,10 @@ import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
-  appService, consentService, jwtService, kvService, scopeService, sessionService, userService,
+  appService, consentService, kvService, scopeService, sessionService, userService,
 } from 'services'
 import {
-  formatUtil, timeUtil, validateUtil,
+  formatUtil, validateUtil,
 } from 'utils'
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
@@ -134,12 +135,17 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     user,
   )
 
-  const { authCode } = await jwtService.genAuthCode(
-    c,
-    timeUtil.getCurrentTimestamp(),
-    app.id,
-    new oauthDto.GetAuthorizeReqDto(bodyDto),
-    user,
+  const authCode = genRandomString(128)
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    {
+      appId: app.id,
+      user,
+      request: new oauthDto.GetAuthorizeReqDto(bodyDto),
+    },
+    codeExpiresIn,
   )
 
   const requireConsent = await consentService.shouldCollectConsent(
@@ -165,8 +171,8 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   })
   await validateUtil.dto(queryDto)
 
-  const authInfo = await jwtService.getAuthCodeBody(
-    c,
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
     queryDto.code,
   )
 
@@ -192,8 +198,8 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.GetAuthorizeConsentReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const authInfo = await jwtService.getAuthCodeBody(
-    c,
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
     bodyDto.code,
   )
 
@@ -233,12 +239,17 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   )
 
   const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
-  const { authCode } = await jwtService.genAuthCode(
-    c,
-    timeUtil.getCurrentTimestamp(),
-    app.id,
-    request,
-    user,
+  const authCode = genRandomString(128)
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    {
+      appId: app.id,
+      user,
+      request,
+    },
+    codeExpiresIn,
   )
 
   const requireConsent = await consentService.shouldCollectConsent(
@@ -305,11 +316,11 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
   await validateUtil.dto(bodyDto)
 
   const accessTokenBody = c.get('access_token_body')!
-  const refreshTokenBody = await jwtService.getRefreshTokenBody(
-    c,
+  const refreshTokenBody = await kvService.getRefreshTokenBody(
+    c.env.KV,
     bodyDto.refreshToken,
   )
-  if (accessTokenBody.sub !== refreshTokenBody.sub) {
+  if (accessTokenBody.sub !== refreshTokenBody.authId) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
   }
 
@@ -324,6 +335,6 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
   return c.json({
     success: true,
     redirectUri:
-      `${redirectUri}?post_logout_redirect_uri=${bodyDto.postLogoutRedirectUri}&client_id=${refreshTokenBody.azp}`,
+      `${redirectUri}?post_logout_redirect_uri=${bodyDto.postLogoutRedirectUri}&client_id=${refreshTokenBody.clientId}`,
   })
 }

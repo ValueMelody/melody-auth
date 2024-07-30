@@ -1,7 +1,9 @@
 import { Context } from 'hono'
 import {
   ClientType, PostTokenByAuthCodeRes, PostTokenByRefreshTokenRes, PostTokenByClientCredentialsRes, Scope,
+  genRandomString,
 } from 'shared'
+import { env } from 'hono/adapter'
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
@@ -21,12 +23,17 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     queryDto.clientId,
   )
   if (stored && stored.request.clientId === queryDto.clientId) {
-    const { authCode } = await jwtService.genAuthCode(
-      c,
-      timeUtil.getCurrentTimestamp(),
-      stored.appId,
-      queryDto,
-      stored.user,
+    const authCode = genRandomString(128)
+    const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+    await kvService.storeAuthCode(
+      c.env.KV,
+      authCode,
+      {
+        appId: stored.appId,
+        user: stored.user,
+        request: queryDto,
+      },
+      codeExpiresIn,
     )
 
     const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
@@ -47,8 +54,8 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
   })
   await validateUtil.dto(bodyDto)
 
-  const authInfo = await jwtService.getAuthCodeBody(
-    c,
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
     bodyDto.code,
   )
 
@@ -85,6 +92,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     ClientType.SPA,
     currentTimestamp,
     authId,
+    authInfo.request.clientId,
     scope,
     userRoles,
   )
@@ -99,18 +107,10 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
   }
 
   if (authInfo.request.scopes.includes(Scope.OfflineAccess)) {
-    const {
-      refreshToken,
-      refreshTokenExpiresIn,
-      refreshTokenExpiresAt,
-    } = await jwtService.genRefreshToken(
-      c,
-      currentTimestamp,
-      authId,
-      authInfo.request.clientId,
-      scope,
-      userRoles,
-    )
+    const { SPA_REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn } = env(c)
+    const refreshToken = genRandomString(128)
+    const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
+
     result.refresh_token = refreshToken
     result.refresh_token_expires_in = refreshTokenExpiresIn
     result.refresh_token_expires_on = refreshTokenExpiresAt
@@ -118,6 +118,9 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     await kvService.storeRefreshToken(
       c.env.KV,
       refreshToken,
+      {
+        authId, clientId: authInfo.request.clientId, scope, roles: userRoles,
+      },
       refreshTokenExpiresIn,
     )
   }
@@ -144,13 +147,8 @@ export const postTokenRefreshToken = async (c: Context<typeConfig.Context>) => {
   })
   await validateUtil.dto(bodyDto)
 
-  await kvService.validateRefreshToken(
+  const refreshTokenBody = await kvService.getRefreshTokenBody(
     c.env.KV,
-    bodyDto.refreshToken,
-  )
-
-  const refreshTokenBody = await jwtService.getRefreshTokenBody(
-    c,
     bodyDto.refreshToken,
   )
 
@@ -162,7 +160,8 @@ export const postTokenRefreshToken = async (c: Context<typeConfig.Context>) => {
     c,
     ClientType.SPA,
     timeUtil.getCurrentTimestamp(),
-    refreshTokenBody.sub,
+    refreshTokenBody.authId,
+    refreshTokenBody.clientId,
     refreshTokenBody.scope,
     refreshTokenBody.roles,
   )
@@ -207,6 +206,7 @@ export const postTokenClientCredentials = async (c: Context<typeConfig.Context>)
     c,
     ClientType.S2S,
     timeUtil.getCurrentTimestamp(),
+    basicAuth.username,
     basicAuth.username,
     validScopes.join(' '),
   )
