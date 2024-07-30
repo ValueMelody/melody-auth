@@ -13,17 +13,17 @@ AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
 
 ENABLE_SIGN_UP=true
-ENABLE_PASSWORD_RESET=true # Requires enable email function first. To enable email functionality, set valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS environment variables
+ENABLE_PASSWORD_RESET=true # Requires enabling the email function first. To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
 ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
-ENABLE_EMAIL_VERIFICATION=true # Requires enable email function first. To enable email functionality, set valid SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS environment variables
+ENABLE_EMAIL_VERIFICATION=true # Requires enabling the email function first. To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
 
 [[kv_namespaces]]
 binding = "KV"
-id = "7d9be060a7bc48919251b37caa7e1fcd" # Replace with your own KV id
+id = "7d9be060a7bc48919251b37caa7e1fcd" # Replace with your own KV ID
 
 [[d1_databases]]
 binding = "DB"
 database_name = "melody-auth"
-database_id = "87a3b0b4-a232-4047-a72a-3d65890387ba" # Replace with your own D1 id
+database_id = "87a3b0b4-a232-4047-a72a-3d65890387ba" # Replace with your own D1 ID

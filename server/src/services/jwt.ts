@@ -6,76 +6,9 @@ import {
 import { JWTPayload } from 'hono/utils/jwt/types'
 import { ClientType } from 'shared'
 import {
-  errorConfig, localeConfig, typeConfig,
+  errorConfig, typeConfig,
 } from 'configs'
-import { oauthDto } from 'dtos'
-import { userModel } from 'models'
 import { kvService } from 'services'
-
-export const getAuthCodeBody = async (
-  context: Context<typeConfig.Context>, authCode: string,
-) => {
-  let authInfo: typeConfig.AuthCodeBody
-  try {
-    authInfo = await verify(
-      authCode,
-      context.env.AUTHORIZATION_CODE_JWT_SECRET,
-    ) as unknown as typeConfig.AuthCodeBody
-  } catch (e) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
-  }
-
-  return authInfo
-}
-
-export const genAuthCode = async (
-  c: Context<typeConfig.Context>,
-  currentTimestamp: number,
-  appId: number,
-  request: oauthDto.GetAuthorizeReqDto,
-  user: userModel.Record,
-) => {
-  const {
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    AUTHORIZATION_CODE_JWT_SECRET: jwtSecret,
-  } = env(c)
-  const codeExpiresAt = currentTimestamp + codeExpiresIn
-  const authBody: typeConfig.AuthCodeBody = {
-    request,
-    user: {
-      id: user.id,
-      authId: user.authId,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    },
-    appId,
-    exp: codeExpiresAt,
-  }
-
-  const authCode = await sign(
-    authBody as unknown as JWTPayload,
-    jwtSecret,
-  )
-
-  return { authCode }
-}
-
-export const getRefreshTokenBody = async (
-  context: Context<typeConfig.Context>, refreshToken: string,
-) => {
-  let refreshTokenBody: typeConfig.RefreshTokenBody
-  try {
-    refreshTokenBody = await verify(
-      refreshToken,
-      context.env.REFRESH_TOKEN_JWT_SECRET,
-    ) as unknown as typeConfig.RefreshTokenBody
-  } catch (e) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
-  }
-
-  return refreshTokenBody
-}
 
 export const getAccessTokenBody = async (
   context: Context<typeConfig.Context>,
@@ -103,6 +36,7 @@ export const genAccessToken = async (
   type: ClientType,
   currentTimestamp: number,
   sub: string,
+  azp: string,
   scope: string,
   roles?: string[] | null,
 ) => {
@@ -119,6 +53,7 @@ export const genAccessToken = async (
   const accessTokenExpiresAt = currentTimestamp + accessTokenExpiresIn
   const accessTokenBody: typeConfig.AccessTokenBody = {
     sub,
+    azp,
     scope,
     iat: currentTimestamp,
     exp: accessTokenExpiresAt,
@@ -137,43 +72,11 @@ export const genAccessToken = async (
   }
 }
 
-export const genRefreshToken = async (
-  c: Context<typeConfig.Context>,
-  currentTimestamp: number,
-  authId: string,
-  clientId: string,
-  scope: string,
-  roles?: string[] | null,
-) => {
-  const {
-    SPA_REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn,
-    REFRESH_TOKEN_JWT_SECRET: jwtSecret,
-  } = env(c)
-  const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
-  const refreshTokenBody: typeConfig.RefreshTokenBody = {
-    sub: authId,
-    azp: clientId,
-    scope,
-    iat: currentTimestamp,
-    exp: refreshTokenExpiresAt,
-  }
-  if (roles) refreshTokenBody.roles = roles
-  const refreshToken = await sign(
-    refreshTokenBody as unknown as JWTPayload,
-    jwtSecret,
-  )
-  return {
-    refreshToken,
-    refreshTokenExpiresIn,
-    refreshTokenExpiresAt,
-  }
-}
-
 export const genIdToken = async (
   c: Context<typeConfig.Context>,
   currentTimestamp: number,
   authInfo: typeConfig.AuthCodeBody,
-  roles?: string[] | null,
+  roles: string[],
 ) => {
   const {
     ID_TOKEN_EXPIRES_IN: idTokenExpiresIn,
@@ -190,7 +93,7 @@ export const genIdToken = async (
     first_name: authInfo.user.firstName,
     last_name: authInfo.user.lastName,
   }
-  if (roles) body.roles = roles
+  body.roles = roles
 
   const privateSecret = await kvService.getJwtPrivateSecret(c.env.KV)
 
