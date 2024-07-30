@@ -9,20 +9,21 @@ import {
   errorConfig, typeConfig,
 } from 'configs'
 import { formatUtil } from 'utils'
+import { kvService } from 'services'
 
 const store = new CookieStore()
 
 export const session = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
-  const {
-    SERVER_SESSION_SECRET: secret,
-    SERVER_SESSION_EXPIRES_IN: expiresIn,
-  } = env(c)
+  const { SERVER_SESSION_EXPIRES_IN: expiresIn } = env(c)
   if (!expiresIn) {
     await next()
     return
   }
+
+  const secret = await kvService.getSessionSecret(c.env.KV)
+
   const session = sessionMiddleware({
     store,
     encryptionKey: secret,

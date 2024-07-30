@@ -3,13 +3,19 @@ import {
   typeConfig,
 } from 'configs'
 
-export const getJwtPrivateSecret = async (kv: KVNamespace) => {
+export const getSessionSecret = async (kv: KVNamespace): Promise<string> => {
+  const secretInKv = await kv.get(adapterConfig.BaseKVKey.sessionSecret)
+  if (!secretInKv) throw new errorConfig.Forbidden()
+  return secretInKv
+}
+
+export const getJwtPrivateSecret = async (kv: KVNamespace): Promise<string> => {
   const secretInKv = await kv.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
   if (!secretInKv) throw new errorConfig.Forbidden()
   return secretInKv
 }
 
-export const getJwtPublicSecret = async (kv: KVNamespace) => {
+export const getJwtPublicSecret = async (kv: KVNamespace): Promise<string> => {
   const secretInKv = await kv.get(adapterConfig.BaseKVKey.JwtPublicSecret)
   if (!secretInKv) throw new errorConfig.Forbidden()
   return secretInKv
