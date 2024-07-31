@@ -6,8 +6,11 @@ actions:
   - text: GitHub
     link: https://github.com/ValueMelody/melody-auth
     type: primary
-  - text: Configuration
-    link: /server-config.html
+  - text: Auth Server
+    link: /auth-server.html
+    type: secondary
+  - text: Admin Panel
+    link: /admin-panel.html
     type: secondary
   - text: React SDK
     link: /react-sdk.html

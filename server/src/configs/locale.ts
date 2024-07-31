@@ -2,6 +2,7 @@ export enum Error {
   NoApp = 'No app found',
   WrongClientType = 'Wrong client type',
   WrongClientSecret = 'Wrong client secret',
+  WrongOrigin = 'Request from unexpected origin',
   AppDisabled = 'This app has been disabled',
   EmailTaken = 'The email address is already in use.',
   WrongRedirectUri = 'Invalid redirect_uri',

@@ -2,25 +2,31 @@
 
 **Melody Auth** is a turnkey authentication system leveraging Cloudflare’s infrastructure. It provides a robust and user-friendly solution for implementing your own authentication system with minimal configuration required.
 
-## Highlight
+## Features Supported
+- OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes)
+- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset)
+- Admin Panel (Manage users, manage apps, manage scopes, manage roles)
+- RSA256 based JWT Authentication
+- Role-Based Access Control
 
-1. **Self-Hosted**
-   - Deploy the entire system within minutes
-   - Leverage Cloudflare's infrastructure to minimize DevOps overhead
-   - Full access to the source code
+## Why Melody Auth?
 
-2. **React SDK**
-   - Enables smooth integration between React applications and the authentication server
+### 1. Self-Hosted
+- Deploy the entire system within minutes
+- Leverage Cloudflare's infrastructure to minimize DevOps overhead
+- Full access to the source code
 
-3. **Client-Side PKCE Authentication Flow**
-   - Implements Proof Key for Code Exchange (PKCE) for enhanced security
-   - Protects against authorization code interception attacks
+### 2. Admin Panel
+- Web interface for managing apps, users, scopes, and roles
+- Serves as a simple implementation example using the React SDK and Server-to-Server REST API
 
-4. **Server-to-Server REST API**
-   - Secure communication channel for backend services
+### 3. React SDK
+- Enables smooth integration between React applications and the authentication server
+- Implements Proof Key for Code Exchange (PKCE) for enhanced security
 
-5. **Admin Panel**
-   - Web interface for managing apps, users, scopes and roles
+### 4. Server-to-Server REST API
+- Secure communication channel for backend services using client credentials token exchange flow
+- Provides functionalities for managing apps, users, scopes, and roles with scope protection
 
 ## License
 
