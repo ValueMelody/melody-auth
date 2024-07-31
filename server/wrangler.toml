@@ -1,5 +1,6 @@
 name = "melody-auth"
 compatibility_date = "2023-12-01"
+keep_vars = true
 
 [vars]
 AUTHORIZATION_CODE_EXPIRES_IN=60
@@ -9,9 +10,7 @@ S2S_ACCESS_TOKEN_EXPIRES_IN=3600
 ID_TOKEN_EXPIRES_IN=1800
 SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
 
-AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
-
 ENABLE_SIGN_UP=true
 ENABLE_PASSWORD_RESET=true # Requires enabling the email function first. To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
 ENABLE_NAMES=true

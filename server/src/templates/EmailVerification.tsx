@@ -2,6 +2,7 @@ import {
   localeConfig, routeConfig,
 } from 'configs'
 import Layout from 'templates/components/Layout'
+import { formatUtil } from 'utils'
 
 const EmailVerification = ({
   serverUrl, logoUrl, verificationCode, authId,
@@ -11,7 +12,7 @@ const EmailVerification = ({
   verificationCode: string;
   authId: string;
 }) => {
-  const route = `${serverUrl}${routeConfig.InternalRoute.Identity}`
+  const route = `${formatUtil.stripEndingSlash(serverUrl)}${routeConfig.InternalRoute.Identity}`
 
   return (
     <Layout logoUrl={logoUrl}>

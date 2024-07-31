@@ -6,7 +6,7 @@ import {
   CookieStore, sessionMiddleware,
 } from 'hono-sessions'
 import {
-  errorConfig, typeConfig,
+  errorConfig, localeConfig, typeConfig,
 } from 'configs'
 import { formatUtil } from 'utils'
 import { kvService } from 'services'
@@ -47,7 +47,7 @@ export const validOrigin = async (
   const { AUTH_SERVER_URL: serverUrl } = env(c)
 
   if (formatUtil.stripEndingSlash(serverUrl) !== origin) {
-    throw new errorConfig.Forbidden()
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongOrigin)
   }
 
   await next()

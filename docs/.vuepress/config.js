@@ -10,7 +10,6 @@ export default defineUserConfig({
 
   theme: defaultTheme({
     logo: 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg',
-
     navbar: [],
   }),
 
