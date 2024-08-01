@@ -49,4 +49,4 @@ npm run dev
     cd melody-auth/server
     wrangler d1 execute melody-auth --command="insert into user_role (userId, roleId) values (1, 1)"
     ```
-4. Refresh the admin panel page. You should now have full access.
+4. Logout and login again. You should now have full access.

@@ -79,7 +79,8 @@ const s2sScopeGuard = async (
   if (!accessTokenBody) return false
 
   const scopes = accessTokenBody.scope?.split(' ') ?? []
-  if (!scopes.includes(scope)) return false
+
+  if (!scopes.includes(scope) && !scopes.includes(Scope.Root)) return false
 
   c.set(
     'access_token_body',
