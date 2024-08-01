@@ -320,14 +320,16 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.refreshToken,
   )
-  if (accessTokenBody.sub !== refreshTokenBody.authId) {
+  if (refreshTokenBody && accessTokenBody.sub !== refreshTokenBody.authId) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
   }
 
-  await kvService.invalidRefreshToken(
-    c.env.KV,
-    bodyDto.refreshToken,
-  )
+  if (!refreshTokenBody) {
+    await kvService.invalidRefreshToken(
+      c.env.KV,
+      bodyDto.refreshToken,
+    )
+  }
 
   const { AUTH_SERVER_URL } = env(c)
   const redirectUri = `${formatUtil.stripEndingSlash(AUTH_SERVER_URL)}${routeConfig.InternalRoute.OAuth}/logout`

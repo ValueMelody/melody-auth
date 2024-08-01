@@ -9,12 +9,18 @@ import {
 export interface AuthState {
   config: ProviderConfig;
   refreshTokenStorage: RefreshTokenStorage | null;
-  accessTokenStorage: AccessTokenStorage | null;
-  userInfo: GetUserInfoRes | null;
   isAuthenticated: boolean;
   isAuthenticating: boolean;
+  authenticationError: string;
   checkedStorage: boolean;
-  isLoading: boolean;
+  userInfo: GetUserInfoRes | null;
+  isLoadingUserInfo: boolean;
+  acquireUserInfoError: string;
+  accessTokenStorage: AccessTokenStorage | null;
+  isLoadingToken: boolean;
+  acquireTokenError: string;
+  loginError: string;
+  logoutError: string;
 }
 
 export type DispatchAction =
@@ -23,7 +29,13 @@ export type DispatchAction =
   | { type: 'setUserInfo'; payload: GetUserInfoRes | null }
   | { type: 'setIsAuthenticating'; payload: boolean }
   | { type: 'setCheckedStorage'; payload: boolean }
-  | { type: 'setIsLoading'; payload: boolean }
+  | { type: 'setIsLoadingUserInfo'; payload: boolean }
+  | { type: 'setAcquireUserInfoError'; payload: string }
+  | { type: 'setIsLoadingToken'; payload: boolean }
+  | { type: 'setAcquireTokenError'; payload: string }
+  | { type: 'setAuthenticationError'; payload: string }
+  | { type: 'setLoginError'; payload: string }
+  | { type: 'setLogoutError'; payload: string }
 
 export type AuthDispatch = Dispatch<DispatchAction>
 

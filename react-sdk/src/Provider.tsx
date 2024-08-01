@@ -23,6 +23,8 @@ const reducer = (
       accessTokenStorage: action.payload,
       isAuthenticated: true,
       isAuthenticating: false,
+      isLoadingToken: false,
+      acquireTokenError: '',
     }
   case 'setRefreshTokenStorage':
     return {
@@ -30,23 +32,58 @@ const reducer = (
       refreshTokenStorage: action.payload,
       checkedStorage: true,
     }
-  case 'setUserInfo':
-    return {
-      ...state,
-      userInfo: action.payload,
-      isLoading: false,
-    }
   case 'setIsAuthenticating':
     return {
       ...state, isAuthenticating: action.payload,
+    }
+  case 'setAuthenticationError':
+    return {
+      ...state,
+      authenticationError: action.payload,
+      isAuthenticating: false,
     }
   case 'setCheckedStorage':
     return {
       ...state, checkedStorage: action.payload,
     }
-  case 'setIsLoading':
+  case 'setIsLoadingUserInfo':
     return {
-      ...state, isLoading: action.payload,
+      ...state, isLoadingUserInfo: action.payload,
+    }
+  case 'setAcquireUserInfoError':
+    return {
+      ...state,
+      acquireUserInfoError: action.payload,
+      isLoadingUserInfo: false,
+    }
+  case 'setUserInfo':
+    return {
+      ...state,
+      userInfo: action.payload,
+      isLoadingUserInfo: false,
+      acquireUserInfoError: '',
+    }
+  case 'setAcquireTokenError':
+    return {
+      ...state,
+      acquireTokenError: action.payload,
+      isLoadingToken: false,
+      isAuthenticating: false,
+    }
+  case 'setIsLoadingToken':
+    return {
+      ...state,
+      isLoadingToken: true,
+    }
+  case 'setLoginError':
+    return {
+      ...state,
+      loginError: action.payload,
+    }
+  case 'setLogoutError':
+    return {
+      ...state,
+      logoutError: action.payload,
     }
   }
 }
@@ -59,13 +96,19 @@ export const AuthProvider = ({
     reducer,
     {
       isAuthenticating: true,
+      authenticationError: '',
       isAuthenticated: false,
-      isLoading: false,
       config,
       userInfo: null,
       accessTokenStorage: null,
       refreshTokenStorage: null,
       checkedStorage: false,
+      isLoadingUserInfo: false,
+      acquireUserInfoError: '',
+      isLoadingToken: false,
+      acquireTokenError: '',
+      loginError: '',
+      logoutError: '',
     },
   )
 

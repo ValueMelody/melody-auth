@@ -1,13 +1,5 @@
 # React SDK
 
-Melody Auth React SDK facilitates seamless interaction between React applications and the auth server. It silently handles authentication state management, redirect flows, token exchange, and authentication validation for you.
-
-## Installation
-
-```
-npm install @melody-auth/react --save
-```
-
 ## AuthProvider
 
 Wrap your application inside AuthProvider component to provide the auth related context to your application components.
@@ -42,19 +34,6 @@ export default function RootLayout ({ children }: {
 }
 ```
 
-## isAuthenticating
-
-Indicates whether the SDK is initializing and attempting to obtain the user's authentication state.
-```
-import { useAuth } from '@melody-auth/react'
-
-export default function Home () {
-  const { isAuthenticating } = useAuth()
-
-  if (isAuthenticating) return <Spinner />
-}
-```
-
 ## isAuthenticated
 
 Indicates if the current user is authenticated.
@@ -85,6 +64,30 @@ export default function Home () {
 
   if (!isAuthenticated) {
     return <Button onClick={handleLogin}>Login</Button>
+  }
+}
+```
+
+## logoutRedirect
+
+Triggers the logout flow.
+
+| Parameter | Type | Description | Default | Required |
+|-----------|------|-------------|---------|----------|
+| postLogoutRedirectUri | string | The URL to redirect users after logout | N/A | No |
+
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { isAuthenticated, logoutRedirect } = useAuth()
+
+  const handleLogout = () => {
+    logoutRedirect({ postLogoutRedirectUri: 'http://localhost:3000/' })
+  }
+
+  if (isAuthenticated) {
+    return <Button onClick={handleLogout}>Logout</Button>
   }
 }
 ```
@@ -132,39 +135,106 @@ export default function Home () {
 }
 ```
 
-## isLoading
+## isAuthenticating
 
-Indicates whether the SDK is fetching user info.
+Indicates whether the SDK is initializing and attempting to obtain the user's authentication state.
 ```
 import { useAuth } from '@melody-auth/react'
 
 export default function Home () {
-  const { isLoading } = useAuth()
+  const { isAuthenticating } = useAuth()
 
-  if (isLoading) return <Spinner />
+  if (isAuthenticating) return <Spinner />
 }
 ```
 
-## logoutRedirect
+## isLoadingToken
 
-Triggers the logout flow.
-
-| Parameter | Type | Description | Default | Required |
-|-----------|------|-------------|---------|----------|
-| postLogoutRedirectUri | string | The URL to redirect users after logout | N/A | No |
-
+Indicates whether the SDK is acquiring token.
 ```
 import { useAuth } from '@melody-auth/react'
 
 export default function Home () {
-  const { isAuthenticated, logoutRedirect } = useAuth()
+  const { isLoadingToken } = useAuth()
 
-  const handleLogout = () => {
-    logoutRedirect({ postLogoutRedirectUri: 'http://localhost:3000/' })
-  }
+  if (isLoadingToken) return <Spinner />
+}
+```
 
-  if (isAuthenticated) {
-    return <Button onClick={handleLogout}>Logout</Button>
-  }
+## isLoadingUserInfo
+
+Indicates whether the SDK is acquiring user info.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { isLoadingUserInfo } = useAuth()
+
+  if (isLoadingUserInfo) return <Spinner />
+}
+```
+
+## authenticationError
+
+Indicates whether there is an authentication process related error.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { authenticationError } = useAuth()
+
+  if (authenticationError) return <Alert />
+}
+```
+
+## acquireTokenError
+
+Indicates whether there is an acquireToken process related error.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { acquireTokenError } = useAuth()
+
+  if (acquireTokenError) return <Alert />
+}
+```
+
+## acquireUserInfoError
+
+Indicates whether there is an acquireUserInfo process related error.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { acquireUserInfoError } = useAuth()
+
+  if (acquireUserInfoError) return <Alert />
+}
+```
+
+## loginError
+
+Indicates whether there is an login process related error.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { loginError } = useAuth()
+
+  if (loginError) return <Alert />
+}
+```
+
+## logoutError
+
+Indicates whether there is an login process related error.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { logoutError } = useAuth()
+
+  if (logoutError) return <Alert />
 }
 ```
