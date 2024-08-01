@@ -7,6 +7,9 @@ import {
   exchangeTokenByRefreshToken, getUserInfo,
 } from 'web-sdk'
 import authContext, { AuthContext } from './context'
+import {
+  ErrorType, handleError,
+} from './utils'
 
 export const useAuth = () => {
   const context = useContext<AuthContext>(authContext)
@@ -37,9 +40,19 @@ export const useAuth = () => {
     () => {
       if (state.isAuthenticating) throw new Error('Please wait until isAuthenticating=false')
       if (state.isAuthenticated) throw new Error('Already authenticated, please logout first')
-      rawLoginRedirect(state.config)
+      try {
+        rawLoginRedirect(state.config)
+      } catch (e) {
+        const msg = handleError(
+          e,
+          ErrorType.LoginFailed,
+        )
+        dispatch({
+          type: 'setLoginError', payload: msg,
+        })
+      }
     },
-    [state.config, state.isAuthenticating, state.isAuthenticated],
+    [state.config, state.isAuthenticating, state.isAuthenticated, dispatch],
   )
 
   const logoutRedirect = useCallback(
@@ -52,15 +65,25 @@ export const useAuth = () => {
     }) => {
       if (!accessToken) return
 
-      await logout(
-        state.config,
-        accessToken,
-        refreshToken,
-        postLogoutRedirectUri,
-        localOnly,
-      )
+      try {
+        await logout(
+          state.config,
+          accessToken,
+          refreshToken,
+          postLogoutRedirectUri,
+          localOnly,
+        )
+      } catch (e) {
+        const msg = handleError(
+          e,
+          ErrorType.LogoutFailed,
+        )
+        dispatch({
+          type: 'setLogoutError', payload: msg,
+        })
+      }
     },
-    [state.config, accessToken, refreshToken],
+    [state.config, accessToken, refreshToken, dispatch],
   )
 
   const acquireToken = useCallback(
@@ -76,14 +99,31 @@ export const useAuth = () => {
         !!refreshTokenStorage?.refreshToken &&
         currentTimeStamp < refreshTokenStorage.expiresOn - 5
       if (hasValidRefreshToken) {
-        const res = await exchangeTokenByRefreshToken(
-          state.config,
-          refreshTokenStorage.refreshToken,
-        )
         dispatch({
-          type: 'setAccessTokenStorage', payload: res,
+          type: 'setIsLoadingToken', payload: true,
         })
-        return res.accessToken
+        try {
+          const res = await exchangeTokenByRefreshToken(
+            state.config,
+            refreshTokenStorage.refreshToken,
+          )
+          dispatch({
+            type: 'setAccessTokenStorage', payload: res,
+          })
+          return res.accessToken
+        } catch (e) {
+          const errorMsg = handleError(
+            e,
+            ErrorType.ExchangeAccessToken,
+          )
+          dispatch({
+            type: 'setAcquireTokenError', payload: errorMsg,
+          })
+        }
+      } else {
+        dispatch({
+          type: 'setAcquireTokenError', payload: ErrorType.InvalidRefreshToken,
+        })
       }
 
       return ''
@@ -96,32 +136,48 @@ export const useAuth = () => {
       if (state.userInfo) return state.userInfo
 
       dispatch({
-        type: 'setIsLoading', payload: true,
+        type: 'setIsLoadingUserInfo', payload: true,
       })
 
       const accessToken = await acquireToken()
-      const res = await getUserInfo(
-        state.config,
-        { accessToken },
-      )
+      try {
+        const res = await getUserInfo(
+          state.config,
+          { accessToken },
+        )
 
-      dispatch({
-        type: 'setUserInfo', payload: res,
-      })
-      return res
+        dispatch({
+          type: 'setUserInfo', payload: res,
+        })
+        return res
+      } catch (e) {
+        const errorMsg = handleError(
+          e,
+          ErrorType.FetchUserInfo,
+        )
+        dispatch({
+          type: 'setAcquireUserInfoError', payload: errorMsg,
+        })
+      }
     },
     [acquireToken, state.config, state.userInfo, dispatch],
   )
 
   return {
     loginRedirect,
-    accessToken,
     refreshToken,
-    acquireToken,
-    acquireUserInfo,
     logoutRedirect,
+    accessToken,
     isAuthenticated,
+    acquireUserInfo,
+    acquireToken,
     isAuthenticating,
-    isLoading: state.isLoading,
+    isLoadingToken: state.isLoadingToken,
+    isLoadingUserInfo: state.isLoadingUserInfo,
+    authenticationError: state.authenticationError,
+    acquireTokenError: state.acquireTokenError,
+    acquireUserInfoError: state.acquireUserInfoError,
+    loginError: state.loginError,
+    logoutError: state.logoutError,
   }
 }

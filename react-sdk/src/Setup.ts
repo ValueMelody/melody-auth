@@ -5,6 +5,9 @@ import {
 import { exchangeTokenByAuthCode } from 'web-sdk'
 import { useAuth } from './useAuth'
 import authContext, { AuthContext } from './context'
+import {
+  ErrorType, handleError,
+} from './utils'
 
 const Setup = () => {
   const { acquireToken } = useAuth()
@@ -24,9 +27,7 @@ const Setup = () => {
       if (state.accessTokenStorage) return
 
       if (state.refreshTokenStorage && !state.accessTokenStorage) {
-        acquireToken().catch(() => dispatch({
-          type: 'setIsAuthenticating', payload: false,
-        }))
+        acquireToken()
         return
       }
 
@@ -48,9 +49,13 @@ const Setup = () => {
               })
             }
           })
-          .catch(() => {
+          .catch((e) => {
+            const msg = handleError(
+              e,
+              ErrorType.ObtainAccessToken,
+            )
             dispatch({
-              type: 'setIsAuthenticating', payload: false,
+              type: 'setAuthenticationError', payload: msg,
             })
           })
       }
