@@ -23,7 +23,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
   const {
     isAuthenticating, isAuthenticated, acquireUserInfo,
-    loginRedirect, logoutRedirect,
+    loginRedirect, logoutRedirect, isLoading,
   } = useAuth()
 
   const userInfo = useSignalValue(userInfoSignal)
@@ -44,7 +44,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     [acquireUserInfo, isAuthenticated],
   )
 
-  if (isAuthenticating) {
+  if (isAuthenticating || isLoading) {
     return (
       <section className='flex flex-col justify-center items-center w-full h-screen'>
         <Spinner size='lg' />

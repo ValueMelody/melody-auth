@@ -32,7 +32,9 @@ const reducer = (
     }
   case 'setUserInfo':
     return {
-      ...state, userInfo: action.payload,
+      ...state,
+      userInfo: action.payload,
+      isLoading: false,
     }
   case 'setIsAuthenticating':
     return {
@@ -41,6 +43,10 @@ const reducer = (
   case 'setCheckedStorage':
     return {
       ...state, checkedStorage: action.payload,
+    }
+  case 'setIsLoading':
+    return {
+      ...state, isLoading: action.payload,
     }
   }
 }
@@ -54,6 +60,7 @@ export const AuthProvider = ({
     {
       isAuthenticating: true,
       isAuthenticated: false,
+      isLoading: false,
       config,
       userInfo: null,
       accessTokenStorage: null,
