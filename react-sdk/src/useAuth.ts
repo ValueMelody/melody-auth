@@ -95,6 +95,10 @@ export const useAuth = () => {
     async () => {
       if (state.userInfo) return state.userInfo
 
+      dispatch({
+        type: 'setIsLoading', payload: true,
+      })
+
       const accessToken = await acquireToken()
       const res = await getUserInfo(
         state.config,
@@ -118,5 +122,6 @@ export const useAuth = () => {
     logoutRedirect,
     isAuthenticated,
     isAuthenticating,
+    isLoading: state.isLoading,
   }
 }

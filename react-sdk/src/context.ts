@@ -14,6 +14,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isAuthenticating: boolean;
   checkedStorage: boolean;
+  isLoading: boolean;
 }
 
 export type DispatchAction =
@@ -22,6 +23,7 @@ export type DispatchAction =
   | { type: 'setUserInfo'; payload: GetUserInfoRes | null }
   | { type: 'setIsAuthenticating'; payload: boolean }
   | { type: 'setCheckedStorage'; payload: boolean }
+  | { type: 'setIsLoading'; payload: boolean }
 
 export type AuthDispatch = Dispatch<DispatchAction>
 

@@ -132,6 +132,19 @@ export default function Home () {
 }
 ```
 
+## isLoading
+
+Indicates whether the SDK is fetching user info.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { isLoading } = useAuth()
+
+  if (isLoading) return <Spinner />
+}
+```
+
 ## logoutRedirect
 
 Triggers the logout flow.
