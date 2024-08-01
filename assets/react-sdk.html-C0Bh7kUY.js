@@ -1,39 +1,4 @@
-<!doctype html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="generator" content="VuePress 2.0.0-rc.14" />
-    <style>
-      :root {
-        --c-bg: #fff;
-      }
-
-      html.dark {
-        --c-bg: #22272e;
-      }
-
-      html,
-      body {
-        background-color: var(--c-bg);
-      }
-    </style>
-    <script>
-      const userMode = localStorage.getItem('vuepress-color-scheme')
-      const systemDarkMode =
-        window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-      if (userMode === 'dark' || (userMode !== 'light' && systemDarkMode)) {
-        document.documentElement.classList.toggle('dark', true)
-      }
-    </script>
-    <title>React SDK | Melody Auth</title><meta name="description" content="A turnkey authentication system that can be self-hosted on Cloudflare’s infrastructure.">
-    <link rel="preload" href="/assets/style-pqpGs7N-.css" as="style"><link rel="stylesheet" href="/assets/style-pqpGs7N-.css">
-    <link rel="modulepreload" href="/assets/app-iDklwl99.js"><link rel="modulepreload" href="/assets/react-sdk.html-C0Bh7kUY.js">
-    <link rel="prefetch" href="/assets/index.html-DRnIfcao.js" as="script"><link rel="prefetch" href="/assets/admin-panel.html-CGkDLXCK.js" as="script"><link rel="prefetch" href="/assets/auth-server.html-Ct1s7-Sr.js" as="script"><link rel="prefetch" href="/assets/s2s-api.html-B2TalO__.js" as="script"><link rel="prefetch" href="/assets/404.html-DJa0DKWG.js" as="script">
-  </head>
-  <body>
-    <div id="app"><!--[--><div class="vp-theme-container external-link-icon"><!--[--><header class="vp-navbar"><div class="vp-toggle-sidebar-button" title="toggle sidebar" aria-expanded="false" role="button" tabindex="0"><div class="icon" aria-hidden="true"><span></span><span></span><span></span></div></div><span><a class="route-link" href="/"><img class="vp-site-logo" src="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg" alt="Melody Auth"><span class="vp-site-name vp-hide-mobile" aria-hidden="true">Melody Auth</span></a></span><div class="vp-navbar-items-wrapper" style=""><!--[--><!--]--><!----><!--[--><!--]--><button class="vp-toggle-color-mode-button" title="toggle color mode"><svg class="light-icon" viewbox="0 0 32 32" style=""><path d="M16 12.005a4 4 0 1 1-4 4a4.005 4.005 0 0 1 4-4m0-2a6 6 0 1 0 6 6a6 6 0 0 0-6-6z" fill="currentColor"></path><path d="M5.394 6.813l1.414-1.415l3.506 3.506L8.9 10.318z" fill="currentColor"></path><path d="M2 15.005h5v2H2z" fill="currentColor"></path><path d="M5.394 25.197L8.9 21.691l1.414 1.415l-3.506 3.505z" fill="currentColor"></path><path d="M15 25.005h2v5h-2z" fill="currentColor"></path><path d="M21.687 23.106l1.414-1.415l3.506 3.506l-1.414 1.414z" fill="currentColor"></path><path d="M25 15.005h5v2h-5z" fill="currentColor"></path><path d="M21.687 8.904l3.506-3.506l1.414 1.415l-3.506 3.505z" fill="currentColor"></path><path d="M15 2.005h2v5h-2z" fill="currentColor"></path></svg><svg class="dark-icon" viewbox="0 0 32 32" style="display:none;"><path d="M13.502 5.414a15.075 15.075 0 0 0 11.594 18.194a11.113 11.113 0 0 1-7.975 3.39c-.138 0-.278.005-.418 0a11.094 11.094 0 0 1-3.2-21.584M14.98 3a1.002 1.002 0 0 0-.175.016a13.096 13.096 0 0 0 1.825 25.981c.164.006.328 0 .49 0a13.072 13.072 0 0 0 10.703-5.555a1.01 1.01 0 0 0-.783-1.565A13.08 13.08 0 0 1 15.89 4.38A1.015 1.015 0 0 0 14.98 3z" fill="currentColor"></path></svg></button><!----></div></header><!--]--><div class="vp-sidebar-mask"></div><!--[--><aside class="vp-sidebar"><!----><!--[--><!--]--><ul class="vp-sidebar-items"><!--[--><li><p tabindex="0" class="vp-sidebar-item vp-sidebar-heading">React SDK <!----></p><!----></li><!--]--></ul><!--[--><!--]--></aside><!--]--><!--[--><main class="vp-page"><!--[--><!--]--><div class="theme-default-content"><!--[--><!--]--><div><h1 id="react-sdk" tabindex="-1"><a class="header-anchor" href="#react-sdk"><span>React SDK</span></a></h1><h2 id="authprovider" tabindex="-1"><a class="header-anchor" href="#authprovider"><span>AuthProvider</span></a></h2><p>Wrap your application inside AuthProvider component to provide the auth related context to your application components.</p><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th><th>Required</th></tr></thead><tbody><tr><td>clientId</td><td>string</td><td>The auth clientId your frontend connects to</td><td>N/A</td><td>Yes</td></tr><tr><td>redirectUri</td><td>string</td><td>The URL to redirect users after successful authentication</td><td>N/A</td><td>Yes</td></tr><tr><td>serverUri</td><td>string</td><td>The URL where you host the melody auth server</td><td>N/A</td><td>Yes</td></tr><tr><td>scopes</td><td>string[]</td><td>Permission scopes to request for user access</td><td>N/A</td><td>No</td></tr><tr><td>storage</td><td>&#39;sessionStorage&#39; | &#39;localStorage&#39;</td><td>Storage type for authentication tokens</td><td>&#39;sessionStorage&#39;</td><td>No</td></tr></tbody></table><div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre class="language-text"><code><span class="line">import { AuthProvider } from &#39;@melody-auth/react&#39;</span>
+import{_ as e,c as n,o as s,a}from"./app-iDklwl99.js";const i={},l=a(`<h1 id="react-sdk" tabindex="-1"><a class="header-anchor" href="#react-sdk"><span>React SDK</span></a></h1><h2 id="authprovider" tabindex="-1"><a class="header-anchor" href="#authprovider"><span>AuthProvider</span></a></h2><p>Wrap your application inside AuthProvider component to provide the auth related context to your application components.</p><table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th><th>Required</th></tr></thead><tbody><tr><td>clientId</td><td>string</td><td>The auth clientId your frontend connects to</td><td>N/A</td><td>Yes</td></tr><tr><td>redirectUri</td><td>string</td><td>The URL to redirect users after successful authentication</td><td>N/A</td><td>Yes</td></tr><tr><td>serverUri</td><td>string</td><td>The URL where you host the melody auth server</td><td>N/A</td><td>Yes</td></tr><tr><td>scopes</td><td>string[]</td><td>Permission scopes to request for user access</td><td>N/A</td><td>No</td></tr><tr><td>storage</td><td>&#39;sessionStorage&#39; | &#39;localStorage&#39;</td><td>Storage type for authentication tokens</td><td>&#39;sessionStorage&#39;</td><td>No</td></tr></tbody></table><div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre class="language-text"><code><span class="line">import { AuthProvider } from &#39;@melody-auth/react&#39;</span>
 <span class="line"></span>
 <span class="line">export default function RootLayout ({ children }: {</span>
 <span class="line">  children: React.ReactNode;</span>
@@ -96,7 +61,7 @@
 <span class="line">    const accessToken = await acquireToken()</span>
 <span class="line">    await fetch(&#39;/...&#39;, {</span>
 <span class="line">      headers: {</span>
-<span class="line">        Authorization: `Bearer ${accessToken}`,</span>
+<span class="line">        Authorization: \`Bearer \${accessToken}\`,</span>
 <span class="line">      },</span>
 <span class="line">    })</span>
 <span class="line">  }</span>
@@ -174,7 +139,4 @@
 <span class="line"></span>
 <span class="line">  if (logoutError) return &lt;Alert /&gt;</span>
 <span class="line">}</span>
-<span class="line"></span></code></pre><div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0;"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div></div><!--[--><!--]--></div><footer class="vp-page-meta"><!----><div class="vp-meta-item git-info"><div class="vp-meta-item last-updated"><span class="meta-item-label">Last Updated: </span><!----></div><div class="vp-meta-item contributors"><span class="meta-item-label">Contributors: </span><span class="meta-item-info"><!--[--><!--[--><span class="contributor" title="email: byn9826@gmail.com">Baozier</span><!----><!--]--><!--]--></span></div></div></footer><!----><!--[--><!--]--></main><!--]--></div><!--[--><!----><!--]--><!--]--></div>
-    <script type="module" src="/assets/app-iDklwl99.js" defer></script>
-  </body>
-</html>
+<span class="line"></span></code></pre><div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0;"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div>`,45),t=[l];function r(d,c){return s(),n("div",null,t)}const o=e(i,[["render",r],["__file","react-sdk.html.vue"]]),p=JSON.parse('{"path":"/react-sdk.html","title":"React SDK","lang":"en-US","frontmatter":{},"headers":[{"level":2,"title":"AuthProvider","slug":"authprovider","link":"#authprovider","children":[]},{"level":2,"title":"isAuthenticated","slug":"isauthenticated","link":"#isauthenticated","children":[]},{"level":2,"title":"loginRedirect","slug":"loginredirect","link":"#loginredirect","children":[]},{"level":2,"title":"logoutRedirect","slug":"logoutredirect","link":"#logoutredirect","children":[]},{"level":2,"title":"acquireToken","slug":"acquiretoken","link":"#acquiretoken","children":[]},{"level":2,"title":"acquireUserInfo","slug":"acquireuserinfo","link":"#acquireuserinfo","children":[]},{"level":2,"title":"isAuthenticating","slug":"isauthenticating","link":"#isauthenticating","children":[]},{"level":2,"title":"isLoadingToken","slug":"isloadingtoken","link":"#isloadingtoken","children":[]},{"level":2,"title":"isLoadingUserInfo","slug":"isloadinguserinfo","link":"#isloadinguserinfo","children":[]},{"level":2,"title":"authenticationError","slug":"authenticationerror","link":"#authenticationerror","children":[]},{"level":2,"title":"acquireTokenError","slug":"acquiretokenerror","link":"#acquiretokenerror","children":[]},{"level":2,"title":"acquireUserInfoError","slug":"acquireuserinfoerror","link":"#acquireuserinfoerror","children":[]},{"level":2,"title":"loginError","slug":"loginerror","link":"#loginerror","children":[]},{"level":2,"title":"logoutError","slug":"logouterror","link":"#logouterror","children":[]}],"git":{"updatedTime":1722545376000,"contributors":[{"name":"Baozier","email":"byn9826@gmail.com","commits":3}]},"filePathRelative":"react-sdk.md"}');export{o as comp,p as data};
