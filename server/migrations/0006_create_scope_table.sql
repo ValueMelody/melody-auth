@@ -11,6 +11,7 @@ CREATE UNIQUE INDEX idx_unique_scope_name ON scope (name) WHERE deletedAt IS NUL
 INSERT INTO scope ("name", "type") values ("openid", "spa");
 INSERT INTO scope ("name", "type") values ("profile", "spa");
 INSERT INTO scope ("name", "type") values ("offline_access", "spa");
+INSERT INTO scope ("name", "type") values ("root", "s2s");
 INSERT INTO scope ("name", "type") values ("read_user", "s2s");
 INSERT INTO scope ("name", "type") values ("write_user", "s2s");
 INSERT INTO scope ("name", "type") values ("read_app", "s2s");

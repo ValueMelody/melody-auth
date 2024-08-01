@@ -7,6 +7,7 @@ export enum Scope {
   OpenId = 'openid',
   Profile = 'profile',
   OfflineAccess = 'offline_access',
+  Root = 'root',
   ReadUser = 'read_user',
   WriteUser = 'write_user',
   ReadApp = 'read_app',
