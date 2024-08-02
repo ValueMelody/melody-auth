@@ -13,7 +13,6 @@
   },
   "scripts": {
     "build": "rm -rf ./dist && tsc --build",
-    "type:check": "tsc --noEmit",
-    "release": "rm -rf ./dist && npm run compile && npm publish"
+    "type:check": "tsc --noEmit"
   }
 }
