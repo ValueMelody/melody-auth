@@ -29,4 +29,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: 'server'
-          command: wrangler deploy --minify src/index.tsx
+          command: deploy --minify src/index.tsx
