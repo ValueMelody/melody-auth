@@ -4,7 +4,9 @@
   "main": "dist/index.js",
   "repository": "https://github.com/ValueMelody/melody-auth",
   "license": "MIT",
-  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "web-sdk": "*"
   },
