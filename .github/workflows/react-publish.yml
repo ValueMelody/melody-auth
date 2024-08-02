@@ -1,10 +1,7 @@
 name: react-publish CI
 
 on:
-  workflow_dispatch: {}
-  push:
-    branches:
-    - add-react-public-action
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -29,8 +26,5 @@ jobs:
       run: |
         cd react-sdk
         npm publish
-
-    - name: Publish to npm
-      run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
