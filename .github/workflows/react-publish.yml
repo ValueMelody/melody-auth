@@ -1,7 +1,10 @@
 name: react-publish CI
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
+  push:
+    branches:
+    - add-react-public-action
 
 jobs:
   publish:
