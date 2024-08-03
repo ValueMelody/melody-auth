@@ -32,6 +32,7 @@ SERVER_CLIENT_SECRET: Client secret for the Admin Panel (S2S) app
 Start the admin panel app
 ```
 cd melody-auth/admin-panel
+npm install
 npm run dev
 ```
 
@@ -49,4 +50,4 @@ npm run dev
     cd melody-auth/server
     wrangler d1 execute melody-auth --command="insert into user_role (userId, roleId) values (1, 1)"
     ```
-4. Logout and login again. You should now have full access.
+4. Logout (Required after update user role) and login again. You should now have full access.

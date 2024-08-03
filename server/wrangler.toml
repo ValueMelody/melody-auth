@@ -25,4 +25,4 @@ id = "7d9be060a7bc48919251b37caa7e1fcd" # Replace with your own KV ID
 [[d1_databases]]
 binding = "DB"
 database_name = "melody-auth"
-database_id = "87a3b0b4-a232-4047-a72a-3d65890387ba" # Replace with your own D1 ID
+database_id = "8dc67df2-771d-4e73-9c16-d04341b9740e" # Replace with your own D1 ID
