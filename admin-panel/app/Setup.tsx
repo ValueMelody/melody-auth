@@ -15,7 +15,9 @@ import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
 import useSignalValue from './useSignalValue'
 import { userInfoSignal } from 'signals'
 import useCurrentLocale from 'hooks/useCurrentLocale'
-import { routeTool, typeTool } from 'tools'
+import {
+  routeTool, typeTool,
+} from 'tools'
 
 const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()

@@ -1,5 +1,5 @@
 import { Select } from 'flowbite-react'
-import { typeTool } from 'tools';
+import { typeTool } from 'tools'
 
 export const ClientTypeSelector = ({
   value,

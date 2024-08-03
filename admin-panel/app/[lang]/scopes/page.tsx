@@ -8,7 +8,7 @@ import {
 } from 'react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
-  proxyTool, routeTool, typeTool
+  proxyTool, routeTool, typeTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'

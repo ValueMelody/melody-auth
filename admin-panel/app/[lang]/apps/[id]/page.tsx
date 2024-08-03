@@ -14,7 +14,9 @@ import {
 } from 'react'
 import RedirectUriEditor from '../RedirectUriEditor'
 import useEditApp from '../useEditApp'
-import { proxyTool, typeTool } from 'tools'
+import {
+  proxyTool, typeTool,
+} from 'tools'
 import PageTitle from 'components/PageTitle'
 import ClientTypeLabel from 'components/ClientTypeLabel'
 import SubmitError from 'components/SubmitError'

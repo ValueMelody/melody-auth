@@ -13,7 +13,7 @@ import { useAuth } from '@melody-auth/react'
 import useEditApp from '../useEditApp'
 import RedirectUriEditor from '../RedirectUriEditor'
 import {
-  proxyTool, routeTool, typeTool
+  proxyTool, routeTool, typeTool,
 } from 'tools'
 import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
