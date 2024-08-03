@@ -108,6 +108,23 @@ export const emailMfaCodeVerified = async (
   return storedCode && storedCode === '1'
 }
 
+export const markEmailMfaVerified = async (
+  kv: KVNamespace,
+  authCode: string,
+  expiresIn: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.MFACode,
+    authCode,
+  )
+  await kv.put(
+    key,
+    '1',
+    { expirationTtl: expiresIn },
+  )
+  return true
+}
+
 export const verifyEmailMfaCode = async (
   kv: KVNamespace,
   authCode: string,
@@ -118,6 +135,7 @@ export const verifyEmailMfaCode = async (
     authCode,
   )
   const storedCode = await kv.get(key)
+
   if (storedCode) {
     await kv.put(
       key,
@@ -141,4 +159,64 @@ export const storeEmailMFACode = async (
     mfaCode,
     { expirationTtl: expiresIn },
   )
+}
+
+export const storeEmailVerificationCode = async (
+  kv: KVNamespace,
+  userId: number,
+  code: string,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.EmailVerificationCode,
+      String(userId),
+    ),
+    code,
+    { expirationTtl: 7200 },
+  )
+}
+
+export const verifyEmailVerificationCode = async (
+  kv: KVNamespace,
+  userId: number,
+  code: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.EmailVerificationCode,
+    String(userId),
+  )
+  const storedCode = await kv.get(key)
+  const isValid = storedCode && storedCode === code
+  if (isValid) await kv.delete(key)
+  return isValid
+}
+
+export const storePasswordResetCode = async (
+  kv: KVNamespace,
+  userId: number,
+  code: string,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.PasswordResetCode,
+      String(userId),
+    ),
+    code,
+    { expirationTtl: 7200 },
+  )
+}
+
+export const verifyPasswordResetCode = async (
+  kv: KVNamespace,
+  userId: number,
+  code: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.PasswordResetCode,
+    String(userId),
+  )
+  const storedCode = await kv.get(key)
+  const isValid = storedCode && storedCode === code
+  if (isValid) await kv.delete(key)
+  return isValid
 }

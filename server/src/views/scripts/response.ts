@@ -30,8 +30,6 @@ export const handleVerifyEmailFormError = () => html`
   console.error(msg + ": " + error)
   if (errorString.indexOf("${localeConfig.Error.WrongCode}") !== -1) {
     msg = "${localeConfig.Error.WrongCode}";
-  } else if (errorString.indexOf("${localeConfig.Error.CodeExpired}") !== -1) {
-    msg = "${localeConfig.Error.CodeExpired}";
   } else if (errorString.indexOf("constraints") !== -1) {
     var constraints = JSON.parse(error.message)[0].constraints
     msg = Object.values(constraints).join('.');
@@ -52,8 +50,6 @@ export const handleAuthorizeResetError = () => html`
     msg = "${localeConfig.Message.WeakPassword}";
   } else if (errorString.indexOf("${localeConfig.Error.WrongCode}") !== -1) {
     msg = "${localeConfig.Error.WrongCode}";
-  } else if (errorString.indexOf("${localeConfig.Error.CodeExpired}") !== -1) {
-    msg = "${localeConfig.Error.CodeExpired}";
   } else if (errorString.indexOf("constraints") !== -1) {
     var constraints = JSON.parse(error.message)[0].constraints
     msg = Object.values(constraints).join('.');

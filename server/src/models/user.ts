@@ -13,10 +13,6 @@ export interface Common {
   password: string | null;
   firstName: string | null;
   lastName: string | null;
-  emailVerificationCode: string | null;
-  emailVerificationCodeExpiresOn: number | null;
-  passwordResetCode: string | null;
-  passwordResetCodeExpiresOn: number | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -65,10 +61,6 @@ export interface Update {
   updatedAt?: string | null;
   isActive?: number;
   emailVerified?: number;
-  emailVerificationCode?: string | null;
-  emailVerificationCodeExpiresOn?: number | null;
-  passwordResetCode?: string | null;
-  passwordResetCodeExpiresOn?: number | null;
 }
 
 const TableName = adapterConfig.TableName.User
@@ -179,8 +171,7 @@ export const update = async (
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
-    'emailVerified', 'emailVerificationCode', 'emailVerificationCodeExpiresOn',
-    'passwordResetCode', 'passwordResetCodeExpiresOn',
+    'emailVerified',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,
