@@ -1,4 +1,7 @@
 import { genCodeChallenge } from 'shared'
+import {
+  genSaltSync, hashSync, compareSync,
+} from 'bcryptjs'
 import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
 
 export const sha256 = async (text: string): Promise<string> => {
@@ -13,6 +16,25 @@ export const sha256 = async (text: string): Promise<string> => {
     '0',
   )).join('')
   return hashHex
+}
+
+export const bcryptText = (text: string) => {
+  const salt = genSaltSync(10)
+  const hash = hashSync(
+    text,
+    salt,
+  )
+  return hash
+}
+
+export const bcryptCompare = (
+  text: string, hash: string,
+) => {
+  const isMatch = compareSync(
+    text,
+    hash,
+  )
+  return isMatch
 }
 
 export const isValidCodeChallenge = async (

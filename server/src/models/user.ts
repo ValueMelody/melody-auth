@@ -143,18 +143,6 @@ export const getByAuthId = async (
   return user ? convertToRecord(user) : null
 }
 
-export const getByEmailAndPassword = async (
-  db: D1Database, email: string, password: string,
-): Promise<Record | null> => {
-  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE email = $1 AND password = $2 AND deletedAt IS NULL`)
-    .bind(
-      email,
-      password,
-    )
-  const user = await stmt.first() as Raw | null
-  return user ? convertToRecord(user) : null
-}
-
 export const getByEmail = async (
   db: D1Database, email: string,
 ): Promise<Record | null> => {
