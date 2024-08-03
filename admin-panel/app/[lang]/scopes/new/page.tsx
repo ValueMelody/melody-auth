@@ -27,6 +27,7 @@ const Page = () => {
     values, errors, onChange,
   } = useEditScope()
   const [showErrors, setShowErrors] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async () => {
     if (Object.values(errors).some((val) => !!val)) {
@@ -35,6 +36,7 @@ const Page = () => {
     }
 
     const token = await acquireToken()
+    setIsLoading(true)
     const res = await proxyTool.sendNextRequest({
       endpoint: '/api/scopes',
       method: 'POST',
@@ -44,6 +46,7 @@ const Page = () => {
     if (res?.scope?.id) {
       router.push(`${routeTool.Internal.Scopes}/${res.scope.id}`)
     }
+    setIsLoading(false)
   }
 
   return (
@@ -88,6 +91,7 @@ const Page = () => {
       </section>
       <SubmitError />
       <SaveButton
+        isLoading={isLoading}
         onClick={handleSubmit}
       />
     </section>

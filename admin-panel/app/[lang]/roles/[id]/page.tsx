@@ -24,6 +24,7 @@ const Page = () => {
   const t = useTranslations()
 
   const [role, setRole] = useState()
+  const [isLoading, setIsLoading] = useState(false)
   const { acquireToken } = useAuth()
 
   const {
@@ -38,12 +39,14 @@ const Page = () => {
     }
 
     const token = await acquireToken()
+    setIsLoading(true)
     const res = await proxyTool.sendNextRequest({
       endpoint: `/api/roles/${id}`,
       method: 'PUT',
       token,
       body: { data: values },
     })
+    setIsLoading(false)
     if (res?.role) {
       getRole()
     }
@@ -109,6 +112,7 @@ const Page = () => {
       </section>
       <SubmitError />
       <SaveButton
+        isLoading={isLoading}
         disabled={!values.name || values.name === role.name}
         onClick={handleSave}
       />

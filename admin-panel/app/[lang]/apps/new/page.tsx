@@ -33,6 +33,7 @@ const Page = () => {
   } = useEditApp()
   const [showErrors, setShowErrors] = useState(false)
   const [scopes, setScopes] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const availableScopes = useMemo(
     () => scopes.filter((scope) => scope.type === values.type),
@@ -82,6 +83,7 @@ const Page = () => {
     }
 
     const token = await acquireToken()
+    setIsLoading(true)
     const res = await proxyTool.sendNextRequest({
       endpoint: '/api/apps',
       method: 'POST',
@@ -97,6 +99,7 @@ const Page = () => {
     if (res.app?.id) {
       router.push(`${routeTool.Internal.Apps}/${res.app.id}`)
     }
+    setIsLoading(false)
   }
 
   return (
@@ -167,6 +170,7 @@ const Page = () => {
       </section>
       <SubmitError />
       <SaveButton
+        isLoading={isLoading}
         onClick={handleSubmit}
       />
     </section>

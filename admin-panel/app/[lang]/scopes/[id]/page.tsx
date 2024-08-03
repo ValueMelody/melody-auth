@@ -30,6 +30,7 @@ const Page = () => {
   const {
     values, errors, onChange,
   } = useEditScope(scope)
+  const [isLoading, setIsLoading] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
 
   const handleSave = async () => {
@@ -39,12 +40,14 @@ const Page = () => {
     }
 
     const token = await acquireToken()
+    setIsLoading(true)
     const res = await proxyTool.sendNextRequest({
       endpoint: `/api/scopes/${id}`,
       method: 'PUT',
       token,
       body: { data: values },
     })
+    setIsLoading(false)
     if (res?.scope) {
       getScope()
     }
@@ -116,6 +119,7 @@ const Page = () => {
       </section>
       <SubmitError />
       <SaveButton
+        isLoading={isLoading}
         disabled={!values.name || values.name === scope.name}
         onClick={handleSave}
       />

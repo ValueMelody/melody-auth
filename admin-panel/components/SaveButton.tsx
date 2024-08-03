@@ -1,21 +1,25 @@
 import classNames from 'classnames'
-import { Button } from 'flowbite-react'
+import {
+  Button, Spinner,
+} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 
 const SaveButton = ({
   onClick,
   className,
   disabled = false,
+  isLoading = false,
 }: {
   onClick: () => void;
   className?: string;
   disabled?: boolean;
+  isLoading?: boolean;
 }) => {
   const t = useTranslations()
 
   return (
     <Button
-      disabled={disabled}
+      disabled={disabled || isLoading}
       className={classNames(
         className,
         'mt-6',
@@ -23,6 +27,7 @@ const SaveButton = ({
       onClick={onClick}
     >
       {t('common.save')}
+      {isLoading && <Spinner className='ml-2' />}
     </Button>
   )
 }
