@@ -55,37 +55,6 @@ export const useAuth = () => {
     [state.config, state.isAuthenticating, state.isAuthenticated, dispatch],
   )
 
-  const logoutRedirect = useCallback(
-    async ({
-      postLogoutRedirectUri = '',
-      localOnly = false,
-    }: {
-      postLogoutRedirectUri?: string;
-      localOnly?: boolean;
-    }) => {
-      if (!accessToken) return
-
-      try {
-        await logout(
-          state.config,
-          accessToken,
-          refreshToken,
-          postLogoutRedirectUri,
-          localOnly,
-        )
-      } catch (e) {
-        const msg = handleError(
-          e,
-          ErrorType.LogoutFailed,
-        )
-        dispatch({
-          type: 'setLogoutError', payload: msg,
-        })
-      }
-    },
-    [state.config, accessToken, refreshToken, dispatch],
-  )
-
   const acquireToken = useCallback(
     async () => {
       const currentTimeStamp = new Date().getTime() / 1000
@@ -161,6 +130,40 @@ export const useAuth = () => {
       }
     },
     [acquireToken, state.config, state.userInfo, dispatch],
+  )
+
+  const logoutRedirect = useCallback(
+    async ({
+      postLogoutRedirectUri = '',
+      localOnly = false,
+    }: {
+      postLogoutRedirectUri?: string;
+      localOnly?: boolean;
+    }) => {
+      const isLocalOnly = !refreshToken || localOnly
+
+      const accessToken = await acquireToken()
+      if (!isLocalOnly && !accessToken) return
+
+      try {
+        await logout(
+          state.config,
+          accessToken,
+          refreshToken,
+          postLogoutRedirectUri,
+          isLocalOnly,
+        )
+      } catch (e) {
+        const msg = handleError(
+          e,
+          ErrorType.LogoutFailed,
+        )
+        dispatch({
+          type: 'setLogoutError', payload: msg,
+        })
+      }
+    },
+    [state.config, refreshToken, dispatch, acquireToken],
   )
 
   return {
