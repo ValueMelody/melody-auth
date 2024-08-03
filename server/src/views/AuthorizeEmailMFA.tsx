@@ -66,7 +66,6 @@ const AuthorizeEmailMFA = ({
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              console.log(data)
               ${authorizeFormScript.handleAuthorizeFormRedirect()}
             })
             .catch((error) => {
