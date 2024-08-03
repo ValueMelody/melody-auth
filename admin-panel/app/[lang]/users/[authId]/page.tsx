@@ -16,7 +16,9 @@ import UserEmailVerified from 'components/UserEmailVerified'
 import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import useSignalValue from 'app/useSignalValue'
-import { userInfoSignal } from 'signals'
+import {
+  userInfoSignal, configSignal,
+} from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
 import SubmitError from 'components/SubmitError'
@@ -24,6 +26,7 @@ import SaveButton from 'components/SaveButton'
 
 const Page = () => {
   const { authId } = useParams()
+  const configs = useSignalValue(configSignal)
 
   const t = useTranslations()
 
@@ -162,26 +165,28 @@ const Page = () => {
                 )}
               </Table.Cell>
             </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('users.emailVerified')}</Table.Cell>
-              <Table.Cell>
-                <UserEmailVerified user={user} />
-              </Table.Cell>
-              <Table.Cell>
-                {user.isActive && !user.emailVerified && !emailResent && (
-                  <Button
-                    size='xs'
-                    onClick={handleResendVerifyEmail}>
-                    {t('users.resend')}
-                  </Button>
-                )}
-                {user.isActive && !user.emailVerified && emailResent && (
-                  <div className='flex'>
-                    <Badge>{t('users.sent')}</Badge>
-                  </div>
-                )}
-              </Table.Cell>
-            </Table.Row>
+            {configs.ENABLE_EMAIL_VERIFICATION && (
+              <Table.Row>
+                <Table.Cell>{t('users.emailVerified')}</Table.Cell>
+                <Table.Cell>
+                  <UserEmailVerified user={user} />
+                </Table.Cell>
+                <Table.Cell>
+                  {user.isActive && !user.emailVerified && !emailResent && (
+                    <Button
+                      size='xs'
+                      onClick={handleResendVerifyEmail}>
+                      {t('users.resend')}
+                    </Button>
+                  )}
+                  {user.isActive && !user.emailVerified && emailResent && (
+                    <div className='flex'>
+                      <Badge>{t('users.sent')}</Badge>
+                    </div>
+                  )}
+                </Table.Cell>
+              </Table.Row>
+            )}
             <Table.Row>
               <Table.Cell>{t('users.roles')}</Table.Cell>
               <Table.Cell>
@@ -205,24 +210,28 @@ const Page = () => {
                 </div>
               </Table.Cell>
             </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('users.firstName')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
-                  onChange={(e) => setFirstName(e.target.value)}
-                  value={firstName}
-                />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('users.lastName')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
-                  onChange={(e) => setLastName(e.target.value)}
-                  value={lastName}
-                />
-              </Table.Cell>
-            </Table.Row>
+            {configs.ENABLE_NAMES && (
+              <>
+                <Table.Row>
+                  <Table.Cell>{t('users.firstName')}</Table.Cell>
+                  <Table.Cell>
+                    <TextInput
+                      onChange={(e) => setFirstName(e.target.value)}
+                      value={firstName}
+                    />
+                  </Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell>{t('users.lastName')}</Table.Cell>
+                  <Table.Cell>
+                    <TextInput
+                      onChange={(e) => setLastName(e.target.value)}
+                      value={lastName}
+                    />
+                  </Table.Cell>
+                </Table.Row>
+              </>
+            )}
             <Table.Row>
               <Table.Cell>{t('common.createdAt')}</Table.Cell>
               <Table.Cell>{user.createdAt} UTC</Table.Cell>
