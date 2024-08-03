@@ -3,6 +3,7 @@
 import { useAuth } from '@melody-auth/react'
 import {
   Badge, Button, Checkbox, Label, Table,
+  TextInput,
   ToggleSwitch,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
@@ -28,6 +29,8 @@ const Page = () => {
 
   const [user, setUser] = useState()
   const [roles, setRoles] = useState()
+  const [firstName, setFirstName] = useState()
+  const [lastName, setLastName] = useState()
   const [isActive, setIsActive] = useState()
   const [emailResent, setEmailResent] = useState(false)
   const { acquireToken } = useAuth()
@@ -42,9 +45,11 @@ const Page = () => {
       const obj = {}
       if (userRoles !== user.roles) obj.roles = userRoles
       if (isActive !== user.isActive) obj.isActive = isActive
+      if (firstName !== user.firstName) obj.firstName = firstName
+      if (lastName !== user.lastName) obj.lastName = lastName
       return obj
     },
-    [user, userRoles, isActive],
+    [user, userRoles, isActive, firstName, lastName],
   )
 
   const isSelf = useMemo(
@@ -61,6 +66,8 @@ const Page = () => {
         token,
       })
       setUser(data.user)
+      setFirstName(data.user.firstName)
+      setLastName(data.user.lastName)
       setIsActive(data.user.isActive)
       setUserRoles(data.user.roles)
     },
@@ -186,7 +193,8 @@ const Page = () => {
                       <Checkbox
                         id={role.id}
                         onChange={() => handleToggleUserRole(role.name)}
-                        checked={userRoles.includes(role.name)} />
+                        checked={userRoles.includes(role.name)}
+                      />
                       <Label
                         htmlFor={role.id}
                         className='flex'>
@@ -199,11 +207,21 @@ const Page = () => {
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.firstName')}</Table.Cell>
-              <Table.Cell>{user.firstName}</Table.Cell>
+              <Table.Cell>
+                <TextInput
+                  onChange={(e) => setFirstName(e.target.value)}
+                  value={firstName}
+                />
+              </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.lastName')}</Table.Cell>
-              <Table.Cell>{user.lastName}</Table.Cell>
+              <Table.Cell>
+                <TextInput
+                  onChange={(e) => setLastName(e.target.value)}
+                  value={lastName}
+                />
+              </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('common.createdAt')}</Table.Cell>
