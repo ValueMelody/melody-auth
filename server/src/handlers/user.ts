@@ -2,7 +2,9 @@ import { Context } from 'hono'
 import {
   errorConfig, localeConfig, typeConfig,
 } from 'configs'
-import { userService } from 'services'
+import {
+  emailService, kvService, userService,
+} from 'services'
 import { userDto } from 'dtos'
 import { validateUtil } from 'utils'
 
@@ -29,10 +31,18 @@ export const verifyEmail = async (c: Context<typeConfig.Context>) => {
 
   if (user.emailVerified) throw new errorConfig.Forbidden(localeConfig.Error.EmailAlreadyVerified)
 
-  await userService.sendEmailVerification(
+  const verificationCode = await emailService.sendEmailVerification(
     c,
     user,
   )
+  if (verificationCode) {
+    await kvService.storeEmailVerificationCode(
+      c.env.KV,
+      user.id,
+      verificationCode,
+    )
+  }
+
   return c.json({ success: true })
 }
 

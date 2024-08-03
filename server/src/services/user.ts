@@ -16,7 +16,7 @@ import {
   roleModel, userModel, userRoleModel,
 } from 'models'
 import {
-  emailService, roleService,
+  emailService, kvService, roleService,
 } from 'services'
 import {
   cryptoUtil, timeUtil,
@@ -148,29 +148,6 @@ export const createAccountWithPassword = async (
   return newUser
 }
 
-export const sendEmailVerification = async (
-  c: Context<typeConfig.Context>,
-  user: userModel.Record | userModel.ApiRecord,
-): Promise<true> => {
-  if (!user.isActive) throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
-
-  const verificationCode = await emailService.sendEmailVerification(
-    c,
-    user,
-  )
-  if (verificationCode) {
-    await userModel.update(
-      c.env.DB,
-      user.id,
-      {
-        emailVerificationCode: verificationCode,
-        emailVerificationCodeExpiresOn: timeUtil.getCurrentTimestamp() + 7200,
-      },
-    )
-  }
-  return true
-}
-
 export const verifyUserEmail = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostVerifyEmailReqDto,
@@ -179,26 +156,24 @@ export const verifyUserEmail = async (
     c.env.DB,
     bodyDto.id,
   )
-  if (!user || !user.emailVerificationCode || user.emailVerificationCode !== bodyDto.code) {
+  if (!user || user.emailVerified) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
   }
   if (!user.isActive) {
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
-  const currentTimeStamp = timeUtil.getCurrentTimestamp()
-  if (!user.emailVerificationCodeExpiresOn || currentTimeStamp > user.emailVerificationCodeExpiresOn) {
-    throw new errorConfig.Forbidden(localeConfig.Error.CodeExpired)
-  }
+  const isValid = await kvService.verifyEmailVerificationCode(
+    c.env.KV,
+    user.id,
+    bodyDto.code,
+  )
+  if (!isValid) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
 
   await userModel.update(
     c.env.DB,
     user.id,
-    {
-      emailVerified: 1,
-      emailVerificationCode: null,
-      emailVerificationCodeExpiresOn: null,
-    },
+    { emailVerified: 1 },
   )
 
   return true
@@ -218,14 +193,12 @@ export const sendPasswordReset = async (
     c,
     user,
   )
+
   if (resetCode) {
-    await userModel.update(
-      c.env.DB,
+    await kvService.storePasswordResetCode(
+      c.env.KV,
       user.id,
-      {
-        passwordResetCode: resetCode,
-        passwordResetCodeExpiresOn: timeUtil.getCurrentTimestamp() + 7200,
-      },
+      resetCode,
     )
   }
 
@@ -240,27 +213,28 @@ export const resetUserPassword = async (
     c.env.DB,
     bodyDto.email,
   )
-  if (!user || !user.passwordResetCode || user.passwordResetCode !== bodyDto.code) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  if (!user) {
+    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
   if (!user.isActive) {
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
-  const currentTimeStamp = timeUtil.getCurrentTimestamp()
-  if (!user.passwordResetCodeExpiresOn || currentTimeStamp > user.passwordResetCodeExpiresOn) {
-    throw new errorConfig.Forbidden(localeConfig.Error.CodeExpired)
+  const isValid = await kvService.verifyPasswordResetCode(
+    c.env.KV,
+    user.id,
+    bodyDto.code,
+  )
+
+  if (!isValid) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
   }
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
   await userModel.update(
     c.env.DB,
     user.id,
-    {
-      password,
-      passwordResetCode: null,
-      passwordResetCodeExpiresOn: null,
-    },
+    { password },
   )
   return true
 }

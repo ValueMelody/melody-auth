@@ -15,7 +15,6 @@ export enum Error {
   WrongCode = 'Invalid code',
   WrongMfaCode = 'Invalid MFA code',
   MfaNotVerified = 'MFA code not verified',
-  CodeExpired = 'Code expired',
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
   WrongRefreshToken = 'Invalid refresh_token',

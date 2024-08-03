@@ -106,7 +106,11 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
-  const { NAMES_IS_REQUIRED: namesIsRequired } = env(c)
+  const {
+    NAMES_IS_REQUIRED: namesIsRequired,
+    ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
+    ENABLE_EMAIL_MFA: enableEmailMFA,
+  } = env(c)
 
   const reqBody = await c.req.json()
   const parsedBody = {
@@ -130,10 +134,19 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     bodyDto,
   )
 
-  await userService.sendEmailVerification(
-    c,
-    user,
-  )
+  if (enableEmailVerification) {
+    const verificationCode = await emailService.sendEmailVerification(
+      c,
+      user,
+    )
+    if (verificationCode) {
+      await kvService.storeEmailVerificationCode(
+        c.env.KV,
+        user.id,
+        verificationCode,
+      )
+    }
+  }
 
   const authCode = genRandomString(128)
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
@@ -147,6 +160,14 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     },
     codeExpiresIn,
   )
+
+  if (enableEmailMFA) {
+    await kvService.markEmailMfaVerified(
+      c.env.KV,
+      authCode,
+      codeExpiresIn,
+    )
+  }
 
   const requireConsent = await consentService.shouldCollectConsent(
     c,
@@ -245,6 +266,7 @@ export const postAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
     bodyDto.mfaCode,
   )
+
   if (!isValid) throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
 
   return c.json({
@@ -375,6 +397,7 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.refreshToken,
   )
+
   if (refreshTokenBody && accessTokenBody.sub !== refreshTokenBody.authId) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
   }

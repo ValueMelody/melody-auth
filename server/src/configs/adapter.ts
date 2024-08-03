@@ -15,6 +15,8 @@ export enum BaseKVKey {
   JwtPrivateSecret = 'jwtPrivateSecret',
   sessionSecret = 'sessionSecret',
   MFACode = 'mfaCode',
+  EmailVerificationCode = 'emailVerificationCode',
+  PasswordResetCode = 'passwordResetCode',
 }
 
 export const getKVKey = (
