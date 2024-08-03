@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.4.0",
+    "bcryptjs": "^2.4.3",
     "class-validator": "^0.14.1",
     "hono": "^4.4.12",
     "hono-sessions": "^0.5.8",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240529.0",
+    "@types/bcryptjs": "^2.4.6",
     "node-jose": "^2.2.0",
     "swagger-jsdoc": "^6.2.8",
     "wrangler": "^3.57.2"

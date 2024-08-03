@@ -100,15 +100,21 @@ export const verifyPasswordSignIn = async (
   c: Context<typeConfig.Context>,
   bodyDto: PostAuthorizeReqWithPasswordDto,
 ): Promise<userModel.Record> => {
-  const password = await cryptoUtil.sha256(bodyDto.password)
-  const user = await userModel.getByEmailAndPassword(
+  const user = await userModel.getByEmail(
     c.env.DB,
     bodyDto.email,
-    password,
   )
   if (!user) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
+
+  if (!user.password || !cryptoUtil.bcryptCompare(
+    bodyDto.password,
+    user.password,
+  )) {
+    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+  }
+
   if (!user.isActive) {
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
@@ -119,14 +125,14 @@ export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
   bodyDto: PostAuthorizeReqWithNamesDto,
 ): Promise<userModel.Record> => {
-  const password = await cryptoUtil.sha256(bodyDto.password)
-
   const user = await userModel.getByEmail(
     c.env.DB,
     bodyDto.email,
   )
 
   if (user) throw new Forbidden(localeConfig.Error.EmailTaken)
+
+  const password = await cryptoUtil.bcryptText(bodyDto.password)
 
   const newUser = await userModel.create(
     c.env.DB,
@@ -246,7 +252,7 @@ export const resetUserPassword = async (
     throw new errorConfig.Forbidden(localeConfig.Error.CodeExpired)
   }
 
-  const password = await cryptoUtil.sha256(bodyDto.password)
+  const password = await cryptoUtil.bcryptText(bodyDto.password)
   await userModel.update(
     c.env.DB,
     user.id,
