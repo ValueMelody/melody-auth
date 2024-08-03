@@ -13,9 +13,12 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
 import useSignalValue from './useSignalValue'
-import { userInfoSignal } from 'signals'
+import {
+  configSignal, userInfoSignal,
+} from 'signals'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
+  proxyTool,
   routeTool, typeTool,
 } from 'tools'
 
@@ -23,11 +26,12 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()
 
   const {
-    isAuthenticating, isAuthenticated, acquireUserInfo,
+    isAuthenticating, isAuthenticated, acquireUserInfo, acquireToken,
     loginRedirect, logoutRedirect, isLoadingUserInfo, acquireUserInfoError,
   } = useAuth()
 
   const userInfo = useSignalValue(userInfoSignal)
+  const configs = useSignalValue(configSignal)
 
   const handleLogout = () => {
     logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
@@ -40,9 +44,22 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
         if (info) userInfoSignal.value = info
       }
 
-      if (isAuthenticated) getUserInfo()
+      const getInfo = async () => {
+        const token = await acquireToken()
+        const data = await proxyTool.sendNextRequest({
+          endpoint: '/api/info',
+          method: 'GET',
+          token,
+        })
+        configSignal.value = data.configs
+      }
+
+      if (isAuthenticated) {
+        getInfo()
+        getUserInfo()
+      }
     },
-    [acquireUserInfo, isAuthenticated],
+    [acquireUserInfo, isAuthenticated, acquireToken],
   )
 
   if (isAuthenticating || isLoadingUserInfo) {
@@ -57,6 +74,8 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     loginRedirect()
     return
   }
+
+  if (!configs) return <Spinner />
 
   if (!userInfo?.roles?.includes(typeTool.Role.SuperAdmin)) {
     return (

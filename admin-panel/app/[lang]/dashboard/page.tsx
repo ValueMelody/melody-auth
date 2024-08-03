@@ -4,36 +4,15 @@ import { useTranslations } from 'next-intl'
 import {
   Spinner, Table,
 } from 'flowbite-react'
-import {
-  useEffect, useState,
-} from 'react'
-import { useAuth } from '@melody-auth/react'
-import { proxyTool } from 'tools'
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 import PageTitle from 'components/PageTitle'
+import { configSignal } from 'signals'
+import useSignalValue from 'app/useSignalValue'
 
 const Page = () => {
   const t = useTranslations()
 
-  const [configs, setConfigs] = useState(null)
-  const { acquireToken } = useAuth()
-
-  useEffect(
-    () => {
-      const getInfo = async () => {
-        const token = await acquireToken()
-        const data = await proxyTool.sendNextRequest({
-          endpoint: '/api/info',
-          method: 'GET',
-          token,
-        })
-        setConfigs(data.configs)
-      }
-
-      getInfo()
-    },
-    [acquireToken],
-  )
+  const configs = useSignalValue(configSignal)
 
   if (!configs) return <Spinner />
 

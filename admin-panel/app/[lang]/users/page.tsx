@@ -12,7 +12,9 @@ import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
 import useSignalValue from 'app/useSignalValue'
-import { userInfoSignal } from 'signals'
+import {
+  userInfoSignal, configSignal,
+} from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
 
@@ -23,6 +25,7 @@ const Page = () => {
   const [users, setUsers] = useState([])
   const { acquireToken } = useAuth()
   const userInfo = useSignalValue(userInfoSignal)
+  const configs = useSignalValue(configSignal)
 
   useEffect(
     () => {
@@ -51,8 +54,12 @@ const Page = () => {
           <Table.HeadCell>{t('users.authId')}</Table.HeadCell>
           <Table.HeadCell>{t('users.email')}</Table.HeadCell>
           <Table.HeadCell>{t('users.status')}</Table.HeadCell>
-          <Table.HeadCell>{t('users.emailVerified')}</Table.HeadCell>
-          <Table.HeadCell>{t('users.name')}</Table.HeadCell>
+          {configs.ENABLE_EMAIL_VERIFICATION && (
+            <Table.HeadCell>{t('users.emailVerified')}</Table.HeadCell>
+          )}
+          {configs.ENABLE_NAMES && (
+            <Table.HeadCell>{t('users.name')}</Table.HeadCell>
+          )}
           <Table.HeadCell />
         </Table.Head>
         <Table.Body className='divide-y'>
@@ -68,10 +75,16 @@ const Page = () => {
               <Table.Cell>
                 <EntityStatusLabel isEnabled={user.isActive} />
               </Table.Cell>
-              <Table.Cell>
-                <UserEmailVerified user={user} />
-              </Table.Cell>
-              <Table.Cell>{`${user.firstName ?? ''} ${user.lastName ?? ''}`} </Table.Cell>
+              {configs.ENABLE_EMAIL_VERIFICATION && (
+                <Table.Cell>
+                  <UserEmailVerified user={user} />
+                </Table.Cell>
+              )}
+              {configs.ENABLE_NAMES && (
+                <Table.Cell>
+                  {`${user.firstName ?? ''} ${user.lastName ?? ''}`}
+                </Table.Cell>
+              )}
               <Table.Cell>
                 <EditLink
                   href={`/${locale}/users/${user.authId}`}
