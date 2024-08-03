@@ -1,5 +1,6 @@
 import { html } from 'hono/html'
 import RequiredSymbol from './components/RequiredSymbol'
+import SubmitError from './components/SubmitError'
 import {
   localeConfig,
   routeConfig,
@@ -109,10 +110,7 @@ const AuthorizeReset = ({
               />
               <FieldError id='confirmPassword-error' />
             </section>
-            <div
-              id='submit-error'
-              class='alert mt-4 hidden'>
-            </div>
+            <SubmitError />
             <button
               id='submit-btn'
               class='button mt-4'

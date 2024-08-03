@@ -6,7 +6,7 @@ import {
 } from 'configs'
 import { userModel } from 'models'
 import {
-  EmailVerificationTemplate, PasswordResetTemplate,
+  EmailVerificationTemplate, PasswordResetTemplate, EmailMfaTemplate,
 } from 'templates'
 
 export const sendSendgridEmail = async (
@@ -100,4 +100,29 @@ export const sendPasswordReset = async (
   )
 
   return res.ok ? resetCode : null
+}
+
+export const sendEmailMFA = async (
+  c: Context<typeConfig.Context>, user: userModel.Record,
+) => {
+  const {
+    ENABLE_EMAIL_MFA: enableEmailMFA,
+    SENDGRID_API_KEY: sendgridApiKey,
+    SENDGRID_SENDER_ADDRESS: sendgridSender,
+    COMPANY_LOGO_URL: logoUrl,
+  } = env(c)
+  if (!enableEmailMFA || !sendgridApiKey || !sendgridSender || !user.email) return null
+  const mfaCode = genRandomString(8)
+  const content = (<EmailMfaTemplate
+    mfaCode={mfaCode}
+    logoUrl={logoUrl} />).toString()
+
+  const res = await sendSendgridEmail(
+    c,
+    user.email,
+    localeConfig.EmailMfaTemplate.Subject,
+    content,
+  )
+
+  return res.ok ? mfaCode : null
 }

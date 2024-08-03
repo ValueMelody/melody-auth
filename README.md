@@ -4,7 +4,7 @@
 
 ## Features Supported
 - OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes)
-- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset)
+- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA)
 - Admin Panel (Manage users, manage apps, manage scopes, manage roles)
 - RSA256 based JWT Authentication
 - Role-Based Access Control

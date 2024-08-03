@@ -31,6 +31,10 @@ export const handleAuthorizeFormRedirect = () => html`
     queryString += "&redirect_uri=" + data.redirectUri;
     var url = "${routeConfig.InternalRoute.Identity}/authorize-consent" + queryString
     window.location.href = url;
+  } else if (data.requireEmailMFA) {
+    queryString += "&redirect_uri=" + data.redirectUri;
+    var url = "${routeConfig.InternalRoute.Identity}/authorize-email-mfa" + queryString
+    window.location.href = url;
   } else {
     var url = data.redirectUri + queryString;
     window.location.href = url;

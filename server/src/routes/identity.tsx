@@ -60,6 +60,16 @@ identityRoutes.post(
   identityHandler.postAuthorizeConsent,
 )
 
+identityRoutes.get(
+  `${BaseRoute}/authorize-email-mfa`,
+  identityHandler.getAuthorizeEmailMFA,
+)
+
+identityRoutes.post(
+  `${BaseRoute}/authorize-email-mfa`,
+  identityHandler.postAuthorizeEmailMFA,
+)
+
 identityRoutes.post(
   `${BaseRoute}/reset-code`,
   setupMiddleware.validOrigin,

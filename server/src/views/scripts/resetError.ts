@@ -9,6 +9,15 @@ export const resetCodeError = () => html`
   }
 `
 
+export const resetMfaCodeError = () => html`
+  var codeEl = document.getElementById('form-mfa-code')
+  if (codeEl) {
+    codeEl.addEventListener('input', function () {
+      document.getElementById('mfa-code-error').classList.add('hidden');
+    });
+  }
+`
+
 export const resetEmailError = () => html`
   var emailEl = document.getElementById('form-email')
   if (emailEl) {

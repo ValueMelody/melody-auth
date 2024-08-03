@@ -26,6 +26,7 @@ export type Bindings = {
   NAMES_IS_REQUIRED: boolean;
   ENABLE_USER_APP_CONSENT: boolean;
   ENABLE_EMAIL_VERIFICATION: boolean;
+  ENABLE_EMAIL_MFA: boolean;
 };
 
 export type Context = {

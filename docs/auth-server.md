@@ -132,7 +132,7 @@ npm run prod:deploy
 ```
 
 ### AUTHORIZATION_CODE_EXPIRES_IN
-- **Default:** 60 (1 minute)  
+- **Default:** 300 (5 minutes)  
 - **Description:** Determines how long the authorization code is valid before it expires.
 
 ### SPA_ACCESS_TOKEN_EXPIRES_IN
@@ -182,3 +182,7 @@ npm run prod:deploy
 ### ENABLE_EMAIL_VERIFICATION
 - **Default:** true
 - **Description:** If set to true, users will receive an email to verify their email address after signing up. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+
+### ENABLE_EMAIL_MFA
+- **Default:** true
+- **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login. `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)

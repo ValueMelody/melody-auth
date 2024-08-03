@@ -3,7 +3,7 @@ compatibility_date = "2023-12-01"
 keep_vars = true
 
 [vars]
-AUTHORIZATION_CODE_EXPIRES_IN=60
+AUTHORIZATION_CODE_EXPIRES_IN=300
 SPA_ACCESS_TOKEN_EXPIRES_IN=1800
 SPA_REFRESH_TOKEN_EXPIRES_IN=604800
 S2S_ACCESS_TOKEN_EXPIRES_IN=3600
@@ -17,6 +17,7 @@ ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
 ENABLE_EMAIL_VERIFICATION=true # Requires enabling the email function first. To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
+ENABLE_EMAIL_MFA=true # Requires enabling the email function first. To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
 
 [[kv_namespaces]]
 binding = "KV"
