@@ -6,17 +6,16 @@ import { useTranslations } from 'next-intl'
 import {
   useEffect, useState,
 } from 'react'
-import { Role } from 'shared'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
-  proxyTool, routeTool,
+  proxyTool, routeTool, typeTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
 import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
 
-const isSystem = (name: string) => name === Role.SuperAdmin
+const isSystem = (name: string) => name === typeTool.Role.SuperAdmin
 
 const Page = () => {
   const t = useTranslations()

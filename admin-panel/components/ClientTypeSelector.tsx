@@ -1,5 +1,5 @@
 import { Select } from 'flowbite-react'
-import { ClientType } from 'shared'
+import { typeTool } from 'tools';
 
 export const ClientTypeSelector = ({
   value,
@@ -13,8 +13,8 @@ export const ClientTypeSelector = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}>
       <option disabled></option>
-      <option value={ClientType.SPA}>SPA</option>
-      <option value={ClientType.S2S}>S2S</option>
+      <option value={typeTool.ClientType.SPA}>SPA</option>
+      <option value={typeTool.ClientType.S2S}>S2S</option>
     </Select>
   )
 }

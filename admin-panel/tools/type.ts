@@ -1,0 +1,23 @@
+export declare enum Scope {
+  OpenId = "openid",
+  Profile = "profile",
+  OfflineAccess = "offline_access",
+  Root = "root",
+  ReadUser = "read_user",
+  WriteUser = "write_user",
+  ReadApp = "read_app",
+  WriteApp = "write_app",
+  ReadRole = "read_role",
+  WriteRole = "write_role",
+  ReadScope = "read_scope",
+  WriteScope = "write_scope",
+}
+
+export declare enum Role {
+  SuperAdmin = "super_admin",
+}
+
+export declare enum ClientType {
+  SPA = "spa",
+  S2S = "s2s"
+}

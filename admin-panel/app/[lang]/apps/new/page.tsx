@@ -10,11 +10,10 @@ import {
   useMemo, useState,
 } from 'react'
 import { useAuth } from '@melody-auth/react'
-import { ClientType } from 'shared'
 import useEditApp from '../useEditApp'
 import RedirectUriEditor from '../RedirectUriEditor'
 import {
-  proxyTool, routeTool,
+  proxyTool, routeTool, typeTool
 } from 'tools'
 import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
@@ -149,7 +148,7 @@ const Page = () => {
                 </Table.Cell>
               </Table.Row>
             )}
-            {values.type === ClientType.SPA && (
+            {values.type === typeTool.ClientType.SPA && (
               <Table.Row>
                 <Table.Cell>{t('apps.redirectUris')}</Table.Cell>
                 <Table.Cell>

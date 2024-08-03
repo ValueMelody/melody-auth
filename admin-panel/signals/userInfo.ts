@@ -1,6 +1,5 @@
 import { signal } from '@preact/signals-react'
-import { GetUserInfoRes } from 'shared'
 
-const userInfo = signal<GetUserInfoRes | null>(null)
+const userInfo = signal(null)
 
 export default userInfo

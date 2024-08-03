@@ -24,9 +24,6 @@ jobs:
       - name: Build package
         run: npm run build
 
-      - name: Build Admin Panel
-        run: cd admin-panel && npm run build
-
       - uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}

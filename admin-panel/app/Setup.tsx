@@ -12,11 +12,10 @@ import {
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
-import { Role } from 'shared'
 import useSignalValue from './useSignalValue'
 import { userInfoSignal } from 'signals'
 import useCurrentLocale from 'hooks/useCurrentLocale'
-import { routeTool } from 'tools'
+import { routeTool, typeTool } from 'tools'
 
 const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()
@@ -57,7 +56,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     return
   }
 
-  if (!userInfo?.roles?.includes(Role.SuperAdmin)) {
+  if (!userInfo?.roles?.includes(typeTool.Role.SuperAdmin)) {
     return (
       <div className='w-full h-screen flex flex-col gap-8 items-center justify-center'>
         <Alert color='failure'>
