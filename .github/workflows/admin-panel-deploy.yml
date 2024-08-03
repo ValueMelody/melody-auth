@@ -1,9 +1,7 @@
 name: admin-panel-deploy CI
 
 on:
-  workflow_dispatch: {}
-  push:
-    branches: fix-publish
+  workflow_dispatch:
 
 jobs:
   publish:
