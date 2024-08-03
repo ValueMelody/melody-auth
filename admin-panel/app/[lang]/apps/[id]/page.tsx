@@ -12,10 +12,11 @@ import {
   useCallback,
   useEffect, useMemo, useState,
 } from 'react'
-import { ClientType } from 'shared'
 import RedirectUriEditor from '../RedirectUriEditor'
 import useEditApp from '../useEditApp'
-import { proxyTool } from 'tools'
+import {
+  proxyTool, typeTool,
+} from 'tools'
 import PageTitle from 'components/PageTitle'
 import ClientTypeLabel from 'components/ClientTypeLabel'
 import SubmitError from 'components/SubmitError'
@@ -175,7 +176,7 @@ const Page = () => {
                 />
               </Table.Cell>
             </Table.Row>
-            {app.type === ClientType.SPA && (
+            {app.type === typeTool.ClientType.SPA && (
               <Table.Row>
                 <Table.Cell>{t('apps.redirectUris')}</Table.Cell>
                 <Table.Cell>

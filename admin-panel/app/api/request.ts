@@ -1,9 +1,7 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { verify } from 'jsonwebtoken'
-import {
-  Role, Scope,
-} from 'shared'
+import { typeTool } from 'tools'
 const jwksClient = require('jwks-rsa')
 
 let accessToken: string | null = null
@@ -73,7 +71,7 @@ export const verifyAccessToken = async () => {
 
   if (!tokenBody) return false
 
-  if (!tokenBody.roles || !tokenBody.roles.includes(Role.SuperAdmin)) return false
+  if (!tokenBody.roles || !tokenBody.roles.includes(typeTool.Role.SuperAdmin)) return false
 
   return true
 }
@@ -86,7 +84,7 @@ export const obtainS2SAccessToken = async () => {
 
   const body = {
     grant_type: 'client_credentials',
-    scope: Scope.Root,
+    scope: typeTool.Scope.Root,
   }
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URI}/oauth2/v1/token`,

@@ -7,7 +7,7 @@ const config: Config = {
   content: [
     './app/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
-    content({ base: '../' }),
+    content({ base: './' }),
   ],
   plugins: [
     plugin(),

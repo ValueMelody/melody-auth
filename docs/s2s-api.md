@@ -50,3 +50,6 @@ fetch('/oauth2/v1/token', {
   "scope":"read_user write_user"
 }
 ```
+
+## Detailed Documentation
+For more detailed information, please see [Rest API Swagger](https://auth-server.valuemelody.com/api/v1/swagger).
