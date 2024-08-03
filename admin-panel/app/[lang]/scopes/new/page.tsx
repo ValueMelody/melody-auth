@@ -43,10 +43,10 @@ const Page = () => {
       token,
       body: { data: values },
     })
-    setIsLoading(false)
     if (res?.scope?.id) {
       router.push(`${routeTool.Internal.Scopes}/${res.scope.id}`)
     }
+    setIsLoading(false)
   }
 
   return (

@@ -95,11 +95,11 @@ const Page = () => {
         },
       },
     })
-    setIsLoading(false)
 
     if (res.app?.id) {
       router.push(`${routeTool.Internal.Apps}/${res.app.id}`)
     }
+    setIsLoading(false)
   }
 
   return (

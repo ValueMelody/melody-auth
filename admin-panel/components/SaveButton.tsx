@@ -1,5 +1,7 @@
 import classNames from 'classnames'
-import { Button, Spinner } from 'flowbite-react'
+import {
+  Button, Spinner,
+} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 
 const SaveButton = ({

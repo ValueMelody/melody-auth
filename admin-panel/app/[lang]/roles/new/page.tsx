@@ -35,6 +35,7 @@ const Page = () => {
     }
 
     const token = await acquireToken()
+    setIsLoading(true)
     const res = await proxyTool.sendNextRequest({
       endpoint: '/api/roles',
       method: 'POST',
@@ -45,6 +46,7 @@ const Page = () => {
     if (res?.role?.id) {
       router.push(`${routeTool.Internal.Roles}/${res.role.id}`)
     }
+    setIsLoading(false)
   }
 
   return (
