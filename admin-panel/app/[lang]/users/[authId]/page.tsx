@@ -32,6 +32,7 @@ const Page = () => {
   const [emailResent, setEmailResent] = useState(false)
   const { acquireToken } = useAuth()
   const [userRoles, setUserRoles] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const userInfo = useSignalValue(userInfoSignal)
 
@@ -68,12 +69,14 @@ const Page = () => {
 
   const handleSave = async () => {
     const token = await acquireToken()
+    setIsLoading(true)
     const result = await proxyTool.sendNextRequest({
       endpoint: `/api/users/${authId}`,
       method: 'PUT',
       token,
       body: { data: updateObj },
     })
+    setIsLoading(false)
     if (result) await getUser()
   }
 
@@ -215,6 +218,7 @@ const Page = () => {
       </section>
       <SubmitError />
       <SaveButton
+        isLoading={isLoading}
         disabled={!Object.keys(updateObj).length}
         onClick={handleSave}
       />

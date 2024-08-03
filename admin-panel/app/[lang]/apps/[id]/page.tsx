@@ -33,6 +33,7 @@ const Page = () => {
   const { acquireToken } = useAuth()
 
   const [scopes, setScopes] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const availableScopes = useMemo(
     () => scopes.filter((scope) => scope.type === app?.type),
@@ -93,12 +94,14 @@ const Page = () => {
     }
 
     const token = await acquireToken()
+    setIsLoading(true)
     const result = await proxyTool.sendNextRequest({
       endpoint: `/api/apps/${id}`,
       method: 'PUT',
       token,
       body: { data: updateObj },
     })
+    setIsLoading(false)
     if (result) await getApp()
   }
 
@@ -203,6 +206,7 @@ const Page = () => {
       </section>
       <SubmitError />
       <SaveButton
+        isLoading={isLoading}
         disabled={!Object.keys(updateObj).length}
         onClick={handleSave}
       />

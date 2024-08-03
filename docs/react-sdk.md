@@ -1,5 +1,11 @@
 # React SDK
 
+## Installation
+
+```
+npm install @melody-auth/react --save
+```
+
 ## AuthProvider
 
 Wrap your application inside AuthProvider component to provide the auth related context to your application components.

@@ -26,6 +26,7 @@ const Page = () => {
     values, errors, onChange,
   } = useEditRole()
   const [showErrors, setShowErrors] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async () => {
     if (Object.values(errors).some((val) => !!val)) {
@@ -76,6 +77,7 @@ const Page = () => {
       </section>
       <SubmitError />
       <SaveButton
+        isLoading={isLoading}
         onClick={handleSubmit}
       />
     </section>
