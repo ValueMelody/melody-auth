@@ -1,4 +1,4 @@
-export declare enum Scope {
+export enum Scope {
   OpenId = "openid",
   Profile = "profile",
   OfflineAccess = "offline_access",
@@ -13,11 +13,11 @@ export declare enum Scope {
   WriteScope = "write_scope",
 }
 
-export declare enum Role {
+export enum Role {
   SuperAdmin = "super_admin",
 }
 
-export declare enum ClientType {
+export enum ClientType {
   SPA = "spa",
   S2S = "s2s"
 }

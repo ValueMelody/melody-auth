@@ -9,8 +9,7 @@
     "shared",
     "server",
     "web-sdk",
-    "react-sdk",
-    "admin-panel"
+    "react-sdk"
   ],
   "scripts": {
     "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk && npm run build -w=admin-panel",
