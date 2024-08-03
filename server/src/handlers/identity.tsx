@@ -8,14 +8,14 @@ import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
-  appService, consentService, kvService, scopeService, sessionService, userService,
+  appService, consentService, emailService, kvService, scopeService, sessionService, userService,
 } from 'services'
 import {
   formatUtil, validateUtil,
 } from 'utils'
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
-  VerifyEmailView,
+  VerifyEmailView, AuthorizeEmailMfaView,
   AuthorizeResetView,
 } from 'views'
 
@@ -164,7 +164,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetAuthorizeConsentReqDto({
+  const queryDto = new identityDto.GetAuthorizeFollowUpReqDto({
     state: c.req.query('state') ?? '',
     redirectUri: c.req.query('redirect_uri') ?? '',
     code: c.req.query('code') ?? '',
@@ -195,7 +195,7 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
 export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.GetAuthorizeConsentReqDto(reqBody)
+  const bodyDto = new identityDto.PostAuthorizeConsentReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authInfo = await kvService.getAuthCodeBody(
@@ -210,6 +210,42 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     userId,
     appId,
   )
+
+  return c.json({
+    code: bodyDto.code,
+    redirectUri: bodyDto.redirectUri,
+    state: bodyDto.state,
+  })
+}
+
+export const getAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new identityDto.GetAuthorizeFollowUpReqDto({
+    state: c.req.query('state') ?? '',
+    redirectUri: c.req.query('redirect_uri') ?? '',
+    code: c.req.query('code') ?? '',
+  })
+  await validateUtil.dto(queryDto)
+
+  const { COMPANY_LOGO_URL: logoUrl } = env(c)
+
+  return c.html(<AuthorizeEmailMfaView
+    logoUrl={logoUrl}
+    queryDto={queryDto}
+  />)
+}
+
+export const postAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeMfaReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const isValid = await kvService.verifyEmailMfaCode(
+    c.env.KV,
+    bodyDto.code,
+    bodyDto.mfaCode,
+  )
+  if (!isValid) throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
 
   return c.json({
     code: bodyDto.code,
@@ -240,7 +276,10 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 
   const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
   const authCode = genRandomString(128)
-  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    ENABLE_EMAIL_MFA: enableEmailMFA,
+  } = env(c)
   await kvService.storeAuthCode(
     c.env.KV,
     authCode,
@@ -267,12 +306,28 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     )
   }
 
+  if (enableEmailMFA) {
+    const mfaCode = await emailService.sendEmailMFA(
+      c,
+      user,
+    )
+    if (mfaCode) {
+      await kvService.storeEmailMFACode(
+        c.env.KV,
+        authCode,
+        mfaCode,
+        codeExpiresIn,
+      )
+    }
+  }
+
   return c.json({
     code: authCode,
     redirectUri: bodyDto.redirectUri,
     state: bodyDto.state,
     scopes: bodyDto.scopes,
     requireConsent,
+    requireEmailMFA: enableEmailMFA,
   })
 }
 

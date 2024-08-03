@@ -12,7 +12,7 @@ import SubmitError from 'views/components/SubmitError'
 const AuthorizeConsent = ({
   queryDto, logoUrl, appName, scopes,
 }: {
-  queryDto: identityDto.GetAuthorizeConsentReqDto;
+  queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   appName: string;
   scopes: string[];

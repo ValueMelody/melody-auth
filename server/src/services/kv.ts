@@ -95,3 +95,50 @@ export const getRefreshTokenBody = async (
   }
   return tokenBody
 }
+
+export const emailMfaCodeVerified = async (
+  kv: KVNamespace,
+  authCode: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.MFACode,
+    authCode,
+  )
+  const storedCode = await kv.get(key)
+  return storedCode && storedCode === '1'
+}
+
+export const verifyEmailMfaCode = async (
+  kv: KVNamespace,
+  authCode: string,
+  mfaCode: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.MFACode,
+    authCode,
+  )
+  const storedCode = await kv.get(key)
+  if (storedCode) {
+    await kv.put(
+      key,
+      '1',
+    )
+  }
+  return storedCode && storedCode === mfaCode
+}
+
+export const storeEmailMFACode = async (
+  kv: KVNamespace,
+  authCode: string,
+  mfaCode: string,
+  expiresIn: number,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.MFACode,
+      authCode,
+    ),
+    mfaCode,
+    { expirationTtl: expiresIn },
+  )
+}

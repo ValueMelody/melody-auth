@@ -68,6 +68,16 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
   }
 
+  const { ENABLE_EMAIL_MFA: requireEmailMFA } = env(c)
+
+  if (requireEmailMFA) {
+    const isVerified = await kvService.emailMfaCodeVerified(
+      c.env.KV,
+      bodyDto.code,
+    )
+    if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+  }
+
   const requireConsent = await consentService.shouldCollectConsent(
     c,
     authInfo.user.id,

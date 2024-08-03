@@ -13,6 +13,8 @@ export enum Error {
   CanNotCreateUser = 'Failed to create user',
   CanNotCreateConsent = 'Failed to create consent',
   WrongCode = 'Invalid code',
+  WrongMfaCode = 'Invalid MFA code',
+  MfaNotVerified = 'MFA code not verified',
   CodeExpired = 'Code expired',
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
@@ -47,6 +49,11 @@ export enum AuthorizeConsentPage {
   RequestAccess = 'is requesting access to your account.',
   DeclineBtn = 'Decline',
   AcceptBtn = 'Accept',
+}
+
+export enum AuthorizeEmailMFAPage {
+  Title = 'A verification code has been sent to your email.',
+  VerifyBtn = 'Verify',
 }
 
 export enum AuthorizeAccountPage {
@@ -94,4 +101,10 @@ export enum PasswordResetTemplate {
   Subject = 'Reset your password',
   Title = 'Reset your password',
   Desc = 'Here is your reset code, this code will be expired after 2 hour',
+}
+
+export enum EmailMfaTemplate {
+  Subject = 'Account verification code',
+  Title = 'Account verification code',
+  Desc = 'Here is your MFA code, this code will be expired after 5 minutes',
 }

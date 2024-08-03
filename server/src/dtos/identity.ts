@@ -63,7 +63,7 @@ export class PostAuthorizeReqWithRequiredNamesDto extends PostAuthorizeReqWithPa
   }
 }
 
-export class GetAuthorizeConsentReqDto {
+export class GetAuthorizeFollowUpReqDto {
   @IsString()
   @IsNotEmpty()
     state: string
@@ -76,10 +76,23 @@ export class GetAuthorizeConsentReqDto {
   @IsNotEmpty()
     redirectUri: string
 
-  constructor (dto: GetAuthorizeConsentReqDto) {
+  constructor (dto: GetAuthorizeFollowUpReqDto) {
     this.state = dto.state
     this.code = dto.code
     this.redirectUri = dto.redirectUri
+  }
+}
+
+export class PostAuthorizeConsentReqDto extends GetAuthorizeFollowUpReqDto {}
+
+export class PostAuthorizeMfaReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsString()
+  @IsNotEmpty()
+    mfaCode: string
+
+  constructor (dto: PostAuthorizeMfaReqDto) {
+    super(dto)
+    this.mfaCode = dto.mfaCode
   }
 }
 

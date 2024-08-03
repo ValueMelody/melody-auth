@@ -13,6 +13,18 @@ export const verificationCode = () => html`
   }
 `
 
+export const emailMFA = () => html`
+  var msg;
+  var codeVal = document.getElementById('form-mfa-code').value.trim();
+  if (codeVal.length !== 8) msg = "${localeConfig.Message.VerificationCodeLength}";
+  if (msg) {
+    var errorEl = document.getElementById('mfa-code-error');
+    errorEl.classList.remove('hidden');
+    errorEl.innerHTML = msg;
+    return false;
+  }
+`
+
 export const email = () => html`
   var msg;
   var emailVal = document.getElementById('form-email').value.trim();
