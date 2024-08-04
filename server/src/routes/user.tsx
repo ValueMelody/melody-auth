@@ -16,6 +16,7 @@ export default userRoutes
  * /api/v1/users:
  *   get:
  *     summary: Get a list of users
+ *     description: Required scope - read_user
  *     tags: [Users]
  *     responses:
  *       200:
@@ -38,6 +39,7 @@ userRoutes.get(
  * /api/v1/users/{authId}:
  *   get:
  *     summary: Get a single user by authId
+ *     description: Required scope - read_user
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -65,6 +67,7 @@ userRoutes.get(
  * /api/v1/users/{authId}:
  *   put:
  *     summary: Update an existing user by authId
+ *     description: Required scope - write_user
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -97,6 +100,7 @@ userRoutes.put(
  * /api/v1/users/{authId}/verify-email:
  *   post:
  *     summary: Send a verification email to the user
+ *     description: Required scope - write_user
  *     tags: [Users]
  *     parameters:
  *       - in: path

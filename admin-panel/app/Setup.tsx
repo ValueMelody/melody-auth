@@ -75,8 +75,6 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     return
   }
 
-  if (!configs) return <Spinner />
-
   if (!userInfo?.roles?.includes(typeTool.Role.SuperAdmin)) {
     return (
       <div className='w-full h-screen flex flex-col gap-8 items-center justify-center'>
@@ -90,6 +88,8 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
       </div>
     )
   }
+
+  if (!configs) return <Spinner />
 
   return children
 }

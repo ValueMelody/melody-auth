@@ -38,7 +38,9 @@ export const createScope = async (
   const scope = await scopeModel.create(
     c.env.DB,
     {
-      name: dto.name, type: dto.type,
+      name: dto.name,
+      type: dto.type,
+      note: dto.note,
     },
   )
   return scope
@@ -52,7 +54,9 @@ export const updateScope = async (
   const role = await scopeModel.update(
     c.env.DB,
     scopeId,
-    { name: dto.name },
+    {
+      name: dto.name, note: dto.note,
+    },
   )
   return role
 }

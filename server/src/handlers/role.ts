@@ -37,7 +37,7 @@ export const putRole = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const id = Number(c.req.param('id'))
 
-  const bodyDto = new roleDto.PutRoleReqDto({ name: String(reqBody.name) })
+  const bodyDto = new roleDto.PutRoleReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const role = await roleService.updateRole(

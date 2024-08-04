@@ -21,8 +21,8 @@
     "create": "Create",
     "options": "Options:",
     "save": "Save",
-    "Saved": "Saved",
     "system": "System",
+    "note": "Note",
     "status": "Status",
     "fieldIsRequired": "This field is required."
   },

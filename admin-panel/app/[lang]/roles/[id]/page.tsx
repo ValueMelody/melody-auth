@@ -100,6 +100,17 @@ const Page = () => {
               </Table.Cell>
             </Table.Row>
             <Table.Row>
+              <Table.Cell>{t('common.note')}</Table.Cell>
+              <Table.Cell>
+                <TextInput
+                  onChange={(e) => onChange(
+                    'note',
+                    e.target.value,
+                  )}
+                  value={values.note} />
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
               <Table.Cell>{t('common.createdAt')}</Table.Cell>
               <Table.Cell>{role.createdAt} UTC</Table.Cell>
             </Table.Row>
@@ -113,7 +124,7 @@ const Page = () => {
       <SubmitError />
       <SaveButton
         isLoading={isLoading}
-        disabled={!values.name || values.name === role.name}
+        disabled={!values.name || (values.name === role.name && values.note === role.note)}
         onClick={handleSave}
       />
     </section>

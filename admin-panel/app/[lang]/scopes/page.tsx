@@ -49,6 +49,7 @@ const Page = () => {
       <Table>
         <Table.Head>
           <Table.HeadCell>{t('scopes.name')}</Table.HeadCell>
+          <Table.HeadCell>{t('common.note')}</Table.HeadCell>
           <Table.HeadCell>{t('scopes.type')}</Table.HeadCell>
           <Table.HeadCell />
         </Table.Head>
@@ -60,6 +61,9 @@ const Page = () => {
                   {scope.name}
                   {isSystem(scope.name) && <SystemLabel />}
                 </div>
+              </Table.Cell>
+              <Table.Cell>
+                {scope.note}
               </Table.Cell>
               <Table.Cell>
                 <ClientTypeLabel type={scope.type} />

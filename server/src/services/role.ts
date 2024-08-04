@@ -43,7 +43,9 @@ export const createRole = async (
 ): Promise<roleModel.Record> => {
   const role = await roleModel.create(
     c.env.DB,
-    { name: dto.name },
+    {
+      name: dto.name, note: dto.note,
+    },
   )
   return role
 }
@@ -56,7 +58,9 @@ export const updateRole = async (
   const role = await roleModel.update(
     c.env.DB,
     roleId,
-    { name: dto.name },
+    {
+      name: dto.name, note: dto.note,
+    },
   )
   return role
 }

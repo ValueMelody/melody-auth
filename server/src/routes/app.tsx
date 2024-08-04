@@ -14,6 +14,7 @@ export default appRoutes
  * /api/v1/apps:
  *   get:
  *     summary: Get a list of apps
+ *     description: Required scope - read_app
  *     tags: [Apps]
  *     responses:
  *       200:
@@ -36,6 +37,7 @@ appRoutes.get(
  * /api/v1/apps/{id}:
  *   get:
  *     summary: Get a single app by ID
+ *     description: Required scope - read_app
  *     tags: [Apps]
  *     parameters:
  *       - in: path
@@ -63,6 +65,7 @@ appRoutes.get(
  * /api/v1/apps:
  *   post:
  *     summary: Create a new app
+ *     description: Required scope - write_app
  *     tags: [Apps]
  *     requestBody:
  *       required: true
@@ -88,6 +91,7 @@ appRoutes.post(
  * /api/v1/apps/{id}:
  *   put:
  *     summary: Update an existing app by ID
+ *     description: Required scope - write_app
  *     tags: [Apps]
  *     parameters:
  *       - in: path

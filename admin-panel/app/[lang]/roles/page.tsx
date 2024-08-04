@@ -48,6 +48,7 @@ const Page = () => {
       <Table>
         <Table.Head>
           <Table.HeadCell>{t('roles.name')}</Table.HeadCell>
+          <Table.HeadCell>{t('common.note')}</Table.HeadCell>
           <Table.HeadCell />
         </Table.Head>
         <Table.Body className='divide-y'>
@@ -58,6 +59,9 @@ const Page = () => {
                   {role.name}
                   {isSystem(role.name) && <SystemLabel />}
                 </div>
+              </Table.Cell>
+              <Table.Cell>
+                {role.note}
               </Table.Cell>
               <Table.Cell>
                 {!isSystem(role.name) && (

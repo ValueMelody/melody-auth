@@ -3,6 +3,7 @@ const Role = {
   properties: {
     id: { type: 'number' },
     name: { type: 'string' },
+    note: { type: 'string' },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },
     deletedAt: {
@@ -20,14 +21,21 @@ const PutRoleReq = {
       minLength: 1,
       maxLength: 50,
     },
+    note: { type: 'string' },
   },
-  required: ['name'],
 }
 
 const PostRoleReq = {
-  allOf: [
-    { $ref: '#/components/schemas/PutRoleReq' },
-  ],
+  type: 'object',
+  properties: {
+    name: {
+      type: 'string',
+      minLength: 1,
+      maxLength: 50,
+    },
+    note: { type: 'string' },
+  },
+  required: ['name'],
 }
 
 module.exports = {
