@@ -35,6 +35,9 @@
           "name": {
             "type": "string"
           },
+          "note": {
+            "type": "string"
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -61,32 +64,34 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 50
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "PostScopeReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "spa",
+              "s2s"
+            ]
+          },
+          "note": {
+            "type": "string"
           }
         },
         "required": [
-          "name"
-        ]
-      },
-      "PostScopeReq": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/PutScopeReq"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": [
-                  "spa",
-                  "s2s"
-                ]
-              }
-            },
-            "required": [
-              "type"
-            ]
-          }
+          "name",
+          "type"
         ]
       },
       "Role": {
@@ -96,6 +101,9 @@
             "type": "number"
           },
           "name": {
+            "type": "string"
+          },
+          "note": {
             "type": "string"
           },
           "createdAt": {
@@ -117,17 +125,26 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 50
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "PostRoleReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "note": {
+            "type": "string"
           }
         },
         "required": [
           "name"
-        ]
-      },
-      "PostRoleReq": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/PutRoleReq"
-          }
         ]
       },
       "App": {
@@ -335,6 +352,7 @@
     "/api/v1/scopes": {
       "get": {
         "summary": "Get a list of scopes",
+        "description": "Required scope - read_scope",
         "tags": [
           "Scopes"
         ],
@@ -356,6 +374,7 @@
       },
       "post": {
         "summary": "Create a new scope",
+        "description": "Required scope - write_scope",
         "tags": [
           "Scopes"
         ],
@@ -385,6 +404,7 @@
     "/api/v1/scopes/{id}": {
       "get": {
         "summary": "Get a single scope by ID",
+        "description": "Required scope - read_scope",
         "tags": [
           "Scopes"
         ],
@@ -414,6 +434,7 @@
       },
       "put": {
         "summary": "Update an existing scope by ID",
+        "description": "Required scope - write_scope",
         "tags": [
           "Scopes"
         ],
@@ -454,6 +475,7 @@
     "/api/v1/roles": {
       "get": {
         "summary": "Get a list of roles",
+        "description": "Required scope - read_role",
         "tags": [
           "Roles"
         ],
@@ -475,6 +497,7 @@
       },
       "post": {
         "summary": "Create a new role",
+        "description": "Required scope - write_role",
         "tags": [
           "Roles"
         ],
@@ -504,6 +527,7 @@
     "/api/v1/roles/{id}": {
       "get": {
         "summary": "Get a single role by ID",
+        "description": "Required scope - read_role",
         "tags": [
           "Roles"
         ],
@@ -533,6 +557,7 @@
       },
       "put": {
         "summary": "Update an existing role by ID",
+        "description": "Required scope - write_role",
         "tags": [
           "Roles"
         ],
@@ -573,6 +598,7 @@
     "/api/v1/apps": {
       "get": {
         "summary": "Get a list of apps",
+        "description": "Required scope - read_app",
         "tags": [
           "Apps"
         ],
@@ -594,6 +620,7 @@
       },
       "post": {
         "summary": "Create a new app",
+        "description": "Required scope - write_app",
         "tags": [
           "Apps"
         ],
@@ -623,6 +650,7 @@
     "/api/v1/apps/{id}": {
       "get": {
         "summary": "Get a single app by ID",
+        "description": "Required scope - read_app",
         "tags": [
           "Apps"
         ],
@@ -652,6 +680,7 @@
       },
       "put": {
         "summary": "Update an existing app by ID",
+        "description": "Required scope - write_app",
         "tags": [
           "Apps"
         ],
@@ -692,6 +721,7 @@
     "/api/v1/users": {
       "get": {
         "summary": "Get a list of users",
+        "description": "Required scope - read_user",
         "tags": [
           "Users"
         ],
@@ -715,6 +745,7 @@
     "/api/v1/users/{authId}": {
       "get": {
         "summary": "Get a single user by authId",
+        "description": "Required scope - read_user",
         "tags": [
           "Users"
         ],
@@ -744,6 +775,7 @@
       },
       "put": {
         "summary": "Update an existing user by authId",
+        "description": "Required scope - write_user",
         "tags": [
           "Users"
         ],
@@ -784,6 +816,7 @@
     "/api/v1/users/{authId}/verify-email": {
       "post": {
         "summary": "Send a verification email to the user",
+        "description": "Required scope - write_user",
         "tags": [
           "Users"
         ],

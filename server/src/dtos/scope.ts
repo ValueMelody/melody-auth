@@ -1,6 +1,6 @@
 import {
   IsEnum,
-  IsNotEmpty, IsString, Length,
+  IsNotEmpty, IsOptional, IsString, Length,
 } from 'class-validator'
 import { ClientType } from 'shared'
 
@@ -10,20 +10,38 @@ export class PutScopeReqDto {
     1,
     50,
   )
-  @IsNotEmpty()
+  @IsOptional()
     name: string
 
+  @IsString()
+  @IsOptional()
+    note: string
+
   constructor (dto: PutScopeReqDto) {
-    this.name = dto.name.trim()
+    this.name = dto.name
+    this.note = dto.note
   }
 }
 
-export class PostScopeReqDto extends PutScopeReqDto {
+export class PostScopeReqDto {
   @IsEnum(ClientType)
     type: ClientType
 
+  @IsString()
+  @Length(
+    1,
+    50,
+  )
+  @IsNotEmpty()
+    name: string
+
+  @IsString()
+  @IsOptional()
+    note: string
+
   constructor (dto: PostScopeReqDto) {
-    super(dto)
+    this.name = dto.name
     this.type = dto.type
+    this.note = dto.note
   }
 }

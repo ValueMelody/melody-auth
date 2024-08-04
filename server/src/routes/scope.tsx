@@ -14,6 +14,7 @@ export default scopeRoutes
  * /api/v1/scopes:
  *   get:
  *     summary: Get a list of scopes
+ *     description: Required scope - read_scope
  *     tags: [Scopes]
  *     responses:
  *       200:
@@ -36,6 +37,7 @@ scopeRoutes.get(
  * /api/v1/scopes/{id}:
  *   get:
  *     summary: Get a single scope by ID
+ *     description: Required scope - read_scope
  *     tags: [Scopes]
  *     parameters:
  *       - in: path
@@ -63,6 +65,7 @@ scopeRoutes.get(
  * /api/v1/scopes:
  *   post:
  *     summary: Create a new scope
+ *     description: Required scope - write_scope
  *     tags: [Scopes]
  *     requestBody:
  *       required: true
@@ -88,6 +91,7 @@ scopeRoutes.post(
  * /api/v1/scopes/{id}:
  *   put:
  *     summary: Update an existing scope by ID
+ *     description: Required scope - write_scope
  *     tags: [Scopes]
  *     parameters:
  *       - in: path

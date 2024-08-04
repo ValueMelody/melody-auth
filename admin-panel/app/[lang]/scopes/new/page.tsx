@@ -69,8 +69,21 @@ const Page = () => {
                     'name',
                     e.target.value,
                   )}
-                  value={values.name} />
+                  value={values.name}
+                />
                 {showErrors && <FieldError error={errors.name} />}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell>{t('common.note')}</Table.Cell>
+              <Table.Cell>
+                <TextInput
+                  onChange={(e) => onChange(
+                    'note',
+                    e.target.value,
+                  )}
+                  value={values.note}
+                />
               </Table.Cell>
             </Table.Row>
             <Table.Row>

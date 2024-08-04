@@ -14,6 +14,7 @@ export default roleRoutes
  * /api/v1/roles:
  *   get:
  *     summary: Get a list of roles
+ *     description: Required scope - read_role
  *     tags: [Roles]
  *     responses:
  *       200:
@@ -36,6 +37,7 @@ roleRoutes.get(
  * /api/v1/roles/{id}:
  *   get:
  *     summary: Get a single role by ID
+ *     description: Required scope - read_role
  *     tags: [Roles]
  *     parameters:
  *       - in: path
@@ -63,6 +65,7 @@ roleRoutes.get(
  * /api/v1/roles:
  *   post:
  *     summary: Create a new role
+ *     description: Required scope - write_role
  *     tags: [Roles]
  *     requestBody:
  *       required: true
@@ -88,6 +91,7 @@ roleRoutes.post(
  * /api/v1/roles/{id}:
  *   put:
  *     summary: Update an existing role by ID
+ *     description: Required scope - write_role
  *     tags: [Roles]
  *     parameters:
  *       - in: path

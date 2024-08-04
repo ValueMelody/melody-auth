@@ -3,6 +3,7 @@ const Scope = {
   properties: {
     id: { type: 'number' },
     name: { type: 'string' },
+    note: { type: 'string' },
     type: {
       type: 'string',
       enum: ['spa', 's2s'],
@@ -24,24 +25,25 @@ const PutScopeReq = {
       minLength: 1,
       maxLength: 50,
     },
+    note: { type: 'string' },
   },
-  required: ['name'],
 }
 
 const PostScopeReq = {
-  allOf: [
-    { $ref: '#/components/schemas/PutScopeReq' },
-    {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          enum: ['spa', 's2s'],
-        },
-      },
-      required: ['type'],
+  type: 'object',
+  properties: {
+    name: {
+      type: 'string',
+      minLength: 1,
+      maxLength: 50,
     },
-  ],
+    type: {
+      type: 'string',
+      enum: ['spa', 's2s'],
+    },
+    note: { type: 'string' },
+  },
+  required: ['name', 'type'],
 }
 
 module.exports = {

@@ -8,17 +8,21 @@ const useEditRole = (role) => {
   const t = useTranslations()
 
   const [name, setName] = useState('')
+  const [note, setNote] = useState('')
 
   useEffect(
     () => {
       setName(role?.name ?? '')
+      setNote(role?.note ?? '')
     },
     [role],
   )
 
   const values = useMemo(
-    () => ({ name }),
-    [name],
+    () => ({
+      name, note,
+    }),
+    [name, note],
   )
 
   const errors = useMemo(
@@ -32,6 +36,9 @@ const useEditRole = (role) => {
     switch (key) {
     case 'name':
       setName(value as string)
+      break
+    case 'note':
+      setNote(value as string)
       break
     }
   }

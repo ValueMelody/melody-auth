@@ -22,7 +22,9 @@ export const postScope = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
   const bodyDto = new scopeDto.PostScopeReqDto({
-    name: String(reqBody.name), type: reqBody.type,
+    name: String(reqBody.name),
+    type: reqBody.type,
+    note: reqBody.note,
   })
   await validateUtil.dto(bodyDto)
 
@@ -39,7 +41,7 @@ export const putScope = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const id = Number(c.req.param('id'))
 
-  const bodyDto = new scopeDto.PutScopeReqDto({ name: String(reqBody.name) })
+  const bodyDto = new scopeDto.PutScopeReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const scope = await scopeService.updateScope(

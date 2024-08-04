@@ -9,6 +9,7 @@ import {
 export interface Record {
   id: number;
   name: string;
+  note: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -16,10 +17,12 @@ export interface Record {
 
 export interface Create {
   name: string;
+  note: string;
 }
 
 export interface Update {
   name?: string;
+  note?: string;
   updatedAt?: string;
   deletedAt?: string | null;
 }
@@ -48,8 +51,11 @@ export const getById = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (name) values ($1)`
-  const stmt = db.prepare(query).bind(create.name)
+  const query = `INSERT INTO ${TableName} (name, note) values ($1, $2)`
+  const stmt = db.prepare(query).bind(
+    create.name,
+    create.note ?? '',
+  )
   const result = await validateUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
   const id = result.meta.last_row_id
@@ -65,7 +71,7 @@ export const update = async (
   db: D1Database, id: number, update: Update,
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
-    'name', 'deletedAt', 'updatedAt',
+    'name', 'deletedAt', 'updatedAt', 'note',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,
