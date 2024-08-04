@@ -154,6 +154,10 @@ const Page = () => {
               <Table.Cell>{user.email}</Table.Cell>
             </Table.Row>
             <Table.Row>
+              <Table.Cell>{t('users.loginCount')}</Table.Cell>
+              <Table.Cell>{user.loginCount}</Table.Cell>
+            </Table.Row>
+            <Table.Row>
               <Table.Cell>{t('users.status')}</Table.Cell>
               <Table.Cell>
                 {isSelf && <EntityStatusLabel isEnabled={user.isActive} />}

@@ -239,6 +239,17 @@ export const resetUserPassword = async (
   return true
 }
 
+export const increaseLoginCount = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+) => {
+  await userModel.updateCount(
+    c.env.DB,
+    userId,
+  )
+  return true
+}
+
 export const updateUser = async (
   c: Context<typeConfig.Context>,
   authId: string,

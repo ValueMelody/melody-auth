@@ -51,6 +51,7 @@
     "email": "Email",
     "name": "Name",
     "status": "Status",
+    "loginCount": "Login Count",
     "emailVerified": "Email Is Verified",
     "firstName": "First Name",
     "lastName": "Last Name",

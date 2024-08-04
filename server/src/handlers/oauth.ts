@@ -150,6 +150,11 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     result.id_token = idToken
   }
 
+  await userService.increaseLoginCount(
+    c,
+    authInfo.user.id,
+  )
+
   return c.json(result)
 }
 
