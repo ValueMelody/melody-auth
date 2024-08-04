@@ -129,6 +129,7 @@ export const verifyEmailMfaCode = async (
   kv: KVNamespace,
   authCode: string,
   mfaCode: string,
+  expiresIn: number,
 ) => {
   const key = adapterConfig.getKVKey(
     adapterConfig.BaseKVKey.MFACode,
@@ -140,6 +141,7 @@ export const verifyEmailMfaCode = async (
     await kv.put(
       key,
       '1',
+      { expirationTtl: expiresIn },
     )
   }
   return storedCode && storedCode === mfaCode
