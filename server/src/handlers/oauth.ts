@@ -35,6 +35,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       },
       codeExpiresIn,
     )
+    await kvService.markEmailMfaVerified(c.env.KV, authCode, codeExpiresIn)
 
     const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
     return c.redirect(url)

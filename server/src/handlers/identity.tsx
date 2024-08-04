@@ -261,10 +261,13 @@ export const postAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeMfaReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
+  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+
   const isValid = await kvService.verifyEmailMfaCode(
     c.env.KV,
     bodyDto.code,
     bodyDto.mfaCode,
+    expiresIn,
   )
 
   if (!isValid) throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
@@ -398,11 +401,10 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
     bodyDto.refreshToken,
   )
 
-  if (refreshTokenBody && accessTokenBody.sub !== refreshTokenBody.authId) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
-  }
-
-  if (!refreshTokenBody) {
+  if (refreshTokenBody) {
+    if (accessTokenBody.sub !== refreshTokenBody.authId) {
+      throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+    }
     await kvService.invalidRefreshToken(
       c.env.KV,
       bodyDto.refreshToken,
