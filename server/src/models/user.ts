@@ -13,6 +13,7 @@ export interface Common {
   password: string | null;
   firstName: string | null;
   lastName: string | null;
+  loginCount: number;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -35,6 +36,7 @@ export interface ApiRecord {
   firstName?: string | null;
   lastName?: string | null;
   emailVerified: boolean;
+  loginCount: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -57,6 +59,7 @@ export interface Update {
   password?: string | null;
   firstName?: string | null;
   lastName?: string | null;
+  loginCount?: number;
   deletedAt?: string | null;
   updatedAt?: string | null;
   isActive?: number;
@@ -81,6 +84,7 @@ export const convertToApiRecord = (
     email: record.email,
     emailVerified: record.emailVerified,
     isActive: record.isActive,
+    loginCount: record.loginCount,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     deletedAt: record.deletedAt,
@@ -148,7 +152,9 @@ export const getByEmail = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const createKeys: (keyof Create)[] = ['authId', 'email', 'password', 'firstName', 'lastName']
+  const createKeys: (keyof Create)[] = [
+    'authId', 'email', 'password', 'firstName', 'lastName',
+  ]
   const stmt = formatUtil.d1CreateQuery(
     db,
     TableName,
@@ -166,12 +172,20 @@ export const create = async (
   return record
 }
 
+export const updateCount = async (
+  db: D1Database, id: number,
+) => {
+  const query = `UPDATE ${TableName} set loginCount = loginCount + 1 where id = $1`
+  const stmt = db.prepare(query).bind(id)
+  await validateUtil.d1Run(stmt)
+}
+
 export const update = async (
   db: D1Database, id: number, update: Update,
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
-    'emailVerified',
+    'emailVerified', 'loginCount',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,
