@@ -21,10 +21,13 @@
     "create": "Create",
     "options": "Options:",
     "save": "Save",
+    "delete": "Delete",
     "system": "System",
     "note": "Note",
     "status": "Status",
-    "fieldIsRequired": "This field is required."
+    "fieldIsRequired": "This field is required.",
+    "deleteConfirm": "Are you sure want to delete {item}",
+    "deleteConfirmBtn": "Delete"
   },
   "dashboard": {
     "configs": "System Configs",

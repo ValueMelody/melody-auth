@@ -13,7 +13,7 @@ import {
   PostAuthorizeReqWithNamesDto, PostAuthorizeReqWithPasswordDto,
 } from 'dtos/identity'
 import {
-  roleModel, userModel, userRoleModel,
+  roleModel, userAppConsentModel, userModel, userRoleModel,
 } from 'models'
 import {
   emailService, kvService, roleService,
@@ -316,4 +316,24 @@ export const updateUser = async (
     enableNames,
     roleNames,
   )
+}
+
+export const deleteUser = async (
+  c: Context<typeConfig.Context>,
+  authId: string,
+): Promise<true> => {
+  const user = await userModel.getByAuthId(
+    c.env.DB,
+    authId,
+  )
+  if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  await userModel.remove(
+    c.env.DB,
+    user.id,
+  )
+  await userAppConsentModel.remove(
+    c.env.DB,
+    user.id,
+  )
+  return true
 }

@@ -60,3 +60,15 @@ export const putUser = async (c: Context<typeConfig.Context>) => {
   )
   return c.json({ user })
 }
+
+export const deleteUser = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  await userService.deleteUser(
+    c,
+    authId,
+  )
+
+  c.status(204)
+  return c.body(null)
+}

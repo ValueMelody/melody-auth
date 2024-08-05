@@ -1,4 +1,3 @@
-import classNames from 'classnames'
 import {
   Button, Spinner,
 } from 'flowbite-react'
@@ -20,10 +19,7 @@ const SaveButton = ({
   return (
     <Button
       disabled={disabled || isLoading}
-      className={classNames(
-        className,
-        'mt-6',
-      )}
+      className={className}
       onClick={onClick}
     >
       {t('common.save')}

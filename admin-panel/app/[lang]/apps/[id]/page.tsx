@@ -15,7 +15,7 @@ import {
 import RedirectUriEditor from '../RedirectUriEditor'
 import useEditApp from '../useEditApp'
 import {
-  proxyTool, typeTool,
+  proxyTool, routeTool, typeTool,
 } from 'tools'
 import PageTitle from 'components/PageTitle'
 import ClientTypeLabel from 'components/ClientTypeLabel'
@@ -23,9 +23,12 @@ import SubmitError from 'components/SubmitError'
 import FieldError from 'components/FieldError'
 import ScopesEditor from 'components/ScopesEditor'
 import SaveButton from 'components/SaveButton'
+import DeleteButton from 'components/DeleteButton'
+import useLocaleRouter from 'hooks/useLocaleRoute'
 
 const Page = () => {
   const { id } = useParams()
+  const router = useLocaleRouter()
 
   const t = useTranslations()
 
@@ -73,6 +76,18 @@ const Page = () => {
     },
     [acquireToken, id],
   )
+
+  const handleDelete = async () => {
+    const token = await acquireToken()
+    setIsLoading(true)
+    await proxyTool.sendNextRequest({
+      endpoint: `/api/apps/${id}`,
+      method: 'DELETE',
+      token,
+    })
+    router.push(routeTool.Internal.Apps)
+    setIsLoading(false)
+  }
 
   useEffect(
     () => {
@@ -205,11 +220,21 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <SaveButton
-        isLoading={isLoading}
-        disabled={!Object.keys(updateObj).length}
-        onClick={handleSave}
-      />
+      <section className='flex items-center gap-4 mt-8'>
+        <SaveButton
+          isLoading={isLoading}
+          disabled={!Object.keys(updateObj).length}
+          onClick={handleSave}
+        />
+        <DeleteButton
+          isLoading={isLoading}
+          confirmDeleteTitle={t(
+            'common.deleteConfirm',
+            { item: app.name },
+          )}
+          onConfirmDelete={handleDelete}
+        />
+      </section>
     </section>
   )
 }

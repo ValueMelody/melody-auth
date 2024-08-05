@@ -46,3 +46,14 @@ export async function PUT (
     body: JSON.stringify(reqBody.data),
   })
 }
+
+export async function DELETE (
+  request: Request, context: { params: Params },
+) {
+  const authId = context.params.authId
+
+  return sendS2SRequest({
+    method: 'DELETE',
+    uri: `/api/v1/users/${authId}`,
+  })
+}

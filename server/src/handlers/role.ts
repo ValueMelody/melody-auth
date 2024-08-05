@@ -48,3 +48,15 @@ export const putRole = async (c: Context<typeConfig.Context>) => {
 
   return c.json({ role })
 }
+
+export const deleteRole = async (c: Context<typeConfig.Context>) => {
+  const id = Number(c.req.param('id'))
+
+  await roleService.deleteRole(
+    c,
+    id,
+  )
+
+  c.status(204)
+  return c.body(null)
+}

@@ -64,3 +64,18 @@ export const updateRole = async (
   )
   return role
 }
+
+export const deleteRole = async (
+  c: Context<typeConfig.Context>,
+  roleId: number,
+): Promise<true> => {
+  await roleModel.remove(
+    c.env.DB,
+    roleId,
+  )
+  await userRoleModel.remove(
+    c.env.DB,
+    roleId,
+  )
+  return true
+}

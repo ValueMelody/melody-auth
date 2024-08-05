@@ -118,3 +118,49 @@ roleRoutes.put(
   authMiddleware.s2sWriteRole,
   roleHandler.putRole,
 )
+
+/**
+ * @swagger
+ * /api/v1/roles/{id}:
+ *   Delete:
+ *     summary: Delete an existing role by ID
+ *     description: Required scope - write_role
+ *     tags: [Roles]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the role
+ *     responses:
+ *       204
+ */
+roleRoutes.delete(
+  `${BaseRoute}/:id`,
+  authMiddleware.s2sWriteRole,
+  roleHandler.deleteRole,
+)
+/**
+ * @swagger
+ * /api/v1/roles/{id}:
+ *   delete:
+ *     summary: Delete an existing role by ID
+ *     description: Required scope - write_role
+ *     tags: [Roles]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the role
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+roleRoutes.delete(
+  `${BaseRoute}/:id`,
+  authMiddleware.s2sWriteRole,
+  roleHandler.deleteRole,
+)

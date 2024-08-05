@@ -52,3 +52,15 @@ export const putScope = async (c: Context<typeConfig.Context>) => {
 
   return c.json({ scope })
 }
+
+export const deleteScope = async (c: Context<typeConfig.Context>) => {
+  const id = Number(c.req.param('id'))
+
+  await scopeService.deleteScope(
+    c,
+    id,
+  )
+
+  c.status(204)
+  return c.body(null)
+}

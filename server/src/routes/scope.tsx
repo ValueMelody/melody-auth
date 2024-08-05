@@ -118,3 +118,27 @@ scopeRoutes.put(
   authMiddleware.s2sWriteScope,
   scopeHandler.putScope,
 )
+
+/**
+ * @swagger
+ * /api/v1/scopes/{id}:
+ *   delete:
+ *     summary: Delete an existing scope by ID
+ *     description: Required scope - write_scope
+ *     tags: [Scopes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the scope
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+scopeRoutes.delete(
+  `${BaseRoute}/:id`,
+  authMiddleware.s2sWriteScope,
+  scopeHandler.deleteScope,
+)

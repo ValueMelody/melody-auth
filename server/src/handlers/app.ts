@@ -46,3 +46,15 @@ export const putApp = async (c: Context<typeConfig.Context>) => {
   )
   return c.json({ app })
 }
+
+export const deleteApp = async (c: Context<typeConfig.Context>) => {
+  const id = Number(c.req.param('id'))
+
+  await appService.deleteApp(
+    c,
+    id,
+  )
+
+  c.status(204)
+  return c.body(null)
+}

@@ -7,7 +7,7 @@ export const sendNextRequest = async ({
   body,
 }: {
   endpoint: string;
-  method: 'GET' | 'POST' | 'PUT';
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   token?: string;
   body?: object;
 }) => {
