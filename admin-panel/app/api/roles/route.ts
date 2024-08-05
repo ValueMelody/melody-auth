@@ -6,7 +6,7 @@ import {
 export async function GET () {
   return sendS2SRequest({
     method: 'GET',
-    uri: '/api/v1/roles?include_disabled=true',
+    uri: '/api/v1/roles',
   })
 }
 

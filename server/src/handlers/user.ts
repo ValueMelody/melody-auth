@@ -7,10 +7,24 @@ import {
 } from 'services'
 import { userDto } from 'dtos'
 import { validateUtil } from 'utils'
+import { PaginationDto } from 'dtos/common'
 
 export const getUsers = async (c: Context<typeConfig.Context>) => {
-  const users = await userService.getUsers(c)
-  return c.json({ users })
+  const {
+    page_size: pageSize, page_number: pageNumber,
+  } = c.req.query()
+  const pagination = pageSize && pageNumber
+    ? new PaginationDto({
+      pageSize: Number(pageSize),
+      pageNumber: Number(pageNumber),
+    })
+    : undefined
+
+  const result = await userService.getUsers(
+    c,
+    pagination,
+  )
+  return c.json(result)
 }
 
 export const getUser = async (c: Context<typeConfig.Context>) => {

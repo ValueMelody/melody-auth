@@ -22,9 +22,12 @@ export default appRoutes
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/App'
+ *               type: object
+ *               properties:
+ *                 apps:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/App'
  */
 appRoutes.get(
   `${BaseRoute}`,
@@ -52,7 +55,10 @@ appRoutes.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AppDetail'
+ *               type: object
+ *               properties:
+ *                 app:
+ *                   $ref: '#/components/schemas/AppDetail'
  */
 appRoutes.get(
   `${BaseRoute}/:id`,
@@ -78,7 +84,10 @@ appRoutes.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AppDetail'
+ *               type: object
+ *               properties:
+ *                 app:
+ *                   $ref: '#/components/schemas/AppDetail'
  */
 appRoutes.post(
   `${BaseRoute}`,
@@ -111,7 +120,10 @@ appRoutes.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AppDetail'
+ *               type: object
+ *               properties:
+ *                 app:
+ *                   $ref: '#/components/schemas/AppDetail'
  */
 appRoutes.put(
   `${BaseRoute}/:id`,

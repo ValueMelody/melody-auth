@@ -79,3 +79,8 @@ export interface IdTokenBody {
   last_name: string | null;
   roles?: string[];
 }
+
+export interface Pagination {
+  pageSize: number;
+  pageNumber: number;
+}

@@ -22,9 +22,12 @@ export default scopeRoutes
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Scope'
+ *               type: object
+ *               properties:
+ *                 scopes:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Scope'
  */
 scopeRoutes.get(
   `${BaseRoute}`,
@@ -52,7 +55,10 @@ scopeRoutes.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Scope'
+ *               type: object
+ *               properties:
+ *                 scope:
+ *                   $ref: '#/components/schemas/Scope'
  */
 scopeRoutes.get(
   `${BaseRoute}/:id`,
@@ -78,7 +84,10 @@ scopeRoutes.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Scope'
+ *               type: object
+ *               properties:
+ *                 scope:
+ *                   $ref: '#/components/schemas/Scope'
  */
 scopeRoutes.post(
   `${BaseRoute}`,
@@ -111,7 +120,10 @@ scopeRoutes.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Scope'
+ *               type: object
+ *               properties:
+ *                 scope:
+ *                   $ref: '#/components/schemas/Scope'
  */
 scopeRoutes.put(
   `${BaseRoute}/:id`,

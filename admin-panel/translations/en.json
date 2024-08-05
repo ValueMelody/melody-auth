@@ -24,6 +24,8 @@
     "delete": "Delete",
     "system": "System",
     "note": "Note",
+    "previous": "Previous",
+    "next": "Next",
     "status": "Status",
     "fieldIsRequired": "This field is required.",
     "deleteConfirm": "Are you sure want to delete {item}",
