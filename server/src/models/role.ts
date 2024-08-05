@@ -71,7 +71,7 @@ export const update = async (
   db: D1Database, id: number, update: Update,
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
-    'name', 'deletedAt', 'updatedAt', 'note',
+    'name', 'updatedAt', 'note',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,
@@ -89,4 +89,17 @@ export const update = async (
   )
   if (!record) throw new errorConfig.InternalServerError()
   return record
+}
+
+export const remove = async (
+  db: D1Database, id: number,
+): Promise<true> => {
+  const stmt = formatUtil.d1SoftDeleteQuery(
+    db,
+    TableName,
+    id,
+  )
+
+  await validateUtil.d1Run(stmt)
+  return true
 }

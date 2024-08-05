@@ -118,3 +118,27 @@ appRoutes.put(
   authMiddleware.s2sWriteApp,
   appHandler.putApp,
 )
+
+/**
+ * @swagger
+ * /api/v1/apps/{id}:
+ *   delete:
+ *     summary: Delete an existing app by ID
+ *     description: Required scope - write_app
+ *     tags: [Apps]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the app
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+appRoutes.delete(
+  `${BaseRoute}/:id`,
+  authMiddleware.s2sWriteApp,
+  appHandler.deleteApp,
+)

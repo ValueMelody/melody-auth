@@ -61,6 +61,21 @@ export const updateScope = async (
   return role
 }
 
+export const deleteScope = async (
+  c: Context<typeConfig.Context>,
+  scopeId: number,
+): Promise<true> => {
+  await scopeModel.remove(
+    c.env.DB,
+    scopeId,
+  )
+  await appScopeModel.remove(
+    c.env.DB,
+    scopeId,
+  )
+  return true
+}
+
 export const getAppScopes = async (
   c: Context<typeConfig.Context>, appId: number,
 ): Promise<string[]> => {

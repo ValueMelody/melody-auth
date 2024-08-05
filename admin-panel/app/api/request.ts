@@ -115,7 +115,7 @@ export const sendS2SRequest = async ({
   body,
 }: {
   uri: string;
-  method: 'GET' | 'POST' | 'PUT';
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: string;
 }) => {
   const isValid = await verifyAccessToken()

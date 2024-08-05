@@ -470,6 +470,29 @@
             }
           }
         }
+      },
+      "delete": {
+        "summary": "Delete an existing scope by ID",
+        "description": "Required scope - write_scope",
+        "tags": [
+          "Scopes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the scope"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
       }
     },
     "/api/v1/roles": {
@@ -591,6 +614,48 @@
                 }
               }
             }
+          }
+        }
+      },
+      "Delete": {
+        "summary": "Delete an existing role by ID",
+        "description": "Required scope - write_role",
+        "tags": [
+          "Roles"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the role"
+          }
+        ],
+        "responses": 204
+      },
+      "delete": {
+        "summary": "Delete an existing role by ID",
+        "description": "Required scope - write_role",
+        "tags": [
+          "Roles"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the role"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
           }
         }
       }
@@ -716,6 +781,29 @@
             }
           }
         }
+      },
+      "delete": {
+        "summary": "Delete an existing app by ID",
+        "description": "Required scope - write_app",
+        "tags": [
+          "Apps"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the app"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
       }
     },
     "/api/v1/users": {
@@ -809,6 +897,29 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an existing user by authId",
+        "description": "Required scope - write_user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The authId of the user"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
           }
         }
       }

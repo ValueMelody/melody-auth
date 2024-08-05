@@ -12,16 +12,21 @@ import {
   useEffect, useState,
 } from 'react'
 import useEditRole from '../useEditRole'
-import { proxyTool } from 'tools'
+import {
+  proxyTool, routeTool,
+} from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import PageTitle from 'components/PageTitle'
+import DeleteButton from 'components/DeleteButton'
+import useLocaleRouter from 'hooks/useLocaleRoute'
 
 const Page = () => {
   const { id } = useParams()
 
   const t = useTranslations()
+  const router = useLocaleRouter()
 
   const [role, setRole] = useState()
   const [isLoading, setIsLoading] = useState(false)
@@ -46,10 +51,10 @@ const Page = () => {
       token,
       body: { data: values },
     })
-    setIsLoading(false)
     if (res?.role) {
       getRole()
     }
+    setIsLoading(false)
   }
 
   const getRole = useCallback(
@@ -64,6 +69,18 @@ const Page = () => {
     },
     [acquireToken, id],
   )
+
+  const handleDelete = async () => {
+    const token = await acquireToken()
+    setIsLoading(true)
+    await proxyTool.sendNextRequest({
+      endpoint: `/api/roles/${id}`,
+      method: 'DELETE',
+      token,
+    })
+    router.push(routeTool.Internal.Roles)
+    setIsLoading(false)
+  }
 
   useEffect(
     () => {
@@ -122,11 +139,21 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <SaveButton
-        isLoading={isLoading}
-        disabled={!values.name || (values.name === role.name && values.note === role.note)}
-        onClick={handleSave}
-      />
+      <section className='flex items-center gap-4 mt-8'>
+        <SaveButton
+          isLoading={isLoading}
+          disabled={!values.name || (values.name === role.name && values.note === role.note)}
+          onClick={handleSave}
+        />
+        <DeleteButton
+          isLoading={isLoading}
+          confirmDeleteTitle={t(
+            'common.deleteConfirm',
+            { item: values.name },
+          )}
+          onConfirmDelete={handleDelete}
+        />
+      </section>
     </section>
   )
 }

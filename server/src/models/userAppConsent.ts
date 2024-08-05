@@ -2,6 +2,7 @@ import {
   adapterConfig, errorConfig,
 } from 'configs'
 import {
+  formatUtil,
   timeUtil, validateUtil,
 } from 'utils'
 
@@ -83,4 +84,18 @@ export const getByUserAndApp = async (
     )
   const consent = await stmt.first() as Record | null
   return consent
+}
+
+export const remove = async (
+  db: D1Database, userId: number,
+): Promise<true> => {
+  const stmt = formatUtil.d1SoftDeleteQuery(
+    db,
+    TableName,
+    userId,
+    'userId',
+  )
+
+  await validateUtil.d1Run(stmt)
+  return true
 }

@@ -12,17 +12,22 @@ import {
   useEffect, useState,
 } from 'react'
 import useEditScope from '../useEditScope'
-import { proxyTool } from 'tools'
+import {
+  proxyTool, routeTool,
+} from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import ClientTypeLabel from 'components/ClientTypeLabel'
 import PageTitle from 'components/PageTitle'
+import DeleteButton from 'components/DeleteButton'
+import useLocaleRouter from 'hooks/useLocaleRoute'
 
 const Page = () => {
   const { id } = useParams()
 
   const t = useTranslations()
+  const router = useLocaleRouter()
 
   const [scope, setScope] = useState()
   const { acquireToken } = useAuth()
@@ -65,6 +70,18 @@ const Page = () => {
     },
     [acquireToken, id],
   )
+
+  const handleDelete = async () => {
+    const token = await acquireToken()
+    setIsLoading(true)
+    await proxyTool.sendNextRequest({
+      endpoint: `/api/scopes/${id}`,
+      method: 'DELETE',
+      token,
+    })
+    router.push(routeTool.Internal.Scopes)
+    setIsLoading(false)
+  }
 
   useEffect(
     () => {
@@ -131,11 +148,21 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <SaveButton
-        isLoading={isLoading}
-        disabled={!values.name || (values.name === scope.name && values.note === scope.note)}
-        onClick={handleSave}
-      />
+      <section className='flex items-center gap-4 mt-8'>
+        <SaveButton
+          isLoading={isLoading}
+          disabled={!values.name || (values.name === scope.name && values.note === scope.note)}
+          onClick={handleSave}
+        />
+        <DeleteButton
+          isLoading={isLoading}
+          confirmDeleteTitle={t(
+            'common.deleteConfirm',
+            { item: values.name },
+          )}
+          onConfirmDelete={handleDelete}
+        />
+      </section>
     </section>
   )
 }

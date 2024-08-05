@@ -126,3 +126,27 @@ userRoutes.post(
   configMiddleware.enableEmailVerification,
   userHandler.verifyEmail,
 )
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}:
+ *   delete:
+ *     summary: Delete an existing user by authId
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId`,
+  authMiddleware.s2sWriteUser,
+  userHandler.deleteUser,
+)

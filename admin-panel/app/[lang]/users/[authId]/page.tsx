@@ -13,7 +13,9 @@ import {
   useEffect, useMemo, useState,
 } from 'react'
 import UserEmailVerified from 'components/UserEmailVerified'
-import { proxyTool } from 'tools'
+import {
+  proxyTool, routeTool,
+} from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import useSignalValue from 'app/useSignalValue'
 import {
@@ -23,12 +25,15 @@ import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
 import SubmitError from 'components/SubmitError'
 import SaveButton from 'components/SaveButton'
+import DeleteButton from 'components/DeleteButton'
+import useLocaleRouter from 'hooks/useLocaleRoute'
 
 const Page = () => {
   const { authId } = useParams()
   const configs = useSignalValue(configSignal)
 
   const t = useTranslations()
+  const router = useLocaleRouter()
 
   const [user, setUser] = useState()
   const [roles, setRoles] = useState()
@@ -59,6 +64,18 @@ const Page = () => {
     () => userInfo.authId === user?.authId,
     [user, userInfo],
   )
+
+  const handleDelete = async () => {
+    const token = await acquireToken()
+    setIsLoading(true)
+    await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}`,
+      method: 'DELETE',
+      token,
+    })
+    router.push(routeTool.Internal.Users)
+    setIsLoading(false)
+  }
 
   const getUser = useCallback(
     async () => {
@@ -248,11 +265,22 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <SaveButton
-        isLoading={isLoading}
-        disabled={!Object.keys(updateObj).length}
-        onClick={handleSave}
-      />
+      <section className='flex items-center gap-4 mt-8'>
+        <SaveButton
+          isLoading={isLoading}
+          disabled={!Object.keys(updateObj).length}
+          onClick={handleSave}
+        />
+        <DeleteButton
+          isLoading={isLoading}
+          confirmDeleteTitle={t(
+            'common.deleteConfirm',
+            { item: user.email },
+          )}
+          onConfirmDelete={handleDelete}
+        />
+      </section>
+
     </section>
   )
 }

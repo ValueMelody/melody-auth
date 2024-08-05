@@ -177,3 +177,14 @@ export const updateApp = async (
     scopes: dto.scopes ?? appScopes.map((appScope) => appScope.scopeName),
   }
 }
+
+export const deleteApp = async (
+  c: Context<typeConfig.Context>,
+  appId: number,
+): Promise<true> => {
+  await appModel.remove(
+    c.env.DB,
+    appId,
+  )
+  return true
+}

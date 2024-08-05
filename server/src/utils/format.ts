@@ -58,3 +58,17 @@ export const d1UpdateQuery = (
   const stmt = db.prepare(query).bind(...binds)
   return stmt
 }
+
+export const d1SoftDeleteQuery = (
+  db: D1Database,
+  tableName: string,
+  id: number,
+  key?: string,
+): D1PreparedStatement => {
+  const query = `UPDATE ${tableName} set deletedAt = $1 where ${key || 'id'} = $2`
+  const stmt = db.prepare(query).bind(
+    timeUtil.getDbCurrentTime(),
+    id,
+  )
+  return stmt
+}

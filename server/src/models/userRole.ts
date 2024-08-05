@@ -75,3 +75,17 @@ export const update = async (
   const result = await validateUtil.d1Run(stmt)
   return result.success
 }
+
+export const remove = async (
+  db: D1Database, roleId: number,
+): Promise<true> => {
+  const stmt = formatUtil.d1SoftDeleteQuery(
+    db,
+    TableName,
+    roleId,
+    'roleId',
+  )
+
+  await validateUtil.d1Run(stmt)
+  return true
+}

@@ -32,3 +32,14 @@ export async function PUT (
     body: JSON.stringify(reqBody.data),
   })
 }
+
+export async function DELETE (
+  request: Request, context: { params: Params },
+) {
+  const id = context.params.id
+
+  return sendS2SRequest({
+    method: 'DELETE',
+    uri: `/api/v1/scopes/${id}`,
+  })
+}
