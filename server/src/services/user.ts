@@ -59,8 +59,15 @@ export const getUserInfo = async (
   return result
 }
 
-export const getUsers = async (c: Context<typeConfig.Context>): Promise<userModel.ApiRecord[]> => {
-  const users = await userModel.getAll(c.env.DB)
+export const getUsers = async (
+  c: Context<typeConfig.Context>,
+  pagination?: typeConfig.Pagination,
+): Promise<userModel.PaginatedApiRecords> => {
+  const users = await userModel.getAll(
+    c.env.DB,
+    pagination,
+  )
+  const count = pagination ? await userModel.count(c.env.DB) : users.length
 
   const { ENABLE_NAMES: enableNames } = env(c)
 
@@ -68,7 +75,9 @@ export const getUsers = async (c: Context<typeConfig.Context>): Promise<userMode
     user,
     enableNames,
   ))
-  return result
+  return {
+    users: result, count,
+  }
 }
 
 export const getUserByAuthId = async (

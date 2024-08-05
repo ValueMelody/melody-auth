@@ -1,6 +1,7 @@
 import { Context } from 'hono'
 import { typeConfig } from 'configs'
 import { timeUtil } from 'utils'
+import { Pagination } from 'configs/type'
 
 export const stripEndingSlash = (val: string): string => {
   return val.replace(
@@ -10,6 +11,22 @@ export const stripEndingSlash = (val: string): string => {
 }
 
 export const getQueryString = (c: Context<typeConfig.Context>): string => c.req.url.split('?')[1]
+
+export const d1SelectAllQuery = (
+  db: D1Database,
+  tableName: string,
+  pagination?: Pagination,
+): D1PreparedStatement => {
+  const paginatedCondition = pagination ? 'Limit $1 OFFSET $2' : ''
+  const query = `SELECT * FROM ${tableName} WHERE deletedAt IS NULL ORDER BY id ASC ${paginatedCondition}`
+  const stmt = pagination
+    ? db.prepare(query).bind(
+      pagination.pageSize,
+      (pagination.pageNumber - 1) * pagination.pageSize,
+    )
+    : db.prepare(query)
+  return stmt
+}
 
 export const d1CreateQuery = (
   db: D1Database,

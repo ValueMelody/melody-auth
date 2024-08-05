@@ -362,9 +362,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Scope"
+                  "type": "object",
+                  "properties": {
+                    "scopes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Scope"
+                      }
+                    }
                   }
                 }
               }
@@ -393,7 +398,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Scope"
+                  "type": "object",
+                  "properties": {
+                    "scope": {
+                      "$ref": "#/components/schemas/Scope"
+                    }
+                  }
                 }
               }
             }
@@ -425,7 +435,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Scope"
+                  "type": "object",
+                  "properties": {
+                    "scope": {
+                      "$ref": "#/components/schemas/Scope"
+                    }
+                  }
                 }
               }
             }
@@ -464,7 +479,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Scope"
+                  "type": "object",
+                  "properties": {
+                    "scope": {
+                      "$ref": "#/components/schemas/Scope"
+                    }
+                  }
                 }
               }
             }
@@ -508,9 +528,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Role"
+                  "type": "object",
+                  "properties": {
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Role"
+                      }
+                    }
                   }
                 }
               }
@@ -539,7 +564,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Role"
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "$ref": "#/components/schemas/Role"
+                    }
+                  }
                 }
               }
             }
@@ -571,7 +601,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Role"
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "$ref": "#/components/schemas/Role"
+                    }
+                  }
                 }
               }
             }
@@ -610,31 +645,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Role"
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "$ref": "#/components/schemas/Role"
+                    }
+                  }
                 }
               }
             }
           }
         }
-      },
-      "Delete": {
-        "summary": "Delete an existing role by ID",
-        "description": "Required scope - write_role",
-        "tags": [
-          "Roles"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "number"
-            },
-            "description": "The unique ID of the role"
-          }
-        ],
-        "responses": 204
       },
       "delete": {
         "summary": "Delete an existing role by ID",
@@ -673,9 +694,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/App"
+                  "type": "object",
+                  "properties": {
+                    "apps": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/App"
+                      }
+                    }
                   }
                 }
               }
@@ -704,7 +730,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AppDetail"
+                  "type": "object",
+                  "properties": {
+                    "app": {
+                      "$ref": "#/components/schemas/AppDetail"
+                    }
+                  }
                 }
               }
             }
@@ -736,7 +767,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AppDetail"
+                  "type": "object",
+                  "properties": {
+                    "app": {
+                      "$ref": "#/components/schemas/AppDetail"
+                    }
+                  }
                 }
               }
             }
@@ -775,7 +811,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AppDetail"
+                  "type": "object",
+                  "properties": {
+                    "app": {
+                      "$ref": "#/components/schemas/AppDetail"
+                    }
+                  }
                 }
               }
             }
@@ -813,15 +854,42 @@
         "tags": [
           "Users"
         ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of users to return per page"
+          },
+          {
+            "in": "query",
+            "name": "page_number",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number to return"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A list of users",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/User"
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserDetail"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "description": "Total number of users matching the query"
+                    }
                   }
                 }
               }
@@ -854,7 +922,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserDetail"
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/UserDetail"
+                    }
+                  }
                 }
               }
             }
@@ -893,7 +966,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserDetail"
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/UserDetail"
+                    }
+                  }
                 }
               }
             }

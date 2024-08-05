@@ -14,7 +14,7 @@ export async function GET (
 
   return sendS2SRequest({
     method: 'GET',
-    uri: `/api/v1/users/${authId}?include_disabled=true`,
+    uri: `/api/v1/users/${authId}`,
   })
 }
 

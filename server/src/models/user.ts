@@ -1,6 +1,7 @@
 import {
   adapterConfig, errorConfig,
 } from 'configs'
+import { Pagination } from 'configs/type'
 import {
   formatUtil,
   validateUtil,
@@ -41,6 +42,11 @@ export interface ApiRecord {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+}
+
+export interface PaginatedApiRecords {
+  users: ApiRecord[];
+  count: number;
 }
 
 export interface ApiRecordWithRoles extends ApiRecord {
@@ -111,11 +117,23 @@ export const convertToApiRecordWithRoles = (
   }
 }
 
-export const getAll = async (db: D1Database): Promise<Record[]> => {
-  const query = `SELECT * FROM ${TableName} WHERE deletedAt IS NULL ORDER BY id ASC`
-  const stmt = db.prepare(query)
+export const getAll = async (
+  db: D1Database,
+  pagination?: Pagination,
+): Promise<Record[]> => {
+  const stmt = formatUtil.d1SelectAllQuery(
+    db,
+    TableName,
+    pagination,
+  )
   const { results: users }: { results: Raw[] } = await stmt.all()
   return users.map((user) => convertToRecord(user))
+}
+
+export const count = async (db: D1Database): Promise<number> => {
+  const stmt = db.prepare(`SELECT COUNT(*) as count FROM ${TableName} where deletedAt IS NULL`)
+  const result = await stmt.first() as { count: number }
+  return result.count
 }
 
 export const getById = async (

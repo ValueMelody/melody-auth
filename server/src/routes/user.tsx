@@ -18,15 +18,32 @@ export default userRoutes
  *     summary: Get a list of users
  *     description: Required scope - read_user
  *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: page_size
+ *         schema:
+ *           type: integer
+ *         description: Number of users to return per page
+ *       - in: query
+ *         name: page_number
+ *         schema:
+ *           type: integer
+ *         description: Page number to return
  *     responses:
  *       200:
  *         description: A list of users
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserDetail'
+ *                 count:
+ *                   type: integer
+ *                   description: Total number of users matching the query
  */
 userRoutes.get(
   `${BaseRoute}`,
@@ -54,7 +71,10 @@ userRoutes.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/UserDetail'
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/UserDetail'
  */
 userRoutes.get(
   `${BaseRoute}/:authId`,
@@ -87,7 +107,10 @@ userRoutes.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/UserDetail'
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/UserDetail'
  */
 userRoutes.put(
   `${BaseRoute}/:authId`,

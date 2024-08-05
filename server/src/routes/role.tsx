@@ -22,9 +22,12 @@ export default roleRoutes
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Role'
+ *               type: object
+ *               properties:
+ *                 roles:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Role'
  */
 roleRoutes.get(
   `${BaseRoute}`,
@@ -52,7 +55,10 @@ roleRoutes.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Role'
+ *               type: object
+ *               properties:
+ *                 role:
+ *                   $ref: '#/components/schemas/Role'
  */
 roleRoutes.get(
   `${BaseRoute}/:id`,
@@ -78,7 +84,10 @@ roleRoutes.get(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Role'
+ *               type: object
+ *               properties:
+ *                 role:
+ *                   $ref: '#/components/schemas/Role'
  */
 roleRoutes.post(
   `${BaseRoute}`,
@@ -111,7 +120,10 @@ roleRoutes.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Role'
+ *               type: object
+ *               properties:
+ *                 role:
+ *                   $ref: '#/components/schemas/Role'
  */
 roleRoutes.put(
   `${BaseRoute}/:id`,
@@ -119,28 +131,6 @@ roleRoutes.put(
   roleHandler.putRole,
 )
 
-/**
- * @swagger
- * /api/v1/roles/{id}:
- *   Delete:
- *     summary: Delete an existing role by ID
- *     description: Required scope - write_role
- *     tags: [Roles]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: number
- *         description: The unique ID of the role
- *     responses:
- *       204
- */
-roleRoutes.delete(
-  `${BaseRoute}/:id`,
-  authMiddleware.s2sWriteRole,
-  roleHandler.deleteRole,
-)
 /**
  * @swagger
  * /api/v1/roles/{id}:
