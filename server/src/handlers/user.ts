@@ -3,6 +3,7 @@ import {
   errorConfig, localeConfig, typeConfig,
 } from 'configs'
 import {
+  consentService,
   emailService, kvService, userService,
 } from 'services'
 import { userDto } from 'dtos'
@@ -29,11 +30,42 @@ export const getUsers = async (c: Context<typeConfig.Context>) => {
 
 export const getUser = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
-  const user = await userService.getUserByAuthId(
+  const user = await userService.getUserDetailByAuthId(
     c,
     authId,
   )
   return c.json({ user })
+}
+
+export const getUserAppConsents = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  const consentedApps = await consentService.getUserConsentedApps(
+    c,
+    user.id,
+  )
+  return c.json({ consentedApps })
+}
+
+export const deleteUserAppConsent = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const appId = c.req.param('appId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+  await consentService.deleteUserAppConsent(
+    c,
+    user.id,
+    Number(appId),
+  )
+
+  c.status(204)
+  return c.body(null)
 }
 
 export const verifyEmail = async (c: Context<typeConfig.Context>) => {

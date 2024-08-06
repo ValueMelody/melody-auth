@@ -16,6 +16,33 @@ export const shouldCollectConsent = async (
   return !consent
 }
 
+export const getUserConsentedApps = async (
+  c: Context<typeConfig.Context>, userId: number,
+): Promise<userAppConsentModel.ConsentedApp[]> => {
+  const appConsents = await userAppConsentModel.getAllByUser(
+    c.env.DB,
+    userId,
+  )
+  const apps = appConsents.map((appConsent) => ({
+    appId: appConsent.appId,
+    appName: appConsent.appName,
+  }))
+  return apps
+}
+
+export const deleteUserAppConsent = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+  appId: number,
+): Promise<true> => {
+  await userAppConsentModel.removeByUserAndApp(
+    c.env.DB,
+    userId,
+    appId,
+  )
+  return true
+}
+
 export const createUserAppConsent = async (
   c: Context<typeConfig.Context>, userId: number, appId: number,
 ): Promise<boolean> => {

@@ -42,6 +42,14 @@ const UserDetail = {
   ],
 }
 
+const UserConsentedApp = {
+  type: 'object',
+  properties: {
+    appId: { type: 'number' },
+    appName: { type: 'string' },
+  },
+}
+
 const PutUserReq = {
   type: 'object',
   properties: {
@@ -56,5 +64,5 @@ const PutUserReq = {
 }
 
 module.exports = {
-  User, UserDetail, PutUserReq,
+  User, UserDetail, PutUserReq, UserConsentedApp,
 }

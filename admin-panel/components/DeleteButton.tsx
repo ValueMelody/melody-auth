@@ -10,8 +10,12 @@ const DeleteButton = ({
   confirmDeleteTitle,
   onConfirmDelete,
   isLoading,
+  buttonText,
+  size,
 }: {
+  size?: 'sm' | 'xs';
   className?: string;
+  buttonText: string;
   confirmDeleteTitle: string;
   onConfirmDelete: () => void;
   isLoading?: boolean;
@@ -33,14 +37,17 @@ const DeleteButton = ({
         title={confirmDeleteTitle}
         show={showModal}
         onConfirm={onConfirmDelete}
-        onClose={handleCloseModal} />
+        onClose={handleCloseModal}
+        confirmButtonText={buttonText}
+      />
       <Button
         disabled={isLoading}
         className={className}
         onClick={handleClick}
+        size={size}
         color='light'
       >
-        {t('common.delete')}
+        {buttonText || t('common.delete')}
         {isLoading && <Spinner className='ml-2' />}
       </Button>
     </>

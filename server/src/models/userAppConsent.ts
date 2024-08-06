@@ -1,9 +1,8 @@
-import {
-  adapterConfig, errorConfig,
-} from 'configs'
+import { adapterConfig } from 'configs'
 import {
   formatUtil,
-  timeUtil, validateUtil,
+  timeUtil,
+  validateUtil,
 } from 'utils'
 
 export interface Record {
@@ -15,14 +14,18 @@ export interface Record {
   deletedAt: string | null;
 }
 
+export interface RecordWithAppName extends Record {
+  appName: string;
+}
+
+export interface ConsentedApp {
+  appId: number;
+  appName: string;
+}
+
 export interface Create {
   userId: number;
   appId: number;
-}
-
-export interface Update {
-  deletedAt?: string | null;
-  updatedAt?: string | null;
 }
 
 const TableName = adapterConfig.TableName.UserAppConsent
@@ -39,38 +42,14 @@ export const getById = async (
 
 export const create = async (
   db: D1Database, create: Create,
-): Promise<Record> => {
+): Promise<true> => {
   const query = `INSERT INTO ${TableName} (userId, appId) values ($1, $2)`
   const stmt = db.prepare(query).bind(
     create.userId,
     create.appId,
   )
   const result = await validateUtil.d1Run(stmt)
-  if (!result.success) throw new errorConfig.InternalServerError()
-  const id = result.meta.last_row_id
-  const record = await getById(
-    db,
-    id,
-  )
-  if (!record) throw new errorConfig.InternalServerError()
-  return record
-}
-
-export const update = async (
-  db: D1Database, id: number, update: Update,
-) => {
-  const query = `UPDATE ${TableName} set updatedAt = $1, deletedAt = $2 where id = $3`
-  const stmt = db.prepare(query).bind(
-    timeUtil.getDbCurrentTime(),
-    update.deletedAt,
-    id,
-  )
-  const result = await validateUtil.d1Run(stmt)
-  if (!result.success) return null
-  return getById(
-    db,
-    id,
-  )
+  return result.success
 }
 
 export const getByUserAndApp = async (
@@ -86,7 +65,22 @@ export const getByUserAndApp = async (
   return consent
 }
 
-export const remove = async (
+export const getAllByUser = async (
+  db: D1Database, userId: number,
+): Promise<RecordWithAppName[]> => {
+  const query = `
+    SELECT ${TableName}.*, ${adapterConfig.TableName.App}.name as appName
+    FROM ${TableName} LEFT JOIN ${adapterConfig.TableName.App}
+      ON ${adapterConfig.TableName.App}.id = ${TableName}.appId
+    WHERE userId = $1 AND ${TableName}.deletedAt IS NULL
+  `
+  const stmt = db.prepare(query)
+    .bind(userId)
+  const { results: appConsents }: { results: RecordWithAppName[] } = await stmt.all()
+  return appConsents
+}
+
+export const removeByUser = async (
   db: D1Database, userId: number,
 ): Promise<true> => {
   const stmt = formatUtil.d1SoftDeleteQuery(
@@ -94,6 +88,20 @@ export const remove = async (
     TableName,
     userId,
     'userId',
+  )
+
+  await validateUtil.d1Run(stmt)
+  return true
+}
+
+export const removeByUserAndApp = async (
+  db: D1Database, userId: number, appId: number,
+): Promise<true> => {
+  const query = `UPDATE ${TableName} SET deletedAt = $1 WHERE userId = $2 AND appId = $3`
+  const stmt = db.prepare(query).bind(
+    timeUtil.getDbCurrentTime(),
+    userId,
+    appId,
   )
 
   await validateUtil.d1Run(stmt)
