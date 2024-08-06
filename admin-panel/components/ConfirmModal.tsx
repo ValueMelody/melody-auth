@@ -8,9 +8,11 @@ const ConfirmModal = ({
   title,
   onClose,
   onConfirm,
+  confirmButtonText,
 }: {
   show: boolean;
   title: string;
+  confirmButtonText?: string;
   onClose: () => void;
   onConfirm: () => void;
 }) => {
@@ -25,7 +27,7 @@ const ConfirmModal = ({
         <Button
           color='failure'
           onClick={onConfirm}>
-          {t('common.deleteConfirmBtn')}
+          {confirmButtonText || t('common.deleteConfirmBtn')}
         </Button>
       </Modal.Footer>
     </Modal>

@@ -2,7 +2,7 @@
 
 import { useAuth } from '@melody-auth/react'
 import {
-  Badge, Button, Checkbox, Label, Table,
+  Badge, Button, Card, Checkbox, Label, Table,
   TextInput,
   ToggleSwitch,
 } from 'flowbite-react'
@@ -41,11 +41,13 @@ const Page = () => {
   const [lastName, setLastName] = useState()
   const [isActive, setIsActive] = useState()
   const [emailResent, setEmailResent] = useState(false)
+  const [consentedApps, setConsentedApps] = useState([])
   const { acquireToken } = useAuth()
   const [userRoles, setUserRoles] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   const userInfo = useSignalValue(userInfoSignal)
+  const enableConsent = configs.ENABLE_USER_APP_CONSENT
 
   const updateObj = useMemo(
     () => {
@@ -77,6 +79,32 @@ const Page = () => {
     setIsLoading(false)
   }
 
+  const handleDeleteConsent = async (appId: number) => {
+    const token = await acquireToken()
+    setIsLoading(true)
+    await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}/consented-apps/${appId}`,
+      method: 'DELETE',
+      token,
+    })
+    await getUserConsents()
+    setIsLoading(false)
+  }
+
+  const getUserConsents = useCallback(
+    async () => {
+      if (!enableConsent) return
+      const token = await acquireToken()
+      const consentData = await proxyTool.sendNextRequest({
+        endpoint: `/api/users/${authId}/consented-apps`,
+        method: 'GET',
+        token,
+      })
+      setConsentedApps(consentData.consentedApps)
+    },
+    [acquireToken, authId, enableConsent],
+  )
+
   const getUser = useCallback(
     async () => {
       const token = await acquireToken()
@@ -103,8 +131,8 @@ const Page = () => {
       token,
       body: { data: updateObj },
     })
-    setIsLoading(false)
     if (result) await getUser()
+    setIsLoading(false)
   }
 
   const handleResendVerifyEmail = async () => {
@@ -134,9 +162,10 @@ const Page = () => {
       }
 
       getUser()
+      getUserConsents()
       getRoles()
     },
-    [getUser, acquireToken],
+    [getUser, acquireToken, getUserConsents],
   )
 
   if (!user) return null
@@ -280,7 +309,30 @@ const Page = () => {
           onConfirmDelete={handleDelete}
         />
       </section>
-
+      {enableConsent && (
+        <>
+          <h2 className='font-semibold mt-8'>{t('users.consented')}</h2>
+          <section className='flex items-center gap-4 mt-4'>
+            {consentedApps.map((consented) => (
+              <Card key={consented.appId}>
+                {consented.appName}
+                <DeleteButton
+                  onConfirmDelete={() => handleDeleteConsent(consented.appId)}
+                  size='xs'
+                  buttonText={t('users.revokeConsent')}
+                  confirmDeleteTitle={t(
+                    'users.confirmRevoke',
+                    { item: consented.appName },
+                  )}
+                />
+              </Card>
+            ))}
+            {!consentedApps.length && (
+              <p>{t('users.noConsented')}</p>
+            )}
+          </section>
+        </>
+      )}
     </section>
   )
 }

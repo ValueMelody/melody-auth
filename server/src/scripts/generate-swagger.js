@@ -11,6 +11,7 @@ const {
 } = require('./schemas/app')
 const {
   User, UserDetail, PutUserReq,
+  UserConsentedApp,
 } = require('./schemas/user')
 
 const options = {
@@ -54,6 +55,7 @@ const options = {
         PutAppReq,
         User,
         UserDetail,
+        UserConsentedApp,
         PutUserReq,
       },
     },

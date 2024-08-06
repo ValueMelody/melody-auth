@@ -84,6 +84,40 @@ userRoutes.get(
 
 /**
  * @swagger
+ * /api/v1/users/{authId}/consented-apps:
+ *   get:
+ *     summary: Get a list of apps user has consented to
+ *     description: Required scope - read_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       200:
+ *         description: A single user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 consentedApps:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserConsentedApp'
+ */
+userRoutes.get(
+  `${BaseRoute}/:authId/consented-apps`,
+  authMiddleware.s2sReadUser,
+  configMiddleware.enableConsent,
+  userHandler.getUserAppConsents,
+)
+
+/**
+ * @swagger
  * /api/v1/users/{authId}:
  *   put:
  *     summary: Update an existing user by authId
@@ -159,7 +193,7 @@ userRoutes.post(
  *     tags: [Users]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: authId
  *         required: true
  *         schema:
  *           type: string
@@ -172,4 +206,35 @@ userRoutes.delete(
   `${BaseRoute}/:authId`,
   authMiddleware.s2sWriteUser,
   userHandler.deleteUser,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/consented-apps/{appId}:
+ *   delete:
+ *     summary: Delete an existing consent for a user by authId and appId
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *       - in: path
+ *         name: appId
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The id of the app
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/consented-apps/:appId`,
+  configMiddleware.enableConsent,
+  authMiddleware.s2sWriteUser,
+  userHandler.deleteUserAppConsent,
 )

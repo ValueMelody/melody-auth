@@ -63,7 +63,11 @@
     "roles": "Roles",
     "resend": "Resend Email",
     "sent": "Email Sent",
-    "you": "You"
+    "you": "You",
+    "consented": "Consented Apps",
+    "revokeConsent": "Revoke",
+    "confirmRevoke": "Are you sure want to revoke consent to {item} for current user",
+    "noConsented": "No consented app yet."
   },
   "roles": {
     "title": "Roles",

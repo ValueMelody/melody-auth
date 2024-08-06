@@ -83,6 +83,18 @@ export const getUsers = async (
 export const getUserByAuthId = async (
   c: Context<typeConfig.Context>,
   authId: string,
+): Promise<userModel.Record> => {
+  const user = await userModel.getByAuthId(
+    c.env.DB,
+    authId,
+  )
+  if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  return user
+}
+
+export const getUserDetailByAuthId = async (
+  c: Context<typeConfig.Context>,
+  authId: string,
 ): Promise<userModel.ApiRecordWithRoles> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
@@ -340,7 +352,7 @@ export const deleteUser = async (
     c.env.DB,
     user.id,
   )
-  await userAppConsentModel.remove(
+  await userAppConsentModel.removeByUser(
     c.env.DB,
     user.id,
   )
