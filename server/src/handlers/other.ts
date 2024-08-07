@@ -26,6 +26,9 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     NAMES_IS_REQUIRED: environment.NAMES_IS_REQUIRED,
     ENABLE_USER_APP_CONSENT: environment.ENABLE_USER_APP_CONSENT,
     ENABLE_EMAIL_VERIFICATION: environment.ENABLE_EMAIL_VERIFICATION,
+    ENABLE_EMAIL_MFA: environment.ENABLE_EMAIL_MFA,
+    ACCOUNT_LOCKOUT_THRESHOLD: environment.ACCOUNT_LOCKOUT_THRESHOLD,
+    ACCOUNT_LOCKOUT_EXPIRES_IN: environment.ACCOUNT_LOCKOUT_EXPIRES_IN,
   }
 
   return c.json({ configs })
