@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import {
   Spinner, Table,
 } from 'flowbite-react'
+import { useMemo } from 'react'
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 import PageTitle from 'components/PageTitle'
 import { configSignal } from 'signals'
@@ -14,13 +15,76 @@ const Page = () => {
 
   const configs = useSignalValue(configSignal)
 
+  const links = useMemo(
+    () => ({
+      openidConfig: `${configs.AUTH_SERVER_URL}/.well-known/openid-configuration`,
+      jwks: `${configs.AUTH_SERVER_URL}/.well-known/jwks.json`,
+      apiSwagger: `${configs.AUTH_SERVER_URL}/api/v1/swagger`,
+      systemInfo: `${configs.AUTH_SERVER_URL}/info`,
+    }),
+    [configs],
+  )
+
   if (!configs) return <Spinner />
 
   return (
     <section>
       <PageTitle
         className='mb-6'
-        title={t('dashboard.configs')} />
+        title={t('dashboard.links')}
+      />
+      <Table>
+        <Table.Head>
+          <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
+          <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>
+        </Table.Head>
+        <Table.Body className='divide-y'>
+          <Table.Row>
+            <Table.Cell>OPENID CONFIGURATION</Table.Cell>
+            <Table.Cell>
+              <a
+                target='_blank'
+                href={links.openidConfig}
+                rel='noreferrer'>{links.openidConfig}
+              </a>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>JWKS</Table.Cell>
+            <Table.Cell>
+              <a
+                target='_blank'
+                href={links.jwks}
+                rel='noreferrer'>{links.jwks}
+              </a>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>{t('dashboard.apiSwagger')}</Table.Cell>
+            <Table.Cell>
+              <a
+                target='_blank'
+                href={links.apiSwagger}
+                rel='noreferrer'>{links.apiSwagger}
+              </a>
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>{t('dashboard.systemInfo')}</Table.Cell>
+            <Table.Cell>
+              <a
+                target='_blank'
+                href={links.systemInfo}
+                rel='noreferrer'>{links.systemInfo}
+              </a>
+            </Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
+      <PageTitle
+        className='mt-8 mb-6'
+        title={t('dashboard.configs')}
+      />
       <Table>
         <Table.Head>
           <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
