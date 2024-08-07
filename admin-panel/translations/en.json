@@ -35,7 +35,10 @@
     "configs": "System Configs",
     "configName": "Name",
     "configValue": "Value",
-    "configSeconds": "seconds"
+    "configSeconds": "seconds",
+    "links": "System Links",
+    "apiSwagger": "S2S API Swagger",
+    "systemInfo": "System Info"
   },
   "apps": {
     "title": "Apps",
