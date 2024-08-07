@@ -24,7 +24,6 @@ import {
 
 const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
 
   const {
     isAuthenticating, isAuthenticated, acquireUserInfo, acquireToken,
