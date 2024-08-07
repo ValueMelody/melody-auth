@@ -36,7 +36,7 @@ export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {
       expiresOn: result.expires_on,
     }
 
-    const storage = config.storage === 'localStorage' ? window.localStorage : window.sessionStorage
+    const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
     let refreshTokenStorage: RefreshTokenStorage | null = null
     if (result.refresh_token) {
       refreshTokenStorage = {

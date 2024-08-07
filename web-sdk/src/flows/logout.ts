@@ -24,7 +24,7 @@ export const logout = async (
     }
   }
 
-  const storage = config.storage === 'localStorage' ? window.localStorage : window.sessionStorage
+  const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
 
   storage.removeItem(StorageKey.RefreshToken)
 

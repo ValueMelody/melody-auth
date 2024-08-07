@@ -116,7 +116,7 @@ export const AuthProvider = ({
     () => {
       if (typeof window === 'undefined') return
 
-      const storage = config.storage === 'localStorage' ? window.localStorage : window.sessionStorage
+      const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
       const stored = storage.getItem(StorageKey.RefreshToken)
       if (stored) {
         const parsed: RefreshTokenStorage = JSON.parse(stored)
