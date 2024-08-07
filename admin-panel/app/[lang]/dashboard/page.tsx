@@ -136,6 +136,20 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>ENABLE_EMAIL_MFA</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.ENABLE_EMAIL_MFA} />
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>ACCOUNT_LOCKOUT_THRESHOLD</Table.Cell>
+            <Table.Cell>{configs.ACCOUNT_LOCKOUT_THRESHOLD}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>ACCOUNT_LOCKOUT_EXPIRES_IN</Table.Cell>
+            <Table.Cell>{configs.ACCOUNT_LOCKOUT_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>AUTHORIZATION_CODE_EXPIRES_IN</Table.Cell>
             <Table.Cell>{configs.AUTHORIZATION_CODE_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
           </Table.Row>
