@@ -13,6 +13,8 @@ export const handleAuthorizeFormError = () => html`
     msg = "${localeConfig.Message.WeakPassword}";
   } else if (errorString.indexOf("${localeConfig.Error.NoUser}") !== -1) {
     msg = "${localeConfig.Error.NoUser}";
+  } else if (errorString.indexOf("${localeConfig.Error.AccountLocked}") !== -1) {
+    msg = "${localeConfig.Error.AccountLocked}";
   } else if (errorString.indexOf("${localeConfig.Error.EmailTaken}") !== -1) {
     msg = "${localeConfig.Error.EmailTaken}";
   } else if (errorString.indexOf("constraints") !== -1) {

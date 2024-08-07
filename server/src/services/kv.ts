@@ -222,3 +222,36 @@ export const verifyPasswordResetCode = async (
   if (isValid) await kv.delete(key)
   return isValid
 }
+
+export const getFailedLoginAttempts = async (
+  kv: KVNamespace,
+  email: string,
+  ip: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedLoginAttempts,
+    email,
+    ip,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setFailedLoginAttempts = async (
+  kv: KVNamespace,
+  email: string,
+  ip: string,
+  count: number,
+  expiresIn: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedLoginAttempts,
+    email,
+    ip,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: expiresIn || undefined },
+  )
+}

@@ -17,12 +17,14 @@ export enum BaseKVKey {
   MFACode = 'mfaCode',
   EmailVerificationCode = 'emailVerificationCode',
   PasswordResetCode = 'passwordResetCode',
+  FailedLoginAttempts = 'failedLoginAttempts',
 }
 
 export const getKVKey = (
-  base: BaseKVKey, id: string,
+  base: BaseKVKey, key1: string, key2?: string,
 ): string => {
-  return `${base}-${id}`
+  const baseKey = `${base}-${key1}`
+  return key2 ? `${baseKey}-${key2}` : baseKey
 }
 
 export enum SessionKey {

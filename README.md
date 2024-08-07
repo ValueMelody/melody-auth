@@ -3,11 +3,9 @@
 **Melody Auth** is a turnkey authentication system leveraging Cloudflare’s infrastructure. It provides a robust and user-friendly solution for implementing your own authentication system with minimal configuration required.
 
 ## Features Supported
-- OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes)
-- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA)
-- Admin Panel (Manage users, manage apps, manage scopes, manage roles)
-- RSA256 based JWT Authentication
-- Role-Based Access Control
+- OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication)
+- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA, Brute-force protection, Role-Based Access Control)
+- Admin Panel (Manage Users, Manage Apps, Manage Scopes, Manage Roles)
 
 ## Why Melody Auth?
 

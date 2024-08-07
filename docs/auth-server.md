@@ -186,3 +186,11 @@ npm run prod:deploy
 ### ENABLE_EMAIL_MFA
 - **Default:** false
 - **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login. `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+
+### ACCOUNT_LOCKOUT_THRESHOLD
+- **Default:** 5
+- **Description:** Number of failed login attempts before the user account is locked. Set to 0 to disable the account lockout feature.
+
+### ACCOUNT_LOCKOUT_EXPIRES_IN
+- **Default:** 86400 (1 day)
+- **Description:** Duration (in seconds) for which the account remains locked after reaching the lockout threshold. Set to 0 for indefinite lockout until manual intervention.
