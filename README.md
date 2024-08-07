@@ -4,7 +4,7 @@
 
 ## Features Supported
 - OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication)
-- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA, Brute-force protection, Role-Based Access Control)
+- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA, Brute-force Protection, Role-Based Access Control)
 - Admin Panel (Manage Users, Manage Apps, Manage Scopes, Manage Roles)
 
 ## Why Melody Auth?

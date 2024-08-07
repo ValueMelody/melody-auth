@@ -149,13 +149,15 @@ export const verifyPasswordSignIn = async (
     bodyDto.password,
     user.password,
   )) {
-    await kvService.setFailedLoginAttempts(
-      c.env.KV,
-      bodyDto.email,
-      ip,
-      failedAttempts + 1,
-      lockExpiresIn,
-    )
+    if (lockThreshold) {
+      await kvService.setFailedLoginAttempts(
+        c.env.KV,
+        bodyDto.email,
+        ip,
+        failedAttempts + 1,
+        lockExpiresIn,
+      )
+    }
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
 
