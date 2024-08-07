@@ -16,7 +16,7 @@ Wrap your application inside AuthProvider component to provide the auth related 
 | redirectUri | string | The URL to redirect users after successful authentication | N/A | Yes |
 | serverUri | string | The URL where you host the melody auth server | N/A | Yes |
 | scopes | string[] | Permission scopes to request for user access | N/A | No |
-| storage | 'sessionStorage' \| 'localStorage' | Storage type for authentication tokens | 'sessionStorage' | No |
+| storage | 'sessionStorage' \| 'localStorage' | Storage type for authentication tokens | 'localStorage' | No |
 
 ```
 import { AuthProvider } from '@melody-auth/react'
