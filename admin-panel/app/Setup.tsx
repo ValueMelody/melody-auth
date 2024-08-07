@@ -24,6 +24,7 @@ import {
 
 const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()
+  const locale = useCurrentLocale()
 
   const {
     isAuthenticating, isAuthenticated, acquireUserInfo, acquireToken,
@@ -110,7 +111,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
         rounded>
         <Navbar.Brand
           as={Link}
-          href='/'>
+          href={`/${locale}${routeTool.Internal.Dashboard}`}>
           <img
             src='https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
             className='mr-3 h-6 sm:h-9' />
