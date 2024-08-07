@@ -121,10 +121,26 @@ export const verifyPasswordSignIn = async (
   c: Context<typeConfig.Context>,
   bodyDto: PostAuthorizeReqWithPasswordDto,
 ): Promise<userModel.Record> => {
+  const {
+    ACCOUNT_LOCKOUT_THRESHOLD: lockThreshold, ACCOUNT_LOCKOUT_EXPIRES_IN: lockExpiresIn,
+  } = env(c)
+
+  const ip = c.req.header('cf-connecting-ip') as string
+
+  const failedAttempts = lockThreshold
+    ? await kvService.getFailedLoginAttempts(
+      c.env.KV,
+      bodyDto.email,
+      ip,
+    )
+    : 0
+  if (failedAttempts > lockThreshold) throw new errorConfig.Forbidden(localeConfig.Error.AccountLocked)
+
   const user = await userModel.getByEmail(
     c.env.DB,
     bodyDto.email,
   )
+
   if (!user) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
@@ -133,6 +149,15 @@ export const verifyPasswordSignIn = async (
     bodyDto.password,
     user.password,
   )) {
+    if (lockThreshold) {
+      await kvService.setFailedLoginAttempts(
+        c.env.KV,
+        bodyDto.email,
+        ip,
+        failedAttempts + 1,
+        lockExpiresIn,
+      )
+    }
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
 
