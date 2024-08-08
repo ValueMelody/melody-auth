@@ -51,6 +51,35 @@ export const getUserAppConsents = async (c: Context<typeConfig.Context>) => {
   return c.json({ consentedApps })
 }
 
+export const getUserLockedIPs = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  const lockedIPs = await kvService.getLockedIPsByEmail(
+    c.env.KV,
+    user.email ?? '',
+  )
+  return c.json({ lockedIPs })
+}
+
+export const deleteUserLockedIPs = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  await kvService.deleteLockedIPsByEmail(
+    c.env.KV,
+    user.email ?? '',
+  )
+  c.status(204)
+  return c.body(null)
+}
+
 export const deleteUserAppConsent = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const appId = c.req.param('appId')

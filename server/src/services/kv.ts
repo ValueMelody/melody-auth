@@ -223,7 +223,7 @@ export const verifyPasswordResetCode = async (
   return isValid
 }
 
-export const getFailedLoginAttempts = async (
+export const getFailedLoginAttemptsByIP = async (
   kv: KVNamespace,
   email: string,
   ip: string,
@@ -254,4 +254,51 @@ export const setFailedLoginAttempts = async (
     String(count),
     { expirationTtl: expiresIn || undefined },
   )
+}
+
+export const clearFailedLoginAttemptsByIP = async (
+  kv: KVNamespace,
+  email: string,
+  ip: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedLoginAttempts,
+    email,
+    ip,
+  )
+  await kv.delete(key)
+}
+
+export const getLockedIPsByEmail = async (
+  kv: KVNamespace,
+  email: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedLoginAttempts,
+    email,
+  )
+  const stored = await kv.list({ prefix: key })
+  const ips = stored.keys.map((storedKey) => {
+    return storedKey.name === key
+      ? ''
+      : storedKey.name.replace(
+        `${key}-`,
+        '',
+      )
+  })
+  return ips
+}
+
+export const deleteLockedIPsByEmail = async (
+  kv: KVNamespace,
+  email: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedLoginAttempts,
+    email,
+  )
+  const stored = await kv.list({ prefix: key })
+  for (const key of stored.keys) {
+    await kv.delete(key.name)
+  }
 }

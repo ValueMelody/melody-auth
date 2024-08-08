@@ -29,6 +29,7 @@ export type Bindings = {
   ENABLE_EMAIL_MFA: boolean;
   ACCOUNT_LOCKOUT_THRESHOLD: number;
   ACCOUNT_LOCKOUT_EXPIRES_IN: number;
+  UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: boolean;
 };
 
 export type Context = {

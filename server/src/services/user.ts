@@ -128,7 +128,7 @@ export const verifyPasswordSignIn = async (
   const ip = c.req.header('cf-connecting-ip') as string
 
   const failedAttempts = lockThreshold
-    ? await kvService.getFailedLoginAttempts(
+    ? await kvService.getFailedLoginAttemptsByIP(
       c.env.KV,
       bodyDto.email,
       ip,

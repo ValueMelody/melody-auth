@@ -150,6 +150,12 @@ const Page = () => {
             <Table.Cell>{configs.ACCOUNT_LOCKOUT_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>UNLOCK_ACCOUNT_VIA_PASSWORD_RESET</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET} />
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>AUTHORIZATION_CODE_EXPIRES_IN</Table.Cell>
             <Table.Cell>{configs.AUTHORIZATION_CODE_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
           </Table.Row>

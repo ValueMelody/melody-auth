@@ -40,6 +40,7 @@ const Page = () => {
   const [firstName, setFirstName] = useState()
   const [lastName, setLastName] = useState()
   const [isActive, setIsActive] = useState()
+  const [lockedIPs, setLockedIPs] = useState([])
   const [emailResent, setEmailResent] = useState(false)
   const [consentedApps, setConsentedApps] = useState([])
   const { acquireToken } = useAuth()
@@ -48,6 +49,7 @@ const Page = () => {
 
   const userInfo = useSignalValue(userInfoSignal)
   const enableConsent = configs.ENABLE_USER_APP_CONSENT
+  const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
 
   const updateObj = useMemo(
     () => {
@@ -91,6 +93,18 @@ const Page = () => {
     setIsLoading(false)
   }
 
+  const handleUnlock = async () => {
+    const token = await acquireToken()
+    setIsLoading(true)
+    await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}/locked-ips`,
+      method: 'DELETE',
+      token,
+    })
+    await getLockedIPs()
+    setIsLoading(false)
+  }
+
   const getUserConsents = useCallback(
     async () => {
       if (!enableConsent) return
@@ -118,6 +132,19 @@ const Page = () => {
       setLastName(data.user.lastName)
       setIsActive(data.user.isActive)
       setUserRoles(data.user.roles)
+    },
+    [acquireToken, authId],
+  )
+
+  const getLockedIPs = useCallback(
+    async () => {
+      const token = await acquireToken()
+      const data = await proxyTool.sendNextRequest({
+        endpoint: `/api/users/${authId}/locked-ips`,
+        method: 'GET',
+        token,
+      })
+      setLockedIPs(data.lockedIPs)
     },
     [acquireToken, authId],
   )
@@ -164,8 +191,9 @@ const Page = () => {
       getUser()
       getUserConsents()
       getRoles()
+      getLockedIPs()
     },
-    [getUser, acquireToken, getUserConsents],
+    [getUser, acquireToken, getUserConsents, getLockedIPs],
   )
 
   if (!user) return null
@@ -233,6 +261,31 @@ const Page = () => {
                     <div className='flex'>
                       <Badge>{t('users.sent')}</Badge>
                     </div>
+                  )}
+                </Table.Cell>
+              </Table.Row>
+            )}
+            {enableAccountLock && (
+              <Table.Row>
+                <Table.Cell>{t('users.lockedIPs')}</Table.Cell>
+                <Table.Cell>
+                  <div className='flex items-center gap-6'>
+                    {lockedIPs?.map((ip) => (
+                      <Badge
+                        color='gray'
+                        key={ip}>{ip || t('users.noIP')}
+                      </Badge>
+                    ))}
+                  </div>
+                </Table.Cell>
+                <Table.Cell>
+                  {!!lockedIPs.length && (
+                    <Button
+                      size='xs'
+                      onClick={handleUnlock}
+                    >
+                      {t('users.unlock')}
+                    </Button>
                   )}
                 </Table.Cell>
               </Table.Row>
