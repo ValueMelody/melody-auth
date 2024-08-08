@@ -134,7 +134,9 @@ export const verifyPasswordSignIn = async (
       ip,
     )
     : 0
-  if (failedAttempts > lockThreshold) throw new errorConfig.Forbidden(localeConfig.Error.AccountLocked)
+  if (lockThreshold && (failedAttempts >= lockThreshold)) {
+    throw new errorConfig.Forbidden(localeConfig.Error.AccountLocked)
+  }
 
   const user = await userModel.getByEmail(
     c.env.DB,
