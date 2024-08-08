@@ -13,7 +13,6 @@ jobs:
 
       - uses: amondnet/vercel-action@v25
         with:
-          scope: value-melody's projects
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-args: '--prod'
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}
