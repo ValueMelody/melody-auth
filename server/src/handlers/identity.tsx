@@ -82,6 +82,16 @@ export const postAuthorizeReset = async (c: Context<typeConfig.Context>) => {
     bodyDto,
   )
 
+  const { UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: allowUnlock } = env(c)
+  const ip = c.req.header('cf-connecting-ip') as string
+  if (allowUnlock) {
+    await kvService.clearFailedLoginAttemptsByIP(
+      c.env.KV,
+      bodyDto.email,
+      ip,
+    )
+  }
+
   return c.json({ success: true })
 }
 

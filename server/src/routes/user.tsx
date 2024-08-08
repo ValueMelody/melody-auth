@@ -98,7 +98,7 @@ userRoutes.get(
  *         description: The authId of the user
  *     responses:
  *       200:
- *         description: A single user object
+ *         description: A list of consented apps
  *         content:
  *           application/json:
  *             schema:
@@ -114,6 +114,64 @@ userRoutes.get(
   authMiddleware.s2sReadUser,
   configMiddleware.enableConsent,
   userHandler.getUserAppConsents,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/locked-ips:
+ *   get:
+ *     summary: Get a list of locked IPs for a user
+ *     description: Required scope - read_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       200:
+ *         description: A list of IPs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 lockedIps:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: The list of locked IP addresses for the user
+ */
+userRoutes.get(
+  `${BaseRoute}/:authId/locked-ips`,
+  authMiddleware.s2sReadUser,
+  userHandler.getUserLockedIPs,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/locked-ips:
+ *   delete:
+ *     summary: Unlock all locked IP addresses for a user
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/locked-ips`,
+  authMiddleware.s2sWriteUser,
+  userHandler.deleteUserLockedIPs,
 )
 
 /**

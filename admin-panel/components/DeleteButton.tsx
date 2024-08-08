@@ -15,7 +15,7 @@ const DeleteButton = ({
 }: {
   size?: 'sm' | 'xs';
   className?: string;
-  buttonText: string;
+  buttonText?: string;
   confirmDeleteTitle: string;
   onConfirmDelete: () => void;
   isLoading?: boolean;
