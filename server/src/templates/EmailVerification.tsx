@@ -63,7 +63,7 @@ const EmailVerification = ({
               </tr>
               <tr>
                 <td align='center'>
-                  <p style='margin: 0;'>{localeConfig.emailVerificationEmail.expiry}</p>
+                  <p style='margin: 0;'>{localeConfig.emailVerificationEmail.expiry.en}</p>
                 </td>
               </tr>
             </table>
