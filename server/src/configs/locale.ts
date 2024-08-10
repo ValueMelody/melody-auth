@@ -11,28 +11,13 @@ export enum Error {
   UserDisabled = 'This account has been disabled',
   EmailAlreadyVerified = 'Email already verified',
   NoConsent = 'User consent required',
-  CanNotCreateUser = 'Failed to create user',
-  CanNotCreateConsent = 'Failed to create consent',
   WrongCode = 'Invalid code',
   WrongMfaCode = 'Invalid MFA code',
   MfaNotVerified = 'MFA code not verified',
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
   WrongRefreshToken = 'Invalid refresh_token',
-  WrongScope = 'Insufficient scope',
   UniqueKey = 'Unique key constraint failed',
-}
-
-export enum Message {
-  AuthFailed = 'Authentication Failed',
-  EmailIsRequired = 'Email is required.',
-  WrongEmailFormat = 'Wrong email format.',
-  PasswordIsRequired = 'Password is required.',
-  PasswordNotMatch = 'The password and confirm password do not match.',
-  FirstNameIsEmpty = 'First name can not be empty.',
-  LastNameIsEmpty = 'Last name can not be empty.',
-  VerificationCodeLength = 'Verification code can only be 8 characters.',
-  WeakPassword = 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
 }
 
 export const common = Object.freeze({
@@ -62,6 +47,22 @@ export const validateError = Object.freeze({
   isWeakPassword: {
     en: 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
     fr: 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+  },
+  passwordNotMatch: {
+    en: 'The password and confirm password do not match.',
+    fr: 'The password and confirm password do not match.',
+  },
+  firstNameIsEmpty: {
+    en: 'First name can not be empty.',
+    fr: 'First name can not be empty.',
+  },
+  lastNameIsEmpty: {
+    en: 'Last name can not be empty.',
+    fr: 'Last name can not be empty.',
+  },
+  verificationCodeLengthIssue: {
+    en: 'Verification code can only be 8 characters.',
+    fr: 'Verification code can only be 8 characters.',
   },
 })
 
@@ -246,22 +247,55 @@ export const verifyEmail = Object.freeze({
   },
 })
 
-export enum EmailVerificationTemplate {
-  Subject = 'Welcome to Melody Auth, please verify your email address',
-  Title = 'Welcome to Melody Auth',
-  Desc = 'Thanks for signing up! Please verify your email address with us, your verification code is',
-  ExpiryText = 'This link will be expired after 2 hour',
-  VerifyBtn = 'Verify your email',
-}
+export const emailVerificationEmail = Object.freeze({
+  subject: {
+    en: 'Welcome to Melody Auth, please verify your email address',
+    fr: 'Welcome to Melody Auth, please verify your email address',
+  },
+  title: {
+    en: 'Welcome to Melody Auth',
+    fr: 'Welcome to Melody Auth',
+  },
+  desc: {
+    en: 'Thanks for signing up! Please verify your email address with us, your verification code is',
+    fr: 'Thanks for signing up! Please verify your email address with us, your verification code is',
+  },
+  expiry: {
+    en: 'This link will be expired after 2 hour',
+    fr: 'This link will be expired after 2 hour',
+  },
+  verify: {
+    en: 'Verify your email',
+    fr: 'Verify your email',
+  },
+})
 
-export enum PasswordResetTemplate {
-  Subject = 'Reset your password',
-  Title = 'Reset your password',
-  Desc = 'Here is your reset code, this code will be expired after 2 hour',
-}
+export const passwordResetEmail = Object.freeze({
+  subject: {
+    en: 'Reset your password',
+    fr: 'Reset your password',
+  },
+  title: {
+    en: 'Reset your password',
+    fr: 'Reset your password',
+  },
+  desc: {
+    en: 'Here is your reset code, this code will be expired after 2 hour',
+    fr: 'Here is your reset code, this code will be expired after 2 hour',
+  },
+})
 
-export enum EmailMfaTemplate {
-  Subject = 'Account verification code',
-  Title = 'Account verification code',
-  Desc = 'Here is your MFA code, this code will be expired after 5 minutes',
-}
+export const emailMfaEmail = Object.freeze({
+  subject: {
+    en: 'Account verification code',
+    fr: 'Account verification code',
+  },
+  title: {
+    en: 'Account verification code',
+    fr: 'Account verification code',
+  },
+  desc: {
+    en: 'Here is your MFA code, this code will be expired after 5 minutes',
+    fr: 'Here is your MFA code, this code will be expired after 5 minutes',
+  },
+})
