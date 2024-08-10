@@ -25,14 +25,14 @@ const VerifyEmail = ({
         id='success-message'
         class='hidden'
       >
-        <p class='text-green text-semibold'>{localeConfig.verifyEmail.success.en}</p>
+        <p class='text-green text-semibold w-text text-center'>{localeConfig.verifyEmail.success.en}</p>
       </section>
       <section
         id='submit-form'
         class='flex-col items-center gap-4'
       >
         <Title title={localeConfig.verifyEmail.title.en} />
-        <p class='mb-4'>{localeConfig.verifyEmail.desc.en}</p>
+        <p class='mb-4 w-text text-center'>{localeConfig.verifyEmail.desc.en}</p>
         <form
           onsubmit='return handleSubmit(event)'
         >

@@ -70,7 +70,7 @@ export const sendEmailVerification = async (
   const res = await sendSendgridEmail(
     c,
     user.email,
-    localeConfig.EmailVerificationTemplate.Subject,
+    localeConfig.emailVerificationEmail.subject.en,
     content,
   )
 
@@ -95,7 +95,7 @@ export const sendPasswordReset = async (
   const res = await sendSendgridEmail(
     c,
     user.email,
-    localeConfig.PasswordResetTemplate.Subject,
+    localeConfig.passwordResetEmail.subject.en,
     content,
   )
 
@@ -120,7 +120,7 @@ export const sendEmailMFA = async (
   const res = await sendSendgridEmail(
     c,
     user.email,
-    localeConfig.EmailMfaTemplate.Subject,
+    localeConfig.emailMfaEmail.subject.en,
     content,
   )
 

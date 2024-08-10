@@ -24,14 +24,14 @@ const PasswordReset = ({
               <tr>
                 <td align='center'>
                   <h1 style='color: #333333; font-size: 24px; margin: 0; padding-bottom: 20px;'>
-                    {localeConfig.PasswordResetTemplate.Title}
+                    {localeConfig.passwordResetEmail.title.en}
                   </h1>
                 </td>
               </tr>
               <tr>
                 <td align='center'>
                   <p style='margin: 0; padding-bottom: 10px;'>
-                    {localeConfig.PasswordResetTemplate.Desc}:&nbsp;
+                    {localeConfig.passwordResetEmail.desc.en}:&nbsp;
                     <span style='font-size: 20px; font-weight: bold;'>{resetCode}</span>
                   </p>
                 </td>

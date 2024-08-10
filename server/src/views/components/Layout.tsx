@@ -43,6 +43,7 @@ const Layout = ({
           .text-sm { font-size: 14px; }
           .text-red { color: red; }
           .text-green { color: green; }
+          .text-center { text-align: center; }
           .p-2 { padding: 8px; }
           .p-4 { padding: 16px; }
           .ml-2 { margin-left: 8px; }
@@ -56,6 +57,7 @@ const Layout = ({
           .rounded-lg { border-radius: 16px; }
           .rounded-md { border-radius: 8px; }
           .w-full { width: 100%; }
+          .w-text { width: 300px }
           .main {
             background-color: lightgray;
             height: 100vh;

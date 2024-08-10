@@ -36,7 +36,7 @@ const AuthorizeReset = ({
         class='flex-col items-center gap-4'
       >
         <Title title={localeConfig.authorizeReset.title.en} />
-        <p class='mb-4'>{localeConfig.authorizeReset.desc.en}</p>
+        <p class='mb-4 text-center w-text'>{localeConfig.authorizeReset.desc.en}</p>
         <form
           onsubmit='return handleSubmit(event)'
         >

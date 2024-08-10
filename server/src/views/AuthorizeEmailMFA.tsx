@@ -21,7 +21,7 @@ const AuthorizeEmailMFA = ({
 }) => {
   return (
     <Layout logoUrl={logoUrl}>
-      <h1>{localeConfig.authorizeEmailMFA.title.en}</h1>
+      <h1 class='w-text text-center'>{localeConfig.authorizeEmailMFA.title.en}</h1>
       <form
         onsubmit='return handleSubmit(event)'
       >

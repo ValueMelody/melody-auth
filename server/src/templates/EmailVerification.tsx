@@ -31,14 +31,14 @@ const EmailVerification = ({
               <tr>
                 <td align='center'>
                   <h1 style='color: #333333; font-size: 24px; margin: 0; padding-bottom: 20px;'>
-                    {localeConfig.EmailVerificationTemplate.Title}
+                    {localeConfig.emailVerificationEmail.title.en}
                   </h1>
                 </td>
               </tr>
               <tr>
                 <td align='center'>
                   <p style='margin: 0; padding-bottom: 10px;'>
-                    {localeConfig.EmailVerificationTemplate.Desc}:&nbsp;
+                    {localeConfig.emailVerificationEmail.desc.en}:&nbsp;
                     <span style='font-size: 20px; font-weight: bold;'>{verificationCode}</span>
                   </p>
                 </td>
@@ -57,13 +57,13 @@ const EmailVerification = ({
                       text-decoration: none; border-radius: 4px;
                     '
                   >
-                    {localeConfig.EmailVerificationTemplate.VerifyBtn}
+                    {localeConfig.emailVerificationEmail.verify.en}
                   </a>
                 </td>
               </tr>
               <tr>
                 <td align='center'>
-                  <p style='margin: 0;'>{localeConfig.EmailVerificationTemplate.ExpiryText}</p>
+                  <p style='margin: 0;'>{localeConfig.emailVerificationEmail.expiry.en}</p>
                 </td>
               </tr>
             </table>
