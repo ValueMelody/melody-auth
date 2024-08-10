@@ -1,13 +1,6 @@
 import { html } from 'hono/html'
 import { oauthDto } from 'dtos'
 
-export const jsonHeader = () => html`
-  headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  },
-`
-
 export const parseAuthorizeFieldValues = (queryDto: oauthDto.GetAuthorizeReqDto) => html`
   email: document.getElementById('form-email').value,
   password: document.getElementById('form-password').value,

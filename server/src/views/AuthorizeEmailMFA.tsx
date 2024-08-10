@@ -1,16 +1,17 @@
 import { html } from 'hono/html'
-import FieldError from './components/FieldError'
 import {
   localeConfig, routeConfig,
 } from 'configs'
 import Layout from 'views/components/Layout'
 import { identityDto } from 'dtos'
 import {
-  requestScript, responseScript, authorizeFormScript,
+  responseScript,
   validateScript,
   resetErrorScript,
 } from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
+import Field from 'views/components/Field'
+import SubmitButton from 'views/components/SubmitButton'
 
 const AuthorizeEmailMFA = ({
   queryDto, logoUrl,
@@ -20,56 +21,48 @@ const AuthorizeEmailMFA = ({
 }) => {
   return (
     <Layout logoUrl={logoUrl}>
-      <h1>{localeConfig.AuthorizeEmailMFAPage.Title}</h1>
+      <h1>{localeConfig.authorizeEmailMFA.title.en}</h1>
       <form
         onsubmit='return handleSubmit(event)'
       >
         <section class='flex-col gap-4'>
-          <section class='flex-col gap-2'>
-            <input
-              class='input'
-              type='text'
-              id='form-mfa-code'
-              name='code'
-            />
-            <FieldError id='mfa-code-error' />
-          </section>
-          <div
-            id='submit-error'
-            class='alert mt-4 hidden'>
-          </div>
+          <Field
+            type='text'
+            required={false}
+            name='code'
+          />
           <SubmitError />
-          <button
-            class='button mt-4'
-            type='submit'
-          >
-            {localeConfig.AuthorizeEmailMFAPage.VerifyBtn}
-          </button>
+          <SubmitButton
+            title={localeConfig.authorizeEmailMFA.verify.en}
+          />
         </section>
       </form>
       {html`
         <script>
-          ${resetErrorScript.resetMfaCodeError()}
+          ${resetErrorScript.resetCodeError()}
           function handleSubmit(e) {
-            ${validateScript.emailMFA()}
+            ${validateScript.verificationCode()}
             fetch('${routeConfig.InternalRoute.Identity}/authorize-email-mfa', {
                 method: 'POST',
-                ${requestScript.jsonHeader()}
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                   state: "${queryDto.state}",
                   code: "${queryDto.code}",
                   redirectUri: "${queryDto.redirectUri}",
-                  mfaCode: document.getElementById('form-mfa-code').value,
+                  mfaCode: document.getElementById('form-code').value,
                 })
             })
             .then((response) => {
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              ${authorizeFormScript.handleAuthorizeFormRedirect()}
+              ${responseScript.handleAuthorizeFormRedirect()}
             })
             .catch((error) => {
-              ${responseScript.handleError()}
+              ${responseScript.handleSubmitError()}
             });
             return false;
           }

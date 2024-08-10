@@ -1,15 +1,15 @@
 import { html } from 'hono/html'
-import RequiredSymbol from './components/RequiredSymbol'
 import SubmitError from './components/SubmitError'
 import {
   localeConfig,
   routeConfig,
 } from 'configs'
 import Layout from 'views/components/Layout'
-import FieldError from 'views/components/FieldError'
 import {
-  requestScript, resetErrorScript, responseScript, validateScript,
+  resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
+import Title from 'views/components/Title'
+import Field from 'views/components/Field'
 
 const AuthorizeReset = ({
   logoUrl, queryString,
@@ -23,103 +23,67 @@ const AuthorizeReset = ({
         id='success-message'
         class='flex-col gap-4 hidden'
       >
-        <p class='text-green text-semibold'>{localeConfig.AuthorizeResetPage.Success}</p>
+        <p class='text-green text-semibold'>{localeConfig.authorizeReset.success.en}</p>
         <a
           class='button-text'
           href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
         >
-          {localeConfig.AuthorizeResetPage.SignInBtn}
+          {localeConfig.authorizeReset.signIn.en}
         </a>
       </section>
       <section
         id='submit-form'
-        class='flex-col items-center gap-4'>
-        <h1>{localeConfig.AuthorizeResetPage.Title}</h1>
-        <p class='mb-4'>{localeConfig.AuthorizeResetPage.Desc}</p>
+        class='flex-col items-center gap-4'
+      >
+        <Title title={localeConfig.authorizeReset.title.en} />
+        <p class='mb-4'>{localeConfig.authorizeReset.desc.en}</p>
         <form
           onsubmit='return handleSubmit(event)'
         >
           <section class='flex-col gap-4'>
-            <section class='flex-col gap-2'>
-              <label
-                class='label'
-                for='email'
-              >
-                {localeConfig.AuthorizeResetPage.EmailLabel}
-                <RequiredSymbol />
-              </label>
-              <input
-                class='input'
-                type='email'
-                id='form-email'
-                name='email'
-              />
-              <FieldError id='email-error' />
-            </section>
-            <section
-              id='code-row'
-              class='flex-col gap-2 hidden'>
-              <label
-                class='label'
-                for='code'
-              >
-                {localeConfig.AuthorizeResetPage.CodeLabel}
-                <RequiredSymbol />
-              </label>
-              <input
-                class='input'
-                type='text'
-                id='form-code'
-                name='code'
-              />
-              <FieldError id='code-error' />
-            </section>
-            <section
-              id='password-row'
-              class='flex-col gap-2 hidden'>
-              <label
-                class='label'
-                for='password'
-              >
-                {localeConfig.AuthorizeResetPage.PasswordLabel}
-                <RequiredSymbol />
-              </label>
-              <input
-                class='input'
-                type='password'
-                id='form-password'
-                name='password'
-              />
-              <FieldError id='password-error' />
-            </section>
-            <section
-              id='confirmPassword-row'
-              class='flex-col gap-2 hidden'>
-              <label
-                class='label'
-                for='confirmPassword'
-              >
-                {localeConfig.AuthorizeResetPage.ConfirmPasswordLabel}
-                <RequiredSymbol />
-              </label>
-              <input
-                class='input'
-                type='password'
-                id='form-confirmPassword'
-                name='confirmPassword'
-              />
-              <FieldError id='confirmPassword-error' />
-            </section>
+            <Field
+              label={localeConfig.authorizeReset.email.en}
+              type='email'
+              required
+              name='email'
+            />
+            <Field
+              label={localeConfig.authorizeReset.code.en}
+              type='text'
+              required
+              name='code'
+              className='hidden'
+            />
+            <Field
+              label={localeConfig.authorizeReset.password.en}
+              type='password'
+              required
+              name='password'
+              className='hidden'
+            />
+            <Field
+              label={localeConfig.authorizeReset.confirmPassword.en}
+              type='password'
+              required
+              name='confirmPassword'
+              className='hidden'
+            />
             <SubmitError />
             <button
               id='submit-btn'
               class='button mt-4'
               type='submit'
             >
-              {localeConfig.AuthorizeResetPage.SendBtn}
+              {localeConfig.authorizeReset.send.en}
             </button>
           </section>
         </form>
+        <a
+          class='button-text mt-4'
+          href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
+        >
+          {localeConfig.authorizeReset.backSignIn.en}
+        </a>
       </section>
       {html`
         <script>
@@ -139,7 +103,10 @@ const AuthorizeReset = ({
             if (!containCode) {
               fetch('${routeConfig.InternalRoute.Identity}/reset-code', {
                 method: 'POST',
-                ${requestScript.jsonHeader()}
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                   email: document.getElementById('form-email').value,
                 })
@@ -151,15 +118,18 @@ const AuthorizeReset = ({
                 document.getElementById('code-row').classList.remove('hidden');
                 document.getElementById('password-row').classList.remove('hidden');
                 document.getElementById('confirmPassword-row').classList.remove('hidden');
-                document.getElementById('submit-btn').innerHTML = '${localeConfig.AuthorizeResetPage.ResetBtn}'
+                document.getElementById('submit-btn').innerHTML = '${localeConfig.authorizeReset.reset.en}'
               })
               .catch((error) => {
-                ${responseScript.handleError()}
+                ${responseScript.handleSubmitError()}
               });
             } else {
              fetch('${routeConfig.InternalRoute.Identity}/authorize-reset', {
                 method: 'POST',
-                ${requestScript.jsonHeader()}
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                   email: document.getElementById('form-email').value,
                   code: document.getElementById('form-code').value,
@@ -174,7 +144,7 @@ const AuthorizeReset = ({
                 document.getElementById('success-message').classList.remove('hidden');
               })
               .catch((error) => {
-                ${responseScript.handleAuthorizeResetError()}
+                ${responseScript.handleSubmitError()}
               });
             }
             return false;

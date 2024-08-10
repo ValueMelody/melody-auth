@@ -4,10 +4,9 @@ import {
 } from 'configs'
 import Layout from 'views/components/Layout'
 import { identityDto } from 'dtos'
-import {
-  requestScript, responseScript, authorizeFormScript,
-} from 'views/scripts'
+import { responseScript } from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
+import Title from 'views/components/Title'
 
 const AuthorizeConsent = ({
   queryDto, logoUrl, appName, scopes,
@@ -19,36 +18,8 @@ const AuthorizeConsent = ({
 }) => {
   return (
     <Layout logoUrl={logoUrl}>
-      {html`
-        <script>
-          function handleDecline() {
-            window.location.href = "${queryDto.redirectUri}";
-          }
-          function handleAccept() {
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-consent', {
-                method: 'POST',
-                ${requestScript.jsonHeader()}
-                body: JSON.stringify({
-                  state: "${queryDto.state}",
-                  code: "${queryDto.code}",
-                  redirectUri: "${queryDto.redirectUri}"
-                })
-            })
-            .then((response) => {
-              ${responseScript.parseRes()}
-            })
-            .then((data) => {
-              ${authorizeFormScript.handleAuthorizeFormRedirect()}
-            })
-            .catch((error) => {
-              ${responseScript.handleError()}
-            });
-            return false;
-          }
-        </script>
-      `}
-      <h1>{localeConfig.AuthorizeConsentPage.Title}</h1>
-      <p>{appName} {localeConfig.AuthorizeConsentPage.RequestAccess}</p>
+      <Title title={localeConfig.authorizeConsent.title.en} />
+      <p>{appName} {localeConfig.authorizeConsent.requestAccess.en}</p>
       <section class='p-8 border rounded-md w-full'>
         <ul>
           {scopes.map((scope) => {
@@ -64,16 +35,47 @@ const AuthorizeConsent = ({
           type='button'
           onclick='handleDecline()'
         >
-          {localeConfig.AuthorizeConsentPage.DeclineBtn}
+          {localeConfig.authorizeConsent.decline.en}
         </button>
         <button
           class='button-outline w-full'
           type='button'
           onclick='handleAccept()'
         >
-          {localeConfig.AuthorizeConsentPage.AcceptBtn}
+          {localeConfig.authorizeConsent.accept.fr}
         </button>
       </section>
+      {html`
+        <script>
+          function handleDecline() {
+            window.location.href = "${queryDto.redirectUri}";
+          }
+          function handleAccept() {
+            fetch('${routeConfig.InternalRoute.Identity}/authorize-consent', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  state: "${queryDto.state}",
+                  code: "${queryDto.code}",
+                  redirectUri: "${queryDto.redirectUri}"
+                })
+            })
+            .then((response) => {
+              ${responseScript.parseRes()}
+            })
+            .then((data) => {
+              ${responseScript.handleAuthorizeFormRedirect()}
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError()}
+            });
+            return false;
+          }
+        </script>
+      `}
     </Layout>
   )
 }
