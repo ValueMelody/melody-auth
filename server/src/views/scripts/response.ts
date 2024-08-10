@@ -1,5 +1,7 @@
 import { html } from 'hono/html'
-import { localeConfig } from 'configs'
+import {
+  localeConfig, routeConfig,
+} from 'configs'
 
 export const parseRes = () => html`
   if (!response.ok) {
@@ -10,49 +12,41 @@ export const parseRes = () => html`
   return response.json();
 `
 
-export const handleError = () => html`
-  var msg = "${localeConfig.Message.AuthFailed}";
-  var errorString = String(error)
-  console.error(msg + ": " + error)
-  if (errorString.indexOf("constraints") !== -1) {
-    var constraints = JSON.parse(error.message)[0].constraints
-    msg = Object.values(constraints).join('.');
+export const handleAuthorizeFormRedirect = () => html`
+  var queryString = "?state=" + data.state + "&code=" + data.code;
+  if (data.requireConsent) {
+    queryString += "&redirect_uri=" + data.redirectUri;
+    var url = "${routeConfig.InternalRoute.Identity}/authorize-consent" + queryString
+    window.location.href = url;
+  } else if (data.requireEmailMFA) {
+    queryString += "&redirect_uri=" + data.redirectUri;
+    var url = "${routeConfig.InternalRoute.Identity}/authorize-email-mfa" + queryString
+    window.location.href = url;
+  } else {
+    var url = data.redirectUri + queryString;
+    window.location.href = url;
   }
-  var errorEl = document.getElementById('submit-error');
-  errorEl.classList.remove('hidden');
-  errorEl.innerHTML = msg;
-  return false;
+  return true
 `
 
-export const handleVerifyEmailFormError = () => html`
-  var msg = "${localeConfig.Message.AuthFailed}";
-  var errorString = String(error)
-  console.error(msg + ": " + error)
-  if (errorString.indexOf("${localeConfig.Error.WrongCode}") !== -1) {
-    msg = "${localeConfig.Error.WrongCode}";
-  } else if (errorString.indexOf("constraints") !== -1) {
-    var constraints = JSON.parse(error.message)[0].constraints
-    msg = Object.values(constraints).join('.');
-  }
-  var errorEl = document.getElementById('submit-error');
-  errorEl.classList.remove('hidden');
-  errorEl.innerHTML = msg;
-  return false;
-`
-
-export const handleAuthorizeResetError = () => html`
-  var msg = "${localeConfig.Message.AuthFailed}";
+export const handleSubmitError = () => html`
+  var msg = "${localeConfig.requestError.authFailed.en}";
   var errorString = String(error)
   console.error(msg + ": " + error)
   if (errorString.indexOf("isEmail") !== -1) {
-    msg = "${localeConfig.Message.WrongEmailFormat}";
+    msg = "${localeConfig.validateError.isNotEmail.en}";
   } else if (errorString.indexOf("isStrongPassword") !== -1) {
-    msg = "${localeConfig.Message.WeakPassword}";
+    msg = "${localeConfig.validateError.isWeakPassword.en}";
+  } else if (errorString.indexOf("${localeConfig.Error.NoUser}") !== -1) {
+    msg = "${localeConfig.requestError.noUser.en}";
+  } else if (errorString.indexOf("${localeConfig.Error.AccountLocked}") !== -1) {
+    msg = "${localeConfig.requestError.accountLocked.en}";
+  } else if (errorString.indexOf("${localeConfig.Error.EmailTaken}") !== -1) {
+    msg = "${localeConfig.requestError.emailTaken.en}";
   } else if (errorString.indexOf("${localeConfig.Error.WrongCode}") !== -1) {
     msg = "${localeConfig.Error.WrongCode}";
-  } else if (errorString.indexOf("constraints") !== -1) {
-    var constraints = JSON.parse(error.message)[0].constraints
-    msg = Object.values(constraints).join('.');
+  } else if (errorString.indexOf("${localeConfig.Error.WrongMfaCode}") !== -1) {
+    msg = "${localeConfig.Error.WrongCode}";
   }
   var errorEl = document.getElementById('submit-error');
   errorEl.classList.remove('hidden');

@@ -137,14 +137,16 @@ export const verifyEmailMfaCode = async (
   )
   const storedCode = await kv.get(key)
 
-  if (storedCode) {
+  const isValid = storedCode && storedCode === mfaCode
+
+  if (isValid) {
     await kv.put(
       key,
       '1',
       { expirationTtl: expiresIn },
     )
   }
-  return storedCode && storedCode === mfaCode
+  return isValid
 }
 
 export const storeEmailMFACode = async (

@@ -1,17 +1,16 @@
 import { html } from 'hono/html'
-import FieldError from 'views/components/FieldError'
 import {
   localeConfig, routeConfig,
 } from 'configs'
 import { oauthDto } from 'dtos'
 import Layout from 'views/components/Layout'
-import AuthorizeCommonFields from 'views/components/AuthorizeCommonFields'
-import RequiredSymbol from 'views/components/RequiredSymbol'
 import {
-  authorizeFormScript, requestScript, resetErrorScript, responseScript, validateScript,
+  requestScript, resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
 import SubmitButton from 'views/components/SubmitButton'
 import SubmitError from 'views/components/SubmitError'
+import Title from 'views/components/Title'
+import Field from 'views/components/Field'
 
 const AuthorizeAccount = ({
   queryDto, logoUrl, enableNames, namesIsRequired, queryString,
@@ -24,70 +23,51 @@ const AuthorizeAccount = ({
 }) => {
   return (
     <Layout logoUrl={logoUrl}>
-      <h1>{localeConfig.AuthorizeAccountPage.Title}</h1>
+      <Title title={localeConfig.authorizeAccount.title.en} />
       <form
         autocomplete='on'
         onsubmit='return handleSubmit(event)'
       >
         <section class='flex-col gap-4'>
-          <AuthorizeCommonFields queryDto={queryDto} />
-          <section class='flex-col gap-2'>
-            <label
-              class='label'
-              for='confirmPassword'
-            >
-              {localeConfig.AuthorizeAccountPage.ConfirmPasswordLabel}
-              <RequiredSymbol />
-            </label>
-            <input
-              class='input'
-              type='password'
-              id='form-confirmPassword'
-              name='confirmPassword'
-            />
-            <FieldError id='confirmPassword-error' />
-          </section>
+          <Field
+            label={localeConfig.authorizeAccount.email.en}
+            type='email'
+            required
+            name='email'
+            autocomplete='email'
+          />
+          <Field
+            label={localeConfig.authorizeAccount.password.en}
+            type='password'
+            required
+            name='password'
+            autocomplete='password'
+          />
+          <Field
+            label={localeConfig.authorizeAccount.confirmPassword.en}
+            type='password'
+            required
+            name='confirmPassword'
+          />
           {enableNames && (
-            <>
-              <section class='flex-row gap-4'>
-                <section class='flex-col gap-2'>
-                  <label
-                    class='label'
-                    for='firstName'
-                  >
-                    {localeConfig.AuthorizeAccountPage.FirstNameLabel}
-                    {namesIsRequired && <RequiredSymbol />}
-                  </label>
-                  <input
-                    class='input'
-                    type='text'
-                    id='form-firstName'
-                    name='firstName'
-                  />
-                  <FieldError id='firstName-error' />
-                </section>
-                <section class='flex-col gap-2'>
-                  <label
-                    class='label'
-                    for='lastName'
-                  >
-                    {localeConfig.AuthorizeAccountPage.LastNameLabel}
-                    {namesIsRequired && <RequiredSymbol />}
-                  </label>
-                  <input
-                    class='input'
-                    type='text'
-                    id='form-lastName'
-                    name='lastName'
-                  />
-                  <FieldError id='lastName-error' />
-                </section>
-              </section>
-            </>
+            <section class='flex-row gap-4'>
+              <Field
+                label={localeConfig.authorizeAccount.firstName.en}
+                type='text'
+                required={namesIsRequired}
+                name='firstName'
+              />
+              <Field
+                label={localeConfig.authorizeAccount.lastName.en}
+                type='text'
+                required={namesIsRequired}
+                name='lastName'
+              />
+            </section>
           )}
           <SubmitError />
           <SubmitButton
-            title={localeConfig.AuthorizeAccountPage.SignUpBtn}
+            title={localeConfig.authorizeAccount.signUp.en}
           />
         </section>
       </form>
@@ -95,7 +75,7 @@ const AuthorizeAccount = ({
         class='button-text mt-4'
         href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
       >
-        {localeConfig.AuthorizeAccountPage.SignInBtn}
+        {localeConfig.authorizeAccount.signIn.en}
       </a>
       {html`
         <script>
@@ -113,10 +93,13 @@ const AuthorizeAccount = ({
             ${enableNames && namesIsRequired ? validateScript.lastName() : ''}
             fetch('${routeConfig.InternalRoute.Identity}/authorize-account', {
                 method: 'POST',
-                ${requestScript.jsonHeader()}
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
-                  firstName: document.getElementById('form-firstName').value,
-                  lastName: document.getElementById('form-lastName').value,
+                  firstName: document.getElementById('form-firstName') ? document.getElementById('form-firstName').value : undefined,
+                  lastName: document.getElementById('form-lastName') ? document.getElementById('form-lastName').value : undefined,
                   ${requestScript.parseAuthorizeFieldValues(queryDto)}
                 })
             })
@@ -124,10 +107,10 @@ const AuthorizeAccount = ({
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              ${authorizeFormScript.handleAuthorizeFormRedirect()}
+              ${responseScript.handleAuthorizeFormRedirect()}
             })
             .catch((error) => {
-              ${authorizeFormScript.handleAuthorizeFormError()}
+              ${responseScript.handleSubmitError()}
             });
             return false;
           }

@@ -31,63 +31,220 @@ export enum Message {
   PasswordNotMatch = 'The password and confirm password do not match.',
   FirstNameIsEmpty = 'First name can not be empty.',
   LastNameIsEmpty = 'Last name can not be empty.',
-  VerificationCodeLength = 'Verification code can only be 8 characters',
+  VerificationCodeLength = 'Verification code can only be 8 characters.',
   WeakPassword = 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
 }
 
-export enum AuthorizePasswordPage {
-  EmailLabel = 'Email',
-  PasswordLabel = 'Password',
-  SubmitBtn = 'Login',
-  Title = 'Authentication',
-  SignUpBtn = 'Create a new account',
-  PasswordResetBtn = 'Reset password',
-}
+export const common = Object.freeze({
+  documentTitle: {
+    en: 'Melody Auth',
+    fr: 'Melody Auth',
+  },
+  poweredBy: {
+    en: 'Powered by Melody Auth',
+    fr: 'Powered by Melody Auth',
+  },
+})
 
-export enum AuthorizeConsentPage {
-  Title = 'Authorize app',
-  RequestAccess = 'is requesting access to your account.',
-  DeclineBtn = 'Decline',
-  AcceptBtn = 'Accept',
-}
+export const validateError = Object.freeze({
+  passwordIsRequired: {
+    en: 'Password is required!',
+    fr: 'Password is required!',
+  },
+  emailIsRequired: {
+    en: 'Email is required!',
+    fr: 'Email is required!',
+  },
+  isNotEmail: {
+    en: 'Wrong email format.',
+    fr: 'Wrong email format.',
+  },
+  isWeakPassword: {
+    en: 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+    fr: 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+  },
+})
 
-export enum AuthorizeEmailMFAPage {
-  Title = 'A verification code has been sent to your email.',
-  VerifyBtn = 'Verify',
-}
+export const requestError = Object.freeze({
+  authFailed: {
+    en: 'Authentication Failed.',
+    fr: 'Authentication Failed.',
+  },
+  noUser: {
+    en: 'No user found.',
+    fr: 'No user found.',
+  },
+  accountLocked: {
+    en: 'Account temporarily locked due to excessive login failures.',
+    fr: 'Account temporarily locked due to excessive login failures.',
+  },
+  emailTaken: {
+    en: 'The email address is already in use.',
+    fr: 'The email address is already in use.',
+  },
+  wrongCode: {
+    en: 'Invalid code',
+    fr: 'Invalid code',
+  },
+})
 
-export enum AuthorizeAccountPage {
-  Title = 'Create an account',
-  FirstNameLabel = 'First Name',
-  LastNameLabel = 'Last Name',
-  ConfirmPasswordLabel = 'Confirm Password',
-  SignInBtn = 'Already has an account? Sign in',
-  SignUpBtn = 'Confirm',
-}
+export const authorizePassword = Object.freeze({
+  title: {
+    en: 'Authentication',
+    fr: 'Authentication',
+  },
+  email: {
+    en: 'Email',
+    fr: 'Email',
+  },
+  password: {
+    en: 'Password',
+    fr: 'Password',
+  },
+  submit: {
+    en: 'Login',
+    fr: 'Login',
+  },
+  signUp: {
+    en: 'Create a new account',
+    fr: 'Create a new account',
+  },
+  passwordReset: {
+    en: 'Reset password',
+    fr: 'Reset password',
+  },
+})
 
-export enum AuthorizeResetPage {
-  Title = 'Reset your password',
-  Desc = 'Enter your email address, we will send you a reset code by email',
-  SendBtn = 'Send',
-  ResetBtn = 'Reset',
-  EmailLabel = 'Email',
-  CodeLabel = 'Code',
-  PasswordLabel = 'Password',
-  ConfirmPasswordLabel = 'Confirm Password',
-  Success = 'Password reset success!',
-  SignInBtn = 'Sign in',
-}
+export const authorizeAccount = Object.freeze({
+  title: {
+    en: 'Create an account',
+    fr: 'Create an account',
+  },
+  email: {
+    en: 'Email',
+    fr: 'Email',
+  },
+  password: {
+    en: 'Password',
+    fr: 'Password',
+  },
+  confirmPassword: {
+    en: 'Confirm Password',
+    fr: 'Confirm Password',
+  },
+  firstName: {
+    en: 'First Name',
+    fr: 'First Name',
+  },
+  lastName: {
+    en: 'Last Name',
+    fr: 'Last Name',
+  },
+  signUp: {
+    en: 'Confirm',
+    fr: 'Confirm',
+  },
+  signIn: {
+    en: 'Already has an account? Sign in',
+    fr: 'Already has an account? Sign in',
+  },
+})
 
-export enum VerifyEmailPage {
-  Title = 'Verify your email',
-  Desc = 'Enter your verification code received by email',
-  VerifyBtn = 'Verify',
-  Success = 'Verification success! You can close this page now.',
-}
+export const authorizeConsent = Object.freeze({
+  title: {
+    en: 'Authorize app',
+    fr: 'Authorize app',
+  },
+  requestAccess: {
+    en: 'is requesting access to your account.',
+    fr: 'is requesting access to your account.',
+  },
+  accept: {
+    en: 'Accept',
+    fr: 'Accept',
+  },
+  decline: {
+    en: 'Decline',
+    fr: 'Decline',
+  },
+})
 
-export enum CommonContent {
-  PoweredBy = 'Powered by Melody Auth',
-}
+export const authorizeEmailMFA = Object.freeze({
+  title: {
+    en: 'A verification code has been sent to your email.',
+    fr: 'A verification code has been sent to your email.',
+  },
+  verify: {
+    en: 'Verify',
+    fr: 'Verify',
+  },
+})
+
+export const authorizeReset = Object.freeze({
+  title: {
+    en: 'Reset your password',
+    fr: 'Reset your password',
+  },
+  success: {
+    en: 'Password reset success!',
+    fr: 'Password reset success!',
+  },
+  signIn: {
+    en: 'Sign in',
+    fr: 'Sign in',
+  },
+  backSignIn: {
+    en: 'Back to sign in',
+    fr: 'Back to sign in',
+  },
+  desc: {
+    en: 'Enter your email address, we will send you a reset code by email',
+    fr: 'Enter your email address, we will send you a reset code by email',
+  },
+  email: {
+    en: 'Email',
+    fr: 'Email',
+  },
+  code: {
+    en: 'Code',
+    fr: 'Code',
+  },
+  password: {
+    en: 'Password',
+    fr: 'Password',
+  },
+  confirmPassword: {
+    en: 'Confirm Password',
+    fr: 'Confirm Password',
+  },
+  send: {
+    en: 'Send',
+    fr: 'Send',
+  },
+  reset: {
+    en: 'Reset',
+    fr: 'Reset',
+  },
+})
+
+export const verifyEmail = Object.freeze({
+  title: {
+    en: 'Verify your email',
+    fr: 'Verify your email',
+  },
+  desc: {
+    en: 'Enter your verification code received by email',
+    fr: 'Enter your verification code received by email',
+  },
+  verify: {
+    en: 'Verify',
+    fr: 'Verify',
+  },
+  success: {
+    en: 'Verification success! You can close this page now.',
+    fr: 'Verification success! You can close this page now.',
+  },
+})
 
 export enum EmailVerificationTemplate {
   Subject = 'Welcome to Melody Auth, please verify your email address',

@@ -1,14 +1,17 @@
 import { html } from 'hono/html'
+import SubmitButton from './components/SubmitButton'
 import {
   localeConfig,
   routeConfig,
 } from 'configs'
 import Layout from 'views/components/Layout'
 import { identityDto } from 'dtos'
-import FieldError from 'views/components/FieldError'
 import {
-  requestScript, resetErrorScript, responseScript, validateScript,
+  resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
+import Title from 'views/components/Title'
+import Field from 'views/components/Field'
+import SubmitError from 'views/components/SubmitError'
 
 const VerifyEmail = ({
   queryDto, logoUrl,
@@ -20,37 +23,29 @@ const VerifyEmail = ({
     <Layout logoUrl={logoUrl}>
       <section
         id='success-message'
-        class='hidden'>
-        <p class='text-green text-semibold'>{localeConfig.VerifyEmailPage.Success}</p>
+        class='hidden'
+      >
+        <p class='text-green text-semibold'>{localeConfig.verifyEmail.success.en}</p>
       </section>
       <section
         id='submit-form'
-        class='flex-col items-center gap-4'>
-        <h1>{localeConfig.VerifyEmailPage.Title}</h1>
-        <p class='mb-4'>{localeConfig.VerifyEmailPage.Desc}</p>
+        class='flex-col items-center gap-4'
+      >
+        <Title title={localeConfig.verifyEmail.title.en} />
+        <p class='mb-4'>{localeConfig.verifyEmail.desc.en}</p>
         <form
           onsubmit='return handleSubmit(event)'
         >
           <section class='flex-col gap-4'>
-            <section class='flex-col gap-2'>
-              <input
-                class='input'
-                type='text'
-                id='form-code'
-                name='code'
-              />
-              <FieldError id='code-error' />
-            </section>
-            <div
-              id='submit-error'
-              class='alert mt-4 hidden'>
-            </div>
-            <button
-              class='button mt-4'
-              type='submit'
-            >
-              {localeConfig.VerifyEmailPage.VerifyBtn}
-            </button>
+            <Field
+              type='text'
+              required={false}
+              name='code'
+            />
+            <SubmitError />
+            <SubmitButton
+              title={localeConfig.verifyEmail.verify.en}
+            />
           </section>
         </form>
       </section>
@@ -62,7 +57,10 @@ const VerifyEmail = ({
             ${validateScript.verificationCode()}
             fetch('${routeConfig.InternalRoute.Identity}/verify-email', {
                 method: 'POST',
-                ${requestScript.jsonHeader()}
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                   code: document.getElementById('form-code').value,
                   id: '${queryDto.id}',
@@ -76,7 +74,7 @@ const VerifyEmail = ({
               document.getElementById('success-message').classList.remove('hidden');
             })
             .catch((error) => {
-              ${responseScript.handleVerifyEmailFormError()}
+              ${responseScript.handleSubmitError()}
             });
             return false;
           }
