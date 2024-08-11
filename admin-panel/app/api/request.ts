@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { verify } from 'jsonwebtoken'
-import jwksClient from 'jwks-rsa' 
+import jwksClient from 'jwks-rsa'
 import { typeTool } from 'tools'
 
 let accessToken: string | null = null
