@@ -1,7 +1,16 @@
 import {
   ProviderConfig, AccessTokenStorage, RefreshTokenStorage, SessionStorageKey, StorageKey,
+  IdTokenBody,
 } from 'shared'
 import { postTokenByAuthCode } from '../requests'
+
+const base64UrlDecode = (str: string) => {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) {
+    str += '=';
+  }
+  return atob(str);
+}
 
 export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {
   const params = window.location.search.substring(1).split('&')
@@ -51,12 +60,26 @@ export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {
       )
     }
 
+    let idTokenBody: IdTokenBody | null = null
+    if (result.id_token) {
+      const [_, payloadRaw] = result.id_token.split('.');
+      const payload = base64UrlDecode(payloadRaw)
+      idTokenBody = JSON.parse(payload)
+
+      storage.setItem(
+        StorageKey.Account,
+        payload,
+      )
+    }
+
     const response: {
       accessTokenStorage: AccessTokenStorage;
       refreshTokenStorage: RefreshTokenStorage | null;
+      idTokenBody: IdTokenBody | null;
     } = {
       accessTokenStorage,
       refreshTokenStorage,
+      idTokenBody,
     }
 
     const url = new URL(window.location.href)

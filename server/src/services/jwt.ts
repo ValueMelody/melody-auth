@@ -4,7 +4,7 @@ import {
   sign, verify,
 } from 'hono/jwt'
 import { JWTPayload } from 'hono/utils/jwt/types'
-import { ClientType } from 'shared'
+import { ClientType, IdTokenBody } from 'shared'
 import {
   errorConfig, typeConfig,
 } from 'configs'
@@ -83,7 +83,7 @@ export const genIdToken = async (
     AUTH_SERVER_URL: authServerUrl,
   } = env(c)
   const idTokenExpiresAt = currentTimestamp + idTokenExpiresIn
-  const body: typeConfig.IdTokenBody = {
+  const body: IdTokenBody = {
     iss: authServerUrl,
     sub: authInfo.user.authId,
     azp: authInfo.request.clientId,

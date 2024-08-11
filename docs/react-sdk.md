@@ -224,6 +224,17 @@ export default function Home () {
 }
 ```
 
+## account
+
+Decoded account information from id_token.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { account } = useAuth()
+}
+```
+
 ## loginError
 
 Indicates whether there is an login process related error.
