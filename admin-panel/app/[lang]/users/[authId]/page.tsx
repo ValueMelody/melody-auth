@@ -2,7 +2,7 @@
 
 import { useAuth } from '@melody-auth/react'
 import {
-  Badge, Button, Card, Checkbox, Label, Table,
+  Badge, Button, Card, Checkbox, Label, Select, Table,
   TextInput,
   ToggleSwitch,
 } from 'flowbite-react'
@@ -39,6 +39,7 @@ const Page = () => {
   const [roles, setRoles] = useState()
   const [firstName, setFirstName] = useState()
   const [lastName, setLastName] = useState()
+  const [locale, setLocale] = useState()
   const [isActive, setIsActive] = useState()
   const [lockedIPs, setLockedIPs] = useState([])
   const [emailResent, setEmailResent] = useState(false)
@@ -59,9 +60,10 @@ const Page = () => {
       if (isActive !== user.isActive) obj.isActive = isActive
       if (firstName !== user.firstName) obj.firstName = firstName
       if (lastName !== user.lastName) obj.lastName = lastName
+      if (locale !== user.locale) obj.locale = locale
       return obj
     },
-    [user, userRoles, isActive, firstName, lastName],
+    [user, userRoles, isActive, firstName, lastName, locale],
   )
 
   const isSelf = useMemo(
@@ -132,6 +134,7 @@ const Page = () => {
       setLastName(data.user.lastName)
       setIsActive(data.user.isActive)
       setUserRoles(data.user.roles)
+      setLocale(data.user.locale)
     },
     [acquireToken, authId],
   )
@@ -229,7 +232,23 @@ const Page = () => {
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.locale')}</Table.Cell>
-              <Table.Cell>{user.locale}</Table.Cell>
+              <Table.Cell>
+                {configs.SUPPORTED_LOCALES.length > 1 && (
+                  <Select
+                    value={locale}
+                    onChange={(e) => setLocale(e.target.value)}
+                  >
+                    <option disabled></option>
+                    {configs.SUPPORTED_LOCALES.map((locale) => (
+                      <option
+                        key={locale}
+                        value={locale}>{locale.toUpperCase()}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+                {configs.SUPPORTED_LOCALES.length <= 1 && user.locale}
+              </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.loginCount')}</Table.Cell>
