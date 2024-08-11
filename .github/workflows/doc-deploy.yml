@@ -1,7 +1,10 @@
 name: doc-deploy
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
