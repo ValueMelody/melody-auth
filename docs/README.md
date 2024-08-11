@@ -18,6 +18,9 @@ actions:
   - text: S2S API
     link: /s2s-api.html
     type: secondary
+  - text: Q&A
+    link: /q&a.html
+    type: secondary
 
 features:
   - title: Effortless Deployment
