@@ -180,6 +180,7 @@ export const useAuth = () => {
     acquireUserInfo,
     acquireToken,
     isAuthenticating,
+    account: state.account,
     isLoadingToken: state.isLoadingToken,
     isLoadingUserInfo: state.isLoadingUserInfo,
     authenticationError: state.authenticationError,

@@ -20,18 +20,20 @@ const Setup = () => {
 
   useEffect(
     () => {
+      const containCode = window.location.search.includes('?code=') || window.location.search.includes('&code=')
+
       if (initialized.current) return
 
-      if (state.checkedStorage) initialized.current = true
+      if (containCode || state.checkedStorage) initialized.current = true
 
       if (state.accessTokenStorage) return
 
-      if (state.refreshTokenStorage && !state.accessTokenStorage) {
+      if (!containCode && state.refreshTokenStorage && !state.accessTokenStorage) {
         acquireToken()
         return
       }
 
-      if (state.checkedStorage) {
+      if (containCode || state.checkedStorage) {
         exchangeTokenByAuthCode(state.config)
           .then((res) => {
             if (res?.accessTokenStorage) {
@@ -45,7 +47,11 @@ const Setup = () => {
             }
             if (res?.refreshTokenStorage) {
               dispatch({
-                type: 'setRefreshTokenStorage', payload: res.refreshTokenStorage,
+                type: 'setAuth',
+                payload: {
+                  refreshTokenStorage: res.refreshTokenStorage,
+                  idTokenBody: res.idTokenBody,
+                },
               })
             }
           })

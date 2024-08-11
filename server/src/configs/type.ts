@@ -75,19 +75,6 @@ export interface RefreshTokenBody {
   roles: string[];
 }
 
-export interface IdTokenBody {
-  iss: string;
-  sub: string;
-  azp: string;
-  exp: number;
-  iat: number;
-  email: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  locale: typeConfig.Locale;
-  roles?: string[];
-}
-
 export interface Pagination {
   pageSize: number;
   pageNumber: number;

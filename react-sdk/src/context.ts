@@ -4,6 +4,7 @@ import {
 import {
   GetUserInfoRes, ProviderConfig,
   AccessTokenStorage, RefreshTokenStorage,
+  IdTokenBody,
 } from 'shared'
 
 export interface AuthState {
@@ -14,6 +15,7 @@ export interface AuthState {
   authenticationError: string;
   checkedStorage: boolean;
   userInfo: GetUserInfoRes | null;
+  account: IdTokenBody | null;
   isLoadingUserInfo: boolean;
   acquireUserInfoError: string;
   accessTokenStorage: AccessTokenStorage | null;
@@ -24,7 +26,10 @@ export interface AuthState {
 }
 
 export type DispatchAction =
-  | { type: 'setRefreshTokenStorage'; payload: RefreshTokenStorage }
+  | { type: 'setAuth'; payload: {
+    refreshTokenStorage: RefreshTokenStorage;
+    idTokenBody: IdTokenBody | null;
+  }; }
   | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage }
   | { type: 'setUserInfo'; payload: GetUserInfoRes | null }
   | { type: 'setIsAuthenticating'; payload: boolean }

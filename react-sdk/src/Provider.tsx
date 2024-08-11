@@ -2,6 +2,7 @@ import {
   ReactNode, useEffect, useReducer,
 } from 'react'
 import {
+  IdTokenBody,
   ProviderConfig, RefreshTokenStorage, StorageKey,
 } from 'shared'
 import Setup from './Setup'
@@ -26,10 +27,11 @@ const reducer = (
       isLoadingToken: false,
       acquireTokenError: '',
     }
-  case 'setRefreshTokenStorage':
+  case 'setAuth':
     return {
       ...state,
-      refreshTokenStorage: action.payload,
+      refreshTokenStorage: action.payload.refreshTokenStorage,
+      account: action.payload.idTokenBody,
       checkedStorage: true,
     }
   case 'setIsAuthenticating':
@@ -100,6 +102,7 @@ export const AuthProvider = ({
       isAuthenticated: false,
       config,
       userInfo: null,
+      account: null,
       accessTokenStorage: null,
       refreshTokenStorage: null,
       checkedStorage: false,
@@ -118,13 +121,20 @@ export const AuthProvider = ({
 
       const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
       const stored = storage.getItem(StorageKey.RefreshToken)
+      const storedAccount = storage.getItem(StorageKey.Account)
       if (stored) {
         const parsed: RefreshTokenStorage = JSON.parse(stored)
         const currentTimestamp = new Date().getTime() / 1000
         const isValid = parsed.refreshToken && parsed.expiresOn && parsed.expiresOn >= currentTimestamp + 5
         if (isValid) {
+          const parsedAccount: IdTokenBody = storedAccount ? JSON.parse(storedAccount) : null
+
           dispatch({
-            type: 'setRefreshTokenStorage', payload: parsed,
+            type: 'setAuth',
+            payload: {
+              refreshTokenStorage: parsed,
+              idTokenBody: parsedAccount,
+            },
           })
           return
         }
