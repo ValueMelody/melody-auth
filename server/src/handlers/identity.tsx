@@ -29,6 +29,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     SENDGRID_API_KEY: sendgridKey,
     SENDGRID_SENDER_ADDRESS: sendgridSender,
     SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   const allowPasswordReset = enablePasswordReset && !!sendgridKey && !!sendgridSender
@@ -37,7 +38,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<AuthorizePasswordView
     queryString={queryString}
-    locales={locales}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
     queryDto={queryDto}
     logoUrl={logoUrl}
     enableSignUp={enableSignUp}
@@ -49,6 +50,7 @@ export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
   const {
     COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
   const queryDto = await scopeService.parseGetAuthorizeDto(c)
   const queryString = formatUtil.getQueryString(c)
@@ -57,7 +59,7 @@ export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
     queryString={queryString}
     logoUrl={logoUrl}
     queryDto={queryDto}
-    locales={locales}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
 }
 
@@ -115,12 +117,13 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     ENABLE_NAMES: enableNames,
     NAMES_IS_REQUIRED: namesIsRequired,
     SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   const queryString = formatUtil.getQueryString(c)
 
   return c.html(<AuthorizeAccountView
-    locales={locales}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
     queryString={queryString}
     queryDto={queryDto}
     logoUrl={logoUrl}
@@ -240,10 +243,11 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   const {
     COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   return c.html(<AuthorizeConsentView
-    locales={locales}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
     logoUrl={logoUrl}
     scopes={authInfo.request.scopes}
     appName={app.name}
@@ -292,12 +296,13 @@ export const getAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
   const {
     COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   return c.html(<AuthorizeEmailMfaView
     logoUrl={logoUrl}
     queryDto={queryDto}
-    locales={locales}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
 }
 
@@ -416,10 +421,11 @@ export const getVerifyEmail = async (c: Context<typeConfig.Context>) => {
   const {
     COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   return c.html(<VerifyEmailView
-    locales={locales}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
     logoUrl={logoUrl}
     queryDto={queryDto}
   />)

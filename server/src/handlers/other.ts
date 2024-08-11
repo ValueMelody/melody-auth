@@ -20,6 +20,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     SERVER_SESSION_EXPIRES_IN: environment.SERVER_SESSION_EXPIRES_IN,
     AUTH_SERVER_URL: environment.AUTH_SERVER_URL,
     SUPPORTED_LOCALES: environment.SUPPORTED_LOCALES,
+    ENABLE_LOCALE_SELECTOR: environment.ENABLE_LOCALE_SELECTOR,
     COMPANY_LOGO_URL: environment.COMPANY_LOGO_URL,
     ENABLE_SIGN_UP: environment.ENABLE_SIGN_UP,
     ENABLE_PASSWORD_RESET: environment.ENABLE_PASSWORD_RESET,

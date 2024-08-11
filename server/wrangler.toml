@@ -22,6 +22,7 @@ ACCOUNT_LOCKOUT_THRESHOLD=5 # Set to 0 to disable the account lockout
 ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual intervention.
 UNLOCK_ACCOUNT_VIA_PASSWORD_RESET=true
 SUPPORTED_LOCALES=['en', 'fr']
+ENABLE_LOCALE_SELECTOR=true # If there is only one SUPPORTED_LOCALE, the locale selector will be disabled regardless of this setting.
 
 [[kv_namespaces]]
 binding = "KV"

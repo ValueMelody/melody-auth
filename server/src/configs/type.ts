@@ -33,6 +33,7 @@ export type Bindings = {
   ACCOUNT_LOCKOUT_EXPIRES_IN: number;
   UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: boolean;
   SUPPORTED_LOCALES: Locale[];
+  ENABLE_LOCALE_SELECTOR: boolean;
 };
 
 export type Context = {

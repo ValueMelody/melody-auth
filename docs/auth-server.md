@@ -198,3 +198,7 @@ npm run prod:deploy
 ### SUPPORTED_LOCALES
 - **Default:** ['en', 'fr']
 - **Description:** Specifies the locales supported for identity pages and emails.
+
+### ENABLE_LOCALE_SELECTOR
+- **Default:** true
+- **Description:** Determines whether users can switch to a different locale on identity pages. If only one locale is supported (`SUPPORTED_LOCALE`), the locale selector will be suppressed, regardless of this setting.
