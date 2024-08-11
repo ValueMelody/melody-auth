@@ -52,5 +52,7 @@ export const handleSubmitError = (locale: typeConfig.Locale) => html`
   var errorEl = document.getElementById('submit-error');
   errorEl.classList.remove('hidden');
   errorEl.innerHTML = msg;
+  var submitBtn = document.getElementById('submit-button');
+  if (submitBtn) submitBtn.disabled = true;
   return false;
 `

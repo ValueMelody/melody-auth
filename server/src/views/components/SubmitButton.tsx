@@ -3,6 +3,7 @@ const SubmitButton = ({ title }: {
 }) => {
   return (
     <button
+      id='submit-button'
       class='button mt-4'
       type='submit'
     >

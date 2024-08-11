@@ -55,7 +55,9 @@ const AuthorizeAccount = ({
             name='confirmPassword'
           />
           {enableNames && (
-            <section class='flex-row gap-4'>
+            <section
+              id='row-names'
+              class='flex-row gap-4'>
               <Field
                 label={localeConfig.authorizeAccount.firstName[queryDto.locale]}
                 type='text'
