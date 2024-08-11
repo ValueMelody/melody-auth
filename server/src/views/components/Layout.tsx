@@ -138,6 +138,11 @@ const Layout = ({
             font-size: 16px;
             cursor: pointer;
           }
+          @media (width <= 625px) {
+            #row-names {
+              flex-direction: column;
+            }
+          }
         `}
       </Style>
     </head>
