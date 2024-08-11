@@ -47,10 +47,11 @@ const Setup = () => {
             }
             if (res?.refreshTokenStorage) {
               dispatch({
-                type: 'setAuth', payload: {
+                type: 'setAuth',
+                payload: {
                   refreshTokenStorage: res.refreshTokenStorage,
-                  idTokenBody: res.idTokenBody
-                }
+                  idTokenBody: res.idTokenBody,
+                },
               })
             }
           })

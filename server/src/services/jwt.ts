@@ -4,7 +4,9 @@ import {
   sign, verify,
 } from 'hono/jwt'
 import { JWTPayload } from 'hono/utils/jwt/types'
-import { ClientType, IdTokenBody } from 'shared'
+import {
+  ClientType, IdTokenBody,
+} from 'shared'
 import {
   errorConfig, typeConfig,
 } from 'configs'

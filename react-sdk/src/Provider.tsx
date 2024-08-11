@@ -130,7 +130,8 @@ export const AuthProvider = ({
           const parsedAccount: IdTokenBody = storedAccount ? JSON.parse(storedAccount) : null
 
           dispatch({
-            type: 'setAuth', payload: {
+            type: 'setAuth',
+            payload: {
               refreshTokenStorage: parsed,
               idTokenBody: parsedAccount,
             },

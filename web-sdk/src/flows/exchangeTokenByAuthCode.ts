@@ -5,11 +5,17 @@ import {
 import { postTokenByAuthCode } from '../requests'
 
 const base64UrlDecode = (str: string) => {
-  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  str = str.replace(
+    /-/g,
+    '+',
+  ).replace(
+    /_/g,
+    '/',
+  )
   while (str.length % 4) {
-    str += '=';
+    str += '='
   }
-  return atob(str);
+  return atob(str)
 }
 
 export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {
@@ -62,7 +68,7 @@ export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {
 
     let idTokenBody: IdTokenBody | null = null
     if (result.id_token) {
-      const [_, payloadRaw] = result.id_token.split('.');
+      const payloadRaw = result.id_token.split('.')[1]
       const payload = base64UrlDecode(payloadRaw)
       idTokenBody = JSON.parse(payload)
 

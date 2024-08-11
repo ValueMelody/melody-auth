@@ -29,7 +29,7 @@ export type DispatchAction =
   | { type: 'setAuth'; payload: {
     refreshTokenStorage: RefreshTokenStorage;
     idTokenBody: IdTokenBody | null;
-  } }
+  }; }
   | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage }
   | { type: 'setUserInfo'; payload: GetUserInfoRes | null }
   | { type: 'setIsAuthenticating'; payload: boolean }
