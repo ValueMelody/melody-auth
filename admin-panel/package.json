@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.4",
-    "@melody-auth/react": "*",
+    "@melody-auth/react": "^0.0.6",
     "@preact/signals-react": "^2.1.0",
     "classnames": "^2.5.1",
     "flowbite-react": "^0.10.1",

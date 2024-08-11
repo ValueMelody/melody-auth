@@ -33,7 +33,7 @@ const Field = ({
       />
       <p
         id={`error-${name}`}
-        class='text-red hidden text-sm'>
+        class='text-red hidden text-sm w-text'>
       </p>
     </section>
   )
