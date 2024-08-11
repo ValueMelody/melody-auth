@@ -2,6 +2,7 @@
 
 import { useAuth } from '@melody-auth/react'
 import {
+  Button,
   Table,
   TextInput,
   ToggleSwitch,
@@ -12,6 +13,9 @@ import {
   useCallback,
   useEffect, useMemo, useState,
 } from 'react'
+import {
+  EyeIcon, EyeSlashIcon,
+} from '@heroicons/react/16/solid'
 import RedirectUriEditor from '../RedirectUriEditor'
 import useEditApp from '../useEditApp'
 import {
@@ -37,6 +41,7 @@ const Page = () => {
 
   const [scopes, setScopes] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [showSecret, setShowSecret] = useState(false)
 
   const availableScopes = useMemo(
     () => scopes.filter((scope) => scope.type === app?.type),
@@ -76,6 +81,10 @@ const Page = () => {
     },
     [acquireToken, id],
   )
+
+  const toggleSecret = () => {
+    setShowSecret(!showSecret)
+  }
 
   const handleDelete = async () => {
     const token = await acquireToken()
@@ -164,7 +173,17 @@ const Page = () => {
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('apps.clientSecret')}</Table.Cell>
-              <Table.Cell className='break-all'>{app.secret}</Table.Cell>
+              <Table.Cell className='break-all'>
+                <div className='flex items-center gap-4'>
+                  {showSecret ? app.secret : '*****'}
+                  <Button
+                    size='xs'
+                    color='light'
+                    onClick={toggleSecret}>
+                    {showSecret ? <EyeSlashIcon className='w-4 h-4' /> : <EyeIcon className='w-4 h-4' />}
+                  </Button>
+                </div>
+              </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('apps.status')}</Table.Cell>
