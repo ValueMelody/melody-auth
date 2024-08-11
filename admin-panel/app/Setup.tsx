@@ -101,9 +101,15 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
   const locale = useCurrentLocale()
   const { logoutRedirect } = useAuth()
 
-  useEffect(() => {
-    localStorage.setItem('Locale', locale)
-  }, [locale])
+  useEffect(
+    () => {
+      localStorage.setItem(
+        'Locale',
+        locale,
+      )
+    },
+    [locale],
+  )
 
   const handleLogout = () => {
     logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
