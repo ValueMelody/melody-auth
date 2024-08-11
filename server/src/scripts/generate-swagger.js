@@ -1,7 +1,7 @@
 const fs = require('fs')
 const swaggerJsdoc = require('swagger-jsdoc')
 const {
-  Scope, PutScopeReq, PostScopeReq,
+  Scope, ScopeDetail, PutScopeReq, PostScopeReq,
 } = require('./schemas/scope')
 const {
   Role, PutRoleReq, PostRoleReq,
@@ -44,6 +44,7 @@ const options = {
       },
       schemas: {
         Scope,
+        ScopeDetail,
         PutScopeReq,
         PostScopeReq,
         Role,

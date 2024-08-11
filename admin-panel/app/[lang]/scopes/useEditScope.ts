@@ -10,21 +10,23 @@ const useEditScope = (scope) => {
   const [name, setName] = useState('')
   const [type, setType] = useState('')
   const [note, setNote] = useState('')
+  const [locales, setLocales] = useState(undefined)
 
   useEffect(
     () => {
       setName(scope?.name ?? '')
       setType(scope?.type ?? '')
       setNote(scope?.note ?? '')
+      setLocales(scope?.locales ?? undefined)
     },
     [scope],
   )
 
   const values = useMemo(
     () => ({
-      name, type, note,
+      name, type, note, locales,
     }),
-    [name, type, note],
+    [name, type, note, locales],
   )
 
   const errors = useMemo(
@@ -47,6 +49,9 @@ const useEditScope = (scope) => {
       break
     case 'note':
       setNote(value as string)
+      break
+    case 'locales':
+      setLocales(value)
       break
     }
   }

@@ -8,15 +8,14 @@ import {
 } from 'react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
-  proxyTool, routeTool, typeTool,
+  dataTool,
+  proxyTool, routeTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
 import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
 import ClientTypeLabel from 'components/ClientTypeLabel'
-
-const isSystem = (name: string) => Object.values(typeTool.Scope).some((scope) => scope === name)
 
 const Page = () => {
   const t = useTranslations()
@@ -59,7 +58,7 @@ const Page = () => {
               <Table.Cell>
                 <div className='flex items-center gap-2'>
                   {scope.name}
-                  {isSystem(scope.name) && <SystemLabel />}
+                  {dataTool.isSystem(scope.name) && <SystemLabel />}
                 </div>
               </Table.Cell>
               <Table.Cell>
@@ -69,11 +68,9 @@ const Page = () => {
                 <ClientTypeLabel type={scope.type} />
               </Table.Cell>
               <Table.Cell>
-                {!isSystem(scope.name) && (
-                  <EditLink
-                    href={`/${locale}/scopes/${scope.id}`}
-                  />
-                )}
+                <EditLink
+                  href={`/${locale}/scopes/${scope.id}`}
+                />
               </Table.Cell>
             </Table.Row>
           ))}

@@ -6,7 +6,7 @@ import {
   oauthDto, scopeDto,
 } from 'dtos'
 import {
-  appScopeModel, scopeModel,
+  appScopeModel, scopeLocaleModel, scopeModel,
 } from 'models'
 import { appService } from 'services'
 import {
@@ -22,7 +22,7 @@ export const getScopes = async (c: Context<typeConfig.Context>): Promise<scopeMo
 export const getScopeById = async (
   c: Context<typeConfig.Context>,
   id: number,
-): Promise<scopeModel.Record> => {
+): Promise<scopeModel.ApiRecord> => {
   const scope = await scopeModel.getById(
     c.env.DB,
     id,
@@ -30,7 +30,38 @@ export const getScopeById = async (
 
   if (!scope) throw new errorConfig.NotFound()
 
-  return scope
+  const scopeLocales = await scopeLocaleModel.getAllByScope(
+    c.env.DB,
+    id,
+  )
+
+  return {
+    ...scope,
+    locales: scopeLocales,
+  }
+}
+
+export const getScopesByName = async (
+  c: Context<typeConfig.Context>,
+  names: string[],
+): Promise<scopeModel.ApiRecord[]> => {
+  const scopes = []
+  for (const name of names) {
+    const scope = await scopeModel.getByName(
+      c.env.DB,
+      name,
+    )
+    if (!scope) continue
+    const scopeLocales = await scopeLocaleModel.getAllByScope(
+      c.env.DB,
+      scope.id,
+    )
+    scopes.push({
+      ...scope,
+      locales: scopeLocales,
+    })
+  }
+  return scopes
 }
 
 export const createScope = async (
@@ -45,6 +76,20 @@ export const createScope = async (
       note: dto.note,
     },
   )
+
+  if (dto.locales) {
+    for (const localeReq of dto.locales) {
+      await scopeLocaleModel.create(
+        c.env.DB,
+        {
+          scopeId: scope.id,
+          locale: localeReq.locale,
+          value: localeReq.value,
+        },
+      )
+    }
+  }
+
   return scope
 }
 
@@ -53,14 +98,41 @@ export const updateScope = async (
   scopeId: number,
   dto: scopeDto.PutScopeReqDto,
 ): Promise<scopeModel.Record> => {
-  const role = await scopeModel.update(
-    c.env.DB,
-    scopeId,
-    {
-      name: dto.name, note: dto.note,
-    },
-  )
-  return role
+  const shouldUpdateScope = dto.name !== undefined || dto.note !== undefined
+
+  const scope = shouldUpdateScope
+    ? await scopeModel.update(
+      c.env.DB,
+      scopeId,
+      {
+        name: dto.name, note: dto.note,
+      },
+    )
+    : await scopeModel.getById(
+      c.env.DB,
+      scopeId,
+    )
+
+  if (!scope) throw new errorConfig.NotFound()
+
+  if (dto.locales) {
+    await scopeLocaleModel.remove(
+      c.env.DB,
+      scopeId,
+    )
+    for (const localeReq of dto.locales) {
+      await scopeLocaleModel.create(
+        c.env.DB,
+        {
+          scopeId: scope.id,
+          locale: localeReq.locale,
+          value: localeReq.value,
+        },
+      )
+    }
+  }
+
+  return scope
 }
 
 export const deleteScope = async (
@@ -72,6 +144,10 @@ export const deleteScope = async (
     scopeId,
   )
   await appScopeModel.remove(
+    c.env.DB,
+    scopeId,
+  )
+  await scopeLocaleModel.remove(
     c.env.DB,
     scopeId,
   )

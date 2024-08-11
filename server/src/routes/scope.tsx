@@ -58,7 +58,7 @@ scopeRoutes.get(
  *               type: object
  *               properties:
  *                 scope:
- *                   $ref: '#/components/schemas/Scope'
+ *                   $ref: '#/components/schemas/ScopeDetail'
  */
 scopeRoutes.get(
   `${BaseRoute}/:id`,

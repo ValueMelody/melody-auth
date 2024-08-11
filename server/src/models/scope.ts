@@ -6,6 +6,7 @@ import {
   formatUtil,
   validateUtil,
 } from 'utils'
+import { scopeLocaleModel } from 'models'
 
 export interface Record {
   id: number;
@@ -15,6 +16,10 @@ export interface Record {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+}
+
+export interface ApiRecord extends Record {
+  locales: scopeLocaleModel.Record[];
 }
 
 export interface Create {
@@ -47,6 +52,18 @@ export const getById = async (
 
   const stmt = db.prepare(query)
     .bind(id)
+  const scope = await stmt.first() as Record | null
+  return scope
+}
+
+export const getByName = async (
+  db: D1Database,
+  name: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE name = $1 AND deletedAt IS NULL`
+
+  const stmt = db.prepare(query)
+    .bind(name)
   const scope = await stmt.first() as Record | null
   return scope
 }

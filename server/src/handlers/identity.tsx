@@ -240,6 +240,11 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     queryDto.redirectUri,
   )
 
+  const scopes = await scopeService.getScopesByName(
+    c,
+    authInfo.request.scopes,
+  )
+
   const {
     COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
@@ -249,7 +254,7 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   return c.html(<AuthorizeConsentView
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     logoUrl={logoUrl}
-    scopes={authInfo.request.scopes}
+    scopes={scopes}
     appName={app.name}
     queryDto={queryDto}
   />)

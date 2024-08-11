@@ -89,6 +89,8 @@
     "name": "Name",
     "status": "Status",
     "type": "Client Type",
-    "new": "Create a scope"
+    "new": "Create a scope",
+    "locales": "Locales",
+    "localeNote": "This will be displayed on the user app consent page."
   }
 }

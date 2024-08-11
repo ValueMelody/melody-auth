@@ -1,4 +1,5 @@
 import { html } from 'hono/html'
+import { Scope } from 'shared'
 import {
   localeConfig, routeConfig,
   typeConfig,
@@ -8,6 +9,7 @@ import { identityDto } from 'dtos'
 import { responseScript } from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
 import Title from 'views/components/Title'
+import { scopeModel } from 'models'
 
 const AuthorizeConsent = ({
   queryDto, logoUrl, appName, scopes, locales,
@@ -15,7 +17,7 @@ const AuthorizeConsent = ({
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   appName: string;
-  scopes: string[];
+  scopes: scopeModel.ApiRecord[];
   locales: typeConfig.Locale[];
 }) => {
   return (
@@ -29,8 +31,14 @@ const AuthorizeConsent = ({
       <section class='p-8 border rounded-md w-full'>
         <ul>
           {scopes.map((scope) => {
-            if (scope === 'openid' || scope === 'offline_access') return null
-            return <li key={scope}>{scope}</li>
+            if (scope.name === Scope.OpenId || scope.name === Scope.OfflineAccess) return null
+            const locale = scope.locales.find((scopeLocale) => scopeLocale.locale === queryDto.locale)
+            return (
+              <li
+                key={scope}
+                class='w-text pr-2'>{locale?.value || scope.name}
+              </li>
+            )
           })}
         </ul>
       </section>

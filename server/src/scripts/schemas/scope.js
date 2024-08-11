@@ -17,6 +17,35 @@ const Scope = {
   },
 }
 
+const ScopeDetail = {
+  allOf: [
+    { $ref: '#/components/schemas/Scope' },
+    {
+      type: 'object',
+      properties: {
+        locales: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              scopeId: { type: 'number' },
+              locale: { type: 'string' },
+              value: { type: 'string' },
+              createdAt: { type: 'string' },
+              updatedAt: { type: 'string' },
+              deletedAt: {
+                type: 'string',
+                nullable: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  ],
+}
+
 const PutScopeReq = {
   type: 'object',
   properties: {
@@ -26,6 +55,17 @@ const PutScopeReq = {
       maxLength: 50,
     },
     note: { type: 'string' },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
   },
 }
 
@@ -42,10 +82,21 @@ const PostScopeReq = {
       enum: ['spa', 's2s'],
     },
     note: { type: 'string' },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
   },
   required: ['name', 'type'],
 }
 
 module.exports = {
-  Scope, PutScopeReq, PostScopeReq,
+  Scope, ScopeDetail, PutScopeReq, PostScopeReq,
 }
