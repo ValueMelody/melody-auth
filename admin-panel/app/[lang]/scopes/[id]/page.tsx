@@ -9,10 +9,12 @@ import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
   useCallback,
-  useEffect, useState,
+  useEffect, useMemo, useState,
 } from 'react'
 import useEditScope from '../useEditScope'
+import LocaleEditor from '../LocaleEditor'
 import {
+  dataTool,
   proxyTool, routeTool,
 } from 'tools'
 import SaveButton from 'components/SaveButton'
@@ -22,6 +24,8 @@ import ClientTypeLabel from 'components/ClientTypeLabel'
 import PageTitle from 'components/PageTitle'
 import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
+import useSignalValue from 'app/useSignalValue'
+import { configSignal } from 'signals'
 
 const Page = () => {
   const { id } = useParams()
@@ -31,12 +35,48 @@ const Page = () => {
 
   const [scope, setScope] = useState()
   const { acquireToken } = useAuth()
+  const configs = useSignalValue(configSignal)
+
+  const isSystem = useMemo(
+    () => dataTool.isSystem(scope?.name),
+    [scope],
+  )
 
   const {
     values, errors, onChange,
   } = useEditScope(scope)
   const [isLoading, setIsLoading] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
+
+  const hasDifferentLocales = useMemo(
+    () => {
+      if (values.locales !== undefined && scope?.locales === undefined) return true
+      if (Array.isArray(values.locales) && Array.isArray(scope?.locales)) {
+        if (values.locales.length !== scope.locales.length) return true
+        if (values.locales.find((valueLocale) => {
+          return scope.locales.every((scopeLocale) => {
+            return scopeLocale.locale !== valueLocale.locale || scopeLocale.value !== valueLocale.value
+          })
+        })) return true
+      }
+      return false
+    },
+    [values, scope],
+  )
+
+  const hasDifferentName = useMemo(
+    () => values.name && values.name !== scope?.name,
+    [values, scope],
+  )
+  const hasDifferentNote = useMemo(
+    () => values.note !== scope?.note,
+    [values, scope],
+  )
+
+  const canUpdate = useMemo(
+    () => hasDifferentName || hasDifferentNote || hasDifferentLocales,
+    [hasDifferentName, hasDifferentNote, hasDifferentLocales],
+  )
 
   const handleSave = async () => {
     if (Object.values(errors).some((val) => !!val)) {
@@ -50,7 +90,13 @@ const Page = () => {
       endpoint: `/api/scopes/${id}`,
       method: 'PUT',
       token,
-      body: { data: values },
+      body: {
+        data: {
+          name: hasDifferentName ? values.name : undefined,
+          note: hasDifferentNote ? values.note : undefined,
+          locales: hasDifferentLocales ? values.locales : undefined,
+        },
+      },
     })
     setIsLoading(false)
     if (res?.scope) {
@@ -108,13 +154,17 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('scopes.name')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  onChange={(e) => onChange(
-                    'name',
-                    e.target.value,
+                {isSystem
+                  ? values.name
+                  : (
+                    <TextInput
+                      onChange={(e) => onChange(
+                        'name',
+                        e.target.value,
+                      )}
+                      value={values.name}
+                    />
                   )}
-                  value={values.name}
-                />
                 {showErrors && <FieldError error={errors.name} />}
               </Table.Cell>
             </Table.Row>
@@ -136,6 +186,21 @@ const Page = () => {
                 <ClientTypeLabel type={scope.type} />
               </Table.Cell>
             </Table.Row>
+            {configs.ENABLE_USER_APP_CONSENT && scope.type === 'spa' && (
+              <Table.Row>
+                <Table.Cell>{t('scopes.locales')}</Table.Cell>
+                <Table.Cell>
+                  <LocaleEditor
+                    supportedLocales={configs.SUPPORTED_LOCALES}
+                    values={values.locales ?? []}
+                    onChange={(locales) => onChange(
+                      'locales',
+                      locales,
+                    )}
+                  />
+                </Table.Cell>
+              </Table.Row>
+            )}
             <Table.Row>
               <Table.Cell>{t('common.createdAt')}</Table.Cell>
               <Table.Cell>{scope.createdAt} UTC</Table.Cell>
@@ -151,7 +216,7 @@ const Page = () => {
       <section className='flex items-center gap-4 mt-8'>
         <SaveButton
           isLoading={isLoading}
-          disabled={!values.name || (values.name === scope.name && values.note === scope.note)}
+          disabled={!canUpdate}
           onClick={handleSave}
         />
         <DeleteButton

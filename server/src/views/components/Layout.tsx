@@ -50,6 +50,7 @@ const Layout = ({
           .text-center { text-align: center; }
           .p-2 { padding: 8px; }
           .p-4 { padding: 16px; }
+          .pr-2 { padding: 8px; }
           .ml-2 { margin-left: 8px; }
           .mt-4 { margin-top: 16px; }
           .mt-8 { margin-top: 32px; }

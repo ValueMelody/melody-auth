@@ -25,6 +25,7 @@ export const postScope = async (c: Context<typeConfig.Context>) => {
     name: String(reqBody.name),
     type: reqBody.type,
     note: reqBody.note,
+    locales: reqBody.locales,
   })
   await validateUtil.dto(bodyDto)
 

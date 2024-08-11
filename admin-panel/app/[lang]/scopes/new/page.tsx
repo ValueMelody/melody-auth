@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useAuth } from '@melody-auth/react'
 import useEditScope from '../useEditScope'
+import LocaleEditor from '../LocaleEditor'
 import {
   proxyTool, routeTool,
 } from 'tools'
@@ -17,6 +18,8 @@ import useLocaleRouter from 'hooks/useLocaleRoute'
 import FieldError from 'components/FieldError'
 import ClientTypeSelector from 'components/ClientTypeSelector'
 import SubmitError from 'components/SubmitError'
+import useSignalValue from 'app/useSignalValue'
+import { configSignal } from 'signals'
 
 const Page = () => {
   const t = useTranslations()
@@ -28,6 +31,18 @@ const Page = () => {
   } = useEditScope()
   const [showErrors, setShowErrors] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const configs = useSignalValue(configSignal)
+
+  const handleUpdateType = (val: string) => {
+    onChange(
+      'type',
+      val,
+    )
+    onChange(
+      'locales',
+      undefined,
+    )
+  }
 
   const handleSubmit = async () => {
     if (Object.values(errors).some((val) => !!val)) {
@@ -91,14 +106,26 @@ const Page = () => {
               <Table.Cell>
                 <ClientTypeSelector
                   value={values.type}
-                  onChange={(val: string) => onChange(
-                    'type',
-                    val,
-                  )}
+                  onChange={handleUpdateType}
                 />
                 {showErrors && <FieldError error={errors.type} />}
               </Table.Cell>
             </Table.Row>
+            {configs.ENABLE_USER_APP_CONSENT && values.type === 'spa' && (
+              <Table.Row>
+                <Table.Cell>{t('scopes.locales')}</Table.Cell>
+                <Table.Cell>
+                  <LocaleEditor
+                    supportedLocales={configs.SUPPORTED_LOCALES}
+                    values={values.locales ?? []}
+                    onChange={(locales) => onChange(
+                      'locales',
+                      locales,
+                    )}
+                  />
+                </Table.Cell>
+              </Table.Row>
+            )}
           </Table.Body>
         </Table>
       </section>

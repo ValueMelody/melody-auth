@@ -57,6 +57,48 @@
           }
         }
       },
+      "ScopeDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Scope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "locales": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "scopeId": {
+                      "type": "number"
+                    },
+                    "locale": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    },
+                    "deletedAt": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
       "PutScopeReq": {
         "type": "object",
         "properties": {
@@ -67,6 +109,24 @@
           },
           "note": {
             "type": "string"
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
           }
         }
       },
@@ -87,6 +147,24 @@
           },
           "note": {
             "type": "string"
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
           }
         },
         "required": [
@@ -455,7 +533,7 @@
                   "type": "object",
                   "properties": {
                     "scope": {
-                      "$ref": "#/components/schemas/Scope"
+                      "$ref": "#/components/schemas/ScopeDetail"
                     }
                   }
                 }

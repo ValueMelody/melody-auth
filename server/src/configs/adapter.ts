@@ -6,6 +6,7 @@ export enum TableName {
   UserRole = 'user_role',
   Scope = 'scope',
   AppScope = 'app_scope',
+  ScopeLocale = 'scope_locale',
 }
 
 export enum BaseKVKey {
