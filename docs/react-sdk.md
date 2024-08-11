@@ -58,6 +58,11 @@ export default function Home () {
 ## loginRedirect
 
 Triggers a new authentication flow.
+
+| Parameter | Type | Description | Default | Required |
+|-----------|------|-------------|---------|----------|
+| locale | string | Specifies the locale to use in the authentication flow | N/A | No |
+
 ```
 import { useAuth } from '@melody-auth/react'
 

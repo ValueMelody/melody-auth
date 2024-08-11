@@ -1,15 +1,18 @@
 import {
   css, Style,
 } from 'hono/css'
-import { localeConfig } from 'configs'
+import { html } from 'hono/html'
+import {
+  localeConfig, typeConfig,
+} from 'configs'
 
 const Layout = ({
-  logoUrl, children,
-}: { logoUrl: string; children: any }) => (
-  <html lang='en'>
+  logoUrl, children, locale, locales,
+}: { logoUrl: string; children: any; locale: typeConfig.Locale; locales: typeConfig.Locale[] }) => (
+  <html lang={locale}>
     <head>
       <meta charset='utf-8' />
-      <title>{localeConfig.common.documentTitle}</title>
+      <title>{localeConfig.common.documentTitle[locale]}</title>
       <link
         rel='icon'
         type='image/x-icon'
@@ -37,6 +40,7 @@ const Layout = ({
           .flex-wrap { flex-wrap: wrap; }
           .justify-between { justify-content: space-between; }
           .justify-center { justify-content: center; }
+          .justify-end { justify-content: flex-end; }
           .items-center { align-items: center; }
           .hidden { display: none; }
           .text-semibold { font-weight: 600; }
@@ -126,12 +130,36 @@ const Layout = ({
             padding-left: 16px;
             padding-right: 16px;
           }
+          .option {
+            background-color: white;
+            color: #333;
+            padding: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+          }
         `}
       </Style>
     </head>
     <body>
       <main class='flex-col items-center justify-center main'>
         <section class='flex-col justify-center items-center container rounded-lg'>
+          {locales.length > 1 && (
+            <section class='flex-row justify-end w-full'>
+              <select
+                class='button'
+                onchange='handleSwitchLocale(event)'>
+                {locales.map((targetLocale) => (
+                  <option
+                    key={targetLocale}
+                    value={targetLocale}
+                    selected={targetLocale === locale}>
+                    {targetLocale.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </section>
+          )}
           <section class='flex-col items-center gap-4 inner-container'>
             <img
               class='logo'
@@ -143,11 +171,22 @@ const Layout = ({
               target='__blank'
               href='https://github.com/ValueMelody/melody-auth'
               class='text-sm mt-4'>
-              {localeConfig.common.poweredBy.en}
+              {localeConfig.common.poweredByAuth[locale]}
             </a>
           </section>
         </section>
       </main>
+      {html`
+        <script>
+          function handleSwitchLocale(e) {
+            var url = window.location.href.replace("locale=${locale}", "locale=" + e.target.value)
+            if (url.indexOf('locale=') === -1) {
+              url = url + "&locale=" + e.target.value
+            }
+            window.location.href = url
+          }
+        </script>
+      `}
     </body>
   </html>
 )

@@ -1,4 +1,5 @@
 import { Context } from 'hono'
+import { env } from 'hono/adapter'
 import { typeConfig } from 'configs'
 import { timeUtil } from 'utils'
 import { Pagination } from 'configs/type'
@@ -8,6 +9,14 @@ export const stripEndingSlash = (val: string): string => {
     /\/$/,
     '',
   )
+}
+
+export const getLocaleFromQuery = (
+  c: Context<typeConfig.Context>, requestedLocale?: string,
+): typeConfig.Locale => {
+  const { SUPPORTED_LOCALES: locales } = env(c)
+  const locale = requestedLocale?.toLowerCase() ?? ''
+  return locales.find((supportedLocale) => supportedLocale === locale) ?? locales[0]
 }
 
 export const getQueryString = (c: Context<typeConfig.Context>): string => c.req.url.split('?')[1]

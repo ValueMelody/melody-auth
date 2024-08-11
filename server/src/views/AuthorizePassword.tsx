@@ -1,6 +1,7 @@
 import { html } from 'hono/html'
 import {
   localeConfig, routeConfig,
+  typeConfig,
 } from 'configs'
 import Layout from 'views/components/Layout'
 import { oauthDto } from 'dtos'
@@ -13,31 +14,36 @@ import Title from 'views/components/Title'
 import Field from 'views/components/Field'
 
 const AuthorizePassword = ({
-  queryDto, logoUrl, enableSignUp, enablePasswordReset, queryString,
+  queryDto, logoUrl, enableSignUp, enablePasswordReset, queryString, locales,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   logoUrl: string;
   enableSignUp: boolean;
   enablePasswordReset: boolean;
   queryString: string;
+  locales: typeConfig.Locale[];
 }) => {
   return (
-    <Layout logoUrl={logoUrl}>
-      <Title title={localeConfig.authorizePassword.title.en} />
+    <Layout
+      locales={locales}
+      logoUrl={logoUrl}
+      locale={queryDto.locale}
+    >
+      <Title title={localeConfig.authorizePassword.title[queryDto.locale]} />
       <form
         autocomplete='on'
         onsubmit='return handleSubmit(event)'
       >
         <section class='flex-col gap-4'>
           <Field
-            label={localeConfig.authorizePassword.email.en}
+            label={localeConfig.authorizePassword.email[queryDto.locale]}
             type='email'
             required
             name='email'
             autocomplete='email'
           />
           <Field
-            label={localeConfig.authorizePassword.password.en}
+            label={localeConfig.authorizePassword.password[queryDto.locale]}
             type='password'
             required
             name='password'
@@ -45,7 +51,7 @@ const AuthorizePassword = ({
           />
           <SubmitError />
           <SubmitButton
-            title={localeConfig.authorizePassword.submit.en}
+            title={localeConfig.authorizePassword.submit[queryDto.locale]}
           />
         </section>
       </form>
@@ -56,7 +62,7 @@ const AuthorizePassword = ({
               class='button-text'
               href={`${routeConfig.InternalRoute.Identity}/authorize-account?${queryString}`}
             >
-              {localeConfig.authorizePassword.signUp.en}
+              {localeConfig.authorizePassword.signUp[queryDto.locale]}
             </a>
           )}
           {enablePasswordReset && (
@@ -64,7 +70,7 @@ const AuthorizePassword = ({
               class='button-text'
               href={`${routeConfig.InternalRoute.Identity}/authorize-reset?${queryString}`}
             >
-              {localeConfig.authorizePassword.passwordReset.en}
+              {localeConfig.authorizePassword.passwordReset[queryDto.locale]}
             </a>
           )}
         </section>
@@ -75,8 +81,8 @@ const AuthorizePassword = ({
           ${resetErrorScript.resetPasswordError()}
           function handleSubmit (e) {
             e.preventDefault();
-            ${validateScript.email()}
-            ${validateScript.password()}
+            ${validateScript.email(queryDto.locale)}
+            ${validateScript.password(queryDto.locale)}
             fetch('${routeConfig.InternalRoute.Identity}/authorize-password', {
                 method: 'POST',
                 headers: {
@@ -91,10 +97,10 @@ const AuthorizePassword = ({
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              ${responseScript.handleAuthorizeFormRedirect()}
+              ${responseScript.handleAuthorizeFormRedirect(queryDto.locale)}
             })
             .catch((error) => {
-              ${responseScript.handleSubmitError()}
+              ${responseScript.handleSubmitError(queryDto.locale)}
             });
             return false;
           }

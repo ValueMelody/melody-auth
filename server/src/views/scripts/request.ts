@@ -10,5 +10,6 @@ export const parseAuthorizeFieldValues = (queryDto: oauthDto.GetAuthorizeReqDto)
   state: "${queryDto.state}",
   codeChallenge: "${queryDto.codeChallenge}",
   codeChallengeMethod: "${queryDto.codeChallengeMethod}",
+  locale: "${queryDto.locale}",
   scope: "${queryDto.scopes.join(' ')}"
 `

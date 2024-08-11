@@ -1,18 +1,22 @@
 import { html } from 'hono/html'
+import {
+  localeConfig, typeConfig,
+} from 'configs'
 
 const Layout = ({
   logoUrl,
   children,
+  locale,
 }: {
   logoUrl: string;
   children: any;
+  locale: typeConfig.Locale;
 }) => html`
   <!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Melody Auth - Email Verification</title>
   </head>
   <body
     style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333333; margin: 0; padding: 0;"
@@ -47,7 +51,7 @@ const Layout = ({
                                 <tr>
                                     <td align="center" style="padding-top: 30px; font-size: 14px; color: #666666;">
                                         <p>
-                                            Powered by&nbsp;
+                                            ${localeConfig.common.poweredBy[locale]}
                                             <a
                                               href="https://github.com/ValueMelody/melody-auth"
                                               target="_blank"

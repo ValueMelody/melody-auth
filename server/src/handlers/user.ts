@@ -109,6 +109,7 @@ export const verifyEmail = async (c: Context<typeConfig.Context>) => {
   const verificationCode = await emailService.sendEmailVerification(
     c,
     user,
+    user.locale,
   )
   if (verificationCode) {
     await kvService.storeEmailVerificationCode(

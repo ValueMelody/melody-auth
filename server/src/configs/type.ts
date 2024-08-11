@@ -5,6 +5,8 @@ import { oauthDto } from 'dtos'
 import { typeConfig } from 'configs'
 import { userModel } from 'models'
 
+export type Locale = 'en' | 'fr'
+
 export type Bindings = {
   DB: D1Database;
   KV: KVNamespace;
@@ -30,6 +32,7 @@ export type Bindings = {
   ACCOUNT_LOCKOUT_THRESHOLD: number;
   ACCOUNT_LOCKOUT_EXPIRES_IN: number;
   UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: boolean;
+  SUPPORTED_LOCALES: Locale[];
 };
 
 export type Context = {
@@ -80,6 +83,7 @@ export interface IdTokenBody {
   email: string | null;
   first_name: string | null;
   last_name: string | null;
+  locale: typeConfig.Locale;
   roles?: string[];
 }
 

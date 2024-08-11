@@ -28,6 +28,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     ENABLE_PASSWORD_RESET: enablePasswordReset,
     SENDGRID_API_KEY: sendgridKey,
     SENDGRID_SENDER_ADDRESS: sendgridSender,
+    SUPPORTED_LOCALES: locales,
   } = env(c)
 
   const allowPasswordReset = enablePasswordReset && !!sendgridKey && !!sendgridSender
@@ -36,6 +37,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<AuthorizePasswordView
     queryString={queryString}
+    locales={locales}
     queryDto={queryDto}
     logoUrl={logoUrl}
     enableSignUp={enableSignUp}
@@ -44,13 +46,18 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
-  const { COMPANY_LOGO_URL: logoUrl } = env(c)
-
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+  } = env(c)
+  const queryDto = await scopeService.parseGetAuthorizeDto(c)
   const queryString = formatUtil.getQueryString(c)
 
   return c.html(<AuthorizeResetView
     queryString={queryString}
     logoUrl={logoUrl}
+    queryDto={queryDto}
+    locales={locales}
   />)
 }
 
@@ -58,11 +65,16 @@ export const postResetCode = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const email = String(reqBody.email)?.trim()
     .toLowerCase()
+  const locale = formatUtil.getLocaleFromQuery(
+    c,
+    reqBody.locale,
+  )
   if (!email) throw new errorConfig.Forbidden()
 
   await userService.sendPasswordReset(
     c,
     email,
+    locale,
   )
   return c.json({ success: true })
 }
@@ -102,11 +114,13 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     COMPANY_LOGO_URL: logoUrl,
     ENABLE_NAMES: enableNames,
     NAMES_IS_REQUIRED: namesIsRequired,
+    SUPPORTED_LOCALES: locales,
   } = env(c)
 
   const queryString = formatUtil.getQueryString(c)
 
   return c.html(<AuthorizeAccountView
+    locales={locales}
     queryString={queryString}
     queryDto={queryDto}
     logoUrl={logoUrl}
@@ -123,9 +137,14 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   } = env(c)
 
   const reqBody = await c.req.json()
+
   const parsedBody = {
     ...reqBody,
     scopes: reqBody.scope.split(' '),
+    locale: formatUtil.getLocaleFromQuery(
+      c,
+      reqBody.locale,
+    ),
   }
 
   const bodyDto = namesIsRequired
@@ -148,6 +167,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     const verificationCode = await emailService.sendEmailVerification(
       c,
       user,
+      bodyDto.locale,
     )
     if (verificationCode) {
       await kvService.storeEmailVerificationCode(
@@ -199,6 +219,10 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     state: c.req.query('state') ?? '',
     redirectUri: c.req.query('redirect_uri') ?? '',
     code: c.req.query('code') ?? '',
+    locale: formatUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
   })
   await validateUtil.dto(queryDto)
 
@@ -213,9 +237,13 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     queryDto.redirectUri,
   )
 
-  const { COMPANY_LOGO_URL: logoUrl } = env(c)
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+  } = env(c)
 
   return c.html(<AuthorizeConsentView
+    locales={locales}
     logoUrl={logoUrl}
     scopes={authInfo.request.scopes}
     appName={app.name}
@@ -254,14 +282,22 @@ export const getAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
     state: c.req.query('state') ?? '',
     redirectUri: c.req.query('redirect_uri') ?? '',
     code: c.req.query('code') ?? '',
+    locale: formatUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
   })
   await validateUtil.dto(queryDto)
 
-  const { COMPANY_LOGO_URL: logoUrl } = env(c)
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+  } = env(c)
 
   return c.html(<AuthorizeEmailMfaView
     logoUrl={logoUrl}
     queryDto={queryDto}
+    locales={locales}
   />)
 }
 
@@ -345,6 +381,7 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     const mfaCode = await emailService.sendEmailMFA(
       c,
       user,
+      bodyDto.locale,
     )
     if (mfaCode) {
       await kvService.storeEmailMFACode(
@@ -367,12 +404,22 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getVerifyEmail = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetVerifyEmailReqDto({ id: c.req.query('id') ?? '' })
+  const queryDto = new identityDto.GetVerifyEmailReqDto({
+    id: c.req.query('id') ?? '',
+    locale: formatUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
+  })
   await validateUtil.dto(queryDto)
 
-  const { COMPANY_LOGO_URL: logoUrl } = env(c)
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+  } = env(c)
 
   return c.html(<VerifyEmailView
+    locales={locales}
     logoUrl={logoUrl}
     queryDto={queryDto}
   />)

@@ -15,6 +15,7 @@ const User = {
       type: 'string',
       nullable: true,
     },
+    locale: { type: 'string' },
     emailVerified: { type: 'boolean' },
     isActive: { type: 'boolean' },
     createdAt: { type: 'string' },

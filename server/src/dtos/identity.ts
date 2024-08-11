@@ -1,6 +1,7 @@
 import {
   IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
 } from 'class-validator'
+import { typeConfig } from 'configs'
 import { oauthDto } from 'dtos'
 
 export class PostAuthorizeReqWithPasswordDto extends oauthDto.GetAuthorizeReqDto {
@@ -34,10 +35,14 @@ export class PostAuthorizeReqWithNamesDto extends PostAuthorizeReqWithPasswordDt
   @IsOptional()
     lastName: string | null
 
+  @IsString()
+    locale: typeConfig.Locale
+
   constructor (dto: PostAuthorizeReqWithNamesDto) {
     super(dto)
     this.firstName = dto.firstName ?? null
     this.lastName = dto.lastName ?? null
+    this.locale = dto.locale
   }
 }
 
@@ -63,7 +68,7 @@ export class PostAuthorizeReqWithRequiredNamesDto extends PostAuthorizeReqWithPa
   }
 }
 
-export class GetAuthorizeFollowUpReqDto {
+export class PostAuthorizeConsentReqDto {
   @IsString()
   @IsNotEmpty()
     state: string
@@ -83,7 +88,15 @@ export class GetAuthorizeFollowUpReqDto {
   }
 }
 
-export class PostAuthorizeConsentReqDto extends GetAuthorizeFollowUpReqDto {}
+export class GetAuthorizeFollowUpReqDto extends PostAuthorizeConsentReqDto {
+  @IsString()
+    locale: typeConfig.Locale
+
+  constructor (dto: GetAuthorizeFollowUpReqDto) {
+    super(dto)
+    this.locale = dto.locale
+  }
+}
 
 export class PostAuthorizeMfaReqDto extends GetAuthorizeFollowUpReqDto {
   @IsString()
@@ -115,12 +128,20 @@ export class GetVerifyEmailReqDto {
   @IsNotEmpty()
     id: string
 
+  @IsString()
+    locale: typeConfig.Locale
+
   constructor (dto: GetVerifyEmailReqDto) {
     this.id = dto.id.trim()
+    this.locale = dto.locale
   }
 }
 
-export class PostVerifyEmailReqDto extends GetVerifyEmailReqDto {
+export class PostVerifyEmailReqDto {
+  @IsString()
+  @IsNotEmpty()
+    id: string
+
   @IsString()
   @Length(
     8,
@@ -129,7 +150,7 @@ export class PostVerifyEmailReqDto extends GetVerifyEmailReqDto {
     code: string
 
   constructor (dto: PostVerifyEmailReqDto) {
-    super(dto)
+    this.id = dto.id.trim()
     this.code = dto.code.trim()
   }
 }

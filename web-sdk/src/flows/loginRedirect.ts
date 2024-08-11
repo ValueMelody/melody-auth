@@ -6,7 +6,9 @@ import {
 } from '../generators'
 import { getAuthorize } from '../requests'
 
-export const loginRedirect = async (config: ProviderConfig) => {
+export const loginRedirect = async (
+  config: ProviderConfig, locale?: string,
+) => {
   const state = genAuthorizeState(21)
   const {
     codeChallenge, codeVerifier,
@@ -23,7 +25,7 @@ export const loginRedirect = async (config: ProviderConfig) => {
     await getAuthorize(
       config,
       {
-        state, codeChallenge,
+        state, codeChallenge, locale,
       },
     )
   } catch (e) {

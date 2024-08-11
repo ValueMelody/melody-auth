@@ -1,6 +1,7 @@
 import {
   ArrayMinSize, IsEnum, IsString, IsNotEmpty,
 } from 'class-validator'
+import { typeConfig } from 'configs'
 
 enum AuthorizeResponseType {
   Code = 'code',
@@ -46,6 +47,9 @@ export class GetAuthorizeReqDto {
   @ArrayMinSize(1)
     scopes: string[]
 
+  @IsString()
+    locale: typeConfig.Locale
+
   constructor (dto: GetAuthorizeReqDto) {
     this.clientId = dto.clientId
     this.redirectUri = dto.redirectUri.toLowerCase()
@@ -54,6 +58,7 @@ export class GetAuthorizeReqDto {
     this.codeChallenge = dto.codeChallenge
     this.codeChallengeMethod = dto.codeChallengeMethod.toLowerCase()
     this.scopes = parseScopes(dto.scopes)
+    this.locale = dto.locale
   }
 }
 

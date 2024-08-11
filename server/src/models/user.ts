@@ -1,5 +1,6 @@
 import {
   adapterConfig, errorConfig,
+  typeConfig,
 } from 'configs'
 import { Pagination } from 'configs/type'
 import {
@@ -11,6 +12,7 @@ export interface Common {
   id: number;
   authId: string;
   email: string | null;
+  locale: typeConfig.Locale;
   password: string | null;
   firstName: string | null;
   lastName: string | null;
@@ -34,6 +36,7 @@ export interface ApiRecord {
   id: number;
   authId: string;
   email: string | null;
+  locale: typeConfig.Locale;
   firstName?: string | null;
   lastName?: string | null;
   emailVerified: boolean;
@@ -55,6 +58,7 @@ export interface ApiRecordWithRoles extends ApiRecord {
 
 export interface Create {
   authId: string;
+  locale: typeConfig.Locale;
   email: string | null;
   password: string | null;
   firstName: string | null;
@@ -88,6 +92,7 @@ export const convertToApiRecord = (
     id: record.id,
     authId: record.authId,
     email: record.email,
+    locale: record.locale,
     emailVerified: record.emailVerified,
     isActive: record.isActive,
     loginCount: record.loginCount,
@@ -171,7 +176,7 @@ export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
   const createKeys: (keyof Create)[] = [
-    'authId', 'email', 'password', 'firstName', 'lastName',
+    'authId', 'email', 'password', 'firstName', 'lastName', 'locale',
   ]
   const stmt = formatUtil.d1CreateQuery(
     db,

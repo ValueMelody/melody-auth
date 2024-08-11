@@ -44,6 +44,7 @@ export const getUserInfo = async (
   const result: GetUserInfoRes = {
     authId: user.authId,
     email: user.email,
+    locale: user.locale,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     emailVerified: !!user.emailVerified,
@@ -188,6 +189,7 @@ export const createAccountWithPassword = async (
       authId: crypto.randomUUID(),
       email: bodyDto.email,
       password,
+      locale: bodyDto.locale,
       firstName: bodyDto.firstName,
       lastName: bodyDto.lastName,
     },
@@ -230,6 +232,7 @@ export const verifyUserEmail = async (
 export const sendPasswordReset = async (
   c: Context<typeConfig.Context>,
   email: string,
+  locale: typeConfig.Locale,
 ): Promise<true> => {
   const user = await userModel.getByEmail(
     c.env.DB,
@@ -240,6 +243,7 @@ export const sendPasswordReset = async (
   const resetCode = await emailService.sendPasswordReset(
     c,
     user,
+    locale,
   )
 
   if (resetCode) {
