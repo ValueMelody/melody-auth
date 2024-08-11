@@ -45,7 +45,9 @@ const Page = () => {
               <a
                 target='_blank'
                 href={links.openidConfig}
-                rel='noreferrer'>{links.openidConfig}
+                rel='noreferrer'
+              >
+                {links.openidConfig}
               </a>
             </Table.Cell>
           </Table.Row>
@@ -55,7 +57,9 @@ const Page = () => {
               <a
                 target='_blank'
                 href={links.jwks}
-                rel='noreferrer'>{links.jwks}
+                rel='noreferrer'
+              >
+                {links.jwks}
               </a>
             </Table.Cell>
           </Table.Row>
@@ -65,7 +69,9 @@ const Page = () => {
               <a
                 target='_blank'
                 href={links.apiSwagger}
-                rel='noreferrer'>{links.apiSwagger}
+                rel='noreferrer'
+              >
+                {links.apiSwagger}
               </a>
             </Table.Cell>
           </Table.Row>
@@ -75,7 +81,9 @@ const Page = () => {
               <a
                 target='_blank'
                 href={links.systemInfo}
-                rel='noreferrer'>{links.systemInfo}
+                rel='noreferrer'
+              >
+                {links.systemInfo}
               </a>
             </Table.Cell>
           </Table.Row>
@@ -98,6 +106,12 @@ const Page = () => {
           <Table.Row>
             <Table.Cell>SUPPORTED_LOCALES</Table.Cell>
             <Table.Cell>{configs.SUPPORTED_LOCALES.join(', ')}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>ENABLE_LOCALE_SELECTOR</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.ENABLE_LOCALE_SELECTOR} />
+            </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>COMPANY_LOGO_URL</Table.Cell>
