@@ -57,6 +57,7 @@ const PutUserReq = {
     firstName: { type: 'string' },
     lastName: { type: 'string' },
     isActive: { type: 'boolean' },
+    locale: { type: 'string' },
     roles: {
       type: 'array',
       items: { type: 'string' },

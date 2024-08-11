@@ -11,6 +11,10 @@ export class PutUserReqDto {
   @IsOptional()
     lastName?: string
 
+  @IsString()
+  @IsOptional()
+    locale?: string
+
   @IsBoolean()
   @IsOptional()
     isActive?: boolean
@@ -24,5 +28,6 @@ export class PutUserReqDto {
     this.isActive = dto.isActive
     this.firstName = dto.firstName
     this.lastName = dto.lastName
+    this.locale = dto.locale
   }
 }

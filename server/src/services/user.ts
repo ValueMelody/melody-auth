@@ -317,6 +317,7 @@ export const updateUser = async (
   const updateObj: userModel.Update = {
     firstName: dto.firstName,
     lastName: dto.lastName,
+    locale: dto.locale,
   }
   if (dto.isActive !== undefined) updateObj.isActive = dto.isActive ? 1 : 0
 

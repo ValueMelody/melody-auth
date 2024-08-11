@@ -69,6 +69,7 @@ export interface Update {
   password?: string | null;
   firstName?: string | null;
   lastName?: string | null;
+  locale?: string;
   loginCount?: number;
   deletedAt?: string | null;
   updatedAt?: string | null;
@@ -208,7 +209,7 @@ export const update = async (
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
-    'emailVerified', 'loginCount',
+    'emailVerified', 'loginCount', 'locale',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,

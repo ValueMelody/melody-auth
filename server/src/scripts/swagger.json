@@ -352,6 +352,9 @@
           "isActive": {
             "type": "boolean"
           },
+          "locale": {
+            "type": "string"
+          },
           "roles": {
             "type": "array",
             "items": {
