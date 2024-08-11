@@ -6,6 +6,9 @@ actions:
   - text: GitHub
     link: https://github.com/ValueMelody/melody-auth
     type: primary
+  - text: Screenshots
+    link: /screenshots.html
+    type: secondary
   - text: Auth Server
     link: /auth-server.html
     type: secondary
