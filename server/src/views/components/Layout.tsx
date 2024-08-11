@@ -62,7 +62,7 @@ const Layout = ({
           .rounded-lg { border-radius: 16px; }
           .rounded-md { border-radius: 8px; }
           .w-full { width: 100%; }
-          .w-text { width: 300px }
+          .w-text { width: 240px; }
           .main {
             background-color: lightgray;
             height: 100vh;

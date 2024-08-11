@@ -22,6 +22,8 @@ import {
   routeTool, typeTool,
 } from 'tools'
 
+const locale = localStorage.getItem('Locale')
+
 const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()
 
@@ -71,7 +73,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   }
 
   if (!isAuthenticated) {
-    loginRedirect()
+    loginRedirect({ locale: locale ?? undefined })
     return
   }
 
@@ -98,6 +100,16 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
   const t = useTranslations()
   const locale = useCurrentLocale()
   const { logoutRedirect } = useAuth()
+
+  useEffect(
+    () => {
+      localStorage.setItem(
+        'Locale',
+        locale,
+      )
+    },
+    [locale],
+  )
 
   const handleLogout = () => {
     logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
@@ -156,6 +168,13 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
             {t('layout.scopes')}
           </Navbar.Link>
           <Navbar.Link
+            as={Link}
+            className='flex items-center h-6'
+            href={`/${locale === 'en' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`}
+          >
+            {locale === 'en' ? 'FR' : 'EN'}
+          </Navbar.Link>
+          <Navbar.Link
             onClick={handleLogout}
             href='#'
             className='flex items-center gap-2'>
@@ -174,7 +193,7 @@ const Setup = ({ children } : PropsWithChildren) => {
   return (
     <AuthProvider
       clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
-      redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/en/dashboard`}
+      redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/${locale || 'en'}/dashboard`}
       serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
     >
       <AuthSetup>
