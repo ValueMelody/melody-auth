@@ -3,6 +3,7 @@ import SubmitButton from './components/SubmitButton'
 import {
   localeConfig,
   routeConfig,
+  typeConfig,
 } from 'configs'
 import Layout from 'views/components/Layout'
 import { identityDto } from 'dtos'
@@ -14,25 +15,30 @@ import Field from 'views/components/Field'
 import SubmitError from 'views/components/SubmitError'
 
 const VerifyEmail = ({
-  queryDto, logoUrl,
+  queryDto, logoUrl, locales,
 }: {
   queryDto: identityDto.GetVerifyEmailReqDto;
   logoUrl: string;
+  locales: typeConfig.Locale[];
 }) => {
   return (
-    <Layout logoUrl={logoUrl}>
+    <Layout
+      logoUrl={logoUrl}
+      locale={queryDto.locale}
+      locales={locales}
+    >
       <section
         id='success-message'
         class='hidden'
       >
-        <p class='text-green text-semibold w-text text-center'>{localeConfig.verifyEmail.success.en}</p>
+        <p class='text-green text-semibold w-text text-center'>{localeConfig.verifyEmail.success[queryDto.locale]}</p>
       </section>
       <section
         id='submit-form'
         class='flex-col items-center gap-4'
       >
-        <Title title={localeConfig.verifyEmail.title.en} />
-        <p class='mb-4 w-text text-center'>{localeConfig.verifyEmail.desc.en}</p>
+        <Title title={localeConfig.verifyEmail.title[queryDto.locale]} />
+        <p class='mb-4 w-text text-center'>{localeConfig.verifyEmail.desc[queryDto.locale]}</p>
         <form
           onsubmit='return handleSubmit(event)'
         >
@@ -44,7 +50,7 @@ const VerifyEmail = ({
             />
             <SubmitError />
             <SubmitButton
-              title={localeConfig.verifyEmail.verify.en}
+              title={localeConfig.verifyEmail.verify[queryDto.locale]}
             />
           </section>
         </form>
@@ -54,7 +60,7 @@ const VerifyEmail = ({
           ${resetErrorScript.resetCodeError()}
           function handleSubmit (e) {
             e.preventDefault();
-            ${validateScript.verificationCode()}
+            ${validateScript.verificationCode(queryDto.locale)}
             fetch('${routeConfig.InternalRoute.Identity}/verify-email', {
                 method: 'POST',
                 headers: {
@@ -74,7 +80,7 @@ const VerifyEmail = ({
               document.getElementById('success-message').classList.remove('hidden');
             })
             .catch((error) => {
-              ${responseScript.handleSubmitError()}
+              ${responseScript.handleSubmitError(queryDto.locale)}
             });
             return false;
           }

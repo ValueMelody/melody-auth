@@ -228,6 +228,10 @@ const Page = () => {
               <Table.Cell>{user.email}</Table.Cell>
             </Table.Row>
             <Table.Row>
+              <Table.Cell>{t('users.locale')}</Table.Cell>
+              <Table.Cell>{user.locale}</Table.Cell>
+            </Table.Row>
+            <Table.Row>
               <Table.Cell>{t('users.loginCount')}</Table.Cell>
               <Table.Cell>{user.loginCount}</Table.Cell>
             </Table.Row>

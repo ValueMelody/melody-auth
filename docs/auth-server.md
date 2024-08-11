@@ -194,3 +194,7 @@ npm run prod:deploy
 ### ACCOUNT_LOCKOUT_EXPIRES_IN
 - **Default:** 86400 (1 day)
 - **Description:** Duration (in seconds) for which the account remains locked after reaching the lockout threshold. Set to 0 for indefinite lockout until manual intervention.
+
+### SUPPORTED_LOCALES
+- **Default:** ['en', 'fr']
+- **Description:** Specifies the locales supported for identity pages and emails.

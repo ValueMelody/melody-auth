@@ -1,6 +1,7 @@
 import { html } from 'hono/html'
 import {
   localeConfig, routeConfig,
+  typeConfig,
 } from 'configs'
 
 export const parseRes = () => html`
@@ -12,8 +13,8 @@ export const parseRes = () => html`
   return response.json();
 `
 
-export const handleAuthorizeFormRedirect = () => html`
-  var queryString = "?state=" + data.state + "&code=" + data.code;
+export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
+  var queryString = "?state=" + data.state + "&code=" + data.code + "&locale=" + "${locale}";
   if (data.requireConsent) {
     queryString += "&redirect_uri=" + data.redirectUri;
     var url = "${routeConfig.InternalRoute.Identity}/authorize-consent" + queryString
@@ -29,24 +30,24 @@ export const handleAuthorizeFormRedirect = () => html`
   return true
 `
 
-export const handleSubmitError = () => html`
-  var msg = "${localeConfig.requestError.authFailed.en}";
+export const handleSubmitError = (locale: typeConfig.Locale) => html`
+  var msg = "${localeConfig.requestError.authFailed[locale]}";
   var errorString = String(error)
   console.error(msg + ": " + error)
   if (errorString.indexOf("isEmail") !== -1) {
-    msg = "${localeConfig.validateError.isNotEmail.en}";
+    msg = "${localeConfig.validateError.isNotEmail[locale]}";
   } else if (errorString.indexOf("isStrongPassword") !== -1) {
-    msg = "${localeConfig.validateError.isWeakPassword.en}";
+    msg = "${localeConfig.validateError.isWeakPassword[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.NoUser}") !== -1) {
-    msg = "${localeConfig.requestError.noUser.en}";
+    msg = "${localeConfig.requestError.noUser[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.AccountLocked}") !== -1) {
-    msg = "${localeConfig.requestError.accountLocked.en}";
+    msg = "${localeConfig.requestError.accountLocked[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.EmailTaken}") !== -1) {
-    msg = "${localeConfig.requestError.emailTaken.en}";
+    msg = "${localeConfig.requestError.emailTaken[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.WrongCode}") !== -1) {
-    msg = "${localeConfig.Error.WrongCode}";
+    msg = "${localeConfig.requestError.wrongCode[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.WrongMfaCode}") !== -1) {
-    msg = "${localeConfig.Error.WrongCode}";
+    msg = "${localeConfig.requestError.wrongCode[locale]}";
   }
   var errorEl = document.getElementById('submit-error');
   errorEl.classList.remove('hidden');

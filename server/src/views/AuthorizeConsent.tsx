@@ -1,6 +1,7 @@
 import { html } from 'hono/html'
 import {
   localeConfig, routeConfig,
+  typeConfig,
 } from 'configs'
 import Layout from 'views/components/Layout'
 import { identityDto } from 'dtos'
@@ -9,17 +10,22 @@ import SubmitError from 'views/components/SubmitError'
 import Title from 'views/components/Title'
 
 const AuthorizeConsent = ({
-  queryDto, logoUrl, appName, scopes,
+  queryDto, logoUrl, appName, scopes, locales,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   appName: string;
   scopes: string[];
+  locales: typeConfig.Locale[];
 }) => {
   return (
-    <Layout logoUrl={logoUrl}>
-      <Title title={localeConfig.authorizeConsent.title.en} />
-      <p>{appName} {localeConfig.authorizeConsent.requestAccess.en}</p>
+    <Layout
+      locales={locales}
+      logoUrl={logoUrl}
+      locale={queryDto.locale}
+    >
+      <Title title={localeConfig.authorizeConsent.title[queryDto.locale]} />
+      <p class='w-text text-center'>{appName} {localeConfig.authorizeConsent.requestAccess[queryDto.locale]}</p>
       <section class='p-8 border rounded-md w-full'>
         <ul>
           {scopes.map((scope) => {
@@ -35,14 +41,14 @@ const AuthorizeConsent = ({
           type='button'
           onclick='handleDecline()'
         >
-          {localeConfig.authorizeConsent.decline.en}
+          {localeConfig.authorizeConsent.decline[queryDto.locale]}
         </button>
         <button
           class='button-outline w-full'
           type='button'
           onclick='handleAccept()'
         >
-          {localeConfig.authorizeConsent.accept.fr}
+          {localeConfig.authorizeConsent.accept[queryDto.locale]}
         </button>
       </section>
       {html`
@@ -67,10 +73,10 @@ const AuthorizeConsent = ({
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              ${responseScript.handleAuthorizeFormRedirect()}
+              ${responseScript.handleAuthorizeFormRedirect(queryDto.locale)}
             })
             .catch((error) => {
-              ${responseScript.handleSubmitError()}
+              ${responseScript.handleSubmitError(queryDto.locale)}
             });
             return false;
           }

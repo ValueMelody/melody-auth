@@ -12,9 +12,11 @@ export const getAuthorize = async (
   }: ProviderConfig, {
     state,
     codeChallenge,
+    locale,
   }: {
   state: string;
   codeChallenge: string;
+  locale?: string;
 },
 ) => {
   const combinedScopes = scopes.map((scope) => scope.trim().toLowerCase());
@@ -33,7 +35,7 @@ export const getAuthorize = async (
     '&code_challenge_method=S256' +
     '&scope=' + combinedScopes.join(' ')
 
-  window.location.href = url
+  window.location.href = locale ? `${url}&locale=${locale}` : url
 }
 
 export const getUserInfo = async (

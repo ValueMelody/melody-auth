@@ -50,7 +50,9 @@ export const sendSendgridEmail = async (
 }
 
 export const sendEmailVerification = async (
-  c: Context<typeConfig.Context>, user: userModel.Record | userModel.ApiRecord,
+  c: Context<typeConfig.Context>,
+  user: userModel.Record | userModel.ApiRecord,
+  locale: typeConfig.Locale,
 ) => {
   const {
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
@@ -65,12 +67,13 @@ export const sendEmailVerification = async (
     serverUrl={serverUrl}
     authId={user.authId}
     verificationCode={verificationCode}
-    logoUrl={logoUrl} />).toString()
+    logoUrl={logoUrl}
+    locale={locale} />).toString()
 
   const res = await sendSendgridEmail(
     c,
     user.email,
-    localeConfig.emailVerificationEmail.subject.en,
+    localeConfig.emailVerificationEmail.subject[locale],
     content,
   )
 
@@ -78,7 +81,9 @@ export const sendEmailVerification = async (
 }
 
 export const sendPasswordReset = async (
-  c: Context<typeConfig.Context>, user: userModel.Record,
+  c: Context<typeConfig.Context>,
+  user: userModel.Record,
+  locale: typeConfig.Locale,
 ) => {
   const {
     ENABLE_PASSWORD_RESET: enablePasswordReset,
@@ -90,12 +95,14 @@ export const sendPasswordReset = async (
   const resetCode = genRandomString(8)
   const content = (<PasswordResetTemplate
     resetCode={resetCode}
-    logoUrl={logoUrl} />).toString()
+    logoUrl={logoUrl}
+    locale={locale}
+  />).toString()
 
   const res = await sendSendgridEmail(
     c,
     user.email,
-    localeConfig.passwordResetEmail.subject.en,
+    localeConfig.passwordResetEmail.subject[locale],
     content,
   )
 
@@ -103,7 +110,9 @@ export const sendPasswordReset = async (
 }
 
 export const sendEmailMFA = async (
-  c: Context<typeConfig.Context>, user: userModel.Record,
+  c: Context<typeConfig.Context>,
+  user: userModel.Record,
+  locale: typeConfig.Locale,
 ) => {
   const {
     ENABLE_EMAIL_MFA: enableEmailMFA,
@@ -115,12 +124,13 @@ export const sendEmailMFA = async (
   const mfaCode = genRandomString(8)
   const content = (<EmailMfaTemplate
     mfaCode={mfaCode}
-    logoUrl={logoUrl} />).toString()
+    logoUrl={logoUrl}
+    locale={locale} />).toString()
 
   const res = await sendSendgridEmail(
     c,
     user.email,
-    localeConfig.emailMfaEmail.subject.en,
+    localeConfig.emailMfaEmail.subject[locale],
     content,
   )
 

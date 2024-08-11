@@ -90,6 +90,7 @@ export const genIdToken = async (
     exp: idTokenExpiresAt,
     iat: currentTimestamp,
     email: authInfo.user.email,
+    locale: authInfo.user.locale,
     first_name: authInfo.user.firstName,
     last_name: authInfo.user.lastName,
   }

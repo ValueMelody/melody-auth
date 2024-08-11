@@ -1,10 +1,12 @@
 import { html } from 'hono/html'
-import { localeConfig } from 'configs'
+import {
+  localeConfig, typeConfig,
+} from 'configs'
 
-export const verificationCode = () => html`
+export const verificationCode = (locale: typeConfig.Locale) => html`
   var msg;
   var codeVal = document.getElementById('form-code').value.trim();
-  if (codeVal.length !== 8) msg = "${localeConfig.validateError.verificationCodeLengthIssue.en}";
+  if (codeVal.length !== 8) msg = "${localeConfig.validateError.verificationCodeLengthIssue[locale]}";
   if (msg) {
     var errorEl = document.getElementById('error-code');
     errorEl.classList.remove('hidden');
@@ -13,10 +15,10 @@ export const verificationCode = () => html`
   }
 `
 
-export const email = () => html`
+export const email = (locale: typeConfig.Locale) => html`
   var msg;
   var emailVal = document.getElementById('form-email').value.trim();
-  if (!emailVal) msg = "${localeConfig.validateError.emailIsRequired.en}";
+  if (!emailVal) msg = "${localeConfig.validateError.emailIsRequired[locale]}";
   if (msg) {
     var errorEl = document.getElementById('error-email');
     errorEl.classList.remove('hidden');
@@ -25,10 +27,10 @@ export const email = () => html`
   }
 `
 
-export const firstName = () => html`
+export const firstName = (locale: typeConfig.Locale) => html`
   var msg;
   var firstNameVal = document.getElementById('form-firstName').value.trim();
-  if (!firstNameVal) msg = "${localeConfig.validateError.firstNameIsEmpty.en}";
+  if (!firstNameVal) msg = "${localeConfig.validateError.firstNameIsEmpty[locale]}";
   if (msg) {
     var errorEl = document.getElementById('error-firstName');
     errorEl.classList.remove('hidden');
@@ -37,10 +39,10 @@ export const firstName = () => html`
   }
 `
 
-export const lastName = () => html`
+export const lastName = (locale: typeConfig.Locale) => html`
   var msg;
   var lastNameVal = document.getElementById('form-lastName').value.trim();
-  if (!lastNameVal) msg = "${localeConfig.validateError.lastNameIsEmpty.en}";
+  if (!lastNameVal) msg = "${localeConfig.validateError.lastNameIsEmpty[locale]}";
   if (msg) {
     var errorEl = document.getElementById('error-lastName');
     errorEl.classList.remove('hidden');
@@ -49,10 +51,10 @@ export const lastName = () => html`
   }
 `
 
-export const password = () => html`
+export const password = (locale: typeConfig.Locale) => html`
   var msg;
   var passwordVal = document.getElementById('form-password').value;
-  if (!passwordVal) msg = "${localeConfig.validateError.passwordIsRequired.en}";
+  if (!passwordVal) msg = "${localeConfig.validateError.passwordIsRequired[locale]}";
   if (msg) {
     var errorEl = document.getElementById('error-password');
     errorEl.classList.remove('hidden');
@@ -61,11 +63,11 @@ export const password = () => html`
   }
 `
 
-export const confirmPassword = () => html`
+export const confirmPassword = (locale: typeConfig.Locale) => html`
   var msg;
   var passwordVal = document.getElementById('form-password').value;
   var confirmPasswordVal = document.getElementById('form-confirmPassword').value;
-  if (passwordVal !== confirmPasswordVal) msg = "${localeConfig.validateError.passwordNotMatch.en}";
+  if (passwordVal !== confirmPasswordVal) msg = "${localeConfig.validateError.passwordNotMatch[locale]}";
   if (msg) {
     var errorEl = document.getElementById('error-confirmPassword');
     errorEl.classList.remove('hidden');

@@ -9,7 +9,9 @@ import {
   appScopeModel, scopeModel,
 } from 'models'
 import { appService } from 'services'
-import { validateUtil } from 'utils'
+import {
+  formatUtil, validateUtil,
+} from 'utils'
 
 export const getScopes = async (c: Context<typeConfig.Context>): Promise<scopeModel.Record[]> => {
   const scopes = await scopeModel.getAll(c.env.DB)
@@ -106,6 +108,10 @@ export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Prom
     codeChallenge: c.req.query('code_challenge') ?? '',
     codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
     scopes: c.req.query('scope')?.split(' ') ?? [],
+    locale: formatUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
   })
   await validateUtil.dto(queryDto)
 

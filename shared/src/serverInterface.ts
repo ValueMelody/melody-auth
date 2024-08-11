@@ -31,7 +31,8 @@ export interface GetUserInfoRes {
   email: string | null;
   firstName?: string | null;
   lastName?: string | null;
-  roles?: string[];
+  locale: string;
+  roles: string[];
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;

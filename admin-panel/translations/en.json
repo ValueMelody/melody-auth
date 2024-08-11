@@ -58,6 +58,7 @@
     "authId": "Auth ID",
     "email": "Email",
     "name": "Name",
+    "locale": "Locale",
     "status": "Status",
     "loginCount": "Login Count",
     "emailVerified": "Email Is Verified",
