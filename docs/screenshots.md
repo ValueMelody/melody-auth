@@ -14,6 +14,9 @@ These screenshots showcase various pages and emails related to identity system a
 ![App Consent](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/app_consent.jpeg)
 
 ### Email MFA
+![OTP MFA](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/otp_mfa.jpeg)
+
+### Email MFA
 ![Email MFA](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/email_mfa.jpeg)
 
 ![Email MFA Email](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/email_mfa_email.jpeg)

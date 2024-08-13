@@ -85,9 +85,13 @@ export class PostAuthorizeConsentReqDto {
   @IsNotEmpty()
     redirectUri: string
 
+  @IsString()
+    locale: typeConfig.Locale
+
   constructor (dto: GetAuthorizeFollowUpReqDto) {
     this.state = dto.state
     this.code = dto.code
+    this.locale = dto.locale
     this.redirectUri = dto.redirectUri
   }
 }

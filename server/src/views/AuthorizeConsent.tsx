@@ -74,7 +74,8 @@ const AuthorizeConsent = ({
                 body: JSON.stringify({
                   state: "${queryDto.state}",
                   code: "${queryDto.code}",
-                  redirectUri: "${queryDto.redirectUri}"
+                  redirectUri: "${queryDto.redirectUri}",
+                  locale: "${queryDto.locale}",
                 })
             })
             .then((response) => {
