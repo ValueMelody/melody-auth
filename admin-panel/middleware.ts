@@ -5,4 +5,4 @@ export default createMiddleware({
   defaultLocale: 'en',
 })
 
-export const config = { matcher: ['/', '/(fr|en)/:path*'] }
+export const config = { matcher: ['/', '/(en|fr)/:path*'] }

@@ -22,7 +22,7 @@ import {
   routeTool, typeTool,
 } from 'tools'
 
-const locale = localStorage.getItem('Locale')
+const locale = typeof localStorage !== 'undefined' && localStorage.getItem('Locale')
 
 const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()
@@ -73,7 +73,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   }
 
   if (!isAuthenticated) {
-    loginRedirect({ locale: locale ?? undefined })
+    loginRedirect({ locale: locale || undefined })
     return
   }
 
