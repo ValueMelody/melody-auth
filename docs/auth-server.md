@@ -183,11 +183,11 @@ npm run prod:deploy
 - **Default:** true
 - **Description:** If set to true, users will receive an email to verify their email address after signing up. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
 
-### ENABLE_OTP_MFA
+### OTP_MFA_IS_REQUIRED
 - **Default:** true
 - **Description:** Enables OTP-based multi-factor authentication (MFA) for user sign-in. When set to true, users are required to configure OTP using an app like Google Authenticator during the sign-in process.
 
-### ENABLE_EMAIL_MFA
+### EMAIL_MFA_IS_REQUIRED
 - **Default:** false
 - **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login. `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
 

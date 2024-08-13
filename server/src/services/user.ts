@@ -183,7 +183,7 @@ export const createAccountWithPassword = async (
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
-  const { ENABLE_OTP_MFA: enableOtp } = env(c)
+  const { OTP_MFA_IS_REQUIRED: enableOtp } = env(c)
   const otpSecret = enableOtp ? await cryptoUtil.genOtpSecret() : undefined
   const newUser = await userModel.create(
     c.env.DB,

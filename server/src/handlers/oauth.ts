@@ -26,8 +26,8 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     const authCode = genRandomString(128)
     const {
       AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-      ENABLE_EMAIL_MFA: enableEmailMfa,
-      ENABLE_OTP_MFA: enableOtpMfa,
+      EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+      OTP_MFA_IS_REQUIRED: enableOtpMfa,
     } = env(c)
     await kvService.storeAuthCode(
       c.env.KV,
@@ -90,8 +90,8 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
   }
 
   const {
-    ENABLE_EMAIL_MFA: requireEmailMfa,
-    ENABLE_OTP_MFA: requireOtpMfa,
+    EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
+    OTP_MFA_IS_REQUIRED: requireOtpMfa,
   } = env(c)
 
   if (requireOtpMfa) {

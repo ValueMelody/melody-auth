@@ -28,8 +28,8 @@ export type Bindings = {
   NAMES_IS_REQUIRED: boolean;
   ENABLE_USER_APP_CONSENT: boolean;
   ENABLE_EMAIL_VERIFICATION: boolean;
-  ENABLE_EMAIL_MFA: boolean;
-  ENABLE_OTP_MFA: boolean;
+  EMAIL_MFA_IS_REQUIRED: boolean;
+  OTP_MFA_IS_REQUIRED: boolean;
   ACCOUNT_LOCKOUT_THRESHOLD: number;
   ACCOUNT_LOCKOUT_EXPIRES_IN: number;
   UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: boolean;

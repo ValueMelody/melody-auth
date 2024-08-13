@@ -42,8 +42,8 @@ const handlePostAuthorize = async (
   )
 
   const {
-    ENABLE_EMAIL_MFA: enableEmailMfa,
-    ENABLE_OTP_MFA: enableOtpMfa,
+    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+    OTP_MFA_IS_REQUIRED: enableOtpMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
   } = env(c)
 
@@ -502,7 +502,7 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 
   const {
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    ENABLE_OTP_MFA: enableOtpMfa,
+    OTP_MFA_IS_REQUIRED: enableOtpMfa,
   } = env(c)
 
   const updatedUser = enableOtpMfa && !user.otpSecret
