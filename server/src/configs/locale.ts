@@ -8,6 +8,7 @@ export enum Error {
   WrongRedirectUri = 'Invalid redirect_uri',
   NoUser = 'No user found',
   AccountLocked = 'Account temporarily locked due to excessive login failures',
+  OtpMfaLocked = 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
   UserDisabled = 'This account has been disabled',
   EmailAlreadyVerified = 'Email already verified',
   OtpAlreadySet = 'OTP authentication already set',
@@ -86,6 +87,10 @@ export const requestError = Object.freeze({
   accountLocked: {
     en: 'Account temporarily locked due to excessive login failures.',
     fr: 'Compte temporairement bloqué en raison de trop nombreuses tentatives de connexion échouées.',
+  },
+  optMfaLocked: {
+    en: 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
+    fr: 'Nombre trop élevé de tentatives échouées de vérification OTP. Veuillez réessayer dans 30 minutes.'
   },
   emailTaken: {
     en: 'The email address is already in use.',

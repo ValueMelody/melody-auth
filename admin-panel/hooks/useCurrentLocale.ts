@@ -7,7 +7,7 @@ const useCurrentLocale = () => {
     () => pathname.split('/')[1],
     [pathname],
   )
-  return currentLocale
+  return currentLocale || 'en'
 }
 
 export default useCurrentLocale

@@ -277,6 +277,38 @@ export const verifyPasswordResetCode = async (
   return isValid
 }
 
+export const getFailedOtpMfaAttemptsByIP = async (
+  kv: KVNamespace,
+  userId: number,
+  ip: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedOtpMfaAttempts,
+    String(userId),
+    ip,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setFailedOtpMfaAttempts = async (
+  kv: KVNamespace,
+  userId: number,
+  ip: string,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedOtpMfaAttempts,
+    String(userId),
+    ip,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: 1800 },
+  )
+}
+
 export const getFailedLoginAttemptsByIP = async (
   kv: KVNamespace,
   email: string,

@@ -10,16 +10,17 @@ export enum TableName {
 }
 
 export enum BaseKVKey {
-  RefreshToken = 'refreshToken',
-  AuthCode = 'authCode',
   JwtPublicSecret = 'jwtPublicSecret',
   JwtPrivateSecret = 'jwtPrivateSecret',
   sessionSecret = 'sessionSecret',
-  EmailMfaCode = 'emailMfaCode',
-  OtpMfaCode = 'otpMfaCode',
-  EmailVerificationCode = 'emailVerificationCode',
-  PasswordResetCode = 'passwordResetCode',
-  FailedLoginAttempts = 'failedLoginAttempts',
+  RefreshToken = 'RT',
+  AuthCode = 'AC',
+  EmailMfaCode = 'EMC',
+  OtpMfaCode = 'OMC',
+  EmailVerificationCode = 'EVC',
+  PasswordResetCode = 'PRC',
+  FailedLoginAttempts = 'FLA',
+  FailedOtpMfaAttempts = 'FMA',
 }
 
 export const getKVKey = (
