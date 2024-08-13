@@ -73,7 +73,7 @@ const handlePostAuthorize = async (
       authCodeBody.appId,
       authCodeBody.appName,
       authCodeBody.user,
-      authCodeBody.request
+      authCodeBody.request,
     )
   }
 
@@ -202,9 +202,7 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   />)
 }
 
-export const postAuthorizeAccount = async (
-  c: Context<typeConfig.Context>
-) => {
+export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   const {
     NAMES_IS_REQUIRED: namesIsRequired,
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
@@ -415,7 +413,7 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
     AuthorizeStep.OtpMfa,
     bodyDto.code,
     authCodeStore,
-    bodyDto.locale
+    bodyDto.locale,
   )
 }
 
@@ -442,9 +440,7 @@ export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeMfaReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const {
-    AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,
-  } = env(c)
+  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
   const isValid = await kvService.stampEmailMfaCode(
     c.env.KV,
