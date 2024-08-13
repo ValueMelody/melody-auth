@@ -115,7 +115,7 @@ export const sendEmailMfa = async (
   locale: typeConfig.Locale,
 ) => {
   const {
-    ENABLE_EMAIL_MFA: enableEmailMfa,
+    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     SENDGRID_API_KEY: sendgridApiKey,
     SENDGRID_SENDER_ADDRESS: sendgridSender,
     COMPANY_LOGO_URL: logoUrl,

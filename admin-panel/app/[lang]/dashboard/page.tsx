@@ -154,9 +154,15 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
-            <Table.Cell>ENABLE_EMAIL_MFA</Table.Cell>
+            <Table.Cell>OTP_MFA_IS_REQUIRED</Table.Cell>
             <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_EMAIL_MFA} />
+              <ConfigBooleanValue config={configs.OTP_MFA_IS_REQUIRED} />
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>EMAIL_MFA_IS_REQUIRED</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.EMAIL_MFA_IS_REQUIRED} />
             </Table.Cell>
           </Table.Row>
           <Table.Row>
