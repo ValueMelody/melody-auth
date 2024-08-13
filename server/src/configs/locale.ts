@@ -90,7 +90,7 @@ export const requestError = Object.freeze({
   },
   optMfaLocked: {
     en: 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
-    fr: 'Nombre trop élevé de tentatives échouées de vérification OTP. Veuillez réessayer dans 30 minutes.'
+    fr: 'Nombre trop élevé de tentatives échouées de vérification OTP. Veuillez réessayer dans 30 minutes.',
   },
   emailTaken: {
     en: 'The email address is already in use.',

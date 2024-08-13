@@ -390,7 +390,11 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
   if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
 
   const ip = c.req.header('cf-connecting-ip') as string
-  const failedAttempts = await kvService.getFailedOtpMfaAttemptsByIP(c.env.KV, authCodeStore.user.id, ip)
+  const failedAttempts = await kvService.getFailedOtpMfaAttemptsByIP(
+    c.env.KV,
+    authCodeStore.user.id,
+    ip,
+  )
   if (failedAttempts >= 5) throw new errorConfig.Forbidden(localeConfig.Error.OtpMfaLocked)
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
@@ -404,7 +408,12 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   if (!isValid) {
-    await kvService.setFailedOtpMfaAttempts(c.env.KV, authCodeStore.user.id, ip, failedAttempts + 1)
+    await kvService.setFailedOtpMfaAttempts(
+      c.env.KV,
+      authCodeStore.user.id,
+      ip,
+      failedAttempts + 1,
+    )
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
   }
 
