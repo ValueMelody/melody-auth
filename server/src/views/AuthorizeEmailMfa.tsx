@@ -14,7 +14,7 @@ import SubmitError from 'views/components/SubmitError'
 import Field from 'views/components/Field'
 import SubmitButton from 'views/components/SubmitButton'
 
-const AuthorizeEmailMFA = ({
+const AuthorizeEmailMfa = ({
   queryDto, logoUrl, locales,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
@@ -27,7 +27,7 @@ const AuthorizeEmailMFA = ({
       logoUrl={logoUrl}
       locale={queryDto.locale}
     >
-      <h1 class='w-text text-center'>{localeConfig.authorizeEmailMFA.title[queryDto.locale]}</h1>
+      <h1 class='w-text text-center'>{localeConfig.authorizeEmailMfa.title[queryDto.locale]}</h1>
       <form
         onsubmit='return handleSubmit(event)'
       >
@@ -39,7 +39,7 @@ const AuthorizeEmailMFA = ({
           />
           <SubmitError />
           <SubmitButton
-            title={localeConfig.authorizeEmailMFA.verify[queryDto.locale]}
+            title={localeConfig.authorizeEmailMfa.verify[queryDto.locale]}
           />
         </section>
       </form>
@@ -47,6 +47,7 @@ const AuthorizeEmailMFA = ({
         <script>
           ${resetErrorScript.resetCodeError()}
           function handleSubmit(e) {
+            e.preventDefault();
             ${validateScript.verificationCode(queryDto.locale)}
             fetch('${routeConfig.InternalRoute.Identity}/authorize-email-mfa', {
                 method: 'POST',
@@ -79,4 +80,4 @@ const AuthorizeEmailMFA = ({
   )
 }
 
-export default AuthorizeEmailMFA
+export default AuthorizeEmailMfa

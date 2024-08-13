@@ -61,13 +61,35 @@ identityRoutes.post(
 )
 
 identityRoutes.get(
+  `${BaseRoute}/authorize-otp-setup`,
+  configMiddleware.enableOtpMfa,
+  identityHandler.getAuthorizeOtpSetup,
+)
+
+identityRoutes.get(
+  `${BaseRoute}/authorize-otp-mfa`,
+  configMiddleware.enableOtpMfa,
+  identityHandler.getAuthorizeOtpMfa,
+)
+
+identityRoutes.post(
+  `${BaseRoute}/authorize-otp-mfa`,
+  setupMiddleware.validOrigin,
+  configMiddleware.enableOtpMfa,
+  identityHandler.postAuthorizeOtpMfa,
+)
+
+identityRoutes.get(
   `${BaseRoute}/authorize-email-mfa`,
-  identityHandler.getAuthorizeEmailMFA,
+  configMiddleware.enableEmailMfa,
+  identityHandler.getAuthorizeEmailMfa,
 )
 
 identityRoutes.post(
   `${BaseRoute}/authorize-email-mfa`,
-  identityHandler.postAuthorizeEmailMFA,
+  setupMiddleware.validOrigin,
+  configMiddleware.enableEmailMfa,
+  identityHandler.postAuthorizeEmailMfa,
 )
 
 identityRoutes.post(

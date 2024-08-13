@@ -109,18 +109,18 @@ export const sendPasswordReset = async (
   return res.ok ? resetCode : null
 }
 
-export const sendEmailMFA = async (
+export const sendEmailMfa = async (
   c: Context<typeConfig.Context>,
   user: userModel.Record,
   locale: typeConfig.Locale,
 ) => {
   const {
-    ENABLE_EMAIL_MFA: enableEmailMFA,
+    ENABLE_EMAIL_MFA: enableEmailMfa,
     SENDGRID_API_KEY: sendgridApiKey,
     SENDGRID_SENDER_ADDRESS: sendgridSender,
     COMPANY_LOGO_URL: logoUrl,
   } = env(c)
-  if (!enableEmailMFA || !sendgridApiKey || !sendgridSender || !user.email) return null
+  if (!enableEmailMfa || !sendgridApiKey || !sendgridSender || !user.email) return null
   const mfaCode = genRandomString(8)
   const content = (<EmailMfaTemplate
     mfaCode={mfaCode}

@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.4.0",
+    "base32-decode": "^1.0.0",
+    "base32-encode": "^2.0.0",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.14.1",
     "hono": "^4.4.12",

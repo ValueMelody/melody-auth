@@ -10,6 +10,7 @@ import { timeUtil } from 'utils'
 export const setAuthInfoSession = (
   c: Context<typeConfig.Context>,
   appId: number,
+  appName: string,
   user: userModel.Record,
   request: oauthDto.GetAuthorizeReqDto,
 ) => {
@@ -21,6 +22,7 @@ export const setAuthInfoSession = (
       key,
       {
         appId,
+        appName,
         user,
         request,
         expiresOn: timeUtil.getCurrentTimestamp() + sessionExpiresIn,
@@ -38,6 +40,7 @@ export const getAuthInfoSession = (
     const key = adapterConfig.getAuthInfoSessionKeyByClientId(clientId)
     const stored = session.get(key) as {
       appId: number;
+      appName: string;
       user: userModel.Record;
       request: oauthDto.GetAuthorizeReqDto;
       expiresOn: number;

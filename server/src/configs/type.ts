@@ -29,6 +29,7 @@ export type Bindings = {
   ENABLE_USER_APP_CONSENT: boolean;
   ENABLE_EMAIL_VERIFICATION: boolean;
   ENABLE_EMAIL_MFA: boolean;
+  ENABLE_OTP_MFA: boolean;
   ACCOUNT_LOCKOUT_THRESHOLD: number;
   ACCOUNT_LOCKOUT_EXPIRES_IN: number;
   UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: boolean;
@@ -52,6 +53,7 @@ export interface AuthCodeBody {
   request: oauthDto.GetAuthorizeReqDto;
   user: userModel.Record;
   appId: number;
+  appName: string;
 }
 
 export interface AccessTokenBody {

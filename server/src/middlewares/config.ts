@@ -52,3 +52,27 @@ export const enableEmailVerification = async (
 
   await next()
 }
+
+export const enableEmailMfa = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    ENABLE_EMAIL_MFA: enableEmailMfa,
+    SENDGRID_API_KEY: sendgridApiKey,
+    SENDGRID_SENDER_ADDRESS: sendgridSender,
+  } = env(c)
+
+  if (!enableEmailMfa || !sendgridApiKey || !sendgridSender) throw new errorConfig.Forbidden()
+
+  await next()
+}
+
+export const enableOtpMfa = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_OTP_MFA: enableOtpMfa } = env(c)
+
+  if (!enableOtpMfa) throw new errorConfig.Forbidden()
+
+  await next()
+}

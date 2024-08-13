@@ -1,8 +1,12 @@
 import {
   IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
 } from 'class-validator'
+import { Context } from 'hono'
 import { typeConfig } from 'configs'
 import { oauthDto } from 'dtos'
+import {
+  formatUtil, validateUtil,
+} from 'utils'
 
 export class PostAuthorizeReqWithPasswordDto extends oauthDto.GetAuthorizeReqDto {
   @IsEmail()
@@ -96,6 +100,20 @@ export class GetAuthorizeFollowUpReqDto extends PostAuthorizeConsentReqDto {
     super(dto)
     this.locale = dto.locale
   }
+}
+
+export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new GetAuthorizeFollowUpReqDto({
+    state: c.req.query('state') ?? '',
+    redirectUri: c.req.query('redirect_uri') ?? '',
+    code: c.req.query('code') ?? '',
+    locale: formatUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
+  })
+  await validateUtil.dto(queryDto)
+  return queryDto
 }
 
 export class PostAuthorizeMfaReqDto extends GetAuthorizeFollowUpReqDto {

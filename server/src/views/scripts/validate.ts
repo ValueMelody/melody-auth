@@ -15,6 +15,18 @@ export const verificationCode = (locale: typeConfig.Locale) => html`
   }
 `
 
+export const verificationOtp = (locale: typeConfig.Locale) => html`
+  var msg;
+  var otpVal = document.getElementById('form-otp').value.trim();
+  if (otpVal.length !== 6) msg = "${localeConfig.validateError.otpCodeLengthIssue[locale]}";
+  if (msg) {
+    var errorEl = document.getElementById('error-otp');
+    errorEl.classList.remove('hidden');
+    errorEl.innerHTML = msg;
+    return false;
+  }
+`
+
 export const email = (locale: typeConfig.Locale) => html`
   var msg;
   var emailVal = document.getElementById('form-email').value.trim();

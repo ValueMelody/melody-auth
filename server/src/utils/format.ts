@@ -48,8 +48,11 @@ export const d1CreateQuery = (
   createKeys.forEach((
     key, index,
   ) => {
-    createValues.push(`$${index + 1}`)
-    createBinds.push(createObj[key])
+    const value = createObj[key]
+    if (value !== undefined) {
+      createValues.push(`$${index + 1}`)
+      createBinds.push(createObj[key])
+    }
   })
   const query = `INSERT INTO ${tableName} (${createKeys.join(',')}) values (${createValues.join(',')})`
 
