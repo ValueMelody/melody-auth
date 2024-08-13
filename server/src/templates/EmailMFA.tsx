@@ -3,7 +3,7 @@ import {
 } from 'configs'
 import Layout from 'templates/components/Layout'
 
-const EmailMFA = ({
+const EmailMfa = ({
   logoUrl, mfaCode, locale,
 }: {
   logoUrl: string;
@@ -49,4 +49,4 @@ const EmailMFA = ({
   )
 }
 
-export default EmailMFA
+export default EmailMfa

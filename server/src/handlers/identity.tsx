@@ -16,7 +16,7 @@ import {
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
   VerifyEmailView, AuthorizeEmailMfaView,
-  AuthorizeResetView,
+  AuthorizeResetView, AuthorizeOtpMfaView,
 } from 'views'
 
 export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
@@ -136,7 +136,8 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   const {
     NAMES_IS_REQUIRED: namesIsRequired,
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
-    ENABLE_EMAIL_MFA: enableEmailMFA,
+    ENABLE_EMAIL_MFA: enableEmailMfa,
+    ENABLE_OTP_MFA: enableOtpMfa,
   } = env(c)
 
   const reqBody = await c.req.json()
@@ -183,24 +184,18 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
 
   const authCode = genRandomString(128)
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
   await kvService.storeAuthCode(
     c.env.KV,
     authCode,
     {
       appId: app.id,
+      appName: app.name,
       user,
-      request: new oauthDto.GetAuthorizeReqDto(bodyDto),
+      request,
     },
     codeExpiresIn,
   )
-
-  if (enableEmailMFA) {
-    await kvService.markEmailMfaVerified(
-      c.env.KV,
-      authCode,
-      codeExpiresIn,
-    )
-  }
 
   const requireConsent = await consentService.shouldCollectConsent(
     c,
@@ -208,26 +203,48 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     app.id,
   )
 
+  const requireEmailMfa = enableEmailMfa && !enableOtpMfa
+
+  if (requireEmailMfa) {
+    const mfaCode = await emailService.sendEmailMfa(
+      c,
+      user,
+      bodyDto.locale,
+    )
+    if (mfaCode) {
+      await kvService.storeEmailMfaCode(
+        c.env.KV,
+        authCode,
+        mfaCode,
+        codeExpiresIn,
+      )
+    }
+  }
+
+  if (!requireConsent && !enableOtpMfa && !enableEmailMfa) {
+    sessionService.setAuthInfoSession(
+      c,
+      app.id,
+      app.name,
+      user,
+      request,
+    )
+  }
+
   return c.json({
     code: authCode,
     redirectUri: bodyDto.redirectUri,
     state: bodyDto.state,
     scopes: bodyDto.scopes,
     requireConsent,
+    requireEmailMfa,
+    requireOtpSetup: enableOtpMfa && !user.otpVerified,
+    requireOtpMfa: enableOtpMfa,
   })
 }
 
 export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetAuthorizeFollowUpReqDto({
-    state: c.req.query('state') ?? '',
-    redirectUri: c.req.query('redirect_uri') ?? '',
-    code: c.req.query('code') ?? '',
-    locale: formatUtil.getLocaleFromQuery(
-      c,
-      c.req.query('locale'),
-    ),
-  })
-  await validateUtil.dto(queryDto)
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
 
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,
@@ -279,23 +296,145 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     appId,
   )
 
+  const {
+    ENABLE_EMAIL_MFA: enableEmailMfa,
+    ENABLE_OTP_MFA: enableOtpMfa,
+  } = env(c)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!enableOtpMfa && !enableEmailMfa) {
+    sessionService.setAuthInfoSession(
+      c,
+      authCodeStore.appId,
+      authCodeStore.appName,
+      authCodeStore.user,
+      authCodeStore.request,
+    )
+  }
+
   return c.json({
     code: bodyDto.code,
     redirectUri: bodyDto.redirectUri,
     state: bodyDto.state,
+    requireEmailMfa: enableEmailMfa,
+    requireOtpSetup: enableOtpMfa && !authCodeStore.user.otpVerified,
+    requireOtpMfa: enableOtpMfa,
   })
 }
 
-export const getAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetAuthorizeFollowUpReqDto({
-    state: c.req.query('state') ?? '',
-    redirectUri: c.req.query('redirect_uri') ?? '',
-    code: c.req.query('code') ?? '',
-    locale: formatUtil.getLocaleFromQuery(
+export const getAuthorizeOtpSetup = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+
+  if (authCodeStore.user.otpVerified) throw new errorConfig.Forbidden(localeConfig.Error.OtpAlreadySet)
+
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  const otp = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${authCodeStore.user.otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
+
+  return c.html(<AuthorizeOtpMfaView
+    logoUrl={logoUrl}
+    otp={otp}
+    queryDto={queryDto}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+  />)
+}
+
+export const getAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  return c.html(<AuthorizeOtpMfaView
+    logoUrl={logoUrl}
+    queryDto={queryDto}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+  />)
+}
+
+export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeMfaReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+
+  const isValid = await kvService.stampOtpMfaCode(
+    c.env.KV,
+    bodyDto.code,
+    bodyDto.mfaCode,
+    authCodeStore.user.otpSecret,
+    expiresIn,
+  )
+
+  if (!isValid) throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
+
+  if (!authCodeStore.user.otpVerified) {
+    await userService.markOtpAsVerified(
       c,
-      c.req.query('locale'),
-    ),
+      authCodeStore.user.id,
+    )
+  }
+
+  const { ENABLE_EMAIL_MFA: requireEmailMfa } = env(c)
+  if (requireEmailMfa) {
+    const mfaCode = await emailService.sendEmailMfa(
+      c,
+      authCodeStore.user,
+      bodyDto.locale,
+    )
+    if (mfaCode) {
+      await kvService.storeEmailMfaCode(
+        c.env.KV,
+        bodyDto.code,
+        mfaCode,
+        expiresIn,
+      )
+    }
+  }
+
+  if (!requireEmailMfa) {
+    sessionService.setAuthInfoSession(
+      c,
+      authCodeStore.appId,
+      authCodeStore.appName,
+      authCodeStore.user,
+      authCodeStore.request,
+    )
+  }
+
+  return c.json({
+    code: bodyDto.code,
+    redirectUri: bodyDto.redirectUri,
+    requireEmailMfa,
+    state: bodyDto.state,
   })
+}
+
+export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
   await validateUtil.dto(queryDto)
 
   const {
@@ -311,15 +450,18 @@ export const getAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
   />)
 }
 
-export const postAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
+export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
   const bodyDto = new identityDto.PostAuthorizeMfaReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,
+    SERVER_SESSION_EXPIRES_IN: sessionExpiresIn,
+  } = env(c)
 
-  const isValid = await kvService.verifyEmailMfaCode(
+  const isValid = await kvService.stampEmailMfaCode(
     c.env.KV,
     bodyDto.code,
     bodyDto.mfaCode,
@@ -327,6 +469,20 @@ export const postAuthorizeEmailMFA = async (c: Context<typeConfig.Context>) => {
   )
 
   if (!isValid) throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
+
+  if (sessionExpiresIn) {
+    const authCodeStore = await kvService.getAuthCodeBody(
+      c.env.KV,
+      bodyDto.code,
+    )
+    sessionService.setAuthInfoSession(
+      c,
+      authCodeStore.appId,
+      authCodeStore.appName,
+      authCodeStore.user,
+      authCodeStore.request,
+    )
+  }
 
   return c.json({
     code: bodyDto.code,
@@ -355,18 +511,28 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     bodyDto.redirectUri,
   )
 
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
-  const authCode = genRandomString(128)
   const {
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    ENABLE_EMAIL_MFA: enableEmailMFA,
+    ENABLE_OTP_MFA: enableOtpMfa,
+    ENABLE_EMAIL_MFA: enableEmailMfa,
   } = env(c)
+
+  const updatedUser = enableOtpMfa && !user.otpSecret
+    ? await userService.genUserOtp(
+      c,
+      user.id,
+    )
+    : user
+
+  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const authCode = genRandomString(128)
   await kvService.storeAuthCode(
     c.env.KV,
     authCode,
     {
       appId: app.id,
-      user,
+      appName: app.name,
+      user: updatedUser,
       request,
     },
     codeExpiresIn,
@@ -378,23 +544,16 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     app.id,
   )
 
-  if (!requireConsent) {
-    sessionService.setAuthInfoSession(
-      c,
-      app.id,
-      user,
-      request,
-    )
-  }
+  const requireEmailMfa = enableEmailMfa && !enableOtpMfa
 
-  if (enableEmailMFA) {
-    const mfaCode = await emailService.sendEmailMFA(
+  if (requireEmailMfa) {
+    const mfaCode = await emailService.sendEmailMfa(
       c,
       user,
       bodyDto.locale,
     )
     if (mfaCode) {
-      await kvService.storeEmailMFACode(
+      await kvService.storeEmailMfaCode(
         c.env.KV,
         authCode,
         mfaCode,
@@ -403,13 +562,25 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     }
   }
 
+  if (!requireConsent && !enableOtpMfa && !enableEmailMfa) {
+    sessionService.setAuthInfoSession(
+      c,
+      app.id,
+      app.name,
+      user,
+      request,
+    )
+  }
+
   return c.json({
     code: authCode,
     redirectUri: bodyDto.redirectUri,
     state: bodyDto.state,
     scopes: bodyDto.scopes,
     requireConsent,
-    requireEmailMFA: enableEmailMFA,
+    requireEmailMfa,
+    requireOtpSetup: enableOtpMfa && !user.otpVerified,
+    requireOtpMfa: enableOtpMfa,
   })
 }
 

@@ -18,7 +18,7 @@ const Field = ({
       id={`${name}-row`}
       class={`flex-col gap-2 ${className || ''}`}>
       <label
-        class='label'
+        class='label w-text'
         for='email'
       >
         {label}

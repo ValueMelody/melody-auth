@@ -4,7 +4,7 @@
 
 ## Features Supported
 - OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication)
-- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA, Brute-force Protection, Role-Based Access Control, Localization) [Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)
+- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA, OTP MFA, Brute-force Protection, Role-Based Access Control, Localization) [Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)
 - Admin Panel (Manage Users, Manage Apps, Manage Scopes, Manage Roles) [Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)
 
 ## Why Melody Auth?
@@ -12,7 +12,7 @@
 ### 1. Self-Hosted
 [Server Setup](https://auth.valuemelody.com/auth-server.html)
 - Deploy the entire system within minutes
-- Leverage Cloudflare's infrastructure to minimize DevOps overhead, with the option to run for free.
+- Leverage Cloudflare's infrastructure to minimize DevOps overhead.
 - Full access to the source code
 
 ### 2. Admin Panel

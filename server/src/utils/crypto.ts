@@ -2,7 +2,68 @@ import { genCodeChallenge } from 'shared'
 import {
   genSaltSync, hashSync, compareSync,
 } from 'bcryptjs'
+import base32Encode from 'base32-encode'
+import base32Decode from 'base32-decode'
 import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
+
+const genRandomBytes = (length: number) => {
+  const array = new Uint8Array(length)
+  crypto.getRandomValues(array)
+  return array
+}
+
+export const genOtpSecret = () => {
+  const secret = genRandomBytes(20)
+  const base32Secret = base32Encode(
+    secret,
+    'RFC4648',
+  )
+  return base32Secret
+}
+
+export const genTotp = async (secret: string): Promise<string> => {
+  const decodedSecret = base32Decode(
+    secret,
+    'RFC4648',
+  )
+  const timeStep = Math.floor(Date.now() / 1000 / 30)
+  const timeBuffer = new ArrayBuffer(8)
+  const timeView = new DataView(timeBuffer)
+  timeView.setUint32(
+    4,
+    timeStep,
+  )
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    decodedSecret,
+    {
+      name: 'HMAC', hash: 'SHA-1',
+    },
+    false,
+    ['sign'],
+  )
+
+  const hash = await crypto.subtle.sign(
+    'HMAC',
+    cryptoKey,
+    timeBuffer,
+  )
+
+  const hashArray = new Uint8Array(hash)
+  const offset = hashArray[hashArray.length - 1] & 0xf
+
+  const otp = ((
+    (hashArray[offset] & 0x7f) << 24 |
+    (hashArray[offset + 1] & 0xff) << 16 |
+    (hashArray[offset + 2] & 0xff) << 8 |
+    (hashArray[offset + 3] & 0xff)
+  ) % 1e6).toString().padStart(
+    6,
+    '0',
+  )
+  return otp
+}
 
 export const sha256 = async (text: string): Promise<string> => {
   const content = new TextEncoder().encode(text)

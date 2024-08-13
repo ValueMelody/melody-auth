@@ -19,7 +19,15 @@ export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
     queryString += "&redirect_uri=" + data.redirectUri;
     var url = "${routeConfig.InternalRoute.Identity}/authorize-consent" + queryString
     window.location.href = url;
-  } else if (data.requireEmailMFA) {
+  } else if (data.requireOtpSetup) {
+    queryString += "&redirect_uri=" + data.redirectUri;
+    var url = "${routeConfig.InternalRoute.Identity}/authorize-otp-setup" + queryString
+    window.location.href = url;
+  } else if (data.requireOtpMfa) {
+    queryString += "&redirect_uri=" + data.redirectUri;
+    var url = "${routeConfig.InternalRoute.Identity}/authorize-otp-mfa" + queryString
+    window.location.href = url;
+  } else if (data.requireEmailMfa) {
     queryString += "&redirect_uri=" + data.redirectUri;
     var url = "${routeConfig.InternalRoute.Identity}/authorize-email-mfa" + queryString
     window.location.href = url;

@@ -17,6 +17,8 @@ export interface Common {
   firstName: string | null;
   lastName: string | null;
   loginCount: number;
+  otpSecret: string;
+  mfaType: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -24,11 +26,13 @@ export interface Common {
 
 export interface Raw extends Common {
   emailVerified: number;
+  otpVerified: number;
   isActive: number;
 }
 
 export interface Record extends Common {
   emailVerified: boolean;
+  otpVerified: boolean;
   isActive: boolean;
 }
 
@@ -61,12 +65,15 @@ export interface Create {
   locale: typeConfig.Locale;
   email: string | null;
   password: string | null;
+  otpSecret?: string;
   firstName: string | null;
   lastName: string | null;
 }
 
 export interface Update {
   password?: string | null;
+  otpSecret?: string;
+  mfaType?: string;
   firstName?: string | null;
   lastName?: string | null;
   locale?: string;
@@ -75,6 +82,7 @@ export interface Update {
   updatedAt?: string | null;
   isActive?: number;
   emailVerified?: number;
+  otpVerified?: number;
 }
 
 const TableName = adapterConfig.TableName.User
@@ -82,6 +90,7 @@ const TableName = adapterConfig.TableName.User
 export const convertToRecord = (raw: Raw): Record => ({
   ...raw,
   emailVerified: !!raw.emailVerified,
+  otpVerified: !!raw.otpVerified,
   isActive: !!raw.isActive,
 })
 
@@ -177,7 +186,7 @@ export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
   const createKeys: (keyof Create)[] = [
-    'authId', 'email', 'password', 'firstName', 'lastName', 'locale',
+    'authId', 'email', 'password', 'firstName', 'lastName', 'locale', 'otpSecret',
   ]
   const stmt = formatUtil.d1CreateQuery(
     db,
@@ -209,7 +218,7 @@ export const update = async (
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
-    'emailVerified', 'loginCount', 'locale',
+    'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaType', 'otpVerified',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,

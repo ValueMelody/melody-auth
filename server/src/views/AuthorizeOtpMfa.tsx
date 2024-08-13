@@ -10,16 +10,17 @@ import {
   validateScript,
   resetErrorScript,
 } from 'views/scripts'
-import SubmitError from 'views/components/SubmitError'
 import Field from 'views/components/Field'
+import SubmitError from 'views/components/SubmitError'
 import SubmitButton from 'views/components/SubmitButton'
 
-const AuthorizeEmailMfa = ({
-  queryDto, logoUrl, locales,
+const AuthorizeOtpMfa = ({
+  queryDto, logoUrl, locales, otp,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   locales: typeConfig.Locale[];
+  otp?: string;
 }) => {
   return (
     <Layout
@@ -27,7 +28,13 @@ const AuthorizeEmailMfa = ({
       logoUrl={logoUrl}
       locale={queryDto.locale}
     >
-      <h1 class='w-text text-center'>{localeConfig.authorizeEmailMfa.title[queryDto.locale]}</h1>
+      {otp && (
+        <>
+          <script src='https://unpkg.com/qrcode@1.4.1/build/qrcode.js'></script>
+          <h1 class='w-text text-center'>{localeConfig.authorizeOtpMfa.setup[queryDto.locale]}</h1>
+          <canvas id='qr-code' />
+        </>
+      )}
       <form
         onsubmit='return handleSubmit(event)'
       >
@@ -35,21 +42,24 @@ const AuthorizeEmailMfa = ({
           <Field
             type='text'
             required={false}
-            name='code'
+            label={localeConfig.authorizeOtpMfa.code[queryDto.locale]}
+            name='otp'
           />
           <SubmitError />
           <SubmitButton
-            title={localeConfig.authorizeEmailMfa.verify[queryDto.locale]}
+            title={localeConfig.authorizeOtpMfa.verify[queryDto.locale]}
           />
         </section>
       </form>
       {html`
         <script>
-          ${resetErrorScript.resetCodeError()}
+          var qrCodeEl = document.getElementById('qr-code')
+          if (qrCodeEl) QRCode.toCanvas(document.getElementById('qr-code'), "${otp}")
+          ${resetErrorScript.resetOtpError()}
           function handleSubmit(e) {
             e.preventDefault();
-            ${validateScript.verificationCode(queryDto.locale)}
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-email-mfa', {
+            ${validateScript.verificationOtp(queryDto.locale)}
+            fetch('${routeConfig.InternalRoute.Identity}/authorize-otp-mfa', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',
@@ -60,7 +70,7 @@ const AuthorizeEmailMfa = ({
                   code: "${queryDto.code}",
                   locale: "${queryDto.locale}",
                   redirectUri: "${queryDto.redirectUri}",
-                  mfaCode: document.getElementById('form-code').value,
+                  mfaCode: document.getElementById('form-otp').value,
                 })
             })
             .then((response) => {
@@ -80,4 +90,4 @@ const AuthorizeEmailMfa = ({
   )
 }
 
-export default AuthorizeEmailMfa
+export default AuthorizeOtpMfa

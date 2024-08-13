@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- A Cloudflare account (Free plan supported)
+- A Cloudflare account
 - Node.js and npm installed on your local machine
 
 ## Installation and Setup
@@ -182,6 +182,10 @@ npm run prod:deploy
 ### ENABLE_EMAIL_VERIFICATION
 - **Default:** true
 - **Description:** If set to true, users will receive an email to verify their email address after signing up. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+
+### ENABLE_OTP_MFA
+- **Default:** true
+- **Description:** Enables OTP-based multi-factor authentication (MFA) for user sign-in. When set to true, users are required to configure OTP using an app like Google Authenticator during the sign-in process.
 
 ### ENABLE_EMAIL_MFA
 - **Default:** false

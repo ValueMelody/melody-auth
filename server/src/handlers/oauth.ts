@@ -24,22 +24,38 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   )
   if (stored && stored.request.clientId === queryDto.clientId) {
     const authCode = genRandomString(128)
-    const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+    const {
+      AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+      ENABLE_EMAIL_MFA: enableEmailMfa,
+      ENABLE_OTP_MFA: enableOtpMfa,
+    } = env(c)
     await kvService.storeAuthCode(
       c.env.KV,
       authCode,
       {
         appId: stored.appId,
+        appName: stored.appName,
         user: stored.user,
         request: queryDto,
       },
       codeExpiresIn,
     )
-    await kvService.markEmailMfaVerified(
-      c.env.KV,
-      authCode,
-      codeExpiresIn,
-    )
+
+    if (enableOtpMfa) {
+      await kvService.markOtpMfaVerified(
+        c.env.KV,
+        authCode,
+        codeExpiresIn,
+      )
+    }
+
+    if (enableEmailMfa) {
+      await kvService.markEmailMfaVerified(
+        c.env.KV,
+        authCode,
+        codeExpiresIn,
+      )
+    }
 
     const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
     return c.redirect(url)
@@ -73,9 +89,20 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
   }
 
-  const { ENABLE_EMAIL_MFA: requireEmailMFA } = env(c)
+  const {
+    ENABLE_EMAIL_MFA: requireEmailMfa,
+    ENABLE_OTP_MFA: requireOtpMfa,
+  } = env(c)
 
-  if (requireEmailMFA) {
+  if (requireOtpMfa) {
+    const isVerified = await kvService.optMfaCodeVerified(
+      c.env.KV,
+      bodyDto.code,
+    )
+    if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+  }
+
+  if (requireEmailMfa) {
     const isVerified = await kvService.emailMfaCodeVerified(
       c.env.KV,
       bodyDto.code,

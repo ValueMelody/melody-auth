@@ -3,6 +3,11 @@ import { html } from 'hono/html'
 const resetSubmitError = () => html`
   var submitBtn = document.getElementById('submit-button');
   if (submitBtn) submitBtn.disabled = false;
+  var errorEl = document.getElementById('submit-error');
+  if (errorEl) {
+    errorEl.classList.add('hidden');
+    errorEl.innerHTML = '';
+  }
 `
 
 export const resetCodeError = () => html`
@@ -11,6 +16,16 @@ export const resetCodeError = () => html`
     codeEl.addEventListener('input', function () {
       ${resetSubmitError()}
       document.getElementById('error-code').classList.add('hidden');
+    });
+  }
+`
+
+export const resetOtpError = () => html`
+  var otpEl = document.getElementById('form-otp')
+  if (otpEl) {
+    otpEl.addEventListener('input', function () {
+      ${resetSubmitError()}
+      document.getElementById('error-otp').classList.add('hidden');
     });
   }
 `

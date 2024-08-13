@@ -183,6 +183,8 @@ export const createAccountWithPassword = async (
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
+  const { ENABLE_OTP_MFA: enableOtp } = env(c)
+  const otpSecret = enableOtp ? await cryptoUtil.genOtpSecret() : undefined
   const newUser = await userModel.create(
     c.env.DB,
     {
@@ -190,6 +192,7 @@ export const createAccountWithPassword = async (
       email: bodyDto.email,
       password,
       locale: bodyDto.locale,
+      otpSecret,
       firstName: bodyDto.firstName,
       lastName: bodyDto.lastName,
     },
@@ -300,6 +303,30 @@ export const increaseLoginCount = async (
     userId,
   )
   return true
+}
+
+export const genUserOtp = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+): Promise<userModel.Record> => {
+  const otpSecret = cryptoUtil.genOtpSecret()
+  const user = await userModel.update(
+    c.env.DB,
+    userId,
+    { otpSecret },
+  )
+  return user
+}
+
+export const markOtpAsVerified = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+): Promise<void> => {
+  await userModel.update(
+    c.env.DB,
+    userId,
+    { otpVerified: 1 },
+  )
 }
 
 export const updateUser = async (

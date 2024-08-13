@@ -2,7 +2,8 @@ import AuthorizeAccountView from 'views/AuthorizeAccount'
 import AuthorizeConsentView from 'views/AuthorizeConsent'
 import AuthorizePasswordView from 'views/AuthorizePassword'
 import AuthorizeResetView from 'views/AuthorizeReset'
-import AuthorizeEmailMfaView from 'views/AuthorizeEmailMFA'
+import AuthorizeEmailMfaView from 'views/AuthorizeEmailMfa'
+import AuthorizeOtpMfaView from 'views/AuthorizeOtpMfa'
 import VerifyEmailView from 'views/VerifyEmail'
 
 export {
@@ -12,4 +13,5 @@ export {
   AuthorizeResetView,
   VerifyEmailView,
   AuthorizeEmailMfaView,
+  AuthorizeOtpMfaView,
 }
