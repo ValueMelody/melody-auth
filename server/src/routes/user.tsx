@@ -296,3 +296,27 @@ userRoutes.delete(
   authMiddleware.s2sWriteUser,
   userHandler.deleteUserAppConsent,
 )
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/otp-mfa:
+ *   delete:
+ *     summary: Remove user's current authenticator MFA setup.
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/otp-mfa`,
+  authMiddleware.s2sWriteUser,
+  userHandler.deleteUserOtpMfa,
+)

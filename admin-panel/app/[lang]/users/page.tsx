@@ -9,7 +9,6 @@ import {
   useEffect, useMemo, useState,
 } from 'react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
-import UserEmailVerified from 'components/UserEmailVerified'
 import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
@@ -68,11 +67,10 @@ const Page = () => {
       <Table>
         <Table.Head>
           <Table.HeadCell>{t('users.authId')}</Table.HeadCell>
-          <Table.HeadCell>{t('users.email')}</Table.HeadCell>
+          <Table.HeadCell>
+            {t('users.email')}
+          </Table.HeadCell>
           <Table.HeadCell>{t('users.status')}</Table.HeadCell>
-          {configs.ENABLE_EMAIL_VERIFICATION && (
-            <Table.HeadCell>{t('users.emailVerified')}</Table.HeadCell>
-          )}
           {configs.ENABLE_NAMES && (
             <Table.HeadCell>{t('users.name')}</Table.HeadCell>
           )}
@@ -91,11 +89,6 @@ const Page = () => {
               <Table.Cell>
                 <EntityStatusLabel isEnabled={user.isActive} />
               </Table.Cell>
-              {configs.ENABLE_EMAIL_VERIFICATION && (
-                <Table.Cell>
-                  <UserEmailVerified user={user} />
-                </Table.Cell>
-              )}
               {configs.ENABLE_NAMES && (
                 <Table.Cell>
                   {`${user.firstName ?? ''} ${user.lastName ?? ''}`}

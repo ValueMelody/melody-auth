@@ -3,6 +3,7 @@
 import { useAuth } from '@melody-auth/react'
 import {
   Badge, Button, Card, Checkbox, Label, Select, Table,
+  TableCell,
   TextInput,
   ToggleSwitch,
 } from 'flowbite-react'
@@ -171,9 +172,19 @@ const Page = () => {
       endpoint: `/api/users/${authId}`,
       method: 'POST',
       token,
-      body: { action: 'verify-email' },
     })
     if (result) setEmailResent(true)
+  }
+
+  const handleResetOtpMfa = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}/otp-mfa`,
+      method: 'DELETE',
+      token,
+      body: { action: 'otp-mfa' },
+    })
+    if (result) getUser()
   }
 
   const handleToggleUserRole = (role: string) => {
@@ -228,7 +239,53 @@ const Page = () => {
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.email')}</Table.Cell>
-              <Table.Cell>{user.email}</Table.Cell>
+              <Table.Cell>
+                <div className='flex items-center gap-4'>
+                  <p>{user.email}</p>
+                  {configs.ENABLE_EMAIL_VERIFICATION && (
+                    <UserEmailVerified user={user} />
+                  )}
+                  {configs.EMAIL_MFA_IS_REQUIRED && (
+                    <Badge color='gray'>{t('users.emailMfaEnrolled')}</Badge>
+                  )}
+                </div>
+              </Table.Cell>
+              <Table.Cell>
+                {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && !emailResent && (
+                  <Button
+                    size='xs'
+                    onClick={handleResendVerifyEmail}>
+                    {t('users.resend')}
+                  </Button>
+                )}
+                {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && emailResent && (
+                  <div className='flex'>
+                    <Badge>{t('users.sent')}</Badge>
+                  </div>
+                )}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell>{t('users.authenticator')}</Table.Cell>
+              <TableCell>
+                <div className='flex'>
+                  {configs.OTP_MFA_IS_REQUIRED && !user.otpVerified && (
+                    <Badge color='gray'>{t('users.otpMfaEnrolled')}</Badge>
+                  )}
+                  {configs.OTP_MFA_IS_REQUIRED && user.otpVerified && (
+                    <Badge color='success'>{t('users.otpMfaVerified')}</Badge>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
+                {user.otpVerified && user.isActive && (
+                  <Button
+                    size='xs'
+                    onClick={handleResetOtpMfa}>
+                    {t('users.reset')}
+                  </Button>
+                )}
+              </TableCell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.locale')}</Table.Cell>
@@ -266,28 +323,6 @@ const Page = () => {
                 )}
               </Table.Cell>
             </Table.Row>
-            {configs.ENABLE_EMAIL_VERIFICATION && (
-              <Table.Row>
-                <Table.Cell>{t('users.emailVerified')}</Table.Cell>
-                <Table.Cell>
-                  <UserEmailVerified user={user} />
-                </Table.Cell>
-                <Table.Cell>
-                  {user.isActive && !user.emailVerified && !emailResent && (
-                    <Button
-                      size='xs'
-                      onClick={handleResendVerifyEmail}>
-                      {t('users.resend')}
-                    </Button>
-                  )}
-                  {user.isActive && !user.emailVerified && emailResent && (
-                    <div className='flex'>
-                      <Badge>{t('users.sent')}</Badge>
-                    </div>
-                  )}
-                </Table.Cell>
-              </Table.Row>
-            )}
             {enableAccountLock && (
               <Table.Row>
                 <Table.Cell>{t('users.lockedIPs')}</Table.Cell>

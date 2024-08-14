@@ -80,6 +80,17 @@ export const deleteUserLockedIPs = async (c: Context<typeConfig.Context>) => {
   return c.body(null)
 }
 
+export const deleteUserOtpMfa = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  await userService.resetUserOtpMfa(
+    c,
+    authId,
+  )
+  c.status(204)
+  return c.body(null)
+}
+
 export const deleteUserAppConsent = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const appId = c.req.param('appId')

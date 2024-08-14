@@ -1,20 +1,18 @@
-import {
-  CheckIcon, XMarkIcon,
-} from '@heroicons/react/16/solid'
+import { Badge } from 'flowbite-react'
+import { useTranslations } from 'next-intl'
 
 const UserEmailVerified = ({ user }) => {
+  const t = useTranslations()
   return user.emailVerified
     ? (
-      <CheckIcon
-        className='w-4 h-4'
-        color='green'
-      />
+      <Badge color='success'>
+        {t('users.emailVerified')}
+      </Badge>
     )
     : (
-      <XMarkIcon
-        className='w-4 h-4'
-        color='red'
-      />
+      <Badge color='failure'>
+        {t('users.emailNotVerified')}
+      </Badge>
     )
 }
 
