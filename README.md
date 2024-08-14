@@ -5,7 +5,7 @@
 ## Features Supported
 - OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication)
 - User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA, OTP MFA, Brute-force Protection, Role-Based Access Control, Localization) [Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)
-- Admin Panel (Manage Users, Manage Apps, Manage Scopes, Manage Roles) [Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)
+- S2S REST API & Admin Panel (Manage Users, Manage Apps, Manage Scopes, Manage Roles) [Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)
 
 ## Why Melody Auth?
 
@@ -26,7 +26,7 @@
 - Implements Proof Key for Code Exchange (PKCE) for enhanced security
 
 ### 4. Server-to-Server REST API
-[Rest API Swagger](https://auth-server.valuemelody.com/api/v1/swagger)
+[REST API Swagger](https://auth-server.valuemelody.com/api/v1/swagger)
 - Secure communication channel for backend services using client credentials token exchange flow
 - Provides functionalities for managing apps, users, scopes, and roles with scope protection
 

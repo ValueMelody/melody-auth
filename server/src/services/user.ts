@@ -294,6 +294,37 @@ export const resetUserPassword = async (
   return true
 }
 
+export const resetUserOtpMfa = async (
+  c: Context<typeConfig.Context>,
+  authId: string,
+): Promise<true> => {
+  const user = await userModel.getByAuthId(
+    c.env.DB,
+    authId,
+  )
+  if (!user) {
+    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+  }
+
+  if (!user.isActive) {
+    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  }
+
+  if (!user.mfaType && !user.otpVerified && !user.otpSecret) return true
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    {
+      mfaType: '',
+      otpVerified: 0,
+      otpSecret: '',
+    },
+  )
+
+  return true
+}
+
 export const increaseLoginCount = async (
   c: Context<typeConfig.Context>,
   userId: number,
