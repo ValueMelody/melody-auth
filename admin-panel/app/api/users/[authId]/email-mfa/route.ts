@@ -11,7 +11,7 @@ export async function POST (
 
   return sendS2SRequest({
     method: 'POST',
-    uri: `/api/v1/users/${authId}/otp-mfa`,
+    uri: `/api/v1/users/${authId}/email-mfa`,
   })
 }
 
@@ -22,6 +22,6 @@ export async function DELETE (
 
   return sendS2SRequest({
     method: 'DELETE',
-    uri: `/api/v1/users/${authId}/otp-mfa`,
+    uri: `/api/v1/users/${authId}/email-mfa`,
   })
 }

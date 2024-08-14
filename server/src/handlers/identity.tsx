@@ -19,6 +19,7 @@ import {
   AuthorizeResetView, AuthorizeOtpMfaView,
 } from 'views'
 import { AuthCodeBody } from 'configs/type'
+import { userModel } from 'models'
 
 enum AuthorizeStep {
   Account = 0,
@@ -47,10 +48,10 @@ const handlePostAuthorize = async (
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
   } = env(c)
 
-  const requireOtpMfa = step < 2 && enableOtpMfa
+  const requireOtpMfa = step < 2 && (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
 
-  const requireEmailMfa = step < 3 && enableEmailMfa
+  const requireEmailMfa = step < 3 && (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
   if (requireEmailMfa && !requireConsent && !requireOtpMfa) {
     const mfaCode = await emailService.sendEmailMfa(
       c,
@@ -505,7 +506,8 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
   } = env(c)
 
-  const updatedUser = enableOtpMfa && !user.otpSecret
+  const requireMfa = enableOtpMfa || user.mfaTypes.includes(userModel.MfaType.Otp)
+  const updatedUser = requireMfa && !user.otpSecret
     ? await userService.genUserOtp(
       c,
       user.id,

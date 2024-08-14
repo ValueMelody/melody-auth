@@ -136,9 +136,13 @@ export const sendS2SRequest = async ({
     },
   )
   if (res.ok) {
-    if (method === 'DELETE') return NextResponse.json({ success: true })
-    const data = await res.json()
-    return NextResponse.json(data)
+    const contentType = res.headers.get('Content-Type')
+    if (contentType && contentType.includes('application/json')) {
+      const data = await res.json()
+      return NextResponse.json(data)
+    } else {
+      return NextResponse.json({ success: true })
+    }
   } else {
     const error = await res.text()
     return throwForbiddenError(error)
