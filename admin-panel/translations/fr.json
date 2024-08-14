@@ -67,6 +67,7 @@
     "otpMfaEnrolled": "MFA par authentificateur activé",
     "otpMfaVerified": "MFA par authentificateur vérifié",
     "resetMfa": "Réinitialiser MFA",
+    "enrollMfa": "Inscrire MFA",
     "authenticator": "Authentificateur",
     "firstName": "Prénom",
     "lastName": "Nom",
