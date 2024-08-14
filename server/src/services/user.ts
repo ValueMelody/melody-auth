@@ -294,9 +294,49 @@ export const resetUserPassword = async (
   return true
 }
 
-export const resetUserOtpMfa = async (
+export const enrollUserMfa = async (
   c: Context<typeConfig.Context>,
   authId: string,
+  mfaType: userModel.MfaType
+): Promise<true> => {
+  const {
+    OTP_MFA_IS_REQUIRED: otpMfaRequired,
+    EMAIL_MFA_IS_REQUIRED: emailMfaRequired,
+  } = env(c)
+  if (mfaType === userModel.MfaType.Otp && otpMfaRequired) return true
+  if (mfaType === userModel.MfaType.Email && emailMfaRequired) return true
+
+  const user = await userModel.getByAuthId(
+    c.env.DB,
+    authId,
+  )
+  if (!user) {
+    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+  }
+
+  if (!user.isActive) {
+    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  }
+
+  if (user.mfaTypes.includes(mfaType)) return true
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    {
+      mfaTypes: [...user.mfaTypes, mfaType].join(','),
+      otpVerified: 0,
+      otpSecret: '',
+    },
+  )
+
+  return true
+}
+
+export const resetUserMfa = async (
+  c: Context<typeConfig.Context>,
+  authId: string,
+  mfaType: userModel.MfaType,
 ): Promise<true> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
@@ -310,13 +350,18 @@ export const resetUserOtpMfa = async (
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
-  if (!user.mfaType && !user.otpVerified && !user.otpSecret) return true
+  if (
+    mfaType === userModel.MfaType.Otp &&
+    !user.mfaTypes.includes(userModel.MfaType.Otp) &&
+    !user.otpVerified && !user.otpSecret
+  ) return true
+  if (mfaType === userModel.MfaType.Email && !user.mfaTypes.includes(userModel.MfaType.Email)) return true
 
   await userModel.update(
     c.env.DB,
     user.id,
     {
-      mfaType: '',
+      mfaTypes: user.mfaTypes.filter((type) => type !== mfaType).join(','),
       otpVerified: 0,
       otpSecret: '',
     },

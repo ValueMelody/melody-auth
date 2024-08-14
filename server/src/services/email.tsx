@@ -115,12 +115,11 @@ export const sendEmailMfa = async (
   locale: typeConfig.Locale,
 ) => {
   const {
-    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     SENDGRID_API_KEY: sendgridApiKey,
     SENDGRID_SENDER_ADDRESS: sendgridSender,
     COMPANY_LOGO_URL: logoUrl,
   } = env(c)
-  if (!enableEmailMfa || !sendgridApiKey || !sendgridSender || !user.email) return null
+  if (!sendgridApiKey || !sendgridSender || !user.email) return null
   const mfaCode = genRandomString(8)
   const content = (<EmailMfaTemplate
     mfaCode={mfaCode}

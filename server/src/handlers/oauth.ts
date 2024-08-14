@@ -14,6 +14,7 @@ import {
 import {
   cryptoUtil, formatUtil, timeUtil, validateUtil,
 } from 'utils'
+import { userModel } from 'models'
 
 export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   const queryDto = await scopeService.parseGetAuthorizeDto(c)
@@ -94,7 +95,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
   } = env(c)
 
-  if (requireOtpMfa) {
+  if (requireOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
     const isVerified = await kvService.optMfaCodeVerified(
       c.env.KV,
       bodyDto.code,
@@ -102,7 +103,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
   }
 
-  if (requireEmailMfa) {
+  if (requireEmailMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Email)) {
     const isVerified = await kvService.emailMfaCodeVerified(
       c.env.KV,
       bodyDto.code,

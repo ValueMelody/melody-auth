@@ -299,6 +299,78 @@ userRoutes.delete(
 
 /**
  * @swagger
+ * /api/v1/users/{authId}/email-mfa:
+ *   post:
+ *     summary: enroll user for email MFA.
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.post(
+  `${BaseRoute}/:authId/email-mfa`,
+  authMiddleware.s2sWriteUser,
+  userHandler.postUserEmailMfa,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/email-mfa:
+ *   delete:
+ *     summary: Unenroll user from email MFA.
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/email-mfa`,
+  authMiddleware.s2sWriteUser,
+  userHandler.deleteUserEmailMfa,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/otp-mfa:
+ *   post:
+ *     summary: enroll user for authenticator MFA.
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.post(
+  `${BaseRoute}/:authId/otp-mfa`,
+  authMiddleware.s2sWriteUser,
+  userHandler.postUserOtpMfa,
+)
+
+/**
+ * @swagger
  * /api/v1/users/{authId}/otp-mfa:
  *   delete:
  *     summary: Remove user's current authenticator MFA setup.

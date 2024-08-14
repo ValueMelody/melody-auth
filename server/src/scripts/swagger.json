@@ -1275,7 +1275,78 @@
         }
       }
     },
+    "/api/v1/users/{authId}/email-mfa": {
+      "post": {
+        "summary": "enroll user for email MFA.",
+        "description": "Required scope - write_user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "authId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The authId of the user"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Unenroll user from email MFA.",
+        "description": "Required scope - write_user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "authId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The authId of the user"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
+      }
+    },
     "/api/v1/users/{authId}/otp-mfa": {
+      "post": {
+        "summary": "enroll user for authenticator MFA.",
+        "description": "Required scope - write_user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "authId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The authId of the user"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
+      },
       "delete": {
         "summary": "Remove user's current authenticator MFA setup.",
         "description": "Required scope - write_user",

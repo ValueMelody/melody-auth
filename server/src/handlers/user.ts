@@ -9,6 +9,7 @@ import {
 import { userDto } from 'dtos'
 import { validateUtil } from 'utils'
 import { PaginationDto } from 'dtos/common'
+import { userModel } from 'models'
 
 export const getUsers = async (c: Context<typeConfig.Context>) => {
   const {
@@ -80,12 +81,49 @@ export const deleteUserLockedIPs = async (c: Context<typeConfig.Context>) => {
   return c.body(null)
 }
 
+export const postUserEmailMfa = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  await userService.enrollUserMfa(
+    c,
+    authId,
+    userModel.MfaType.Email
+  )
+  c.status(204)
+  return c.body(null)
+}
+
+export const postUserOtpMfa = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  await userService.enrollUserMfa(
+    c,
+    authId,
+    userModel.MfaType.Otp
+  )
+  c.status(204)
+  return c.body(null)
+}
+
+export const deleteUserEmailMfa = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  await userService.resetUserMfa(
+    c,
+    authId,
+    userModel.MfaType.Email
+  )
+  c.status(204)
+  return c.body(null)
+}
+
 export const deleteUserOtpMfa = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
 
-  await userService.resetUserOtpMfa(
+  await userService.resetUserMfa(
     c,
     authId,
+    userModel.MfaType.Otp
   )
   c.status(204)
   return c.body(null)

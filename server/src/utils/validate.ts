@@ -16,6 +16,7 @@ export const d1Run = async (stmt: D1PreparedStatement) => {
     const res = await stmt.run()
     return res
   } catch (e) {
+    console.error(e)
     const msg = String(e).includes('UNIQUE constraint failed') ? localeConfig.Error.UniqueKey : undefined
     throw new errorConfig.InternalServerError(msg)
   }

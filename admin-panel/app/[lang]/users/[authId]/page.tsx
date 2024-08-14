@@ -53,6 +53,9 @@ const Page = () => {
   const enableConsent = configs.ENABLE_USER_APP_CONSENT
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
 
+  const isEmailEnrolled = configs.EMAIL_MFA_IS_REQUIRED || user?.mfaTypes.includes('email')
+  const isOtpEnrolled = configs.OTP_MFA_IS_REQUIRED || user?.mfaTypes.includes('otp')
+
   const updateObj = useMemo(
     () => {
       if (!user) return {}
@@ -182,7 +185,36 @@ const Page = () => {
       endpoint: `/api/users/${authId}/otp-mfa`,
       method: 'DELETE',
       token,
-      body: { action: 'otp-mfa' },
+    })
+    if (result) getUser()
+  }
+
+  const handleResetEmailMfa = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}/email-mfa`,
+      method: 'DELETE',
+      token,
+    })
+    if (result) getUser()
+  }
+
+  const handleEnrollOtpMfa = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}/otp-mfa`,
+      method: 'POST',
+      token,
+    })
+    if (result) getUser()
+  }
+
+  const handleEnrollEmailMfa = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}/email-mfa`,
+      method: 'POST',
+      token,
     })
     if (result) getUser()
   }
@@ -245,44 +277,68 @@ const Page = () => {
                   {configs.ENABLE_EMAIL_VERIFICATION && (
                     <UserEmailVerified user={user} />
                   )}
-                  {configs.EMAIL_MFA_IS_REQUIRED && (
+                  {isEmailEnrolled && (
                     <Badge color='gray'>{t('users.emailMfaEnrolled')}</Badge>
                   )}
                 </div>
               </Table.Cell>
               <Table.Cell>
-                {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && !emailResent && (
-                  <Button
-                    size='xs'
-                    onClick={handleResendVerifyEmail}>
-                    {t('users.resend')}
-                  </Button>
-                )}
-                {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && emailResent && (
-                  <div className='flex'>
-                    <Badge>{t('users.sent')}</Badge>
-                  </div>
-                )}
+                <div className='flex items-center gap-4'>
+                  {user.isActive && !isEmailEnrolled && (
+                    <Button
+                      size='xs'
+                      onClick={handleEnrollEmailMfa}>
+                      {t('users.enrollMfa')}
+                    </Button>
+                  )}
+                  {user.isActive && isEmailEnrolled && !configs.EMAIL_MFA_IS_REQUIRED && (
+                    <Button
+                      size='xs'
+                      onClick={handleResetEmailMfa}>
+                      {t('users.resetMfa')}
+                    </Button>
+                  )}
+                  {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && !emailResent && (
+                    <Button
+                      size='xs'
+                      onClick={handleResendVerifyEmail}>
+                      {t('users.resend')}
+                    </Button>
+                  )}
+                  {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && emailResent && (
+                    <div className='flex'>
+                      <Badge>{t('users.sent')}</Badge>
+                    </div>
+                  )}
+                </div>
               </Table.Cell>
             </Table.Row>
             <Table.Row>
               <Table.Cell>{t('users.authenticator')}</Table.Cell>
               <TableCell>
                 <div className='flex'>
-                  {configs.OTP_MFA_IS_REQUIRED && !user.otpVerified && (
+                  {isOtpEnrolled && (
                     <Badge color='gray'>{t('users.otpMfaEnrolled')}</Badge>
                   )}
-                  {configs.OTP_MFA_IS_REQUIRED && user.otpVerified && (
+                  {isOtpEnrolled && user.otpVerified && (
                     <Badge color='success'>{t('users.otpMfaVerified')}</Badge>
                   )}
                 </div>
               </TableCell>
               <TableCell>
-                {user.otpVerified && user.isActive && (
+                {(user.otpVerified || user.mfaTypes.includes('otp')) && user.isActive && (
                   <Button
                     size='xs'
-                    onClick={handleResetOtpMfa}>
-                    {t('users.reset')}
+                    onClick={handleResetOtpMfa}
+                  >
+                    {t('users.resetMfa')}
+                  </Button>
+                )}
+                {user.isActive && !isOtpEnrolled && (
+                  <Button
+                    size='xs'
+                    onClick={handleEnrollOtpMfa}>
+                    {t('users.enrollMfa')}
                   </Button>
                 )}
               </TableCell>

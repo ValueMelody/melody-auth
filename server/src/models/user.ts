@@ -8,6 +8,11 @@ import {
   validateUtil,
 } from 'utils'
 
+export enum MfaType {
+  Otp = 'otp',
+  Email = 'email',
+}
+
 export interface Common {
   id: number;
   authId: string;
@@ -18,7 +23,6 @@ export interface Common {
   lastName: string | null;
   loginCount: number;
   otpSecret: string;
-  mfaType: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -28,12 +32,14 @@ export interface Raw extends Common {
   emailVerified: number;
   otpVerified: number;
   isActive: number;
+  mfaTypes: string;
 }
 
 export interface Record extends Common {
   emailVerified: boolean;
   otpVerified: boolean;
   isActive: boolean;
+  mfaTypes: string[];
 }
 
 export interface ApiRecord {
@@ -46,6 +52,7 @@ export interface ApiRecord {
   emailVerified: boolean;
   otpVerified: boolean;
   loginCount: number;
+  mfaTypes: string[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -74,7 +81,7 @@ export interface Create {
 export interface Update {
   password?: string | null;
   otpSecret?: string;
-  mfaType?: string;
+  mfaTypes?: string;
   firstName?: string | null;
   lastName?: string | null;
   locale?: string;
@@ -93,6 +100,7 @@ export const convertToRecord = (raw: Raw): Record => ({
   emailVerified: !!raw.emailVerified,
   otpVerified: !!raw.otpVerified,
   isActive: !!raw.isActive,
+  mfaTypes: raw.mfaTypes ? raw.mfaTypes.split(',') : [],
 })
 
 export const convertToApiRecord = (
@@ -106,6 +114,7 @@ export const convertToApiRecord = (
     locale: record.locale,
     emailVerified: record.emailVerified,
     otpVerified: record.otpVerified,
+    mfaTypes: record.mfaTypes,
     isActive: record.isActive,
     loginCount: record.loginCount,
     createdAt: record.createdAt,
@@ -220,7 +229,7 @@ export const update = async (
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
-    'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaType', 'otpVerified',
+    'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
   ]
   const stmt = formatUtil.d1UpdateQuery(
     db,
