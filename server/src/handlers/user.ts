@@ -87,7 +87,7 @@ export const postUserEmailMfa = async (c: Context<typeConfig.Context>) => {
   await userService.enrollUserMfa(
     c,
     authId,
-    userModel.MfaType.Email
+    userModel.MfaType.Email,
   )
   c.status(204)
   return c.body(null)
@@ -99,7 +99,7 @@ export const postUserOtpMfa = async (c: Context<typeConfig.Context>) => {
   await userService.enrollUserMfa(
     c,
     authId,
-    userModel.MfaType.Otp
+    userModel.MfaType.Otp,
   )
   c.status(204)
   return c.body(null)
@@ -111,7 +111,7 @@ export const deleteUserEmailMfa = async (c: Context<typeConfig.Context>) => {
   await userService.resetUserMfa(
     c,
     authId,
-    userModel.MfaType.Email
+    userModel.MfaType.Email,
   )
   c.status(204)
   return c.body(null)
@@ -123,7 +123,7 @@ export const deleteUserOtpMfa = async (c: Context<typeConfig.Context>) => {
   await userService.resetUserMfa(
     c,
     authId,
-    userModel.MfaType.Otp
+    userModel.MfaType.Otp,
   )
   c.status(204)
   return c.body(null)

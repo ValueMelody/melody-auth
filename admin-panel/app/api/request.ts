@@ -136,7 +136,7 @@ export const sendS2SRequest = async ({
     },
   )
   if (res.ok) {
-    const contentType = res.headers.get('Content-Type');
+    const contentType = res.headers.get('Content-Type')
     if (contentType && contentType.includes('application/json')) {
       const data = await res.json()
       return NextResponse.json(data)

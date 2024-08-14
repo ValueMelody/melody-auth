@@ -297,7 +297,7 @@ export const resetUserPassword = async (
 export const enrollUserMfa = async (
   c: Context<typeConfig.Context>,
   authId: string,
-  mfaType: userModel.MfaType
+  mfaType: userModel.MfaType,
 ): Promise<true> => {
   const {
     OTP_MFA_IS_REQUIRED: otpMfaRequired,
