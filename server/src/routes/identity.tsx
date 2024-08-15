@@ -77,6 +77,18 @@ identityRoutes.post(
 )
 
 identityRoutes.get(
+  `${BaseRoute}/authorize-mfa-enroll`,
+  configMiddleware.enableMfaEnroll,
+  identityHandler.getAuthorizeMfaEnroll,
+)
+
+identityRoutes.post(
+  `${BaseRoute}/authorize-mfa-enroll`,
+  configMiddleware.enableMfaEnroll,
+  identityHandler.postAuthorizeMfaEnroll,
+)
+
+identityRoutes.get(
   `${BaseRoute}/authorize-email-mfa`,
   configMiddleware.enableEmail,
   identityHandler.getAuthorizeEmailMfa,

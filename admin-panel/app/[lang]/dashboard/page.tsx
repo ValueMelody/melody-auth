@@ -166,6 +166,12 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>ENFORCE_ONE_MFA_ENROLLMENT</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.ENFORCE_ONE_MFA_ENROLLMENT} />
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>ACCOUNT_LOCKOUT_THRESHOLD</Table.Cell>
             <Table.Cell>{configs.ACCOUNT_LOCKOUT_THRESHOLD}</Table.Cell>
           </Table.Row>

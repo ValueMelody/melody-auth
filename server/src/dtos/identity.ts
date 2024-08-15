@@ -1,5 +1,5 @@
 import {
-  IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
+  IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
 } from 'class-validator'
 import { Context } from 'hono'
 import { typeConfig } from 'configs'
@@ -7,6 +7,7 @@ import { oauthDto } from 'dtos'
 import {
   formatUtil, validateUtil,
 } from 'utils'
+import { userModel } from 'models'
 
 export class PostAuthorizeReqWithPasswordDto extends oauthDto.GetAuthorizeReqDto {
   @IsEmail()
@@ -128,6 +129,17 @@ export class PostAuthorizeMfaReqDto extends GetAuthorizeFollowUpReqDto {
   constructor (dto: PostAuthorizeMfaReqDto) {
     super(dto)
     this.mfaCode = dto.mfaCode
+  }
+}
+
+export class PostAuthorizeEnrollReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsEnum(userModel.MfaType)
+  @IsNotEmpty()
+    type: userModel.MfaType
+
+  constructor (dto: PostAuthorizeEnrollReqDto) {
+    super(dto)
+    this.type = dto.type
   }
 }
 

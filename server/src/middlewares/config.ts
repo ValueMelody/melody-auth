@@ -65,3 +65,21 @@ export const enableEmail = async (
 
   await next()
 }
+
+export const enableMfaEnroll = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
+    EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
+    OTP_MFA_IS_REQUIRED: requireOtpMfa,
+    SENDGRID_API_KEY: sendgridKey,
+    SENDGRID_SENDER_ADDRESS: sendgridSender,
+  } = env(c)
+
+  if (!enforceMfa || requireEmailMfa || requireOtpMfa || !sendgridKey || !sendgridSender) {
+    throw new errorConfig.Forbidden()
+  }
+
+  await next()
+}
