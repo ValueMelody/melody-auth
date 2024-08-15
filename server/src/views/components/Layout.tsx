@@ -39,6 +39,7 @@ const Layout = ({
           .flex-col { display: flex; flex-direction: column; }
           .flex-wrap { flex-wrap: wrap; }
           .justify-between { justify-content: space-between; }
+          .justify-around { justify-content: space-around; }
           .justify-center { justify-content: center; }
           .justify-end { justify-content: flex-end; }
           .items-center { align-items: center; }
@@ -62,6 +63,7 @@ const Layout = ({
           .rounded-lg { border-radius: 16px; }
           .rounded-md { border-radius: 8px; }
           .w-full { width: 100%; }
+          .w-half { width: 50%; }
           .w-text { width: 240px; }
           .main {
             background-color: lightgray;

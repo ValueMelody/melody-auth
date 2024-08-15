@@ -17,6 +17,7 @@ import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
   VerifyEmailView, AuthorizeEmailMfaView,
   AuthorizeResetView, AuthorizeOtpMfaView,
+  AuthorizeMfaEnrollView,
 } from 'views'
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
@@ -25,8 +26,9 @@ enum AuthorizeStep {
   Account = 0,
   Password = 0,
   Consent = 1,
-  OtpMfa = 2,
-  OtpEmail = 3,
+  MfaEnroll = 2,
+  OtpMfa = 3,
+  OtpEmail = 4,
 }
 
 const handlePostAuthorize = async (
@@ -46,13 +48,25 @@ const handlePostAuthorize = async (
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
+    SENDGRID_API_KEY: sendgridKey,
+    SENDGRID_SENDER_ADDRESS: sendgridSender,
   } = env(c)
 
-  const requireOtpMfa = step < 2 && (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
+  const requireMfaEnroll =
+    step < 2 &&
+    enforceMfa &&
+    !enableEmailMfa &&
+    !enableOtpMfa &&
+    !authCodeBody.user.mfaTypes.length &&
+    sendgridKey &&
+    sendgridSender
+
+  const requireOtpMfa = step < 3 && (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
 
-  const requireEmailMfa = step < 3 && (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
-  if (requireEmailMfa && !requireConsent && !requireOtpMfa) {
+  const requireEmailMfa = step < 4 && (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
+  if (requireEmailMfa && !requireMfaEnroll && !requireConsent && !requireOtpMfa) {
     const mfaCode = await emailService.sendEmailMfa(
       c,
       authCodeBody.user,
@@ -68,7 +82,7 @@ const handlePostAuthorize = async (
     }
   }
 
-  if (!requireConsent && !requireOtpMfa && !requireEmailMfa) {
+  if (!requireConsent && !requireMfaEnroll && !requireOtpMfa && !requireEmailMfa) {
     sessionService.setAuthInfoSession(
       c,
       authCodeBody.appId,
@@ -84,6 +98,7 @@ const handlePostAuthorize = async (
     state: authCodeBody.request.state,
     scopes: authCodeBody.request.scopes,
     requireConsent,
+    requireMfaEnroll,
     requireEmailMfa,
     requireOtpSetup,
     requireOtpMfa,
@@ -332,6 +347,67 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     AuthorizeStep.Consent,
     bodyDto.code,
     authCodeBody,
+    bodyDto.locale,
+  )
+}
+
+export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+
+  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
+
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  return c.html(<AuthorizeMfaEnrollView
+    logoUrl={logoUrl}
+    queryDto={queryDto}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+  />)
+}
+
+export const postAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeEnrollReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden()
+
+  const user = await userService.enrollUserMfa(
+    c,
+    authCodeStore.user.authId,
+    bodyDto.type,
+  )
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const newAuthCodeStore = {
+    ...authCodeStore,
+    user,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    bodyDto.code,
+    newAuthCodeStore,
+    codeExpiresIn,
+  )
+
+  return handlePostAuthorize(
+    c,
+    AuthorizeStep.MfaEnroll,
+    bodyDto.code,
+    newAuthCodeStore,
     bodyDto.locale,
   )
 }

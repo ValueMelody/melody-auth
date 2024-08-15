@@ -45,16 +45,18 @@ export const d1CreateQuery = (
 ): D1PreparedStatement => {
   const createValues: string[] = []
   const createBinds: (string | null)[] = []
+  const validKeys: string[] = []
   createKeys.forEach((
     key, index,
   ) => {
     const value = createObj[key]
     if (value !== undefined) {
+      validKeys.push(key)
       createValues.push(`$${index + 1}`)
       createBinds.push(createObj[key])
     }
   })
-  const query = `INSERT INTO ${tableName} (${createKeys.join(',')}) values (${createValues.join(',')})`
+  const query = `INSERT INTO ${tableName} (${validKeys.join(',')}) values (${createValues.join(',')})`
 
   const stmt = db.prepare(query).bind(...createBinds)
   return stmt

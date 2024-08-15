@@ -189,7 +189,11 @@ npm run prod:deploy
 
 ### EMAIL_MFA_IS_REQUIRED
 - **Default:** false
-- **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login. `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+- **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+
+### ENFORCE_ONE_MFA_ENROLLMENT
+- **Default:** true
+- **Description:** This setting requires that users enroll in at least one form of Multi-Factor Authentication (MFA). This setting is only effective if both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
 
 ### ACCOUNT_LOCKOUT_THRESHOLD
 - **Default:** 5
@@ -198,6 +202,10 @@ npm run prod:deploy
 ### ACCOUNT_LOCKOUT_EXPIRES_IN
 - **Default:** 86400 (1 day)
 - **Description:** Duration (in seconds) for which the account remains locked after reaching the lockout threshold. Set to 0 for indefinite lockout until manual intervention.
+
+## UNLOCK_ACCOUNT_VIA_PASSWORD_RESET
+- **Default:** true
+- **Description:** User can unlock their account by reset password. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
 
 ### SUPPORTED_LOCALES
 - **Default:** ['en', 'fr']

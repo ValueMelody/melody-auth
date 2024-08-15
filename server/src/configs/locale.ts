@@ -12,6 +12,7 @@ export enum Error {
   UserDisabled = 'This account has been disabled',
   EmailAlreadyVerified = 'Email already verified',
   OtpAlreadySet = 'OTP authentication already set',
+  MfaEnrolled = 'User already enrolled with MFA',
   NoConsent = 'User consent required',
   WrongCode = 'Invalid code',
   WrongMfaCode = 'Invalid MFA code',
@@ -195,6 +196,21 @@ export const authorizeConsent = Object.freeze({
   decline: {
     en: 'Decline',
     fr: 'Refuser',
+  },
+})
+
+export const authorizeMfaEnroll = Object.freeze({
+  title: {
+    en: 'Select one of the MFA type',
+    fr: 'Sélectionnez un type de MFA',
+  },
+  email: {
+    en: 'Email',
+    fr: 'E-mail',
+  },
+  otp: {
+    en: 'Authenticator',
+    fr: 'Authentificateur',
   },
 })
 

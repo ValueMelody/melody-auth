@@ -184,7 +184,7 @@ export const createAccountWithPassword = async (
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
   const { OTP_MFA_IS_REQUIRED: enableOtp } = env(c)
-  const otpSecret = enableOtp ? await cryptoUtil.genOtpSecret() : undefined
+  const otpSecret = enableOtp ? cryptoUtil.genOtpSecret() : undefined
   const newUser = await userModel.create(
     c.env.DB,
     {
@@ -298,13 +298,11 @@ export const enrollUserMfa = async (
   c: Context<typeConfig.Context>,
   authId: string,
   mfaType: userModel.MfaType,
-): Promise<true> => {
+): Promise<userModel.Record> => {
   const {
     OTP_MFA_IS_REQUIRED: otpMfaRequired,
     EMAIL_MFA_IS_REQUIRED: emailMfaRequired,
   } = env(c)
-  if (mfaType === userModel.MfaType.Otp && otpMfaRequired) return true
-  if (mfaType === userModel.MfaType.Email && emailMfaRequired) return true
 
   const user = await userModel.getByAuthId(
     c.env.DB,
@@ -318,19 +316,23 @@ export const enrollUserMfa = async (
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
-  if (user.mfaTypes.includes(mfaType)) return true
+  const isOtp = mfaType === userModel.MfaType.Otp
+  if (isOtp && otpMfaRequired) return user
+  if (mfaType === userModel.MfaType.Email && emailMfaRequired) return user
 
-  await userModel.update(
+  if (user.mfaTypes.includes(mfaType)) return user
+
+  const newUser = await userModel.update(
     c.env.DB,
     user.id,
     {
       mfaTypes: [...user.mfaTypes, mfaType].join(','),
-      otpVerified: 0,
-      otpSecret: '',
+      otpVerified: isOtp ? 0 : undefined,
+      otpSecret: isOtp ? cryptoUtil.genOtpSecret() : undefined,
     },
   )
 
-  return true
+  return newUser
 }
 
 export const resetUserMfa = async (
@@ -350,8 +352,9 @@ export const resetUserMfa = async (
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
+  const isOtp = mfaType === userModel.MfaType.Otp
   if (
-    mfaType === userModel.MfaType.Otp &&
+    isOtp &&
     !user.mfaTypes.includes(userModel.MfaType.Otp) &&
     !user.otpVerified && !user.otpSecret
   ) return true
@@ -362,8 +365,8 @@ export const resetUserMfa = async (
     user.id,
     {
       mfaTypes: user.mfaTypes.filter((type) => type !== mfaType).join(','),
-      otpVerified: 0,
-      otpSecret: '',
+      otpVerified: isOtp ? 0 : undefined,
+      otpSecret: isOtp ? '' : undefined,
     },
   )
 

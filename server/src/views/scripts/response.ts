@@ -19,6 +19,10 @@ export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
     queryString += "&redirect_uri=" + data.redirectUri;
     var url = "${routeConfig.InternalRoute.Identity}/authorize-consent" + queryString
     window.location.href = url;
+  } else if (data.requireMfaEnroll) {
+    queryString += "&redirect_uri=" + data.redirectUri;
+    var url = "${routeConfig.InternalRoute.Identity}/authorize-mfa-enroll" + queryString
+    window.location.href = url;
   } else if (data.requireOtpSetup) {
     queryString += "&redirect_uri=" + data.redirectUri;
     var url = "${routeConfig.InternalRoute.Identity}/authorize-otp-setup" + queryString
