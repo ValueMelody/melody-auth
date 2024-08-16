@@ -30,11 +30,9 @@ export const enablePasswordReset = async (
 ) => {
   const {
     ENABLE_PASSWORD_RESET: enabledReset,
-    SENDGRID_API_KEY: sendgridApiKey,
-    SENDGRID_SENDER_ADDRESS: sendgridSender,
   } = env(c)
 
-  if (!enabledReset || !sendgridApiKey || !sendgridSender) throw new errorConfig.Forbidden()
+  if (!enabledReset) throw new errorConfig.Forbidden()
 
   await next()
 }
@@ -44,24 +42,9 @@ export const enableEmailVerification = async (
 ) => {
   const {
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
-    SENDGRID_API_KEY: sendgridApiKey,
-    SENDGRID_SENDER_ADDRESS: sendgridSender,
   } = env(c)
 
-  if (!enableEmailVerification || !sendgridApiKey || !sendgridSender) throw new errorConfig.Forbidden()
-
-  await next()
-}
-
-export const enableEmail = async (
-  c: Context<typeConfig.Context>, next: Next,
-) => {
-  const {
-    SENDGRID_API_KEY: sendgridApiKey,
-    SENDGRID_SENDER_ADDRESS: sendgridSender,
-  } = env(c)
-
-  if (!sendgridApiKey || !sendgridSender) throw new errorConfig.Forbidden()
+  if (!enableEmailVerification) throw new errorConfig.Forbidden()
 
   await next()
 }
@@ -73,11 +56,9 @@ export const enableMfaEnroll = async (
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
     EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
-    SENDGRID_API_KEY: sendgridKey,
-    SENDGRID_SENDER_ADDRESS: sendgridSender,
   } = env(c)
 
-  if (!enforceMfa || requireEmailMfa || requireOtpMfa || !sendgridKey || !sendgridSender) {
+  if (!enforceMfa || requireEmailMfa || requireOtpMfa) {
     throw new errorConfig.Forbidden()
   }
 

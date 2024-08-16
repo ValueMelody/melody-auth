@@ -94,11 +94,9 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
-    SENDGRID_API_KEY: sendgridKey,
-    SENDGRID_SENDER_ADDRESS: sendgridSender,
   } = env(c)
 
-  if (enforceMfa && !requireEmailMfa && !requireOtpMfa && sendgridKey && sendgridSender) {
+  if (enforceMfa && !requireEmailMfa && !requireOtpMfa) {
     if (!authInfo.user.mfaTypes.length) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
   }
 

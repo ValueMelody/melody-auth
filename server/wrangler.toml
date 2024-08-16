@@ -12,13 +12,13 @@ SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
 
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
 ENABLE_SIGN_UP=true
-ENABLE_PASSWORD_RESET=true # Requires enabling the email function first. To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
+ENABLE_PASSWORD_RESET=true # To enable the email functionality, you must set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
 ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
-ENABLE_EMAIL_VERIFICATION=true # Requires enabling the email function first. To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
+ENABLE_EMAIL_VERIFICATION=true # To enable the email functionality, you must set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
 OTP_MFA_IS_REQUIRED=false
-EMAIL_MFA_IS_REQUIRED=false # Requires enabling the email function first. To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
+EMAIL_MFA_IS_REQUIRED=false # To enable the email functionality, you must first set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
 ENFORCE_ONE_MFA_ENROLLMENT=true # This setting is only effective if both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false. You must enable email functionality as well.
 ACCOUNT_LOCKOUT_THRESHOLD=5 # Set to 0 to disable the account lockout
 ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual intervention.
