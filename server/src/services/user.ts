@@ -268,11 +268,19 @@ export const resetUserPassword = async (
     c.env.DB,
     bodyDto.email,
   )
-  if (!user) {
+  if (!user || !user.password) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
   }
   if (!user.isActive) {
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  }
+
+  const isSame = cryptoUtil.bcryptCompare(
+    bodyDto.password,
+    user.password,
+  )
+  if (isSame) {
+    throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentPassword)
   }
 
   const isValid = await kvService.verifyPasswordResetCode(
@@ -286,6 +294,7 @@ export const resetUserPassword = async (
   }
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
+
   await userModel.update(
     c.env.DB,
     user.id,
