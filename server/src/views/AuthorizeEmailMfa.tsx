@@ -41,7 +41,8 @@ const AuthorizeEmailMfa = ({
             id='resend-btn'
             type='button'
             class='button-text'
-            onclick='resendCode()'>
+            onclick='resendCode()'
+          >
             {localeConfig.authorizeEmailMfa.resend[queryDto.locale]}
           </button>
           <SubmitError />
