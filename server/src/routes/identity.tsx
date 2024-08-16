@@ -94,6 +94,12 @@ identityRoutes.get(
 )
 
 identityRoutes.post(
+  `${BaseRoute}/resend-email-mfa`,
+  setupMiddleware.validOrigin,
+  identityHandler.postResendEmailMfa,
+)
+
+identityRoutes.post(
   `${BaseRoute}/authorize-email-mfa`,
   setupMiddleware.validOrigin,
   identityHandler.postAuthorizeEmailMfa,

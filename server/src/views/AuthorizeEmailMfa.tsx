@@ -37,6 +37,13 @@ const AuthorizeEmailMfa = ({
             required={false}
             name='code'
           />
+          <button
+            id='resend-btn'
+            type='button'
+            class='button-text'
+            onclick='resendCode()'>
+            {localeConfig.authorizeEmailMfa.resend[queryDto.locale]}
+          </button>
           <SubmitError />
           <SubmitButton
             title={localeConfig.authorizeEmailMfa.verify[queryDto.locale]}
@@ -46,22 +53,47 @@ const AuthorizeEmailMfa = ({
       {html`
         <script>
           ${resetErrorScript.resetCodeError()}
+          function resendCode() {
+            fetch('${routeConfig.InternalRoute.Identity}/resend-email-mfa', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                state: "${queryDto.state}",
+                code: "${queryDto.code}",
+                locale: "${queryDto.locale}",
+                redirectUri: "${queryDto.redirectUri}",
+              })
+            })
+            .then((response) => {
+              if (response.ok) {
+                var resendBtn = document.getElementById("resend-btn")
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = "${localeConfig.authorizeEmailMfa.resent[queryDto.locale]}"
+              }
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
           function handleSubmit(e) {
             e.preventDefault();
             ${validateScript.verificationCode(queryDto.locale)}
             fetch('${routeConfig.InternalRoute.Identity}/authorize-email-mfa', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  state: "${queryDto.state}",
-                  code: "${queryDto.code}",
-                  locale: "${queryDto.locale}",
-                  redirectUri: "${queryDto.redirectUri}",
-                  mfaCode: document.getElementById('form-code').value,
-                })
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                state: "${queryDto.state}",
+                code: "${queryDto.code}",
+                locale: "${queryDto.locale}",
+                redirectUri: "${queryDto.redirectUri}",
+                mfaCode: document.getElementById('form-code').value,
+              })
             })
             .then((response) => {
               ${responseScript.parseRes()}

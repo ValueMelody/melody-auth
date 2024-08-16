@@ -223,6 +223,14 @@ export const authorizeEmailMfa = Object.freeze({
     en: 'Verify',
     fr: 'Vérifier',
   },
+  resend: {
+    en: 'Resend a new code',
+    fr: 'Renvoyer un nouveau code',
+  },
+  resent: {
+    en: 'New code sent.',
+    fr: 'Nouveau code envoyé.',
+  },
 })
 
 export const authorizeReset = Object.freeze({
