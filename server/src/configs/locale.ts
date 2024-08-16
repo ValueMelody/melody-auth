@@ -16,6 +16,7 @@ export enum Error {
   NoConsent = 'User consent required',
   WrongCode = 'Invalid code',
   WrongMfaCode = 'Invalid MFA code',
+  RequireDifferentPassword = 'New password same as old password',
   MfaNotVerified = 'MFA code not verified',
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
@@ -88,6 +89,10 @@ export const requestError = Object.freeze({
   accountLocked: {
     en: 'Account temporarily locked due to excessive login failures.',
     fr: 'Compte temporairement bloqué en raison de trop nombreuses tentatives de connexion échouées.',
+  },
+  requireNewPassword: {
+    en: 'Your new password can not be same as old password.',
+    "fr": "Votre nouveau mot de passe ne peut pas être identique à l'ancien mot de passe."
   },
   optMfaLocked: {
     en: 'Too many failed OTP verification attempts. Please try again after 30 minutes.',

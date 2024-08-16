@@ -60,6 +60,8 @@ export const handleSubmitError = (locale: typeConfig.Locale) => html`
     msg = "${localeConfig.requestError.emailTaken[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.WrongCode}") !== -1) {
     msg = "${localeConfig.requestError.wrongCode[locale]}";
+  } else if (errorString.indexOf("${localeConfig.Error.RequireDifferentPassword}") !== -1) {
+    msg = "${localeConfig.requestError.requireNewPassword[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.WrongMfaCode}") !== -1) {
     msg = "${localeConfig.requestError.wrongCode[locale]}";
   }
