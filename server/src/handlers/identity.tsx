@@ -549,6 +549,43 @@ export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
   )
 }
 
+export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeResendEmailMfaDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const {
+    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+  } = env(c)
+
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+
+  const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
+
+  if (requireEmailMfa) {
+    const mfaCode = await emailService.sendEmailMfa(
+      c,
+      authCodeBody.user,
+      bodyDto.locale,
+    )
+    if (mfaCode) {
+      await kvService.storeEmailMfaCode(
+        c.env.KV,
+        bodyDto.code,
+        mfaCode,
+        codeExpiresIn,
+      )
+    }
+  }
+
+  return c.json({ success: true })
+}
+
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
