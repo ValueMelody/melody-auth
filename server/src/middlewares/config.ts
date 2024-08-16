@@ -28,9 +28,7 @@ export const enableConsent = async (
 export const enablePasswordReset = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
-  const {
-    ENABLE_PASSWORD_RESET: enabledReset,
-  } = env(c)
+  const { ENABLE_PASSWORD_RESET: enabledReset } = env(c)
 
   if (!enabledReset) throw new errorConfig.Forbidden()
 
@@ -40,9 +38,7 @@ export const enablePasswordReset = async (
 export const enableEmailVerification = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
-  const {
-    ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
-  } = env(c)
+  const { ENABLE_EMAIL_VERIFICATION: enableEmailVerification } = env(c)
 
   if (!enableEmailVerification) throw new errorConfig.Forbidden()
 
