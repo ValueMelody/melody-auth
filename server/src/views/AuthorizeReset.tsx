@@ -62,6 +62,14 @@ const AuthorizeReset = ({
               name='code'
               className='hidden'
             />
+            <button
+              id='resend-btn'
+              type='button'
+              class='button-text hidden'
+              onclick='resendCode()'
+            >
+              {localeConfig.authorizeReset.resend[queryDto.locale]}
+            </button>
             <Field
               label={localeConfig.authorizeReset.password[queryDto.locale]}
               type='password'
@@ -99,6 +107,29 @@ const AuthorizeReset = ({
           ${resetErrorScript.resetCodeError()}
           ${resetErrorScript.resetPasswordError()}
           ${resetErrorScript.resetConfirmPasswordError()}
+          function resendCode() {
+            fetch('${routeConfig.InternalRoute.Identity}/resend-reset-code', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                locale: "${queryDto.locale}",
+                email: document.getElementById('form-email').value,
+              })
+            })
+            .then((response) => {
+              if (response.ok) {
+                var resendBtn = document.getElementById("resend-btn")
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = "${localeConfig.authorizeReset.resent[queryDto.locale]}"
+              }
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
           function handleSubmit (e) {
             e.preventDefault();
             ${validateScript.email(queryDto.locale)}
@@ -125,6 +156,7 @@ const AuthorizeReset = ({
               })
               .then((data) => {
                 document.getElementById('code-row').classList.remove('hidden');
+                document.getElementById('resend-btn').classList.remove('hidden');
                 document.getElementById('password-row').classList.remove('hidden');
                 document.getElementById('confirmPassword-row').classList.remove('hidden');
                 document.getElementById('submit-btn').innerHTML = '${localeConfig.authorizeReset.reset[queryDto.locale]}'

@@ -278,6 +278,14 @@ export const authorizeReset = Object.freeze({
     en: 'Reset',
     fr: 'Réinitialiser',
   },
+  resend: {
+    en: 'Resend a new code',
+    fr: 'Renvoyer un nouveau code',
+  },
+  resent: {
+    en: 'New code sent.',
+    fr: 'Nouveau code envoyé.',
+  },
 })
 
 export const verifyEmail = Object.freeze({

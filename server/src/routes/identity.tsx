@@ -112,6 +112,13 @@ identityRoutes.post(
   identityHandler.postResetCode,
 )
 
+identityRoutes.post(
+  `${BaseRoute}/resend-reset-code`,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasswordReset,
+  identityHandler.postResetCode,
+)
+
 identityRoutes.get(
   `${BaseRoute}/verify-email`,
   configMiddleware.enableEmailVerification,
