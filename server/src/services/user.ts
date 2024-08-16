@@ -275,7 +275,10 @@ export const resetUserPassword = async (
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
-  const isSame = cryptoUtil.bcryptCompare(bodyDto.password, user.password)
+  const isSame = cryptoUtil.bcryptCompare(
+    bodyDto.password,
+    user.password,
+  )
   if (isSame) {
     throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentPassword)
   }

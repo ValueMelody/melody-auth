@@ -92,7 +92,7 @@ export const requestError = Object.freeze({
   },
   requireNewPassword: {
     en: 'Your new password can not be same as old password.',
-    "fr": "Votre nouveau mot de passe ne peut pas être identique à l'ancien mot de passe."
+    fr: "Votre nouveau mot de passe ne peut pas être identique à l'ancien mot de passe.",
   },
   optMfaLocked: {
     en: 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
