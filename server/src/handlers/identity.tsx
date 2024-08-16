@@ -49,8 +49,6 @@ const handlePostAuthorize = async (
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
-    SENDGRID_API_KEY: sendgridKey,
-    SENDGRID_SENDER_ADDRESS: sendgridSender,
   } = env(c)
 
   const requireMfaEnroll =
@@ -58,9 +56,7 @@ const handlePostAuthorize = async (
     enforceMfa &&
     !enableEmailMfa &&
     !enableOtpMfa &&
-    !authCodeBody.user.mfaTypes.length &&
-    sendgridKey &&
-    sendgridSender
+    !authCodeBody.user.mfaTypes.length
 
   const requireOtpMfa = step < 3 && (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
@@ -112,13 +108,9 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     COMPANY_LOGO_URL: logoUrl,
     ENABLE_SIGN_UP: enableSignUp,
     ENABLE_PASSWORD_RESET: enablePasswordReset,
-    SENDGRID_API_KEY: sendgridKey,
-    SENDGRID_SENDER_ADDRESS: sendgridSender,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
-
-  const allowPasswordReset = enablePasswordReset && !!sendgridKey && !!sendgridSender
 
   const queryString = formatUtil.getQueryString(c)
 
@@ -128,7 +120,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     queryDto={queryDto}
     logoUrl={logoUrl}
     enableSignUp={enableSignUp}
-    enablePasswordReset={allowPasswordReset}
+    enablePasswordReset={enablePasswordReset}
   />)
 }
 

@@ -90,14 +90,12 @@ identityRoutes.post(
 
 identityRoutes.get(
   `${BaseRoute}/authorize-email-mfa`,
-  configMiddleware.enableEmail,
   identityHandler.getAuthorizeEmailMfa,
 )
 
 identityRoutes.post(
   `${BaseRoute}/authorize-email-mfa`,
   setupMiddleware.validOrigin,
-  configMiddleware.enableEmail,
   identityHandler.postAuthorizeEmailMfa,
 )
 
