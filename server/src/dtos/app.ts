@@ -1,7 +1,7 @@
 import {
   IsBoolean,
   IsEnum,
-  IsNotEmpty, IsOptional, IsString, Length,
+  IsNotEmpty, IsOptional, IsString, IsUrl, Length,
 } from 'class-validator'
 import { ClientType } from 'shared'
 import { formatUtil } from 'utils'
@@ -26,7 +26,7 @@ export class PostAppReqDto {
   @IsNotEmpty()
     scopes: string[]
 
-  @IsString({ each: true })
+  @IsUrl({ require_protocol: true }, { each: true })
   @IsNotEmpty()
     redirectUris: string[]
 
@@ -39,7 +39,7 @@ export class PostAppReqDto {
 }
 
 export class PutAppReqDto {
-  @IsString({ each: true })
+  @IsUrl({ require_protocol: true }, { each: true })
   @IsOptional()
     redirectUris?: string[]
 

@@ -1,9 +1,12 @@
 import {
   PlusIcon, TrashIcon,
 } from '@heroicons/react/16/solid'
+import { isURL } from 'class-validator';
+import FieldError from 'components/FieldError';
 import {
   Button, TextInput,
 } from 'flowbite-react'
+import { useTranslations } from 'next-intl';
 
 const RedirectUriEditor = ({
   redirectUris,
@@ -12,6 +15,8 @@ const RedirectUriEditor = ({
   redirectUris: string[];
   onChange: (uris: string[]) => void;
 }) => {
+  const t = useTranslations()
+
   const handleRemoveUri = (targetIndex: number) => {
     const newUris = redirectUris.filter((
       uri, index,
@@ -43,25 +48,31 @@ const RedirectUriEditor = ({
           redirectUris.map((
             uri, index,
           ) => (
-            <div
+            <section
               key={index}
-              className='flex items-center gap-2 w-full'>
-              <TextInput
-                onChange={(e) => handleUpdateUri(
-                  index,
-                  e.target.value,
-                )}
-                value={uri}
-                className='w-full'
-              />
-              <Button
-                color='gray'
-                onClick={() => handleRemoveUri(index)}
-                size='xs'
-              >
-                <TrashIcon className='w-4 h-4' />
-              </Button>
-            </div>
+              className='flex flex-col'
+            >
+              <section className='flex items-center gap-2 w-full'>
+                <TextInput
+                  onChange={(e) => handleUpdateUri(
+                    index,
+                    e.target.value,
+                  )}
+                  value={uri}
+                  className='w-full'
+                />
+                <Button
+                  color='gray'
+                  onClick={() => handleRemoveUri(index)}
+                  size='xs'
+                >
+                  <TrashIcon className='w-4 h-4' />
+                </Button>
+              </section>
+              {uri && !isURL(uri, { require_protocol: true}) && (
+                <FieldError error={t('apps.urlFormat')} />
+              )}
+            </section>
           ))
         }
       </section>

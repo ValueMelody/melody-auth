@@ -9,7 +9,7 @@
 
 ## Why Melody Auth?
 
-### 1. Self-Hosted
+### 1. Self-Controlled
 [Server Setup](https://auth.valuemelody.com/auth-server.html)
 - Deploy the entire system within minutes
 - Leverage Cloudflare's infrastructure to minimize DevOps overhead.

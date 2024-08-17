@@ -1,7 +1,7 @@
 {
   "name": "melody-auth",
   "version": "0.0.1",
-  "description": "A turnkey authentication system that can be self-hosted on Cloudflare's infrastructure.",
+  "description": "A turnkey authentication system leveraging Cloudflare’s infrastructure.",
   "license": "MIT",
   "author": "Baozier",
   "repository": "https://github.com/ValueMelody/melody-auth",

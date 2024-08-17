@@ -50,7 +50,8 @@
     "status": "Status",
     "type": "Type",
     "scopes": "Scopes",
-    "redirectUris": "Redirect URIs"
+    "redirectUris": "Redirect URIs",
+    "urlFormat": "Provide full url including protocol"
   },
   "users": {
     "title": "Users",
