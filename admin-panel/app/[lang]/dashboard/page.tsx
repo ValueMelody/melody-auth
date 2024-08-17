@@ -172,9 +172,9 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
-            <Table.Cell>ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL</Table.Cell>
+            <Table.Cell>ALLOW_EMAIL_MFA_AS_BACKUP</Table.Cell>
             <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL} />
+              <ConfigBooleanValue config={configs.ALLOW_EMAIL_MFA_AS_BACKUP} />
             </Table.Cell>
           </Table.Row>
           <Table.Row>
