@@ -172,6 +172,12 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL} />
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>ACCOUNT_LOCKOUT_THRESHOLD</Table.Cell>
             <Table.Cell>{configs.ACCOUNT_LOCKOUT_THRESHOLD}</Table.Cell>
           </Table.Row>

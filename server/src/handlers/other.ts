@@ -34,6 +34,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ACCOUNT_LOCKOUT_THRESHOLD: environment.ACCOUNT_LOCKOUT_THRESHOLD,
     ACCOUNT_LOCKOUT_EXPIRES_IN: environment.ACCOUNT_LOCKOUT_EXPIRES_IN,
     UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: environment.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET,
+    ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL: environment.ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL,
   }
 
   return c.json({ configs })

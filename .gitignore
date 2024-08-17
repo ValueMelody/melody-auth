@@ -6,7 +6,9 @@ docs/.vuepress/.temp
 .wrangler
 .next/
 
-.dev.vars
+server/.dev.vars
+server/wrangler.toml
+
 .env
 .env.local
 *.pem
