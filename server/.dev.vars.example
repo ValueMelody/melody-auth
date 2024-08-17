@@ -1,7 +1,9 @@
 ENVIRONMENT = dev # Set to prod in production env
 DEV_EMAIL_RECEIVER= # When the ENVIRONMENT is not set to 'prod', all emails intended for users will be sent to this email address instead.
 
-SENDGRID_API_KEY= # Put your own SendGrid api key here
-SENDGRID_SENDER_ADDRESS= # Put your own SendGrid sender address here
+SENDGRID_API_KEY= # Put your SendGrid api key here
+SENDGRID_SENDER_ADDRESS= # Put your SendGrid sender address here
+BREVO_API_KEY= # Put your Brevo api key here and leave SENDGRID_API_KEY to be empty if you want to use Brevo handle email functionalities
+BREVO_SENDER_ADDRESS= # Put your Brevo sender address here
 
 AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker

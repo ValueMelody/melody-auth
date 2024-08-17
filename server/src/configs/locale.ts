@@ -22,6 +22,7 @@ export enum Error {
   WrongGrantType = 'Invalid grant_type',
   WrongRefreshToken = 'Invalid refresh_token',
   UniqueKey = 'Unique key constraint failed',
+  NoEmailSender = 'No email sender',
 }
 export const common = Object.freeze({
   documentTitle: {

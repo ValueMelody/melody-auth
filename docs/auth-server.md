@@ -64,12 +64,12 @@ npm run prod:deploy
 Now you are all set, you can verify your server by accessing: `[your_worker_url]/.well-known/openid-configuration`
 
 ## Email Functionality Setup
-Melody Auth supports email-based features such as password reset, email verification and email MFA. To enable these features, you need to set up SendGrid integration and configure the necessary environment variables in your Cloudflare Worker.
+Melody Auth supports email-based features such as password reset, email verification and email MFA. To make sure these features works as expected, you need to set up SendGrid or Brevo integration and configure the necessary environment variables in your Cloudflare Worker.
 
 ### Prerequisites
-- A SendGrid account
-- SendGrid API key
-- Verified sender email address in SendGrid
+- A SendGrid/Brevo account
+- SendGrid/Brevo API key
+- Verified sender email address in SendGrid/Brevo
 
 ### Configuration Steps
 
@@ -84,8 +84,10 @@ Melody Auth supports email-based features such as password reset, email verifica
    |---------------|-------------|---------------|
    | ENVIRONMENT | Determines the email sending behavior | "prod" or "dev" |
    | DEV_EMAIL_RECEIVER | Email address for testing (used when ENVIRONMENT is not 'prod') | "test@example.com" |
-   | SENDGRID_API_KEY | Your SendGrid API key | "SG.xxxxxxxxxxxxxxxxxxxxxxxx" |
-   | SENDGRID_SENDER_ADDRESS | Your verified sender email address in SendGrid | "noreply@yourdomain.com" |
+   | SENDGRID_API_KEY | Your SendGrid API key (not needed if you intend to use Brevo) | "SG.xxxxxxxxxxxxxxxxxxxxxxxx" |
+   | SENDGRID_SENDER_ADDRESS | Your verified sender email address in SendGrid (not needed if you intend to use Brevo) | "noreply@yourdomain.com" |
+   | BREVO_API_KEY | Your Brevo API key (not needed if you intend to use SendGrid) | "xkeysib-.xxxxxxxxxxxxxxxxxxxxxxxx" |
+   | BREVO_SENDER_ADDRESS | Your verified sender email address in Brevo (not needed if you intend to use SendGrid) | "noreply@yourdomain.com" |
 
 3. Click "Save and deploy" to apply the changes.
 
@@ -99,7 +101,10 @@ Melody Auth supports email-based features such as password reset, email verifica
   - All emails will be redirected to the address specified in `DEV_EMAIL_RECEIVER`.
   - This is useful for testing and development to avoid sending emails to real users.
 
-### Local Development Environment Setup
+- Priority Between SendGrid and Brevo:
+  - If both SendGrid and Brevo keys and sender addresses are provided, SendGrid will take precedence.
+
+## Local Development Environment Setup
 To set up your local development environment, follow these steps:
 ```
 git clone git@github.com:ValueMelody/melody-auth.git
@@ -165,7 +170,8 @@ npm run prod:deploy
 
 ### ENABLE_PASSWORD_RESET
 - **Default:** true
-- **Description:** Determines if user password reset is allowed. If set to false, the reset password button will be suppressed on the sign-in page. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+- **Description:** Determines if user password reset is allowed. If set to false, the reset password button will be suppressed on the sign-in page.
+[Email functionality setup required](#email-functionality-setup)
 
 ### ENABLE_NAMES
 - **Default:** true
@@ -181,7 +187,8 @@ npm run prod:deploy
 
 ### ENABLE_EMAIL_VERIFICATION
 - **Default:** true
-- **Description:** If set to true, users will receive an email to verify their email address after signing up. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+- **Description:** If set to true, users will receive an email to verify their email address after signing up.
+[Email functionality setup required](#email-functionality-setup)
 
 ### OTP_MFA_IS_REQUIRED
 - **Default:** false
@@ -189,15 +196,18 @@ npm run prod:deploy
 
 ### EMAIL_MFA_IS_REQUIRED
 - **Default:** false
-- **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+- **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login.
+[Email functionality setup required](#email-functionality-setup)
 
 ### ENFORCE_ONE_MFA_ENROLLMENT
 - **Default:** true
-- **Description:** This setting requires that users enroll in at least one form of Multi-Factor Authentication (MFA). This setting is only effective if both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+- **Description:** This setting requires that users enroll in at least one form of Multi-Factor Authentication (MFA). This setting is only effective if both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false.
+[Email functionality setup required](#email-functionality-setup)
 
 ### ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL
 - **Default:** true
-- **Description:** This setting allows users to use email-based MFA as an alternative method for signing in if they are enrolled in OTP MFA and both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+- **Description:** This setting allows users to use email-based MFA as an alternative method for signing in if they are enrolled in OTP MFA and both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false
+[Email functionality setup required](#email-functionality-setup)
 
 ### ACCOUNT_LOCKOUT_THRESHOLD
 - **Default:** 5
@@ -209,7 +219,8 @@ npm run prod:deploy
 
 ### UNLOCK_ACCOUNT_VIA_PASSWORD_RESET
 - **Default:** true
-- **Description:** User can unlock their account by reset password. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+- **Description:** User can unlock their account by reset password. 
+[Email functionality setup required](#email-functionality-setup)
 
 ### SUPPORTED_LOCALES
 - **Default:** ['en', 'fr']
