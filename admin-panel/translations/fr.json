@@ -50,7 +50,8 @@
     "status": "Statut",
     "type": "Type",
     "scopes": "Portées",
-    "redirectUris": "URIs de redirection"
+    "redirectUris": "URIs de redirection",
+    "urlFormat": "Fournissez l’URL complète y compris le protocole."
   },
   "users": {
     "title": "Utilisateurs",
