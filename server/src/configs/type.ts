@@ -14,6 +14,8 @@ export type Bindings = {
   DEV_EMAIL_RECEIVER: string;
   SENDGRID_API_KEY: string;
   SENDGRID_SENDER_ADDRESS: string;
+  BREVO_API_KEY: string;
+  BREVO_SENDER_ADDRESS: string;
   AUTHORIZATION_CODE_EXPIRES_IN: number;
   SPA_ACCESS_TOKEN_EXPIRES_IN: number;
   S2S_ACCESS_TOKEN_EXPIRES_IN: number;
