@@ -1,6 +1,6 @@
 # Melody Auth
 
-**Melody Auth** is a turnkey authentication system leveraging Cloudflare’s infrastructure. It provides a robust and user-friendly solution for implementing your own authentication system with minimal configuration required.
+**Melody Auth** A turnkey OAuth & authentication system leveraging Cloudflare’s infrastructure. It provides a robust and user-friendly solution for implementing and hosting your own oauth and authentication system with minimal configuration required.
 
 ## Features Supported
 - OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication)
