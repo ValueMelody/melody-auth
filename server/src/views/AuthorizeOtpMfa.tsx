@@ -15,12 +15,13 @@ import SubmitError from 'views/components/SubmitError'
 import SubmitButton from 'views/components/SubmitButton'
 
 const AuthorizeOtpMfa = ({
-  queryDto, logoUrl, locales, otp,
+  queryDto, logoUrl, locales, otp, showEmailMfaBtn,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   locales: typeConfig.Locale[];
   otp?: string;
+  showEmailMfaBtn: boolean;
 }) => {
   return (
     <Layout
@@ -45,6 +46,16 @@ const AuthorizeOtpMfa = ({
             label={localeConfig.authorizeOtpMfa.code[queryDto.locale]}
             name='otp'
           />
+          {showEmailMfaBtn && (
+            <button
+              id='resend-btn'
+              type='button'
+              class='button-text w-text'
+              onclick='switchToEmail()'
+            >
+              {localeConfig.authorizeOtpMfa.switchToEmail[queryDto.locale]}
+            </button>
+          )}
           <SubmitError />
           <SubmitButton
             title={localeConfig.authorizeOtpMfa.verify[queryDto.locale]}
@@ -56,6 +67,11 @@ const AuthorizeOtpMfa = ({
           var qrCodeEl = document.getElementById('qr-code')
           if (qrCodeEl) QRCode.toCanvas(document.getElementById('qr-code'), "${otp}")
           ${resetErrorScript.resetOtpError()}
+          function switchToEmail() {
+            var queryString = "?state=${queryDto.state}&code=${queryDto.code}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}";
+            var url = "${routeConfig.InternalRoute.Identity}/authorize-email-mfa" + queryString
+            window.location.href = url;
+          }
           function handleSubmit(e) {
             e.preventDefault();
             ${validateScript.verificationOtp(queryDto.locale)}

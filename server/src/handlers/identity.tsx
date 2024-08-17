@@ -36,7 +36,6 @@ const handlePostAuthorize = async (
   step: AuthorizeStep,
   authCode: string,
   authCodeBody: AuthCodeBody,
-  locale: typeConfig.Locale,
 ) => {
   const requireConsent = step < 1 && await consentService.shouldCollectConsent(
     c,
@@ -47,7 +46,6 @@ const handlePostAuthorize = async (
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
   } = env(c)
 
@@ -62,21 +60,6 @@ const handlePostAuthorize = async (
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
 
   const requireEmailMfa = step < 4 && (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
-  if (requireEmailMfa && !requireMfaEnroll && !requireConsent && !requireOtpMfa) {
-    const mfaCode = await emailService.sendEmailMfa(
-      c,
-      authCodeBody.user,
-      locale,
-    )
-    if (mfaCode) {
-      await kvService.storeEmailMfaCode(
-        c.env.KV,
-        authCode,
-        mfaCode,
-        codeExpiresIn,
-      )
-    }
-  }
 
   if (!requireConsent && !requireMfaEnroll && !requireOtpMfa && !requireEmailMfa) {
     sessionService.setAuthInfoSession(
@@ -99,6 +82,60 @@ const handlePostAuthorize = async (
     requireOtpSetup,
     requireOtpMfa,
   })
+}
+
+const handleSendEmail = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  locale: typeConfig.Locale,
+) => {
+  const {
+    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+    OTP_MFA_IS_REQUIRED: enableOtpMfa,
+    ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL: allowFallback,
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+  } = env(c)
+
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
+    authCode,
+  )
+  const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
+  const couldFallback = !enableOtpMfa && allowFallback && authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp)
+
+  if (!requireEmailMfa && !couldFallback) throw new errorConfig.Forbidden()
+
+  const mfaCode = await emailService.sendEmailMfa(
+    c,
+    authCodeBody.user,
+    locale,
+  )
+  if (mfaCode) {
+    await kvService.storeEmailMfaCode(
+      c.env.KV,
+      authCode,
+      mfaCode,
+      codeExpiresIn,
+    )
+  }
+}
+
+const allowSwitchToEmailMfa = (
+  c: Context<typeConfig.Context>,
+  authCodeStore: AuthCodeBody,
+) => {
+  const {
+    OTP_MFA_IS_REQUIRED: enableOtpMfa,
+    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+    ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL: allowFallback,
+  } = env(c)
+  const allowSwitch =
+    !enableOtpMfa &&
+    !enableEmailMfa &&
+    allowFallback &&
+    authCodeStore.user.mfaTypes.length === 1 &&
+    authCodeStore.user.mfaTypes.includes(userModel.MfaType.Otp)
+  return allowSwitch
 }
 
 export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
@@ -279,7 +316,6 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     AuthorizeStep.Account,
     authCode,
     authCodeBody,
-    bodyDto.locale,
   )
 }
 
@@ -339,7 +375,6 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     AuthorizeStep.Consent,
     bodyDto.code,
     authCodeBody,
-    bodyDto.locale,
   )
 }
 
@@ -400,7 +435,6 @@ export const postAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => 
     AuthorizeStep.MfaEnroll,
     bodyDto.code,
     newAuthCodeStore,
-    bodyDto.locale,
   )
 }
 
@@ -427,6 +461,7 @@ export const getAuthorizeOtpSetup = async (c: Context<typeConfig.Context>) => {
     otp={otp}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
+    showEmailMfaBtn={false}
   />)
 }
 
@@ -439,10 +474,20 @@ export const getAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  const allowSwitch = allowSwitchToEmailMfa(
+    c,
+    authCodeBody,
+  )
+
   return c.html(<AuthorizeOtpMfaView
     logoUrl={logoUrl}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
+    showEmailMfaBtn={allowSwitch}
   />)
 }
 
@@ -498,7 +543,6 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
     AuthorizeStep.OtpMfa,
     bodyDto.code,
     authCodeStore,
-    bodyDto.locale,
   )
 }
 
@@ -511,6 +555,12 @@ export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
+
+  await handleSendEmail(
+    c,
+    queryDto.code,
+    queryDto.locale,
+  )
 
   return c.html(<AuthorizeEmailMfaView
     logoUrl={logoUrl}
@@ -527,25 +577,31 @@ export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+
+  const isFallback = allowSwitchToEmailMfa(
+    c,
+    authCodeStore,
+  )
+
   const isValid = await kvService.stampEmailMfaCode(
     c.env.KV,
     bodyDto.code,
     bodyDto.mfaCode,
     expiresIn,
+    isFallback,
   )
 
   if (!isValid) throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
 
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
-    bodyDto.code,
-  )
   return handlePostAuthorize(
     c,
     AuthorizeStep.OtpEmail,
     bodyDto.code,
     authCodeStore,
-    bodyDto.locale,
   )
 }
 
@@ -555,33 +611,11 @@ export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeResendEmailMfaDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const {
-    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-  } = env(c)
-
-  const authCodeBody = await kvService.getAuthCodeBody(
-    c.env.KV,
+  await handleSendEmail(
+    c,
     bodyDto.code,
+    bodyDto.locale,
   )
-
-  const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
-
-  if (requireEmailMfa) {
-    const mfaCode = await emailService.sendEmailMfa(
-      c,
-      authCodeBody.user,
-      bodyDto.locale,
-    )
-    if (mfaCode) {
-      await kvService.storeEmailMfaCode(
-        c.env.KV,
-        bodyDto.code,
-        mfaCode,
-        codeExpiresIn,
-      )
-    }
-  }
 
   return c.json({ success: true })
 }
@@ -639,7 +673,6 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     AuthorizeStep.Password,
     authCode,
     authCodeBody,
-    request.locale,
   )
 }
 

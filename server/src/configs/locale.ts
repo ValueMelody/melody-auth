@@ -183,6 +183,10 @@ export const authorizeOtpMfa = Object.freeze({
     en: 'Verify',
     fr: 'Vérifier',
   },
+  switchToEmail: {
+    en: 'Receive MFA Code by Email',
+    fr: 'Recevoir le code MFA par e-mail',
+  },
 })
 
 export const authorizeConsent = Object.freeze({

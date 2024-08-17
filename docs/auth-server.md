@@ -202,6 +202,10 @@ npm run prod:deploy
 - **Default:** true
 - **Description:** This setting requires that users enroll in at least one form of Multi-Factor Authentication (MFA). This setting is only effective if both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
 
+### ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL
+- **Default:** true
+- **Description:** This setting allows users to use email-based MFA as an alternative method for signing in if they are enrolled in OTP MFA and both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
+
 ### ACCOUNT_LOCKOUT_THRESHOLD
 - **Default:** 5
 - **Description:** Number of failed login attempts before the user account is locked. Set to 0 to disable the account lockout feature.
