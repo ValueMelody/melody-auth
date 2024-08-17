@@ -40,14 +40,7 @@ cd melody-auth
 npm install
 ```
 
-2. Copy the Example Configuration File
-Execute the following commands to copy the example configuration file to the active configuration file:
-```
-cd server
-cp wrangler.toml.example wrangler.toml
-```
-
-3. Update `server/wrangler.toml`:
+2. Update `server/wrangler.toml`:
 Replace the KV id and D1 id with your newly created resources:
 ```toml
 [[kv_namespaces]]
@@ -214,7 +207,7 @@ npm run prod:deploy
 - **Default:** 86400 (1 day)
 - **Description:** Duration (in seconds) for which the account remains locked after reaching the lockout threshold. Set to 0 for indefinite lockout until manual intervention.
 
-## UNLOCK_ACCOUNT_VIA_PASSWORD_RESET
+### UNLOCK_ACCOUNT_VIA_PASSWORD_RESET
 - **Default:** true
 - **Description:** User can unlock their account by reset password. (Email functionality required. To enable email functionality, you need to set valid `SENDGRID_API_KEY` and `SENDGRID_SENDER_ADDRESS` environment variables first.)
 
