@@ -84,15 +84,13 @@ const handlePostAuthorize = async (
   })
 }
 
-const handleSendEmail = async (
+const handleSendEmailMfa = async (
   c: Context<typeConfig.Context>,
   authCode: string,
   locale: typeConfig.Locale,
 ) => {
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
-    OTP_MFA_IS_REQUIRED: enableOtpMfa,
-    ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL: allowFallback,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
   } = env(c)
 
@@ -101,7 +99,10 @@ const handleSendEmail = async (
     authCode,
   )
   const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
-  const couldFallback = !enableOtpMfa && allowFallback && authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp)
+  const couldFallback = allowSwitchToEmailMfa(
+    c,
+    authCodeBody,
+  )
 
   if (!requireEmailMfa && !couldFallback) throw new errorConfig.Forbidden()
 
@@ -127,15 +128,12 @@ const allowSwitchToEmailMfa = (
   const {
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
-    ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL: allowFallback,
+    ALLOW_EMAIL_MFA_AS_BACKUP: allowFallback,
   } = env(c)
-  const allowSwitch =
-    !enableOtpMfa &&
-    !enableEmailMfa &&
-    allowFallback &&
-    authCodeStore.user.mfaTypes.length === 1 &&
-    authCodeStore.user.mfaTypes.includes(userModel.MfaType.Otp)
-  return allowSwitch
+  const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
+  const enrolledOtp = enableOtpMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Otp)
+
+  return allowFallback && notEnrolledEmail && enrolledOtp
 }
 
 export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
@@ -556,7 +554,7 @@ export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
-  await handleSendEmail(
+  await handleSendEmailMfa(
     c,
     queryDto.code,
     queryDto.locale,
@@ -611,7 +609,7 @@ export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeResendEmailMfaDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  await handleSendEmail(
+  await handleSendEmailMfa(
     c,
     bodyDto.code,
     bodyDto.locale,

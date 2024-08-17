@@ -204,9 +204,9 @@ npm run prod:deploy
 - **Description:** This setting requires that users enroll in at least one form of Multi-Factor Authentication (MFA). This setting is only effective if both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false.
 [Email functionality setup required](#email-functionality-setup)
 
-### ENABLE_EMAIL_MFA_IF_OTP_MFA_IS_OPTIONAL
+### ALLOW_EMAIL_MFA_AS_BACKUP
 - **Default:** true
-- **Description:** This setting allows users to use email-based MFA as an alternative method for signing in if they are enrolled in OTP MFA and both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false
+- **Description:** This setting allows users to use email-based MFA as an alternative method for signing in if they are enrolled in OTP MFA and not enrolled in email MFA.
 [Email functionality setup required](#email-functionality-setup)
 
 ### ACCOUNT_LOCKOUT_THRESHOLD
