@@ -42,7 +42,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       codeExpiresIn,
     )
 
-    if (enableOtpMfa) {
+    if (enableOtpMfa || stored.user.mfaTypes.includes(userModel.MfaType.Otp)) {
       await kvService.markOtpMfaVerified(
         c.env.KV,
         authCode,
@@ -50,7 +50,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       )
     }
 
-    if (enableEmailMfa) {
+    if (enableEmailMfa || stored.user.mfaTypes.includes(userModel.MfaType.Otp)) {
       await kvService.markEmailMfaVerified(
         c.env.KV,
         authCode,
