@@ -40,7 +40,14 @@ cd melody-auth
 npm install
 ```
 
-2. Update `server/wrangler.toml`:
+2. Copy the Example Configuration File
+Execute the following commands to copy the example configuration file to the active configuration file:
+```
+cd server
+cp wrangler.toml.example wrangler.toml
+```
+
+3. Update `server/wrangler.toml`:
 Replace the KV id and D1 id with your newly created resources:
 ```toml
 [[kv_namespaces]]
@@ -64,7 +71,7 @@ npm run prod:deploy
 Now you are all set, you can verify your server by accessing: `[your_worker_url]/.well-known/openid-configuration`
 
 ## Email Functionality Setup
-Melody Auth supports email-based features such as password reset and email verification. To enable these features, you need to set up SendGrid integration and configure the necessary environment variables in your Cloudflare Worker.
+Melody Auth supports email-based features such as password reset, email verification and email MFA. To enable these features, you need to set up SendGrid integration and configure the necessary environment variables in your Cloudflare Worker.
 
 ### Prerequisites
 - A SendGrid account
