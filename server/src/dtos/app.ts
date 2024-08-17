@@ -26,7 +26,10 @@ export class PostAppReqDto {
   @IsNotEmpty()
     scopes: string[]
 
-  @IsUrl({ require_protocol: true }, { each: true })
+  @IsUrl(
+    { require_protocol: true },
+    { each: true },
+  )
   @IsNotEmpty()
     redirectUris: string[]
 
@@ -39,7 +42,10 @@ export class PostAppReqDto {
 }
 
 export class PutAppReqDto {
-  @IsUrl({ require_protocol: true }, { each: true })
+  @IsUrl(
+    { require_protocol: true },
+    { each: true },
+  )
   @IsOptional()
     redirectUris?: string[]
 
