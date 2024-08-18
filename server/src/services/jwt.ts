@@ -7,6 +7,7 @@ import { JWTPayload } from 'hono/utils/jwt/types'
 import {
   ClientType, IdTokenBody,
 } from 'shared'
+import { SignatureKey } from 'hono/utils/jwt/jws'
 import {
   errorConfig, typeConfig,
 } from 'configs'
@@ -125,7 +126,7 @@ export const verifyGoogleCredential = async (credential: string) => {
   const publicKey = certs.keys.find((key) => key.kid === header.kid)
   const result = await verify(
     credential,
-    publicKey,
+    publicKey as unknown as SignatureKey,
     'RS256',
   )
   if ('iss' in result && result.iss === 'https://accounts.google.com' && 'email' in result) {

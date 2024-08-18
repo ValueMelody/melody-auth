@@ -157,7 +157,6 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     GOOGLE_AUTH_CLIENT_ID: googleClientId,
   } = env(c)
-  console.log(googleClientId)
 
   const queryString = formatUtil.getQueryString(c)
 
