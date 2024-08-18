@@ -15,7 +15,6 @@ import { kvService } from 'services'
 
 export const getAccessTokenBody = async (
   context: Context<typeConfig.Context>,
-  type: ClientType,
   accessToken: string,
 ) => {
   const publicSecret = await kvService.getJwtPublicSecret(context.env.KV)

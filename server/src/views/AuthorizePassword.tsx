@@ -77,6 +77,7 @@ const AuthorizePassword = ({
                   data-size='large'
                   data-theme='outline'
                   data-text='sign_in_with'
+                  data-locale={queryDto.locale}
                   data-shape='rectangular'
                   data-logo_alignment='left'
                 />

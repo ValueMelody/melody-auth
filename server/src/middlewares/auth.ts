@@ -3,21 +3,18 @@ import {
 } from 'hono'
 import { bearerAuth } from 'hono/bearer-auth'
 import { basicAuth } from 'hono/basic-auth'
-import {
-  ClientType, Scope,
-} from 'shared'
+import { Scope } from 'shared'
 import { typeConfig } from 'configs'
 import { jwtService } from 'services'
 import { oauthDto } from 'dtos'
 
 const parseToken = async (
-  c: Context<typeConfig.Context>, token: string, type: ClientType,
+  c: Context<typeConfig.Context>, token: string,
 ) => {
   if (!token) return false
 
   const accessTokenBody = await jwtService.getAccessTokenBody(
     c,
-    type,
     token,
   )
   if (!accessTokenBody) return false
@@ -32,7 +29,6 @@ export const spa = bearerAuth({
     const accessTokenBody = await parseToken(
       c,
       token,
-      ClientType.SPA,
     )
     if (!accessTokenBody) return false
 
@@ -52,7 +48,6 @@ export const spaProfile = bearerAuth({
     const accessTokenBody = await parseToken(
       c,
       token,
-      ClientType.SPA,
     )
     if (!accessTokenBody) return false
 
@@ -74,7 +69,6 @@ const s2sScopeGuard = async (
   const accessTokenBody = await parseToken(
     c,
     token,
-    ClientType.S2S,
   )
   if (!accessTokenBody) return false
 
