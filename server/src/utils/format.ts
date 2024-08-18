@@ -2,7 +2,6 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { typeConfig } from 'configs'
 import { timeUtil } from 'utils'
-import { Pagination } from 'configs/type'
 
 export const stripEndingSlash = (val: string): string => {
   return val.replace(
@@ -24,15 +23,35 @@ export const getQueryString = (c: Context<typeConfig.Context>): string => c.req.
 export const d1SelectAllQuery = (
   db: D1Database,
   tableName: string,
-  pagination?: Pagination,
+  option?: {
+    pagination?: typeConfig.Pagination;
+    search?: typeConfig.Search;
+  },
 ): D1PreparedStatement => {
-  const paginatedCondition = pagination ? 'Limit $1 OFFSET $2' : ''
-  const query = `SELECT * FROM ${tableName} WHERE deletedAt IS NULL ORDER BY id ASC ${paginatedCondition}`
-  const stmt = pagination
-    ? db.prepare(query).bind(
-      pagination.pageSize,
-      (pagination.pageNumber - 1) * pagination.pageSize,
-    )
+  const {
+    pagination, search,
+  } = option || {}
+
+  let num = 1
+  const bind = []
+  let searchCondition = ''
+  let paginatedCondition = ''
+
+  if (search) {
+    searchCondition = `AND ${search.column} LIKE $${num++}`
+    bind.push(search.value)
+  }
+
+  if (pagination) {
+    paginatedCondition = `Limit $${num++} OFFSET $${num++}`
+    bind.push(pagination.pageSize)
+    bind.push((pagination.pageNumber - 1) * pagination.pageSize)
+  }
+
+  const query = `SELECT * FROM ${tableName} WHERE deletedAt IS NULL ${searchCondition} ORDER BY id ASC ${paginatedCondition}`
+
+  const stmt = bind.length
+    ? db.prepare(query).bind(...bind)
     : db.prepare(query)
   return stmt
 }

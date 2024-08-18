@@ -56,6 +56,7 @@
   "users": {
     "title": "Utilisateurs",
     "social": "Connexion via un réseau social",
+    "search": "Rechercher par nom ou email",
     "user": "Utilisateur",
     "authId": "ID Auth",
     "email": "Email",

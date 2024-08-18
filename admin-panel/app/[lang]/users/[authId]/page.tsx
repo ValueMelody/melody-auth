@@ -326,7 +326,7 @@ const Page = () => {
                 <Table.Cell>{t('users.authenticator')}</Table.Cell>
                 <TableCell>
                   <div className='flex'>
-                    {isOtpEnrolled && (
+                    {isOtpEnrolled && !user.otpVerified && (
                       <Badge color='gray'>{t('users.otpMfaEnrolled')}</Badge>
                     )}
                     {isOtpEnrolled && user.otpVerified && (

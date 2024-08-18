@@ -86,3 +86,8 @@ export interface Pagination {
   pageSize: number;
   pageNumber: number;
 }
+
+export interface Search {
+  column: string;
+  value: string;
+}

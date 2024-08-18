@@ -2,7 +2,6 @@ import {
   adapterConfig, errorConfig,
   typeConfig,
 } from 'configs'
-import { Pagination } from 'configs/type'
 import {
   formatUtil,
   validateUtil,
@@ -150,19 +149,30 @@ export const convertToApiRecordWithRoles = (
 
 export const getAll = async (
   db: D1Database,
-  pagination?: Pagination,
+  option?: {
+    search?: typeConfig.Search;
+    pagination?: typeConfig.Pagination;
+  },
 ): Promise<Record[]> => {
   const stmt = formatUtil.d1SelectAllQuery(
     db,
     TableName,
-    pagination,
+    option,
   )
   const { results: users }: { results: Raw[] } = await stmt.all()
   return users.map((user) => convertToRecord(user))
 }
 
-export const count = async (db: D1Database): Promise<number> => {
-  const stmt = db.prepare(`SELECT COUNT(*) as count FROM ${TableName} where deletedAt IS NULL`)
+export const count = async (
+  db: D1Database,
+  option?: {
+    search?: typeConfig.Search;
+  },
+): Promise<number> => {
+  const condition = option?.search ? `AND ${option.search.column} LIKE $1` : ''
+  const bind = option?.search ? [option.search.value] : []
+  const query = `SELECT COUNT(*) as count FROM ${TableName} where deletedAt IS NULL ${condition}`
+  const stmt = bind.length ? db.prepare(query).bind(...bind) : db.prepare(query)
   const result = await stmt.first() as { count: number }
   return result.count
 }

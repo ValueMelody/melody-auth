@@ -3,6 +3,7 @@
 import { useAuth } from '@melody-auth/react'
 import {
   Pagination, Table,
+  TextInput,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import {
@@ -18,6 +19,7 @@ import {
 } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
+import useDebounce from 'hooks/useDebounce'
 
 const PageSize = 20
 
@@ -31,6 +33,8 @@ const Page = () => {
   const configs = useSignalValue(configSignal)
   const [pageNumber, setPageNumber] = useState(1)
   const [count, setCount] = useState(0)
+  const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search)
 
   const totalPages = useMemo(
     () => Math.ceil(count / PageSize),
@@ -43,10 +47,34 @@ const Page = () => {
 
   useEffect(
     () => {
+      const searchUser = async () => {
+        setPageNumber(1)
+        const token = await acquireToken()
+        const searchVal = debouncedSearch.trim()
+        const baseUrl = `/api/users?page_size=${PageSize}&page_number=1`
+        const link = searchVal ? `${baseUrl}&search=${searchVal}` : baseUrl
+        const data = await proxyTool.sendNextRequest({
+          endpoint: link,
+          method: 'GET',
+          token,
+        })
+        setUsers(data.users)
+        setCount(data.count)
+      }
+      searchUser()
+    },
+    [debouncedSearch, acquireToken],
+  )
+
+  useEffect(
+    () => {
       const getUsers = async () => {
         const token = await acquireToken()
+        const searchVal = debouncedSearch.trim()
+        const baseUrl = `/api/users?page_size=${PageSize}&page_number=${pageNumber}`
+        const link = searchVal ? `${baseUrl}&search=${searchVal}` : baseUrl
         const data = await proxyTool.sendNextRequest({
-          endpoint: `/api/users?page_size=${PageSize}&page_number=${pageNumber}`,
+          endpoint: link,
           method: 'GET',
           token,
         })
@@ -56,14 +84,22 @@ const Page = () => {
 
       getUsers()
     },
-    [acquireToken, pageNumber],
+    [acquireToken, pageNumber, debouncedSearch],
   )
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('users.title')} />
+      <header className='mb-6 flex items-center gap-4'>
+        <PageTitle
+          title={t('users.title')}
+        />
+        <TextInput
+          className='w-60'
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t('users.search')}
+        />
+      </header>
       <Table>
         <Table.Head>
           <Table.HeadCell>{t('users.authId')}</Table.HeadCell>
