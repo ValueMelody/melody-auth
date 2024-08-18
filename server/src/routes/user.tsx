@@ -29,6 +29,11 @@ export default userRoutes
  *         schema:
  *           type: integer
  *         description: Page number to return
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by name or email
  *     responses:
  *       200:
  *         description: A list of users

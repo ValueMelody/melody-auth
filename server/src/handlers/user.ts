@@ -13,7 +13,9 @@ import { userModel } from 'models'
 
 export const getUsers = async (c: Context<typeConfig.Context>) => {
   const {
-    page_size: pageSize, page_number: pageNumber,
+    page_size: pageSize,
+    page_number: pageNumber,
+    search,
   } = c.req.query()
   const pagination = pageSize && pageNumber
     ? new PaginationDto({
@@ -24,6 +26,7 @@ export const getUsers = async (c: Context<typeConfig.Context>) => {
 
   const result = await userService.getUsers(
     c,
+    search || undefined,
     pagination,
   )
   return c.json(result)

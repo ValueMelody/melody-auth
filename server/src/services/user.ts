@@ -62,13 +62,29 @@ export const getUserInfo = async (
 
 export const getUsers = async (
   c: Context<typeConfig.Context>,
-  pagination?: typeConfig.Pagination,
+  search: string | undefined,
+  pagination: typeConfig.Pagination | undefined,
 ): Promise<userModel.PaginatedApiRecords> => {
+  const searchObj = search
+    ? {
+      column: "(firstName || ' ' || lastName || ' ' || email)",
+      value: `%${search}%`,
+    }
+    : undefined
+
   const users = await userModel.getAll(
     c.env.DB,
-    pagination,
+    {
+      search: searchObj,
+      pagination,
+    },
   )
-  const count = pagination ? await userModel.count(c.env.DB) : users.length
+  const count = pagination
+    ? await userModel.count(
+      c.env.DB,
+      { search: searchObj },
+    )
+    : users.length
 
   const { ENABLE_NAMES: enableNames } = env(c)
 
