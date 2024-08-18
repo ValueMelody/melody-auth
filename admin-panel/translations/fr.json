@@ -55,6 +55,7 @@
   },
   "users": {
     "title": "Utilisateurs",
+    "social": "Connexion via un réseau social",
     "user": "Utilisateur",
     "authId": "ID Auth",
     "email": "Email",

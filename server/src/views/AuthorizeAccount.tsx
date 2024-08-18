@@ -107,7 +107,9 @@ const AuthorizeAccount = ({
                 body: JSON.stringify({
                   firstName: document.getElementById('form-firstName') ? document.getElementById('form-firstName').value : undefined,
                   lastName: document.getElementById('form-lastName') ? document.getElementById('form-lastName').value : undefined,
-                  ${requestScript.parseAuthorizeFieldValues(queryDto)}
+                  email: document.getElementById('form-email').value,
+                  password: document.getElementById('form-password').value,
+                  ${requestScript.parseAuthorizeBaseValues(queryDto)}
                 })
             })
             .then((response) => {

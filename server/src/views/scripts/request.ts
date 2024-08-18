@@ -1,9 +1,7 @@
 import { html } from 'hono/html'
 import { oauthDto } from 'dtos'
 
-export const parseAuthorizeFieldValues = (queryDto: oauthDto.GetAuthorizeReqDto) => html`
-  email: document.getElementById('form-email').value,
-  password: document.getElementById('form-password').value,
+export const parseAuthorizeBaseValues = (queryDto: oauthDto.GetAuthorizeReqDto) => html`
   clientId: "${queryDto.clientId}",
   redirectUri: "${queryDto.redirectUri}",
   responseType: "${queryDto.responseType}",
@@ -11,5 +9,5 @@ export const parseAuthorizeFieldValues = (queryDto: oauthDto.GetAuthorizeReqDto)
   codeChallenge: "${queryDto.codeChallenge}",
   codeChallengeMethod: "${queryDto.codeChallengeMethod}",
   locale: "${queryDto.locale}",
-  scope: "${queryDto.scopes.join(' ')}"
+  scope: "${queryDto.scopes.join(' ')}",
 `

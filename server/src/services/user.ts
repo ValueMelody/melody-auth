@@ -16,7 +16,7 @@ import {
   roleModel, userAppConsentModel, userModel, userRoleModel,
 } from 'models'
 import {
-  emailService, kvService, roleService,
+  emailService, jwtService, kvService, roleService,
 } from 'services'
 import {
   cryptoUtil, timeUtil,
@@ -139,7 +139,7 @@ export const verifyPasswordSignIn = async (
     throw new errorConfig.Forbidden(localeConfig.Error.AccountLocked)
   }
 
-  const user = await userModel.getByEmail(
+  const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
     bodyDto.email,
   )
@@ -174,7 +174,7 @@ export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
   bodyDto: PostAuthorizeReqWithNamesDto,
 ): Promise<userModel.Record> => {
-  const user = await userModel.getByEmail(
+  const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
     bodyDto.email,
   )
@@ -190,6 +190,7 @@ export const createAccountWithPassword = async (
     {
       authId: crypto.randomUUID(),
       email: bodyDto.email,
+      googleId: null,
       password,
       locale: bodyDto.locale,
       otpSecret,
@@ -199,6 +200,40 @@ export const createAccountWithPassword = async (
   )
 
   return newUser
+}
+
+export const processGoogleAccount = async (
+  c: Context<typeConfig.Context>,
+  googleUser: jwtService.GoogleUser,
+  locale: typeConfig.Locale,
+) => {
+  const currentUser = await userModel.getGoogleUserByGoogleId(
+    c.env.DB,
+    googleUser.id,
+  )
+  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+
+  const user = currentUser ?? await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      email: googleUser.email,
+      googleId: googleUser.id,
+      password: null,
+      locale,
+      emailVerified: googleUser.emailVerified ? 1 : 0,
+      firstName: googleUser.firstName,
+      lastName: googleUser.lastName,
+    },
+  )
+  if (user.emailVerified !== googleUser.emailVerified) {
+    await userModel.update(
+      c.env.DB,
+      user.id,
+      { emailVerified: googleUser.emailVerified ? 1 : 0 },
+    )
+  }
+  return user
 }
 
 export const verifyUserEmail = async (
@@ -237,7 +272,7 @@ export const sendPasswordReset = async (
   email: string,
   locale: typeConfig.Locale,
 ): Promise<true> => {
-  const user = await userModel.getByEmail(
+  const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
     email,
   )
@@ -264,7 +299,7 @@ export const resetUserPassword = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostAuthorizeResetReqDto,
 ): Promise<true> => {
-  const user = await userModel.getByEmail(
+  const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
     bodyDto.email,
   )

@@ -35,6 +35,14 @@ export const enablePasswordReset = async (
   await next()
 }
 
+export const enableGoogleSignIn = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { GOOGLE_AUTH_CLIENT_ID: googleId } = env(c)
+  if (!googleId) throw new errorConfig.Forbidden()
+  await next()
+}
+
 export const enableEmailVerification = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

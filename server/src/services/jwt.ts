@@ -1,7 +1,7 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
-  sign, verify,
+  sign, verify, decode,
 } from 'hono/jwt'
 import { JWTPayload } from 'hono/utils/jwt/types'
 import {
@@ -106,4 +106,38 @@ export const genIdToken = async (
     'RS256',
   )
   return { idToken }
+}
+
+export interface GoogleUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  emailVerified: boolean;
+  id: string;
+}
+
+export const verifyGoogleCredential = async (credential: string) => {
+  const decoded = decode(credential)
+  const header = decoded.header as unknown as { kid: string }
+
+  const response = await fetch('https://www.googleapis.com/oauth2/v3/certs')
+  const certs = await response.json() as { keys: { kid: string }[] }
+  const publicKey = certs.keys.find((key) => key.kid === header.kid)
+  const result = await verify(
+    credential,
+    publicKey,
+    'RS256',
+  )
+  if ('iss' in result && result.iss === 'https://accounts.google.com' && 'email' in result) {
+    const user = {
+      firstName: result.given_name,
+      lastName: result.family_name,
+      email: result.email,
+      emailVerified: result.email_verified,
+      id: result.sub,
+    } as GoogleUser
+    return user
+  }
+
+  return undefined
 }

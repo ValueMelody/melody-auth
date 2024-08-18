@@ -87,6 +87,10 @@ export const requestError = Object.freeze({
     en: 'No user found.',
     fr: 'Aucun utilisateur trouvé.',
   },
+  disabledUser: {
+    en: 'This account has been disabled.',
+    fr: 'Ce compte a été désactivé.',
+  },
   accountLocked: {
     en: 'Account temporarily locked due to excessive login failures.',
     fr: 'Compte temporairement bloqué en raison de trop nombreuses tentatives de connexion échouées.',

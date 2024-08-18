@@ -90,30 +90,34 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
   }
 
+  const isSocialLogin = !!authInfo.user.googleId
+
   const {
     EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
   } = env(c)
 
-  if (enforceMfa && !requireEmailMfa && !requireOtpMfa) {
-    if (!authInfo.user.mfaTypes.length) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
-  }
+  if (!isSocialLogin) {
+    if (enforceMfa && !requireEmailMfa && !requireOtpMfa) {
+      if (!authInfo.user.mfaTypes.length) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+    }
 
-  if (requireOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
-    const isVerified = await kvService.optMfaCodeVerified(
-      c.env.KV,
-      bodyDto.code,
-    )
-    if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
-  }
+    if (requireOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
+      const isVerified = await kvService.optMfaCodeVerified(
+        c.env.KV,
+        bodyDto.code,
+      )
+      if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+    }
 
-  if (requireEmailMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Email)) {
-    const isVerified = await kvService.emailMfaCodeVerified(
-      c.env.KV,
-      bodyDto.code,
-    )
-    if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+    if (requireEmailMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Email)) {
+      const isVerified = await kvService.emailMfaCodeVerified(
+        c.env.KV,
+        bodyDto.code,
+      )
+      if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+    }
   }
 
   const requireConsent = await consentService.shouldCollectConsent(

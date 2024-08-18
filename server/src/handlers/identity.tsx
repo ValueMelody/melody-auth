@@ -8,7 +8,7 @@ import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
-  appService, consentService, emailService, kvService, scopeService, sessionService, userService,
+  appService, consentService, emailService, jwtService, kvService, scopeService, sessionService, userService,
 } from 'services'
 import {
   formatUtil, validateUtil,
@@ -25,6 +25,7 @@ import { userModel } from 'models'
 enum AuthorizeStep {
   Account = 0,
   Password = 0,
+  Google = 0,
   Consent = 1,
   MfaEnroll = 2,
   OtpMfa = 3,
@@ -43,6 +44,8 @@ const handlePostAuthorize = async (
     authCodeBody.appId,
   )
 
+  const isSocialLogin = !!authCodeBody.user.googleId
+
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
@@ -51,15 +54,22 @@ const handlePostAuthorize = async (
 
   const requireMfaEnroll =
     step < 2 &&
+    !isSocialLogin &&
     enforceMfa &&
     !enableEmailMfa &&
     !enableOtpMfa &&
     !authCodeBody.user.mfaTypes.length
 
-  const requireOtpMfa = step < 3 && (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
+  const requireOtpMfa =
+    step < 3 &&
+    !isSocialLogin &&
+    (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
 
-  const requireEmailMfa = step < 4 && (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
+  const requireEmailMfa =
+    step < 4 &&
+    !isSocialLogin &&
+    (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
 
   if (!requireConsent && !requireMfaEnroll && !requireOtpMfa && !requireEmailMfa) {
     sessionService.setAuthInfoSession(
@@ -145,7 +155,9 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     ENABLE_PASSWORD_RESET: enablePasswordReset,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+    GOOGLE_AUTH_CLIENT_ID: googleClientId,
   } = env(c)
+  console.log(googleClientId)
 
   const queryString = formatUtil.getQueryString(c)
 
@@ -156,6 +168,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     logoUrl={logoUrl}
     enableSignUp={enableSignUp}
     enablePasswordReset={enablePasswordReset}
+    googleClientId={googleClientId}
   />)
 }
 
@@ -616,6 +629,55 @@ export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.json({ success: true })
+}
+
+export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+    ...reqBody,
+    scopes: reqBody.scope.split(' '),
+  })
+  await validateUtil.dto(bodyDto)
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
+  const googleUser = await jwtService.verifyGoogleCredential(bodyDto.credential)
+  if (!googleUser) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+
+  const user = await userService.processGoogleAccount(
+    c,
+    googleUser,
+    bodyDto.locale,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+
+  const authCode = genRandomString(128)
+  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const authCodeBody = {
+    appId: app.id,
+    appName: app.name,
+    user,
+    request,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    authCodeBody,
+    codeExpiresIn,
+  )
+
+  return handlePostAuthorize(
+    c,
+    AuthorizeStep.Google,
+    authCode,
+    authCodeBody,
+  )
 }
 
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
