@@ -17,6 +17,7 @@ export interface Common {
   id: number;
   authId: string;
   email: string | null;
+  googleId: string | null;
   locale: typeConfig.Locale;
   password: string | null;
   firstName: string | null;
@@ -45,6 +46,7 @@ export interface Record extends Common {
 export interface ApiRecord {
   id: number;
   authId: string;
+  googleId: string | null;
   email: string | null;
   locale: typeConfig.Locale;
   firstName?: string | null;
@@ -72,8 +74,10 @@ export interface Create {
   authId: string;
   locale: typeConfig.Locale;
   email: string | null;
+  googleId: string | null;
   password: string | null;
   otpSecret?: string;
+  emailVerified?: number;
   firstName: string | null;
   lastName: string | null;
 }
@@ -110,6 +114,7 @@ export const convertToApiRecord = (
   const result: ApiRecord = {
     id: record.id,
     authId: record.authId,
+    googleId: record.googleId,
     email: record.email,
     locale: record.locale,
     emailVerified: record.emailVerified,
@@ -183,12 +188,22 @@ export const getByAuthId = async (
   return user ? convertToRecord(user) : null
 }
 
-export const getByEmail = async (
+export const getPasswordUserByEmail = async (
   db: D1Database, email: string,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE email = $1 AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE email = $1 AND googleId IS NULL AND deletedAt IS NULL`
   const stmt = db.prepare(query)
     .bind(email)
+  const user = await stmt.first() as Raw | null
+  return user ? convertToRecord(user) : null
+}
+
+export const getGoogleUserByGoogleId = async (
+  db: D1Database, googleId: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE googleId = $1 AND deletedAt IS NULL`
+  const stmt = db.prepare(query)
+    .bind(googleId)
   const user = await stmt.first() as Raw | null
   return user ? convertToRecord(user) : null
 }
@@ -197,7 +212,8 @@ export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
   const createKeys: (keyof Create)[] = [
-    'authId', 'email', 'password', 'firstName', 'lastName', 'locale', 'otpSecret',
+    'authId', 'email', 'password', 'firstName', 'lastName',
+    'locale', 'otpSecret', 'googleId', 'emailVerified',
   ]
   const stmt = formatUtil.d1CreateQuery(
     db,

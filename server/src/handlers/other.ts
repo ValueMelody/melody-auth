@@ -22,6 +22,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     SUPPORTED_LOCALES: environment.SUPPORTED_LOCALES,
     ENABLE_LOCALE_SELECTOR: environment.ENABLE_LOCALE_SELECTOR,
     COMPANY_LOGO_URL: environment.COMPANY_LOGO_URL,
+    GOOGLE_AUTH_CLIENT_ID: environment.GOOGLE_AUTH_CLIENT_ID,
     ENABLE_SIGN_UP: environment.ENABLE_SIGN_UP,
     ENABLE_PASSWORD_RESET: environment.ENABLE_PASSWORD_RESET,
     ENABLE_NAMES: environment.ENABLE_NAMES,

@@ -106,6 +106,13 @@ identityRoutes.post(
 )
 
 identityRoutes.post(
+  `${BaseRoute}/authorize-google`,
+  setupMiddleware.validOrigin,
+  configMiddleware.enableGoogleSignIn,
+  identityHandler.postAuthorizeGoogle,
+)
+
+identityRoutes.post(
   `${BaseRoute}/reset-code`,
   setupMiddleware.validOrigin,
   configMiddleware.enablePasswordReset,

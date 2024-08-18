@@ -55,6 +55,7 @@
   },
   "users": {
     "title": "Users",
+    "social": "Social Sign In",
     "user": "User",
     "authId": "Auth ID",
     "email": "Email",

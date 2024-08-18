@@ -9,6 +9,17 @@ import {
 } from 'utils'
 import { userModel } from 'models'
 
+export class PostAuthorizeSocialSignInReqDto extends oauthDto.GetAuthorizeReqDto {
+  @IsString()
+  @IsNotEmpty()
+    credential: string
+
+  constructor (dto: PostAuthorizeSocialSignInReqDto) {
+    super(dto)
+    this.credential = dto.credential
+  }
+}
+
 export class PostAuthorizeReqWithPasswordDto extends oauthDto.GetAuthorizeReqDto {
   @IsEmail()
     email: string
@@ -73,7 +84,7 @@ export class PostAuthorizeReqWithRequiredNamesDto extends PostAuthorizeReqWithPa
   }
 }
 
-export class PostAuthorizeConsentReqDto {
+export class GetAuthorizeFollowUpReqDto {
   @IsString()
   @IsNotEmpty()
     state: string
@@ -97,16 +108,6 @@ export class PostAuthorizeConsentReqDto {
   }
 }
 
-export class GetAuthorizeFollowUpReqDto extends PostAuthorizeConsentReqDto {
-  @IsString()
-    locale: typeConfig.Locale
-
-  constructor (dto: GetAuthorizeFollowUpReqDto) {
-    super(dto)
-    this.locale = dto.locale
-  }
-}
-
 export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context>) => {
   const queryDto = new GetAuthorizeFollowUpReqDto({
     state: c.req.query('state') ?? '',
@@ -120,6 +121,8 @@ export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context
   await validateUtil.dto(queryDto)
   return queryDto
 }
+
+export class PostAuthorizeConsentReqDto extends GetAuthorizeFollowUpReqDto {}
 
 export class PostAuthorizeResendEmailMfaDto {
   @IsString()

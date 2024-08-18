@@ -52,6 +52,8 @@ export const handleSubmitError = (locale: typeConfig.Locale) => html`
     msg = "${localeConfig.validateError.isWeakPassword[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.NoUser}") !== -1) {
     msg = "${localeConfig.requestError.noUser[locale]}";
+  } else if (errorString.indexOf("${localeConfig.Error.UserDisabled}") !== -1) {
+    msg = "${localeConfig.requestError.disabledUser[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.AccountLocked}") !== -1) {
     msg = "${localeConfig.requestError.accountLocked[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.OtpMfaLocked}") !== -1) {

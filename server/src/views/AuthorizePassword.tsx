@@ -14,7 +14,9 @@ import Title from 'views/components/Title'
 import Field from 'views/components/Field'
 
 const AuthorizePassword = ({
-  queryDto, logoUrl, enableSignUp, enablePasswordReset, queryString, locales,
+  queryDto, logoUrl, enableSignUp,
+  enablePasswordReset, queryString, locales,
+  googleClientId,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   logoUrl: string;
@@ -22,6 +24,7 @@ const AuthorizePassword = ({
   enablePasswordReset: boolean;
   queryString: string;
   locales: typeConfig.Locale[];
+  googleClientId: string;
 }) => {
   return (
     <Layout
@@ -29,6 +32,12 @@ const AuthorizePassword = ({
       logoUrl={logoUrl}
       locale={queryDto.locale}
     >
+      {googleClientId && (
+        <script
+          src='https://accounts.google.com/gsi/client'
+          async>
+        </script>
+      )}
       <Title title={localeConfig.authorizePassword.title[queryDto.locale]} />
       <form
         autocomplete='on'
@@ -53,6 +62,28 @@ const AuthorizePassword = ({
           <SubmitButton
             title={localeConfig.authorizePassword.submit[queryDto.locale]}
           />
+          {googleClientId && (
+            <>
+              <div
+                id='g_id_onload'
+                data-client_id={googleClientId}
+                data-auto_prompt='false'
+                data-callback='handleGoogleSignIn'
+              />
+              <div class='flex-row justify-center'>
+                <div
+                  class='g_id_signin'
+                  data-type='standard'
+                  data-size='large'
+                  data-theme='outline'
+                  data-text='sign_in_with'
+                  data-locale={queryDto.locale}
+                  data-shape='rectangular'
+                  data-logo_alignment='left'
+                />
+              </div>
+            </>
+          )}
         </section>
       </form>
       {(enableSignUp || enablePasswordReset) && (
@@ -79,6 +110,29 @@ const AuthorizePassword = ({
         <script>
           ${resetErrorScript.resetEmailError()}
           ${resetErrorScript.resetPasswordError()}
+          function handleGoogleSignIn (response) {
+            if (!response.credential) return false;
+            fetch('${routeConfig.InternalRoute.Identity}/authorize-google', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  credential: response.credential,
+                  ${requestScript.parseAuthorizeBaseValues(queryDto)}
+                })
+            })
+            .then((response) => {
+              ${responseScript.parseRes()}
+            })
+            .then((data) => {
+              ${responseScript.handleAuthorizeFormRedirect(queryDto.locale)}
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
           function handleSubmit (e) {
             e.preventDefault();
             ${validateScript.email(queryDto.locale)}
@@ -90,7 +144,9 @@ const AuthorizePassword = ({
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  ${requestScript.parseAuthorizeFieldValues(queryDto)}
+                  email: document.getElementById('form-email').value,
+                  password: document.getElementById('form-password').value,
+                  ${requestScript.parseAuthorizeBaseValues(queryDto)}
                 })
             })
             .then((response) => {

@@ -7,6 +7,10 @@ const User = {
       type: 'string',
       nullable: true,
     },
+    googleId: {
+      type: 'string',
+      nullable: true,
+    },
     firstName: {
       type: 'string',
       nullable: true,

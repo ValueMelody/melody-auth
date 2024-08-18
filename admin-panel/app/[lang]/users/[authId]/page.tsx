@@ -283,66 +283,76 @@ const Page = () => {
                 </div>
               </Table.Cell>
               <Table.Cell>
-                <div className='flex items-center gap-4'>
-                  {user.isActive && !isEmailEnrolled && (
+                {!user.googleId && (
+                  <div className='flex items-center gap-4'>
+                    {user.isActive && !isEmailEnrolled && (
+                      <Button
+                        size='xs'
+                        onClick={handleEnrollEmailMfa}>
+                        {t('users.enrollMfa')}
+                      </Button>
+                    )}
+                    {user.isActive && isEmailEnrolled && !configs.EMAIL_MFA_IS_REQUIRED && (
+                      <Button
+                        size='xs'
+                        onClick={handleResetEmailMfa}>
+                        {t('users.resetMfa')}
+                      </Button>
+                    )}
+                    {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && !emailResent && (
+                      <Button
+                        size='xs'
+                        onClick={handleResendVerifyEmail}>
+                        {t('users.resend')}
+                      </Button>
+                    )}
+                    {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && emailResent && (
+                      <div className='flex'>
+                        <Badge>{t('users.sent')}</Badge>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Table.Cell>
+            </Table.Row>
+            {user.googleId && (
+              <Table.Row>
+                <Table.Cell>{t('users.social')}</Table.Cell>
+                <Table.Cell>Google: {user.googleId}</Table.Cell>
+              </Table.Row>
+            )}
+            {!user.googleId && (
+              <Table.Row>
+                <Table.Cell>{t('users.authenticator')}</Table.Cell>
+                <TableCell>
+                  <div className='flex'>
+                    {isOtpEnrolled && (
+                      <Badge color='gray'>{t('users.otpMfaEnrolled')}</Badge>
+                    )}
+                    {isOtpEnrolled && user.otpVerified && (
+                      <Badge color='success'>{t('users.otpMfaVerified')}</Badge>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {(user.otpVerified || user.mfaTypes.includes('otp')) && user.isActive && (
                     <Button
                       size='xs'
-                      onClick={handleEnrollEmailMfa}>
-                      {t('users.enrollMfa')}
-                    </Button>
-                  )}
-                  {user.isActive && isEmailEnrolled && !configs.EMAIL_MFA_IS_REQUIRED && (
-                    <Button
-                      size='xs'
-                      onClick={handleResetEmailMfa}>
+                      onClick={handleResetOtpMfa}
+                    >
                       {t('users.resetMfa')}
                     </Button>
                   )}
-                  {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && !emailResent && (
+                  {user.isActive && !isOtpEnrolled && (
                     <Button
                       size='xs'
-                      onClick={handleResendVerifyEmail}>
-                      {t('users.resend')}
+                      onClick={handleEnrollOtpMfa}>
+                      {t('users.enrollMfa')}
                     </Button>
                   )}
-                  {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && emailResent && (
-                    <div className='flex'>
-                      <Badge>{t('users.sent')}</Badge>
-                    </div>
-                  )}
-                </div>
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('users.authenticator')}</Table.Cell>
-              <TableCell>
-                <div className='flex'>
-                  {isOtpEnrolled && (
-                    <Badge color='gray'>{t('users.otpMfaEnrolled')}</Badge>
-                  )}
-                  {isOtpEnrolled && user.otpVerified && (
-                    <Badge color='success'>{t('users.otpMfaVerified')}</Badge>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>
-                {(user.otpVerified || user.mfaTypes.includes('otp')) && user.isActive && (
-                  <Button
-                    size='xs'
-                    onClick={handleResetOtpMfa}
-                  >
-                    {t('users.resetMfa')}
-                  </Button>
-                )}
-                {user.isActive && !isOtpEnrolled && (
-                  <Button
-                    size='xs'
-                    onClick={handleEnrollOtpMfa}>
-                    {t('users.enrollMfa')}
-                  </Button>
-                )}
-              </TableCell>
-            </Table.Row>
+                </TableCell>
+              </Table.Row>
+            )}
             <Table.Row>
               <Table.Cell>{t('users.locale')}</Table.Cell>
               <Table.Cell>
@@ -379,7 +389,7 @@ const Page = () => {
                 )}
               </Table.Cell>
             </Table.Row>
-            {enableAccountLock && (
+            {!user.googleId && enableAccountLock && (
               <Table.Row>
                 <Table.Cell>{t('users.lockedIPs')}</Table.Cell>
                 <Table.Cell>

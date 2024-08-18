@@ -164,6 +164,10 @@ npm run prod:deploy
 - **Default:** https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg
 - **Description:** The logo used for branding.
 
+### GOOGLE_AUTH_CLIENT_ID
+- **Default:** ""
+- **Description:** The Google Authentication Client ID is required to enable the Google Sign-In function. This ID is obtained from the Google Developer Console and uniquely identifies your application to Google. If this value is left empty, the Google Sign-In button will be suppressed and the sign-in functionality will not be available.
+
 ### ENABLE_SIGN_UP
 - **Default:** true
 - **Description:** Determines if user sign-up is allowed. If set to false, the sign-up button will be suppressed on the sign-in page.

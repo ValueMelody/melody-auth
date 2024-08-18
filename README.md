@@ -4,7 +4,7 @@
 
 ## Features Supported
 - OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication)
-- User Authorization (Sign In, Sign Up, Sign Out, Email Verification, Password Reset, Email MFA, OTP MFA, MFA Enrollment, Brute-force Protection, Role-Based Access Control, Localization) [Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)
+- User Authorization (Sign In, Sign Up, Google Sign In, Sign Out, Email Verification, Password Reset, Email MFA, OTP MFA, MFA Enrollment, Brute-force Protection, Role-Based Access Control, Localization) [Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)
 - S2S REST API & Admin Panel (Manage Users, Manage Apps, Manage Scopes, Manage Roles) [Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)
 
 ## Why Melody Auth?
