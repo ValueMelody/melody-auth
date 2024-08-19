@@ -20,6 +20,7 @@ identityRoutes.get(
 identityRoutes.post(
   `${BaseRoute}/authorize-password`,
   setupMiddleware.validOrigin,
+  configMiddleware.enablePasswordSignIn,
   identityHandler.postAuthorizePassword,
 )
 

@@ -12,6 +12,7 @@ SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
 
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
 ENABLE_SIGN_UP=true
+ENABLE_PASSWORD_SIGN_IN=true
 ENABLE_PASSWORD_RESET=true # To enable the email functionality, you must set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
 ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false

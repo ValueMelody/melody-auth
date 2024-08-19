@@ -25,6 +25,7 @@ export type Bindings = {
   COMPANY_LOGO_URL: string;
   AUTH_SERVER_URL: string;
   ENABLE_SIGN_UP: boolean;
+  ENABLE_PASSWORD_SIGN_IN: boolean;
   ENABLE_PASSWORD_RESET: boolean;
   ENABLE_NAMES: boolean;
   NAMES_IS_REQUIRED: boolean;

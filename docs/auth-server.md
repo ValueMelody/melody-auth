@@ -172,6 +172,10 @@ npm run prod:deploy
 - **Default:** true
 - **Description:** Determines if user sign-up is allowed. If set to false, the sign-up button will be suppressed on the sign-in page.
 
+### ENABLE_PASSWORD_SIGN_IN
+- **Default:** true
+- **Description:** Determines if password sign-in is allowed. If you only want to support social sign-in, you can set ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN and ENABLE_PASSWORD_RESET to false.
+
 ### ENABLE_PASSWORD_RESET
 - **Default:** true
 - **Description:** Determines if user password reset is allowed. If set to false, the reset password button will be suppressed on the sign-in page.

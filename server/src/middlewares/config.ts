@@ -16,6 +16,16 @@ export const enableSignUp = async (
   await next()
 }
 
+export const enablePasswordSignIn = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_PASSWORD_SIGN_IN: enableSignIn } = env(c)
+
+  if (!enableSignIn) throw new errorConfig.Forbidden()
+
+  await next()
+}
+
 export const enableConsent = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
