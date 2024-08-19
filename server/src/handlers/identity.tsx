@@ -161,18 +161,16 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 
   const queryString = formatUtil.getQueryString(c)
 
-  return c.html(
-    <AuthorizePasswordView
-      queryString={queryString}
-      locales={enableLocaleSelector ? locales : [queryDto.locale]}
-      queryDto={queryDto}
-      logoUrl={logoUrl}
-      enableSignUp={enableSignUp}
-      enablePasswordReset={enablePasswordReset}
-      enablePasswordSignIn={enablePasswordSignIn}
-      googleClientId={googleClientId}
-    />
-  )
+  return c.html(<AuthorizePasswordView
+    queryString={queryString}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+    queryDto={queryDto}
+    logoUrl={logoUrl}
+    enableSignUp={enableSignUp}
+    enablePasswordReset={enablePasswordReset}
+    enablePasswordSignIn={enablePasswordSignIn}
+    googleClientId={googleClientId}
+  />)
 }
 
 export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
