@@ -140,6 +140,12 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>ENABLE_PASSWORD_SIGN_IN</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.ENABLE_PASSWORD_SIGN_IN} />
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>ENABLE_EMAIL_VERIFICATION</Table.Cell>
             <Table.Cell>
               <ConfigBooleanValue config={configs.ENABLE_EMAIL_VERIFICATION} />

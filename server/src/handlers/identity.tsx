@@ -153,6 +153,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     COMPANY_LOGO_URL: logoUrl,
     ENABLE_SIGN_UP: enableSignUp,
     ENABLE_PASSWORD_RESET: enablePasswordReset,
+    ENABLE_PASSWORD_SIGN_IN: enablePasswordSignIn,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     GOOGLE_AUTH_CLIENT_ID: googleClientId,
@@ -167,6 +168,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     logoUrl={logoUrl}
     enableSignUp={enableSignUp}
     enablePasswordReset={enablePasswordReset}
+    enablePasswordSignIn={enablePasswordSignIn}
     googleClientId={googleClientId}
   />)
 }

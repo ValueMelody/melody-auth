@@ -15,13 +15,15 @@ import Field from 'views/components/Field'
 
 const AuthorizePassword = ({
   queryDto, logoUrl, enableSignUp,
-  enablePasswordReset, queryString, locales,
+  enablePasswordReset, enablePasswordSignIn,
+  queryString, locales,
   googleClientId,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   logoUrl: string;
   enableSignUp: boolean;
   enablePasswordReset: boolean;
+  enablePasswordSignIn: boolean;
   queryString: string;
   locales: typeConfig.Locale[];
   googleClientId: string;
@@ -44,24 +46,30 @@ const AuthorizePassword = ({
         onsubmit='return handleSubmit(event)'
       >
         <section class='flex-col gap-4'>
-          <Field
-            label={localeConfig.authorizePassword.email[queryDto.locale]}
-            type='email'
-            required
-            name='email'
-            autocomplete='email'
-          />
-          <Field
-            label={localeConfig.authorizePassword.password[queryDto.locale]}
-            type='password'
-            required
-            name='password'
-            autocomplete='password'
-          />
+          {enablePasswordSignIn && (
+            <>
+              <Field
+                label={localeConfig.authorizePassword.email[queryDto.locale]}
+                type='email'
+                required
+                name='email'
+                autocomplete='email'
+              />
+              <Field
+                label={localeConfig.authorizePassword.password[queryDto.locale]}
+                type='password'
+                required
+                name='password'
+                autocomplete='password'
+              />
+            </>
+          )}
           <SubmitError />
-          <SubmitButton
-            title={localeConfig.authorizePassword.submit[queryDto.locale]}
-          />
+          {enablePasswordSignIn && (
+            <SubmitButton
+              title={localeConfig.authorizePassword.submit[queryDto.locale]}
+            />
+          )}
           {googleClientId && (
             <>
               <div
