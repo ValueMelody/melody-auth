@@ -37,6 +37,10 @@ export const common = Object.freeze({
     en: 'Powered by Melody Auth',
     fr: 'Propulsé par Melody Auth',
   },
+  selectLocale: {
+    en: 'Select Locale',
+    fr: 'Sélectionner la langue'
+  }
 })
 
 export const validateError = Object.freeze({
