@@ -39,8 +39,8 @@ export const common = Object.freeze({
   },
   selectLocale: {
     en: 'Select Locale',
-    fr: 'Sélectionner la langue'
-  }
+    fr: 'Sélectionner la langue',
+  },
 })
 
 export const validateError = Object.freeze({
