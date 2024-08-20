@@ -16,10 +16,11 @@ const Field = ({
   return (
     <section
       id={`${name}-row`}
-      class={`flex-col gap-2 ${className || ''}`}>
+      class={`flex-col gap-2 ${className || ''}`}
+    >
       <label
         class='label w-text'
-        for='email'
+        for={`form-${name}`}
       >
         {label}
         {required && <span class='text-red ml-2'>*</span>}

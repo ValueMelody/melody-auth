@@ -46,7 +46,7 @@ const Layout = ({
           .hidden { display: none; }
           .text-semibold { font-weight: 600; }
           .text-sm { font-size: 14px; }
-          .text-red { color: red; }
+          .text-red { color: #e00; }
           .text-green { color: green; }
           .text-center { text-align: center; }
           .p-2 { padding: 8px; }
@@ -156,7 +156,9 @@ const Layout = ({
             <section class='flex-row justify-end w-full'>
               <select
                 class='button'
-                onchange='handleSwitchLocale(event)'>
+                onchange='handleSwitchLocale(event)'
+                aria-label='Select Locale'
+              >
                 {locales.map((targetLocale) => (
                   <option
                     key={targetLocale}
