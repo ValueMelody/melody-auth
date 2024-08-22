@@ -21,6 +21,7 @@ export enum BaseKVKey {
   PasswordResetCode = 'PRC',
   FailedLoginAttempts = 'FLA',
   FailedOtpMfaAttempts = 'FMA',
+  PasswordResetAttempts = 'PRA',
 }
 
 export const getKVKey = (

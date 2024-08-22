@@ -25,6 +25,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     GOOGLE_AUTH_CLIENT_ID: environment.GOOGLE_AUTH_CLIENT_ID,
     ENABLE_SIGN_UP: environment.ENABLE_SIGN_UP,
     ENABLE_PASSWORD_RESET: environment.ENABLE_PASSWORD_RESET,
+    PASSWORD_RESET_EMAIL_THRESHOLD: environment.PASSWORD_RESET_EMAIL_THRESHOLD,
     ENABLE_NAMES: environment.ENABLE_NAMES,
     NAMES_IS_REQUIRED: environment.NAMES_IS_REQUIRED,
     ENABLE_USER_APP_CONSENT: environment.ENABLE_USER_APP_CONSENT,

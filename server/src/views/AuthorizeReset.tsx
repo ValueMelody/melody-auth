@@ -124,6 +124,10 @@ const AuthorizeReset = ({
                 var resendBtn = document.getElementById("resend-btn")
                 resendBtn.disabled = true;
                 resendBtn.innerHTML = "${localeConfig.authorizeReset.resent[queryDto.locale]}"
+              } else {
+                return response.text().then(text => {
+                  throw new Error(text);
+                });
               }
             })
             .catch((error) => {

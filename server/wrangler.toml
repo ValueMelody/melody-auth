@@ -14,6 +14,7 @@ COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/
 ENABLE_SIGN_UP=true
 ENABLE_PASSWORD_SIGN_IN=true
 ENABLE_PASSWORD_RESET=true # To enable the email functionality, you must set the environment variables SENDGRID_API_KEY and SENDGRID_SENDER_ADDRESS with valid values.
+PASSWORD_RESET_EMAIL_THRESHOLD=5 # Maximum number of password reset email requests allowed per day for a single email address.
 ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
