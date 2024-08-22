@@ -58,6 +58,8 @@ export const handleSubmitError = (locale: typeConfig.Locale) => html`
     msg = "${localeConfig.requestError.accountLocked[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.OtpMfaLocked}") !== -1) {
     msg = "${localeConfig.requestError.optMfaLocked[locale]}";
+  } else if (errorString.indexOf("${localeConfig.Error.PasswordResetLocked}") !== -1) {
+    msg = "${localeConfig.requestError.passwordResetLocked[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.EmailTaken}") !== -1) {
     msg = "${localeConfig.requestError.emailTaken[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.WrongCode}") !== -1) {

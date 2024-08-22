@@ -181,6 +181,10 @@ npm run prod:deploy
 - **Description:** Determines if user password reset is allowed. If set to false, the reset password button will be suppressed on the sign-in page.
 [Email functionality setup required](#email-functionality-setup)
 
+### PASSWORD_RESET_EMAIL_THRESHOLD
+- **Default:** 5
+- **Description:** Limits the number of password reset email requests allowed per email and IP address per day to protect against abuse.
+
 ### ENABLE_NAMES
 - **Default:** true
 - **Description:** Provides fields for users to enter their first and last names during sign-up. If set to false, the first and last name fields will not show up on the sign-up page.

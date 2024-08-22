@@ -158,6 +158,12 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>PASSWORD_RESET_EMAIL_THRESHOLD</Table.Cell>
+            <Table.Cell>
+              {configs.PASSWORD_RESET_EMAIL_THRESHOLD}
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>ENABLE_USER_APP_CONSENT</Table.Cell>
             <Table.Cell>
               <ConfigBooleanValue config={configs.ENABLE_USER_APP_CONSENT} />

@@ -9,6 +9,7 @@ export enum Error {
   NoUser = 'No user found',
   AccountLocked = 'Account temporarily locked due to excessive login failures',
   OtpMfaLocked = 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
+  PasswordResetLocked = 'Too many password reset email requests. Please try again tomorrow.',
   UserDisabled = 'This account has been disabled',
   EmailAlreadyVerified = 'Email already verified',
   OtpAlreadySet = 'OTP authentication already set',
@@ -106,6 +107,10 @@ export const requestError = Object.freeze({
   optMfaLocked: {
     en: 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
     fr: 'Nombre trop élevé de tentatives échouées de vérification OTP. Veuillez réessayer dans 30 minutes.',
+  },
+  passwordResetLocked: {
+    en: 'Too many password reset requests. Please try again tomorrow.',
+    fr: 'Trop de demandes de réinitialisation de mot de passe. Veuillez réessayer demain.',
   },
   emailTaken: {
     en: 'The email address is already in use.',
