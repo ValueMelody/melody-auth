@@ -188,30 +188,6 @@ describe(
         const updateObj = {
           name: 'test name 1',
           note: '',
-        }
-        const res = await app.request(
-          `${BaseRoute}/13`,
-          {
-            method: 'PUT', body: JSON.stringify(updateObj),
-          },
-          mock(db),
-        )
-        const json = await res.json()
-
-        expect(json).toStrictEqual({
-          scope: {
-            ...newScope,
-            ...updateObj,
-          },
-        })
-      },
-    )
-
-    test(
-      'should update scope locale',
-      async () => {
-        await createNewScope()
-        const updateObj = {
           locales: [
             {
               locale: 'en', value: 'test en 1',
@@ -233,6 +209,7 @@ describe(
         expect(json).toStrictEqual({
           scope: {
             ...newScope,
+            ...updateObj,
             locales: [
               {
                 id: 5,

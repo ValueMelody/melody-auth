@@ -1,6 +1,7 @@
 import {
   Context, Next,
 } from 'hono'
+import { s2sReadApp, s2sWriteApp } from 'middlewares/auth'
 import { vi } from 'vitest'
 
 const mockMiddleware = async (
@@ -18,6 +19,8 @@ vi.mock(
       s2sWriteRole: mockMiddleware,
       s2sReadScope: mockMiddleware,
       s2sWriteScope: mockMiddleware,
+      s2sReadApp: mockMiddleware,
+      s2sWriteApp: mockMiddleware,
     },
   }),
 )

@@ -10,3 +10,32 @@ export const superAdminRole = {
   updatedAt: dbTime,
   deletedAt: null,
 }
+
+export const adminSpaApp = {
+  id: 1,
+  clientId: expect.any(String),
+  secret: expect.any(String),
+  type: 'spa',
+  isActive: true,
+  name: 'Admin Panel (SPA)',
+  redirectUris: [
+    'http://localhost:3000/en/dashboard',
+    'http://localhost:3000/fr/dashboard',
+  ],
+  createdAt: dbTime,
+  updatedAt: dbTime,
+  deletedAt: null,
+}
+
+export const adminS2sApp = {
+  id: 2,
+  clientId: expect.any(String),
+  secret: expect.any(String),
+  type: 's2s',
+  isActive: true,
+  name: 'Admin Panel (S2S)',
+  redirectUris: [],
+  createdAt: dbTime,
+  updatedAt: dbTime,
+  deletedAt: null,
+}
