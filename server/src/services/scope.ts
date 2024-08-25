@@ -139,7 +139,12 @@ export const updateScope = async (
     }
   }
 
-  const scopeLocales = dto.locales ? locales: await scopeLocaleModel.getAllByScope(c.env.DB, scope.id)
+  const scopeLocales = dto.locales
+    ? locales
+    : await scopeLocaleModel.getAllByScope(
+      c.env.DB,
+      scope.id,
+    )
 
   return {
     ...scope,

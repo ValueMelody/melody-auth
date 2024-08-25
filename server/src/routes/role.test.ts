@@ -2,6 +2,7 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { Role } from 'shared'
 import app from 'index'
 import { routeConfig } from 'configs'
 import {
@@ -10,7 +11,6 @@ import {
 import {
   dbTime, superAdminRole,
 } from 'tests/seed'
-import { Role } from 'shared'
 import { roleModel } from 'models'
 
 let db: Database

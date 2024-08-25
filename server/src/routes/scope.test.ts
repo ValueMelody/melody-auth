@@ -2,12 +2,12 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { Scope } from 'shared'
 import app from 'index'
 import { routeConfig } from 'configs'
 import {
   migrate, mock,
 } from 'tests/mock'
-import { Scope } from 'shared'
 import { scopeModel } from 'models'
 import { dbTime } from 'tests/seed'
 
@@ -32,9 +32,13 @@ const createNewScope = async () => await app.request(
       type: 'spa',
       note: 'test note',
       locales: [
-        { locale: 'en', value: 'test en' },
-        { locale: 'fr', value: 'test fr' },
-      ]
+        {
+          locale: 'en', value: 'test en',
+        },
+        {
+          locale: 'fr', value: 'test fr',
+        },
+      ],
     }),
   },
   mock(db),
@@ -53,7 +57,7 @@ const newScope = {
       createdAt: dbTime,
       updatedAt: dbTime,
       deletedAt: null,
-      locale: 'en'
+      locale: 'en',
     },
     {
       id: 4,
@@ -62,7 +66,7 @@ const newScope = {
       createdAt: dbTime,
       updatedAt: dbTime,
       deletedAt: null,
-      locale: 'fr'
+      locale: 'fr',
     },
   ],
   createdAt: dbTime,
@@ -104,16 +108,18 @@ describe(
         )
         const json = await res.json()
 
-        expect(json).toStrictEqual({ scope: {
-          id: 1,
-          name: 'openid',
-          note: '',
-          locales: [],
-          type: 'spa',
-          createdAt: dbTime,
-          updatedAt: dbTime,
-          deletedAt: null,
-        } })
+        expect(json).toStrictEqual({
+          scope: {
+            id: 1,
+            name: 'openid',
+            note: '',
+            locales: [],
+            type: 'spa',
+            createdAt: dbTime,
+            updatedAt: dbTime,
+            deletedAt: null,
+          },
+        })
       },
     )
 
@@ -127,16 +133,18 @@ describe(
         )
         const json = await res.json()
 
-        expect(json).toStrictEqual({ scope: {
-          id: 12,
-          name: 'write_role',
-          note: expect.any(String),
-          locales: [],
-          type: 's2s',
-          createdAt: dbTime,
-          updatedAt: dbTime,
-          deletedAt: null,
-        } })
+        expect(json).toStrictEqual({
+          scope: {
+            id: 12,
+            name: 'write_role',
+            note: expect.any(String),
+            locales: [],
+            type: 's2s',
+            createdAt: dbTime,
+            updatedAt: dbTime,
+            deletedAt: null,
+          },
+        })
       },
     )
 
@@ -205,9 +213,13 @@ describe(
         await createNewScope()
         const updateObj = {
           locales: [
-            { locale: 'en', value: 'test en 1' },
-            { locale: 'fr', value: 'test fr 1' },
-          ]
+            {
+              locale: 'en', value: 'test en 1',
+            },
+            {
+              locale: 'fr', value: 'test fr 1',
+            },
+          ],
         }
         const res = await app.request(
           `${BaseRoute}/13`,
@@ -229,7 +241,7 @@ describe(
                 createdAt: dbTime,
                 updatedAt: dbTime,
                 deletedAt: null,
-                locale: 'en'
+                locale: 'en',
               },
               {
                 id: 6,
@@ -238,7 +250,7 @@ describe(
                 createdAt: dbTime,
                 updatedAt: dbTime,
                 deletedAt: null,
-                locale: 'fr'
+                locale: 'fr',
               },
             ],
           },

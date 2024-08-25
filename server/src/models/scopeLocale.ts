@@ -1,4 +1,6 @@
-import { adapterConfig, errorConfig } from 'configs'
+import {
+  adapterConfig, errorConfig,
+} from 'configs'
 import {
   formatUtil,
   validateUtil,
