@@ -16,6 +16,8 @@ vi.mock(
     authMiddleware: {
       s2sReadRole: mockMiddleware,
       s2sWriteRole: mockMiddleware,
+      s2sReadScope: mockMiddleware,
+      s2sWriteScope: mockMiddleware,
     },
   }),
 )

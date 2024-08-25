@@ -2,6 +2,7 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { Role } from 'shared'
 import app from 'index'
 import { routeConfig } from 'configs'
 import {
@@ -10,6 +11,7 @@ import {
 import {
   dbTime, superAdminRole,
 } from 'tests/seed'
+import { roleModel } from 'models'
 
 let db: Database
 
@@ -36,12 +38,12 @@ const createNewRole = async () => await app.request(
 )
 
 const newRole = {
-  createdAt: dbTime,
-  deletedAt: null,
   id: 2,
   name: 'test name',
   note: 'test note',
+  createdAt: dbTime,
   updatedAt: dbTime,
+  deletedAt: null,
 }
 
 describe(
@@ -56,9 +58,13 @@ describe(
           {},
           mock(db),
         )
-        const json = await res.json()
+        const json = await res.json() as { roles: roleModel.Record[] }
 
+        expect(json.roles.length).toBe(2)
         expect(json).toStrictEqual({ roles: [superAdminRole, newRole] })
+        Object.values(Role).forEach((key) => {
+          expect(json.roles.some((role) => role.name === key)).toBeTruthy()
+        })
       },
     )
   },

@@ -9,7 +9,8 @@
     "dev:start": "wrangler dev src/index.tsx",
     "dev:migration:apply": "wrangler d1 migrations apply melody-auth --local",
     "dev:secret:generate": "node ./src/scripts/generate-secret.js",
-    "test": "vitest run"
+    "test:check": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.4.0",
@@ -25,6 +26,7 @@
     "@cloudflare/workers-types": "^4.20240529.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.11",
+    "@vitest/coverage-v8": "^2.0.5",
     "better-sqlite3": "^11.2.1",
     "node-jose": "^2.2.0",
     "swagger-jsdoc": "^6.2.8",

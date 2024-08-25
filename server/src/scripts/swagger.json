@@ -503,7 +503,7 @@
                   "type": "object",
                   "properties": {
                     "scope": {
-                      "$ref": "#/components/schemas/Scope"
+                      "$ref": "#/components/schemas/ScopeDetail"
                     }
                   }
                 }
@@ -584,7 +584,7 @@
                   "type": "object",
                   "properties": {
                     "scope": {
-                      "$ref": "#/components/schemas/Scope"
+                      "$ref": "#/components/schemas/ScopeDetail"
                     }
                   }
                 }

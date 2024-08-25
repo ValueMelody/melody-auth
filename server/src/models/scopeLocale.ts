@@ -1,4 +1,6 @@
-import { adapterConfig } from 'configs'
+import {
+  adapterConfig, errorConfig,
+} from 'configs'
 import {
   formatUtil,
   validateUtil,
@@ -22,9 +24,21 @@ export interface Create {
 
 const TableName = adapterConfig.TableName.ScopeLocale
 
+export const getById = async (
+  db: D1Database,
+  id: number,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND deletedAt IS NULL`
+
+  const stmt = db.prepare(query)
+    .bind(id)
+  const scope = await stmt.first() as Record | null
+  return scope
+}
+
 export const create = async (
   db: D1Database, create: Create,
-): Promise<true> => {
+): Promise<Record> => {
   const query = `INSERT INTO ${TableName} (scopeId, locale, value) values ($1, $2, $3)`
   const stmt = db.prepare(query).bind(
     create.scopeId,
@@ -32,7 +46,15 @@ export const create = async (
     create.value.trim(),
   )
   const result = await validateUtil.d1Run(stmt)
-  return result.success
+
+  if (!result.success) throw new errorConfig.InternalServerError()
+  const id = result.meta.last_row_id
+  const record = await getById(
+    db,
+    id,
+  )
+  if (!record) throw new errorConfig.InternalServerError()
+  return record
 }
 
 export const getAllByScope = async (
