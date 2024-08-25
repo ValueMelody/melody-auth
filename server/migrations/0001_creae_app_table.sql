@@ -110,5 +110,5 @@ CREATE TABLE [app] (
   "isActive" integer DEFAULT 1
 );
 CREATE UNIQUE INDEX idx_unique_app_clientId ON app (clientId) WHERE deletedAt IS NULL;
-INSERT INTO app ("name", "type", "redirectUris") values ("Admin Panel (SPA)", "spa", "http://localhost:3000/en/dashboard,http://localhost:3000/fr/dashboard");
-INSERT INTO app ("name", "type") values ("Admin Panel (S2S)", "s2s");
+INSERT INTO app ("name", "type", "redirectUris") values ('Admin Panel (SPA)', 'spa', 'http://localhost:3000/en/dashboard,http://localhost:3000/fr/dashboard');
+INSERT INTO app ("name", "type") values ('Admin Panel (S2S)', 's2s');

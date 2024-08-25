@@ -9,5 +9,5 @@ CREATE TABLE [scope_locale] (
   FOREIGN KEY(scopeId) REFERENCES scope(id)
 );
 CREATE UNIQUE INDEX idx_unique_scope_locale ON scope_locale (scopeId, locale) WHERE deletedAt IS NULL;
-INSERT INTO scope_locale ("scopeId", "locale", "value") values (2, "en", "Access your basic profile information");
-INSERT INTO scope_locale ("scopeId", "locale", "value") values (2, "fr", "Accéder à vos informations de profil de base");
+INSERT INTO scope_locale ("scopeId", "locale", "value") values (2, 'en', 'Access your basic profile information');
+INSERT INTO scope_locale ("scopeId", "locale", "value") values (2, 'fr', 'Accéder à vos informations de profil de base');

@@ -8,4 +8,4 @@ CREATE TABLE [role] (
   "deletedAt" text DEFAULT null
 );
 CREATE UNIQUE INDEX idx_unique_role_name ON role (name) WHERE deletedAt IS NULL;
-INSERT INTO role ("name", "note") values ("super_admin", "Grants a user full access to the admin panel");
+INSERT INTO role ("name", "note") values ('super_admin', 'Grants a user full access to the admin panel');
