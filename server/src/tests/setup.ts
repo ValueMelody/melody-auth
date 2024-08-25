@@ -2,7 +2,9 @@ import { readFileSync } from 'fs'
 import {
   Context, Next,
 } from 'hono'
-import { vi } from 'vitest'
+import {
+  vi, Mock,
+} from 'vitest'
 import toml from 'toml'
 
 const config = toml.parse(readFileSync(
@@ -14,6 +16,8 @@ global.process.env = {
   ...global.process.env,
   ...config.vars,
   AUTH_SERVER_URL: 'http://localhost:8787',
+  SENDGRID_API_KEY: 'abc',
+  SENDGRID_SENDER_ADDRESS: 'app@valuemelody.com',
 }
 
 const mockMiddleware = async (
@@ -33,7 +37,12 @@ vi.mock(
       s2sWriteScope: mockMiddleware,
       s2sReadApp: mockMiddleware,
       s2sWriteApp: mockMiddleware,
+      s2sReadUser: mockMiddleware,
+      s2sWriteUser: mockMiddleware,
     },
     setupMiddleware: { session: mockMiddleware },
   }),
 )
+
+global.fetch = vi.fn(() =>
+  Promise.resolve({ ok: true })) as Mock
