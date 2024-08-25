@@ -89,40 +89,6 @@ userRoutes.get(
 
 /**
  * @swagger
- * /api/v1/users/{authId}/consented-apps:
- *   get:
- *     summary: Get a list of apps user has consented to
- *     description: Required scope - read_user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: authId
- *         required: true
- *         schema:
- *           type: string
- *         description: The authId of the user
- *     responses:
- *       200:
- *         description: A list of consented apps
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 consentedApps:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/UserConsentedApp'
- */
-userRoutes.get(
-  `${BaseRoute}/:authId/consented-apps`,
-  authMiddleware.s2sReadUser,
-  configMiddleware.enableConsent,
-  userHandler.getUserAppConsents,
-)
-
-/**
- * @swagger
  * /api/v1/users/{authId}/locked-ips:
  *   get:
  *     summary: Get a list of locked IPs for a user
@@ -269,6 +235,40 @@ userRoutes.delete(
   `${BaseRoute}/:authId`,
   authMiddleware.s2sWriteUser,
   userHandler.deleteUser,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/consented-apps:
+ *   get:
+ *     summary: Get a list of apps user has consented to
+ *     description: Required scope - read_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       200:
+ *         description: A list of consented apps
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 consentedApps:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserConsentedApp'
+ */
+userRoutes.get(
+  `${BaseRoute}/:authId/consented-apps`,
+  authMiddleware.s2sReadUser,
+  configMiddleware.enableConsent,
+  userHandler.getUserAppConsents,
 )
 
 /**

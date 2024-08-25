@@ -16,6 +16,8 @@ const convertQuery = (
   return prepareQuery
 }
 
+export const kv: { [key: string]: string } = {}
+
 export const mock = (db: Database) => ({
   DB: {
     prepare: (query: string) => {
@@ -73,10 +75,26 @@ export const mock = (db: Database) => ({
             -----END PUBLIC KEY-----
           `
       default:
-        return null
+        return kv[key] ?? null
       }
     },
-    set: () => {},
+    put: (
+      key: string, value: string,
+    ) => {
+      kv[key] = value
+    },
+    delete: (key: string) => {
+      delete kv[key]
+    },
+    list: ({ prefix }: { prefix: string}) => {
+      const keys = Object.keys(kv)
+      return {
+        keys: keys.filter((key) => key.includes(prefix))
+          .map((key) => ({
+            name: key, value: kv[key],
+          })),
+      }
+    },
   },
 })
 
