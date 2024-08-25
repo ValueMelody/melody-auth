@@ -30,6 +30,7 @@
     "better-sqlite3": "^11.2.1",
     "node-jose": "^2.2.0",
     "swagger-jsdoc": "^6.2.8",
+    "toml": "^3.0.0",
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^2.0.5",
     "wrangler": "^3.57.2"
