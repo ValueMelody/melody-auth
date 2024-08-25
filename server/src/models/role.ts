@@ -59,6 +59,7 @@ export const create = async (
   const result = await validateUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
   const id = result.meta.last_row_id
+
   const record = await getById(
     db,
     id,

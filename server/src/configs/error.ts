@@ -23,7 +23,7 @@ export class Forbidden {
 export class NotFound {
   constructor (message?: string) {
     return new HTTPException(
-      400,
+      404,
       getOption(message),
     )
   }
