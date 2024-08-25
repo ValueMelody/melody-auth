@@ -18,6 +18,8 @@ vi.mock(
       s2sWriteRole: mockMiddleware,
       s2sReadScope: mockMiddleware,
       s2sWriteScope: mockMiddleware,
+      s2sReadApp: mockMiddleware,
+      s2sWriteApp: mockMiddleware,
     },
   }),
 )
