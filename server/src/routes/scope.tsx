@@ -87,7 +87,7 @@ scopeRoutes.get(
  *               type: object
  *               properties:
  *                 scope:
- *                   $ref: '#/components/schemas/Scope'
+ *                   $ref: '#/components/schemas/ScopeDetail'
  */
 scopeRoutes.post(
   `${BaseRoute}`,
@@ -123,7 +123,7 @@ scopeRoutes.post(
  *               type: object
  *               properties:
  *                 scope:
- *                   $ref: '#/components/schemas/Scope'
+ *                   $ref: '#/components/schemas/ScopeDetail'
  */
 scopeRoutes.put(
   `${BaseRoute}/:id`,

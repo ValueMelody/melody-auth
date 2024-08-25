@@ -20,6 +20,14 @@ export const mock = (db: Database) => ({
     prepare: (query: string) => {
       return {
         bind: (...params: string[]) => ({
+          all: async () => {
+            const prepareQuery = convertQuery(
+              query,
+              params,
+            )
+            const stmt = db.prepare(prepareQuery)
+            return { results: stmt.all(...params) }
+          },
           first: async () => {
             const prepareQuery = convertQuery(
               query,

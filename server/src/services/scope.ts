@@ -67,7 +67,7 @@ export const getScopesByName = async (
 export const createScope = async (
   c: Context<typeConfig.Context>,
   dto: scopeDto.PostScopeReqDto,
-): Promise<scopeModel.Record> => {
+): Promise<scopeModel.ApiRecord> => {
   const scope = await scopeModel.create(
     c.env.DB,
     {
@@ -77,9 +77,10 @@ export const createScope = async (
     },
   )
 
+  const locales = []
   if (dto.locales) {
     for (const localeReq of dto.locales) {
-      await scopeLocaleModel.create(
+      const scopeLocale = await scopeLocaleModel.create(
         c.env.DB,
         {
           scopeId: scope.id,
@@ -87,17 +88,21 @@ export const createScope = async (
           value: localeReq.value,
         },
       )
+      locales.push(scopeLocale)
     }
   }
 
-  return scope
+  return {
+    ...scope,
+    locales,
+  }
 }
 
 export const updateScope = async (
   c: Context<typeConfig.Context>,
   scopeId: number,
   dto: scopeDto.PutScopeReqDto,
-): Promise<scopeModel.Record> => {
+): Promise<scopeModel.ApiRecord> => {
   const shouldUpdateScope = dto.name !== undefined || dto.note !== undefined
 
   const scope = shouldUpdateScope
@@ -115,13 +120,14 @@ export const updateScope = async (
 
   if (!scope) throw new errorConfig.NotFound()
 
+  const locales = []
   if (dto.locales) {
     await scopeLocaleModel.remove(
       c.env.DB,
       scopeId,
     )
     for (const localeReq of dto.locales) {
-      await scopeLocaleModel.create(
+      const scopeLocale = await scopeLocaleModel.create(
         c.env.DB,
         {
           scopeId: scope.id,
@@ -129,10 +135,16 @@ export const updateScope = async (
           value: localeReq.value,
         },
       )
+      locales.push(scopeLocale)
     }
   }
 
-  return scope
+  const scopeLocales = dto.locales ? locales: await scopeLocaleModel.getAllByScope(c.env.DB, scope.id)
+
+  return {
+    ...scope,
+    locales: scopeLocales,
+  }
 }
 
 export const deleteScope = async (
