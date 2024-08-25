@@ -15,7 +15,7 @@
     "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk",
     "lint:check": "eslint ./ --ext .ts,.tsx,.js",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js",
-    "test:check": "npm run test -w=server",
+    "test:check": "npm run test:check -w=server",
     "build": "npm run build -w=shared &&  npm run build -w=web-sdk && npm run build -w=react-sdk",
     "docs:build": "vuepress build docs",
     "docs:dev": "vuepress dev docs"
