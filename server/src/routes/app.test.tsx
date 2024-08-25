@@ -193,6 +193,13 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(204)
+
+        const checkRes = await app.request(
+          `${BaseRoute}/3`,
+          {},
+          mock(db),
+        )
+        expect(checkRes.status).toBe(404)
       },
     )
   },

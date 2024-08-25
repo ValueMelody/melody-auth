@@ -1,7 +1,20 @@
+import { readFileSync } from 'fs'
 import {
   Context, Next,
 } from 'hono'
 import { vi } from 'vitest'
+import toml from 'toml'
+
+const config = toml.parse(readFileSync(
+  './wrangler.toml',
+  'utf-8',
+))
+
+global.process.env = {
+  ...global.process.env,
+  ...config.vars,
+  AUTH_SERVER_URL: 'http://localhost:8787',
+}
 
 const mockMiddleware = async (
   c: Context, next: Next,
@@ -21,5 +34,6 @@ vi.mock(
       s2sReadApp: mockMiddleware,
       s2sWriteApp: mockMiddleware,
     },
+    setupMiddleware: { session: mockMiddleware },
   }),
 )

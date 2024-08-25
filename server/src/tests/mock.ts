@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import Sqlite, { Database } from 'better-sqlite3'
+import { adapterConfig } from 'configs'
 
 const convertQuery = (
   query: string, params: string[],
@@ -55,6 +56,27 @@ export const mock = (db: Database) => ({
         },
       }
     },
+  },
+  KV: {
+    get: (key: string) => {
+      switch (key) {
+      case adapterConfig.BaseKVKey.JwtPublicSecret:
+        return `
+            -----BEGIN PUBLIC KEY-----
+            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxRFeP3Q7HHnrrSGb5Cw+
+            mOzWuq0OQJ/oTUUflUrgOtugbZZ3uWlnD/BEqDEdetVRi3bhxkWvRsjYzl242rZX
+            nkPWs/eLBCUKBrCjkU6ixv/SfG1hGR/C8EJlYzo+2KGjfR5w8xpO93AKATT5jaDH
+            4mPE4hxhStEANfi48SyNDwlY8AvDYzjSp/7FOD5VrvhUotdDRuvlLrHW7e6bnBbx
+            RMCD4+DY5p8M4S/3P/NneuUTBspl5J9siNcNGCr6Z+8qJagBULVaVPGdcl64fvnc
+            n/Zhy5rVeqvhMzD6IAfrsuD+4lJbT8YxqOJdwjU9j0RV/i7yQdwLi1pjc83RuDuq
+            gwIDAQAB
+            -----END PUBLIC KEY-----
+          `
+      default:
+        return null
+      }
+    },
+    set: () => {},
   },
 })
 
