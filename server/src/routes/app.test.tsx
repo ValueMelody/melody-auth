@@ -8,7 +8,9 @@ import {
   migrate, mock,
 } from 'tests/mock'
 import { appModel } from 'models'
-import { adminS2sApp, adminSpaApp, dbTime } from 'tests/seed'
+import {
+  adminS2sApp, adminSpaApp, dbTime,
+} from 'tests/seed'
 
 let db: Database
 
@@ -67,7 +69,7 @@ describe(
         const json = await res.json() as { apps: appModel.Record[] }
 
         expect(json.apps.length).toBe(2)
-        expect(json).toStrictEqual({ apps: [ adminSpaApp, adminS2sApp ] })
+        expect(json).toStrictEqual({ apps: [adminSpaApp, adminS2sApp] })
       },
     )
   },
@@ -90,9 +92,9 @@ describe(
           app: {
             ...adminSpaApp,
             scopes: [
-              'openid', 'profile', 'offline_access'
-            ]
-          }
+              'openid', 'profile', 'offline_access',
+            ],
+          },
         })
       },
     )

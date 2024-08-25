@@ -27,7 +27,9 @@ export class PostAppReqDto {
     scopes: string[]
 
   @IsUrl(
-    { require_protocol: true, require_tld: false },
+    {
+      require_protocol: true, require_tld: false,
+    },
     { each: true },
   )
   @IsNotEmpty()
@@ -43,7 +45,9 @@ export class PostAppReqDto {
 
 export class PutAppReqDto {
   @IsUrl(
-    { require_protocol: true, require_tld: false },
+    {
+      require_protocol: true, require_tld: false,
+    },
     { each: true },
   )
   @IsOptional()
