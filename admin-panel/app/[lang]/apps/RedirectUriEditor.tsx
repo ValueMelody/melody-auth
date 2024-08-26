@@ -71,7 +71,9 @@ const RedirectUriEditor = ({
               </section>
               {uri && !isURL(
                 uri,
-                { require_protocol: true, require_tld: false },
+                {
+                  require_protocol: true, require_tld: false,
+                },
               ) && (
                 <FieldError error={t('apps.urlFormat')} />
               )}
