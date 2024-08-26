@@ -18,6 +18,16 @@ const convertQuery = (
 
 export const kv: { [key: string]: string } = {}
 
+export const sessionStore: { [key: string]: string } = {}
+export const session = {
+  get: (key: string) => sessionStore[key],
+  set: (
+    key: string, value: string,
+  ) => {
+    sessionStore[key] = value
+  },
+}
+
 export const mock = (db: Database) => ({
   DB: {
     prepare: (query: string) => {
@@ -64,16 +74,24 @@ export const mock = (db: Database) => ({
       switch (key) {
       case adapterConfig.BaseKVKey.JwtPublicSecret:
         return `
-            -----BEGIN PUBLIC KEY-----
-            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxRFeP3Q7HHnrrSGb5Cw+
-            mOzWuq0OQJ/oTUUflUrgOtugbZZ3uWlnD/BEqDEdetVRi3bhxkWvRsjYzl242rZX
-            nkPWs/eLBCUKBrCjkU6ixv/SfG1hGR/C8EJlYzo+2KGjfR5w8xpO93AKATT5jaDH
-            4mPE4hxhStEANfi48SyNDwlY8AvDYzjSp/7FOD5VrvhUotdDRuvlLrHW7e6bnBbx
-            RMCD4+DY5p8M4S/3P/NneuUTBspl5J9siNcNGCr6Z+8qJagBULVaVPGdcl64fvnc
-            n/Zhy5rVeqvhMzD6IAfrsuD+4lJbT8YxqOJdwjU9j0RV/i7yQdwLi1pjc83RuDuq
-            gwIDAQAB
-            -----END PUBLIC KEY-----
-          `
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyTuKDtxWPXn/ZhRUrnjv
+          0seFe+cEstFWbNGtiWnNxTE4vDHHN9rVwMqcI8CXgxfY5l8lxUqn95NCemUTAtd6
+          BTCHpJYP4ktrxmez0Sst6PZWJe11QBGhr8qS/4GfOXb86tDiL4oRN7TP2FcRYrVt
+          7+UOnZgRh9+9gnxMEXlvyRkasE7TTvSY0kQcbIoZoXc8EuTXLLVNDtx8lXrUepPV
+          0JcAWXrRR5FbPL2bX1yNRsho55yiFKW/boazBw8nJpZGauHl8cOJdFQVDl8/ihzA
+          +f53EOPiFRfWW+goEVgrfJ/ZsrKpzQGJGTdHBpc+ZGEdfDF2E2czLrxKLdim1E/j
+          hQIDAQAB
+          -----END PUBLIC KEY-----
+        `
+      case adapterConfig.BaseKVKey.JwtPrivateSecret:
+        return fs.readFileSync(
+          path.resolve('src/tests/private_key_mock'),
+          'utf8',
+        ).replace(
+          /\n/g,
+          '\r\n',
+        )
       default:
         return kv[key] ?? null
       }

@@ -6,9 +6,9 @@ export default defineConfig({
   test: {
     setupFiles: './src/tests/setup.ts',
     coverage: {
-      reporter: ["text"],
-      include: ["src"],
-      exclude: ["src/tests", "src/scripts"]
-    }
-  }
+      reporter: ['text'],
+      include: ['src'],
+      exclude: ['src/tests', 'src/scripts', 'src/configs/type.ts'],
+    },
+  },
 })

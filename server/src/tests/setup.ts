@@ -6,6 +6,11 @@ import {
   vi, Mock,
 } from 'vitest'
 import toml from 'toml'
+import {
+  Algorithm, sign,
+} from 'jsonwebtoken'
+import { session } from './mock'
+import { s2sBasicAuth } from 'middlewares/auth'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -27,6 +32,22 @@ const mockMiddleware = async (
 }
 
 vi.mock(
+  'hono/jwt',
+  async (importOriginal: Function) => ({
+    ...(await importOriginal() as object),
+    sign: (
+      string: string, key: string, alg: Algorithm,
+    ) => {
+      return sign(
+        string,
+        key,
+        { algorithm: alg },
+      )
+    },
+  }),
+)
+
+vi.mock(
   'middlewares',
   async (importOriginal: Function) => ({
     ...(await importOriginal() as object),
@@ -39,8 +60,20 @@ vi.mock(
       s2sWriteApp: mockMiddleware,
       s2sReadUser: mockMiddleware,
       s2sWriteUser: mockMiddleware,
+      s2sBasicAuth,
     },
-    setupMiddleware: { session: mockMiddleware },
+    setupMiddleware: {
+      validOrigin: mockMiddleware,
+      session: async (
+        c: Context, next: Next,
+      ) => {
+        c.set(
+          'session',
+          session,
+        )
+        await next()
+      },
+    },
   }),
 )
 

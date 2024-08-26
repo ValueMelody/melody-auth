@@ -118,11 +118,11 @@ describe(
           keys: [
             {
               kty: 'RSA',
-              n: 'xRFeP3Q7HHnrrSGb5Cw-mOzWuq0OQJ_oTUUflUrgOtugbZZ3uWlnD_BEqDEdetVRi3bhxkWvRsjYzl242rZXnkPWs_eLBCUKBrCjkU6ixv_SfG1hGR_C8EJlYzo-2KGjfR5w8xpO93AKATT5jaDH4mPE4hxhStEANfi48SyNDwlY8AvDYzjSp_7FOD5VrvhUotdDRuvlLrHW7e6bnBbxRMCD4-DY5p8M4S_3P_NneuUTBspl5J9siNcNGCr6Z-8qJagBULVaVPGdcl64fvncn_Zhy5rVeqvhMzD6IAfrsuD-4lJbT8YxqOJdwjU9j0RV_i7yQdwLi1pjc83RuDuqgw',
+              n: 'yTuKDtxWPXn_ZhRUrnjv0seFe-cEstFWbNGtiWnNxTE4vDHHN9rVwMqcI8CXgxfY5l8lxUqn95NCemUTAtd6BTCHpJYP4ktrxmez0Sst6PZWJe11QBGhr8qS_4GfOXb86tDiL4oRN7TP2FcRYrVt7-UOnZgRh9-9gnxMEXlvyRkasE7TTvSY0kQcbIoZoXc8EuTXLLVNDtx8lXrUepPV0JcAWXrRR5FbPL2bX1yNRsho55yiFKW_boazBw8nJpZGauHl8cOJdFQVDl8_ihzA-f53EOPiFRfWW-goEVgrfJ_ZsrKpzQGJGTdHBpc-ZGEdfDF2E2czLrxKLdim1E_jhQ',
               e: 'AQAB',
               alg: 'RS256',
               use: 'sig',
-              kid: 'ad95ed04c22990e305bd43dc4efeb7577cf0a1c3fd8c8c7bf120d9bfe9012a57',
+              kid: '48f2dc34d337d097aed60c2fcf17d96f21c2669124ee3f3a650a0f78a98b045d',
             },
           ],
         })
