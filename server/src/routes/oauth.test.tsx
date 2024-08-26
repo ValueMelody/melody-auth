@@ -9,7 +9,7 @@ import {
 } from 'tests/mock'
 import { routeConfig } from 'configs'
 import {
-  getApp, getSignInParams, getSignInRequest, postSignInRequest,
+  getApp, getAuthorizeParams, getSignInRequest, insertUsers, postSignInRequest,
 } from 'routes/identity.test'
 import { oauthDto } from 'dtos'
 import { appModel } from 'models'
@@ -39,7 +39,7 @@ describe(
           url,
           appRecord,
         )
-        const params = getSignInParams(appRecord)
+        const params = getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`/identity/v1/authorize-password${params}`)
       },
@@ -52,6 +52,8 @@ describe(
   () => {
     const exchangeWithAuthToken = async () => {
       const appRecord = getApp(db)
+      insertUsers(db)
+
       const res = await postSignInRequest(
         db,
         appRecord,

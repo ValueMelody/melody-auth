@@ -65,13 +65,11 @@ export const d1CreateQuery = (
   const createValues: string[] = []
   const createBinds: (string | null)[] = []
   const validKeys: string[] = []
-  createKeys.forEach((
-    key, index,
-  ) => {
+  createKeys.forEach((key) => {
     const value = createObj[key]
     if (value !== undefined) {
       validKeys.push(key)
-      createValues.push(`$${index + 1}`)
+      createValues.push(`$${validKeys.length}`)
       createBinds.push(createObj[key])
     }
   })

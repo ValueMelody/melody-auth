@@ -16,16 +16,7 @@ const convertQuery = (
   return prepareQuery
 }
 
-export const kv: { [key: string]: string } = {
-  [adapterConfig.BaseKVKey.JwtPublicSecret]: fs.readFileSync(
-    path.resolve('src/tests/public_key_mock'),
-    'utf8',
-  ),
-  [adapterConfig.BaseKVKey.JwtPrivateSecret]: fs.readFileSync(
-    path.resolve('src/tests/private_key_mock'),
-    'utf8',
-  ),
-}
+export const kv: { [key: string]: string } = {}
 
 export const sessionStore: { [key: string]: string } = {}
 export const session = {
@@ -79,7 +70,22 @@ export const mock = (db: Database) => ({
     },
   },
   KV: {
-    get: (key: string) => kv[key] ?? null,
+    get: (key: string) => {
+      switch (key) {
+      case adapterConfig.BaseKVKey.JwtPublicSecret:
+        return fs.readFileSync(
+          path.resolve('src/tests/public_key_mock'),
+          'utf8',
+        )
+      case adapterConfig.BaseKVKey.JwtPrivateSecret:
+        return fs.readFileSync(
+          path.resolve('src/tests/private_key_mock'),
+          'utf8',
+        )
+      default:
+        return kv[key] ?? null
+      }
+    },
     put: (
       key: string, value: string,
     ) => {

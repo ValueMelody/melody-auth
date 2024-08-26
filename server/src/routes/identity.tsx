@@ -38,27 +38,15 @@ identityRoutes.post(
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-reset`,
-  configMiddleware.enablePasswordReset,
-  identityHandler.getAuthorizeReset,
+  `${BaseRoute}/authorize-mfa-enroll`,
+  configMiddleware.enableMfaEnroll,
+  identityHandler.getAuthorizeMfaEnroll,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/authorize-reset`,
-  setupMiddleware.validOrigin,
-  configMiddleware.enablePasswordReset,
-  identityHandler.postAuthorizeReset,
-)
-
-identityRoutes.get(
-  `${BaseRoute}/authorize-consent`,
-  identityHandler.getAuthorizeConsent,
-)
-
-identityRoutes.post(
-  `${BaseRoute}/authorize-consent`,
-  setupMiddleware.validOrigin,
-  identityHandler.postAuthorizeConsent,
+  `${BaseRoute}/authorize-mfa-enroll`,
+  configMiddleware.enableMfaEnroll,
+  identityHandler.postAuthorizeMfaEnroll,
 )
 
 identityRoutes.get(
@@ -78,18 +66,6 @@ identityRoutes.post(
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-mfa-enroll`,
-  configMiddleware.enableMfaEnroll,
-  identityHandler.getAuthorizeMfaEnroll,
-)
-
-identityRoutes.post(
-  `${BaseRoute}/authorize-mfa-enroll`,
-  configMiddleware.enableMfaEnroll,
-  identityHandler.postAuthorizeMfaEnroll,
-)
-
-identityRoutes.get(
   `${BaseRoute}/authorize-email-mfa`,
   identityHandler.getAuthorizeEmailMfa,
 )
@@ -106,11 +82,28 @@ identityRoutes.post(
   identityHandler.postAuthorizeEmailMfa,
 )
 
+identityRoutes.get(
+  `${BaseRoute}/authorize-consent`,
+  identityHandler.getAuthorizeConsent,
+)
+
+identityRoutes.post(
+  `${BaseRoute}/authorize-consent`,
+  setupMiddleware.validOrigin,
+  identityHandler.postAuthorizeConsent,
+)
+
 identityRoutes.post(
   `${BaseRoute}/authorize-google`,
   setupMiddleware.validOrigin,
   configMiddleware.enableGoogleSignIn,
   identityHandler.postAuthorizeGoogle,
+)
+
+identityRoutes.get(
+  `${BaseRoute}/authorize-reset`,
+  configMiddleware.enablePasswordReset,
+  identityHandler.getAuthorizeReset,
 )
 
 identityRoutes.post(
@@ -125,6 +118,13 @@ identityRoutes.post(
   setupMiddleware.validOrigin,
   configMiddleware.enablePasswordReset,
   identityHandler.postResetCode,
+)
+
+identityRoutes.post(
+  `${BaseRoute}/authorize-reset`,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasswordReset,
+  identityHandler.postAuthorizeReset,
 )
 
 identityRoutes.get(
