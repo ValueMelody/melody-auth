@@ -8,7 +8,7 @@ export default defineConfig({
     coverage: {
       reporter: ['text'],
       include: ['src'],
-      exclude: ['src/tests', 'src/scripts', 'src/configs/type.ts'],
+      exclude: ['src/tests', 'src/scripts', 'src/configs/type.ts', 'src/**/__tests__'],
     },
   },
 })

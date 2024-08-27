@@ -2,6 +2,7 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { Scope } from 'shared'
 import app from 'index'
 import {
   adapterConfig, routeConfig,
@@ -10,9 +11,13 @@ import {
   kv,
   migrate, mock,
 } from 'tests/mock'
-import { userModel } from 'models'
-import { dbTime } from 'tests/seed'
-import { ConsentedApp } from 'models/userAppConsent'
+import {
+  userAppConsentModel, userModel,
+} from 'models'
+import {
+  attachIndividualScopes,
+  dbTime, getS2sToken,
+} from 'tests/util'
 
 let db: Database
 
@@ -95,11 +100,60 @@ describe(
 
         const res = await app.request(
           BaseRoute,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         const json = await res.json() as { users: userModel.Record[] }
         expect(json.users).toStrictEqual([user1, user2])
+      },
+    )
+
+    test(
+      'should return all users with read_user scope',
+      async () => {
+        insertUsers()
+        attachIndividualScopes(db)
+
+        const res = await app.request(
+          BaseRoute,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+        expect(json.users).toStrictEqual([user1, user2])
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        const res = await app.request(
+          BaseRoute,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          BaseRoute,
+          {},
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
       },
     )
   },
@@ -115,7 +169,7 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
 
@@ -134,7 +188,7 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-2`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         const json = await res.json() as { user: userModel.Record }
@@ -150,7 +204,7 @@ describe(
       async () => {
         const res = await app.request(
           `${BaseRoute}/1-1-1-1`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
 
@@ -172,7 +226,7 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         const json = await res.json() as { lockedIPs: string[] }
@@ -194,7 +248,10 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,
-          { method: 'DELETE' },
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
 
@@ -202,7 +259,7 @@ describe(
 
         const checkRes = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         const checkJson = await checkRes.json() as { lockedIPs: string[] }
@@ -230,7 +287,9 @@ describe(
         const res = await app.request(
           `${BaseRoute}/1-1-1-1`,
           {
-            method: 'PUT', body: JSON.stringify(updateObj),
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
           mock(db),
         )
@@ -242,6 +301,77 @@ describe(
             ...updateObj,
           },
         })
+      },
+    )
+
+    test(
+      'should update user with write_user scope',
+      async () => {
+        insertUsers()
+        attachIndividualScopes(db)
+
+        const updateObj = {
+          firstName: 'First',
+          lastName: 'Last',
+        }
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          user: {
+            ...user1,
+            ...updateObj,
+            roles: [],
+          },
+        })
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        insertUsers()
+        attachIndividualScopes(db)
+
+        const updateObj = { locale: 'fr' }
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+          },
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
       },
     )
   },
@@ -257,7 +387,10 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/verify-email`,
-          { method: 'POST' },
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
         const json = await res.json()
@@ -280,14 +413,17 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1`,
-          { method: 'DELETE' },
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
         expect(res.status).toBe(204)
 
         const checkRes = await app.request(
           `${BaseRoute}/1-1-1-1`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         expect(checkRes.status).toBe(404)
@@ -306,10 +442,10 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/consented-apps`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
-        const json = await res.json() as { consentedApps: ConsentedApp[] }
+        const json = await res.json() as { consentedApps: userAppConsentModel.ConsentedApp[] }
         expect(json.consentedApps).toStrictEqual([{
           appId: 1,
           appName: 'Admin Panel (SPA)',
@@ -325,21 +461,24 @@ describe(
     test(
       'should delete app consent',
       async () => {
-        await insertUsers()
+        insertUsers()
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/consented-apps/1`,
-          { method: 'DELETE' },
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
         expect(res.status).toBe(204)
 
         const checkRes = await app.request(
           `${BaseRoute}/1-1-1-1/consented-apps`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
-        const checkJson = await checkRes.json() as { consentedApps: ConsentedApp[] }
+        const checkJson = await checkRes.json() as { consentedApps: userAppConsentModel.ConsentedApp[] }
         expect(checkJson.consentedApps).toStrictEqual([])
       },
     )
@@ -356,14 +495,17 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/email-mfa`,
-          { method: 'POST' },
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
         expect(res.status).toBe(204)
 
         const userRes = await app.request(
           `${BaseRoute}/1-1-1-1`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
 
@@ -384,14 +526,17 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/email-mfa`,
-          { method: 'DELETE' },
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
         expect(res.status).toBe(204)
 
         const userRes = await app.request(
           `${BaseRoute}/1-1-1-1`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
 
@@ -412,14 +557,17 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/otp-mfa`,
-          { method: 'POST' },
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
         expect(res.status).toBe(204)
 
         const userRes = await app.request(
           `${BaseRoute}/1-1-1-1`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
 
@@ -440,14 +588,17 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/otp-mfa`,
-          { method: 'DELETE' },
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
         expect(res.status).toBe(204)
 
         const userRes = await app.request(
           `${BaseRoute}/1-1-1-1`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
 

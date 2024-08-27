@@ -10,10 +10,7 @@ import {
   Algorithm, sign,
   verify,
 } from 'jsonwebtoken'
-import { session } from './mock'
-import {
-  s2sBasicAuth, spa,
-} from 'middlewares/auth'
+import { session } from 'tests/mock'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -63,18 +60,6 @@ vi.mock(
   'middlewares',
   async (importOriginal: Function) => ({
     ...(await importOriginal() as object),
-    authMiddleware: {
-      s2sReadRole: mockMiddleware,
-      s2sWriteRole: mockMiddleware,
-      s2sReadScope: mockMiddleware,
-      s2sWriteScope: mockMiddleware,
-      s2sReadApp: mockMiddleware,
-      s2sWriteApp: mockMiddleware,
-      s2sReadUser: mockMiddleware,
-      s2sWriteUser: mockMiddleware,
-      s2sBasicAuth,
-      spa,
-    },
     setupMiddleware: {
       validOrigin: mockMiddleware,
       session: async (
