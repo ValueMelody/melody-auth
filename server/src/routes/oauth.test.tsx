@@ -13,6 +13,7 @@ import {
 } from 'routes/identity.test'
 import { oauthDto } from 'dtos'
 import { appModel } from 'models'
+import { dbTime } from 'tests/util'
 
 let db: Database
 
@@ -190,6 +191,61 @@ describe(
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe('http://localhost:3000/en/dashboard')
         expect(session.get(`authInfo-${appRecord.clientId}`)).toBe(null)
+      },
+    )
+  },
+)
+
+describe(
+  'get /userinfo',
+  () => {
+    test(
+      'should get userinfo',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        const appRecord = getApp(db)
+        insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const json = await res.json() as { code: string }
+
+        const body = {
+          grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+          code: json.code,
+          code_verifier: 'abc',
+        }
+        const tokenRes = await app.request(
+          `${routeConfig.InternalRoute.OAuth}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
+
+        const userInfoRes = await app.request(
+          `${BaseRoute}/userinfo`,
+          { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
+          mock(db),
+        )
+        expect(await userInfoRes.json()).toStrictEqual({
+          authId: '1-1-1-1',
+          email: 'test@email.com',
+          locale: 'en',
+          createdAt: dbTime,
+          updatedAt: dbTime,
+          emailVerified: false,
+          roles: [],
+          firstName: null,
+          lastName: null,
+        })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },
     )
   },

@@ -9,7 +9,10 @@ import {
   migrate, mock,
 } from 'tests/mock'
 import { scopeModel } from 'models'
-import { dbTime } from 'tests/seed'
+import {
+  attachIndividualScopes,
+  dbTime, getS2sToken,
+} from 'tests/util'
 
 let db: Database
 
@@ -23,10 +26,11 @@ afterEach(() => {
 
 const BaseRoute = routeConfig.InternalRoute.ApiScopes
 
-const createNewScope = async () => await app.request(
+const createNewScope = async (token?: string) => await app.request(
   BaseRoute,
   {
     method: 'POST',
+    headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
     body: JSON.stringify({
       name: 'test name',
       type: 'spa',
@@ -82,7 +86,7 @@ describe(
       async () => {
         const res = await app.request(
           BaseRoute,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         const json = await res.json() as { scopes: scopeModel.Record[] }
@@ -90,6 +94,56 @@ describe(
         Object.values(Scope).forEach((key) => {
           expect(json.scopes.some((scope) => scope.name === key)).toBeTruthy()
         })
+      },
+    )
+
+    test(
+      'should return all scopes with read_scope scope',
+      async () => {
+        attachIndividualScopes(db)
+        const res = await app.request(
+          BaseRoute,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadScope,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        const json = await res.json() as { scopes: scopeModel.Record[] }
+        expect(json.scopes.length).toBe(12)
+        Object.values(Scope).forEach((key) => {
+          expect(json.scopes.some((scope) => scope.name === key)).toBeTruthy()
+        })
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        const res = await app.request(
+          BaseRoute,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteScope,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          BaseRoute,
+          {},
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
       },
     )
   },
@@ -103,7 +157,7 @@ describe(
       async () => {
         const res = await app.request(
           `${BaseRoute}/1`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         const json = await res.json()
@@ -128,7 +182,7 @@ describe(
       async () => {
         const res = await app.request(
           `${BaseRoute}/12`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         const json = await res.json()
@@ -153,7 +207,7 @@ describe(
       async () => {
         const res = await app.request(
           `${BaseRoute}/13`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
 
@@ -173,6 +227,31 @@ describe(
         const json = await res.json()
 
         expect(json).toStrictEqual({ scope: newScope })
+      },
+    )
+
+    test(
+      'should create scope with write_scope scope',
+      async () => {
+        attachIndividualScopes(db)
+        const res = await createNewScope(await getS2sToken(
+          db,
+          Scope.WriteScope,
+        ))
+        const json = await res.json()
+
+        expect(json).toStrictEqual({ scope: newScope })
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        const res = await createNewScope(Scope.ReadScope)
+        expect(res.status).toBe(401)
+
+        const res1 = await createNewScope('')
+        expect(res1.status).toBe(401)
       },
     )
   },
@@ -200,7 +279,9 @@ describe(
         const res = await app.request(
           `${BaseRoute}/13`,
           {
-            method: 'PUT', body: JSON.stringify(updateObj),
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
           mock(db),
         )
@@ -246,14 +327,17 @@ describe(
         await createNewScope()
         const res = await app.request(
           `${BaseRoute}/13`,
-          { method: 'DELETE' },
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
           mock(db),
         )
         expect(res.status).toBe(204)
 
         const checkRes = await app.request(
           `${BaseRoute}/13`,
-          {},
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
         expect(checkRes.status).toBe(404)
