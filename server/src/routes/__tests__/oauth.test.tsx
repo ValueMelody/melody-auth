@@ -10,7 +10,7 @@ import {
 import { routeConfig } from 'configs'
 import {
   getApp, getAuthorizeParams, getSignInRequest, insertUsers, postSignInRequest,
-} from 'routes/identity.test'
+} from 'routes/__tests__/identity.test'
 import { oauthDto } from 'dtos'
 import { appModel } from 'models'
 import { dbTime } from 'tests/util'

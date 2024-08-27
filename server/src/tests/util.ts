@@ -1,6 +1,6 @@
 import { Database } from 'better-sqlite3'
 import { expect } from 'vitest'
-import { mock } from './mock'
+import { mock } from 'tests/mock'
 import { routeConfig } from 'configs'
 import { oauthDto } from 'dtos'
 import app from 'index'
