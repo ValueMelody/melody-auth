@@ -161,7 +161,7 @@ export const verifyPasswordSignIn = async (
   )
 
   if (!user) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
   }
 
   if (!user.password || !cryptoUtil.bcryptCompare(
@@ -177,7 +177,7 @@ export const verifyPasswordSignIn = async (
         lockExpiresIn,
       )
     }
-    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
   }
 
   if (!user.isActive) {
