@@ -122,6 +122,39 @@ describe(
           mock(db),
         )
         expect(res1.status).toBe(401)
+
+        const res2 = await app.request(
+          BaseRoute,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadApp,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res2.status).toBe(401)
+      },
+    )
+
+    test(
+      'should return 400 using wrong token',
+      async () => {
+        const res = await app.request(
+          BaseRoute,
+          { headers: { Authorization: 'Bearer ' } },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        const res1 = await app.request(
+          BaseRoute,
+          { headers: { Authorization: 'abc' } },
+          mock(db),
+        )
+        expect(res1.status).toBe(400)
       },
     )
   },

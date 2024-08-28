@@ -152,7 +152,94 @@ describe(
         const document = dom.window.document
         expect(document.getElementsByName('email').length).toBe(1)
         expect(document.getElementsByName('password').length).toBe(1)
+        expect(document.getElementById('submit-button')).toBeTruthy()
         expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        const links = document.getElementsByTagName('a')
+        expect(links.length).toBe(3)
+        expect(links[0].innerHTML).toBe(localeConfig.authorizePassword.signUp.en)
+        expect(links[1].innerHTML).toBe(localeConfig.authorizePassword.passwordReset.en)
+        expect(links[2].innerHTML).toBe(localeConfig.common.poweredByAuth.en)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'could disable sign up',
+      async () => {
+        global.process.env.ENABLE_SIGN_UP = false as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        const links = document.getElementsByTagName('a')
+        expect(links.length).toBe(2)
+        expect(links[0].innerHTML).toBe(localeConfig.authorizePassword.passwordReset.en)
+        expect(links[1].innerHTML).toBe(localeConfig.common.poweredByAuth.en)
+        global.process.env.ENABLE_SIGN_UP = true as unknown as string
+      },
+    )
+
+    test(
+      'could disable password reset',
+      async () => {
+        global.process.env.ENABLE_PASSWORD_RESET = false as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        const links = document.getElementsByTagName('a')
+        expect(links.length).toBe(2)
+        expect(links[0].innerHTML).toBe(localeConfig.authorizePassword.signUp.en)
+        expect(links[1].innerHTML).toBe(localeConfig.common.poweredByAuth.en)
+        global.process.env.ENABLE_PASSWORD_RESET = true as unknown as string
+      },
+    )
+
+    test(
+      'could disable password sign in',
+      async () => {
+        global.process.env.ENABLE_PASSWORD_SIGN_IN = false as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByName('email').length).toBe(0)
+        expect(document.getElementsByName('password').length).toBe(0)
+        expect(document.getElementById('submit-button')).toBeFalsy()
+        global.process.env.ENABLE_PASSWORD_SIGN_IN = true as unknown as string
       },
     )
   },
@@ -190,6 +277,54 @@ describe(
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
       },
     )
+
+    test(
+      'could lock access',
+      async () => {
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
+        const appRecord = getApp(db)
+        insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password2!' },
+        )
+        expect(res.status).toBe(404)
+        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+
+        const res2 = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password2!' },
+        )
+        expect(res2.status).toBe(400)
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
+      },
+    )
+
+    test(
+      'could disable account lock',
+      async () => {
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 0 as unknown as string
+        const appRecord = getApp(db)
+        insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password2!' },
+        )
+        expect(res.status).toBe(404)
+        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBeUndefined()
+
+        const res2 = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password2!' },
+        )
+        expect(res2.status).toBe(404)
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 0 as unknown as string
+      },
+    )
   },
 )
 
@@ -211,6 +346,7 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('email').length).toBe(1)
         expect(document.getElementsByName('password').length).toBe(1)
         expect(document.getElementsByName('confirmPassword').length).toBe(1)
@@ -219,8 +355,70 @@ describe(
         expect(document.getElementsByTagName('form').length).toBe(1)
       },
     )
+
+    test(
+      'should disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        const appRecord = getApp(db)
+        const params = getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-account${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'could suppress names',
+      async () => {
+        global.process.env.ENABLE_NAMES = false as unknown as string
+
+        const appRecord = getApp(db)
+        const params = getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-account${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByName('firstName').length).toBe(0)
+        expect(document.getElementsByName('lastName').length).toBe(0)
+        global.process.env.ENABLE_NAMES = true as unknown as string
+      },
+    )
   },
 )
+
+const postAuthorizeAccount = async () => {
+  const appRecord = getApp(db)
+  const body = {
+    ...(await postAuthorizeBody(appRecord)),
+    email: 'test@email.com',
+    password: 'Password1!',
+  }
+
+  const res = await app.request(
+    `${BaseRoute}/authorize-account`,
+    {
+      method: 'POST', body: JSON.stringify(body),
+    },
+    mock(db),
+  )
+  return res
+}
 
 describe(
   'post /authorize-account',
@@ -228,20 +426,7 @@ describe(
     test(
       'should get auth code after sign up',
       async () => {
-        const appRecord = getApp(db)
-        const body = {
-          ...(await postAuthorizeBody(appRecord)),
-          email: 'test@email.com',
-          password: 'Password1!',
-        }
-
-        const res = await app.request(
-          `${BaseRoute}/authorize-account`,
-          {
-            method: 'POST', body: JSON.stringify(body),
-          },
-          mock(db),
-        )
+        const res = await postAuthorizeAccount()
         const json = await res.json()
         expect(json).toStrictEqual({
           code: expect.any(String),
@@ -254,11 +439,119 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
+        const appRecord = getApp(db)
         const { code } = json as { code: string }
-        const codeStore = JSON.parse(kv[`AC-${code}`])
+        const codeStore = JSON.parse(kv[`${adapterConfig.BaseKVKey.AuthCode}-${code}`])
         expect(codeStore.appId).toBe(1)
         expect(codeStore.appName).toBe(appRecord.name)
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
+        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`].length).toBe(8)
+      },
+    )
+
+    test(
+      'could disable email verification',
+      async () => {
+        global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
+        await postAuthorizeAccount()
+        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]).toBeUndefined()
+        global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
+      },
+    )
+
+    test(
+      'could force otp mfa',
+      async () => {
+        global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          requireConsent: true,
+          requireMfaEnroll: false,
+          requireEmailMfa: false,
+          requireOtpSetup: true,
+          requireOtpMfa: true,
+        })
+        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'could force email mfa',
+      async () => {
+        global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          requireConsent: true,
+          requireMfaEnroll: false,
+          requireEmailMfa: true,
+          requireOtpSetup: false,
+          requireOtpMfa: false,
+        })
+        global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'could skip mfa',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          requireConsent: true,
+          requireMfaEnroll: false,
+          requireEmailMfa: false,
+          requireOtpSetup: false,
+          requireOtpMfa: false,
+        })
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could skip consent',
+      async () => {
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          requireConsent: false,
+          requireMfaEnroll: true,
+          requireEmailMfa: false,
+          requireOtpSetup: false,
+          requireOtpMfa: false,
+        })
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could set names as required',
+      async () => {
+        global.process.env.NAMES_IS_REQUIRED = true as unknown as string
+
+        const res = await postAuthorizeAccount()
+        expect(res.status).toBe(400)
+
+        global.process.env.NAMES_IS_REQUIRED = false as unknown as string
       },
     )
   },
@@ -292,8 +585,6 @@ describe(
 )
 
 const testSendResetCode = async (route: string) => {
-  insertUsers(db)
-
   const body = {
     email: 'test@email.com',
     password: 'Password1!',
@@ -306,9 +597,7 @@ const testSendResetCode = async (route: string) => {
     },
     mock(db),
   )
-  const json = await res.json()
-  expect(json).toStrictEqual({ success: true })
-  expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+  return res
 }
 
 describe(
@@ -317,7 +606,11 @@ describe(
     test(
       'should send reset code',
       async () => {
-        await testSendResetCode('/reset-code')
+        insertUsers(db)
+        const res = await testSendResetCode('/reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
       },
     )
   },
@@ -329,7 +622,35 @@ describe(
     test(
       'should send reset code',
       async () => {
-        await testSendResetCode('/resend-reset-code')
+        insertUsers(db)
+        const res = await testSendResetCode('/resend-reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+      },
+    )
+
+    test(
+      'should stop after reach threshold',
+      async () => {
+        global.process.env.PASSWORD_RESET_EMAIL_THRESHOLD = 2 as unknown as string
+
+        insertUsers(db)
+
+        const res = await testSendResetCode('/resend-reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`]).toBe('1')
+
+        const res1 = await testSendResetCode('/resend-reset-code')
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({ success: true })
+        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`]).toBe('2')
+
+        const res2 = await testSendResetCode('/resend-reset-code')
+        expect(res2.status).toBe(400)
+
+        global.process.env.PASSWORD_RESET_EMAIL_THRESHOLD = 5 as unknown as string
       },
     )
   },
@@ -341,9 +662,19 @@ describe(
     test(
       'should reset password',
       async () => {
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
+        const appRecord = getApp(db)
+        insertUsers(db)
+
+        await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password2!' },
+        )
+        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+
         await testSendResetCode('/reset-code')
 
-        const appRecord = getApp(db)
         const body = {
           email: 'test@email.com',
           password: 'Password2!',
@@ -360,12 +691,53 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
+        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBeUndefined()
+
         const signInRes = await postSignInRequest(
           db,
           appRecord,
           { password: 'Password2!' },
         )
         expect(await signInRes.json()).toBeTruthy()
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'could disable account unlock by reset password',
+      async () => {
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
+        global.process.env.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET = false as unknown as string
+
+        const appRecord = getApp(db)
+        insertUsers(db)
+
+        await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password2!' },
+        )
+        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+
+        await testSendResetCode('/reset-code')
+
+        const body = {
+          email: 'test@email.com',
+          password: 'Password2!',
+          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+        }
+        await app.request(
+          `${BaseRoute}/authorize-reset`,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 5 as unknown as string
+        global.process.env.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET = true as unknown as string
       },
     )
   },
@@ -392,9 +764,34 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByTagName('button').length).toBe(2)
         expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeMfaEnroll.email.en)
         expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeMfaEnroll.otp.en)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-mfa-enroll${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -481,24 +878,15 @@ describe(
   },
 )
 
-const testGetOtpMfa = async () => {
-  insertUsers(
-    db,
-    false,
-  )
+const testGetOtpMfa = async (route: string) => {
   const params = await prepareFollowUpParams()
 
   const res = await app.request(
-    `${BaseRoute}/authorize-otp-setup${params}`,
+    `${BaseRoute}${route}${params}`,
     {},
     mock(db),
   )
-
-  const html = await res.text()
-  const dom = new JSDOM(html)
-  const document = dom.window.document
-  expect(document.getElementsByName('otp').length).toBe(1)
-  expect(document.getElementsByTagName('form').length).toBe(1)
+  return res
 }
 
 describe(
@@ -507,7 +895,34 @@ describe(
     test(
       'should show otp mfa setup page',
       async () => {
-        await testGetOtpMfa()
+        insertUsers(
+          db,
+          false,
+        )
+        const res = await testGetOtpMfa('/authorize-otp-setup')
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        expect(document.getElementsByName('otp').length).toBe(1)
+        expect(document.getElementsByTagName('form').length).toBe(1)
+      },
+    )
+
+    test(
+      'could suppress locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        const res = await testGetOtpMfa('/authorize-otp-setup')
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -519,7 +934,60 @@ describe(
     test(
       'should show opt mfa page',
       async () => {
-        await testGetOtpMfa()
+        insertUsers(
+          db,
+          false,
+        )
+        db.prepare('update user set mfaTypes = ?').run('otp')
+        const res = await testGetOtpMfa('/authorize-otp-mfa')
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        expect(document.getElementsByName('otp').length).toBe(1)
+        expect(document.getElementsByTagName('form').length).toBe(1)
+        const buttons = document.getElementsByTagName('button')
+        expect(buttons.length).toBe(2)
+        expect(buttons[0].innerHTML).toBe(localeConfig.authorizeOtpMfa.switchToEmail.en)
+        expect(buttons[1].innerHTML).toBe(localeConfig.authorizeOtpMfa.verify.en)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        db.prepare('update user set mfaTypes = ?').run('otp')
+        const res = await testGetOtpMfa('/authorize-otp-mfa')
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'could disable fallback to email mfa',
+      async () => {
+        global.process.env.ALLOW_EMAIL_MFA_AS_BACKUP = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        db.prepare('update user set mfaTypes = ?').run('otp')
+        const res = await testGetOtpMfa('/authorize-otp-mfa')
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        const buttons = document.getElementsByTagName('button')
+        expect(buttons.length).toBe(1)
+        expect(buttons[0].innerHTML).toBe(localeConfig.authorizeOtpMfa.verify.en)
+        global.process.env.ALLOW_EMAIL_MFA_AS_BACKUP = true as unknown as string
       },
     )
   },
@@ -597,11 +1065,36 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('code').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
 
         const code = getCodeFromParams(params)
         expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`].length).toBe(8)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        db.prepare('update user set mfaTypes = ? where id = 1').run('email')
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-email-mfa${params}`,
+          {},
+          mock(db),
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -766,9 +1259,34 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByTagName('button').length).toBe(2)
         expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeConsent.decline.en)
         expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeConsent.accept.en)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-consent${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -850,8 +1368,30 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('code').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        await prepareUserAccount()
+
+        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const res = await app.request(
+          `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
