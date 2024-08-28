@@ -213,7 +213,7 @@ describe(
         global.process.env.SUPPORTED_LOCALES = ['en', 'fr'] as unknown as string
       },
     )
-  }
+  },
 )
 
 describe(
