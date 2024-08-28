@@ -38,6 +38,7 @@ Go to Cloudflare dashboard
 git clone git@github.com:ValueMelody/melody-auth.git
 cd melody-auth
 npm install
+npm run build
 ```
 
 2. Update `server/wrangler.toml`:
@@ -110,6 +111,7 @@ To set up your local development environment, follow these steps:
 git clone git@github.com:ValueMelody/melody-auth.git
 cd melody-auth
 npm install
+npm run build
 
 cd server
 cp dev.vars.example dev.vars # Your email functionality related env vars should be put here
