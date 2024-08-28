@@ -148,7 +148,6 @@ describe(
           appRecord,
         )
         const html = await res.text()
-        console.log(html)
         const dom = new JSDOM(html)
         const document = dom.window.document
         expect(document.getElementsByName('email').length).toBe(1)
