@@ -136,7 +136,7 @@ const prepareFollowUpBody = async () => {
 }
 
 describe(
-  'get /authorize-password',
+  'layout',
   () => {
     test(
       'should show sign in page',
@@ -150,16 +150,31 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByName('email').length).toBe(1)
-        expect(document.getElementsByName('password').length).toBe(1)
-        expect(document.getElementById('submit-button')).toBeTruthy()
-        expect(document.getElementsByTagName('form').length).toBe(1)
         expect(document.getElementsByTagName('select').length).toBe(1)
-        const links = document.getElementsByTagName('a')
-        expect(links.length).toBe(3)
-        expect(links[0].innerHTML).toBe(localeConfig.authorizePassword.signUp.en)
-        expect(links[1].innerHTML).toBe(localeConfig.authorizePassword.passwordReset.en)
-        expect(links[2].innerHTML).toBe(localeConfig.common.poweredByAuth.en)
+        const options = document.getElementsByTagName('option')
+        expect(options.length).toBe(2)
+        expect(options[0].innerHTML).toBe('EN')
+        expect(options[1].innerHTML).toBe('FR')
+      },
+    )
+
+    test(
+      'could render french',
+      async () => {
+        global.process.env.SUPPORTED_LOCALES = ['fr'] as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        const labels = document.getElementsByTagName('label')
+        expect(labels[0].innerHTML).toBe(`${localeConfig.authorizePassword.email.fr}<span class="text-red ml-2">*</span>`)
+        expect(labels[1].innerHTML).toBe(`${localeConfig.authorizePassword.password.fr}<span class="text-red ml-2">*</span>`)
+        global.process.env.SUPPORTED_LOCALES = ['fr'] as unknown as string
       },
     )
 
@@ -178,6 +193,53 @@ describe(
         const document = dom.window.document
         expect(document.getElementsByTagName('select').length).toBe(0)
         global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'should disable locale selector when there only 1 locale',
+      async () => {
+        global.process.env.SUPPORTED_LOCALES = ['en'] as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.SUPPORTED_LOCALES = ['en', 'fr'] as unknown as string
+      },
+    )
+  }
+)
+
+describe(
+  'get /authorize-password',
+  () => {
+    test(
+      'should show sign in page',
+      async () => {
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByName('email').length).toBe(1)
+        expect(document.getElementsByName('password').length).toBe(1)
+        expect(document.getElementById('submit-button')).toBeTruthy()
+        expect(document.getElementsByTagName('form').length).toBe(1)
+        const links = document.getElementsByTagName('a')
+        expect(links.length).toBe(3)
+        expect(links[0].innerHTML).toBe(localeConfig.authorizePassword.signUp.en)
+        expect(links[1].innerHTML).toBe(localeConfig.authorizePassword.passwordReset.en)
+        expect(links[2].innerHTML).toBe(localeConfig.common.poweredByAuth.en)
       },
     )
 
@@ -346,34 +408,12 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('email').length).toBe(1)
         expect(document.getElementsByName('password').length).toBe(1)
         expect(document.getElementsByName('confirmPassword').length).toBe(1)
         expect(document.getElementsByName('firstName').length).toBe(1)
         expect(document.getElementsByName('lastName').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
-      },
-    )
-
-    test(
-      'should disable locale selector',
-      async () => {
-        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        const appRecord = getApp(db)
-        const params = getAuthorizeParams(appRecord)
-
-        const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
-          {},
-          mock(db),
-        )
-
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
 
@@ -764,34 +804,9 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByTagName('button').length).toBe(2)
         expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeMfaEnroll.email.en)
         expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeMfaEnroll.otp.en)
-      },
-    )
-
-    test(
-      'could disable locale selector',
-      async () => {
-        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
-          db,
-          false,
-        )
-        const params = await prepareFollowUpParams()
-
-        const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll${params}`,
-          {},
-          mock(db),
-        )
-
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -903,26 +918,8 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('otp').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
-      },
-    )
-
-    test(
-      'could suppress locale selector',
-      async () => {
-        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
-          db,
-          false,
-        )
-        const res = await testGetOtpMfa('/authorize-otp-setup')
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -943,31 +940,12 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('otp').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
         const buttons = document.getElementsByTagName('button')
         expect(buttons.length).toBe(2)
         expect(buttons[0].innerHTML).toBe(localeConfig.authorizeOtpMfa.switchToEmail.en)
         expect(buttons[1].innerHTML).toBe(localeConfig.authorizeOtpMfa.verify.en)
-      },
-    )
-
-    test(
-      'could disable locale selector',
-      async () => {
-        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
-          db,
-          false,
-        )
-        db.prepare('update user set mfaTypes = ?').run('otp')
-        const res = await testGetOtpMfa('/authorize-otp-mfa')
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
 
@@ -1065,36 +1043,11 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('code').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
 
         const code = getCodeFromParams(params)
         expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`].length).toBe(8)
-      },
-    )
-
-    test(
-      'could disable locale selector',
-      async () => {
-        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
-          db,
-          false,
-        )
-        db.prepare('update user set mfaTypes = ? where id = 1').run('email')
-        const params = await prepareFollowUpParams()
-
-        const res = await app.request(
-          `${BaseRoute}/authorize-email-mfa${params}`,
-          {},
-          mock(db),
-        )
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -1259,34 +1212,9 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByTagName('button').length).toBe(2)
         expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeConsent.decline.en)
         expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeConsent.accept.en)
-      },
-    )
-
-    test(
-      'could disable locale selector',
-      async () => {
-        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
-          db,
-          false,
-        )
-        const params = await prepareFollowUpParams()
-
-        const res = await app.request(
-          `${BaseRoute}/authorize-consent${params}`,
-          {},
-          mock(db),
-        )
-
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -1368,30 +1296,8 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('code').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
-      },
-    )
-
-    test(
-      'could disable locale selector',
-      async () => {
-        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        await prepareUserAccount()
-
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
-        const res = await app.request(
-          `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
-          {},
-          mock(db),
-        )
-
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },

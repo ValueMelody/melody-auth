@@ -69,3 +69,8 @@ export const verifyAccessToken = async () => {
   return true
 }
 ```
+
+## How to support a new locale
+English (EN) and French (FR) are supported by default in this project. To add support for additional locales, follow these steps:
+- Update the server/src/configs/locale.ts file, ensuring that translations for your new locale are provided.
+- Update the SUPPORTED_LOCALES environment variable to include your new locale in the array.
