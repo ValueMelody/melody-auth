@@ -136,10 +136,10 @@ const prepareFollowUpBody = async () => {
 }
 
 describe(
-  'layout',
+  'locales',
   () => {
     test(
-      'should show sign in page',
+      'should render locale selector',
       async () => {
         const appRecord = getApp(db)
         const res = await getSignInRequest(
