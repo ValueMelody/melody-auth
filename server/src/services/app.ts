@@ -125,18 +125,20 @@ export const updateApp = async (
   }
   if (dto.isActive !== undefined) updateDto.isActive = dto.isActive ? 1 : 0
 
-  const app = Object.keys(updateDto).length
+  const app = await appModel.getById(
+    c.env.DB,
+    appId,
+  )
+
+  if (!app) throw new errorConfig.NotFound()
+
+  const updatedApp = Object.keys(updateDto).length
     ? await appModel.update(
       c.env.DB,
       appId,
       updateDto,
     )
-    : await appModel.getById(
-      c.env.DB,
-      appId,
-    )
-
-  if (!app) throw new errorConfig.NotFound()
+    : app
 
   const appScopes = await appScopeModel.getAllByAppId(
     c.env.DB,
@@ -173,7 +175,7 @@ export const updateApp = async (
   }
 
   return {
-    ...app,
+    ...updatedApp,
     scopes: dto.scopes ?? appScopes.map((appScope) => appScope.scopeName),
   }
 }

@@ -9,7 +9,7 @@ import {
   session,
 } from 'tests/mock'
 import {
-  adapterConfig, routeConfig,
+  adapterConfig, localeConfig, routeConfig,
 } from 'configs'
 import {
   getApp, getAuthorizeParams, getSignInRequest, insertUsers, postSignInRequest,
@@ -18,7 +18,7 @@ import {
 import { oauthDto } from 'dtos'
 import { appModel } from 'models'
 import {
-  dbTime, enrollEmailMfa, enrollOtpMfa,
+  dbTime, disableUser, enrollEmailMfa, enrollOtpMfa,
 } from 'tests/util'
 
 let db: Database
@@ -49,6 +49,53 @@ describe(
         const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`/identity/v1/authorize-password${params}`)
+      },
+    )
+
+    test(
+      'should throw error if no enough params provided',
+      async () => {
+        const res = await app.request(
+          `${BaseRoute}/authorize`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'should throw error if wrong app used',
+      async () => {
+        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(localeConfig.Error.WrongClientType)
+      },
+    )
+
+    test(
+      'should throw error if wrong redirect uri used',
+      async () => {
+        const appRecord = getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize${params.replace(
+            'http://localhost:3000/en/dashboard',
+            'http://localhost:3000/en/dashboard1',
+          )}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(localeConfig.Error.WrongRedirectUri)
       },
     )
 
@@ -243,6 +290,103 @@ describe(
     )
 
     test(
+      'could use plain code challenge',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        insertUsers(db)
+        const appRecord = getApp(db)
+
+        const res = await app.request(
+          `${routeConfig.InternalRoute.Identity}/authorize-password`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              clientId: appRecord.clientId,
+              redirectUri: 'http://localhost:3000/en/dashboard',
+              responseType: 'code',
+              state: '123',
+              codeChallengeMethod: 'plain',
+              codeChallenge: 'aaa',
+              scope: 'profile openid offline_access',
+              locale: 'en',
+              email: 'test@email.com',
+              password: 'Password1!',
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json() as { code: string }
+
+        const body = {
+          grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+          code: json.code,
+          code_verifier: 'aaa',
+        }
+        const tokenRes = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error with wrong code or wrong code_verifier',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        insertUsers(db)
+        const appRecord = getApp(db)
+
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const json = await res.json() as { code: string }
+
+        const tokenRes = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code: `${json.code}1`,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(400)
+        expect(await tokenRes.text()).toBe(localeConfig.Error.WrongCode)
+
+        const tokenRes1 = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code: json.code,
+              code_verifier: 'ab',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes1.status).toBe(400)
+        expect(await tokenRes1.text()).toBe(localeConfig.Error.WrongCodeVerifier)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
       'could get token use refresh token',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
@@ -278,6 +422,50 @@ describe(
     )
 
     test(
+      'could throw error if use wrong refresh token or grant type',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken()
+        const tokenJson = await tokenRes.json() as { refresh_token: string }
+
+        const refreshToken = tokenJson.refresh_token
+
+        const refreshTokenRes = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.RefreshToken,
+              refresh_token: `${refreshToken}1`,
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(refreshTokenRes.status).toBe(400)
+        expect(await refreshTokenRes.text()).toBe(localeConfig.Error.WrongRefreshToken)
+
+        const refreshTokenRes1 = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: 'something',
+              refresh_token: `${refreshToken}1`,
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(refreshTokenRes1.status).toBe(400)
+        expect(await refreshTokenRes1.text()).toBe(localeConfig.Error.WrongGrantType)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
       'could get token use client credentials',
       async () => {
         const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
@@ -305,6 +493,58 @@ describe(
           token_type: 'Bearer',
           scope: 'root',
         })
+      },
+    )
+
+    test(
+      'should throw error when wrong client credentials provided',
+      async () => {
+        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+
+        const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}1`)
+        const res = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.ClientCredentials,
+              scope: 'root',
+            }).toString(),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${basicAuth}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(localeConfig.Error.WrongClientSecret)
+      },
+    )
+
+    test(
+      'should throw error if use wrong client type',
+      async () => {
+        const appRecord = db.prepare('SELECT * FROM app where id = 1').get() as appModel.Record
+
+        const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
+        const res = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.ClientCredentials,
+              scope: 'root',
+            }).toString(),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${basicAuth}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(localeConfig.Error.WrongClientType)
       },
     )
   },
@@ -414,34 +654,41 @@ describe(
 describe(
   'get /userinfo',
   () => {
+    const prepareUserInfoRequest = async () => {
+      const appRecord = getApp(db)
+      insertUsers(db)
+      const res = await postSignInRequest(
+        db,
+        appRecord,
+      )
+
+      const json = await res.json() as { code: string }
+
+      const body = {
+        grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+        code: json.code,
+        code_verifier: 'abc',
+      }
+      const tokenRes = await app.request(
+        `${routeConfig.InternalRoute.OAuth}/token`,
+        {
+          method: 'POST',
+          body: new URLSearchParams(body).toString(),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        },
+        mock(db),
+      )
+      const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
+
+      return tokenJson
+    }
+
     test(
       'should get userinfo',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        const appRecord = getApp(db)
-        insertUsers(db)
-        const res = await postSignInRequest(
-          db,
-          appRecord,
-        )
 
-        const json = await res.json() as { code: string }
-
-        const body = {
-          grant_type: oauthDto.TokenGrantType.AuthorizationCode,
-          code: json.code,
-          code_verifier: 'abc',
-        }
-        const tokenRes = await app.request(
-          `${routeConfig.InternalRoute.OAuth}/token`,
-          {
-            method: 'POST',
-            body: new URLSearchParams(body).toString(),
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          },
-          mock(db),
-        )
-        const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
+        const tokenJson = await prepareUserInfoRequest()
 
         const userInfoRes = await app.request(
           `${BaseRoute}/userinfo`,
@@ -459,6 +706,44 @@ describe(
           firstName: null,
           lastName: null,
         })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if user not found',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        const tokenJson = await prepareUserInfoRequest()
+        db.prepare('update user set deletedAt = ?').run('2024')
+
+        const userInfoRes = await app.request(
+          `${BaseRoute}/userinfo`,
+          { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
+          mock(db),
+        )
+        expect(userInfoRes.status).toBe(404)
+        expect(await userInfoRes.text()).toBe(localeConfig.Error.NoUser)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if user disabled',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        const tokenJson = await prepareUserInfoRequest()
+        disableUser(db)
+
+        const userInfoRes = await app.request(
+          `${BaseRoute}/userinfo`,
+          { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
+          mock(db),
+        )
+        expect(userInfoRes.status).toBe(400)
+        expect(await userInfoRes.text()).toBe(localeConfig.Error.UserDisabled)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },

@@ -5,7 +5,7 @@ import { Database } from 'better-sqlite3'
 import { Scope } from 'shared'
 import app from 'index'
 import {
-  adapterConfig, routeConfig,
+  adapterConfig, localeConfig, routeConfig,
 } from 'configs'
 import {
   kv,
@@ -16,7 +16,7 @@ import {
 } from 'models'
 import {
   attachIndividualScopes,
-  dbTime, getS2sToken,
+  dbTime, disableUser, enrollEmailMfa, enrollOtpMfa, getS2sToken,
 } from 'tests/util'
 
 let db: Database
@@ -105,6 +105,122 @@ describe(
         )
         const json = await res.json() as { users: userModel.Record[] }
         expect(json.users).toStrictEqual([user1, user2])
+      },
+    )
+
+    test(
+      'could get users by pagination',
+      async () => {
+        insertUsers()
+        db.exec(`
+          INSERT INTO user
+          (authId, locale, email, googleId, password, firstName, lastName)
+          values ('1-1-1-3', 'en', 'test2@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'first', 'last')
+        `)
+        db.exec(`
+          INSERT INTO user
+          (authId, locale, email, googleId, password, firstName, lastName)
+          values ('1-1-1-4', 'en', 'test3@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'another', 'one')
+        `)
+        db.exec(`
+          INSERT INTO user
+          (authId, locale, email, googleId, password, firstName, lastName)
+          values ('1-1-1-5', 'en', 'test4@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'other', 'name')
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}?page_size=2&page_number=1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          users: [user1, user2],
+          count: 5,
+        })
+
+        const res1 = await app.request(
+          `${BaseRoute}?page_size=2&page_number=2`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({
+          users: [{
+            ...user1,
+            id: 3,
+            authId: '1-1-1-3',
+            email: 'test2@email.com',
+            firstName: 'first',
+            lastName: 'last',
+          }, {
+            ...user1,
+            id: 4,
+            authId: '1-1-1-4',
+            email: 'test3@email.com',
+            firstName: 'another',
+            lastName: 'one',
+          }],
+          count: 5,
+        })
+
+        const res2 = await app.request(
+          `${BaseRoute}?page_size=2&page_number=1&search=test`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json2 = await res2.json()
+        expect(json2).toStrictEqual({
+          users: [user1, user2],
+          count: 5,
+        })
+
+        const res3 = await app.request(
+          `${BaseRoute}?page_size=2&page_number=1&search=test1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json3 = await res3.json()
+        expect(json3).toStrictEqual({
+          users: [user2],
+          count: 1,
+        })
+
+        const res4 = await app.request(
+          `${BaseRoute}?page_size=2&page_number=1&search=another`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json4 = await res4.json()
+        expect(json4).toStrictEqual({
+          users: [{
+            ...user1,
+            id: 4,
+            authId: '1-1-1-4',
+            email: 'test3@email.com',
+            firstName: 'another',
+            lastName: 'one',
+          }],
+          count: 1,
+        })
+
+        const res5 = await app.request(
+          `${BaseRoute}?page_size=2&page_number=1&search=la`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json5 = await res5.json()
+        expect(json5).toStrictEqual({
+          users: [{
+            ...user1,
+            id: 3,
+            authId: '1-1-1-3',
+            email: 'test2@email.com',
+            firstName: 'first',
+            lastName: 'last',
+          }],
+          count: 1,
+        })
       },
     )
 
@@ -276,16 +392,17 @@ describe(
       'should update user',
       async () => {
         insertUsers()
+        db.prepare('insert into role (name) values (?)').run('test')
 
         const updateObj = {
           locale: 'fr',
           isActive: false,
           firstName: 'First',
           lastName: 'Last',
-          roles: ['super_admin'],
+          roles: ['test'],
         }
         const res = await app.request(
-          `${BaseRoute}/1-1-1-1`,
+          `${BaseRoute}/1-1-1-2`,
           {
             method: 'PUT',
             body: JSON.stringify(updateObj),
@@ -297,7 +414,7 @@ describe(
 
         expect(json).toStrictEqual({
           user: {
-            ...user1,
+            ...user2,
             ...updateObj,
           },
         })
@@ -513,6 +630,43 @@ describe(
         expect(userJson.user.mfaTypes).toStrictEqual(['email'])
       },
     )
+
+    test(
+      'should throw error for wrong id',
+      async () => {
+        insertUsers()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-3/email-mfa`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+      },
+    )
+
+    test(
+      'should throw error for inactive user',
+      async () => {
+        insertUsers()
+        disableUser(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/email-mfa`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+      },
+    )
   },
 )
 
@@ -523,6 +677,7 @@ describe(
       'should unenroll email mfa',
       async () => {
         insertUsers()
+        enrollEmailMfa(db)
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/email-mfa`,
@@ -542,6 +697,45 @@ describe(
 
         const userJson = await userRes.json() as { user: userModel.Record }
         expect(userJson.user.mfaTypes).toStrictEqual([])
+      },
+    )
+
+    test(
+      'should throw error for wrong id',
+      async () => {
+        insertUsers()
+        enrollEmailMfa(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-3/email-mfa`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+      },
+    )
+
+    test(
+      'should throw error for inactive user',
+      async () => {
+        insertUsers()
+        enrollEmailMfa(db)
+        disableUser(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/email-mfa`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
       },
     )
   },
@@ -585,6 +779,7 @@ describe(
       'should unenroll otp mfa',
       async () => {
         insertUsers()
+        enrollOtpMfa(db)
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/otp-mfa`,

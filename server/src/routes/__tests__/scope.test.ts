@@ -315,6 +315,104 @@ describe(
         })
       },
     )
+
+    test(
+      'could only update scope locales',
+      async () => {
+        await createNewScope()
+        const updateObj = {
+          locales: [
+            {
+              locale: 'en', value: 'test en 1',
+            },
+            {
+              locale: 'fr', value: 'test fr 1',
+            },
+          ],
+        }
+        const res = await app.request(
+          `${BaseRoute}/13`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          scope: {
+            ...newScope,
+            locales: [
+              {
+                id: 5,
+                scopeId: 13,
+                value: 'test en 1',
+                createdAt: dbTime,
+                updatedAt: dbTime,
+                deletedAt: null,
+                locale: 'en',
+              },
+              {
+                id: 6,
+                scopeId: 13,
+                value: 'test fr 1',
+                createdAt: dbTime,
+                updatedAt: dbTime,
+                deletedAt: null,
+                locale: 'fr',
+              },
+            ],
+          },
+        })
+      },
+    )
+
+    test(
+      'should update scope without affect locale',
+      async () => {
+        await createNewScope()
+        const updateObj = {
+          name: 'test name 1',
+          note: '',
+        }
+        const res = await app.request(
+          `${BaseRoute}/13`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          scope: {
+            ...newScope,
+            ...updateObj,
+          },
+        })
+      },
+    )
+
+    test(
+      'should throw error if scope not found',
+      async () => {
+        const updateObj = { note: 'test name 1' }
+        const res = await app.request(
+          `${BaseRoute}/13`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+      },
+    )
   },
 )
 

@@ -34,7 +34,7 @@ const createNewApp = async (token?: string) => await app.request(
       name: 'test name',
       type: 'spa',
       scopes: ['profile', 'openid'],
-      redirectUris: ['http://localhost:4200', 'http://localhost:4300'],
+      redirectUris: ['http://LOCALHOST:4200', 'http://localhost:4300/'],
     }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
   },
@@ -269,7 +269,53 @@ describe(
         await createNewApp()
         const updateObj = {
           name: 'test name 1',
-          redirectUris: ['http://localhost:5200', 'http://google.com'],
+          redirectUris: ['http://LOCALHOST:5200/', ' http://google.com '],
+          scopes: ['openid', 'offline_access'],
+        }
+        const res = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          app: {
+            ...newApp,
+            ...updateObj,
+            redirectUris: ['http://localhost:5200', 'http://google.com'],
+          },
+        })
+      },
+    )
+
+    test(
+      'should throw error if can not find app',
+      async () => {
+        await createNewApp()
+        const res = await app.request(
+          `${BaseRoute}/4`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ name: 'test name 1' }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+      },
+    )
+
+    test(
+      'should update without affect redirect uris',
+      async () => {
+        await createNewApp()
+        const updateObj = {
+          name: 'test name 1',
           scopes: ['openid', 'offline_access'],
         }
         const res = await app.request(

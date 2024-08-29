@@ -6,7 +6,9 @@ import {
   Role, Scope,
 } from 'shared'
 import app from 'index'
-import { routeConfig } from 'configs'
+import {
+  localeConfig, routeConfig,
+} from 'configs'
 import {
   migrate, mock,
 } from 'tests/mock'
@@ -166,6 +168,39 @@ describe(
         const json = await res.json()
 
         expect(json).toStrictEqual({ role: newRole })
+      },
+    )
+
+    test(
+      'should trigger unique constraint',
+      async () => {
+        await createNewRole()
+        const res1 = await createNewRole()
+        expect(res1.status).toBe(500)
+        expect(await res1.text()).toContain(localeConfig.Error.UniqueKey)
+      },
+    )
+
+    test(
+      'should create role without note',
+      async () => {
+        const res = await app.request(
+          BaseRoute,
+          {
+            method: 'POST',
+            body: JSON.stringify({ name: 'test name' }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          role: {
+            ...newRole,
+            note: '',
+          },
+        })
       },
     )
 
