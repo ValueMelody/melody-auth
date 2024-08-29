@@ -28,6 +28,42 @@ export const session = {
   },
 }
 
+export const kvModule = {
+  get: (key: string) => {
+    switch (key) {
+    case adapterConfig.BaseKVKey.JwtPublicSecret:
+      return fs.readFileSync(
+        path.resolve('src/tests/public_key_mock'),
+        'utf8',
+      )
+    case adapterConfig.BaseKVKey.JwtPrivateSecret:
+      return fs.readFileSync(
+        path.resolve('src/tests/private_key_mock'),
+        'utf8',
+      )
+    default:
+      return kv[key] ?? null
+    }
+  },
+  put: (
+    key: string, value: string,
+  ) => {
+    kv[key] = value
+  },
+  delete: (key: string) => {
+    delete kv[key]
+  },
+  list: ({ prefix }: { prefix: string}) => {
+    const keys = Object.keys(kv)
+    return {
+      keys: keys.filter((key) => key.includes(prefix))
+        .map((key) => ({
+          name: key, value: kv[key],
+        })),
+    }
+  },
+}
+
 export const mock = (db: Database) => ({
   DB: {
     prepare: (query: string) => {
@@ -69,41 +105,7 @@ export const mock = (db: Database) => ({
       }
     },
   },
-  KV: {
-    get: (key: string) => {
-      switch (key) {
-      case adapterConfig.BaseKVKey.JwtPublicSecret:
-        return fs.readFileSync(
-          path.resolve('src/tests/public_key_mock'),
-          'utf8',
-        )
-      case adapterConfig.BaseKVKey.JwtPrivateSecret:
-        return fs.readFileSync(
-          path.resolve('src/tests/private_key_mock'),
-          'utf8',
-        )
-      default:
-        return kv[key] ?? null
-      }
-    },
-    put: (
-      key: string, value: string,
-    ) => {
-      kv[key] = value
-    },
-    delete: (key: string) => {
-      delete kv[key]
-    },
-    list: ({ prefix }: { prefix: string}) => {
-      const keys = Object.keys(kv)
-      return {
-        keys: keys.filter((key) => key.includes(prefix))
-          .map((key) => ({
-            name: key, value: kv[key],
-          })),
-      }
-    },
-  },
+  KV: kvModule,
 })
 
 export const migrate = async () => {

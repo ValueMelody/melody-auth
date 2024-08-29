@@ -7,9 +7,10 @@ import {
 } from 'vitest'
 import toml from 'toml'
 import {
-  Algorithm, sign,
+  Algorithm, decode, sign,
   verify,
 } from 'jsonwebtoken'
+import jwkToPem from 'jwk-to-pem'
 import { session } from 'tests/mock'
 
 const config = toml.parse(readFileSync(
@@ -41,7 +42,9 @@ vi.mock(
       return sign(
         string,
         key,
-        { algorithm: alg },
+        {
+          algorithm: alg, keyid: '48f2dc34d337d097aed60c2fcf17d96f21c2669124ee3f3a650a0f78a98b045d',
+        },
       )
     },
     verify: (
@@ -49,8 +52,14 @@ vi.mock(
     ) => {
       return verify(
         string,
-        key,
+        typeof key === 'string' ? key : jwkToPem(key),
         { algorithms: [alg] },
+      )
+    },
+    decode: (token: string) => {
+      return decode(
+        token,
+        { complete: true },
       )
     },
   }),
@@ -75,5 +84,23 @@ vi.mock(
   }),
 )
 
-global.fetch = vi.fn(() =>
-  Promise.resolve({ ok: true })) as Mock
+global.fetch = vi.fn((url) => {
+  if (url === 'https://www.googleapis.com/oauth2/v3/certs') {
+    return Promise.resolve({
+      ok: true,
+      json: () => ({
+        keys: [
+          {
+            kty: 'RSA',
+            n: 'yTuKDtxWPXn_ZhRUrnjv0seFe-cEstFWbNGtiWnNxTE4vDHHN9rVwMqcI8CXgxfY5l8lxUqn95NCemUTAtd6BTCHpJYP4ktrxmez0Sst6PZWJe11QBGhr8qS_4GfOXb86tDiL4oRN7TP2FcRYrVt7-UOnZgRh9-9gnxMEXlvyRkasE7TTvSY0kQcbIoZoXc8EuTXLLVNDtx8lXrUepPV0JcAWXrRR5FbPL2bX1yNRsho55yiFKW_boazBw8nJpZGauHl8cOJdFQVDl8_ihzA-f53EOPiFRfWW-goEVgrfJ_ZsrKpzQGJGTdHBpc-ZGEdfDF2E2czLrxKLdim1E_jhQ',
+            e: 'AQAB',
+            alg: 'RS256',
+            use: 'sig',
+            kid: '48f2dc34d337d097aed60c2fcf17d96f21c2669124ee3f3a650a0f78a98b045d',
+          },
+        ],
+      }),
+    })
+  }
+  return Promise.resolve({ ok: true })
+}) as Mock
