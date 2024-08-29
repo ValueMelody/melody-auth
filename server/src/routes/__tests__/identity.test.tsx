@@ -5,9 +5,11 @@ import { Database } from 'better-sqlite3'
 import { JSDOM } from 'jsdom'
 import { genCodeChallenge } from 'shared'
 import { authenticator } from 'otplib'
+import { sign } from 'hono/jwt'
 import app from 'index'
 import {
   kv,
+  kvModule,
   migrate, mock,
 } from 'tests/mock'
 import {
@@ -239,11 +241,30 @@ describe(
         expect(document.getElementsByName('password').length).toBe(1)
         expect(document.getElementById('submit-button')).toBeTruthy()
         expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementsByClassName('g_id_signin').length).toBe(0)
         const links = document.getElementsByTagName('a')
         expect(links.length).toBe(3)
         expect(links[0].innerHTML).toBe(localeConfig.authorizePassword.signUp.en)
         expect(links[1].innerHTML).toBe(localeConfig.authorizePassword.passwordReset.en)
         expect(links[2].innerHTML).toBe(localeConfig.common.poweredByAuth.en)
+      },
+    )
+
+    test(
+      'should show google sign in',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByClassName('g_id_signin').length).toBe(1)
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
       },
     )
 
@@ -1333,6 +1354,73 @@ describe(
 
         const updatedUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
         expect(updatedUser.emailVerified).toBe(1)
+      },
+    )
+  },
+)
+
+describe(
+  'post /authorize-google',
+  () => {
+    const postGoogleRequest = async () => {
+      const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+      const credential = sign(
+        {
+          iss: 'https://accounts.google.com',
+          email: 'test@gmail.com',
+          sub: 'gid123',
+          email_verified: true,
+          given_name: 'first',
+          family_name: 'last',
+        },
+        privateSecret,
+        'RS256',
+      )
+
+      const appRecord = getApp(db)
+      const res = await app.request(
+        `${BaseRoute}/authorize-google`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            ...(await postAuthorizeBody(appRecord)),
+            credential,
+          }),
+        },
+        mock(db),
+      )
+
+      const users = db.prepare('select * from user').all()
+      expect(users.length).toBe(1)
+      expect(await res.json()).toStrictEqual({
+        code: expect.any(String),
+        redirectUri: 'http://localhost:3000/en/dashboard',
+        state: '123',
+        scopes: ['profile', 'openid', 'offline_access'],
+        requireConsent: true,
+        requireMfaEnroll: false,
+        requireEmailMfa: false,
+        requireOtpSetup: false,
+        requireOtpMfa: false,
+      })
+    }
+
+    test(
+      'should sign in with a new google account',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        await postGoogleRequest()
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+      },
+    )
+
+    test(
+      'should sign in with an existing google account',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        await postGoogleRequest()
+        await postGoogleRequest()
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
       },
     )
   },
