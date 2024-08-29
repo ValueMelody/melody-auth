@@ -17,6 +17,9 @@ import {
   appModel, userModel,
 } from 'models'
 import { oauthDto } from 'dtos'
+import {
+  enrollEmailMfa, enrollOtpMfa,
+} from 'tests/util'
 
 let db: Database
 
@@ -53,19 +56,20 @@ export const getApp = (db: Database) => {
   return appRecord
 }
 
-export const getAuthorizeParams = (appRecord: appModel.Record) => {
+export const getAuthorizeParams = async (appRecord: appModel.Record) => {
+  const codeChallenge = await genCodeChallenge('abc')
   let params = ''
   params += `?client_id=${appRecord.clientId}&redirect_uri=http://localhost:3000/en/dashboard`
   params += '&response_type=code&state=123&locale=en'
   params += '&scope=openid%20profile%20offline_access'
-  params += '&code_challenge_method=S256&code_challenge=abc'
+  params += `&code_challenge_method=S256&code_challenge=${codeChallenge}`
   return params
 }
 
 export const getSignInRequest = async (
   db: Database, url: string, appRecord: appModel.Record,
 ) => {
-  const params = getAuthorizeParams(appRecord)
+  const params = await getAuthorizeParams(appRecord)
 
   const res = await app.request(
     `${url}${params}`,
@@ -120,7 +124,7 @@ const prepareFollowUpParams = async () => {
   return `?state=123&redirect_uri=http://localhost:3000/en/dashboard&locale=en&code=${json.code}`
 }
 
-const prepareFollowUpBody = async () => {
+export const prepareFollowUpBody = async (db: Database) => {
   const appRecord = getApp(db)
   const res = await postSignInRequest(
     db,
@@ -397,7 +401,7 @@ describe(
       'should show sign up page',
       async () => {
         const appRecord = getApp(db)
-        const params = getAuthorizeParams(appRecord)
+        const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
           `${BaseRoute}/authorize-account${params}`,
@@ -423,7 +427,7 @@ describe(
         global.process.env.ENABLE_NAMES = false as unknown as string
 
         const appRecord = getApp(db)
-        const params = getAuthorizeParams(appRecord)
+        const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
           `${BaseRoute}/authorize-account${params}`,
@@ -604,7 +608,7 @@ describe(
       'should show reset page',
       async () => {
         const appRecord = getApp(db)
-        const params = getAuthorizeParams(appRecord)
+        const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
           `${BaseRoute}/authorize-reset${params}`,
@@ -822,7 +826,7 @@ describe(
           db,
           false,
         )
-        const body = await prepareFollowUpBody()
+        const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
           `${BaseRoute}/authorize-mfa-enroll`,
@@ -860,7 +864,7 @@ describe(
           db,
           false,
         )
-        const body = await prepareFollowUpBody()
+        const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
           `${BaseRoute}/authorize-mfa-enroll`,
@@ -935,7 +939,7 @@ describe(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ?').run('otp')
+        enrollOtpMfa(db)
         const res = await testGetOtpMfa('/authorize-otp-mfa')
         const html = await res.text()
         const dom = new JSDOM(html)
@@ -957,7 +961,7 @@ describe(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ?').run('otp')
+        enrollOtpMfa(db)
         const res = await testGetOtpMfa('/authorize-otp-mfa')
         const html = await res.text()
         const dom = new JSDOM(html)
@@ -981,8 +985,8 @@ describe(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ? where id = 1').run('otp')
-        const body = await prepareFollowUpBody()
+        enrollOtpMfa(db)
+        const body = await prepareFollowUpBody(db)
         const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
         const token = authenticator.generate(currentUser.otpSecret)
 
@@ -1032,7 +1036,7 @@ describe(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ? where id = 1').run('email')
+        enrollEmailMfa(db)
         const params = await prepareFollowUpParams()
 
         const res = await app.request(
@@ -1063,8 +1067,8 @@ describe(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ? where id = 1').run('email')
-        const body = await prepareFollowUpBody()
+        enrollEmailMfa(db)
+        const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
           `${BaseRoute}/resend-email-mfa`,
@@ -1096,7 +1100,7 @@ describe(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ? where id = 1').run('email')
+        enrollEmailMfa(db)
         const params = await prepareFollowUpParams()
 
         await app.request(
@@ -1142,8 +1146,8 @@ describe(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ? where id = 1').run('email')
-        const body = await prepareFollowUpBody()
+        enrollEmailMfa(db)
+        const body = await prepareFollowUpBody(db)
 
         await app.request(
           `${BaseRoute}/resend-email-mfa`,
@@ -1230,7 +1234,7 @@ describe(
           db,
           false,
         )
-        const body = await prepareFollowUpBody()
+        const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
           `${BaseRoute}/authorize-consent`,
