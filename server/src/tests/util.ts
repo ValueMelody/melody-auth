@@ -58,6 +58,14 @@ export const attachIndividualScopes = (db: Database) => {
   })
 }
 
+export const enrollOtpMfa = (db: Database) => {
+  db.prepare('update user set mfaTypes = ? where id = 1').run('otp')
+}
+
+export const enrollEmailMfa = (db: Database) => {
+  db.prepare('update user set mfaTypes = ? where id = 1').run('email')
+}
+
 export const getS2sToken = async (
   db: Database, scope: string = 'root',
 ) => {

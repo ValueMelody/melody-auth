@@ -4,16 +4,22 @@ import {
 import { Database } from 'better-sqlite3'
 import app from 'index'
 import {
+  kv,
   migrate, mock,
   session,
 } from 'tests/mock'
-import { routeConfig } from 'configs'
+import {
+  adapterConfig, routeConfig,
+} from 'configs'
 import {
   getApp, getAuthorizeParams, getSignInRequest, insertUsers, postSignInRequest,
+  prepareFollowUpBody,
 } from 'routes/__tests__/identity.test'
 import { oauthDto } from 'dtos'
 import { appModel } from 'models'
-import { dbTime } from 'tests/util'
+import {
+  dbTime, enrollEmailMfa, enrollOtpMfa,
+} from 'tests/util'
 
 let db: Database
 
@@ -40,48 +46,182 @@ describe(
           url,
           appRecord,
         )
-        const params = getAuthorizeParams(appRecord)
+        const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`/identity/v1/authorize-password${params}`)
+      },
+    )
+
+    test(
+      'could login through session',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        const appRecord = getApp(db)
+        insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const url = `${BaseRoute}/authorize`
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain('http://localhost:3000/en/dashboard?code')
+        const code = path!.split('?')[1].split('&')[0].split('=')[1]
+        const tokenRes = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could login through session and bypass mfa',
+      async () => {
+        global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+        global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+        const appRecord = getApp(db)
+        insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const body = await prepareFollowUpBody(db)
+        kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${body.code}`] = 'aaaaaaaa'
+        await app.request(
+          `${routeConfig.InternalRoute.Identity}/authorize-otp-mfa`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              mfaCode: 'aaaaaaaa',
+            }),
+          },
+          mock(db),
+        )
+
+        kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`] = 'bbbbbbbb'
+        await app.request(
+          `${routeConfig.InternalRoute.Identity}/authorize-email-mfa`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              mfaCode: 'bbbbbbbb',
+            }),
+          },
+          mock(db),
+        )
+
+        const url = `${BaseRoute}/authorize`
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain('http://localhost:3000/en/dashboard?code')
+        const code = path!.split('?')[1].split('&')[0].split('=')[1]
+        const tokenRes = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+        global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'could disable session',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.SERVER_SESSION_EXPIRES_IN = 0 as unknown as string
+        const appRecord = getApp(db)
+        insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const url = `${BaseRoute}/authorize`
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+        )
+        const params = await getAuthorizeParams(appRecord)
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`/identity/v1/authorize-password${params}`)
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.SERVER_SESSION_EXPIRES_IN = 1800 as unknown as string
       },
     )
   },
 )
 
+const exchangeWithAuthToken = async () => {
+  const appRecord = getApp(db)
+
+  const res = await postSignInRequest(
+    db,
+    appRecord,
+  )
+  const json = await res.json() as { code: string }
+
+  const body = {
+    grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+    code: json.code,
+    code_verifier: 'abc',
+  }
+  const tokenRes = await app.request(
+    `${BaseRoute}/token`,
+    {
+      method: 'POST',
+      body: new URLSearchParams(body).toString(),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    },
+    mock(db),
+  )
+  return tokenRes
+}
+
 describe(
   '/token',
   () => {
-    const exchangeWithAuthToken = async () => {
-      const appRecord = getApp(db)
-      insertUsers(db)
-
-      const res = await postSignInRequest(
-        db,
-        appRecord,
-      )
-      const json = await res.json() as { code: string }
-
-      const body = {
-        grant_type: oauthDto.TokenGrantType.AuthorizationCode,
-        code: json.code,
-        code_verifier: 'abc',
-      }
-      const tokenRes = await app.request(
-        `${BaseRoute}/token`,
-        {
-          method: 'POST',
-          body: new URLSearchParams(body).toString(),
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        },
-        mock(db),
-      )
-      return tokenRes
-    }
-
     test(
       'could get token use auth code',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         const tokenJson = await tokenRes.json()
 
@@ -106,6 +246,7 @@ describe(
       'could get token use refresh token',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         const tokenJson = await tokenRes.json() as { refresh_token: string }
 
@@ -164,6 +305,80 @@ describe(
           token_type: 'Bearer',
           scope: 'root',
         })
+      },
+    )
+  },
+)
+
+describe(
+  'auth-code token exchange',
+  () => {
+    test(
+      'should fail if consent to app is required',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(401)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should fail if mfa enroll is required',
+      async () => {
+        insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(401)
+      },
+    )
+
+    test(
+      'should fail if otp mfa is required',
+      async () => {
+        global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+        insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(401)
+
+        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail if enrolled with otp mfa',
+      async () => {
+        insertUsers(db)
+        enrollOtpMfa(db)
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(401)
+        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail if email mfa is required',
+      async () => {
+        global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+        insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(401)
+        global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail if enrolled with email mfa',
+      async () => {
+        insertUsers(db)
+        enrollEmailMfa(db)
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(401)
+        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
   },
