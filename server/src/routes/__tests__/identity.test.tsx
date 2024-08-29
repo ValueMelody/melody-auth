@@ -20,6 +20,7 @@ import {
 } from 'models'
 import { oauthDto } from 'dtos'
 import {
+  disableUser,
   enrollEmailMfa, enrollOtpMfa,
 } from 'tests/util'
 
@@ -96,13 +97,14 @@ export const postSignInRequest = async (
   db: Database,
   appRecord: appModel.Record,
   option?: {
+    email?: string;
     password?: string;
   },
 ) => {
   const url = `${BaseRoute}/authorize-password`
   const body = {
     ...(await postAuthorizeBody(appRecord)),
-    email: 'test@email.com',
+    email: option?.email ?? 'test@email.com',
     password: option?.password ?? 'Password1!',
   }
 
@@ -366,6 +368,36 @@ describe(
     )
 
     test(
+      'should throw error if user not found',
+      async () => {
+        const appRecord = getApp(db)
+        insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+          { email: 'test1@email.com' },
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+      },
+    )
+
+    test(
+      'should throw error if user disabled',
+      async () => {
+        const appRecord = getApp(db)
+        insertUsers(db)
+        disableUser(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+      },
+    )
+
+    test(
       'could lock access',
       async () => {
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
@@ -462,6 +494,33 @@ describe(
         expect(document.getElementsByName('firstName').length).toBe(0)
         expect(document.getElementsByName('lastName').length).toBe(0)
         global.process.env.ENABLE_NAMES = true as unknown as string
+      },
+    )
+
+    test(
+      'could require names',
+      async () => {
+        global.process.env.NAMES_IS_REQUIRED = true as unknown as string
+
+        const appRecord = getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-account${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        const firstNameLabel = document.getElementsByTagName('label')[3].innerHTML
+        const lastNameLabel = document.getElementsByTagName('label')[4].innerHTML
+        expect(firstNameLabel).toContain(localeConfig.authorizeAccount.firstName.en)
+        expect(firstNameLabel).toContain('*')
+        expect(lastNameLabel).toContain(localeConfig.authorizeAccount.lastName.en)
+        expect(lastNameLabel).toContain('*')
+        global.process.env.NAMES_IS_REQUIRED = false as unknown as string
       },
     )
   },
@@ -722,6 +781,42 @@ describe(
 )
 
 describe(
+  'email sender config',
+  () => {
+    test(
+      'should throw error if no email config set',
+      async () => {
+        global.process.env.SENDGRID_API_KEY = '' as unknown as string
+        insertUsers(db)
+        const res = await testSendResetCode('/resend-reset-code')
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.NoEmailSender)
+        global.process.env.SENDGRID_API_KEY = 'abc' as unknown as string
+      },
+    )
+
+    test(
+      'could send email if brevo config set',
+      async () => {
+        global.process.env.SENDGRID_API_KEY = '' as unknown as string
+        global.process.env.SENDGRID_SENDER_ADDRESS = '' as unknown as string
+        global.process.env.BREVO_API_KEY = 'abc' as unknown as string
+        global.process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com' as unknown as string
+        insertUsers(db)
+        const res = await testSendResetCode('/resend-reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+        global.process.env.SENDGRID_API_KEY = 'abc' as unknown as string
+        global.process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com' as unknown as string
+        global.process.env.BREVO_API_KEY = '' as unknown as string
+        global.process.env.BREVO_SENDER_ADDRESS = '' as unknown as string
+      },
+    )
+  },
+)
+
+describe(
   'post /authorize-reset',
   () => {
     test(
@@ -765,6 +860,108 @@ describe(
         )
         expect(await signInRes.json()).toBeTruthy()
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should throw error with wrong code',
+      async () => {
+        insertUsers(db)
+
+        await testSendResetCode('/reset-code')
+
+        const body = {
+          email: 'test@email.com',
+          password: 'Password2!',
+          code: 'abcdefgh',
+        }
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-reset`,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongCode)
+      },
+    )
+
+    test(
+      'should throw error when reset with same password',
+      async () => {
+        insertUsers(db)
+
+        await testSendResetCode('/reset-code')
+
+        const body = {
+          email: 'test@email.com',
+          password: 'Password1!',
+          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+        }
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-reset`,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.RequireDifferentPassword)
+      },
+    )
+
+    test(
+      'should not reset if user is inactive',
+      async () => {
+        insertUsers(db)
+
+        await testSendResetCode('/reset-code')
+
+        disableUser(db)
+        const body = {
+          email: 'test@email.com',
+          password: 'Password2!',
+          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+        }
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-reset`,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+      },
+    )
+
+    test(
+      'should not reset if it is a wrong user',
+      async () => {
+        insertUsers(db)
+
+        await testSendResetCode('/reset-code')
+
+        disableUser(db)
+        const body = {
+          email: 'test1@email.com',
+          password: 'Password2!',
+          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+        }
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-reset`,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
       },
     )
 
@@ -813,6 +1010,24 @@ describe(
   () => {
     test(
       'should show mfa enroll page',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-mfa-enroll`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'could throw error if no enough params',
       async () => {
         insertUsers(
           db,
@@ -1037,6 +1252,43 @@ describe(
         expect(kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`]).toBe('1')
       },
     )
+
+    test(
+      'could fallback to email mfa',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        enrollOtpMfa(db)
+
+        const params = await prepareFollowUpParams()
+        await app.request(
+          `${BaseRoute}/authorize-email-mfa${params}`,
+          {},
+          mock(db),
+        )
+        const code = getCodeFromParams(params)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-email-mfa`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              state: '123',
+              redirectUri: 'http://localhost:3000/en/dashboard',
+              code,
+              locale: 'en',
+              mfaCode: kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`],
+            }),
+          },
+          mock(db),
+        )
+
+        const json = await res.json() as { code: string }
+        expect(kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`]).toBe('1')
+      },
+    )
   },
 )
 
@@ -1235,11 +1487,54 @@ describe(
         )
 
         const html = await res.text()
+        expect(html).toContain('Access your basic profile information')
         const dom = new JSDOM(html)
         const document = dom.window.document
         expect(document.getElementsByTagName('button').length).toBe(2)
         expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeConsent.decline.en)
         expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeConsent.accept.en)
+      },
+    )
+
+    test(
+      'should show scope name if locale not provided',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams()
+        db.prepare('delete from scope_locale').run()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-consent${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        expect(html).toContain('profile')
+      },
+    )
+
+    test(
+      'should not throw error if scope not found',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams()
+        db.prepare('update scope set deletedAt = ?').run('2024')
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-consent${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        expect(html).not.toContain('profile')
       },
     )
   },
@@ -1356,20 +1651,105 @@ describe(
         expect(updatedUser.emailVerified).toBe(1)
       },
     )
+
+    test(
+      'should not verify if wrong code provided',
+      async () => {
+        await prepareUserAccount()
+
+        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+
+        const res = await app.request(
+          `${BaseRoute}/verify-email`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              id: currentUser.authId,
+              code: 'abcdefgh',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongCode)
+      },
+    )
+
+    test(
+      'should not verify if user already verified',
+      async () => {
+        await prepareUserAccount()
+
+        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const code = kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]
+
+        const res = await app.request(
+          `${BaseRoute}/verify-email`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              id: currentUser.authId,
+              code,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const res1 = await app.request(
+          `${BaseRoute}/verify-email`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              id: currentUser.authId,
+              code,
+            }),
+          },
+          mock(db),
+        )
+        expect(res1.status).toBe(400)
+        expect(await res1.text()).toBe(localeConfig.Error.WrongCode)
+      },
+    )
+
+    test(
+      'should not verify if user disabled',
+      async () => {
+        await prepareUserAccount()
+
+        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const code = kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]
+
+        disableUser(db)
+
+        const res = await app.request(
+          `${BaseRoute}/verify-email`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              id: currentUser.authId,
+              code,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+      },
+    )
   },
 )
 
 describe(
   'post /authorize-google',
   () => {
-    const postGoogleRequest = async () => {
+    const postGoogleRequest = async (emailVerified: boolean) => {
       const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
       const credential = sign(
         {
           iss: 'https://accounts.google.com',
           email: 'test@gmail.com',
           sub: 'gid123',
-          email_verified: true,
+          email_verified: emailVerified,
           given_name: 'first',
           family_name: 'last',
         },
@@ -1390,8 +1770,13 @@ describe(
         mock(db),
       )
 
-      const users = db.prepare('select * from user').all()
+      const users = db.prepare('select * from user').all() as userModel.Raw[]
       expect(users.length).toBe(1)
+      expect(users[0].googleId).toBe('gid123')
+      expect(users[0].email).toBe('test@gmail.com')
+      expect(users[0].firstName).toBe('first')
+      expect(users[0].lastName).toBe('last')
+      expect(users[0].emailVerified).toBe(emailVerified ? 1 : 0)
       expect(await res.json()).toStrictEqual({
         code: expect.any(String),
         redirectUri: 'http://localhost:3000/en/dashboard',
@@ -1409,7 +1794,43 @@ describe(
       'should sign in with a new google account',
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        await postGoogleRequest()
+        await postGoogleRequest(true)
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+      },
+    )
+
+    test(
+      'could throw error if wrong credential provided',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+        const credential = sign(
+          {
+            iss: 'https://accounts.any.com',
+            email: 'test@gmail.com',
+            sub: 'gid123',
+            email_verified: true,
+            given_name: 'first',
+            family_name: 'last',
+          },
+          privateSecret,
+          'RS256',
+        )
+
+        const appRecord = getApp(db)
+        const res = await app.request(
+          `${BaseRoute}/authorize-google`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              credential: `${credential}`,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
       },
     )
@@ -1418,8 +1839,18 @@ describe(
       'should sign in with an existing google account',
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        await postGoogleRequest()
-        await postGoogleRequest()
+        await postGoogleRequest(true)
+        await postGoogleRequest(true)
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+      },
+    )
+
+    test(
+      'should sign in with an existing google account and update verify info',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        await postGoogleRequest(false)
+        await postGoogleRequest(true)
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
       },
     )

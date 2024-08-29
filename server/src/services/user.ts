@@ -30,7 +30,7 @@ export const getUserInfo = async (
     authId,
   )
   if (!user) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
   }
   if (!user.isActive) {
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
@@ -67,7 +67,7 @@ export const getUsers = async (
 ): Promise<userModel.PaginatedApiRecords> => {
   const searchObj = search
     ? {
-      column: "(firstName || ' ' || lastName || ' ' || email)",
+      column: "(COALESCE(firstName, '') || ' ' || COALESCE(lastName, '') || ' ' || COALESCE(email, ''))",
       value: `%${search}%`,
     }
     : undefined
@@ -320,7 +320,7 @@ export const resetUserPassword = async (
     bodyDto.email,
   )
   if (!user || !user.password) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
   }
   if (!user.isActive) {
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
@@ -369,7 +369,7 @@ export const enrollUserMfa = async (
     authId,
   )
   if (!user) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
   }
 
   if (!user.isActive) {
@@ -405,7 +405,7 @@ export const resetUserMfa = async (
     authId,
   )
   if (!user) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
   }
 
   if (!user.isActive) {

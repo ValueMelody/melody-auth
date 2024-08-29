@@ -66,6 +66,10 @@ export const enrollEmailMfa = (db: Database) => {
   db.prepare('update user set mfaTypes = ? where id = 1').run('email')
 }
 
+export const disableUser = (db: Database) => {
+  db.prepare('update user set isActive = 0').run()
+}
+
 export const getS2sToken = async (
   db: Database, scope: string = 'root',
 ) => {

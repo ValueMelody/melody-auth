@@ -104,8 +104,14 @@ export const updateScope = async (
   dto: scopeDto.PutScopeReqDto,
 ): Promise<scopeModel.ApiRecord> => {
   const shouldUpdateScope = dto.name !== undefined || dto.note !== undefined
+  const scope = await scopeModel.getById(
+    c.env.DB,
+    scopeId,
+  )
 
-  const scope = shouldUpdateScope
+  if (!scope) throw new errorConfig.NotFound()
+
+  const updatedScope = shouldUpdateScope
     ? await scopeModel.update(
       c.env.DB,
       scopeId,
@@ -113,12 +119,7 @@ export const updateScope = async (
         name: dto.name, note: dto.note,
       },
     )
-    : await scopeModel.getById(
-      c.env.DB,
-      scopeId,
-    )
-
-  if (!scope) throw new errorConfig.NotFound()
+    : scope
 
   const locales = []
   if (dto.locales) {
@@ -147,7 +148,7 @@ export const updateScope = async (
     )
 
   return {
-    ...scope,
+    ...updatedScope,
     locales: scopeLocales,
   }
 }

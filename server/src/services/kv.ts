@@ -5,7 +5,7 @@ import {
 import { cryptoUtil } from 'utils'
 
 export const getSessionSecret = async (kv: KVNamespace): Promise<string> => {
-  const secretInKv = await kv.get(adapterConfig.BaseKVKey.sessionSecret)
+  const secretInKv = await kv.get(adapterConfig.BaseKVKey.SessionSecret)
   if (!secretInKv) throw new errorConfig.Forbidden()
   return secretInKv
 }

@@ -102,6 +102,10 @@ export const mock = (db: Database) => ({
           const stmt = db.prepare(query)
           return { results: stmt.all() }
         },
+        first: async () => {
+          const stmt = db.prepare(query)
+          return stmt.get()
+        },
       }
     },
   },
