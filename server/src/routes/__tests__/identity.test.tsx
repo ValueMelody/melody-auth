@@ -1552,7 +1552,6 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        console.log(res)
       },
     )
 
