@@ -26,15 +26,6 @@ export const enablePasswordSignIn = async (
   await next()
 }
 
-export const enableConsent = async (
-  c: Context<typeConfig.Context>, next: Next,
-) => {
-  const { ENABLE_USER_APP_CONSENT: enableConsent } = env(c)
-  if (!enableConsent) throw new errorConfig.Forbidden()
-
-  await next()
-}
-
 export const enablePasswordReset = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

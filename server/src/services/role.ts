@@ -34,7 +34,7 @@ export const getUserRoles = async (
     c.env.DB,
     userId,
   )
-  return roles.map((role) => role.roleName ?? '')
+  return roles.map((role) => role.roleName)
 }
 
 export const createRole = async (

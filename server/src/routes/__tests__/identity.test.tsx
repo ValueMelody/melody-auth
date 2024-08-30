@@ -144,87 +144,6 @@ export const prepareFollowUpBody = async (db: Database) => {
 }
 
 describe(
-  'locales',
-  () => {
-    test(
-      'should render locale selector',
-      async () => {
-        const appRecord = getApp(db)
-        const res = await getSignInRequest(
-          db,
-          `${BaseRoute}/authorize-password`,
-          appRecord,
-        )
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(1)
-        const options = document.getElementsByTagName('option')
-        expect(options.length).toBe(2)
-        expect(options[0].innerHTML).toBe('EN')
-        expect(options[1].innerHTML).toBe('FR')
-      },
-    )
-
-    test(
-      'could render french',
-      async () => {
-        global.process.env.SUPPORTED_LOCALES = ['fr'] as unknown as string
-        const appRecord = getApp(db)
-        const res = await getSignInRequest(
-          db,
-          `${BaseRoute}/authorize-password`,
-          appRecord,
-        )
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        const labels = document.getElementsByTagName('label')
-        expect(labels[0].innerHTML).toBe(`${localeConfig.authorizePassword.email.fr}<span class="text-red ml-2">*</span>`)
-        expect(labels[1].innerHTML).toBe(`${localeConfig.authorizePassword.password.fr}<span class="text-red ml-2">*</span>`)
-        global.process.env.SUPPORTED_LOCALES = ['fr'] as unknown as string
-      },
-    )
-
-    test(
-      'could disable locale selector',
-      async () => {
-        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        const appRecord = getApp(db)
-        const res = await getSignInRequest(
-          db,
-          `${BaseRoute}/authorize-password`,
-          appRecord,
-        )
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
-      },
-    )
-
-    test(
-      'should disable locale selector when there only 1 locale',
-      async () => {
-        global.process.env.SUPPORTED_LOCALES = ['en'] as unknown as string
-        const appRecord = getApp(db)
-        const res = await getSignInRequest(
-          db,
-          `${BaseRoute}/authorize-password`,
-          appRecord,
-        )
-        const html = await res.text()
-        const dom = new JSDOM(html)
-        const document = dom.window.document
-        expect(document.getElementsByTagName('select').length).toBe(0)
-        global.process.env.SUPPORTED_LOCALES = ['en', 'fr'] as unknown as string
-      },
-    )
-  },
-)
-
-describe(
   'get /authorize-password',
   () => {
     test(
@@ -331,6 +250,82 @@ describe(
         global.process.env.ENABLE_PASSWORD_SIGN_IN = true as unknown as string
       },
     )
+
+    test(
+      'should render locale selector',
+      async () => {
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        const options = document.getElementsByTagName('option')
+        expect(options.length).toBe(2)
+        expect(options[0].innerHTML).toBe('EN')
+        expect(options[1].innerHTML).toBe('FR')
+      },
+    )
+
+    test(
+      'could render french',
+      async () => {
+        global.process.env.SUPPORTED_LOCALES = ['fr'] as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        const labels = document.getElementsByTagName('label')
+        expect(labels[0].innerHTML).toBe(`${localeConfig.authorizePassword.email.fr}<span class="text-red ml-2">*</span>`)
+        expect(labels[1].innerHTML).toBe(`${localeConfig.authorizePassword.password.fr}<span class="text-red ml-2">*</span>`)
+        global.process.env.SUPPORTED_LOCALES = ['fr'] as unknown as string
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'should disable locale selector when there only 1 locale',
+      async () => {
+        global.process.env.SUPPORTED_LOCALES = ['en'] as unknown as string
+        const appRecord = getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.SUPPORTED_LOCALES = ['en', 'fr'] as unknown as string
+      },
+    )
   },
 )
 
@@ -364,6 +359,21 @@ describe(
         expect(codeStore.user.authId).toBe('1-1-1-1')
         expect(codeStore.appName).toBe(appRecord.name)
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
+      },
+    )
+
+    test(
+      'should be blocked if not allowed by config',
+      async () => {
+        global.process.env.ENABLE_PASSWORD_SIGN_IN = false as unknown as string
+        const appRecord = getApp(db)
+        insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        expect(res.status).toBe(400)
+        global.process.env.ENABLE_PASSWORD_SIGN_IN = true as unknown as string
       },
     )
 
@@ -471,6 +481,45 @@ describe(
         expect(document.getElementsByName('firstName').length).toBe(1)
         expect(document.getElementsByName('lastName').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        const appRecord = getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-account${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'should be suppressed if not enabled in config',
+      async () => {
+        global.process.env.ENABLE_SIGN_UP = false as unknown as string
+        const appRecord = getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-account${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        global.process.env.ENABLE_SIGN_UP = true as unknown as string
       },
     )
 
@@ -570,6 +619,17 @@ describe(
         expect(codeStore.appName).toBe(appRecord.name)
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
         expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`].length).toBe(8)
+      },
+    )
+
+    test(
+      'should throw error if email exists',
+      async () => {
+        const res = await postAuthorizeAccount()
+        expect(res.status).toBe(200)
+        const res1 = await postAuthorizeAccount()
+        expect(res1.status).toBe(400)
+        expect(await res1.text()).toBe(localeConfig.Error.EmailTaken)
       },
     )
 
@@ -703,6 +763,45 @@ describe(
         expect(document.getElementsByName('password').length).toBe(1)
         expect(document.getElementsByName('confirmPassword').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        const appRecord = getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-reset${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'should be blocked if not enable in config',
+      async () => {
+        global.process.env.ENABLE_PASSWORD_RESET = false as unknown as string
+        const appRecord = getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-reset${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        global.process.env.ENABLE_PASSWORD_RESET = true as unknown as string
       },
     )
   },
@@ -735,6 +834,35 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
         expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+      },
+    )
+
+    test(
+      'should return true if user is inactive',
+      async () => {
+        insertUsers(db)
+        disableUser(db)
+        const res = await testSendResetCode('/reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`]).toBeUndefined()
+      },
+    )
+
+    test(
+      'should throw error if no email provided',
+      async () => {
+        insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/reset-code`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ password: 'Password1!' }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
       },
     )
   },
@@ -1015,20 +1143,28 @@ describe(
           db,
           false,
         )
-        await prepareFollowUpParams()
+        const params = await prepareFollowUpParams()
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll`,
+          `${BaseRoute}/authorize-mfa-enroll${params}`,
           {},
           mock(db),
         )
-        expect(res.status).toBe(400)
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        expect(document.getElementsByTagName('button').length).toBe(2)
+        expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeMfaEnroll.email.en)
+        expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeMfaEnroll.otp.en)
       },
     )
 
     test(
-      'could throw error if no enough params',
+      'could disable locale selector',
       async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
         insertUsers(
           db,
           false,
@@ -1044,9 +1180,66 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
-        expect(document.getElementsByTagName('button').length).toBe(2)
-        expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeMfaEnroll.email.en)
-        expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeMfaEnroll.otp.en)
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'throw error if user already enrolled',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        db.prepare('update user set mfaTypes = ?').run('email')
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-mfa-enroll${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.MfaEnrolled)
+      },
+    )
+
+    test(
+      'should be blocked if not enabled in config',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-mfa-enroll${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could throw error if no enough params',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-mfa-enroll`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
       },
     )
   },
@@ -1090,6 +1283,32 @@ describe(
 
         const user = await db.prepare('SELECT * from user WHERE id = 1').get() as userModel.Raw
         expect(user.mfaTypes).toBe(userModel.MfaType.Email)
+      },
+    )
+
+    test(
+      'should throw error if user already enrolled',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        db.prepare('update user set mfaTypes = ?').run('email')
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-mfa-enroll`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              type: userModel.MfaType.Email,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.MfaEnrolled)
       },
     )
 
@@ -1160,6 +1379,44 @@ describe(
         const document = dom.window.document
         expect(document.getElementsByName('otp').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+      },
+    )
+
+    test(
+      'should throw error if user already set otp',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        db.prepare('update user set otpVerified = ?').run(1)
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-otp-setup${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.OtpAlreadySet)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        const res = await testGetOtpMfa('/authorize-otp-setup')
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -1169,7 +1426,7 @@ describe(
   'get /authorize-otp-mfa',
   () => {
     test(
-      'should show opt mfa page',
+      'should show otp mfa page',
       async () => {
         insertUsers(
           db,
@@ -1181,11 +1438,31 @@ describe(
         const dom = new JSDOM(html)
         const document = dom.window.document
         expect(document.getElementsByName('otp').length).toBe(1)
+        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
         const buttons = document.getElementsByTagName('button')
         expect(buttons.length).toBe(2)
         expect(buttons[0].innerHTML).toBe(localeConfig.authorizeOtpMfa.switchToEmail.en)
         expect(buttons[1].innerHTML).toBe(localeConfig.authorizeOtpMfa.verify.en)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+
+        insertUsers(
+          db,
+          false,
+        )
+        enrollOtpMfa(db)
+        const res = await testGetOtpMfa('/authorize-otp-mfa')
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
 
@@ -1250,6 +1527,80 @@ describe(
           requireOtpMfa: false,
         })
         expect(kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`]).toBe('1')
+      },
+    )
+
+    test(
+      'should throw error if otp secret not exists',
+      async () => {
+        kv[`${adapterConfig.BaseKVKey.AuthCode}-abc`] = JSON.stringify({ user: { otpSecret: null } })
+        const body = {
+          state: '123',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          code: 'abc',
+          locale: 'en',
+        }
+        const res = await app.request(
+          `${BaseRoute}/authorize-otp-mfa`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              mfaCode: '123456',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'should be blocked after 5 attempts',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        enrollOtpMfa(db)
+        const body = await prepareFollowUpBody(db)
+
+        const sendRequest = async () => {
+          return app.request(
+            `${BaseRoute}/authorize-otp-mfa`,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                ...body,
+                mfaCode: 'abcdefgh',
+              }),
+            },
+            mock(db),
+          )
+        }
+        const res = await sendRequest()
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(localeConfig.Error.WrongMfaCode)
+
+        const res1 = await sendRequest()
+        expect(res1.status).toBe(401)
+        expect(await res1.text()).toBe(localeConfig.Error.WrongMfaCode)
+
+        const res2 = await sendRequest()
+        expect(res2.status).toBe(401)
+        expect(await res2.text()).toBe(localeConfig.Error.WrongMfaCode)
+
+        const res3 = await sendRequest()
+        expect(res3.status).toBe(401)
+        expect(await res3.text()).toBe(localeConfig.Error.WrongMfaCode)
+
+        const res4 = await sendRequest()
+        expect(res4.status).toBe(401)
+        expect(await res4.text()).toBe(localeConfig.Error.WrongMfaCode)
+
+        const res5 = await sendRequest()
+        expect(res5.status).toBe(400)
+        expect(await res5.text()).toBe(localeConfig.Error.OtpMfaLocked)
       },
     )
 
@@ -1320,11 +1671,54 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('code').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
 
         const code = getCodeFromParams(params)
         expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`].length).toBe(8)
+      },
+    )
+
+    test(
+      'should throw error if email mfa is not required',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-email-mfa${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        enrollEmailMfa(db)
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-email-mfa${params}`,
+          {},
+          mock(db),
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
   },
@@ -1412,6 +1806,43 @@ describe(
         expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`]).toBe('1')
       },
     )
+
+    test(
+      'should throw error for wrong code',
+      async () => {
+        insertUsers(
+          db,
+          false,
+        )
+        enrollEmailMfa(db)
+        const params = await prepareFollowUpParams()
+
+        await app.request(
+          `${BaseRoute}/authorize-email-mfa${params}`,
+          {},
+          mock(db),
+        )
+        const code = getCodeFromParams(params)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-email-mfa`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              state: '123',
+              redirectUri: 'http://localhost:3000/en/dashboard',
+              code,
+              locale: 'en',
+              mfaCode: 'abcdefgh',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(localeConfig.Error.WrongMfaCode)
+      },
+    )
+
     test(
       'should could use resend code',
       async () => {
@@ -1490,9 +1921,34 @@ describe(
         expect(html).toContain('Access your basic profile information')
         const dom = new JSDOM(html)
         const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByTagName('button').length).toBe(2)
         expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeConsent.decline.en)
         expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeConsent.accept.en)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams()
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-consent${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
       },
     )
 
@@ -1618,6 +2074,63 @@ describe(
         const document = dom.window.document
         expect(document.getElementsByName('code').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        await prepareUserAccount()
+
+        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+
+        const res = await app.request(
+          `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+
+    test(
+      'should be blocked if not enable in config',
+      async () => {
+        global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
+        await prepareUserAccount()
+
+        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        expect(currentUser.emailVerified).toBe(0)
+        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]).toBeUndefined()
+
+        const res = await app.request(
+          `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
+      },
+    )
+
+    test(
+      'should fail when no enough params provided',
+      async () => {
+        await prepareUserAccount()
+
+        const res = await app.request(
+          `${BaseRoute}/verify-email`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
       },
     )
   },
@@ -1742,7 +2255,7 @@ describe(
 describe(
   'post /authorize-google',
   () => {
-    const postGoogleRequest = async (emailVerified: boolean) => {
+    const prepareRequest = async (emailVerified: boolean) => {
       const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
       const credential = sign(
         {
@@ -1769,6 +2282,11 @@ describe(
         },
         mock(db),
       )
+      return res
+    }
+
+    const postGoogleRequest = async (emailVerified: boolean) => {
+      const res = await prepareRequest(emailVerified)
 
       const users = db.prepare('select * from user').all() as userModel.Raw[]
       expect(users.length).toBe(1)
@@ -1796,6 +2314,39 @@ describe(
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
         await postGoogleRequest(true)
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+      },
+    )
+
+    test(
+      'should be blocked if not enable in config',
+      async () => {
+        const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+        const credential = sign(
+          {
+            iss: 'https://accounts.google.com',
+            email: 'test@gmail.com',
+            sub: 'gid123',
+            email_verified: true,
+            given_name: 'first',
+            family_name: 'last',
+          },
+          privateSecret,
+          'RS256',
+        )
+
+        const appRecord = getApp(db)
+        const res = await app.request(
+          `${BaseRoute}/authorize-google`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              credential: `${credential}`,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
       },
     )
 
@@ -1846,11 +2397,25 @@ describe(
     )
 
     test(
+      'should throw error if user is not active',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        await postGoogleRequest(true)
+        disableUser(db)
+        const res = await prepareRequest(true)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+      },
+    )
+
+    test(
       'should sign in with an existing google account and update verify info',
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
         await postGoogleRequest(false)
         await postGoogleRequest(true)
+        await postGoogleRequest(false)
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
       },
     )
@@ -1860,8 +2425,107 @@ describe(
 describe(
   'post /logout',
   () => {
+    const prepareLogout = async () => {
+      const appRecord = getApp(db)
+      insertUsers(db)
+      const res = await postSignInRequest(
+        db,
+        appRecord,
+      )
+
+      const json = await res.json() as { code: string }
+
+      const body = {
+        grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+        code: json.code,
+        code_verifier: 'abc',
+      }
+      const tokenRes = await app.request(
+        `${routeConfig.InternalRoute.OAuth}/token`,
+        {
+          method: 'POST',
+          body: new URLSearchParams(body).toString(),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        },
+        mock(db),
+      )
+      const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
+
+      expect(JSON.parse(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`])).toStrictEqual({
+        authId: '1-1-1-1',
+        clientId: appRecord.clientId,
+        scope: 'profile openid offline_access',
+        roles: [],
+      })
+
+      return tokenJson
+    }
+
     test(
-      'should verify email',
+      'should logout',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        const appRecord = getApp(db)
+        const tokenJson = await prepareLogout()
+
+        const logoutRes = await app.request(
+          `${BaseRoute}/logout`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              refresh_token: tokenJson.refresh_token,
+              post_logout_redirect_uri: '/',
+            }).toString(),
+            headers: {
+              Authorization: `Bearer ${tokenJson.access_token}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          mock(db),
+        )
+        expect(await logoutRes.json()).toStrictEqual({
+          success: true,
+          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
+        })
+
+        expect(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`]).toBeUndefined()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could logout without post logout redirect uri',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        const appRecord = getApp(db)
+        const tokenJson = await prepareLogout()
+
+        const logoutRes = await app.request(
+          `${BaseRoute}/logout`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({ refresh_token: tokenJson.refresh_token }).toString(),
+            headers: {
+              Authorization: `Bearer ${tokenJson.access_token}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          mock(db),
+        )
+        expect(await logoutRes.json()).toStrictEqual({
+          success: true,
+          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=&client_id=${appRecord.clientId}`,
+        })
+
+        expect(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`]).toBeUndefined()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if token has wrong client',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
         const appRecord = getApp(db)
@@ -1889,13 +2553,10 @@ describe(
         )
         const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
 
-        expect(JSON.parse(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`])).toStrictEqual({
-          authId: '1-1-1-1',
-          clientId: appRecord.clientId,
-          scope: 'profile openid offline_access',
-          roles: [],
+        const tokenKey = `${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`
+        kv[tokenKey] = JSON.stringify({
+          ...JSON.parse(kv[tokenKey]), authId: '123',
         })
-
         const logoutRes = await app.request(
           `${BaseRoute}/logout`,
           {
@@ -1911,12 +2572,8 @@ describe(
           },
           mock(db),
         )
-        expect(await logoutRes.json()).toStrictEqual({
-          success: true,
-          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
-        })
-
-        expect(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`]).toBeUndefined()
+        expect(logoutRes.status).toBe(400)
+        expect(await logoutRes.text()).toBe(localeConfig.Error.WrongRefreshToken)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },

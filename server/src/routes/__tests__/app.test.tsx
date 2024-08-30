@@ -247,6 +247,40 @@ describe(
     )
 
     test(
+      'should create app with no scope',
+      async () => {
+        attachIndividualScopes(db)
+        const token = await getS2sToken(
+          db,
+          Scope.WriteApp,
+        )
+
+        const res = await app.request(
+          BaseRoute,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              name: 'test name',
+              type: 'spa',
+              scopes: [],
+              redirectUris: ['http://LOCALHOST:4200', 'http://localhost:4300/'],
+            }),
+            headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          app: {
+            ...newApp,
+            scopes: [],
+          },
+        })
+      },
+    )
+
+    test(
       'should return 401 without proper scope',
       async () => {
         attachIndividualScopes(db)
@@ -290,6 +324,65 @@ describe(
             redirectUris: ['http://localhost:5200', 'http://google.com'],
           },
         })
+      },
+    )
+
+    test(
+      'could enable/disable app',
+      async () => {
+        await createNewApp()
+        const res = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ isActive: true }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          app: {
+            ...newApp,
+            isActive: true,
+          },
+        })
+
+        const res1 = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ isActive: false }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({
+          app: {
+            ...newApp,
+            isActive: false,
+          },
+        })
+      },
+    )
+
+    test(
+      'return if nothing updated',
+      async () => {
+        await createNewApp()
+        const res = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({}),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({ app: newApp })
       },
     )
 

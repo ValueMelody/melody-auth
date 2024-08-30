@@ -54,7 +54,7 @@ export const create = async (
   const query = `INSERT INTO ${TableName} (name, note) values ($1, $2)`
   const stmt = db.prepare(query).bind(
     create.name,
-    create.note ?? '',
+    create.note,
   )
   const result = await validateUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()

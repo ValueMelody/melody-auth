@@ -7,7 +7,7 @@ import { ClientType } from 'shared'
 import { formatUtil } from 'utils'
 
 const formatRedirectUri = (redirectUris: string[]) => redirectUris
-  .map((uri) => formatUtil.stripEndingSlash(uri.trim().toLowerCase())) ?? []
+  .map((uri) => formatUtil.stripEndingSlash(uri.trim().toLowerCase()))
 
 export class PostAppReqDto {
   @IsString()

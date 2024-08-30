@@ -3,9 +3,7 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import { userHandler } from 'handlers'
-import {
-  authMiddleware, configMiddleware,
-} from 'middlewares'
+import { authMiddleware } from 'middlewares'
 
 const BaseRoute = routeConfig.InternalRoute.ApiUsers
 const userRoutes = new Hono<typeConfig.Context>()
@@ -209,7 +207,6 @@ userRoutes.put(
 userRoutes.post(
   `${BaseRoute}/:authId/verify-email`,
   authMiddleware.s2sWriteUser,
-  configMiddleware.enableEmailVerification,
   userHandler.verifyEmail,
 )
 
@@ -267,7 +264,6 @@ userRoutes.delete(
 userRoutes.get(
   `${BaseRoute}/:authId/consented-apps`,
   authMiddleware.s2sReadUser,
-  configMiddleware.enableConsent,
   userHandler.getUserAppConsents,
 )
 
@@ -297,7 +293,6 @@ userRoutes.get(
  */
 userRoutes.delete(
   `${BaseRoute}/:authId/consented-apps/:appId`,
-  configMiddleware.enableConsent,
   authMiddleware.s2sWriteUser,
   userHandler.deleteUserAppConsent,
 )

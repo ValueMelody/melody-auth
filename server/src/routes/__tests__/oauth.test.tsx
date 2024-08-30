@@ -81,6 +81,38 @@ describe(
     )
 
     test(
+      'should throw error if app is not found',
+      async () => {
+        const params = await getAuthorizeParams({ clientId: 'abc' } as appModel.Record)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoApp)
+      },
+    )
+
+    test(
+      'should throw error if app is disabled',
+      async () => {
+        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        db.prepare('update app set isActive = ?').run(0)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.AppDisabled)
+      },
+    )
+
+    test(
       'should throw error if wrong redirect uri used',
       async () => {
         const appRecord = getApp(db)
@@ -497,6 +529,28 @@ describe(
     )
 
     test(
+      'should throw error if no scope provided',
+      async () => {
+        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+
+        const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
+        const res = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({ grant_type: oauthDto.TokenGrantType.ClientCredentials }).toString(),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${basicAuth}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
+
+    test(
       'should throw error when wrong client credentials provided',
       async () => {
         const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
@@ -519,6 +573,79 @@ describe(
         )
         expect(res.status).toBe(401)
         expect(await res.text()).toBe(localeConfig.Error.WrongClientSecret)
+      },
+    )
+
+    test(
+      'should throw error if app not found',
+      async () => {
+        const basicAuth = btoa('abc:123')
+        const res = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.ClientCredentials,
+              scope: 'root',
+            }).toString(),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${basicAuth}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoApp)
+      },
+    )
+
+    test(
+      'should throw error when wrong app disabled',
+      async () => {
+        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        db.prepare('update app set isActive = ?').run(0)
+        const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
+        const res = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.ClientCredentials,
+              scope: 'root',
+            }).toString(),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${basicAuth}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.AppDisabled)
+      },
+    )
+
+    test(
+      'should throw error if not credential provided',
+      async () => {
+        const basicAuth = btoa(':')
+        const res = await app.request(
+          `${BaseRoute}/token`,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.ClientCredentials,
+              scope: 'root',
+            }).toString(),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${basicAuth}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
       },
     )
 
@@ -646,6 +773,25 @@ describe(
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe('http://localhost:3000/en/dashboard')
         expect(session.get(`authInfo-${appRecord.clientId}`)).toBe(null)
+      },
+    )
+
+    test(
+      'should throw error if no enough params',
+      async () => {
+        const appRecord = getApp(db)
+        const url = `${BaseRoute}/logout`
+        session.set(
+          `authInfo-${appRecord.clientId}`,
+          'someInfo',
+        )
+
+        const res = await app.request(
+          `${url}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
       },
     )
   },
