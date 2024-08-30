@@ -23,7 +23,7 @@ export const verifySPAClientRequest = async (
     clientId,
   )
 
-  if (!app) throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
+  if (!app) throw new errorConfig.NotFound(localeConfig.Error.NoApp)
   if (!app.isActive) throw new errorConfig.Forbidden(localeConfig.Error.AppDisabled)
 
   if (app.type !== ClientType.SPA) {
@@ -44,7 +44,7 @@ export const verifyS2SClientRequest = async (
     c.env.DB,
     clientId,
   )
-  if (!app) throw new errorConfig.Forbidden(localeConfig.Error.NoApp)
+  if (!app) throw new errorConfig.NotFound(localeConfig.Error.NoApp)
   if (!app.isActive) throw new errorConfig.Forbidden(localeConfig.Error.AppDisabled)
 
   if (app.type !== ClientType.S2S) {
@@ -132,7 +132,7 @@ export const updateApp = async (
 
   if (!app) throw new errorConfig.NotFound()
 
-  const updatedApp = Object.keys(updateDto).length
+  const updatedApp = Object.values(updateDto).some((val) => val !== undefined)
     ? await appModel.update(
       c.env.DB,
       appId,

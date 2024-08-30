@@ -85,6 +85,7 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
+  Object.keys(kv).forEach((key) => delete kv[key])
   db.close()
 })
 
@@ -349,6 +350,21 @@ describe(
         expect(json.lockedIPs).toStrictEqual(['1.1.1.1', '1.1.1.2'])
       },
     )
+
+    test(
+      'placeholder test for user has no email',
+      async () => {
+        insertUsers()
+        db.prepare('update user set email = ?').run(null)
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/locked-ips`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { lockedIPs: string[] }
+        expect(json.lockedIPs).toStrictEqual([])
+      },
+    )
   },
 )
 
@@ -380,6 +396,24 @@ describe(
         )
         const checkJson = await checkRes.json() as { lockedIPs: string[] }
         expect(checkJson.lockedIPs).toStrictEqual([])
+      },
+    )
+
+    test(
+      'placeholder test for user has no email',
+      async () => {
+        insertUsers()
+        db.prepare('update user set email = ?').run(null)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/locked-ips`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
       },
     )
   },
@@ -416,6 +450,71 @@ describe(
           user: {
             ...user2,
             ...updateObj,
+          },
+        })
+
+        const res1 = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ isActive: true }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json1 = await res1.json()
+
+        expect(json1).toStrictEqual({
+          user: {
+            ...user2,
+            ...updateObj,
+            isActive: true,
+          },
+        })
+      },
+    )
+
+    test(
+      'should throw error if no user found',
+      async () => {
+        insertUsers()
+        db.prepare('insert into role (name) values (?)').run('test')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({}),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+      },
+    )
+
+    test(
+      'return when nothing updated',
+      async () => {
+        insertUsers()
+        db.prepare('insert into role (name) values (?)').run('test')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({}),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          user: {
+            ...user1,
+            roles: [],
           },
         })
       },
@@ -517,6 +616,25 @@ describe(
         expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`].length).toBe(8)
       },
     )
+
+    test(
+      'should throw error if email already verified',
+      async () => {
+        insertUsers()
+        db.prepare('update user set emailVerified = ?').run(1)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/verify-email`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.EmailAlreadyVerified)
+      },
+    )
   },
 )
 
@@ -546,6 +664,24 @@ describe(
         expect(checkRes.status).toBe(404)
       },
     )
+
+    test(
+      'should throw error if can not find user',
+      async () => {
+        await insertUsers()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-3`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+      },
+    )
   },
 )
 
@@ -567,6 +703,21 @@ describe(
           appId: 1,
           appName: 'Admin Panel (SPA)',
         }])
+      },
+    )
+
+    test(
+      'should throw error if user not found',
+      async () => {
+        insertUsers()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-3/consented-apps`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
       },
     )
   },
@@ -605,10 +756,54 @@ describe(
 describe(
   'enroll email mfa',
   () => {
+    const enrollAndCheckUser = async () => {
+      insertUsers()
+
+      const res = await app.request(
+        `${BaseRoute}/1-1-1-1/email-mfa`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+        },
+        mock(db),
+      )
+      expect(res.status).toBe(204)
+
+      const userRes = await app.request(
+        `${BaseRoute}/1-1-1-1`,
+        { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+        mock(db),
+      )
+      return userRes
+    }
+
     test(
       'should enroll email mfa',
       async () => {
+        const userRes = await enrollAndCheckUser()
+
+        const userJson = await userRes.json() as { user: userModel.Record }
+        expect(userJson.user.mfaTypes).toStrictEqual(['email'])
+      },
+    )
+
+    test(
+      'if email is enforced by config',
+      async () => {
+        global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+        const userRes = await enrollAndCheckUser()
+
+        const userJson = await userRes.json() as { user: userModel.Record }
+        expect(userJson.user.mfaTypes).toStrictEqual([])
+        global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'if user already enrolled with email',
+      async () => {
         insertUsers()
+        db.prepare('update user set mfaTypes = ?').run('email')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/email-mfa`,
@@ -625,7 +820,6 @@ describe(
           { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
-
         const userJson = await userRes.json() as { user: userModel.Record }
         expect(userJson.user.mfaTypes).toStrictEqual(['email'])
       },
@@ -673,30 +867,42 @@ describe(
 describe(
   'Unenroll email mfa',
   () => {
+    const handleUnenrollRequest = async () => {
+      const res = await app.request(
+        `${BaseRoute}/1-1-1-1/email-mfa`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+        },
+        mock(db),
+      )
+      expect(res.status).toBe(204)
+
+      const userRes = await app.request(
+        `${BaseRoute}/1-1-1-1`,
+        { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+        mock(db),
+      )
+
+      const userJson = await userRes.json() as { user: userModel.Record }
+      expect(userJson.user.mfaTypes).toStrictEqual([])
+    }
+
     test(
       'should unenroll email mfa',
       async () => {
         insertUsers()
         enrollEmailMfa(db)
 
-        const res = await app.request(
-          `${BaseRoute}/1-1-1-1/email-mfa`,
-          {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
-          },
-          mock(db),
-        )
-        expect(res.status).toBe(204)
+        await handleUnenrollRequest()
+      },
+    )
 
-        const userRes = await app.request(
-          `${BaseRoute}/1-1-1-1`,
-          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
-          mock(db),
-        )
-
-        const userJson = await userRes.json() as { user: userModel.Record }
-        expect(userJson.user.mfaTypes).toStrictEqual([])
+    test(
+      'if user is not enrolled',
+      async () => {
+        insertUsers()
+        await handleUnenrollRequest()
       },
     )
 
@@ -744,29 +950,45 @@ describe(
 describe(
   'enroll otp mfa',
   () => {
+    const enrollAndCheckUser = async () => {
+      insertUsers()
+
+      await app.request(
+        `${BaseRoute}/1-1-1-1/otp-mfa`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+        },
+        mock(db),
+      )
+
+      const userRes = await app.request(
+        `${BaseRoute}/1-1-1-1`,
+        { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+        mock(db),
+      )
+      return userRes
+    }
+
     test(
       'should enroll otp mfa',
       async () => {
-        insertUsers()
-
-        const res = await app.request(
-          `${BaseRoute}/1-1-1-1/otp-mfa`,
-          {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
-          },
-          mock(db),
-        )
-        expect(res.status).toBe(204)
-
-        const userRes = await app.request(
-          `${BaseRoute}/1-1-1-1`,
-          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
-          mock(db),
-        )
+        const userRes = await enrollAndCheckUser()
 
         const userJson = await userRes.json() as { user: userModel.Record }
         expect(userJson.user.mfaTypes).toStrictEqual(['otp'])
+      },
+    )
+
+    test(
+      'if otp is enforced by config',
+      async () => {
+        global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+        const userRes = await enrollAndCheckUser()
+
+        const userJson = await userRes.json() as { user: userModel.Record }
+        expect(userJson.user.mfaTypes).toStrictEqual([])
+        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
   },
@@ -775,30 +997,42 @@ describe(
 describe(
   'Unenroll otp mfa',
   () => {
+    const handleUnenrollCheck = async () => {
+      const res = await app.request(
+        `${BaseRoute}/1-1-1-1/otp-mfa`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+        },
+        mock(db),
+      )
+      expect(res.status).toBe(204)
+
+      const userRes = await app.request(
+        `${BaseRoute}/1-1-1-1`,
+        { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+        mock(db),
+      )
+
+      const userJson = await userRes.json() as { user: userModel.Record }
+      expect(userJson.user.mfaTypes).toStrictEqual([])
+    }
+
     test(
       'should unenroll otp mfa',
       async () => {
         insertUsers()
         enrollOtpMfa(db)
 
-        const res = await app.request(
-          `${BaseRoute}/1-1-1-1/otp-mfa`,
-          {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
-          },
-          mock(db),
-        )
-        expect(res.status).toBe(204)
+        await handleUnenrollCheck()
+      },
+    )
 
-        const userRes = await app.request(
-          `${BaseRoute}/1-1-1-1`,
-          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
-          mock(db),
-        )
-
-        const userJson = await userRes.json() as { user: userModel.Record }
-        expect(userJson.user.mfaTypes).toStrictEqual([])
+    test(
+      'If user is not enrolled',
+      async () => {
+        insertUsers()
+        await handleUnenrollCheck()
       },
     )
   },

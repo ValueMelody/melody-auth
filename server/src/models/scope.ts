@@ -75,7 +75,7 @@ export const create = async (
   const stmt = db.prepare(query).bind(
     create.name,
     create.type,
-    create.note ?? '',
+    create.note,
   )
   const result = await validateUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()

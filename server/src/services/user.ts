@@ -478,13 +478,12 @@ export const updateUser = async (
     authId,
   )
 
-  if (!user) throw new errorConfig.NotFound()
+  if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
 
-  const updateObj: userModel.Update = {
-    firstName: dto.firstName,
-    lastName: dto.lastName,
-    locale: dto.locale,
-  }
+  const updateObj: userModel.Update = {}
+  if (dto.firstName !== undefined) updateObj.firstName = dto.firstName
+  if (dto.lastName !== undefined) updateObj.lastName = dto.lastName
+  if (dto.locale !== undefined) updateObj.locale = dto.locale
   if (dto.isActive !== undefined) updateObj.isActive = dto.isActive ? 1 : 0
 
   const updatedUser = Object.keys(updateObj).length

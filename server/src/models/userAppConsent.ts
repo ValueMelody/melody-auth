@@ -30,16 +30,6 @@ export interface Create {
 
 const TableName = adapterConfig.TableName.UserAppConsent
 
-export const getById = async (
-  db: D1Database,
-  id: number,
-): Promise<Record | null> => {
-  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE id = $1 AND deletedAt IS NULL`)
-    .bind(id)
-  const consent = await stmt.first() as Record | null
-  return consent
-}
-
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<true> => {

@@ -64,51 +64,53 @@ export const kvModule = {
   },
 }
 
-export const mock = (db: Database) => ({
-  DB: {
-    prepare: (query: string) => {
-      return {
-        bind: (...params: string[]) => ({
-          all: async () => {
-            const prepareQuery = convertQuery(
-              query,
-              params,
-            )
-            const stmt = db.prepare(prepareQuery)
-            return { results: stmt.all(...params) }
-          },
-          first: async () => {
-            const prepareQuery = convertQuery(
-              query,
-              params,
-            )
-            const stmt = db.prepare(prepareQuery)
-            return stmt.get(...params)
-          },
-          run: async () => {
-            const prepareQuery = convertQuery(
-              query,
-              params,
-            )
-            const stmt = db.prepare(prepareQuery)
-            const result = stmt.run(...params)
-            return {
-              success: true,
-              meta: { last_row_id: result.lastInsertRowid },
-            }
-          },
-        }),
+export const getDbModule = (db: Database) => ({
+  prepare: (query: string) => {
+    return {
+      bind: (...params: string[]) => ({
         all: async () => {
-          const stmt = db.prepare(query)
-          return { results: stmt.all() }
+          const prepareQuery = convertQuery(
+            query,
+            params,
+          )
+          const stmt = db.prepare(prepareQuery)
+          return { results: stmt.all(...params) }
         },
         first: async () => {
-          const stmt = db.prepare(query)
-          return stmt.get()
+          const prepareQuery = convertQuery(
+            query,
+            params,
+          )
+          const stmt = db.prepare(prepareQuery)
+          return stmt.get(...params)
         },
-      }
-    },
+        run: async () => {
+          const prepareQuery = convertQuery(
+            query,
+            params,
+          )
+          const stmt = db.prepare(prepareQuery)
+          const result = stmt.run(...params)
+          return {
+            success: true,
+            meta: { last_row_id: result.lastInsertRowid },
+          }
+        },
+      }),
+      all: async () => {
+        const stmt = db.prepare(query)
+        return { results: stmt.all() }
+      },
+      first: async () => {
+        const stmt = db.prepare(query)
+        return stmt.get()
+      },
+    }
   },
+}) as D1Database
+
+export const mock = (db: Database) => ({
+  DB: getDbModule(db),
   KV: kvModule,
 })
 

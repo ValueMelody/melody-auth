@@ -28,9 +28,8 @@ export const d1SelectAllQuery = (
     search?: typeConfig.Search;
   },
 ): D1PreparedStatement => {
-  const {
-    pagination, search,
-  } = option || {}
+  const pagination = option?.pagination
+  const search = option?.search
 
   let num = 1
   const bind = []

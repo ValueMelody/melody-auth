@@ -192,8 +192,10 @@ export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
 
 export const postResetCode = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
-  const email = String(reqBody.email)?.trim()
-    .toLowerCase()
+  const email = reqBody.email
+    ? String(reqBody.email).trim()
+      .toLowerCase()
+    : ''
   const locale = formatUtil.getLocaleFromQuery(
     c,
     reqBody.locale,
@@ -439,7 +441,7 @@ export const postAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => 
     c.env.KV,
     bodyDto.code,
   )
-  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden()
+  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
 
   const user = await userService.enrollUserMfa(
     c,
@@ -529,6 +531,7 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
+
   if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
 
   const ip = c.req.header('cf-connecting-ip') as string
