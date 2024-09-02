@@ -14,10 +14,6 @@ export const getConnection = (): knex.Knex => {
   return _db!
 }
 
-export const setConnection = (db: knex.Knex) => {
-  _db = db
-}
-
 const convertQuery = (
   query: string, params: string[],
 ) => {

@@ -86,6 +86,7 @@ export const deleteUserLockedIPs = async (c: Context<typeConfig.Context>) => {
 
 export const postUserEmailMfa = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
+
   await userService.enrollUserMfa(
     c,
     authId,
