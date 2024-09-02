@@ -47,7 +47,7 @@ export const d1SelectAllQuery = (
     bind.push((pagination.pageNumber - 1) * pagination.pageSize)
   }
 
-  const query = `SELECT * FROM ${tableName} WHERE deletedAt IS NULL ${searchCondition} ORDER BY id ASC ${paginatedCondition}`
+  const query = `SELECT * FROM ${tableName} WHERE "deletedAt" IS NULL ${searchCondition} ORDER BY id ASC ${paginatedCondition}`
 
   const stmt = bind.length
     ? db.prepare(query).bind(...bind)
@@ -72,7 +72,8 @@ export const d1CreateQuery = (
       createBinds.push(createObj[key])
     }
   })
-  const query = `INSERT INTO ${tableName} (${validKeys.join(',')}) values (${createValues.join(',')})`
+  const keys = validKeys.map((key) => `"${key}"`)
+  const query = `INSERT INTO ${tableName} (${keys.join(',')}) values (${createValues.join(',')})`
 
   const stmt = db.prepare(query).bind(...createBinds)
   return stmt
@@ -96,7 +97,7 @@ export const d1UpdateQuery = (
   updateKeys.forEach((key) => {
     const value = parsedUpdate[key]
     if (value === undefined) return
-    setQueries.push(`${key} = $${setQueries.length + 1}`)
+    setQueries.push(`"${key}" = $${setQueries.length + 1}`)
     binds.push(value)
   })
 
@@ -112,7 +113,7 @@ export const d1SoftDeleteQuery = (
   id: number,
   key?: string,
 ): D1PreparedStatement => {
-  const query = `UPDATE ${tableName} set deletedAt = $1 where ${key || 'id'} = $2`
+  const query = `UPDATE ${tableName} set "deletedAt" = $1 where "${key || 'id'}" = $2`
   const stmt = db.prepare(query).bind(
     timeUtil.getDbCurrentTime(),
     id,

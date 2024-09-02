@@ -122,7 +122,7 @@ export const verifyGoogleCredential = async (credential: string) => {
 
   const response = await fetch('https://www.googleapis.com/oauth2/v3/certs')
   const certs = await response.json() as { keys: { kid: string }[] }
-  const publicKey = certs.keys.find((key) => key.kid === header.kid)
+  const publicKey = certs.keys.find((key) => key.kid === header.kid) || certs.keys[0]
   const result = await verify(
     credential,
     publicKey as unknown as SignatureKey,

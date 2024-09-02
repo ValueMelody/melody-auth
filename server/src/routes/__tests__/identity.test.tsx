@@ -2257,7 +2257,7 @@ describe(
   () => {
     const prepareRequest = async (emailVerified: boolean) => {
       const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
-      const credential = sign(
+      const credential = await sign(
         {
           iss: 'https://accounts.google.com',
           email: 'test@gmail.com',
@@ -2265,6 +2265,7 @@ describe(
           email_verified: emailVerified,
           given_name: 'first',
           family_name: 'last',
+          kid: '123',
         },
         privateSecret,
         'RS256',
@@ -2321,7 +2322,7 @@ describe(
       'should be blocked if not enable in config',
       async () => {
         const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
-        const credential = sign(
+        const credential = await sign(
           {
             iss: 'https://accounts.google.com',
             email: 'test@gmail.com',
@@ -2355,7 +2356,7 @@ describe(
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
         const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
-        const credential = sign(
+        const credential = await sign(
           {
             iss: 'https://accounts.any.com',
             email: 'test@gmail.com',

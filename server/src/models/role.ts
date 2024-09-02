@@ -30,7 +30,7 @@ export interface Update {
 const TableName = adapterConfig.TableName.Role
 
 export const getAll = async (db: D1Database): Promise<Record[]> => {
-  const query = `SELECT * FROM ${TableName} WHERE deletedAt IS NULL ORDER BY id ASC`
+  const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL ORDER BY id ASC`
   const stmt = db.prepare(query)
   const { results: roles }: { results: Record[] } = await stmt.all()
   return roles
@@ -40,7 +40,7 @@ export const getById = async (
   db: D1Database,
   id: number,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`
 
   const stmt = db.prepare(query)
     .bind(id)

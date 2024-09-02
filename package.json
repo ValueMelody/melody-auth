@@ -1,6 +1,6 @@
 {
   "name": "melody-auth",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "A turnkey OAuth & authentication system leveraging Cloudflare’s infrastructure.",
   "license": "MIT",
   "author": "Baozier",
