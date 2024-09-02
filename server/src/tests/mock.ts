@@ -41,6 +41,8 @@ export const kvModule = {
         path.resolve('src/tests/private_key_mock'),
         'utf8',
       )
+    case adapterConfig.BaseKVKey.SessionSecret:
+      return 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     default:
       return kv[key] ?? null
     }
@@ -128,11 +130,14 @@ export const migrate = async () => {
       migrationsDir,
       file,
     )
-    const migration = fs.readFileSync(
-      filePath,
-      'utf8',
-    )
-    db.exec(migration)
+
+    if (fs.statSync(filePath).isFile()) {
+      const migration = fs.readFileSync(
+        filePath,
+        'utf8',
+      )
+      db.exec(migration)
+    }
   })
 
   return db

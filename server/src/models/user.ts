@@ -96,7 +96,7 @@ export interface Update {
   otpVerified?: number;
 }
 
-const TableName = adapterConfig.TableName.User
+const TableName = `"${adapterConfig.TableName.User}"`
 
 export const convertToRecord = (raw: Raw): Record => ({
   ...raw,
@@ -171,7 +171,7 @@ export const count = async (
 ): Promise<number> => {
   const condition = option?.search ? `AND ${option.search.column} LIKE $1` : ''
   const bind = option?.search ? [option.search.value] : []
-  const query = `SELECT COUNT(*) as count FROM ${TableName} where deletedAt IS NULL ${condition}`
+  const query = `SELECT COUNT(*) as count FROM ${TableName} where "deletedAt" IS NULL ${condition}`
   const stmt = bind.length ? db.prepare(query).bind(...bind) : db.prepare(query)
   const result = await stmt.first() as { count: number }
   return result.count
@@ -181,7 +181,7 @@ export const getById = async (
   db: D1Database,
   id: number,
 ): Promise<Record | null> => {
-  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE id = $1 AND deletedAt IS NULL`)
+  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`)
     .bind(id)
   const user = await stmt.first() as Raw | null
   return user ? convertToRecord(user) : null
@@ -191,7 +191,7 @@ export const getByAuthId = async (
   db: D1Database,
   authId: string,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE authId = $1  AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE "authId" = $1  AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
     .bind(authId)
   const user = await stmt.first() as Raw | null
@@ -201,7 +201,7 @@ export const getByAuthId = async (
 export const getPasswordUserByEmail = async (
   db: D1Database, email: string,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE email = $1 AND googleId IS NULL AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE email = $1 AND "googleId" IS NULL AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
     .bind(email)
   const user = await stmt.first() as Raw | null
@@ -211,7 +211,7 @@ export const getPasswordUserByEmail = async (
 export const getGoogleUserByGoogleId = async (
   db: D1Database, googleId: string,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE googleId = $1 AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE "googleId" = $1 AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
     .bind(googleId)
   const user = await stmt.first() as Raw | null
@@ -245,7 +245,7 @@ export const create = async (
 export const updateCount = async (
   db: D1Database, id: number,
 ) => {
-  const query = `UPDATE ${TableName} set loginCount = loginCount + 1 where id = $1`
+  const query = `UPDATE ${TableName} set "loginCount" = "loginCount" + 1 where id = $1`
   const stmt = db.prepare(query).bind(id)
   await validateUtil.d1Run(stmt)
 }

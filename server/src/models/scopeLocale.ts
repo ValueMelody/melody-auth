@@ -28,7 +28,7 @@ export const getById = async (
   db: D1Database,
   id: number,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`
 
   const stmt = db.prepare(query)
     .bind(id)
@@ -39,7 +39,7 @@ export const getById = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (scopeId, locale, value) values ($1, $2, $3)`
+  const query = `INSERT INTO ${TableName} ("scopeId", locale, value) values ($1, $2, $3)`
   const stmt = db.prepare(query).bind(
     create.scopeId,
     create.locale,
@@ -60,7 +60,7 @@ export const create = async (
 export const getAllByScope = async (
   db: D1Database, scopeId: number,
 ): Promise<Record[]> => {
-  const query = `SELECT * FROM ${TableName} WHERE scopeId = $1 AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE "scopeId" = $1 AND "deletedAt" IS NULL`
   const stmt = db.prepare(query).bind(scopeId)
   const { results: scopeLocales }: { results: Record[] } = await stmt.all()
   return scopeLocales

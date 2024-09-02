@@ -38,7 +38,7 @@ export interface Update {
 const TableName = adapterConfig.TableName.Scope
 
 export const getAll = async (db: D1Database): Promise<Record[]> => {
-  const query = `SELECT * FROM ${TableName} WHERE deletedAt IS NULL ORDER BY id ASC`
+  const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL ORDER BY id ASC`
   const stmt = db.prepare(query)
   const { results: scopes }: { results: Record[] } = await stmt.all()
   return scopes
@@ -48,7 +48,7 @@ export const getById = async (
   db: D1Database,
   id: number,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`
 
   const stmt = db.prepare(query)
     .bind(id)
@@ -60,7 +60,7 @@ export const getByName = async (
   db: D1Database,
   name: string,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE name = $1 AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE name = $1 AND "deletedAt" IS NULL`
 
   const stmt = db.prepare(query)
     .bind(name)

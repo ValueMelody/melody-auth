@@ -59,7 +59,7 @@ const format = (raw: Raw): Record => {
 export const getByClientId = async (
   db: D1Database, clientId: string,
 ): Promise<Record | null> => {
-  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE clientId = $1 AND deletedAt IS NULL`).bind(clientId)
+  const stmt = db.prepare(`SELECT * FROM ${TableName} WHERE "clientId" = $1 AND "deletedAt" IS NULL`).bind(clientId)
   const app = await stmt.first() as Raw | null
   if (!app) return null
 
@@ -67,7 +67,7 @@ export const getByClientId = async (
 }
 
 export const getAll = async (db: D1Database): Promise<Record[]> => {
-  const query = `SELECT * FROM ${TableName} WHERE deletedAt IS NULL ORDER BY id ASC`
+  const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL ORDER BY id ASC`
   const stmt = db.prepare(query)
   const { results: apps }: { results: Raw[] } = await stmt.all()
   return apps.map((app) => format(app))
@@ -76,7 +76,7 @@ export const getAll = async (db: D1Database): Promise<Record[]> => {
 export const getById = async (
   db: D1Database, id: number,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND deletedAt IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`
   const stmt = db.prepare(query).bind(id)
   const app = await stmt.first() as Raw | null
   if (!app) return app
@@ -87,7 +87,7 @@ export const getById = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (name, type, redirectUris) values ($1, $2, $3)`
+  const query = `INSERT INTO ${TableName} (name, type, "redirectUris") values ($1, $2, $3)`
   const stmt = db.prepare(query).bind(
     create.name,
     create.type,

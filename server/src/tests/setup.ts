@@ -6,11 +6,6 @@ import {
   vi, Mock,
 } from 'vitest'
 import toml from 'toml'
-import {
-  Algorithm, decode, sign,
-  verify,
-} from 'jsonwebtoken'
-import jwkToPem from 'jwk-to-pem'
 import { session } from 'tests/mock'
 
 const config = toml.parse(readFileSync(
@@ -31,39 +26,6 @@ const mockMiddleware = async (
 ) => {
   await next()
 }
-
-vi.mock(
-  'hono/jwt',
-  async (importOriginal: Function) => ({
-    ...(await importOriginal() as object),
-    sign: (
-      string: string, key: string, alg: Algorithm,
-    ) => {
-      return sign(
-        string,
-        key,
-        {
-          algorithm: alg, keyid: '48f2dc34d337d097aed60c2fcf17d96f21c2669124ee3f3a650a0f78a98b045d',
-        },
-      )
-    },
-    verify: (
-      string: string, key: string, alg: Algorithm,
-    ) => {
-      return verify(
-        string,
-        typeof key === 'string' ? key : jwkToPem(key),
-        { algorithms: [alg] },
-      )
-    },
-    decode: (token: string) => {
-      return decode(
-        token,
-        { complete: true },
-      )
-    },
-  }),
-)
 
 vi.mock(
   'middlewares',
@@ -92,11 +54,11 @@ global.fetch = vi.fn((url) => {
         keys: [
           {
             kty: 'RSA',
-            n: 'yTuKDtxWPXn_ZhRUrnjv0seFe-cEstFWbNGtiWnNxTE4vDHHN9rVwMqcI8CXgxfY5l8lxUqn95NCemUTAtd6BTCHpJYP4ktrxmez0Sst6PZWJe11QBGhr8qS_4GfOXb86tDiL4oRN7TP2FcRYrVt7-UOnZgRh9-9gnxMEXlvyRkasE7TTvSY0kQcbIoZoXc8EuTXLLVNDtx8lXrUepPV0JcAWXrRR5FbPL2bX1yNRsho55yiFKW_boazBw8nJpZGauHl8cOJdFQVDl8_ihzA-f53EOPiFRfWW-goEVgrfJ_ZsrKpzQGJGTdHBpc-ZGEdfDF2E2czLrxKLdim1E_jhQ',
+            n: 'vMEJatlKawIBhsaLcqp7vce45i4Nrx35l9NkdalZdaBlEEY91CpdSRCpw2uV5sObXqvkqAjbpXSRlt_h4SuuYBSdqVlJ_GYdW1Da0tKZ40fUamdPBgm5o09rE54bMT3oVr90kqzufpCIiGMufs0Pyz0WrYA24JGGlPzAK2-zqIuSrL_krqZ0rAkOcvUfp0omOYTeQYcU5WmlfTseqb8RKRPD2IAFXQb33gcoou3ZaMbC-fesEmg_Htnzb0KGsxjM8fNLTuSBCf700U7rXyBICAp1WOWTIkJRmb47r5kdRzGApTSZvVgvOBY6F9fjZbV5XN-FPIovELQpiXWVJmsKyw',
             e: 'AQAB',
             alg: 'RS256',
             use: 'sig',
-            kid: '48f2dc34d337d097aed60c2fcf17d96f21c2669124ee3f3a650a0f78a98b045d',
+            kid: '01e24a8cc12f46f4e342b47a44dbbedcd16ffa25721dea4a56d0dfd1b17f27c9',
           },
         ],
       }),

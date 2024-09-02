@@ -172,7 +172,7 @@ const Page = () => {
   const handleResendVerifyEmail = async () => {
     const token = await acquireToken()
     const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}`,
+      endpoint: `/api/users/${authId}/verify-email`,
       method: 'POST',
       token,
     })

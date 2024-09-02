@@ -30,13 +30,13 @@ export const getAllByAppId = async (
   appId: number,
 ): Promise<Record[]> => {
   const query = `
-    SELECT ${TableName}.id, ${TableName}.appId,
-    ${TableName}.scopeId, ${adapterConfig.TableName.Scope}.name as scopeName,
-    ${TableName}.createdAt, ${TableName}.updatedAt,
-    ${TableName}.deletedAt
+    SELECT ${TableName}.id, ${TableName}."appId",
+    ${TableName}."scopeId", ${adapterConfig.TableName.Scope}.name as "scopeName",
+    ${TableName}."createdAt", ${TableName}."updatedAt",
+    ${TableName}."deletedAt"
     FROM ${TableName} LEFT JOIN ${adapterConfig.TableName.Scope}
-      ON ${adapterConfig.TableName.Scope}.id = ${TableName}.scopeId
-    WHERE appId = $1 AND ${TableName}.deletedAt IS NULL
+      ON ${adapterConfig.TableName.Scope}.id = ${TableName}."scopeId"
+    WHERE "appId" = $1 AND ${TableName}."deletedAt" IS NULL
   `
   const stmt = db.prepare(query)
     .bind(appId)
@@ -47,7 +47,7 @@ export const getAllByAppId = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<true> => {
-  const query = `INSERT INTO ${TableName} (appId, scopeId) values ($1, $2)`
+  const query = `INSERT INTO ${TableName} ("appId", "scopeId") values ($1, $2)`
   const stmt = db.prepare(query).bind(
     create.appId,
     create.scopeId,
