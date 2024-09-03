@@ -65,7 +65,9 @@ export const fit = () => (
           value,
         })
       }
-      return results
+      return {
+        keys: results
+      }
     },
   }
 )
