@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import Sqlite, { Database } from 'better-sqlite3'
 import { adapterConfig } from 'configs'
+import { redisAdapter } from 'adapters'
 
 const convertQuery = (
   query: string, params: string[],
@@ -16,7 +17,7 @@ const convertQuery = (
   return prepareQuery
 }
 
-export const kv: { [key: string]: string } = {}
+const kv: { [key: string]: string } = {}
 
 export const sessionStore: { [key: string]: string } = {}
 export const session = {
@@ -28,17 +29,17 @@ export const session = {
   },
 }
 
-export const kvModule = {
-  get: (key: string) => {
+const kvMock = {
+  get: async (key: string) => {
     switch (key) {
     case adapterConfig.BaseKVKey.JwtPublicSecret:
       return fs.readFileSync(
-        path.resolve('src/tests/public_key_mock'),
+        path.resolve('node_jwt_public_key.pem'),
         'utf8',
       )
     case adapterConfig.BaseKVKey.JwtPrivateSecret:
       return fs.readFileSync(
-        path.resolve('src/tests/private_key_mock'),
+        path.resolve('node_jwt_private_key.pem'),
         'utf8',
       )
     case adapterConfig.BaseKVKey.SessionSecret:
@@ -64,6 +65,9 @@ export const kvModule = {
         })),
     }
   },
+  empty: () => {
+    Object.keys(kv).forEach((key) => delete kv[key])
+  }
 }
 
 export const getDbModule = (db: Database) => ({
@@ -111,10 +115,15 @@ export const getDbModule = (db: Database) => ({
   },
 }) as D1Database
 
-export const mock = (db: Database) => ({
-  DB: getDbModule(db),
-  KV: kvModule,
-})
+const isTestingNode = process.env.TEST_MODE === 'node'
+export const mockedKV = isTestingNode ? redisAdapter.fit() : kvMock
+
+export const mock = (db: Database) => {
+  return {
+    DB: getDbModule(db),
+    KV: mockedKV,
+  }
+}
 
 export const migrate = async () => {
   const db = new Sqlite(':memory:')

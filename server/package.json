@@ -10,7 +10,8 @@
     "node:dev": "tsx watch src/node.tsx",
     "node:migrate": "knex migrate:latest",
     "node:secret:generate": "node ./src/scripts/generate-secret.js node",
-    "test:check": "vitest run",
+    "test:check:node": "TEST_MODE=node vitest run",
+    "test:check:cf": "vitest run",
     "test:coverage": "vitest run --coverage",
     "type:check": "tsc --noEmit",
     "swagger:generate": "node ./src/scripts/generate-swagger.js"
@@ -37,6 +38,7 @@
     "better-sqlite3": "^11.2.1",
     "dotenv": "^16.4.5",
     "ioredis": "^5.4.1",
+    "ioredis-mock": "^8.9.0",
     "jsdom": "^25.0.0",
     "knex": "^3.1.0",
     "node-jose": "^2.2.0",

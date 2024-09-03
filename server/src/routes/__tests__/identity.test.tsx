@@ -8,9 +8,8 @@ import { authenticator } from 'otplib'
 import { sign } from 'hono/jwt'
 import app from 'index'
 import {
-  kv,
-  kvModule,
   migrate, mock,
+  mockedKV,
 } from 'tests/mock'
 import {
   adapterConfig, localeConfig, routeConfig,
@@ -30,9 +29,9 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
+afterEach(async () => {
   db.close()
-  Object.keys(kv).forEach((key) => delete kv[key])
+  await mockedKV.empty()
 })
 
 const BaseRoute = routeConfig.InternalRoute.Identity
@@ -354,7 +353,7 @@ describe(
           requireOtpMfa: false,
         })
         const { code } = json as { code: string }
-        const codeStore = JSON.parse(kv[`AC-${code}`])
+        const codeStore = JSON.parse(await mockedKV.get(`AC-${code}`) ?? '')
         expect(codeStore.appId).toBe(1)
         expect(codeStore.user.authId).toBe('1-1-1-1')
         expect(codeStore.appName).toBe(appRecord.name)
@@ -419,7 +418,7 @@ describe(
           { password: 'Password2!' },
         )
         expect(res.status).toBe(404)
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         const res2 = await postSignInRequest(
           db,
@@ -443,7 +442,7 @@ describe(
           { password: 'Password2!' },
         )
         expect(res.status).toBe(404)
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBeFalsy()
 
         const res2 = await postSignInRequest(
           db,
@@ -614,11 +613,11 @@ describe(
         })
         const appRecord = getApp(db)
         const { code } = json as { code: string }
-        const codeStore = JSON.parse(kv[`${adapterConfig.BaseKVKey.AuthCode}-${code}`])
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${code}`) ?? '')
         expect(codeStore.appId).toBe(1)
         expect(codeStore.appName).toBe(appRecord.name)
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? '').length).toBe(8)
       },
     )
 
@@ -638,7 +637,7 @@ describe(
       async () => {
         global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
         await postAuthorizeAccount()
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)).toBeFalsy()
         global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
       },
     )
@@ -833,7 +832,7 @@ describe(
         const res = await testSendResetCode('/reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
       },
     )
 
@@ -845,7 +844,7 @@ describe(
         const res = await testSendResetCode('/reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`)).toBeFalsy()
       },
     )
 
@@ -878,7 +877,7 @@ describe(
         const res = await testSendResetCode('/resend-reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
       },
     )
 
@@ -892,12 +891,12 @@ describe(
         const res = await testSendResetCode('/resend-reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`)).toBe('1')
 
         const res1 = await testSendResetCode('/resend-reset-code')
         const json1 = await res1.json()
         expect(json1).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`]).toBe('2')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`)).toBe('2')
 
         const res2 = await testSendResetCode('/resend-reset-code')
         expect(res2.status).toBe(400)
@@ -934,7 +933,7 @@ describe(
         const res = await testSendResetCode('/resend-reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
         global.process.env.SENDGRID_API_KEY = 'abc' as unknown as string
         global.process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com' as unknown as string
         global.process.env.BREVO_API_KEY = '' as unknown as string
@@ -959,14 +958,14 @@ describe(
           appRecord,
           { password: 'Password2!' },
         )
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         await testSendResetCode('/reset-code')
 
         const body = {
           email: 'test@email.com',
           password: 'Password2!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
 
         const res = await app.request(
@@ -979,7 +978,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBeFalsy()
 
         const signInRes = await postSignInRequest(
           db,
@@ -1026,7 +1025,7 @@ describe(
         const body = {
           email: 'test@email.com',
           password: 'Password1!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
 
         const res = await app.request(
@@ -1052,7 +1051,7 @@ describe(
         const body = {
           email: 'test@email.com',
           password: 'Password2!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
 
         const res = await app.request(
@@ -1078,7 +1077,7 @@ describe(
         const body = {
           email: 'test1@email.com',
           password: 'Password2!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
 
         const res = await app.request(
@@ -1107,14 +1106,14 @@ describe(
           appRecord,
           { password: 'Password2!' },
         )
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         await testSendResetCode('/reset-code')
 
         const body = {
           email: 'test@email.com',
           password: 'Password2!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
         await app.request(
           `${BaseRoute}/authorize-reset`,
@@ -1124,7 +1123,7 @@ describe(
           mock(db),
         )
 
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 5 as unknown as string
         global.process.env.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET = true as unknown as string
@@ -1526,14 +1525,14 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
-        expect(kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
     )
 
     test(
       'should throw error if otp secret not exists',
       async () => {
-        kv[`${adapterConfig.BaseKVKey.AuthCode}-abc`] = JSON.stringify({ user: { otpSecret: null } })
+        await mockedKV.put(`${adapterConfig.BaseKVKey.AuthCode}-abc`, JSON.stringify({ user: { otpSecret: null } }))
         const body = {
           state: '123',
           redirectUri: 'http://localhost:3000/en/dashboard',
@@ -1630,14 +1629,14 @@ describe(
               redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
-              mfaCode: kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`],
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
             }),
           },
           mock(db),
         )
 
         const json = await res.json() as { code: string }
-        expect(kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
     )
   },
@@ -1676,7 +1675,7 @@ describe(
         expect(document.getElementsByTagName('form').length).toBe(1)
 
         const code = getCodeFromParams(params)
-        expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`) ?? '').length).toBe(8)
       },
     )
 
@@ -1751,7 +1750,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`) ?? '').length).toBe(8)
       },
     )
   },
@@ -1786,7 +1785,7 @@ describe(
               redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
-              mfaCode: kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`],
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
             }),
           },
           mock(db),
@@ -1803,7 +1802,7 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
-        expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
       },
     )
 
@@ -1876,7 +1875,7 @@ describe(
               redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
-              mfaCode: kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`],
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
             }),
           },
           mock(db),
@@ -1893,7 +1892,7 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
-        expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
       },
     )
   },
@@ -2061,7 +2060,7 @@ describe(
 
         const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
         expect(currentUser.emailVerified).toBe(0)
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? '').length).toBe(8)
 
         const res = await app.request(
           `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
@@ -2108,7 +2107,7 @@ describe(
 
         const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
         expect(currentUser.emailVerified).toBe(0)
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)).toBeFalsy()
 
         const res = await app.request(
           `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
@@ -2145,7 +2144,7 @@ describe(
         await prepareUserAccount()
 
         const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
-        const code = kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
 
         const res = await app.request(
           `${BaseRoute}/verify-email`,
@@ -2194,7 +2193,7 @@ describe(
         await prepareUserAccount()
 
         const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
-        const code = kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
 
         const res = await app.request(
           `${BaseRoute}/verify-email`,
@@ -2230,7 +2229,7 @@ describe(
         await prepareUserAccount()
 
         const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
-        const code = kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
 
         disableUser(db)
 
@@ -2256,7 +2255,7 @@ describe(
   'post /authorize-google',
   () => {
     const prepareRequest = async (emailVerified: boolean) => {
-      const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+      const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
       const credential = await sign(
         {
           iss: 'https://accounts.google.com',
@@ -2321,7 +2320,7 @@ describe(
     test(
       'should be blocked if not enable in config',
       async () => {
-        const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+        const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
         const credential = await sign(
           {
             iss: 'https://accounts.google.com',
@@ -2355,7 +2354,7 @@ describe(
       'could throw error if wrong credential provided',
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+        const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
         const credential = await sign(
           {
             iss: 'https://accounts.any.com',
@@ -2452,7 +2451,8 @@ describe(
       )
       const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
 
-      expect(JSON.parse(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`])).toStrictEqual({
+      const tokenBody = await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)
+      expect(JSON.parse(tokenBody ?? '')).toStrictEqual({
         authId: '1-1-1-1',
         clientId: appRecord.clientId,
         scope: 'profile openid offline_access',
@@ -2489,7 +2489,7 @@ describe(
           redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
         })
 
-        expect(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },
@@ -2519,7 +2519,7 @@ describe(
           redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=&client_id=${appRecord.clientId}`,
         })
 
-        expect(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },
@@ -2555,9 +2555,9 @@ describe(
         const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
 
         const tokenKey = `${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`
-        kv[tokenKey] = JSON.stringify({
-          ...JSON.parse(kv[tokenKey]), authId: '123',
-        })
+        await mockedKV.put(tokenKey, JSON.stringify({
+          ...JSON.parse(await mockedKV.get(tokenKey) ?? ''), authId: '123',
+        }))
         const logoutRes = await app.request(
           `${BaseRoute}/logout`,
           {

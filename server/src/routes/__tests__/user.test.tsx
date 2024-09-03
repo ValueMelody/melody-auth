@@ -8,7 +8,7 @@ import {
   adapterConfig, localeConfig, routeConfig,
 } from 'configs'
 import {
-  kv,
+  mockedKV,
   migrate, mock,
 } from 'tests/mock'
 import {
@@ -84,8 +84,8 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
-  Object.keys(kv).forEach((key) => delete kv[key])
+afterEach(async () => {
+  await mockedKV.empty()
   db.close()
 })
 
@@ -338,8 +338,8 @@ describe(
       'should return all locked ips',
       async () => {
         insertUsers()
-        kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`] = '1'
-        kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`] = '2'
+        await mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`, '1')
+        await mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`, '2')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,
@@ -375,8 +375,8 @@ describe(
       'should delete all locked ips',
       async () => {
         insertUsers()
-        kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`] = '1'
-        kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`] = '2'
+        mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`, '1')
+        mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`, '2')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,
@@ -613,7 +613,8 @@ describe(
 
         expect(json).toStrictEqual({ success: true })
 
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`].length).toBe(8)
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
+        expect(code.length).toBe(8)
       },
     )
 

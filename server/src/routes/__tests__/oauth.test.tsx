@@ -4,8 +4,8 @@ import {
 import { Database } from 'better-sqlite3'
 import app from 'index'
 import {
-  kv,
   migrate, mock,
+  mockedKV,
   session,
 } from 'tests/mock'
 import {
@@ -27,8 +27,9 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
+afterEach(async () => {
   db.close()
+  await mockedKV.empty()
 })
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
@@ -184,7 +185,7 @@ describe(
         )
 
         const body = await prepareFollowUpBody(db)
-        kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${body.code}`] = 'aaaaaaaa'
+        mockedKV.put(`${adapterConfig.BaseKVKey.OtpMfaCode}-${body.code}`, 'aaaaaaaa')
         await app.request(
           `${routeConfig.InternalRoute.Identity}/authorize-otp-mfa`,
           {
@@ -197,7 +198,7 @@ describe(
           mock(db),
         )
 
-        kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`] = 'bbbbbbbb'
+        mockedKV.put(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`, 'bbbbbbbb')
         await app.request(
           `${routeConfig.InternalRoute.Identity}/authorize-email-mfa`,
           {

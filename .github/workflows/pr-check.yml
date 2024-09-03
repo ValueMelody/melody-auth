@@ -22,4 +22,6 @@ jobs:
     - run: npm run build
     - run: npm run lint:check
     - run: npm run type:check
-    - run: npm run test:check
+    - run: npm run node:secret:generate
+    - run: npm run test:check:cf
+    - run: npm run test:check:node

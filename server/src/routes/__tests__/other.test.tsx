@@ -118,11 +118,11 @@ describe(
           keys: [
             {
               kty: 'RSA',
-              n: 'vMEJatlKawIBhsaLcqp7vce45i4Nrx35l9NkdalZdaBlEEY91CpdSRCpw2uV5sObXqvkqAjbpXSRlt_h4SuuYBSdqVlJ_GYdW1Da0tKZ40fUamdPBgm5o09rE54bMT3oVr90kqzufpCIiGMufs0Pyz0WrYA24JGGlPzAK2-zqIuSrL_krqZ0rAkOcvUfp0omOYTeQYcU5WmlfTseqb8RKRPD2IAFXQb33gcoou3ZaMbC-fesEmg_Htnzb0KGsxjM8fNLTuSBCf700U7rXyBICAp1WOWTIkJRmb47r5kdRzGApTSZvVgvOBY6F9fjZbV5XN-FPIovELQpiXWVJmsKyw',
+              n: expect.any(String),
               e: 'AQAB',
               alg: 'RS256',
               use: 'sig',
-              kid: '01e24a8cc12f46f4e342b47a44dbbedcd16ffa25721dea4a56d0dfd1b17f27c9',
+              kid: expect.any(String),
             },
           ],
         })

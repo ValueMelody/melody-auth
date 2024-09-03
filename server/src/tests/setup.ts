@@ -1,4 +1,5 @@
-import { readFileSync } from 'fs'
+import fs, { readFileSync } from 'fs'
+import path from 'path'
 import {
   Context, Next,
 } from 'hono'
@@ -7,6 +8,7 @@ import {
 } from 'vitest'
 import toml from 'toml'
 import { session } from 'tests/mock'
+import { cryptoUtil } from 'utils'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -27,6 +29,13 @@ const mockMiddleware = async (
   await next()
 }
 
+vi.mock('ioredis', async () => {
+  const IoredisMock = await import('ioredis-mock');
+  return {
+    Redis: IoredisMock.default,
+  }
+})
+
 vi.mock(
   'middlewares',
   async (importOriginal: Function) => ({
@@ -46,20 +55,18 @@ vi.mock(
   }),
 )
 
-global.fetch = vi.fn((url) => {
+global.fetch = vi.fn(async (url) => {
   if (url === 'https://www.googleapis.com/oauth2/v3/certs') {
+    const key = fs.readFileSync(
+      path.resolve('node_jwt_public_key.pem'),
+      'utf8',
+    )
+    const jwk = await cryptoUtil.secretToJwk(key)
     return Promise.resolve({
       ok: true,
       json: () => ({
         keys: [
-          {
-            kty: 'RSA',
-            n: 'vMEJatlKawIBhsaLcqp7vce45i4Nrx35l9NkdalZdaBlEEY91CpdSRCpw2uV5sObXqvkqAjbpXSRlt_h4SuuYBSdqVlJ_GYdW1Da0tKZ40fUamdPBgm5o09rE54bMT3oVr90kqzufpCIiGMufs0Pyz0WrYA24JGGlPzAK2-zqIuSrL_krqZ0rAkOcvUfp0omOYTeQYcU5WmlfTseqb8RKRPD2IAFXQb33gcoou3ZaMbC-fesEmg_Htnzb0KGsxjM8fNLTuSBCf700U7rXyBICAp1WOWTIkJRmb47r5kdRzGApTSZvVgvOBY6F9fjZbV5XN-FPIovELQpiXWVJmsKyw',
-            e: 'AQAB',
-            alg: 'RS256',
-            use: 'sig',
-            kid: '01e24a8cc12f46f4e342b47a44dbbedcd16ffa25721dea4a56d0dfd1b17f27c9',
-          },
+          jwk,
         ],
       }),
     })
