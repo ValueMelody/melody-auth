@@ -11,5 +11,6 @@ server/.dev.vars
 .env
 .env.local
 *.pem
+node_session_secret
 
 .DS_Store
