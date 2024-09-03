@@ -67,7 +67,7 @@ export const getUsers = async (
 ): Promise<userModel.PaginatedApiRecords> => {
   const searchObj = search
     ? {
-      column: "(COALESCE(firstName, '') || ' ' || COALESCE(lastName, '') || ' ' || COALESCE(email, ''))",
+      column: "(COALESCE(\"firstName\", '') || ' ' || COALESCE(\"lastName\", '') || ' ' || COALESCE(\"email\", ''))",
       value: `%${search}%`,
     }
     : undefined

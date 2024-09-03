@@ -12,8 +12,9 @@ import {
   otherRoute, appRoute, roleRoute, scopeRoute,
 } from 'routes'
 import { setupMiddleware } from 'middlewares'
-import { kvModule } from 'tests/mock'
-import { pgAdapter } from 'adapters'
+import {
+  pgAdapter, redisAdapter,
+} from 'adapters'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -25,6 +26,7 @@ global.process.env = { ...config.vars }
 dotenv.config({ path: '.dev.vars' })
 
 pgAdapter.initConnection()
+redisAdapter.initConnection()
 
 const app = new Hono<typeConfig.Context>()
 
@@ -34,7 +36,7 @@ app.use(
   async (
     c: Context<typeConfig.Context>, next: Next,
   ) => {
-    c.env.KV = kvModule as unknown as any
+    c.env.KV = redisAdapter.fit() as unknown as any
     c.env.DB = pgAdapter.fit() as unknown as any
     await next()
   },

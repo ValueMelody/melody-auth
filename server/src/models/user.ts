@@ -174,7 +174,7 @@ export const count = async (
   const query = `SELECT COUNT(*) as count FROM ${TableName} where "deletedAt" IS NULL ${condition}`
   const stmt = bind.length ? db.prepare(query).bind(...bind) : db.prepare(query)
   const result = await stmt.first() as { count: number }
-  return result.count
+  return Number(result.count)
 }
 
 export const getById = async (

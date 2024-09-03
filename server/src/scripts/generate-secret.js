@@ -23,10 +23,14 @@ function arrayBufferToBase64 (buffer) {
 
 const PRIVATE_KEY_FILE = 'jwt_private_key.pem'
 const PUBLIC_KEY_FILE = 'jwt_public_key.pem'
+const NODE_PRIVATE_KEY_FILE = 'node_jwt_private_key.pem'
+const NODE_PUBLIC_KEY_FILE = 'node_jwt_public_key.pem'
+const NODE_SESSION_SECRET_FILE = 'node_session_secret'
 
 async function generateRSAKeyPair () {
   const argv = process.argv
   const isProd = argv[2] === 'prod'
+  const isNode = argv[2] === 'node'
 
   const keyPair = await crypto.subtle.generateKey(
     {
@@ -57,37 +61,55 @@ async function generateRSAKeyPair () {
     'PRIVATE KEY',
   )
 
-  fs.writeFileSync(
-    PUBLIC_KEY_FILE,
-    pemPublicKey,
-  )
-  fs.writeFileSync(
-    PRIVATE_KEY_FILE,
-    pemPrivateKey,
-  )
-
   const sessionSecret = crypto.randomBytes(20).toString('hex')
 
-  exec(
-    `
-      wrangler kv key put jwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${isProd ? '' : '--local'} \
-      && wrangler kv key put jwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${isProd ? '' : '--local'} \
-      && wrangler kv key put sessionSecret ${sessionSecret} --binding=KV ${isProd ? '' : '--local'}
-    `,
-    (
-      error, stdout, stderr,
-    ) => {
-      if (error) {
-        console.error(`Error executing command: ${error.message}`)
-        return
-      }
-      if (stderr) {
-        console.error(`stderr: ${stderr}`)
-        return
-      }
-      console.log(`stdout: ${stdout}`)
-    },
-  )
+  if (isNode) {
+    fs.writeFileSync(
+      NODE_PUBLIC_KEY_FILE,
+      pemPublicKey,
+    )
+    fs.writeFileSync(
+      NODE_PRIVATE_KEY_FILE,
+      pemPrivateKey,
+    )
+    fs.writeFileSync(
+      NODE_SESSION_SECRET_FILE,
+      sessionSecret,
+    )
+    console.info('Secrets generated for node env')
+  } else {
+    fs.writeFileSync(
+      PUBLIC_KEY_FILE,
+      pemPublicKey,
+    )
+    fs.writeFileSync(
+      PRIVATE_KEY_FILE,
+      pemPrivateKey,
+    )
+  }
+
+  if (!isNode) {
+    exec(
+      `
+        wrangler kv key put jwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${isProd ? '' : '--local'} \
+        && wrangler kv key put jwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${isProd ? '' : '--local'} \
+        && wrangler kv key put sessionSecret ${sessionSecret} --binding=KV ${isProd ? '' : '--local'}
+      `,
+      (
+        error, stdout, stderr,
+      ) => {
+        if (error) {
+          console.error(`Error executing command: ${error.message}`)
+          return
+        }
+        if (stderr) {
+          console.error(`stderr: ${stderr}`)
+          return
+        }
+        console.log(`stdout: ${stdout}`)
+      },
+    )
+  }
 }
 
 generateRSAKeyPair().catch(console.error)
