@@ -2,7 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import Sqlite, { Database } from 'better-sqlite3'
 import { adapterConfig } from 'configs'
-import { redisAdapter } from 'adapters'
+import { pgAdapter, redisAdapter } from 'adapters'
+import { userModel } from 'models'
 
 const convertQuery = (
   query: string, params: string[],
@@ -70,7 +71,7 @@ const kvMock = {
   }
 }
 
-export const getDbModule = (db: Database) => ({
+const getDbMock = (db: Database) => ({
   prepare: (query: string) => {
     return {
       bind: (...params: string[]) => ({
@@ -117,20 +118,72 @@ export const getDbModule = (db: Database) => ({
 
 const isTestingNode = process.env.TEST_MODE === 'node'
 export const mockedKV = isTestingNode ? redisAdapter.fit() : kvMock
+export const getMockedDB = isTestingNode ? pgAdapter.fit : getDbMock
+
+const formatUser = (raw: userModel.Raw) => ({
+  ...raw,
+  isActive: Number(raw.isActive),
+  emailVerified: Number(raw.emailVerified),
+  otpVerified: Number(raw.otpVerified),
+  loginCount: Number(raw.loginCount),
+})
 
 export const mock = (db: Database) => {
   return {
-    DB: getDbModule(db),
+    DB: getMockedDB(db),
     KV: mockedKV,
   }
 }
 
 export const migrate = async () => {
+  if (isTestingNode) {
+    pgAdapter.initConnection()
+    const db = await pgAdapter.getConnection()
+    const migrationsDir = path.join(
+      __dirname,
+      '../../migrations/pg',
+    )
+    const migrationFiles = fs.readdirSync(migrationsDir)
+    for (const file of migrationFiles) {
+      await db.migrate.up({
+        directory: migrationsDir,
+        name: file,
+      })
+    }
+    return {
+      raw: async (query: string, params?: string[]) => {
+        const result = await db.raw(query, params || [])
+        const formatted = {
+          ...result,
+          rows: query.includes(' "user" ') ? result.rows.map((row) => formatUser(row)) : result.rows
+        }
+        return formatted
+      },
+      prepare: (query: string) => ({
+        run: async (...params: string[]) => {
+          return db.raw(query, params)
+        },
+        get: async (...params: string[]) => {
+          const res = await db.raw(`${query} LIMIT 1`, params)
+          const record = res?.rows[0]
+          return query.includes(' "user" ') ? formatUser(record) : record
+        },
+        all: async (...params: string[]) => {
+          const res = await db.raw(query, params)
+          const records = res?.rows
+          return query.includes(' "user" ') ? records.map((record: userModel.Raw) => formatUser(record)) : records
+        }
+      }),
+      exec: async (query: string) => db.raw(query),
+      close: async () => db.destroy()
+    }
+  }
+
   const db = new Sqlite(':memory:')
 
   const migrationsDir = path.join(
     __dirname,
-    '../../migrations',
+    '../../migrations/sqlite',
   )
   const migrationFiles = fs.readdirSync(migrationsDir)
 
@@ -140,13 +193,11 @@ export const migrate = async () => {
       file,
     )
 
-    if (fs.statSync(filePath).isFile()) {
-      const migration = fs.readFileSync(
-        filePath,
-        'utf8',
-      )
-      db.exec(migration)
-    }
+    const migration = fs.readFileSync(
+      filePath,
+      'utf8',
+    )
+    db.exec(migration)
   })
 
   return db

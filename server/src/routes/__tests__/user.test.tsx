@@ -21,25 +21,25 @@ import {
 
 let db: Database
 
-const insertUsers = () => {
-  db.exec(`
-    INSERT INTO user
-    (authId, locale, email, googleId, password, firstName, lastName)
+const insertUsers = async () => {
+  await db.exec(`
+    INSERT INTO "user"
+    ("authId", locale, email, "googleId", password, "firstName", "lastName")
     values ('1-1-1-1', 'en', 'test@email.com', null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
   `)
-  db.exec(`
-    INSERT INTO user
-    (authId, locale, email, googleId, password, firstName, lastName)
+  await db.exec(`
+    INSERT INTO "user"
+    ("authId", locale, email, "googleId", password, "firstName", "lastName")
     values ('1-1-1-2', 'fr', 'test1@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', null, null)
   `)
-  db.exec(`
+  await db.exec(`
     INSERT INTO user_app_consent
-    (userId, appId)
+    ("userId", "appId")
     values (1, 1)
   `)
-  db.exec(`
+  await db.exec(`
     INSERT INTO user_role
-    (userId, roleId)
+    ("userId", "roleId")
     values (2, 1)
   `)
 }
@@ -86,7 +86,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await mockedKV.empty()
-  db.close()
+  await db.close()
 })
 
 const BaseRoute = routeConfig.InternalRoute.ApiUsers
@@ -97,7 +97,7 @@ describe(
     test(
       'should return all users',
       async () => {
-        insertUsers()
+        await insertUsers()
 
         const res = await app.request(
           BaseRoute,
@@ -112,20 +112,20 @@ describe(
     test(
       'could get users by pagination',
       async () => {
-        insertUsers()
-        db.exec(`
-          INSERT INTO user
-          (authId, locale, email, googleId, password, firstName, lastName)
+        await insertUsers()
+        await db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "googleId", password, "firstName", "lastName")
           values ('1-1-1-3', 'en', 'test2@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'first', 'last')
         `)
-        db.exec(`
-          INSERT INTO user
-          (authId, locale, email, googleId, password, firstName, lastName)
+        await db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "googleId", password, "firstName", "lastName")
           values ('1-1-1-4', 'en', 'test3@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'another', 'one')
         `)
-        db.exec(`
-          INSERT INTO user
-          (authId, locale, email, googleId, password, firstName, lastName)
+        await db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "googleId", password, "firstName", "lastName")
           values ('1-1-1-5', 'en', 'test4@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'other', 'name')
         `)
 
@@ -228,8 +228,8 @@ describe(
     test(
       'should return all users with read_user scope',
       async () => {
-        insertUsers()
-        attachIndividualScopes(db)
+        await insertUsers()
+        await attachIndividualScopes(db)
 
         const res = await app.request(
           BaseRoute,
@@ -282,7 +282,7 @@ describe(
     test(
       'should return user by authId 1-1-1-1',
       async () => {
-        insertUsers()
+        await insertUsers()
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1`,
@@ -301,7 +301,7 @@ describe(
     test(
       'should return user by authId 1-1-1-2',
       async () => {
-        insertUsers()
+        await insertUsers()
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-2`,
@@ -337,7 +337,7 @@ describe(
     test(
       'should return all locked ips',
       async () => {
-        insertUsers()
+        await insertUsers()
         await mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`, '1')
         await mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`, '2')
 
@@ -354,8 +354,8 @@ describe(
     test(
       'placeholder test for user has no email',
       async () => {
-        insertUsers()
-        db.prepare('update user set email = ?').run(null)
+        await insertUsers()
+        await db.prepare('update "user" set email = ?').run(null)
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,
           { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
@@ -374,7 +374,7 @@ describe(
     test(
       'should delete all locked ips',
       async () => {
-        insertUsers()
+        await insertUsers()
         mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`, '1')
         mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`, '2')
 
@@ -402,8 +402,8 @@ describe(
     test(
       'placeholder test for user has no email',
       async () => {
-        insertUsers()
-        db.prepare('update user set email = ?').run(null)
+        await insertUsers()
+        db.prepare('update "user" set email = ?').run(null)
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,
@@ -425,8 +425,8 @@ describe(
     test(
       'should update user',
       async () => {
-        insertUsers()
-        db.prepare('insert into role (name) values (?)').run('test')
+        await insertUsers()
+        await db.prepare('insert into role (name) values (?)').run('test')
 
         const updateObj = {
           locale: 'fr',
@@ -477,8 +477,8 @@ describe(
     test(
       'should throw error if no user found',
       async () => {
-        insertUsers()
-        db.prepare('insert into role (name) values (?)').run('test')
+        await insertUsers()
+        await db.prepare('insert into role (name) values (?)').run('test')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-3`,
@@ -497,8 +497,8 @@ describe(
     test(
       'return when nothing updated',
       async () => {
-        insertUsers()
-        db.prepare('insert into role (name) values (?)').run('test')
+        await insertUsers()
+        await db.prepare('insert into role (name) values (?)').run('test')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1`,
@@ -523,8 +523,8 @@ describe(
     test(
       'should update user with write_user scope',
       async () => {
-        insertUsers()
-        attachIndividualScopes(db)
+        await insertUsers()
+        await attachIndividualScopes(db)
 
         const updateObj = {
           firstName: 'First',
@@ -559,8 +559,8 @@ describe(
     test(
       'should return 401 without proper scope',
       async () => {
-        insertUsers()
-        attachIndividualScopes(db)
+        await insertUsers()
+        await attachIndividualScopes(db)
 
         const updateObj = { locale: 'fr' }
         const res = await app.request(
@@ -599,7 +599,7 @@ describe(
     test(
       'should send email',
       async () => {
-        insertUsers()
+        await insertUsers()
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/verify-email`,
@@ -621,8 +621,8 @@ describe(
     test(
       'should throw error if email already verified',
       async () => {
-        insertUsers()
-        db.prepare('update user set emailVerified = ?').run(1)
+        await insertUsers()
+        await db.prepare('update "user" set "emailVerified" = ?').run(1)
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/verify-email`,
@@ -692,7 +692,7 @@ describe(
     test(
       'should return user app consents',
       async () => {
-        insertUsers()
+        await insertUsers()
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/consented-apps`,
@@ -710,7 +710,7 @@ describe(
     test(
       'should throw error if user not found',
       async () => {
-        insertUsers()
+        await insertUsers()
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-3/consented-apps`,
@@ -730,7 +730,7 @@ describe(
     test(
       'should delete app consent',
       async () => {
-        insertUsers()
+        await insertUsers()
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/consented-apps/1`,
@@ -758,7 +758,7 @@ describe(
   'enroll email mfa',
   () => {
     const enrollAndCheckUser = async () => {
-      insertUsers()
+      await insertUsers()
 
       const res = await app.request(
         `${BaseRoute}/1-1-1-1/email-mfa`,
@@ -803,8 +803,8 @@ describe(
     test(
       'if user already enrolled with email',
       async () => {
-        insertUsers()
-        db.prepare('update user set mfaTypes = ?').run('email')
+        await insertUsers()
+        await db.prepare('update "user" set "mfaTypes" = ?').run('email')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/email-mfa`,
@@ -829,7 +829,7 @@ describe(
     test(
       'should throw error for wrong id',
       async () => {
-        insertUsers()
+        await insertUsers()
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-3/email-mfa`,
@@ -847,8 +847,8 @@ describe(
     test(
       'should throw error for inactive user',
       async () => {
-        insertUsers()
-        disableUser(db)
+        await insertUsers()
+        await disableUser(db)
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/email-mfa`,
@@ -892,8 +892,8 @@ describe(
     test(
       'should unenroll email mfa',
       async () => {
-        insertUsers()
-        enrollEmailMfa(db)
+        await insertUsers()
+        await enrollEmailMfa(db)
 
         await handleUnenrollRequest()
       },
@@ -910,8 +910,8 @@ describe(
     test(
       'should throw error for wrong id',
       async () => {
-        insertUsers()
-        enrollEmailMfa(db)
+        await insertUsers()
+        await enrollEmailMfa(db)
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-3/email-mfa`,
@@ -929,9 +929,9 @@ describe(
     test(
       'should throw error for inactive user',
       async () => {
-        insertUsers()
-        enrollEmailMfa(db)
-        disableUser(db)
+        await insertUsers()
+        await enrollEmailMfa(db)
+        await disableUser(db)
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/email-mfa`,
@@ -952,7 +952,7 @@ describe(
   'enroll otp mfa',
   () => {
     const enrollAndCheckUser = async () => {
-      insertUsers()
+      await insertUsers()
 
       await app.request(
         `${BaseRoute}/1-1-1-1/otp-mfa`,
@@ -1022,8 +1022,8 @@ describe(
     test(
       'should unenroll otp mfa',
       async () => {
-        insertUsers()
-        enrollOtpMfa(db)
+        await insertUsers()
+        await enrollOtpMfa(db)
 
         await handleUnenrollCheck()
       },
@@ -1032,7 +1032,7 @@ describe(
     test(
       'If user is not enrolled',
       async () => {
-        insertUsers()
+        await insertUsers()
         await handleUnenrollCheck()
       },
     )

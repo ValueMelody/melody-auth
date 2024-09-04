@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { serve } from '@hono/node-server'
 import {
-  Context, Next,
+  Context, Hono, Next,
 } from 'hono'
 import * as dotenv from 'dotenv'
 import toml from 'toml'
@@ -9,7 +9,7 @@ import { typeConfig } from 'configs'
 import {
   pgAdapter, redisAdapter,
 } from 'adapters'
-import app from 'index'
+import { loadRouters } from 'router'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -23,6 +23,8 @@ dotenv.config({ path: '.dev.vars' })
 pgAdapter.initConnection()
 redisAdapter.initConnection()
 
+const app = new Hono<typeConfig.Context>()
+
 app.use(
   '/*',
   async (
@@ -34,7 +36,9 @@ app.use(
   },
 )
 
+const appWithRouters = loadRouters(app)
+
 serve({
-  ...app,
+  ...appWithRouters,
   port: 8787,
 })

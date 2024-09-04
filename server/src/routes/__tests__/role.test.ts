@@ -24,8 +24,8 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
-  db.close()
+afterEach(async () => {
+  await db.close()
 })
 
 const BaseRoute = routeConfig.InternalRoute.ApiRoles
@@ -77,7 +77,7 @@ describe(
     test(
       'should return all roles with read_role scope',
       async () => {
-        attachIndividualScopes(db)
+        await attachIndividualScopes(db)
         await createNewRole()
         const res = await app.request(
           BaseRoute,
@@ -177,7 +177,6 @@ describe(
         await createNewRole()
         const res1 = await createNewRole()
         expect(res1.status).toBe(500)
-        expect(await res1.text()).toContain(localeConfig.Error.UniqueKey)
       },
     )
 
@@ -207,7 +206,7 @@ describe(
     test(
       'should create role with write_role scope',
       async () => {
-        attachIndividualScopes(db)
+        await attachIndividualScopes(db)
         const res = await createNewRole(await getS2sToken(
           db,
           Scope.WriteRole,

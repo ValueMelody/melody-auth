@@ -41,14 +41,17 @@ exports.up = function (knex) {
         {
           name: 'openid',
           type: 'spa',
+          note: '',
         },
         {
           name: 'profile',
           type: 'spa',
+          note: '',
         },
         {
           name: 'offline_access',
           type: 'spa',
+          note: '',
         },
         {
           name: 'root',

@@ -20,8 +20,8 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
-  db.close()
+afterEach(async () => {
+  await db.close()
 })
 
 const BaseRoute = routeConfig.InternalRoute.ApiApps
@@ -79,7 +79,7 @@ describe(
     test(
       'should return all apps with read_app scope',
       async () => {
-        attachIndividualScopes(db)
+        await attachIndividualScopes(db)
         const res = await app.request(
           BaseRoute,
           {
@@ -234,7 +234,7 @@ describe(
     test(
       'should create app with write app scope',
       async () => {
-        attachIndividualScopes(db)
+        await attachIndividualScopes(db)
         const token = await getS2sToken(
           db,
           Scope.WriteApp,
@@ -249,7 +249,7 @@ describe(
     test(
       'should create app with no scope',
       async () => {
-        attachIndividualScopes(db)
+        await attachIndividualScopes(db)
         const token = await getS2sToken(
           db,
           Scope.WriteApp,
@@ -283,7 +283,7 @@ describe(
     test(
       'should return 401 without proper scope',
       async () => {
-        attachIndividualScopes(db)
+        await attachIndividualScopes(db)
         const res = await createNewApp(Scope.ReadApp)
         expect(res.status).toBe(401)
 

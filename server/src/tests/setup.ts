@@ -9,6 +9,7 @@ import {
 import toml from 'toml'
 import { session } from 'tests/mock'
 import { cryptoUtil } from 'utils'
+import crypto from 'crypto'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -36,23 +37,65 @@ vi.mock('ioredis', async () => {
   }
 })
 
+vi.mock('knex', async () => {
+  const pgMem = await import('pg-mem');
+  const knex = () => {
+    const db = pgMem.newDb()
+    db.public.registerFunction({
+      name: 'gen_random_uuid',
+      returns: pgMem.DataType.uuid,
+      implementation: () => crypto.randomUUID,
+    })
+    db.public.registerFunction({
+      name: 'random',
+      returns: pgMem.DataType.decimal,
+      implementation: () => Math.random,
+    })
+    db.public.registerFunction({
+      name: 'md5',
+      args: [pgMem.DataType.text],
+      returns: pgMem.DataType.text,
+      implementation: (text: string) => {
+        return crypto.hash('md5', text)
+      },
+    })
+    db.public.registerFunction({
+      name: 'to_char',
+      args: [pgMem.DataType.timestamp, pgMem.DataType.text],
+      returns: pgMem.DataType.text,
+      implementation: (timestamp) => () => {
+        const date = new Date(timestamp)
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+      }
+    });
+    return db.adapters.createKnex(0)
+  }
+
+  return {
+    default: knex,
+  }
+})
+
 vi.mock(
   'middlewares',
-  async (importOriginal: Function) => ({
-    ...(await importOriginal() as object),
-    setupMiddleware: {
-      validOrigin: mockMiddleware,
-      session: async (
-        c: Context, next: Next,
-      ) => {
-        c.set(
-          'session',
-          session,
-        )
-        await next()
+  async (importOriginal: Function) => {
+    const origin = await importOriginal() as object
+    return {
+      ...origin,
+      setupMiddleware: {
+        validOrigin: mockMiddleware,
+        session: async (
+          c: Context, next: Next,
+        ) => {
+          c.set(
+            'session',
+            session,
+          )
+          await next()
+        },
       },
-    },
-  }),
+    }
+  },
 )
 
 global.fetch = vi.fn(async (url) => {

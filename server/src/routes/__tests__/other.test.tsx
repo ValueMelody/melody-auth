@@ -16,8 +16,8 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
-  db.close()
+afterEach(async () => {
+  await db.close()
 })
 
 const BaseRoute = ''
