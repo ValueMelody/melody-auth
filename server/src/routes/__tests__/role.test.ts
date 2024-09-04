@@ -6,9 +6,7 @@ import {
   Role, Scope,
 } from 'shared'
 import app from 'index'
-import {
-  localeConfig, routeConfig,
-} from 'configs'
+import { routeConfig } from 'configs'
 import {
   migrate, mock,
 } from 'tests/mock'

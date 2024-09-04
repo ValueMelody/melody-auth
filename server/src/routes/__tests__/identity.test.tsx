@@ -1532,7 +1532,10 @@ describe(
     test(
       'should throw error if otp secret not exists',
       async () => {
-        await mockedKV.put(`${adapterConfig.BaseKVKey.AuthCode}-abc`, JSON.stringify({ user: { otpSecret: null } }))
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.AuthCode}-abc`,
+          JSON.stringify({ user: { otpSecret: null } }),
+        )
         const body = {
           state: '123',
           redirectUri: 'http://localhost:3000/en/dashboard',
@@ -2555,9 +2558,12 @@ describe(
         const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
 
         const tokenKey = `${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`
-        await mockedKV.put(tokenKey, JSON.stringify({
-          ...JSON.parse(await mockedKV.get(tokenKey) ?? ''), authId: '123',
-        }))
+        await mockedKV.put(
+          tokenKey,
+          JSON.stringify({
+            ...JSON.parse(await mockedKV.get(tokenKey) ?? ''), authId: '123',
+          }),
+        )
         const logoutRes = await app.request(
           `${BaseRoute}/logout`,
           {

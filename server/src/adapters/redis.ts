@@ -76,6 +76,6 @@ export const fit = () => (
     empty: async () => {
       const cache = getConnection()
       await cache.flushall()
-    }
+    },
   }
 )

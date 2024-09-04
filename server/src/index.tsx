@@ -6,5 +6,4 @@ const app = new Hono<typeConfig.Context>()
 
 const appWithRouters = loadRouters(app)
 
-
 export default appWithRouters

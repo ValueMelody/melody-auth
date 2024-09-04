@@ -338,8 +338,14 @@ describe(
       'should return all locked ips',
       async () => {
         await insertUsers()
-        await mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`, '1')
-        await mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`, '2')
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`,
+          '1',
+        )
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`,
+          '2',
+        )
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,
@@ -375,8 +381,14 @@ describe(
       'should delete all locked ips',
       async () => {
         await insertUsers()
-        mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`, '1')
-        mockedKV.put(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`, '2')
+        mockedKV.put(
+          `${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.1`,
+          '1',
+        )
+        mockedKV.put(
+          `${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com-1.1.1.2`,
+          '2',
+        )
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/locked-ips`,

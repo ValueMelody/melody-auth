@@ -1,5 +1,6 @@
 import fs, { readFileSync } from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 import {
   Context, Next,
 } from 'hono'
@@ -9,7 +10,6 @@ import {
 import toml from 'toml'
 import { session } from 'tests/mock'
 import { cryptoUtil } from 'utils'
-import crypto from 'crypto'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -30,51 +30,71 @@ const mockMiddleware = async (
   await next()
 }
 
-vi.mock('ioredis', async () => {
-  const IoredisMock = await import('ioredis-mock');
-  return {
-    Redis: IoredisMock.default,
-  }
-})
+vi.mock(
+  'ioredis',
+  async () => {
+    const IoredisMock = await import('ioredis-mock')
+    return { Redis: IoredisMock.default }
+  },
+)
 
-vi.mock('knex', async () => {
-  const pgMem = await import('pg-mem');
-  const knex = () => {
-    const db = pgMem.newDb()
-    db.public.registerFunction({
-      name: 'gen_random_uuid',
-      returns: pgMem.DataType.uuid,
-      implementation: () => crypto.randomUUID,
-    })
-    db.public.registerFunction({
-      name: 'random',
-      returns: pgMem.DataType.decimal,
-      implementation: () => Math.random,
-    })
-    db.public.registerFunction({
-      name: 'md5',
-      args: [pgMem.DataType.text],
-      returns: pgMem.DataType.text,
-      implementation: (text: string) => {
-        return crypto.hash('md5', text)
-      },
-    })
-    db.public.registerFunction({
-      name: 'to_char',
-      args: [pgMem.DataType.timestamp, pgMem.DataType.text],
-      returns: pgMem.DataType.text,
-      implementation: (timestamp) => () => {
-        const date = new Date(timestamp)
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
-      }
-    });
-    return db.adapters.createKnex(0)
-  }
+vi.mock(
+  'knex',
+  async () => {
+    const pgMem = await import('pg-mem')
+    const knex = () => {
+      const db = pgMem.newDb()
+      db.public.registerFunction({
+        name: 'gen_random_uuid',
+        returns: pgMem.DataType.uuid,
+        implementation: () => crypto.randomUUID,
+      })
+      db.public.registerFunction({
+        name: 'random',
+        returns: pgMem.DataType.decimal,
+        implementation: () => Math.random,
+      })
+      db.public.registerFunction({
+        name: 'md5',
+        args: [pgMem.DataType.text],
+        returns: pgMem.DataType.text,
+        implementation: (text: string) => {
+          return crypto.hash(
+            'md5',
+            text,
+          )
+        },
+      })
+      db.public.registerFunction({
+        name: 'to_char',
+        args: [pgMem.DataType.timestamp, pgMem.DataType.text],
+        returns: pgMem.DataType.text,
+        implementation: (timestamp) => () => {
+          const date = new Date(timestamp)
+          return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+            2,
+            '0',
+          )}-${String(date.getDate()).padStart(
+            2,
+            '0',
+          )} ${String(date.getHours()).padStart(
+            2,
+            '0',
+          )}:${String(date.getMinutes()).padStart(
+            2,
+            '0',
+          )}:${String(date.getSeconds()).padStart(
+            2,
+            '0',
+          )}`
+        },
+      })
+      return db.adapters.createKnex(0)
+    }
 
-  return {
-    default: knex,
-  }
-})
+    return { default: knex }
+  },
+)
 
 vi.mock(
   'middlewares',

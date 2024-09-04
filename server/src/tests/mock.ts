@@ -2,7 +2,9 @@ import fs from 'fs'
 import path from 'path'
 import Sqlite, { Database } from 'better-sqlite3'
 import { adapterConfig } from 'configs'
-import { pgAdapter, redisAdapter } from 'adapters'
+import {
+  pgAdapter, redisAdapter,
+} from 'adapters'
 import { userModel } from 'models'
 
 const convertQuery = (
@@ -68,7 +70,7 @@ const kvMock = {
   },
   empty: () => {
     Object.keys(kv).forEach((key) => delete kv[key])
-  }
+  },
 }
 
 const getDbMock = (db: Database) => ({
@@ -128,7 +130,7 @@ const formatUser = (raw: userModel.Raw) => ({
   loginCount: Number(raw.loginCount),
 })
 
-export const mock = (db: Database) => {
+export const mock = (db: any) => {
   return {
     DB: getMockedDB(db),
     KV: mockedKV,
@@ -151,32 +153,46 @@ export const migrate = async () => {
       })
     }
     return {
-      raw: async (query: string, params?: string[]) => {
-        const result = await db.raw(query, params || [])
+      raw: async (
+        query: string, params?: string[],
+      ) => {
+        const result = await db.raw(
+          query,
+          params || [],
+        )
         const formatted = {
           ...result,
-          rows: query.includes(' "user" ') ? result.rows.map((row) => formatUser(row)) : result.rows
+          rows: query.includes(' "user" ') ? result.rows.map((row: userModel.Raw) => formatUser(row)) : result.rows,
         }
         return formatted
       },
       prepare: (query: string) => ({
         run: async (...params: string[]) => {
-          return db.raw(query, params)
+          return db.raw(
+            query,
+            params,
+          )
         },
         get: async (...params: string[]) => {
-          const res = await db.raw(`${query} LIMIT 1`, params)
+          const res = await db.raw(
+            `${query} LIMIT 1`,
+            params,
+          )
           const record = res?.rows[0]
           return query.includes(' "user" ') ? formatUser(record) : record
         },
         all: async (...params: string[]) => {
-          const res = await db.raw(query, params)
+          const res = await db.raw(
+            query,
+            params,
+          )
           const records = res?.rows
           return query.includes(' "user" ') ? records.map((record: userModel.Raw) => formatUser(record)) : records
-        }
+        },
       }),
       exec: async (query: string) => db.raw(query),
-      close: async () => db.destroy()
-    }
+      close: async () => db.destroy(),
+    } as unknown as Database
   }
 
   const db = new Sqlite(':memory:')

@@ -185,7 +185,10 @@ describe(
         )
 
         const body = await prepareFollowUpBody(db)
-        mockedKV.put(`${adapterConfig.BaseKVKey.OtpMfaCode}-${body.code}`, 'aaaaaaaa')
+        mockedKV.put(
+          `${adapterConfig.BaseKVKey.OtpMfaCode}-${body.code}`,
+          'aaaaaaaa',
+        )
         await app.request(
           `${routeConfig.InternalRoute.Identity}/authorize-otp-mfa`,
           {
@@ -198,7 +201,10 @@ describe(
           mock(db),
         )
 
-        mockedKV.put(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`, 'bbbbbbbb')
+        mockedKV.put(
+          `${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`,
+          'bbbbbbbb',
+        )
         await app.request(
           `${routeConfig.InternalRoute.Identity}/authorize-email-mfa`,
           {
