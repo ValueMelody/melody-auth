@@ -301,7 +301,7 @@ export const getPasswordResetAttemptsByIP = async (
 export const setPasswordResetAttemptsByIP = async (
   kv: KVNamespace,
   email: string,
-  ip: string,
+  ip: string | undefined,
   count: number,
 ) => {
   const key = adapterConfig.getKVKey(
