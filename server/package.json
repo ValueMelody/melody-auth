@@ -4,20 +4,20 @@
   "scripts": {
     "prod:deploy": "wrangler deploy --minify src/index.tsx",
     "prod:migration:apply": "wrangler d1 migrations apply melody-auth --remote",
-    "prod:secret:generate": "node ./src/scripts/generate-secret.js prod",
+    "prod:secret:generate": "node ./src/scripts/generate-secret.cjs prod",
     "dev:start": "wrangler dev src/index.tsx",
     "dev:migration:apply": "wrangler d1 migrations apply melody-auth --local",
-    "dev:secret:generate": "node ./src/scripts/generate-secret.js",
+    "dev:secret:generate": "node ./src/scripts/generate-secret.cjs",
     "node:dev": "tsx watch src/node.tsx",
     "node:build": "tsc && tsc-alias",
     "node:start": "node dist/src/node.js",
-    "node:migration:apply": "knex migrate:latest",
-    "node:secret:generate": "node ./src/scripts/generate-secret.js node",
+    "node:migration:apply": "knex --knexfile knexfile.cjs migrate:latest",
+    "node:secret:generate": "node ./src/scripts/generate-secret.cjs node",
     "test:check:node": "TEST_MODE=node vitest run",
     "test:check:cf": "vitest run",
     "test:coverage": "vitest run --coverage",
     "type:check": "tsc --noEmit",
-    "swagger:generate": "node ./src/scripts/generate-swagger.js"
+    "swagger:generate": "node ./src/scripts/generate-swagger.cjs"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.4.0",
