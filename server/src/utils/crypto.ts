@@ -1,4 +1,5 @@
 import { genCodeChallenge } from 'shared'
+// eslint-disable-next-line import/default
 import bcrypt from 'bcryptjs'
 import base32Encode from 'base32-encode'
 import base32Decode from 'base32-decode'
