@@ -1,4 +1,6 @@
-import { readFileSync } from 'fs'
+import fs, { readFileSync } from 'fs'
+import path from 'path'
+import crypto from 'crypto'
 import {
   Context, Next,
 } from 'hono'
@@ -7,6 +9,7 @@ import {
 } from 'vitest'
 import toml from 'toml'
 import { session } from 'tests/mock'
+import { cryptoUtil } from 'utils'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -28,38 +31,105 @@ const mockMiddleware = async (
 }
 
 vi.mock(
-  'middlewares',
-  async (importOriginal: Function) => ({
-    ...(await importOriginal() as object),
-    setupMiddleware: {
-      validOrigin: mockMiddleware,
-      session: async (
-        c: Context, next: Next,
-      ) => {
-        c.set(
-          'session',
-          session,
-        )
-        await next()
-      },
-    },
-  }),
+  'ioredis',
+  async () => {
+    const IoredisMock = await import('ioredis-mock')
+    return { Redis: IoredisMock.default }
+  },
 )
 
-global.fetch = vi.fn((url) => {
+vi.mock(
+  'knex',
+  async () => {
+    const pgMem = await import('pg-mem')
+    const knex = () => {
+      const db = pgMem.newDb()
+      db.public.registerFunction({
+        name: 'gen_random_uuid',
+        returns: pgMem.DataType.uuid,
+        implementation: () => crypto.randomUUID,
+      })
+      db.public.registerFunction({
+        name: 'random',
+        returns: pgMem.DataType.decimal,
+        implementation: () => Math.random,
+      })
+      db.public.registerFunction({
+        name: 'md5',
+        args: [pgMem.DataType.text],
+        returns: pgMem.DataType.text,
+        implementation: (text: string) => {
+          return crypto.hash(
+            'md5',
+            text,
+          )
+        },
+      })
+      db.public.registerFunction({
+        name: 'to_char',
+        args: [pgMem.DataType.timestamp, pgMem.DataType.text],
+        returns: pgMem.DataType.text,
+        implementation: (timestamp) => () => {
+          const date = new Date(timestamp)
+          return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+            2,
+            '0',
+          )}-${String(date.getDate()).padStart(
+            2,
+            '0',
+          )} ${String(date.getHours()).padStart(
+            2,
+            '0',
+          )}:${String(date.getMinutes()).padStart(
+            2,
+            '0',
+          )}:${String(date.getSeconds()).padStart(
+            2,
+            '0',
+          )}`
+        },
+      })
+      return db.adapters.createKnex(0)
+    }
+
+    return { default: knex }
+  },
+)
+
+vi.mock(
+  'middlewares',
+  async (importOriginal: Function) => {
+    const origin = await importOriginal() as object
+    return {
+      ...origin,
+      setupMiddleware: {
+        validOrigin: mockMiddleware,
+        session: async (
+          c: Context, next: Next,
+        ) => {
+          c.set(
+            'session',
+            session,
+          )
+          await next()
+        },
+      },
+    }
+  },
+)
+
+global.fetch = vi.fn(async (url) => {
   if (url === 'https://www.googleapis.com/oauth2/v3/certs') {
+    const key = fs.readFileSync(
+      path.resolve('node_jwt_public_key.pem'),
+      'utf8',
+    )
+    const jwk = await cryptoUtil.secretToJwk(key)
     return Promise.resolve({
       ok: true,
       json: () => ({
         keys: [
-          {
-            kty: 'RSA',
-            n: 'vMEJatlKawIBhsaLcqp7vce45i4Nrx35l9NkdalZdaBlEEY91CpdSRCpw2uV5sObXqvkqAjbpXSRlt_h4SuuYBSdqVlJ_GYdW1Da0tKZ40fUamdPBgm5o09rE54bMT3oVr90kqzufpCIiGMufs0Pyz0WrYA24JGGlPzAK2-zqIuSrL_krqZ0rAkOcvUfp0omOYTeQYcU5WmlfTseqb8RKRPD2IAFXQb33gcoou3ZaMbC-fesEmg_Htnzb0KGsxjM8fNLTuSBCf700U7rXyBICAp1WOWTIkJRmb47r5kdRzGApTSZvVgvOBY6F9fjZbV5XN-FPIovELQpiXWVJmsKyw',
-            e: 'AQAB',
-            alg: 'RS256',
-            use: 'sig',
-            kid: '01e24a8cc12f46f4e342b47a44dbbedcd16ffa25721dea4a56d0dfd1b17f27c9',
-          },
+          jwk,
         ],
       }),
     })

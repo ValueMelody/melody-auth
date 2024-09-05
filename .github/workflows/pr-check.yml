@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.0.0]
+        node-version: [20.17.0]
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
@@ -22,4 +22,6 @@ jobs:
     - run: npm run build
     - run: npm run lint:check
     - run: npm run type:check
-    - run: npm run test:check
+    - run: cd ./server && npm run node:secret:generate
+    - run: cd ./server && npm run test:check:cf
+    - run: cd ./server && npm run test:check:node

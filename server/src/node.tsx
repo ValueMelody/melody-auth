@@ -3,18 +3,13 @@ import { serve } from '@hono/node-server'
 import {
   Context, Hono, Next,
 } from 'hono'
-import { cors } from 'hono/cors'
 import * as dotenv from 'dotenv'
 import toml from 'toml'
 import { typeConfig } from 'configs'
 import {
-  oauthRoute, userRoute, identityRoute,
-  otherRoute, appRoute, roleRoute, scopeRoute,
-} from 'routes'
-import { setupMiddleware } from 'middlewares'
-import {
   pgAdapter, redisAdapter,
 } from 'adapters'
+import { loadRouters } from 'router'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -32,7 +27,6 @@ const app = new Hono<typeConfig.Context>()
 
 app.use(
   '/*',
-  cors(),
   async (
     c: Context<typeConfig.Context>, next: Next,
   ) => {
@@ -40,39 +34,11 @@ app.use(
     c.env.DB = pgAdapter.fit() as unknown as any
     await next()
   },
-  setupMiddleware.session,
 )
 
-app.route(
-  '/',
-  scopeRoute,
-)
-app.route(
-  '/',
-  roleRoute,
-)
-app.route(
-  '/',
-  appRoute,
-)
-app.route(
-  '/',
-  userRoute,
-)
-app.route(
-  '/',
-  identityRoute,
-)
-app.route(
-  '/',
-  oauthRoute,
-)
-app.route(
-  '/',
-  otherRoute,
-)
+const appWithRouters = loadRouters(app)
 
 serve({
-  ...app,
+  ...appWithRouters,
   port: 8787,
 })

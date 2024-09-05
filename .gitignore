@@ -13,4 +13,6 @@ server/.dev.vars
 *.pem
 node_session_secret
 
+coverage/
+
 .DS_Store

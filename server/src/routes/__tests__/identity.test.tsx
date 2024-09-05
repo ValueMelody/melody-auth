@@ -8,9 +8,8 @@ import { authenticator } from 'otplib'
 import { sign } from 'hono/jwt'
 import app from 'index'
 import {
-  kv,
-  kvModule,
   migrate, mock,
+  mockedKV,
 } from 'tests/mock'
 import {
   adapterConfig, localeConfig, routeConfig,
@@ -30,9 +29,9 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
-  db.close()
-  Object.keys(kv).forEach((key) => delete kv[key])
+afterEach(async () => {
+  await db.close()
+  await mockedKV.empty()
 })
 
 const BaseRoute = routeConfig.InternalRoute.Identity
@@ -41,21 +40,21 @@ export const insertUsers = (
   db: Database, withConsent = true,
 ) => {
   db.exec(`
-    INSERT INTO user
-    (authId, locale, email, googleId, password, firstName, lastName)
+    INSERT INTO "user"
+    ("authId", locale, email, "googleId", password, "firstName", "lastName")
     values ('1-1-1-1', 'en', 'test@email.com', null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
   `)
   if (withConsent) {
     db.exec(`
       INSERT INTO user_app_consent
-      (userId, appId)
+      ("userId", "appId")
       values (1, 1)
     `)
   }
 }
 
-export const getApp = (db: Database) => {
-  const appRecord = db.prepare('SELECT * FROM app where id = 1').get() as appModel.Record
+export const getApp = async (db: Database) => {
+  const appRecord = await db.prepare('SELECT * FROM app where id = 1').get() as appModel.Record
   return appRecord
 }
 
@@ -119,7 +118,7 @@ export const postSignInRequest = async (
 }
 
 const prepareFollowUpParams = async () => {
-  const appRecord = getApp(db)
+  const appRecord = await getApp(db)
   const res = await postSignInRequest(
     db,
     appRecord,
@@ -129,7 +128,7 @@ const prepareFollowUpParams = async () => {
 }
 
 export const prepareFollowUpBody = async (db: Database) => {
-  const appRecord = getApp(db)
+  const appRecord = await getApp(db)
   const res = await postSignInRequest(
     db,
     appRecord,
@@ -149,7 +148,7 @@ describe(
     test(
       'should show sign in page',
       async () => {
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -175,7 +174,7 @@ describe(
       'should show google sign in',
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -193,7 +192,7 @@ describe(
       'could disable sign up',
       async () => {
         global.process.env.ENABLE_SIGN_UP = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -214,7 +213,7 @@ describe(
       'could disable password reset',
       async () => {
         global.process.env.ENABLE_PASSWORD_RESET = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -235,7 +234,7 @@ describe(
       'could disable password sign in',
       async () => {
         global.process.env.ENABLE_PASSWORD_SIGN_IN = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -254,7 +253,7 @@ describe(
     test(
       'should render locale selector',
       async () => {
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -275,7 +274,7 @@ describe(
       'could render french',
       async () => {
         global.process.env.SUPPORTED_LOCALES = ['fr'] as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -295,7 +294,7 @@ describe(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -313,7 +312,7 @@ describe(
       'should disable locale selector when there only 1 locale',
       async () => {
         global.process.env.SUPPORTED_LOCALES = ['en'] as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
           `${BaseRoute}/authorize-password`,
@@ -335,8 +334,8 @@ describe(
     test(
       'should get auth code after sign in',
       async () => {
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
         const res = await postSignInRequest(
           db,
           appRecord,
@@ -354,7 +353,7 @@ describe(
           requireOtpMfa: false,
         })
         const { code } = json as { code: string }
-        const codeStore = JSON.parse(kv[`AC-${code}`])
+        const codeStore = JSON.parse(await mockedKV.get(`AC-${code}`) ?? '')
         expect(codeStore.appId).toBe(1)
         expect(codeStore.user.authId).toBe('1-1-1-1')
         expect(codeStore.appName).toBe(appRecord.name)
@@ -366,8 +365,8 @@ describe(
       'should be blocked if not allowed by config',
       async () => {
         global.process.env.ENABLE_PASSWORD_SIGN_IN = false as unknown as string
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
         const res = await postSignInRequest(
           db,
           appRecord,
@@ -380,8 +379,8 @@ describe(
     test(
       'should throw error if user not found',
       async () => {
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
         const res = await postSignInRequest(
           db,
           appRecord,
@@ -395,9 +394,9 @@ describe(
     test(
       'should throw error if user disabled',
       async () => {
-        const appRecord = getApp(db)
-        insertUsers(db)
-        disableUser(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        await disableUser(db)
         const res = await postSignInRequest(
           db,
           appRecord,
@@ -411,15 +410,15 @@ describe(
       'could lock access',
       async () => {
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
         const res = await postSignInRequest(
           db,
           appRecord,
           { password: 'Password2!' },
         )
         expect(res.status).toBe(404)
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         const res2 = await postSignInRequest(
           db,
@@ -435,15 +434,15 @@ describe(
       'could disable account lock',
       async () => {
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 0 as unknown as string
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
         const res = await postSignInRequest(
           db,
           appRecord,
           { password: 'Password2!' },
         )
         expect(res.status).toBe(404)
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBeFalsy()
 
         const res2 = await postSignInRequest(
           db,
@@ -463,7 +462,7 @@ describe(
     test(
       'should show sign up page',
       async () => {
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -489,7 +488,7 @@ describe(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -510,7 +509,7 @@ describe(
       'should be suppressed if not enabled in config',
       async () => {
         global.process.env.ENABLE_SIGN_UP = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -528,7 +527,7 @@ describe(
       async () => {
         global.process.env.ENABLE_NAMES = false as unknown as string
 
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -551,7 +550,7 @@ describe(
       async () => {
         global.process.env.NAMES_IS_REQUIRED = true as unknown as string
 
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -576,7 +575,7 @@ describe(
 )
 
 const postAuthorizeAccount = async () => {
-  const appRecord = getApp(db)
+  const appRecord = await getApp(db)
   const body = {
     ...(await postAuthorizeBody(appRecord)),
     email: 'test@email.com',
@@ -612,13 +611,13 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const { code } = json as { code: string }
-        const codeStore = JSON.parse(kv[`${adapterConfig.BaseKVKey.AuthCode}-${code}`])
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${code}`) ?? '')
         expect(codeStore.appId).toBe(1)
         expect(codeStore.appName).toBe(appRecord.name)
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? '').length).toBe(8)
       },
     )
 
@@ -638,7 +637,7 @@ describe(
       async () => {
         global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
         await postAuthorizeAccount()
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)).toBeFalsy()
         global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
       },
     )
@@ -747,7 +746,7 @@ describe(
     test(
       'should show reset page',
       async () => {
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -771,7 +770,7 @@ describe(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -792,7 +791,7 @@ describe(
       'should be blocked if not enable in config',
       async () => {
         global.process.env.ENABLE_PASSWORD_RESET = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -829,30 +828,30 @@ describe(
     test(
       'should send reset code',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
         const res = await testSendResetCode('/reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
       },
     )
 
     test(
       'should return true if user is inactive',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
         disableUser(db)
         const res = await testSendResetCode('/reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`)).toBeFalsy()
       },
     )
 
     test(
       'should throw error if no email provided',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
 
         const res = await app.request(
           `${BaseRoute}/reset-code`,
@@ -874,11 +873,11 @@ describe(
     test(
       'should send reset code',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
         const res = await testSendResetCode('/resend-reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
       },
     )
 
@@ -887,17 +886,17 @@ describe(
       async () => {
         global.process.env.PASSWORD_RESET_EMAIL_THRESHOLD = 2 as unknown as string
 
-        insertUsers(db)
+        await insertUsers(db)
 
         const res = await testSendResetCode('/resend-reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`)).toBe('1')
 
         const res1 = await testSendResetCode('/resend-reset-code')
         const json1 = await res1.json()
         expect(json1).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`]).toBe('2')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`)).toBe('2')
 
         const res2 = await testSendResetCode('/resend-reset-code')
         expect(res2.status).toBe(400)
@@ -915,7 +914,7 @@ describe(
       'should throw error if no email config set',
       async () => {
         global.process.env.SENDGRID_API_KEY = '' as unknown as string
-        insertUsers(db)
+        await insertUsers(db)
         const res = await testSendResetCode('/resend-reset-code')
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.NoEmailSender)
@@ -930,11 +929,11 @@ describe(
         global.process.env.SENDGRID_SENDER_ADDRESS = '' as unknown as string
         global.process.env.BREVO_API_KEY = 'abc' as unknown as string
         global.process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com' as unknown as string
-        insertUsers(db)
+        await insertUsers(db)
         const res = await testSendResetCode('/resend-reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect(kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
         global.process.env.SENDGRID_API_KEY = 'abc' as unknown as string
         global.process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com' as unknown as string
         global.process.env.BREVO_API_KEY = '' as unknown as string
@@ -951,22 +950,22 @@ describe(
       'should reset password',
       async () => {
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
 
         await postSignInRequest(
           db,
           appRecord,
           { password: 'Password2!' },
         )
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         await testSendResetCode('/reset-code')
 
         const body = {
           email: 'test@email.com',
           password: 'Password2!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
 
         const res = await app.request(
@@ -979,7 +978,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBeFalsy()
 
         const signInRes = await postSignInRequest(
           db,
@@ -994,7 +993,7 @@ describe(
     test(
       'should throw error with wrong code',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
 
         await testSendResetCode('/reset-code')
 
@@ -1019,14 +1018,14 @@ describe(
     test(
       'should throw error when reset with same password',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
 
         await testSendResetCode('/reset-code')
 
         const body = {
           email: 'test@email.com',
           password: 'Password1!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
 
         const res = await app.request(
@@ -1044,7 +1043,7 @@ describe(
     test(
       'should not reset if user is inactive',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
 
         await testSendResetCode('/reset-code')
 
@@ -1052,7 +1051,7 @@ describe(
         const body = {
           email: 'test@email.com',
           password: 'Password2!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
 
         const res = await app.request(
@@ -1070,7 +1069,7 @@ describe(
     test(
       'should not reset if it is a wrong user',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
 
         await testSendResetCode('/reset-code')
 
@@ -1078,7 +1077,7 @@ describe(
         const body = {
           email: 'test1@email.com',
           password: 'Password2!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
 
         const res = await app.request(
@@ -1099,22 +1098,22 @@ describe(
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
         global.process.env.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET = false as unknown as string
 
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
 
         await postSignInRequest(
           db,
           appRecord,
           { password: 'Password2!' },
         )
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         await testSendResetCode('/reset-code')
 
         const body = {
           email: 'test@email.com',
           password: 'Password2!',
-          code: kv[`${adapterConfig.BaseKVKey.PasswordResetCode}-1`],
+          code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
         await app.request(
           `${BaseRoute}/authorize-reset`,
@@ -1124,7 +1123,7 @@ describe(
           mock(db),
         )
 
-        expect(kv[`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 5 as unknown as string
         global.process.env.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET = true as unknown as string
@@ -1139,7 +1138,7 @@ describe(
     test(
       'should show mfa enroll page',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1165,7 +1164,7 @@ describe(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1188,11 +1187,11 @@ describe(
     test(
       'throw error if user already enrolled',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ?').run('email')
+        await db.prepare('update "user" set "mfaTypes" = ?').run('email')
         const params = await prepareFollowUpParams()
 
         const res = await app.request(
@@ -1209,7 +1208,7 @@ describe(
       'should be blocked if not enabled in config',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1228,7 +1227,7 @@ describe(
     test(
       'could throw error if no enough params',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1251,7 +1250,7 @@ describe(
     test(
       'should enroll email mfa',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1281,7 +1280,7 @@ describe(
           requireOtpMfa: false,
         })
 
-        const user = await db.prepare('SELECT * from user WHERE id = 1').get() as userModel.Raw
+        const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
         expect(user.mfaTypes).toBe(userModel.MfaType.Email)
       },
     )
@@ -1289,11 +1288,11 @@ describe(
     test(
       'should throw error if user already enrolled',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        db.prepare('update user set mfaTypes = ?').run('email')
+        await db.prepare('update "user" set "mfaTypes" = ?').run('email')
         const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
@@ -1315,7 +1314,7 @@ describe(
     test(
       'should enroll otp mfa',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1345,7 +1344,7 @@ describe(
           requireOtpMfa: true,
         })
 
-        const user = await db.prepare('SELECT * from user WHERE id = 1').get() as userModel.Raw
+        const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
         expect(user.mfaTypes).toBe(userModel.MfaType.Otp)
       },
     )
@@ -1369,7 +1368,7 @@ describe(
     test(
       'should show otp mfa setup page',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1386,11 +1385,11 @@ describe(
     test(
       'should throw error if user already set otp',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        db.prepare('update user set otpVerified = ?').run(1)
+        await db.prepare('update "user" set "otpVerified" = ?').run(1)
         const params = await prepareFollowUpParams()
 
         const res = await app.request(
@@ -1407,7 +1406,7 @@ describe(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1428,11 +1427,11 @@ describe(
     test(
       'should show otp mfa page',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollOtpMfa(db)
+        await enrollOtpMfa(db)
         const res = await testGetOtpMfa('/authorize-otp-mfa')
         const html = await res.text()
         const dom = new JSDOM(html)
@@ -1452,11 +1451,11 @@ describe(
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
 
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollOtpMfa(db)
+        await enrollOtpMfa(db)
         const res = await testGetOtpMfa('/authorize-otp-mfa')
         const html = await res.text()
         const dom = new JSDOM(html)
@@ -1470,11 +1469,11 @@ describe(
       'could disable fallback to email mfa',
       async () => {
         global.process.env.ALLOW_EMAIL_MFA_AS_BACKUP = false as unknown as string
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollOtpMfa(db)
+        await enrollOtpMfa(db)
         const res = await testGetOtpMfa('/authorize-otp-mfa')
         const html = await res.text()
         const dom = new JSDOM(html)
@@ -1494,13 +1493,13 @@ describe(
     test(
       'should pass otp mfa',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollOtpMfa(db)
+        await enrollOtpMfa(db)
         const body = await prepareFollowUpBody(db)
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         const token = authenticator.generate(currentUser.otpSecret)
 
         const res = await app.request(
@@ -1526,14 +1525,17 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
-        expect(kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
     )
 
     test(
       'should throw error if otp secret not exists',
       async () => {
-        kv[`${adapterConfig.BaseKVKey.AuthCode}-abc`] = JSON.stringify({ user: { otpSecret: null } })
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.AuthCode}-abc`,
+          JSON.stringify({ user: { otpSecret: null } }),
+        )
         const body = {
           state: '123',
           redirectUri: 'http://localhost:3000/en/dashboard',
@@ -1558,11 +1560,11 @@ describe(
     test(
       'should be blocked after 5 attempts',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollOtpMfa(db)
+        await enrollOtpMfa(db)
         const body = await prepareFollowUpBody(db)
 
         const sendRequest = async () => {
@@ -1607,11 +1609,11 @@ describe(
     test(
       'could fallback to email mfa',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollOtpMfa(db)
+        await enrollOtpMfa(db)
 
         const params = await prepareFollowUpParams()
         await app.request(
@@ -1630,14 +1632,14 @@ describe(
               redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
-              mfaCode: kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`],
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
             }),
           },
           mock(db),
         )
 
         const json = await res.json() as { code: string }
-        expect(kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
     )
   },
@@ -1656,11 +1658,11 @@ describe(
     test(
       'should show email mfa page',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollEmailMfa(db)
+        await enrollEmailMfa(db)
         const params = await prepareFollowUpParams()
 
         const res = await app.request(
@@ -1676,14 +1678,14 @@ describe(
         expect(document.getElementsByTagName('form').length).toBe(1)
 
         const code = getCodeFromParams(params)
-        expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`) ?? '').length).toBe(8)
       },
     )
 
     test(
       'should throw error if email mfa is not required',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1702,11 +1704,11 @@ describe(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollEmailMfa(db)
+        await enrollEmailMfa(db)
         const params = await prepareFollowUpParams()
 
         const res = await app.request(
@@ -1730,11 +1732,11 @@ describe(
     test(
       'should resent email mfa code',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollEmailMfa(db)
+        await enrollEmailMfa(db)
         const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
@@ -1751,7 +1753,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`) ?? '').length).toBe(8)
       },
     )
   },
@@ -1763,11 +1765,11 @@ describe(
     test(
       'should could use original code',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollEmailMfa(db)
+        await enrollEmailMfa(db)
         const params = await prepareFollowUpParams()
 
         await app.request(
@@ -1786,7 +1788,7 @@ describe(
               redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
-              mfaCode: kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`],
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
             }),
           },
           mock(db),
@@ -1803,18 +1805,18 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
-        expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
       },
     )
 
     test(
       'should throw error for wrong code',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollEmailMfa(db)
+        await enrollEmailMfa(db)
         const params = await prepareFollowUpParams()
 
         await app.request(
@@ -1846,11 +1848,11 @@ describe(
     test(
       'should could use resend code',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
-        enrollEmailMfa(db)
+        await enrollEmailMfa(db)
         const body = await prepareFollowUpBody(db)
 
         await app.request(
@@ -1876,7 +1878,7 @@ describe(
               redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
-              mfaCode: kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`],
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
             }),
           },
           mock(db),
@@ -1893,7 +1895,7 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
-        expect(kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`]).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
       },
     )
   },
@@ -1905,7 +1907,7 @@ describe(
     test(
       'should show consent page',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1932,7 +1934,7 @@ describe(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -1955,12 +1957,12 @@ describe(
     test(
       'should show scope name if locale not provided',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
         const params = await prepareFollowUpParams()
-        db.prepare('delete from scope_locale').run()
+        await db.prepare('delete from scope_locale').run()
 
         const res = await app.request(
           `${BaseRoute}/authorize-consent${params}`,
@@ -1976,12 +1978,12 @@ describe(
     test(
       'should not throw error if scope not found',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
         const params = await prepareFollowUpParams()
-        db.prepare('update scope set deletedAt = ?').run('2024')
+        await db.prepare('update scope set "deletedAt" = ?').run('2024')
 
         const res = await app.request(
           `${BaseRoute}/authorize-consent${params}`,
@@ -2002,7 +2004,7 @@ describe(
     test(
       'should consent',
       async () => {
-        insertUsers(
+        await insertUsers(
           db,
           false,
         )
@@ -2027,7 +2029,7 @@ describe(
           requireOtpSetup: false,
           requireOtpMfa: false,
         })
-        const consent = db.prepare('SELECT * from user_app_consent WHERE userId = 1 AND appId = 1').get()
+        const consent = db.prepare('SELECT * from user_app_consent WHERE "userId" = 1 AND "appId" = 1').get()
         expect(consent).toBeTruthy()
       },
     )
@@ -2035,7 +2037,7 @@ describe(
 )
 
 const prepareUserAccount = async () => {
-  const appRecord = getApp(db)
+  const appRecord = await getApp(db)
   const body = {
     ...(await postAuthorizeBody(appRecord)),
     email: 'test@email.com',
@@ -2059,9 +2061,9 @@ describe(
       async () => {
         await prepareUserAccount()
 
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         expect(currentUser.emailVerified).toBe(0)
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`].length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? '').length).toBe(8)
 
         const res = await app.request(
           `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
@@ -2084,7 +2086,7 @@ describe(
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
         await prepareUserAccount()
 
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
         const res = await app.request(
           `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
@@ -2106,9 +2108,9 @@ describe(
         global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
         await prepareUserAccount()
 
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         expect(currentUser.emailVerified).toBe(0)
-        expect(kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)).toBeFalsy()
 
         const res = await app.request(
           `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
@@ -2144,8 +2146,8 @@ describe(
       async () => {
         await prepareUserAccount()
 
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
-        const code = kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
 
         const res = await app.request(
           `${BaseRoute}/verify-email`,
@@ -2160,7 +2162,7 @@ describe(
         )
         expect(await res.json()).toStrictEqual({ success: true })
 
-        const updatedUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const updatedUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         expect(updatedUser.emailVerified).toBe(1)
       },
     )
@@ -2170,7 +2172,7 @@ describe(
       async () => {
         await prepareUserAccount()
 
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
         const res = await app.request(
           `${BaseRoute}/verify-email`,
@@ -2193,8 +2195,8 @@ describe(
       async () => {
         await prepareUserAccount()
 
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
-        const code = kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
 
         const res = await app.request(
           `${BaseRoute}/verify-email`,
@@ -2229,10 +2231,10 @@ describe(
       async () => {
         await prepareUserAccount()
 
-        const currentUser = db.prepare('select * from user where id = 1').get() as userModel.Raw
-        const code = kv[`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`]
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
 
-        disableUser(db)
+        await disableUser(db)
 
         const res = await app.request(
           `${BaseRoute}/verify-email`,
@@ -2256,7 +2258,7 @@ describe(
   'post /authorize-google',
   () => {
     const prepareRequest = async (emailVerified: boolean) => {
-      const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+      const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
       const credential = await sign(
         {
           iss: 'https://accounts.google.com',
@@ -2271,7 +2273,7 @@ describe(
         'RS256',
       )
 
-      const appRecord = getApp(db)
+      const appRecord = await getApp(db)
       const res = await app.request(
         `${BaseRoute}/authorize-google`,
         {
@@ -2289,7 +2291,7 @@ describe(
     const postGoogleRequest = async (emailVerified: boolean) => {
       const res = await prepareRequest(emailVerified)
 
-      const users = db.prepare('select * from user').all() as userModel.Raw[]
+      const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
       expect(users.length).toBe(1)
       expect(users[0].googleId).toBe('gid123')
       expect(users[0].email).toBe('test@gmail.com')
@@ -2321,7 +2323,7 @@ describe(
     test(
       'should be blocked if not enable in config',
       async () => {
-        const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+        const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
         const credential = await sign(
           {
             iss: 'https://accounts.google.com',
@@ -2335,7 +2337,7 @@ describe(
           'RS256',
         )
 
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await app.request(
           `${BaseRoute}/authorize-google`,
           {
@@ -2355,7 +2357,7 @@ describe(
       'could throw error if wrong credential provided',
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        const privateSecret = kvModule.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+        const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
         const credential = await sign(
           {
             iss: 'https://accounts.any.com',
@@ -2369,7 +2371,7 @@ describe(
           'RS256',
         )
 
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const res = await app.request(
           `${BaseRoute}/authorize-google`,
           {
@@ -2402,7 +2404,7 @@ describe(
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
         await postGoogleRequest(true)
-        disableUser(db)
+        await disableUser(db)
         const res = await prepareRequest(true)
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
@@ -2427,8 +2429,8 @@ describe(
   'post /logout',
   () => {
     const prepareLogout = async () => {
-      const appRecord = getApp(db)
-      insertUsers(db)
+      const appRecord = await getApp(db)
+      await insertUsers(db)
       const res = await postSignInRequest(
         db,
         appRecord,
@@ -2452,7 +2454,8 @@ describe(
       )
       const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
 
-      expect(JSON.parse(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`])).toStrictEqual({
+      const tokenBody = await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)
+      expect(JSON.parse(tokenBody ?? '')).toStrictEqual({
         authId: '1-1-1-1',
         clientId: appRecord.clientId,
         scope: 'profile openid offline_access',
@@ -2466,7 +2469,7 @@ describe(
       'should logout',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const tokenJson = await prepareLogout()
 
         const logoutRes = await app.request(
@@ -2489,7 +2492,7 @@ describe(
           redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
         })
 
-        expect(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },
@@ -2499,7 +2502,7 @@ describe(
       'could logout without post logout redirect uri',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const tokenJson = await prepareLogout()
 
         const logoutRes = await app.request(
@@ -2519,7 +2522,7 @@ describe(
           redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=&client_id=${appRecord.clientId}`,
         })
 
-        expect(kv[`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`]).toBeUndefined()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },
@@ -2529,8 +2532,8 @@ describe(
       'should throw error if token has wrong client',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
         const res = await postSignInRequest(
           db,
           appRecord,
@@ -2555,9 +2558,12 @@ describe(
         const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
 
         const tokenKey = `${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`
-        kv[tokenKey] = JSON.stringify({
-          ...JSON.parse(kv[tokenKey]), authId: '123',
-        })
+        await mockedKV.put(
+          tokenKey,
+          JSON.stringify({
+            ...JSON.parse(await mockedKV.get(tokenKey) ?? ''), authId: '123',
+          }),
+        )
         const logoutRes = await app.request(
           `${BaseRoute}/logout`,
           {

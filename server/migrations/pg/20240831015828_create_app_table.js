@@ -13,14 +13,14 @@ exports.up = function (knex) {
       ).notNullable()
       table.string(
         'clientId',
-        32,
-      ).notNullable()
-        .defaultTo(knex.raw('md5(random()::text)'))
-      table.string(
-        'secret',
         64,
       ).notNullable()
         .defaultTo(knex.raw('concat(md5(random()::text), md5(random()::text))'))
+      table.string(
+        'secret',
+        128,
+      ).notNullable()
+        .defaultTo(knex.raw('concat(md5(random()::text), md5(random()::text), md5(random()::text), md5(random()::text))'))
       table.text('redirectUris').notNullable()
         .defaultTo('')
       table.smallint('isActive').notNullable()

@@ -27,7 +27,7 @@ const convertQuery = (
   return prepareQuery
 }
 
-export const fit = () => ({
+export const fit = (currentDb?: knex.Knex) => ({
   prepare: (query: string) => ({
     bind: (...params: string[]) => ({
       all: async () => {
@@ -35,7 +35,7 @@ export const fit = () => ({
           query,
           params,
         )
-        const db = getConnection()
+        const db = currentDb ?? getConnection()
         const results = await db.raw(
           prepareQuery,
           params,
@@ -47,7 +47,7 @@ export const fit = () => ({
           query,
           params,
         )
-        const db = getConnection()
+        const db = currentDb ?? getConnection()
         const result = await db.raw(
           `${prepareQuery} limit 1`,
           params,
@@ -59,7 +59,7 @@ export const fit = () => ({
           query,
           params,
         )
-        const db = getConnection()
+        const db = currentDb ?? getConnection()
         const result = await db.raw(
           `${prepareQuery} returning id`,
           params,
@@ -71,12 +71,12 @@ export const fit = () => ({
       },
     }),
     all: async () => {
-      const db = getConnection()
+      const db = currentDb ?? getConnection()
       const results = await db.raw(query)
       return { results: results?.rows }
     },
     first: async () => {
-      const db = getConnection()
+      const db = currentDb ?? getConnection()
       const result = await db.raw(`${query} limit 1`)
       return result?.rows[0]
     },

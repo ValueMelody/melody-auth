@@ -40,14 +40,20 @@ export const fit = () => (
       }
     },
     put: async (
-      key: string, value: string, option: { expirationTtl: number },
+      key: string, value: string, option?: { expirationTtl: number },
     ) => {
       const cache = getConnection()
+      if (option?.expirationTtl) {
+        return cache.set(
+          key,
+          value,
+          'EX',
+          option.expirationTtl,
+        )
+      }
       return cache.set(
         key,
         value,
-        'EX',
-        option.expirationTtl,
       )
     },
     delete: async (key: string) => {
@@ -66,6 +72,10 @@ export const fit = () => (
         })
       }
       return { keys: results }
+    },
+    empty: async () => {
+      const cache = getConnection()
+      await cache.flushall()
     },
   }
 )

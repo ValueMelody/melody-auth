@@ -4,8 +4,8 @@ import {
 import { Database } from 'better-sqlite3'
 import app from 'index'
 import {
-  kv,
   migrate, mock,
+  mockedKV,
   session,
 } from 'tests/mock'
 import {
@@ -27,8 +27,9 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
-  db.close()
+afterEach(async () => {
+  await db.close()
+  await mockedKV.empty()
 })
 
 const BaseRoute = routeConfig.InternalRoute.OAuth
@@ -39,7 +40,7 @@ describe(
     test(
       'should redirect to sign in',
       async () => {
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const url = `${BaseRoute}/authorize`
         const res = await getSignInRequest(
           db,
@@ -67,7 +68,7 @@ describe(
     test(
       'should throw error if wrong app used',
       async () => {
-        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -98,8 +99,8 @@ describe(
     test(
       'should throw error if app is disabled',
       async () => {
-        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
-        db.prepare('update app set isActive = ?').run(0)
+        const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        await db.prepare('update app set "isActive" = ?').run(0)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -115,7 +116,7 @@ describe(
     test(
       'should throw error if wrong redirect uri used',
       async () => {
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
@@ -135,8 +136,8 @@ describe(
       'could login through session',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
         await postSignInRequest(
           db,
           appRecord,
@@ -176,7 +177,7 @@ describe(
       async () => {
         global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
         global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         insertUsers(db)
         await postSignInRequest(
           db,
@@ -184,7 +185,10 @@ describe(
         )
 
         const body = await prepareFollowUpBody(db)
-        kv[`${adapterConfig.BaseKVKey.OtpMfaCode}-${body.code}`] = 'aaaaaaaa'
+        mockedKV.put(
+          `${adapterConfig.BaseKVKey.OtpMfaCode}-${body.code}`,
+          'aaaaaaaa',
+        )
         await app.request(
           `${routeConfig.InternalRoute.Identity}/authorize-otp-mfa`,
           {
@@ -197,7 +201,10 @@ describe(
           mock(db),
         )
 
-        kv[`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`] = 'bbbbbbbb'
+        mockedKV.put(
+          `${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`,
+          'bbbbbbbb',
+        )
         await app.request(
           `${routeConfig.InternalRoute.Identity}/authorize-email-mfa`,
           {
@@ -244,8 +251,8 @@ describe(
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
         global.process.env.SERVER_SESSION_EXPIRES_IN = 0 as unknown as string
-        const appRecord = getApp(db)
-        insertUsers(db)
+        const appRecord = await getApp(db)
+        await insertUsers(db)
         await postSignInRequest(
           db,
           appRecord,
@@ -268,7 +275,7 @@ describe(
 )
 
 const exchangeWithAuthToken = async () => {
-  const appRecord = getApp(db)
+  const appRecord = await getApp(db)
 
   const res = await postSignInRequest(
     db,
@@ -300,7 +307,7 @@ describe(
       'could get token use auth code',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        insertUsers(db)
+        await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         const tokenJson = await tokenRes.json()
 
@@ -325,8 +332,8 @@ describe(
       'could use plain code challenge',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        insertUsers(db)
-        const appRecord = getApp(db)
+        await insertUsers(db)
+        const appRecord = await getApp(db)
 
         const res = await app.request(
           `${routeConfig.InternalRoute.Identity}/authorize-password`,
@@ -373,8 +380,8 @@ describe(
       'should throw error with wrong code or wrong code_verifier',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        insertUsers(db)
-        const appRecord = getApp(db)
+        await insertUsers(db)
+        const appRecord = await getApp(db)
 
         const res = await postSignInRequest(
           db,
@@ -422,7 +429,7 @@ describe(
       'could get token use refresh token',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        insertUsers(db)
+        await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         const tokenJson = await tokenRes.json() as { refresh_token: string }
 
@@ -457,7 +464,7 @@ describe(
       'could throw error if use wrong refresh token or grant type',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
-        insertUsers(db)
+        await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         const tokenJson = await tokenRes.json() as { refresh_token: string }
 
@@ -500,7 +507,7 @@ describe(
     test(
       'could get token use client credentials',
       async () => {
-        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
 
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
         const res = await app.request(
@@ -531,7 +538,7 @@ describe(
     test(
       'should throw error if no scope provided',
       async () => {
-        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
 
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
         const res = await app.request(
@@ -553,7 +560,7 @@ describe(
     test(
       'should throw error when wrong client credentials provided',
       async () => {
-        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
 
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}1`)
         const res = await app.request(
@@ -601,10 +608,10 @@ describe(
     )
 
     test(
-      'should throw error when wrong app disabled',
+      'should throw error when app is disabled',
       async () => {
-        const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
-        db.prepare('update app set isActive = ?').run(0)
+        const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        await db.prepare('update app set "isActive" = ?').run(0)
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
         const res = await app.request(
           `${BaseRoute}/token`,
@@ -652,7 +659,7 @@ describe(
     test(
       'should throw error if use wrong client type',
       async () => {
-        const appRecord = db.prepare('SELECT * FROM app where id = 1').get() as appModel.Record
+        const appRecord = await db.prepare('SELECT * FROM app where id = 1').get() as appModel.Record
 
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
         const res = await app.request(
@@ -698,7 +705,7 @@ describe(
     test(
       'should fail if mfa enroll is required',
       async () => {
-        insertUsers(db)
+        await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         expect(tokenRes.status).toBe(401)
       },
@@ -708,7 +715,7 @@ describe(
       'should fail if otp mfa is required',
       async () => {
         global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
-        insertUsers(db)
+        await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         expect(tokenRes.status).toBe(401)
 
@@ -719,8 +726,8 @@ describe(
     test(
       'should fail if enrolled with otp mfa',
       async () => {
-        insertUsers(db)
-        enrollOtpMfa(db)
+        await insertUsers(db)
+        await enrollOtpMfa(db)
         const tokenRes = await exchangeWithAuthToken()
         expect(tokenRes.status).toBe(401)
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
@@ -731,7 +738,7 @@ describe(
       'should fail if email mfa is required',
       async () => {
         global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
-        insertUsers(db)
+        await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         expect(tokenRes.status).toBe(401)
         global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
@@ -741,8 +748,8 @@ describe(
     test(
       'should fail if enrolled with email mfa',
       async () => {
-        insertUsers(db)
-        enrollEmailMfa(db)
+        await insertUsers(db)
+        await enrollEmailMfa(db)
         const tokenRes = await exchangeWithAuthToken()
         expect(tokenRes.status).toBe(401)
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
@@ -757,7 +764,7 @@ describe(
     test(
       'should logout and clear session',
       async () => {
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const url = `${BaseRoute}/logout`
         const params = `?client_id=${appRecord.clientId}&post_logout_redirect_uri=http://localhost:3000/en/dashboard`
         session.set(
@@ -779,7 +786,7 @@ describe(
     test(
       'should throw error if no enough params',
       async () => {
-        const appRecord = getApp(db)
+        const appRecord = await getApp(db)
         const url = `${BaseRoute}/logout`
         session.set(
           `authInfo-${appRecord.clientId}`,
@@ -801,8 +808,8 @@ describe(
   'get /userinfo',
   () => {
     const prepareUserInfoRequest = async () => {
-      const appRecord = getApp(db)
-      insertUsers(db)
+      const appRecord = await getApp(db)
+      await insertUsers(db)
       const res = await postSignInRequest(
         db,
         appRecord,
@@ -862,7 +869,7 @@ describe(
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
         const tokenJson = await prepareUserInfoRequest()
-        db.prepare('update user set deletedAt = ?').run('2024')
+        await db.prepare('update "user" set "deletedAt" = ?').run('2024')
 
         const userInfoRes = await app.request(
           `${BaseRoute}/userinfo`,
@@ -881,7 +888,7 @@ describe(
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
         const tokenJson = await prepareUserInfoRequest()
-        disableUser(db)
+        await disableUser(db)
 
         const userInfoRes = await app.request(
           `${BaseRoute}/userinfo`,

@@ -2,6 +2,10 @@ import fs from 'fs'
 import path from 'path'
 import Sqlite, { Database } from 'better-sqlite3'
 import { adapterConfig } from 'configs'
+import {
+  pgAdapter, redisAdapter,
+} from 'adapters'
+import { userModel } from 'models'
 
 const convertQuery = (
   query: string, params: string[],
@@ -16,7 +20,7 @@ const convertQuery = (
   return prepareQuery
 }
 
-export const kv: { [key: string]: string } = {}
+const kv: { [key: string]: string } = {}
 
 export const sessionStore: { [key: string]: string } = {}
 export const session = {
@@ -28,17 +32,17 @@ export const session = {
   },
 }
 
-export const kvModule = {
-  get: (key: string) => {
+const kvMock = {
+  get: async (key: string) => {
     switch (key) {
     case adapterConfig.BaseKVKey.JwtPublicSecret:
       return fs.readFileSync(
-        path.resolve('src/tests/public_key_mock'),
+        path.resolve('node_jwt_public_key.pem'),
         'utf8',
       )
     case adapterConfig.BaseKVKey.JwtPrivateSecret:
       return fs.readFileSync(
-        path.resolve('src/tests/private_key_mock'),
+        path.resolve('node_jwt_private_key.pem'),
         'utf8',
       )
     case adapterConfig.BaseKVKey.SessionSecret:
@@ -64,9 +68,12 @@ export const kvModule = {
         })),
     }
   },
+  empty: () => {
+    Object.keys(kv).forEach((key) => delete kv[key])
+  },
 }
 
-export const getDbModule = (db: Database) => ({
+const getDbMock = (db: Database) => ({
   prepare: (query: string) => {
     return {
       bind: (...params: string[]) => ({
@@ -111,17 +118,88 @@ export const getDbModule = (db: Database) => ({
   },
 }) as D1Database
 
-export const mock = (db: Database) => ({
-  DB: getDbModule(db),
-  KV: kvModule,
+const isTestingNode = process.env.TEST_MODE === 'node'
+export const mockedKV = isTestingNode ? redisAdapter.fit() : kvMock
+export const getMockedDB = isTestingNode ? pgAdapter.fit : getDbMock
+
+const formatUser = (raw: userModel.Raw) => ({
+  ...raw,
+  isActive: Number(raw.isActive),
+  emailVerified: Number(raw.emailVerified),
+  otpVerified: Number(raw.otpVerified),
+  loginCount: Number(raw.loginCount),
 })
 
+export const mock = (db: any) => {
+  return {
+    DB: getMockedDB(db),
+    KV: mockedKV,
+  }
+}
+
 export const migrate = async () => {
+  if (isTestingNode) {
+    pgAdapter.initConnection()
+    const db = await pgAdapter.getConnection()
+    const migrationsDir = path.join(
+      __dirname,
+      '../../migrations/pg',
+    )
+    const migrationFiles = fs.readdirSync(migrationsDir)
+    for (const file of migrationFiles) {
+      await db.migrate.up({
+        directory: migrationsDir,
+        name: file,
+      })
+    }
+    return {
+      raw: async (
+        query: string, params?: string[],
+      ) => {
+        const result = await db.raw(
+          query,
+          params || [],
+        )
+        const formatted = {
+          ...result,
+          rows: query.includes(' "user" ') ? result.rows.map((row: userModel.Raw) => formatUser(row)) : result.rows,
+        }
+        return formatted
+      },
+      prepare: (query: string) => ({
+        run: async (...params: string[]) => {
+          return db.raw(
+            query,
+            params,
+          )
+        },
+        get: async (...params: string[]) => {
+          const res = await db.raw(
+            `${query} LIMIT 1`,
+            params,
+          )
+          const record = res?.rows[0]
+          return query.includes(' "user" ') ? formatUser(record) : record
+        },
+        all: async (...params: string[]) => {
+          const res = await db.raw(
+            query,
+            params,
+          )
+          const records = res?.rows
+          return query.includes(' "user" ') ? records.map((record: userModel.Raw) => formatUser(record)) : records
+        },
+      }),
+      exec: async (query: string) => db.raw(query),
+      close: async () => db.destroy(),
+    } as unknown as Database
+  }
+
   const db = new Sqlite(':memory:')
 
   const migrationsDir = path.join(
     __dirname,
-    '../../migrations',
+    '../../migrations/sqlite',
   )
   const migrationFiles = fs.readdirSync(migrationsDir)
 
@@ -131,13 +209,11 @@ export const migrate = async () => {
       file,
     )
 
-    if (fs.statSync(filePath).isFile()) {
-      const migration = fs.readFileSync(
-        filePath,
-        'utf8',
-      )
-      db.exec(migration)
-    }
+    const migration = fs.readFileSync(
+      filePath,
+      'utf8',
+    )
+    db.exec(migration)
   })
 
   return db

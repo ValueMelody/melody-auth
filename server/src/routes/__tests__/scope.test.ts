@@ -20,8 +20,8 @@ beforeEach(async () => {
   db = await migrate()
 })
 
-afterEach(() => {
-  db.close()
+afterEach(async () => {
+  await db.close()
 })
 
 const BaseRoute = routeConfig.InternalRoute.ApiScopes
@@ -100,7 +100,7 @@ describe(
     test(
       'should return all scopes with read_scope scope',
       async () => {
-        attachIndividualScopes(db)
+        await attachIndividualScopes(db)
         const res = await app.request(
           BaseRoute,
           {
@@ -233,7 +233,7 @@ describe(
     test(
       'should create scope with write_scope scope',
       async () => {
-        attachIndividualScopes(db)
+        await attachIndividualScopes(db)
         const res = await createNewScope(await getS2sToken(
           db,
           Scope.WriteScope,

@@ -48,32 +48,32 @@ export const adminS2sApp = {
   deletedAt: null,
 }
 
-export const attachIndividualScopes = (db: Database) => {
-  const scopes = db.prepare('select * from scope where type = ? AND name != ?').all(
+export const attachIndividualScopes = async (db: Database) => {
+  const scopes = await db.prepare('select * from scope where type = ? AND name != ?').all(
     's2s',
     'root',
   ) as scopeModel.Record[]
-  scopes.forEach((scope) => {
-    db.prepare('insert into app_scope (appId, scopeId) values (2, ?)').run(scope.id)
-  })
+  for (const scope of scopes) {
+    await db.prepare('insert into app_scope ("appId", "scopeId") values (2, ?)').run(scope.id)
+  }
 }
 
-export const enrollOtpMfa = (db: Database) => {
-  db.prepare('update user set mfaTypes = ? where id = 1').run('otp')
+export const enrollOtpMfa = async (db: Database) => {
+  await db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('otp')
 }
 
-export const enrollEmailMfa = (db: Database) => {
-  db.prepare('update user set mfaTypes = ? where id = 1').run('email')
+export const enrollEmailMfa = async (db: Database) => {
+  await db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('email')
 }
 
-export const disableUser = (db: Database) => {
-  db.prepare('update user set isActive = 0').run()
+export const disableUser = async (db: Database) => {
+  await db.prepare('update "user" set "isActive" = 0').run()
 }
 
 export const getS2sToken = async (
   db: Database, scope: string = 'root',
 ) => {
-  const appRecord = db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+  const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
   const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
   const res = await app.request(
     `${routeConfig.InternalRoute.OAuth}/token`,
