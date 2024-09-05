@@ -6,7 +6,7 @@ export default defineUserConfig({
   lang: 'en-US',
 
   title: 'Melody Auth',
-  description: 'A turnkey OAuth & authentication system leveraging Cloudflare’s infrastructure.',
+  description: 'Effortless OAuth and Authentication, Built for Flexibility and Control.',
 
   theme: defaultTheme({
     logo: 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg',
