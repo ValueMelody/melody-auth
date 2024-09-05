@@ -15,6 +15,10 @@
     "baseUrl": "./src",
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
-    "outDir": "./dist"
+    "outDir": "./dist",
   },
+  "include": ["./src"],
+  "tsc-alias": {
+    "resolveFullPaths": true
+  }
 }

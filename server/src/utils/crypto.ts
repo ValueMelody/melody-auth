@@ -1,7 +1,5 @@
 import { genCodeChallenge } from 'shared'
-import {
-  genSaltSync, hashSync, compareSync,
-} from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 import base32Encode from 'base32-encode'
 import base32Decode from 'base32-decode'
 import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
@@ -66,8 +64,8 @@ export const genTotp = async (secret: string): Promise<string> => {
 }
 
 export const bcryptText = (text: string) => {
-  const salt = genSaltSync(10)
-  const hash = hashSync(
+  const salt = bcrypt.genSaltSync(10)
+  const hash = bcrypt.hashSync(
     text,
     salt,
   )
@@ -77,7 +75,7 @@ export const bcryptText = (text: string) => {
 export const bcryptCompare = (
   text: string, hash: string,
 ) => {
-  const isMatch = compareSync(
+  const isMatch = bcrypt.compareSync(
     text,
     hash,
   )

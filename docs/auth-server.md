@@ -77,8 +77,8 @@ npm run dev:start
 
 ## Environment Setup (Node)
 
-### 1. Postgres and Redis setup
-Begin by setting up your PostgreSQL and Redis servers, and ensure you have the connection strings ready for integration.
+### 1. Node, Postgres and Redis setup
+Begin by setting up your PostgreSQL and Redis servers, and ensure you have the connection strings ready for integration. Please also ensure you are using <b>Node.js version 20.05 or higher</b> for compatibility.
 
 ### 2. Project setup
 ```
@@ -94,6 +94,23 @@ cp dev.vars.example dev.vars
 npm run node:secret:generate
 npm run node:migration:apply
 npm run node:dev
+```
+
+### 3. Production Build
+To prepare for production, follow these steps:
+1. Update server/src/routes/other.tsx file  
+```
+# Comment out the current swagger.json import statement:
+// import swaggerSpec from '../scripts/swagger.json';
+
+# Uncomment the other swagger.json import statement which contains with { type: "json" }:
+import swaggerSpec from '../scripts/swagger.json' with { type: "json" }
+```
+
+2. Run the following commands to build and start the server:
+```
+npm run node:build
+npm run node:start
 ```
 
 ## Mailer Setup
