@@ -109,6 +109,7 @@ import swaggerSpec from '../scripts/swagger.json' with { type: "json" }
 
 2. Run the following commands to build and start the server:
 ```
+cd server
 npm run node:build
 npm run node:start
 ```
