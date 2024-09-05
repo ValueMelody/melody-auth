@@ -333,7 +333,7 @@ export const getFailedOtpMfaAttemptsByIP = async (
 export const setFailedOtpMfaAttempts = async (
   kv: KVNamespace,
   userId: number,
-  ip: string,
+  ip: string | undefined,
   count: number,
 ) => {
   const key = adapterConfig.getKVKey(
