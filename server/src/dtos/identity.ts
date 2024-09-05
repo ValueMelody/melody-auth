@@ -5,7 +5,7 @@ import { Context } from 'hono'
 import { typeConfig } from 'configs'
 import { oauthDto } from 'dtos'
 import {
-  formatUtil, validateUtil,
+  requestUtil, validateUtil,
 } from 'utils'
 import { userModel } from 'models'
 
@@ -113,7 +113,7 @@ export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context
     state: c.req.query('state') ?? '',
     redirectUri: c.req.query('redirect_uri') ?? '',
     code: c.req.query('code') ?? '',
-    locale: formatUtil.getLocaleFromQuery(
+    locale: requestUtil.getLocaleFromQuery(
       c,
       c.req.query('locale'),
     ),

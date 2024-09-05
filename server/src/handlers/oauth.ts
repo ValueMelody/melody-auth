@@ -12,7 +12,7 @@ import {
   appService, consentService, jwtService, kvService, roleService, scopeService, sessionService, userService,
 } from 'services'
 import {
-  cryptoUtil, formatUtil, timeUtil, validateUtil,
+  cryptoUtil, requestUtil, timeUtil, validateUtil,
 } from 'utils'
 import { userModel } from 'models'
 
@@ -62,7 +62,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     return c.redirect(url)
   }
 
-  const queryString = formatUtil.getQueryString(c)
+  const queryString = requestUtil.getQueryString(c)
   return c.redirect(`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`)
 }
 

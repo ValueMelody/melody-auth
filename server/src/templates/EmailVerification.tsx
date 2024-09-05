@@ -3,7 +3,7 @@ import {
   typeConfig,
 } from 'configs'
 import Layout from 'templates/components/Layout'
-import { formatUtil } from 'utils'
+import { requestUtil } from 'utils'
 
 const EmailVerification = ({
   serverUrl, logoUrl, verificationCode, authId, locale,
@@ -14,7 +14,7 @@ const EmailVerification = ({
   authId: string;
   locale: typeConfig.Locale;
 }) => {
-  const route = `${formatUtil.stripEndingSlash(serverUrl)}${routeConfig.InternalRoute.Identity}`
+  const route = `${requestUtil.stripEndingSlash(serverUrl)}${routeConfig.InternalRoute.Identity}`
 
   return (
     <Layout

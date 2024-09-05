@@ -2,10 +2,7 @@ import {
   adapterConfig, errorConfig,
   typeConfig,
 } from 'configs'
-import {
-  formatUtil,
-  validateUtil,
-} from 'utils'
+import { dbUtil } from 'utils'
 
 export enum MfaType {
   Otp = 'otp',
@@ -154,7 +151,7 @@ export const getAll = async (
     pagination?: typeConfig.Pagination;
   },
 ): Promise<Record[]> => {
-  const stmt = formatUtil.d1SelectAllQuery(
+  const stmt = dbUtil.d1SelectAllQuery(
     db,
     TableName,
     option,
@@ -225,13 +222,13 @@ export const create = async (
     'authId', 'email', 'password', 'firstName', 'lastName',
     'locale', 'otpSecret', 'googleId', 'emailVerified',
   ]
-  const stmt = formatUtil.d1CreateQuery(
+  const stmt = dbUtil.d1CreateQuery(
     db,
     TableName,
     createKeys,
     create,
   )
-  const result = await validateUtil.d1Run(stmt)
+  const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
   const id = result.meta.last_row_id
   const record = await getById(
@@ -247,7 +244,7 @@ export const updateCount = async (
 ) => {
   const query = `UPDATE ${TableName} set "loginCount" = "loginCount" + 1 where id = $1`
   const stmt = db.prepare(query).bind(id)
-  await validateUtil.d1Run(stmt)
+  await dbUtil.d1Run(stmt)
 }
 
 export const update = async (
@@ -257,7 +254,7 @@ export const update = async (
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
     'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
   ]
-  const stmt = formatUtil.d1UpdateQuery(
+  const stmt = dbUtil.d1UpdateQuery(
     db,
     TableName,
     id,
@@ -265,7 +262,7 @@ export const update = async (
     update,
   )
 
-  const result = await validateUtil.d1Run(stmt)
+  const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
   const record = await getById(
     db,
@@ -278,12 +275,12 @@ export const update = async (
 export const remove = async (
   db: D1Database, id: number,
 ): Promise<true> => {
-  const stmt = formatUtil.d1SoftDeleteQuery(
+  const stmt = dbUtil.d1SoftDeleteQuery(
     db,
     TableName,
     id,
   )
 
-  await validateUtil.d1Run(stmt)
+  await dbUtil.d1Run(stmt)
   return true
 }

@@ -1,8 +1,5 @@
 import { adapterConfig } from 'configs'
-import {
-  formatUtil,
-  validateUtil,
-} from 'utils'
+import { dbUtil } from 'utils'
 
 export interface Record {
   id: number;
@@ -54,7 +51,7 @@ export const create = async (
     create.userId,
     create.roleId,
   )
-  const result = await validateUtil.d1Run(stmt)
+  const result = await dbUtil.d1Run(stmt)
   return result.success
 }
 
@@ -64,7 +61,7 @@ export const update = async (
   const updateKeys: (keyof Update)[] = [
     'deletedAt', 'updatedAt',
   ]
-  const stmt = formatUtil.d1UpdateQuery(
+  const stmt = dbUtil.d1UpdateQuery(
     db,
     TableName,
     id,
@@ -72,20 +69,20 @@ export const update = async (
     update,
   )
 
-  const result = await validateUtil.d1Run(stmt)
+  const result = await dbUtil.d1Run(stmt)
   return result.success
 }
 
 export const remove = async (
   db: D1Database, roleId: number,
 ): Promise<true> => {
-  const stmt = formatUtil.d1SoftDeleteQuery(
+  const stmt = dbUtil.d1SoftDeleteQuery(
     db,
     TableName,
     roleId,
     'roleId',
   )
 
-  await validateUtil.d1Run(stmt)
+  await dbUtil.d1Run(stmt)
   return true
 }

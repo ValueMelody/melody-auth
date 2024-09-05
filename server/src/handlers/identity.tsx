@@ -11,7 +11,7 @@ import {
   appService, consentService, emailService, jwtService, kvService, scopeService, sessionService, userService,
 } from 'services'
 import {
-  formatUtil, validateUtil,
+  requestUtil, validateUtil,
 } from 'utils'
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
@@ -159,7 +159,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     GOOGLE_AUTH_CLIENT_ID: googleClientId,
   } = env(c)
 
-  const queryString = formatUtil.getQueryString(c)
+  const queryString = requestUtil.getQueryString(c)
 
   return c.html(<AuthorizePasswordView
     queryString={queryString}
@@ -180,7 +180,7 @@ export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
   const queryDto = await scopeService.parseGetAuthorizeDto(c)
-  const queryString = formatUtil.getQueryString(c)
+  const queryString = requestUtil.getQueryString(c)
 
   return c.html(<AuthorizeResetView
     queryString={queryString}
@@ -196,13 +196,13 @@ export const postResetCode = async (c: Context<typeConfig.Context>) => {
     ? String(reqBody.email).trim()
       .toLowerCase()
     : ''
-  const locale = formatUtil.getLocaleFromQuery(
+  const locale = requestUtil.getLocaleFromQuery(
     c,
     reqBody.locale,
   )
   if (!email) throw new errorConfig.Forbidden()
 
-  const ip = c.req.header('cf-connecting-ip') as string
+  const ip = requestUtil.getRequestIP(c)
   const resetAttempts = await kvService.getPasswordResetAttemptsByIP(
     c.env.KV,
     email,
@@ -242,7 +242,7 @@ export const postAuthorizeReset = async (c: Context<typeConfig.Context>) => {
   )
 
   const { UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: allowUnlock } = env(c)
-  const ip = c.req.header('cf-connecting-ip') as string
+  const ip = requestUtil.getRequestIP(c)
   if (allowUnlock) {
     await kvService.clearFailedLoginAttemptsByIP(
       c.env.KV,
@@ -265,7 +265,7 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
-  const queryString = formatUtil.getQueryString(c)
+  const queryString = requestUtil.getQueryString(c)
 
   return c.html(<AuthorizeAccountView
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
@@ -288,7 +288,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   const parsedBody = {
     ...reqBody,
     scopes: reqBody.scope.split(' '),
-    locale: formatUtil.getLocaleFromQuery(
+    locale: requestUtil.getLocaleFromQuery(
       c,
       reqBody.locale,
     ),
@@ -534,7 +534,7 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
 
   if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
 
-  const ip = c.req.header('cf-connecting-ip') as string
+  const ip = requestUtil.getRequestIP(c)
   const failedAttempts = await kvService.getFailedOtpMfaAttemptsByIP(
     c.env.KV,
     authCodeStore.user.id,
@@ -759,7 +759,7 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 export const getVerifyEmail = async (c: Context<typeConfig.Context>) => {
   const queryDto = new identityDto.GetVerifyEmailReqDto({
     id: c.req.query('id') ?? '',
-    locale: formatUtil.getLocaleFromQuery(
+    locale: requestUtil.getLocaleFromQuery(
       c,
       c.req.query('locale'),
     ),
@@ -823,7 +823,7 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
   }
 
   const { AUTH_SERVER_URL } = env(c)
-  const redirectUri = `${formatUtil.stripEndingSlash(AUTH_SERVER_URL)}${routeConfig.InternalRoute.OAuth}/logout`
+  const redirectUri = `${requestUtil.stripEndingSlash(AUTH_SERVER_URL)}${routeConfig.InternalRoute.OAuth}/logout`
 
   return c.json({
     success: true,
