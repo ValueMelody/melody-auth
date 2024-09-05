@@ -8,7 +8,7 @@ import {
   appModel, appScopeModel, scopeModel,
 } from 'models'
 import {
-  formatUtil, timeUtil,
+  requestUtil, timeUtil,
 } from 'utils'
 import { scopeService } from 'services'
 import { appDto } from 'dtos'
@@ -29,7 +29,7 @@ export const verifySPAClientRequest = async (
   if (app.type !== ClientType.SPA) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
   }
-  if (!app.redirectUris.includes(formatUtil.stripEndingSlash(redirectUri))) {
+  if (!app.redirectUris.includes(requestUtil.stripEndingSlash(redirectUri))) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.WrongRedirectUri)
   }
   return app

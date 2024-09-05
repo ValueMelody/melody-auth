@@ -1,24 +1,18 @@
-import { Context } from 'hono'
-import { env } from 'hono/adapter'
-import { typeConfig } from 'configs'
+import {
+  errorConfig, localeConfig, typeConfig,
+} from 'configs'
 import { timeUtil } from 'utils'
 
-export const stripEndingSlash = (val: string): string => {
-  return val.replace(
-    /\/$/,
-    '',
-  )
+export const d1Run = async (stmt: D1PreparedStatement) => {
+  try {
+    const res = await stmt.run()
+    return res
+  } catch (e) {
+    console.error(e)
+    const msg = String(e).includes('UNIQUE constraint failed') ? localeConfig.Error.UniqueKey : undefined
+    throw new errorConfig.InternalServerError(msg)
+  }
 }
-
-export const getLocaleFromQuery = (
-  c: Context<typeConfig.Context>, requestedLocale?: string,
-): typeConfig.Locale => {
-  const { SUPPORTED_LOCALES: locales } = env(c)
-  const locale = requestedLocale?.toLowerCase() ?? ''
-  return locales.find((supportedLocale) => supportedLocale === locale) ?? locales[0]
-}
-
-export const getQueryString = (c: Context<typeConfig.Context>): string => c.req.url.split('?')[1]
 
 export const d1SelectAllQuery = (
   db: D1Database,

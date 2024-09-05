@@ -1,8 +1,7 @@
 import { adapterConfig } from 'configs'
 import {
-  formatUtil,
+  dbUtil,
   timeUtil,
-  validateUtil,
 } from 'utils'
 
 export interface Record {
@@ -38,7 +37,7 @@ export const create = async (
     create.userId,
     create.appId,
   )
-  const result = await validateUtil.d1Run(stmt)
+  const result = await dbUtil.d1Run(stmt)
   return result.success
 }
 
@@ -73,14 +72,14 @@ export const getAllByUser = async (
 export const removeByUser = async (
   db: D1Database, userId: number,
 ): Promise<true> => {
-  const stmt = formatUtil.d1SoftDeleteQuery(
+  const stmt = dbUtil.d1SoftDeleteQuery(
     db,
     TableName,
     userId,
     'userId',
   )
 
-  await validateUtil.d1Run(stmt)
+  await dbUtil.d1Run(stmt)
   return true
 }
 
@@ -94,6 +93,6 @@ export const removeByUserAndApp = async (
     appId,
   )
 
-  await validateUtil.d1Run(stmt)
+  await dbUtil.d1Run(stmt)
   return true
 }

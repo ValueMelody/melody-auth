@@ -2,10 +2,7 @@ import { ClientType } from 'shared'
 import {
   adapterConfig, errorConfig,
 } from 'configs'
-import {
-  formatUtil,
-  validateUtil,
-} from 'utils'
+import { dbUtil } from 'utils'
 
 export interface Common {
   id: number;
@@ -93,7 +90,7 @@ export const create = async (
     create.type,
     create.redirectUris,
   )
-  const result = await validateUtil.d1Run(stmt)
+  const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
   const id = result.meta.last_row_id
   const record = await getById(
@@ -110,7 +107,7 @@ export const update = async (
   const updateKeys: (keyof Update)[] = [
     'name', 'redirectUris', 'isActive', 'deletedAt', 'updatedAt',
   ]
-  const stmt = formatUtil.d1UpdateQuery(
+  const stmt = dbUtil.d1UpdateQuery(
     db,
     TableName,
     id,
@@ -118,7 +115,7 @@ export const update = async (
     update,
   )
 
-  const result = await validateUtil.d1Run(stmt)
+  const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
   const record = await getById(
     db,
@@ -131,12 +128,12 @@ export const update = async (
 export const remove = async (
   db: D1Database, id: number,
 ): Promise<true> => {
-  const stmt = formatUtil.d1SoftDeleteQuery(
+  const stmt = dbUtil.d1SoftDeleteQuery(
     db,
     TableName,
     id,
   )
 
-  await validateUtil.d1Run(stmt)
+  await dbUtil.d1Run(stmt)
   return true
 }

@@ -8,7 +8,7 @@ import {
 import {
   errorConfig, localeConfig, typeConfig,
 } from 'configs'
-import { formatUtil } from 'utils'
+import { requestUtil } from 'utils'
 import { kvService } from 'services'
 
 const store = new CookieStore()
@@ -46,7 +46,7 @@ export const validOrigin = async (
   const origin = c.req.header('origin')
   const { AUTH_SERVER_URL: serverUrl } = env(c)
 
-  if (formatUtil.stripEndingSlash(serverUrl) !== origin) {
+  if (requestUtil.stripEndingSlash(serverUrl) !== origin) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongOrigin)
   }
 

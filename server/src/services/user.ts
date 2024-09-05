@@ -19,7 +19,7 @@ import {
   emailService, jwtService, kvService, roleService,
 } from 'services'
 import {
-  cryptoUtil, timeUtil,
+  cryptoUtil, requestUtil, timeUtil,
 } from 'utils'
 
 export const getUserInfo = async (
@@ -142,7 +142,7 @@ export const verifyPasswordSignIn = async (
     ACCOUNT_LOCKOUT_THRESHOLD: lockThreshold, ACCOUNT_LOCKOUT_EXPIRES_IN: lockExpiresIn,
   } = env(c)
 
-  const ip = c.req.header('cf-connecting-ip') as string
+  const ip = requestUtil.getRequestIP(c)
 
   const failedAttempts = lockThreshold
     ? await kvService.getFailedLoginAttemptsByIP(

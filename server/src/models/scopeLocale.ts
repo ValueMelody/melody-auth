@@ -1,10 +1,7 @@
 import {
   adapterConfig, errorConfig,
 } from 'configs'
-import {
-  formatUtil,
-  validateUtil,
-} from 'utils'
+import { dbUtil } from 'utils'
 
 export interface Record {
   id: number;
@@ -45,7 +42,7 @@ export const create = async (
     create.locale,
     create.value.trim(),
   )
-  const result = await validateUtil.d1Run(stmt)
+  const result = await dbUtil.d1Run(stmt)
 
   if (!result.success) throw new errorConfig.InternalServerError()
   const id = result.meta.last_row_id
@@ -69,13 +66,13 @@ export const getAllByScope = async (
 export const remove = async (
   db: D1Database, scopeId: number,
 ): Promise<true> => {
-  const stmt = formatUtil.d1SoftDeleteQuery(
+  const stmt = dbUtil.d1SoftDeleteQuery(
     db,
     TableName,
     scopeId,
     'scopeId',
   )
 
-  await validateUtil.d1Run(stmt)
+  await dbUtil.d1Run(stmt)
   return true
 }

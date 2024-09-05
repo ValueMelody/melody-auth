@@ -4,10 +4,10 @@ import {
   IsNotEmpty, IsOptional, IsString, IsUrl, Length,
 } from 'class-validator'
 import { ClientType } from 'shared'
-import { formatUtil } from 'utils'
+import { requestUtil } from 'utils'
 
 const formatRedirectUri = (redirectUris: string[]) => redirectUris
-  .map((uri) => formatUtil.stripEndingSlash(uri.trim().toLowerCase()))
+  .map((uri) => requestUtil.stripEndingSlash(uri.trim().toLowerCase()))
 
 export class PostAppReqDto {
   @IsString()
