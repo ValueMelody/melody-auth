@@ -27,7 +27,7 @@ SERVER_CLIENT_SECRET: Client secret for the Admin Panel (S2S) app
   cd melody-auth/server
   wrangler d1 execute melody-auth --command="select * from app"
   ```
-- For Node version, check your postgres melody-auth database -> app table
+- For Node version, check your Postgres melody-auth database -> app table
 
 ## 4. Start the admin panel app
 
