@@ -6,6 +6,7 @@ import { JSDOM } from 'jsdom'
 import { genCodeChallenge } from 'shared'
 import { authenticator } from 'otplib'
 import { sign } from 'hono/jwt'
+import { Context } from 'hono'
 import app from 'index'
 import {
   migrate, mock,
@@ -13,6 +14,7 @@ import {
 } from 'tests/mock'
 import {
   adapterConfig, localeConfig, routeConfig,
+  typeConfig,
 } from 'configs'
 import {
   appModel, userModel,
@@ -22,6 +24,8 @@ import {
   disableUser,
   enrollEmailMfa, enrollOtpMfa,
 } from 'tests/util'
+import { cryptoUtil } from 'utils'
+import { jwtService } from 'services'
 
 let db: Database
 
@@ -2258,8 +2262,11 @@ describe(
   'post /authorize-google',
   () => {
     const prepareRequest = async (emailVerified: boolean) => {
-      const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
-      const credential = await sign(
+      const publicKey = await mockedKV.get(adapterConfig.BaseKVKey.JwtPublicSecret)
+      const jwk = await cryptoUtil.secretToJwk(publicKey ?? '')
+      const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
+      const credential = await jwtService.signWithKid(
+        c,
         {
           iss: 'https://accounts.google.com',
           email: 'test@gmail.com',
@@ -2267,10 +2274,8 @@ describe(
           email_verified: emailVerified,
           given_name: 'first',
           family_name: 'last',
-          kid: '123',
+          kid: jwk.kid,
         },
-        privateSecret,
-        'RS256',
       )
 
       const appRecord = await getApp(db)
@@ -2357,8 +2362,9 @@ describe(
       'could throw error if wrong credential provided',
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
-        const credential = await sign(
+        const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
+        const credential = await jwtService.signWithKid(
+          c,
           {
             iss: 'https://accounts.any.com',
             email: 'test@gmail.com',
@@ -2367,8 +2373,6 @@ describe(
             given_name: 'first',
             family_name: 'last',
           },
-          privateSecret,
-          'RS256',
         )
 
         const appRecord = await getApp(db)

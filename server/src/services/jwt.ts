@@ -1,7 +1,7 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
-  sign, verify, decode,
+  verify, decode,
 } from 'hono/jwt'
 import { JWTPayload } from 'hono/utils/jwt/types'
 import {
@@ -12,6 +12,89 @@ import {
   errorConfig, typeConfig,
 } from 'configs'
 import { kvService } from 'services'
+import { cryptoUtil } from 'utils'
+
+const base64UrlEncode = (data: string) => btoa(data)
+  .replace(
+    /\+/g,
+    '-',
+  )
+  .replace(
+    /\//g,
+    '_',
+  )
+  .replace(
+    /=+$/,
+    '',
+  )
+
+const decodeBase64 = (str: string): Uint8Array => {
+  const binary = atob(str)
+  const bytes = new Uint8Array(new ArrayBuffer(binary.length))
+  const half = binary.length / 2
+  for (let i = 0, j = binary.length - 1; i <= half; i++, j--) {
+    bytes[i] = binary.charCodeAt(i)
+    bytes[j] = binary.charCodeAt(j)
+  }
+  return bytes
+}
+
+const pemToBinary = (pem: string): Uint8Array => {
+  return decodeBase64(pem.replace(
+    /-+(BEGIN|END).*/g,
+    '',
+  ).replace(
+    /\s/g,
+    '',
+  ))
+}
+
+export const signWithKid = async (
+  c: Context<typeConfig.Context>, payload: object,
+) => {
+  const privateKey = await kvService.getJwtPrivateSecret(c.env.KV)
+  const publicKey = await kvService.getJwtPublicSecret(c.env.KV)
+  const jwk = await cryptoUtil.secretToJwk(publicKey)
+
+  const key = await crypto.subtle.importKey(
+    'pkcs8',
+    pemToBinary(privateKey),
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: { name: 'SHA-256' },
+    },
+    false,
+    ['sign'],
+  )
+
+  const header = {
+    alg: 'RS256',
+    typ: 'JWT',
+    kid: jwk.kid,
+  }
+
+  const encodedHeader = base64UrlEncode(JSON.stringify(header))
+  const encodedPayload = base64UrlEncode(JSON.stringify(payload))
+  const signingInput = `${encodedHeader}.${encodedPayload}`
+
+  const encoder = new TextEncoder()
+  const signingInputBytes = encoder.encode(signingInput)
+
+  const signature = await crypto.subtle.sign(
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256',
+    },
+    key,
+    signingInputBytes,
+  )
+
+  const signatureArray = new Uint8Array(signature)
+  const signatureBase64Url = base64UrlEncode(String.fromCharCode(...signatureArray))
+
+  const jwt = `${signingInput}.${signatureBase64Url}`
+  return jwt
+}
 
 export const getAccessTokenBody = async (
   context: Context<typeConfig.Context>,
@@ -34,7 +117,7 @@ export const getAccessTokenBody = async (
 }
 
 export const genAccessToken = async (
-  context: Context<typeConfig.Context>,
+  c: Context<typeConfig.Context>,
   type: ClientType,
   currentTimestamp: number,
   sub: string,
@@ -45,13 +128,12 @@ export const genAccessToken = async (
   const {
     SPA_ACCESS_TOKEN_EXPIRES_IN,
     S2S_ACCESS_TOKEN_EXPIRES_IN,
-  } = env(context)
+  } = env(c)
 
   const isSpa = type === ClientType.SPA
   const accessTokenExpiresIn = isSpa
     ? SPA_ACCESS_TOKEN_EXPIRES_IN
     : S2S_ACCESS_TOKEN_EXPIRES_IN
-  const privateSecret = await kvService.getJwtPrivateSecret(context.env.KV)
   const accessTokenExpiresAt = currentTimestamp + accessTokenExpiresIn
   const accessTokenBody: typeConfig.AccessTokenBody = {
     sub,
@@ -62,10 +144,9 @@ export const genAccessToken = async (
   }
   if (roles) accessTokenBody.roles = roles
 
-  const accessToken = await sign(
+  const accessToken = await signWithKid(
+    c,
     accessTokenBody as unknown as JWTPayload,
-    privateSecret,
-    'RS256',
   )
   return {
     accessToken,
@@ -98,12 +179,9 @@ export const genIdToken = async (
   }
   body.roles = roles
 
-  const privateSecret = await kvService.getJwtPrivateSecret(c.env.KV)
-
-  const idToken = await sign(
+  const idToken = await signWithKid(
+    c,
     body as unknown as JWTPayload,
-    privateSecret,
-    'RS256',
   )
   return { idToken }
 }
@@ -122,7 +200,7 @@ export const verifyGoogleCredential = async (credential: string) => {
 
   const response = await fetch('https://www.googleapis.com/oauth2/v3/certs')
   const certs = await response.json() as { keys: { kid: string }[] }
-  const publicKey = certs.keys.find((key) => key.kid === header.kid) || certs.keys[0]
+  const publicKey = certs.keys.find((key) => key.kid === header.kid)
   const result = await verify(
     credential,
     publicKey as unknown as SignatureKey,
