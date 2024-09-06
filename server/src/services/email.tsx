@@ -120,7 +120,7 @@ export const sendEmailVerification = async (
   if (!user.email) return null
   checkEmailSetup(c)
 
-  const verificationCode = cryptoUtil.genRandom8DigitString(8)
+  const verificationCode = cryptoUtil.genRandom8DigitString()
   const content = (<EmailVerificationTemplate
     serverUrl={serverUrl}
     authId={user.authId}
@@ -148,7 +148,7 @@ export const sendPasswordReset = async (
   if (!user.email) return null
   checkEmailSetup(c)
 
-  const resetCode = cryptoUtil.genRandom8DigitString(8)
+  const resetCode = cryptoUtil.genRandom8DigitString()
   const content = (<PasswordResetTemplate
     resetCode={resetCode}
     logoUrl={logoUrl}
@@ -174,7 +174,7 @@ export const sendEmailMfa = async (
   if (!user.email) return null
   checkEmailSetup(c)
 
-  const mfaCode = cryptoUtil.genRandom8DigitString(8)
+  const mfaCode = cryptoUtil.genRandom8DigitString()
   const content = (<EmailMfaTemplate
     mfaCode={mfaCode}
     logoUrl={logoUrl}
