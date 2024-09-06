@@ -39,6 +39,17 @@ export const sendEmail = async (
 
   const receiver = environment === 'prod' ? receiverEmail : devEmailReceiver
 
+  if (c.env.SMTP) {
+    const transporter = c.env.SMTP.init()
+    const res = await transporter.sendMail({
+      from: process.env.SMTP_SENDER_NAME || 'Melody Auth',
+      to: receiver,
+      subject,
+      html: emailBody,
+    })
+    return res?.accepted[0] === receiver
+  }
+
   if (sendgridApiKey && sendgridSender) {
     const res = await fetch(
       'https://api.sendgrid.com/v3/mail/send',

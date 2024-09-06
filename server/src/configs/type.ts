@@ -1,6 +1,9 @@
 import { Hono } from 'hono'
 import { BlankSchema } from 'hono/types'
 import { Session } from 'hono-sessions'
+import type {
+  Transporter, SentMessageInfo,
+} from 'nodemailer'
 import { oauthDto } from 'dtos'
 import { typeConfig } from 'configs'
 import { userModel } from 'models'
@@ -10,6 +13,7 @@ export type Locale = 'en' | 'fr'
 export type Bindings = {
   DB: D1Database;
   KV: KVNamespace;
+  SMTP: { init: () => Transporter<SentMessageInfo> };
   ENVIRONMENT: string;
   DEV_EMAIL_RECEIVER: string;
   SENDGRID_API_KEY: string;
