@@ -2,17 +2,17 @@ const fs = require('fs')
 const swaggerJsdoc = require('swagger-jsdoc')
 const {
   Scope, ScopeDetail, PutScopeReq, PostScopeReq,
-} = require('./schemas/scope')
+} = require('./schemas/scope.cjs')
 const {
   Role, PutRoleReq, PostRoleReq,
-} = require('./schemas/role')
+} = require('./schemas/role.cjs')
 const {
   App, AppDetail, PostAppReq, PutAppReq,
-} = require('./schemas/app')
+} = require('./schemas/app.cjs')
 const {
   User, UserDetail, PutUserReq,
   UserConsentedApp,
-} = require('./schemas/user')
+} = require('./schemas/user.cjs')
 
 const options = {
   definition: {

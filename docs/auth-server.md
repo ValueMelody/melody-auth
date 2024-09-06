@@ -1,11 +1,6 @@
 # Server Setup
 
-## Prerequisites
-
-- A Cloudflare account
-- Node.js and npm installed on your local machine
-
-## Installation and Setup
+## Environment Setup (Cloudflare)
 
 ### 1. Cloudflare Account Setup
 1. Sign up for a Cloudflare account if you don't have one already.
@@ -64,7 +59,62 @@ npm run prod:deploy
 ```
 Now you are all set, you can verify your server by accessing: `[your_worker_url]/.well-known/openid-configuration`
 
-## Email Functionality Setup
+### Cloudflare Local development
+To set up your local development environment, follow these steps:
+```
+git clone git@github.com:ValueMelody/melody-auth.git
+cd melody-auth
+npm install
+npm run build
+
+cd server
+# Configure your email-related environment variables in dev.vars
+cp dev.vars.example dev.vars
+npm run dev:secret:generate
+npm run dev:migration:apply
+npm run dev:start
+```
+
+## Environment Setup (Node)
+
+### 1. Node, Postgres and Redis setup
+Begin by setting up your PostgreSQL and Redis servers, and ensure you have the connection strings ready for integration. Please also ensure you are using <b>Node.js version 20.05 or higher</b> for compatibility.
+
+### 2. Project setup
+```
+git clone git@github.com:ValueMelody/melody-auth.git
+cd melody-auth
+npm install
+npm run build
+
+cd server
+# Add your PostgreSQL and Redis connection strings to dev.vars
+# Configure your email-related environment variables in dev.vars
+cp dev.vars.example dev.vars
+npm run node:secret:generate
+npm run node:migration:apply
+npm run node:dev
+```
+
+### 3. Production Build
+To prepare for production, follow these steps:
+1. Update server/src/routes/other.tsx file  
+```
+# Comment out the current swagger.json import statement:
+// import swaggerSpec from '../scripts/swagger.json';
+
+# Uncomment the other swagger.json import statement which contains with { type: "json" }:
+import swaggerSpec from '../scripts/swagger.json' with { type: "json" }
+```
+
+2. Run the following commands to build and start the server:
+```
+cd server
+npm run node:build
+npm run node:start
+```
+
+## Mailer Setup
 Melody Auth supports email-based features such as password reset, email verification and email MFA. To make sure these features works as expected, you need to set up SendGrid or Brevo integration and configure the necessary environment variables in your Cloudflare Worker.
 
 ### Prerequisites
@@ -104,23 +154,6 @@ Melody Auth supports email-based features such as password reset, email verifica
 
 - Priority Between SendGrid and Brevo:
   - If both SendGrid and Brevo keys and sender addresses are provided, SendGrid will take precedence.
-
-## Local Development Environment Setup
-To set up your local development environment, follow these steps:
-```
-git clone git@github.com:ValueMelody/melody-auth.git
-cd melody-auth
-npm install
-npm run build
-
-cd server
-cp dev.vars.example dev.vars # Your email functionality related env vars should be put here
-npm run dev:secret:generate
-npm run dev:migration:apply
-npm run dev:start
-```
-
-
 
 ## Additional Configs
 

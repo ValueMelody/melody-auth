@@ -1,6 +1,7 @@
 import { swaggerUI } from '@hono/swagger-ui'
 import { Hono } from 'hono'
 import swaggerSpec from '../scripts/swagger.json'
+// import swaggerSpec from '../scripts/swagger.json' with { type: 'json' }
 import { otherHandler } from 'handlers'
 import { typeConfig } from 'configs'
 

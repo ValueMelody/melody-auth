@@ -26,10 +26,10 @@ actions:
     type: secondary
 
 features:
-  - title: Effortless Deployment
-    details: Streamlined installation process for rapid implementation.
-  - title: Transparent Architecture
-    details: Full source code visibility, enabling thorough audits and modifications.
-  - title: Cloudflare-Powered
-    details: Utilizes Cloudflare's infrastructure for exceptional reliability and enhanced security measures.
+  - title: Flexible Deployment Options
+    details: Deploy quickly on Cloudflare’s edge network for low-latency global access or choose a self-hosted option with Node.js, Redis, and PostgreSQL for full control over your infrastructure.
+  - title: Comprehensive OAuth & Authentication Features
+    details: Melody Auth supports the OAuth 2.0 framework, along with advanced features like multi-factor authentication, brute-force protection, role-based access control, and seamless user authorization flows.
+  - title: Developer-Friendly Tools
+    details: With a user-friendly admin panel, React SDK for seamless front-end integration, and a powerful server-to-server REST API, developers can manage apps, users, and roles easily while ensuring secure communication between services.
 ---

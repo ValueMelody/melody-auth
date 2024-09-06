@@ -1,6 +1,6 @@
 # Melody Auth
 
-**Melody Auth** is turnkey OAuth & authentication system leveraging Cloudflare’s infrastructure. It provides a robust and user-friendly solution for implementing and hosting your own oauth and authentication system with minimal configuration required.
+**Melody Auth** is turnkey OAuth & authentication system that can be seamlessly deployed on Cloudflare’s infrastructure, utilizing Workers, D1, and KV, or self-hosted with Node.js, Redis, and PostgreSQL. It provides a robust and user-friendly solution for implementing and hosting your own oauth and authentication system with minimal configuration required.
 
 ## Features Supported
 - OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication)
@@ -10,10 +10,12 @@
 ## Why Melody Auth?
 
 ### 1. Self-Controlled
-[Server Setup](https://auth.valuemelody.com/auth-server.html)
-- Deploy the entire system within minutes
-- Leverage Cloudflare's infrastructure to minimize DevOps overhead.
-- Full access to the source code
+[Server Setup (Cloudflare)](https://auth.valuemelody.com/auth-server.html#environment-setup-cloudflare)  
+[Server Setup (Node)](https://auth.valuemelody.com/auth-server.html#environment-setup-node)  
+[Mailer Setup](https://auth.valuemelody.com/auth-server.html#mailer-setup)
+- Deploy the entire system within minutes, either using Cloudflare’s infrastructure or self-hosted with Node.js, Redis, and PostgreSQL.
+- Minimize DevOps overhead by leveraging Cloudflare, or maintain full control with a self-hosted solution.
+- Full access to the source code for customization and scalability.
 
 ### 2. Admin Panel
 [Admin Panel Setup](https://auth.valuemelody.com/admin-panel.html)
