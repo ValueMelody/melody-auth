@@ -5,6 +5,10 @@ import base32Encode from 'base32-encode'
 import base32Decode from 'base32-decode'
 import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
 
+export const genRandom8DigitString = (): string => {
+  return (Math.floor(10000000 + Math.random() * 90000000)).toString()
+}
+
 const genRandomBytes = (length: number) => {
   const array = new Uint8Array(length)
   crypto.getRandomValues(array)

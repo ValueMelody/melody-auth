@@ -1,6 +1,5 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { genRandomString } from 'shared'
 import {
   errorConfig,
   localeConfig, typeConfig,
@@ -9,6 +8,7 @@ import { userModel } from 'models'
 import {
   EmailVerificationTemplate, PasswordResetTemplate, EmailMfaTemplate,
 } from 'templates'
+import { cryptoUtil } from 'utils'
 
 const checkEmailSetup = (c: Context<typeConfig.Context>) => {
   const {
@@ -120,7 +120,7 @@ export const sendEmailVerification = async (
   if (!user.email) return null
   checkEmailSetup(c)
 
-  const verificationCode = genRandomString(8)
+  const verificationCode = cryptoUtil.genRandom8DigitString()
   const content = (<EmailVerificationTemplate
     serverUrl={serverUrl}
     authId={user.authId}
@@ -148,7 +148,7 @@ export const sendPasswordReset = async (
   if (!user.email) return null
   checkEmailSetup(c)
 
-  const resetCode = genRandomString(8)
+  const resetCode = cryptoUtil.genRandom8DigitString()
   const content = (<PasswordResetTemplate
     resetCode={resetCode}
     logoUrl={logoUrl}
@@ -174,7 +174,7 @@ export const sendEmailMfa = async (
   if (!user.email) return null
   checkEmailSetup(c)
 
-  const mfaCode = genRandomString(8)
+  const mfaCode = cryptoUtil.genRandom8DigitString()
   const content = (<EmailMfaTemplate
     mfaCode={mfaCode}
     logoUrl={logoUrl}
