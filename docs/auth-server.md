@@ -115,12 +115,10 @@ npm run node:start
 ```
 
 ## Mailer Setup
-Melody Auth supports email-based features such as password reset, email verification and email MFA. To make sure these features works as expected, you need to set up SendGrid or Brevo integration and configure the necessary environment variables in your Cloudflare Worker.
+Melody Auth supports email-based features such as password reset, email verification, and email MFA. To ensure these features work as expected, you need to configure either SendGrid, Brevo, or SMTP integration.
 
-### Prerequisites
-- A SendGrid/Brevo account
-- SendGrid/Brevo API key
-- Verified sender email address in SendGrid/Brevo
+- For Cloudflare Workers or Node Version: SendGrid and Brevo integration are supported.
+-	For the Node version only: You can use an SMTP server.
 
 ### Configuration Steps (Cloudflare Production)
 
@@ -143,9 +141,20 @@ Melody Auth supports email-based features such as password reset, email verifica
 3. Click "Save and deploy" to apply the changes.
 
 ### Configuration Steps (Cloudflare Local or Node)
-Update environment variables in server/.dev.vars file accordingly.
+Update the following environment variables in your server/.dev.vars file:  
+	•	ENVIRONMENT  
+	•	DEV_EMAIL_RECEIVER  
+	•	SENDGRID_API_KEY  
+	•	SENDGRID_SENDER_ADDRESS  
+	•	BREVO_API_KEY  
+	•	BREVO_SENDER_ADDRESS  
 
-### Environment Behavior
+### Configuration Steps (SMTP with Node)
+If you are using the Node version, you can configure the following environment variables in your server/.dev.vars file to use an SMTP server:  
+	•	SMTP_SENDER_NAME  
+	•	SMTP_CONNECTION_STRING  
+
+### Mailer Environment Behavior
 
 - When `ENVIRONMENT` is set to "prod":
   - Emails will be sent to the actual user email addresses.
@@ -155,7 +164,9 @@ Update environment variables in server/.dev.vars file accordingly.
   - All emails will be redirected to the address specified in `DEV_EMAIL_RECEIVER`.
   - This is useful for testing and development to avoid sending emails to real users.
 
-- Priority Between SendGrid and Brevo:
+- Priority Between SendGrid, Brevo and SMTP server:
+  - For node version, If SMTP_CONNECTION_STRING is defined, the SMTP server will always be used, regardless of SendGrid or Brevo settings.
+  - For Cloudflare (both prod and dev): SMTP_CONNECTION_STRING will be ignored.
   - If both SendGrid and Brevo keys and sender addresses are provided, SendGrid will take precedence.
 
 ## Additional Configs

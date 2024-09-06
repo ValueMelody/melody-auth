@@ -8,6 +8,8 @@ BREVO_SENDER_ADDRESS= # Put your Brevo sender address here
 
 AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
 
-# To run project with node, Postgres and Redis
+# Config following env vars to run this project using node, Postgres and Redis, with the option to use an SMTP mailer server as well
 # PG_CONNECTION_STRING=postgres://postgres:postgres@127.0.0.1:5432/melody-auth
 # REDIS_CONNECTION_STRING=redis://username:password@127.0.0.1:6379
+# SMTP_SENDER_NAME=your_email_address
+# SMTP_CONNECTION_STRING=smtp://username:password@smtp.mailserver.com:587

@@ -7,7 +7,7 @@ import * as dotenv from 'dotenv'
 import toml from 'toml'
 import { typeConfig } from 'configs'
 import {
-  pgAdapter, redisAdapter,
+  pgAdapter, redisAdapter, smtpAdapter,
 } from 'adapters'
 import { loadRouters } from 'router'
 
@@ -32,6 +32,7 @@ app.use(
   ) => {
     c.env.KV = redisAdapter.fit() as unknown as any
     c.env.DB = pgAdapter.fit() as unknown as any
+    c.env.SMTP = smtpAdapter.fit()
     await next()
   },
 )
