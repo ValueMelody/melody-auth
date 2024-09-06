@@ -122,7 +122,7 @@ Melody Auth supports email-based features such as password reset, email verifica
 - SendGrid/Brevo API key
 - Verified sender email address in SendGrid/Brevo
 
-### Configuration Steps
+### Configuration Steps (Cloudflare Production)
 
 1. Navigate to the Cloudflare dashboard:
    - Go to Workers & Pages
@@ -141,6 +141,9 @@ Melody Auth supports email-based features such as password reset, email verifica
    | BREVO_SENDER_ADDRESS | Your verified sender email address in Brevo (not needed if you intend to use SendGrid) | "noreply@yourdomain.com" |
 
 3. Click "Save and deploy" to apply the changes.
+
+### Configuration Steps (Cloudflare Local or Node)
+Update environment variables in server/.dev.vars file accordingly.
 
 ### Environment Behavior
 
