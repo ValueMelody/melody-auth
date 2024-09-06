@@ -42,7 +42,7 @@ export const sendEmail = async (
   if (c.env.SMTP) {
     const transporter = c.env.SMTP.init()
     const res = await transporter.sendMail({
-      from: process.env.SMTP_SENDER_NAME || 'Melody Auth',
+      from: process.env.SMTP_SENDER_NAME,
       to: receiver,
       subject,
       html: emailBody,
