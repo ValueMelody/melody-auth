@@ -89,13 +89,10 @@ export const signWithKid = async (
     signingInputBytes,
   )
 
-  // Step 5: Base64URL encode the signature
   const signatureArray = new Uint8Array(signature)
   const signatureBase64Url = base64UrlEncode(String.fromCharCode(...signatureArray))
 
-  // Step 6: Combine the parts to form the final JWT
   const jwt = `${signingInput}.${signatureBase64Url}`
-
   return jwt
 }
 
