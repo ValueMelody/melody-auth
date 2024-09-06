@@ -95,13 +95,13 @@ const Page = () => {
     <section>
       <PageTitle
         className='mb-6'
-        title={t('roles.role')} />
+        title={t('roles.role')}
+      />
       <section>
         <Table>
           <Table.Head>
-            <Table.HeadCell>{t('common.property')}</Table.HeadCell>
+            <Table.HeadCell className='w-48'>{t('common.property')}</Table.HeadCell>
             <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-            <Table.HeadCell />
           </Table.Head>
           <Table.Body className='divide-y'>
             <Table.Row>

@@ -68,11 +68,12 @@ const Page = () => {
     <section>
       <PageTitle
         className='mb-6'
-        title={t('scopes.new')} />
+        title={t('scopes.new')}
+      />
       <section>
         <Table>
           <Table.Head>
-            <Table.HeadCell>{t('common.property')}</Table.HeadCell>
+            <Table.HeadCell className='w-48'>{t('common.property')}</Table.HeadCell>
             <Table.HeadCell>{t('common.value')}</Table.HeadCell>
           </Table.Head>
           <Table.Body className='divide-y'>
