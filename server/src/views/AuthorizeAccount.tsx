@@ -14,7 +14,14 @@ import Title from 'views/components/Title'
 import Field from 'views/components/Field'
 
 const AuthorizeAccount = ({
-  queryDto, logoUrl, enableNames, namesIsRequired, queryString, locales,
+  queryDto,
+  logoUrl,
+  enableNames,
+  namesIsRequired,
+  queryString,
+  locales,
+  termsLink,
+  privacyPolicyLink,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   logoUrl: string;
@@ -22,6 +29,8 @@ const AuthorizeAccount = ({
   namesIsRequired: boolean;
   queryString: string;
   locales: typeConfig.Locale[];
+  termsLink: string;
+  privacyPolicyLink: string;
 }) => {
   return (
     <Layout
@@ -76,6 +85,36 @@ const AuthorizeAccount = ({
           <SubmitButton
             title={localeConfig.authorizeAccount.signUp[queryDto.locale]}
           />
+          {(termsLink || privacyPolicyLink) && (
+            <div class='text-center text-gray'>
+              <p>
+                {localeConfig.authorizeAccount.bySignUp[queryDto.locale]}&nbsp;
+                {termsLink && (
+                  <a
+                    target='_blank'
+                    href={termsLink}
+                    rel='noreferrer'
+                  >
+                    {localeConfig.authorizeAccount.terms[queryDto.locale]}
+                  </a>
+                )}
+                {termsLink && privacyPolicyLink && (
+                  <>
+                    &nbsp;{localeConfig.authorizeAccount.linkConnect[queryDto.locale]}&nbsp;
+                  </>
+                )}
+                {privacyPolicyLink && (
+                  <a
+                    target='_blank'
+                    href={privacyPolicyLink}
+                    rel='noreferrer'
+                  >
+                    {localeConfig.authorizeAccount.privacyPolicy[queryDto.locale]}
+                  </a>
+                )}
+              </p>
+            </div>
+          )}
         </section>
       </form>
       <a

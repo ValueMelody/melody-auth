@@ -485,6 +485,10 @@ describe(
         expect(document.getElementsByName('lastName').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
         expect(document.getElementsByTagName('select').length).toBe(1)
+
+        expect(html).not.toContain(localeConfig.authorizeAccount.bySignUp.en)
+        expect(html).not.toContain(localeConfig.authorizeAccount.terms.en)
+        expect(html).not.toContain(localeConfig.authorizeAccount.privacyPolicy.en)
       },
     )
 
@@ -573,6 +577,78 @@ describe(
         expect(lastNameLabel).toContain(localeConfig.authorizeAccount.lastName.en)
         expect(lastNameLabel).toContain('*')
         global.process.env.NAMES_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'could show terms and privacy policy',
+      async () => {
+        global.process.env.TERMS_LINK = 'https://google.com'
+        global.process.env.PRIVACY_POLICY_LINK = 'https://microsoft.com'
+        const appRecord = await getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-account${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+
+        expect(html).toContain(localeConfig.authorizeAccount.bySignUp.en)
+        expect(html).toContain('href="https://google.com"')
+        expect(html).toContain(localeConfig.authorizeAccount.terms.en)
+        expect(html).toContain('href="https://microsoft.com"')
+        expect(html).toContain(localeConfig.authorizeAccount.privacyPolicy.en)
+        global.process.env.TERMS_LINK = ''
+        global.process.env.PRIVACY_POLICY_LINK = ''
+      },
+    )
+
+    test(
+      'could only show terms',
+      async () => {
+        global.process.env.TERMS_LINK = 'https://google.com'
+        const appRecord = await getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-account${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+
+        expect(html).toContain(localeConfig.authorizeAccount.bySignUp.en)
+        expect(html).toContain('href="https://google.com"')
+        expect(html).toContain(localeConfig.authorizeAccount.terms.en)
+        expect(html).not.toContain(localeConfig.authorizeAccount.privacyPolicy.en)
+        global.process.env.TERMS_LINK = ''
+      },
+    )
+
+    test(
+      'could only show privacy policy',
+      async () => {
+        global.process.env.PRIVACY_POLICY_LINK = 'https://microsoft.com'
+        const appRecord = await getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${BaseRoute}/authorize-account${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+
+        expect(html).toContain(localeConfig.authorizeAccount.bySignUp.en)
+        expect(html).not.toContain(localeConfig.authorizeAccount.terms.en)
+        expect(html).toContain('href="https://microsoft.com"')
+        expect(html).toContain(localeConfig.authorizeAccount.privacyPolicy.en)
+        global.process.env.PRIVACY_POLICY_LINK = ''
       },
     )
   },

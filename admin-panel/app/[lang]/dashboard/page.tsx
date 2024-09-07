@@ -122,6 +122,14 @@ const Page = () => {
             <Table.Cell className='break-all'>{configs.COMPANY_LOGO_URL}</Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>TERMS_LINK</Table.Cell>
+            <Table.Cell>{configs.TERMS_LINK}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>PRIVACY_POLICY_LINK</Table.Cell>
+            <Table.Cell>{configs.PRIVACY_POLICY_LINK}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>ENABLE_NAMES</Table.Cell>
             <Table.Cell>
               <ConfigBooleanValue config={configs.ENABLE_NAMES} />

@@ -46,6 +46,8 @@ export type Bindings = {
   UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: boolean;
   SUPPORTED_LOCALES: Locale[];
   ENABLE_LOCALE_SELECTOR: boolean;
+  TERMS_LINK: string;
+  PRIVACY_POLICY_LINK: string;
 };
 
 export type Context = {

@@ -182,6 +182,22 @@ export const authorizeAccount = Object.freeze({
     en: 'Already have an account? Sign in',
     fr: 'Vous avez déjà un compte ? Connectez-vous.',
   },
+  bySignUp: {
+    en: 'By signing up, you agree to our',
+    fr: 'En vous inscrivant, vous acceptez nos',
+  },
+  linkConnect: {
+    en: 'and',
+    fr: 'et',
+  },
+  terms: {
+    en: 'Terms of Service',
+    fr: 'Conditions d’utilisation',
+  },
+  privacyPolicy: {
+    en: 'Privacy Policy',
+    fr: 'Politique de confidentialité',
+  },
 })
 
 export const authorizeOtpMfa = Object.freeze({

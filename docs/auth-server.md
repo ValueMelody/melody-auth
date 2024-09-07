@@ -290,3 +290,11 @@ npm run prod:deploy
 ### ENABLE_LOCALE_SELECTOR
 - **Default:** true
 - **Description:** Determines whether users can switch to a different locale on identity pages. If only one locale is supported (`SUPPORTED_LOCALE`), the locale selector will be suppressed, regardless of this setting.
+
+### TERMS_LINK
+- **Default:** ""
+- **Description:** URL to display a link to your Terms of Service on the sign-up page.
+
+### PRIVACY_POLICY_LINK
+- **Default:** ""
+- **Description:** URL to display a link to your Privacy Policy on the sign-up page.

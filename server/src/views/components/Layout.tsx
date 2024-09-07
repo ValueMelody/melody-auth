@@ -48,6 +48,7 @@ const Layout = ({
           .text-sm { font-size: 14px; }
           .text-red { color: #e00; }
           .text-green { color: green; }
+          .text-gray { color: gray; }
           .text-center { text-align: center; }
           .p-2 { padding: 8px; }
           .p-4 { padding: 16px; }
