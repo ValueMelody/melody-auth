@@ -68,8 +68,8 @@ npm install
 npm run build
 
 cd server
-# Configure your email-related environment variables in dev.vars
-cp dev.vars.example dev.vars
+cp .dev.vars.example .dev.vars
+# Configure your email-related environment variables in .dev.vars
 npm run dev:secret:generate
 npm run dev:migration:apply
 npm run dev:start
@@ -88,9 +88,9 @@ npm install
 npm run build
 
 cd server
-# Add your PostgreSQL and Redis connection strings to dev.vars
-# Configure your email-related environment variables in dev.vars
-cp dev.vars.example dev.vars
+cp .dev.vars.example .dev.vars
+# Add your PostgreSQL and Redis connection strings to .dev.vars
+# Configure your email-related environment variables in .dev.vars
 npm run node:secret:generate
 npm run node:migration:apply
 npm run node:dev
