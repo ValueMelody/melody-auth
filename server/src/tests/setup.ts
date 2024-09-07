@@ -1,15 +1,13 @@
-import fs, { readFileSync } from 'fs'
-import path from 'path'
+import { readFileSync } from 'fs'
 import crypto from 'crypto'
 import {
   Context, Next,
 } from 'hono'
-import {
-  vi, Mock,
-} from 'vitest'
+import { vi } from 'vitest'
 import toml from 'toml'
-import { session } from 'tests/mock'
-import { cryptoUtil } from 'utils'
+import {
+  fetchMock, session,
+} from 'tests/mock'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -22,6 +20,8 @@ global.process.env = {
   AUTH_SERVER_URL: 'http://localhost:8787',
   SENDGRID_API_KEY: 'abc',
   SENDGRID_SENDER_ADDRESS: 'app@valuemelody.com',
+  ENVIRONMENT: 'prod',
+  DEV_EMAIL_RECEIVER: 'dev@email.com',
 }
 
 const mockMiddleware = async (
@@ -118,21 +118,4 @@ vi.mock(
   },
 )
 
-global.fetch = vi.fn(async (url) => {
-  if (url === 'https://www.googleapis.com/oauth2/v3/certs') {
-    const key = fs.readFileSync(
-      path.resolve('node_jwt_public_key.pem'),
-      'utf8',
-    )
-    const jwk = await cryptoUtil.secretToJwk(key)
-    return Promise.resolve({
-      ok: true,
-      json: () => ({
-        keys: [
-          jwk,
-        ],
-      }),
-    })
-  }
-  return Promise.resolve({ ok: true })
-}) as Mock
+global.fetch = fetchMock

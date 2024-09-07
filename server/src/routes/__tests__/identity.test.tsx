@@ -1,5 +1,6 @@
 import {
-  afterEach, beforeEach, describe, expect, test,
+  afterEach, beforeEach, describe, expect, Mock, test,
+  vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import { JSDOM } from 'jsdom'
@@ -9,6 +10,7 @@ import { sign } from 'hono/jwt'
 import { Context } from 'hono'
 import app from 'index'
 import {
+  fetchMock,
   migrate, mock,
   mockedKV,
 } from 'tests/mock'
@@ -26,6 +28,7 @@ import {
 } from 'tests/util'
 import { cryptoUtil } from 'utils'
 import { jwtService } from 'services'
+import { AuthCodeBody } from 'configs/type'
 
 let db: Database
 
@@ -678,6 +681,11 @@ describe(
     test(
       'should get auth code after sign up',
       async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
         const res = await postAuthorizeAccount()
         const json = await res.json()
         expect(json).toStrictEqual({
@@ -693,11 +701,24 @@ describe(
         })
         const appRecord = await getApp(db)
         const { code } = json as { code: string }
-        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${code}`) ?? '')
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${code}`) ?? '') as AuthCodeBody
         expect(codeStore.appId).toBe(1)
         expect(codeStore.appName).toBe(appRecord.name)
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? '').length).toBe(8)
+
+        const verificationCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
+        expect(verificationCode.length).toBe(8)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(verificationCode)
+        expect(body).toContain(localeConfig.emailVerificationEmail.verify.en)
+        expect(body).toContain(`/identity/v1/verify-email?id=${codeStore.user.authId}&amp;locale=en`)
+
+        global.fetch = fetchMock
       },
     )
 
@@ -908,11 +929,27 @@ describe(
     test(
       'should send reset code',
       async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
         await insertUsers(db)
         const res = await testSendResetCode('/reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBe(8)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(code)
+
+        global.fetch = fetchMock
       },
     )
 
@@ -953,11 +990,150 @@ describe(
     test(
       'should send reset code',
       async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
         await insertUsers(db)
         const res = await testSendResetCode('/resend-reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBe(8)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(code)
+        expect(body).toContain('"personalizations":[{"to":[{"email":"test@email.com"}]}]')
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should send email to dev in dev env',
+      async () => {
+        process.env.ENVIRONMENT = 'dev'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const res = await testSendResetCode('/resend-reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBe(8)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(code)
+        expect(body).toContain('"personalizations":[{"to":[{"email":"dev@email.com"}]}]')
+        global.fetch = fetchMock
+
+        process.env.ENVIRONMENT = 'prod'
+      },
+    )
+
+    test(
+      'pass through if failed send email',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: false })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const res = await testSendResetCode('/resend-reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBeFalsy()
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'could send reset code by Brevo',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = 'abc'
+        process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const res = await testSendResetCode('/resend-reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBe(8)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.brevo.com/v3/smtp/email')
+        expect(body).toContain(code)
+        expect(body).toContain('"to":[{"email":"test@email.com"}]')
+
+        global.fetch = fetchMock
+
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+      },
+    )
+
+    test(
+      'could send reset code by smtp',
+      async () => {
+        const sendEmailMock = vi.fn(async () => {
+          return Promise.resolve({ accepted: ['test@email.com'] })
+        })
+
+        await insertUsers(db)
+        const res = await app.request(
+          `${BaseRoute}/resend-reset-code`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'test@email.com',
+              password: 'Password1!',
+            }),
+          },
+          {
+            ...mock(db),
+            SMTP: { init: () => ({ sendMail: sendEmailMock }) },
+          },
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBe(8)
+
+        expect(sendEmailMock).toBeCalledTimes(1)
+        const callArgs = sendEmailMock.mock.calls[0] as any[]
+        const body = (callArgs[0] as unknown as { html: string }).html
+        expect(body).toContain(code)
       },
     )
 
@@ -1843,8 +2019,13 @@ describe(
   'post /authorize-email-mfa',
   () => {
     test(
-      'should could use original code',
+      'could use original code',
       async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
         await insertUsers(
           db,
           false,
@@ -1858,6 +2039,17 @@ describe(
           mock(db),
         )
         const code = getCodeFromParams(params)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
+        expect(mfaCode?.length).toBe(8)
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(mfaCode)
+
+        global.fetch = fetchMock
 
         const res = await app.request(
           `${BaseRoute}/authorize-email-mfa`,
@@ -1886,6 +2078,33 @@ describe(
           requireOtpMfa: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
+      },
+    )
+
+    test(
+      'pass through if failed send email',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: false })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+        const params = await prepareFollowUpParams()
+
+        await app.request(
+          `${BaseRoute}/authorize-email-mfa${params}`,
+          {},
+          mock(db),
+        )
+        const code = getCodeFromParams(params)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
+        expect(mfaCode?.length).toBeFalsy()
       },
     )
 
@@ -1928,6 +2147,11 @@ describe(
     test(
       'should could use resend code',
       async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
         await insertUsers(
           db,
           false,
@@ -1948,6 +2172,16 @@ describe(
         )
 
         const code = body.code
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`)
+        expect(mfaCode?.length).toBe(8)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(emailBody).toContain(mfaCode)
+        global.fetch = fetchMock
 
         const res = await app.request(
           `${BaseRoute}/authorize-email-mfa`,

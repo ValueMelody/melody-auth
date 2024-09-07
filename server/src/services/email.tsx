@@ -17,7 +17,7 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
     SENDGRID_API_KEY: sendgridApiKey,
     SENDGRID_SENDER_ADDRESS: sendgridSender,
   } = env(c)
-  if ((!brevoApiKey || !brevoSender) && (!sendgridApiKey || !sendgridSender)) {
+  if (!c.env.SMTP && (!brevoApiKey || !brevoSender) && (!sendgridApiKey || !sendgridSender)) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoEmailSender)
   }
 }
@@ -103,8 +103,6 @@ export const sendEmail = async (
     )
     return res.ok
   }
-
-  return false
 }
 
 export const sendEmailVerification = async (

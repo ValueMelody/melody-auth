@@ -1,5 +1,6 @@
 import {
-  afterEach, beforeEach, describe, expect, test,
+  afterEach, beforeEach, describe, expect, Mock, test,
+  vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import { Scope } from 'shared'
@@ -10,6 +11,7 @@ import {
 import {
   mockedKV,
   migrate, mock,
+  fetchMock,
 } from 'tests/mock'
 import {
   userAppConsentModel, userModel,
@@ -613,6 +615,11 @@ describe(
       async () => {
         await insertUsers()
 
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/verify-email`,
           {
@@ -627,6 +634,77 @@ describe(
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
         expect(code.length).toBe(8)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(code)
+        expect(body).toContain(localeConfig.emailVerificationEmail.verify.en)
+        expect(body).toContain('/identity/v1/verify-email?id=1-1-1-1&amp;locale=en')
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'pass through if failed to send email',
+      async () => {
+        await insertUsers()
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: false })
+        })
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/verify-email`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({ success: true })
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
+        expect(code.length).toBeFalsy()
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'throw error if no email sender set',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+
+        await insertUsers()
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: false })
+        })
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/verify-email`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.NoEmailSender)
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
+        expect(code).toBeFalsy()
+        global.fetch = fetchMock
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
       },
     )
 

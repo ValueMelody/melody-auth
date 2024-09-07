@@ -1,11 +1,15 @@
 import fs from 'fs'
 import path from 'path'
 import Sqlite, { Database } from 'better-sqlite3'
+import {
+  Mock, vi,
+} from 'vitest'
 import { adapterConfig } from 'configs'
 import {
   pgAdapter, redisAdapter,
 } from 'adapters'
 import { userModel } from 'models'
+import { cryptoUtil } from 'utils'
 
 const convertQuery = (
   query: string, params: string[],
@@ -218,3 +222,22 @@ export const migrate = async () => {
 
   return db
 }
+
+export const fetchMock = vi.fn(async (url) => {
+  if (url === 'https://www.googleapis.com/oauth2/v3/certs') {
+    const key = fs.readFileSync(
+      path.resolve('node_jwt_public_key.pem'),
+      'utf8',
+    )
+    const jwk = await cryptoUtil.secretToJwk(key)
+    return Promise.resolve({
+      ok: true,
+      json: () => ({
+        keys: [
+          jwk,
+        ],
+      }),
+    })
+  }
+  return Promise.resolve({ ok: true })
+}) as Mock
