@@ -24,6 +24,9 @@ actions:
   - text: Q&A
     link: /q&a.html
     type: secondary
+  - text: Changelog
+    link: /change-log.html
+    type: secondary
 
 features:
   - title: Flexible Deployment Options

@@ -3,7 +3,7 @@
 **Melody Auth** is turnkey OAuth & authentication system that can be seamlessly deployed on Cloudflare’s infrastructure, utilizing Workers, D1, and KV, or self-hosted with Node.js, Redis, and PostgreSQL. It provides a robust and user-friendly solution for implementing and hosting your own oauth and authentication system with minimal configuration required.
 
 ## Features Supported
-- OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication)
+- OAuth 2.0 Support (Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, RSA256 based JWT Authentication, JWT Secret Rotate)
 - User Authorization (Sign In, Sign Up, Google Sign In, Sign Out, Email Verification, Password Reset, Email MFA, OTP MFA, MFA Enrollment, Brute-force Protection, Role-Based Access Control, Localization) [Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)
 - S2S REST API & Admin Panel (Manage Users, Manage Apps, Manage Scopes, Manage Roles) [Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)
 
@@ -12,7 +12,8 @@
 ### 1. Self-Controlled
 [Server Setup (Cloudflare)](https://auth.valuemelody.com/auth-server.html#environment-setup-cloudflare)  
 [Server Setup (Node)](https://auth.valuemelody.com/auth-server.html#environment-setup-node)  
-[Mailer Setup](https://auth.valuemelody.com/auth-server.html#mailer-setup)
+[Mailer Setup](https://auth.valuemelody.com/auth-server.html#mailer-setup)  
+[Configurations](https://auth.valuemelody.com/auth-server.html#additional-configs)
 - Deploy the entire system within minutes, either using Cloudflare’s infrastructure or self-hosted with Node.js, Redis, and PostgreSQL.
 - Minimize DevOps overhead by leveraging Cloudflare, or maintain full control with a self-hosted solution.
 - Full access to the source code for customization and scalability.

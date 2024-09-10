@@ -124,6 +124,7 @@ describe(
     test(
       'should return 401 without proper scope',
       async () => {
+        await attachIndividualScopes(db)
         const res = await app.request(
           BaseRoute,
           {
@@ -131,6 +132,32 @@ describe(
               Authorization: `Bearer ${await getS2sToken(
                 db,
                 Scope.WriteScope,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          BaseRoute,
+          {},
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
+      },
+    )
+
+    test(
+      'should return 401 without attach scope to app',
+      async () => {
+        const res = await app.request(
+          BaseRoute,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadScope,
               )}`,
             },
           },
@@ -247,7 +274,25 @@ describe(
     test(
       'should return 401 without proper scope',
       async () => {
-        const res = await createNewScope(Scope.ReadScope)
+        attachIndividualScopes(db)
+        const res = await createNewScope(await getS2sToken(
+          db,
+          Scope.ReadScope,
+        ))
+        expect(res.status).toBe(401)
+
+        const res1 = await createNewScope('')
+        expect(res1.status).toBe(401)
+      },
+    )
+
+    test(
+      'should return 401 without attach scope to app',
+      async () => {
+        const res = await createNewScope(await getS2sToken(
+          db,
+          Scope.WriteScope,
+        ))
         expect(res.status).toBe(401)
 
         const res1 = await createNewScope('')

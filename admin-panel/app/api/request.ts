@@ -21,7 +21,7 @@ const client = jwksClient({ jwksUri: `${process.env.NEXT_PUBLIC_SERVER_URI}/.wel
 const getKey = (
   header, callback,
 ) => {
-  client.getSigningKey(
+  return client.getSigningKey(
     header.kid,
     (
       err, key,

@@ -22,6 +22,11 @@ export const getJwtPublicSecret = async (kv: KVNamespace): Promise<string> => {
   return secretInKv
 }
 
+export const getDeprecatedPublicSecret = async (kv: KVNamespace): Promise<string | null> => {
+  const secretInKv = await kv.get(adapterConfig.BaseKVKey.DeprecatedJwtPublicSecret)
+  return secretInKv
+}
+
 export const storeAuthCode = async (
   kv: KVNamespace,
   authCode: string,

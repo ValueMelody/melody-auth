@@ -14,7 +14,7 @@ import {
 import {
   getApp, getAuthorizeParams, getSignInRequest, insertUsers, postSignInRequest,
   prepareFollowUpBody,
-} from 'routes/__tests__/identity.test'
+} from '__tests__/normal/identity.test'
 import { oauthDto } from 'dtos'
 import { appModel } from 'models'
 import {

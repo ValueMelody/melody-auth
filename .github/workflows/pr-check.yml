@@ -25,3 +25,6 @@ jobs:
     - run: cd ./server && npm run node:secret:generate
     - run: cd ./server && npm run test:check:cf
     - run: cd ./server && npm run test:check:node
+    - run: cd ./server && npm run node:secret:generate
+    - run: cd ./server && npm run test:check:cf-key-rotate
+    - run: cd ./server && npm run test:check:node-key-rotate
