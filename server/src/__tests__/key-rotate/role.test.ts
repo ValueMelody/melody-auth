@@ -2,11 +2,11 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
-import {
-  Role,
-} from 'shared'
+import { Role } from 'shared'
 import app from 'index'
-import { adapterConfig, routeConfig } from 'configs'
+import {
+  adapterConfig, routeConfig,
+} from 'configs'
 import {
   migrate, mock,
   mockedKV,
@@ -14,12 +14,13 @@ import {
 import {
   dbTime, getS2sToken, superAdminRole,
 } from 'tests/util'
-import { appModel, roleModel } from 'models'
-import { getCurrentTimestamp } from 'utils/time'
-import { cryptoUtil, timeUtil } from 'utils'
-import { signWithKid } from 'services/jwt'
+import {
+  appModel, roleModel,
+} from 'models'
+import {
+  cryptoUtil, timeUtil,
+} from 'utils'
 import { jwtService } from 'services'
-import { JWTPayload } from 'hono/utils/jwt/types'
 
 let db: Database
 
@@ -146,5 +147,5 @@ describe(
         })
       },
     )
-  }
+  },
 )

@@ -78,8 +78,14 @@ async function generateRSAKeyPair () {
     const hasPrivateKey = fs.existsSync(NODE_PRIVATE_KEY_FILE)
 
     if (hasPublicKey && hasPrivateKey) {
-      fs.copyFileSync(NODE_PUBLIC_KEY_FILE, NODE_DEPRECATED_PUBLIC_KEY_FILE)
-      fs.copyFileSync(NODE_PRIVATE_KEY_FILE, NODE_DEPRECATED_PRIVATE_KEY_FILE)
+      fs.copyFileSync(
+        NODE_PUBLIC_KEY_FILE,
+        NODE_DEPRECATED_PUBLIC_KEY_FILE,
+      )
+      fs.copyFileSync(
+        NODE_PRIVATE_KEY_FILE,
+        NODE_DEPRECATED_PRIVATE_KEY_FILE,
+      )
     }
 
     fs.writeFileSync(

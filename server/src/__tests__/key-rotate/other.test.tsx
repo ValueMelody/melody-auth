@@ -49,7 +49,7 @@ describe(
               alg: 'RS256',
               use: 'sig',
               kid: expect.any(String),
-            }
+            },
           ],
         })
       },
