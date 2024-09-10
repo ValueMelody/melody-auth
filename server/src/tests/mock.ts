@@ -49,16 +49,24 @@ const kvMock = {
         path.resolve(adapterConfig.FileLocation.NodePrivateKey),
         'utf8',
       )
-    case adapterConfig.BaseKVKey.DeprecatedJwtPublicSecret:
-      return fs.readFileSync(
-        path.resolve(adapterConfig.FileLocation.NodeDeprecatedPublicKey),
-        'utf8',
-      )
-    case adapterConfig.BaseKVKey.DeprecatedJwtPrivateSecret:
-      return fs.readFileSync(
-        path.resolve(adapterConfig.FileLocation.NodeDeprecatedPrivateKey),
-        'utf8',
-      )
+    case adapterConfig.BaseKVKey.DeprecatedJwtPublicSecret: {
+      const location = path.resolve(adapterConfig.FileLocation.NodeDeprecatedPublicKey)
+      return fs.existsSync(location)
+        ? fs.readFileSync(
+          location,
+          'utf8',
+        )
+        : null
+    }
+    case adapterConfig.BaseKVKey.DeprecatedJwtPrivateSecret: {
+      const location = path.resolve(adapterConfig.FileLocation.NodeDeprecatedPrivateKey)
+      return fs.existsSync(location)
+        ? fs.readFileSync(
+          location,
+          'utf8',
+        )
+        : null
+    }
     case adapterConfig.BaseKVKey.SessionSecret:
       return 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     default:
