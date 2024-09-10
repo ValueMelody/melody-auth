@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { exec } = require('child_process')
+const { execSync } = require('child_process')
 const crypto = require('crypto')
 
 function convertArrayBufferToPEM (
@@ -25,6 +25,8 @@ const PRIVATE_KEY_FILE = 'jwt_private_key.pem'
 const PUBLIC_KEY_FILE = 'jwt_public_key.pem'
 const NODE_PRIVATE_KEY_FILE = 'node_jwt_private_key.pem'
 const NODE_PUBLIC_KEY_FILE = 'node_jwt_public_key.pem'
+const NODE_DEPRECATED_PRIVATE_KEY_FILE = 'node_deprecated_jwt_private_key.pem'
+const NODE_DEPRECATED_PUBLIC_KEY_FILE = 'node_deprecated_jwt_public_key.pem'
 const NODE_SESSION_SECRET_FILE = 'node_session_secret'
 
 async function generateRSAKeyPair () {
@@ -64,6 +66,22 @@ async function generateRSAKeyPair () {
   const sessionSecret = crypto.randomBytes(20).toString('hex')
 
   if (isNode) {
+    const hasSessionSecret = fs.existsSync(NODE_SESSION_SECRET_FILE)
+    if (!hasSessionSecret) {
+      fs.writeFileSync(
+        NODE_SESSION_SECRET_FILE,
+        sessionSecret,
+      )
+    }
+
+    const hasPublicKey = fs.existsSync(NODE_PUBLIC_KEY_FILE)
+    const hasPrivateKey = fs.existsSync(NODE_PRIVATE_KEY_FILE)
+
+    if (hasPublicKey && hasPrivateKey) {
+      fs.copyFileSync(NODE_PUBLIC_KEY_FILE, NODE_DEPRECATED_PUBLIC_KEY_FILE)
+      fs.copyFileSync(NODE_PRIVATE_KEY_FILE, NODE_DEPRECATED_PRIVATE_KEY_FILE)
+    }
+
     fs.writeFileSync(
       NODE_PUBLIC_KEY_FILE,
       pemPublicKey,
@@ -72,12 +90,34 @@ async function generateRSAKeyPair () {
       NODE_PRIVATE_KEY_FILE,
       pemPrivateKey,
     )
-    fs.writeFileSync(
-      NODE_SESSION_SECRET_FILE,
-      sessionSecret,
-    )
+
     console.info('Secrets generated for node env')
   } else {
+    const condition = isProd ? '' : '--local'
+
+    const [hasSessionSecret] = JSON.parse(execSync(`wrangler kv key list --prefix=sessionSecret --binding=KV ${condition}`).toString())
+    if (!hasSessionSecret) {
+      execSync(`wrangler kv key put sessionSecret ${sessionSecret} --binding=KV ${condition}`)
+    }
+
+    const [hasPublicKey] = JSON.parse(execSync(`wrangler kv key list --prefix=jwtPublicSecret --binding=KV ${condition}`).toString())
+    const [hasPrivateKey] = JSON.parse(execSync(`wrangler kv key list --prefix=jwtPrivateSecret --binding=KV ${condition}`).toString())
+    if (hasPublicKey && hasPrivateKey) {
+      const currentPublicKey = execSync(`wrangler kv key get jwtPublicSecret --binding=KV ${condition}`).toString()
+      const currentPrivateKey = execSync(`wrangler kv key get jwtPrivateSecret --binding=KV ${condition}`).toString()
+
+      fs.writeFileSync(
+        PUBLIC_KEY_FILE,
+        currentPublicKey,
+      )
+      fs.writeFileSync(
+        PRIVATE_KEY_FILE,
+        currentPrivateKey,
+      )
+      execSync(`wrangler kv key put deprecatedJwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${condition}`)
+      execSync(`wrangler kv key put deprecatedJwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${condition}`)
+    }
+
     fs.writeFileSync(
       PUBLIC_KEY_FILE,
       pemPublicKey,
@@ -86,29 +126,11 @@ async function generateRSAKeyPair () {
       PRIVATE_KEY_FILE,
       pemPrivateKey,
     )
-  }
 
-  if (!isNode) {
-    exec(
-      `
-        wrangler kv key put jwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${isProd ? '' : '--local'} \
-        && wrangler kv key put jwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${isProd ? '' : '--local'} \
-        && wrangler kv key put sessionSecret ${sessionSecret} --binding=KV ${isProd ? '' : '--local'}
-      `,
-      (
-        error, stdout, stderr,
-      ) => {
-        if (error) {
-          console.error(`Error executing command: ${error.message}`)
-          return
-        }
-        if (stderr) {
-          console.error(`stderr: ${stderr}`)
-          return
-        }
-        console.log(`stdout: ${stdout}`)
-      },
-    )
+    execSync(`wrangler kv key put jwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${condition}`)
+    execSync(`wrangler kv key put jwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${condition}`)
+
+    console.info('Secrets generated for CF env')
   }
 }
 

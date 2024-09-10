@@ -20,14 +20,28 @@ export const fit = () => (
       switch (key) {
       case adapterConfig.BaseKVKey.JwtPublicSecret:
         return fs.readFileSync(
-          path.resolve('./node_jwt_public_key.pem'),
+          path.resolve(adapterConfig.FileLocation.NodePublicKey),
           'utf8',
         )
       case adapterConfig.BaseKVKey.JwtPrivateSecret:
         return fs.readFileSync(
-          path.resolve('./node_jwt_private_key.pem'),
+          path.resolve(adapterConfig.FileLocation.NodePrivateKey),
           'utf8',
         )
+      case adapterConfig.BaseKVKey.DeprecatedJwtPublicSecret: {
+        const location = path.resolve(adapterConfig.FileLocation.NodeDeprecatedPublicKey)
+        return fs.existsSync(location) ? fs.readFileSync(
+          location,
+          'utf8',
+        ) : null
+      }
+      case adapterConfig.BaseKVKey.DeprecatedJwtPrivateSecret: {
+        const location = path.resolve(adapterConfig.FileLocation.NodeDeprecatedPrivateKey)
+        return fs.existsSync(location) ? fs.readFileSync(
+          location,
+          'utf8',
+        ) : null
+      }
       case adapterConfig.BaseKVKey.SessionSecret:
         return fs.readFileSync(
           path.resolve('./node_session_secret'),

@@ -253,6 +253,7 @@ describe(
     test(
       'should return 401 without proper scope',
       async () => {
+        await attachIndividualScopes(db)
         const res = await app.request(
           BaseRoute,
           {

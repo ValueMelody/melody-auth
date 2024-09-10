@@ -114,19 +114,15 @@ describe(
           {},
           mock(db),
         )
-        const json = await res.json() as { configs: object }
+        const json = await res.json() as { keys: any[] }
 
-        expect(json).toStrictEqual({
-          keys: [
-            {
-              kty: 'RSA',
-              n: expect.any(String),
-              e: 'AQAB',
-              alg: 'RS256',
-              use: 'sig',
-              kid: expect.any(String),
-            },
-          ],
+        expect(json.keys[0]).toStrictEqual({
+          kty: 'RSA',
+          n: expect.any(String),
+          e: 'AQAB',
+          alg: 'RS256',
+          use: 'sig',
+          kid: expect.any(String),
         })
       },
     )

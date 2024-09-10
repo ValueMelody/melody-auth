@@ -14,7 +14,7 @@ import {
 import { kvService } from 'services'
 import { cryptoUtil } from 'utils'
 
-const base64UrlEncode = (data: string) => btoa(data)
+export const base64UrlEncode = (data: string) => btoa(data)
   .replace(
     /\+/g,
     '-',
@@ -28,7 +28,7 @@ const base64UrlEncode = (data: string) => btoa(data)
     '',
   )
 
-const decodeBase64 = (str: string): Uint8Array => {
+export const decodeBase64 = (str: string): Uint8Array => {
   const binary = atob(str)
   const bytes = new Uint8Array(new ArrayBuffer(binary.length))
   const half = binary.length / 2
@@ -39,7 +39,7 @@ const decodeBase64 = (str: string): Uint8Array => {
   return bytes
 }
 
-const pemToBinary = (pem: string): Uint8Array => {
+export const pemToBinary = (pem: string): Uint8Array => {
   return decodeBase64(pem.replace(
     /-+(BEGIN|END).*/g,
     '',
@@ -100,13 +100,27 @@ export const getAccessTokenBody = async (
   context: Context<typeConfig.Context>,
   accessToken: string,
 ) => {
+  const decoded = decode(accessToken)
+  const header = decoded.header as unknown as { kid: string }
+
   const publicSecret = await kvService.getJwtPublicSecret(context.env.KV)
+  const publicJwk = await cryptoUtil.secretToJwk(publicSecret)
+  let key = ''
+  if (publicJwk.kid === header.kid) key = publicSecret
+
+  if (!key) {
+    const deprecatedPublicSecret = await kvService.getDeprecatedPublicSecret(context.env.KV)
+    if (deprecatedPublicSecret) {
+      const deprecatedPublicJwk = await cryptoUtil.secretToJwk(deprecatedPublicSecret)
+      if (deprecatedPublicJwk.kid === header.kid) key = deprecatedPublicSecret
+    }
+  }
 
   let accessTokenBody: typeConfig.AccessTokenBody
   try {
     accessTokenBody = await verify(
       accessToken,
-      publicSecret,
+      key,
       'RS256',
     ) as unknown as typeConfig.AccessTokenBody
   } catch (e) {

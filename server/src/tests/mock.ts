@@ -41,12 +41,22 @@ const kvMock = {
     switch (key) {
     case adapterConfig.BaseKVKey.JwtPublicSecret:
       return fs.readFileSync(
-        path.resolve('node_jwt_public_key.pem'),
+        path.resolve(adapterConfig.FileLocation.NodePublicKey),
         'utf8',
       )
     case adapterConfig.BaseKVKey.JwtPrivateSecret:
       return fs.readFileSync(
-        path.resolve('node_jwt_private_key.pem'),
+        path.resolve(adapterConfig.FileLocation.NodePrivateKey),
+        'utf8',
+      )
+    case adapterConfig.BaseKVKey.DeprecatedJwtPublicSecret:
+      return fs.readFileSync(
+        path.resolve(adapterConfig.FileLocation.NodeDeprecatedPublicKey),
+        'utf8',
+      )
+    case adapterConfig.BaseKVKey.DeprecatedJwtPrivateSecret:
+      return fs.readFileSync(
+        path.resolve(adapterConfig.FileLocation.NodeDeprecatedPrivateKey),
         'utf8',
       )
     case adapterConfig.BaseKVKey.SessionSecret:
@@ -226,7 +236,7 @@ export const migrate = async () => {
 export const fetchMock = vi.fn(async (url) => {
   if (url === 'https://www.googleapis.com/oauth2/v3/certs') {
     const key = fs.readFileSync(
-      path.resolve('node_jwt_public_key.pem'),
+      path.resolve(adapterConfig.FileLocation.NodePublicKey),
       'utf8',
     )
     const jwk = await cryptoUtil.secretToJwk(key)

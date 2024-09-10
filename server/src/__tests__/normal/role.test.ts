@@ -99,6 +99,7 @@ describe(
     test(
       'should return 401 without proper scope',
       async () => {
+        await attachIndividualScopes(db)
         const res = await app.request(
           BaseRoute,
           {
@@ -218,7 +219,10 @@ describe(
     test(
       'should return 401 without proper scope',
       async () => {
-        const res = await createNewRole(Scope.ReadRole)
+        const res = await createNewRole(await getS2sToken(
+          db,
+          Scope.ReadRole,
+        ))
         expect(res.status).toBe(401)
 
         const res1 = await createNewRole('')

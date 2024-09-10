@@ -65,6 +65,13 @@ export const getOpenidConfig = async (c: Context<typeConfig.Context>) => {
 
 export const getJwks = async (c: Context<typeConfig.Context>) => {
   const publicKey = await kvService.getJwtPublicSecret(c.env.KV)
+  const keys = []
   const jwk = await cryptoUtil.secretToJwk(publicKey)
-  return c.json({ keys: [jwk] })
+  keys.push(jwk)
+  const deprecatedPublicKey = await kvService.getDeprecatedPublicSecret(c.env.KV)
+  if (deprecatedPublicKey) {
+    const deprecatedJwk = await cryptoUtil.secretToJwk(deprecatedPublicKey)
+    keys.push(deprecatedJwk)
+  }
+  return c.json({ keys })
 }
