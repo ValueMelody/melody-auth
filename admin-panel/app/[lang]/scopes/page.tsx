@@ -46,13 +46,37 @@ const Page = () => {
         />
       </div>
       <Table>
-        <Table.Head>
+        <Table.Head className='md:hidden'>
+          <Table.HeadCell>{t('scopes.scope')}</Table.HeadCell>
+        </Table.Head>
+        <Table.Head className='max-md:hidden'>
           <Table.HeadCell>{t('scopes.name')}</Table.HeadCell>
           <Table.HeadCell>{t('common.note')}</Table.HeadCell>
           <Table.HeadCell>{t('scopes.type')}</Table.HeadCell>
           <Table.HeadCell />
         </Table.Head>
-        <Table.Body className='divide-y'>
+        <Table.Body className='divide-y md:hidden'>
+          {scopes.map((scope) => (
+            <Table.Row key={scope.id}>
+              <Table.Cell>
+                <div className='flex items-center justify-between'>
+                  <div className='flex flex-col gap-2'>
+                    <div className='flex items-center gap-2'>
+                      {scope.name}
+                      {dataTool.isSystem(scope.name) && <SystemLabel />}
+                      <ClientTypeLabel type={scope.type} />
+                    </div>
+                    {scope.note}
+                  </div>
+                  <EditLink
+                    href={`/${locale}/scopes/${scope.id}`}
+                  />
+                </div>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+        <Table.Body className='divide-y max-md:hidden'>
           {scopes.map((scope) => (
             <Table.Row key={scope.id}>
               <Table.Cell>
