@@ -8,7 +8,7 @@ const ScopesEditor = ({
   onToggleScope,
 }) => {
   return (
-    <section className='flex flex-col gap-4'>
+    <section className='flex max-md:flex-col gap-6 max-md:gap-2 flex-wrap'>
       {scopes.map((scope) => (
         <div
           key={scope.id}

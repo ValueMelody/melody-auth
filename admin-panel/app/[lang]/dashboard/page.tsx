@@ -33,7 +33,7 @@ const Page = () => {
         className='mb-6'
         title={t('dashboard.links')}
       />
-      <Table>
+      <Table className='break-all'>
         <Table.Head>
           <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
           <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>
@@ -93,7 +93,7 @@ const Page = () => {
         className='mt-8 mb-6'
         title={t('dashboard.configs')}
       />
-      <Table>
+      <Table className='break-all'>
         <Table.Head>
           <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
           <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>

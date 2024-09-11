@@ -111,7 +111,7 @@ const Page = () => {
         />
         <Table>
           <Table.Head>
-            <Table.HeadCell className='w-48'>{t('common.property')}</Table.HeadCell>
+            <Table.HeadCell className='max-md:w-24 md:w-48'>{t('common.property')}</Table.HeadCell>
             <Table.HeadCell>{t('common.value')}</Table.HeadCell>
           </Table.Head>
           <Table.Body className='divide-y'>

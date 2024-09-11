@@ -101,7 +101,10 @@ const Page = () => {
         />
       </header>
       <Table>
-        <Table.Head>
+        <Table.Head className='md:hidden'>
+          <Table.HeadCell>{t('users.user')}</Table.HeadCell>
+        </Table.Head>
+        <Table.Head className='max-md:hidden'>
           <Table.HeadCell>{t('users.authId')}</Table.HeadCell>
           <Table.HeadCell>
             {t('users.email')}
@@ -112,7 +115,31 @@ const Page = () => {
           )}
           <Table.HeadCell />
         </Table.Head>
-        <Table.Body className='divide-y'>
+        <Table.Body className='divide-y md:hidden'>
+          {users.map((user) => (
+            <Table.Row key={user.id}>
+              <Table.Cell>
+                <section className='flex items-center justify-between'>
+                  <section className='flex flex-col gap-2'>
+                    {user.authId}
+                    {user.authId === userInfo.authId && <div className='flex'><IsSelfLabel /></div>}
+                    {user.email}
+                    <EntityStatusLabel isEnabled={user.isActive} />
+                    {configs.ENABLE_NAMES && (
+                      <p>
+                        {`${user.firstName ?? ''} ${user.lastName ?? ''}`}
+                      </p>
+                    )}
+                  </section>
+                  <EditLink
+                    href={`/${locale}/users/${user.authId}`}
+                  />
+                </section>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+        <Table.Body className='divide-y max-md:hidden'>
           {users.map((user) => (
             <Table.Row key={user.id}>
               <Table.Cell>
