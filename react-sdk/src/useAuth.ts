@@ -145,10 +145,8 @@ export const useAuth = () => {
       postLogoutRedirectUri?: string;
       localOnly?: boolean;
     }) => {
-      const isLocalOnly = !refreshToken || localOnly
-
       const accessToken = await acquireToken()
-      if (!isLocalOnly && !accessToken) return
+      const isLocalOnly = !accessToken || !refreshToken || localOnly
 
       try {
         await logout(

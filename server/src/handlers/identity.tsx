@@ -816,10 +816,7 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
     bodyDto.refreshToken,
   )
 
-  if (refreshTokenBody) {
-    if (accessTokenBody.sub !== refreshTokenBody.authId) {
-      throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
-    }
+  if (refreshTokenBody && accessTokenBody.sub === refreshTokenBody.authId) {
     await kvService.invalidRefreshToken(
       c.env.KV,
       bodyDto.refreshToken,

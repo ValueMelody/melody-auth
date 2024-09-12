@@ -2843,7 +2843,7 @@ describe(
     )
 
     test(
-      'should throw error if token has wrong client',
+      'should pass through even if token has wrong client',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
         const appRecord = await getApp(db)
@@ -2893,8 +2893,11 @@ describe(
           },
           mock(db),
         )
-        expect(logoutRes.status).toBe(400)
-        expect(await logoutRes.text()).toBe(localeConfig.Error.WrongRefreshToken)
+        expect(logoutRes.status).toBe(200)
+        expect(await logoutRes.json()).toStrictEqual({
+          success: true,
+          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
+        })
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },
