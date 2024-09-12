@@ -41,11 +41,12 @@ const AuthorizePassword = ({
         </script>
       )}
       <Title title={localeConfig.authorizePassword.title[queryDto.locale]} />
+      <SubmitError />
       <form
         autocomplete='on'
         onsubmit='return handleSubmit(event)'
       >
-        <section class='flex-col gap-4'>
+        <section class='flex-col gap-2'>
           {enablePasswordSignIn && (
             <>
               <Field
@@ -64,7 +65,6 @@ const AuthorizePassword = ({
               />
             </>
           )}
-          <SubmitError />
           {enablePasswordSignIn && (
             <SubmitButton
               title={localeConfig.authorizePassword.submit[queryDto.locale]}
@@ -95,7 +95,7 @@ const AuthorizePassword = ({
         </section>
       </form>
       {(enableSignUp || enablePasswordReset) && (
-        <section class='flex-col gap-2 mt-4'>
+        <section class='flex-col gap-4'>
           {enableSignUp && (
             <a
               class='button-text'
@@ -121,15 +121,15 @@ const AuthorizePassword = ({
           function handleGoogleSignIn (response) {
             if (!response.credential) return false;
             fetch('${routeConfig.InternalRoute.Identity}/authorize-google', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  credential: response.credential,
-                  ${requestScript.parseAuthorizeBaseValues(queryDto)}
-                })
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                credential: response.credential,
+                ${requestScript.parseAuthorizeBaseValues(queryDto)}
+              })
             })
             .then((response) => {
               ${responseScript.parseRes()}
@@ -146,16 +146,16 @@ const AuthorizePassword = ({
             ${validateScript.email(queryDto.locale)}
             ${validateScript.password(queryDto.locale)}
             fetch('${routeConfig.InternalRoute.Identity}/authorize-password', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  email: document.getElementById('form-email').value,
-                  password: document.getElementById('form-password').value,
-                  ${requestScript.parseAuthorizeBaseValues(queryDto)}
-                })
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                email: document.getElementById('form-email').value,
+                password: document.getElementById('form-password').value,
+                ${requestScript.parseAuthorizeBaseValues(queryDto)}
+              })
             })
             .then((response) => {
               ${responseScript.parseRes()}

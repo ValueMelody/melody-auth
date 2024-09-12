@@ -12,6 +12,7 @@ import {
 import Title from 'views/components/Title'
 import Field from 'views/components/Field'
 import { oauthDto } from 'dtos'
+import SubmitButton from 'views/components/SubmitButton'
 
 const AuthorizeReset = ({
   logoUrl, queryString, queryDto, locales,
@@ -45,6 +46,7 @@ const AuthorizeReset = ({
       >
         <Title title={localeConfig.authorizeReset.title[queryDto.locale]} />
         <p class='mb-4 text-center w-text'>{localeConfig.authorizeReset.desc[queryDto.locale]}</p>
+        <SubmitError />
         <form
           onsubmit='return handleSubmit(event)'
         >
@@ -84,18 +86,13 @@ const AuthorizeReset = ({
               name='confirmPassword'
               className='hidden'
             />
-            <SubmitError />
-            <button
-              id='submit-btn'
-              class='button mt-4'
-              type='submit'
-            >
-              {localeConfig.authorizeReset.send[queryDto.locale]}
-            </button>
+            <SubmitButton
+              title={localeConfig.authorizeReset.send[queryDto.locale]}
+            />
           </section>
         </form>
         <a
-          class='button-text mt-4'
+          class='button-text'
           href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
         >
           {localeConfig.authorizeReset.backSignIn[queryDto.locale]}
@@ -163,7 +160,7 @@ const AuthorizeReset = ({
                 document.getElementById('resend-btn').classList.remove('hidden');
                 document.getElementById('password-row').classList.remove('hidden');
                 document.getElementById('confirmPassword-row').classList.remove('hidden');
-                document.getElementById('submit-btn').innerHTML = '${localeConfig.authorizeReset.reset[queryDto.locale]}'
+                document.getElementById('submit-button').innerHTML = '${localeConfig.authorizeReset.reset[queryDto.locale]}'
               })
               .catch((error) => {
                 ${responseScript.handleSubmitError(queryDto.locale)}

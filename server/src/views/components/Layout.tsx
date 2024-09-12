@@ -54,6 +54,7 @@ const Layout = ({
           .p-4 { padding: 16px; }
           .pr-2 { padding: 8px; }
           .ml-2 { margin-left: 8px; }
+          .mt-2 { margin-top: 8px; }
           .mt-4 { margin-top: 16px; }
           .mt-8 { margin-top: 32px; }
           .mb-4 { margin-bottom: 16px; }
@@ -65,7 +66,7 @@ const Layout = ({
           .rounded-md { border-radius: 8px; }
           .w-full { width: 100%; }
           .w-half { width: 50%; }
-          .w-text { width: 240px; }
+          .w-text { width: 280px; }
           .main {
             background-color: lightgray;
             height: 100vh;
@@ -78,6 +79,9 @@ const Layout = ({
           }
           .logo {
             width: 40px;
+          }
+          button {
+            width: 280px;
           }
           .button {
             background-color: white;
@@ -102,7 +106,6 @@ const Layout = ({
             text-align: center;
             cursor: pointer;
             border: none;
-            padding: 8px;
             border-radius: 8px;
             font-weight: 500;
             font-size: 16px;
@@ -113,10 +116,13 @@ const Layout = ({
             border: 1px solid lightgray;
             padding: 12px;
             border-radius: 8px;
-            min-width: 240px;
+            width: 280px;
           }
           .label {
             font-weight: 500;
+          }
+          .locale-selector {
+            width: 62px;
           }
           .alert {
             background-color: red;
@@ -124,15 +130,17 @@ const Layout = ({
             border-radius: 8px;
             padding: 8px 16px;
             font-size: 14px;
-            width: 240px;
+            width: 280px;
             align-self: center;
+            box-sizing: border-box;
+          }
+          form {
+            margin-bottom: 0px;
           }
           .inner-container {
             max-height: 80vh;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-left: 16px;
-            padding-right: 16px;
           }
           .option {
             background-color: white;
@@ -153,35 +161,37 @@ const Layout = ({
     <body>
       <main class='flex-col items-center justify-center main'>
         <section class='flex-col justify-center items-center container rounded-lg'>
-          {locales.length > 1 && (
-            <section class='flex-row justify-end w-full'>
-              <select
-                class='button'
-                onchange='handleSwitchLocale(event)'
-                aria-label='Select Locale'
-              >
-                {locales.map((targetLocale) => (
-                  <option
-                    key={targetLocale}
-                    value={targetLocale}
-                    selected={targetLocale === locale}>
-                    {targetLocale.toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </section>
-          )}
           <section class='flex-col items-center gap-4 inner-container'>
-            <img
-              class='logo'
-              src={logoUrl}
-              alt='Logo'
-            />
+            <header class='flex-row justify-between w-full'>
+              {locales.length > 1 && <div class='locale-selector' />}
+              <img
+                class='logo'
+                src={logoUrl}
+                alt='Logo'
+              />
+              {locales.length > 1 && (
+                <select
+                  class='button locale-selector'
+                  onchange='handleSwitchLocale(event)'
+                  aria-label='Select Locale'
+                >
+                  {locales.map((targetLocale) => (
+                    <option
+                      key={targetLocale}
+                      value={targetLocale}
+                      selected={targetLocale === locale}>
+                      {targetLocale.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </header>
             {children}
             <a
               target='__blank'
               href='https://github.com/ValueMelody/melody-auth'
-              class='text-sm mt-4'>
+              class='text-sm mt-2'
+            >
               {localeConfig.common.poweredByAuth[locale]}
             </a>
           </section>

@@ -36,6 +36,7 @@ const AuthorizeOtpMfa = ({
           <canvas id='qr-code' />
         </>
       )}
+      <SubmitError />
       <form
         onsubmit='return handleSubmit(event)'
       >
@@ -56,7 +57,6 @@ const AuthorizeOtpMfa = ({
               {localeConfig.authorizeOtpMfa.switchToEmail[queryDto.locale]}
             </button>
           )}
-          <SubmitError />
           <SubmitButton
             title={localeConfig.authorizeOtpMfa.verify[queryDto.locale]}
           />
@@ -76,18 +76,18 @@ const AuthorizeOtpMfa = ({
             e.preventDefault();
             ${validateScript.verificationOtp(queryDto.locale)}
             fetch('${routeConfig.InternalRoute.Identity}/authorize-otp-mfa', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  state: "${queryDto.state}",
-                  code: "${queryDto.code}",
-                  locale: "${queryDto.locale}",
-                  redirectUri: "${queryDto.redirectUri}",
-                  mfaCode: document.getElementById('form-otp').value,
-                })
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                state: "${queryDto.state}",
+                code: "${queryDto.code}",
+                locale: "${queryDto.locale}",
+                redirectUri: "${queryDto.redirectUri}",
+                mfaCode: document.getElementById('form-otp').value,
+              })
             })
             .then((response) => {
               ${responseScript.parseRes()}
