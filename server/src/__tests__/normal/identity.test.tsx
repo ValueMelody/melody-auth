@@ -2896,7 +2896,7 @@ describe(
         expect(logoutRes.status).toBe(200)
         expect(await logoutRes.json()).toStrictEqual({
           success: true,
-          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`
+          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
         })
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
