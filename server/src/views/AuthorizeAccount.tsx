@@ -36,13 +36,15 @@ const AuthorizeAccount = ({
     <Layout
       locales={locales}
       logoUrl={logoUrl}
-      locale={queryDto.locale}>
+      locale={queryDto.locale}
+    >
       <Title title={localeConfig.authorizeAccount.title[queryDto.locale]} />
+      <SubmitError />
       <form
         autocomplete='on'
         onsubmit='return handleSubmit(event)'
       >
-        <section class='flex-col gap-4'>
+        <section class='flex-col gap-2'>
           <Field
             label={localeConfig.authorizeAccount.email[queryDto.locale]}
             type='email'
@@ -64,9 +66,7 @@ const AuthorizeAccount = ({
             name='confirmPassword'
           />
           {enableNames && (
-            <section
-              id='row-names'
-              class='flex-row gap-4'>
+            <>
               <Field
                 label={localeConfig.authorizeAccount.firstName[queryDto.locale]}
                 type='text'
@@ -79,9 +79,8 @@ const AuthorizeAccount = ({
                 required={namesIsRequired}
                 name='lastName'
               />
-            </section>
+            </>
           )}
-          <SubmitError />
           <SubmitButton
             title={localeConfig.authorizeAccount.signUp[queryDto.locale]}
           />
@@ -118,7 +117,7 @@ const AuthorizeAccount = ({
         </section>
       </form>
       <a
-        class='button-text mt-4'
+        class='button-text'
         href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
       >
         {localeConfig.authorizeAccount.signIn[queryDto.locale]}
@@ -138,18 +137,18 @@ const AuthorizeAccount = ({
             ${enableNames && namesIsRequired ? validateScript.firstName(queryDto.locale) : ''}
             ${enableNames && namesIsRequired ? validateScript.lastName(queryDto.locale) : ''}
             fetch('${routeConfig.InternalRoute.Identity}/authorize-account', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  firstName: document.getElementById('form-firstName') ? document.getElementById('form-firstName').value : undefined,
-                  lastName: document.getElementById('form-lastName') ? document.getElementById('form-lastName').value : undefined,
-                  email: document.getElementById('form-email').value,
-                  password: document.getElementById('form-password').value,
-                  ${requestScript.parseAuthorizeBaseValues(queryDto)}
-                })
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                firstName: document.getElementById('form-firstName') ? document.getElementById('form-firstName').value : undefined,
+                lastName: document.getElementById('form-lastName') ? document.getElementById('form-lastName').value : undefined,
+                email: document.getElementById('form-email').value,
+                password: document.getElementById('form-password').value,
+                ${requestScript.parseAuthorizeBaseValues(queryDto)}
+              })
             })
             .then((response) => {
               ${responseScript.parseRes()}

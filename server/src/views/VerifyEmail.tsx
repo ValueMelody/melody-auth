@@ -38,17 +38,17 @@ const VerifyEmail = ({
         class='flex-col items-center gap-4'
       >
         <Title title={localeConfig.verifyEmail.title[queryDto.locale]} />
-        <p class='mb-4 w-text text-center'>{localeConfig.verifyEmail.desc[queryDto.locale]}</p>
+        <p class='mb-2 w-text text-center'>{localeConfig.verifyEmail.desc[queryDto.locale]}</p>
+        <SubmitError />
         <form
           onsubmit='return handleSubmit(event)'
         >
-          <section class='flex-col gap-4'>
+          <section class='flex-col gap-2'>
             <Field
               type='text'
               required={false}
               name='code'
             />
-            <SubmitError />
             <SubmitButton
               title={localeConfig.verifyEmail.verify[queryDto.locale]}
             />
@@ -62,15 +62,15 @@ const VerifyEmail = ({
             e.preventDefault();
             ${validateScript.verificationCode(queryDto.locale)}
             fetch('${routeConfig.InternalRoute.Identity}/verify-email', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  code: document.getElementById('form-code').value,
-                  id: '${queryDto.id}',
-                })
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                code: document.getElementById('form-code').value,
+                id: '${queryDto.id}',
+              })
             })
             .then((response) => {
               ${responseScript.parseRes()}

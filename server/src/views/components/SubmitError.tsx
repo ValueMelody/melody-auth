@@ -2,7 +2,7 @@ const SubmitError = () => {
   return (
     <div
       id='submit-error'
-      class='alert mt-4 hidden'
+      class='alert mt-2 hidden'
     >
     </div>
   )

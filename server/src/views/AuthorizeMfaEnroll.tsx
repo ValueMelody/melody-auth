@@ -23,37 +23,39 @@ const AuthorizeMfaEnroll = ({
       locale={queryDto.locale}
     >
       <Title title={localeConfig.authorizeMfaEnroll.title[queryDto.locale]} />
+      <SubmitError />
       <section class='flex-row justify-around w-full gap-8 mt-4'>
         <button
           class='button w-half'
           type='button'
-          onclick='handleSelect("email")'>
+          onclick='handleSelect("email")'
+        >
           {localeConfig.authorizeMfaEnroll.email[queryDto.locale]}
         </button>
         <button
           class='button w-half'
           type='button'
-          onclick='handleSelect("otp")'>
+          onclick='handleSelect("otp")'
+        >
           {localeConfig.authorizeMfaEnroll.otp[queryDto.locale]}
         </button>
       </section>
-      <SubmitError />
       {html`
         <script>
           function handleSelect(type) {
             fetch('${routeConfig.InternalRoute.Identity}/authorize-mfa-enroll', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  state: "${queryDto.state}",
-                  code: "${queryDto.code}",
-                  redirectUri: "${queryDto.redirectUri}",
-                  locale: "${queryDto.locale}",
-                  type
-                })
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                state: "${queryDto.state}",
+                code: "${queryDto.code}",
+                redirectUri: "${queryDto.redirectUri}",
+                locale: "${queryDto.locale}",
+                type
+              })
             })
             .then((response) => {
               ${responseScript.parseRes()}

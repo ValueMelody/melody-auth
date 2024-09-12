@@ -28,6 +28,7 @@ const AuthorizeEmailMfa = ({
       locale={queryDto.locale}
     >
       <h1 class='w-text text-center'>{localeConfig.authorizeEmailMfa.title[queryDto.locale]}</h1>
+      <SubmitError />
       <form
         onsubmit='return handleSubmit(event)'
       >
@@ -45,7 +46,6 @@ const AuthorizeEmailMfa = ({
           >
             {localeConfig.authorizeEmailMfa.resend[queryDto.locale]}
           </button>
-          <SubmitError />
           <SubmitButton
             title={localeConfig.authorizeEmailMfa.verify[queryDto.locale]}
           />
