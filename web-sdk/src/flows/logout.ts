@@ -11,16 +11,17 @@ export const logout = async (
   localOnly: boolean,
 ) => {
   let redirectUri = postLogoutRedirectUri
-  if (!localOnly && refreshToken) {
+  if (!localOnly && refreshToken && accessToken) {
     try {
-      redirectUri = await postLogout(
+      const logoutUri = await postLogout(
         config,
         {
           accessToken, refreshToken, postLogoutRedirectUri,
         },
       )
+      if (logoutUri) redirectUri = logoutUri
     } catch (e) {
-      throw new Error(`Failed to logout: ${e}`)
+      console.error(`Failed to logout remotely: ${e}`)
     }
   }
 
