@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.0
-### 1.0.1 (2024-09-11)
+### 1.0.2 (2024-09-11)
 - Server: Standardize width of identity screens.
 - Admin Panel: Improve responsive views
 - React SDK: Ensure client side logout can always be completed
