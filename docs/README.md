@@ -25,7 +25,7 @@ actions:
     link: /q&a.html
     type: secondary
   - text: Changelog
-    link: /change-log.html
+    link: https://github.com/ValueMelody/melody-auth/releases
     type: secondary
 
 features:
