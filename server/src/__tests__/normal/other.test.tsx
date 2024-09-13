@@ -63,6 +63,7 @@ describe(
           ALLOW_EMAIL_MFA_AS_BACKUP: true,
           TERMS_LINK: '',
           PRIVACY_POLICY_LINK: '',
+          ENABLE_EMAIL_LOG: false,
         })
       },
     )

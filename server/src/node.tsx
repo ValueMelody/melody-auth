@@ -32,7 +32,7 @@ app.use(
   ) => {
     c.env.KV = redisAdapter.fit() as unknown as any
     c.env.DB = pgAdapter.fit() as unknown as any
-    c.env.SMTP = smtpAdapter.fit()
+    if (process.env.SMTP_CONNECTION_STRING) c.env.SMTP = smtpAdapter.fit()
     await next()
   },
 )

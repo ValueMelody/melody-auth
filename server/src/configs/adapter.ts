@@ -7,6 +7,7 @@ export enum TableName {
   Scope = 'scope',
   AppScope = 'app_scope',
   ScopeLocale = 'scope_locale',
+  EmailLog = 'email_log',
 }
 
 export enum BaseKVKey {

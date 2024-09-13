@@ -10,6 +10,8 @@ import { sign } from 'hono/jwt'
 import { Context } from 'hono'
 import app from 'index'
 import {
+  emailLogRecord,
+  emailResponseMock,
   fetchMock,
   migrate, mock,
   mockedKV,
@@ -1093,12 +1095,45 @@ describe(
         expect(body).toContain(code)
         expect(body).toContain('"to":[{"email":"test@email.com"}]')
 
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(0)
+
         global.fetch = fetchMock
 
         process.env.BREVO_API_KEY = ''
         process.env.BREVO_SENDER_ADDRESS = ''
         process.env.SENDGRID_API_KEY = 'abc'
         process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+      },
+    )
+
+    test(
+      'could log email by Brevo',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = 'abc'
+        process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.ENABLE_EMAIL_LOG = true as unknown as string
+
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const res = await testSendResetCode('/resend-reset-code')
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(1)
+        expect(logs[0]).toStrictEqual(emailLogRecord)
+        global.fetch = fetchMock
+
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.ENABLE_EMAIL_LOG = false as unknown as string
       },
     )
 

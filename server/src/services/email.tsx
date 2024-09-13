@@ -4,7 +4,9 @@ import {
   errorConfig,
   localeConfig, typeConfig,
 } from 'configs'
-import { userModel } from 'models'
+import {
+  emailLogModel, userModel,
+} from 'models'
 import {
   EmailVerificationTemplate, PasswordResetTemplate, EmailMfaTemplate,
 } from 'templates'
@@ -39,6 +41,11 @@ export const sendEmail = async (
 
   const receiver = environment === 'prod' ? receiverEmail : devEmailReceiver
 
+  let success = false
+  let response = null
+
+  const { ENABLE_EMAIL_LOG: enableEmailLog } = env(c)
+
   if (c.env.SMTP) {
     const transporter = c.env.SMTP.init()
     const res = await transporter.sendMail({
@@ -47,10 +54,10 @@ export const sendEmail = async (
       subject,
       html: emailBody,
     })
-    return res?.accepted[0] === receiver
-  }
 
-  if (sendgridApiKey && sendgridSender) {
+    success = res?.accepted[0] === receiver
+    response = res
+  } else if (sendgridApiKey && sendgridSender) {
     const res = await fetch(
       'https://api.sendgrid.com/v3/mail/send',
       {
@@ -76,10 +83,17 @@ export const sendEmail = async (
         }),
       },
     )
-    return res.ok
-  }
+    success = res.ok
 
-  if (brevoApiKey && brevoSender) {
+    if (enableEmailLog) {
+      response = {
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url,
+        body: await res.text(),
+      }
+    }
+  } else if (brevoApiKey && brevoSender) {
     const res = await fetch(
       'https://api.brevo.com/v3/smtp/email',
       {
@@ -101,8 +115,30 @@ export const sendEmail = async (
         }),
       },
     )
-    return res.ok
+    success = res.ok
+    if (enableEmailLog) {
+      response = {
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url,
+        body: await res.text(),
+      }
+    }
   }
+
+  if (enableEmailLog) {
+    await emailLogModel.create(
+      c.env.DB,
+      {
+        success: success ? 1 : 0,
+        receiver,
+        response: JSON.stringify(response),
+        content: emailBody,
+      },
+    )
+  }
+
+  return success
 }
 
 export const sendEmailVerification = async (

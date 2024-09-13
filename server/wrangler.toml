@@ -31,6 +31,7 @@ ENABLE_LOCALE_SELECTOR=true # If there is only one SUPPORTED_LOCALE, the locale 
 GOOGLE_AUTH_CLIENT_ID="" # Google Sign In will be suppressed if it is empty
 TERMS_LINK="" # Display a link to your terms on sign-up page
 PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
+ENABLE_EMAIL_LOG=false # Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
 
 [[kv_namespaces]]
 binding = "KV"

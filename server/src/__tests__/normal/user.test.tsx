@@ -12,6 +12,8 @@ import {
   mockedKV,
   migrate, mock,
   fetchMock,
+  emailResponseMock,
+  emailLogRecord,
 } from 'tests/mock'
 import {
   userAppConsentModel, userModel,
@@ -616,9 +618,7 @@ describe(
       async () => {
         await insertUsers()
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        })
+        const mockFetch = emailResponseMock
         global.fetch = mockFetch as Mock
 
         const res = await app.request(
@@ -645,7 +645,78 @@ describe(
         expect(body).toContain(localeConfig.emailVerificationEmail.verify.en)
         expect(body).toContain('/identity/v1/verify-email?id=1-1-1-1&amp;locale=en')
 
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(0)
+
         global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'could log email',
+      async () => {
+        global.process.env.ENABLE_EMAIL_LOG = true as unknown as string
+        await insertUsers()
+
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/verify-email`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({ success: true })
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(1)
+        expect(logs[0]).toStrictEqual(emailLogRecord)
+
+        global.fetch = fetchMock
+        global.process.env.ENABLE_EMAIL_LOG = false as unknown as string
+      },
+    )
+
+    test(
+      'could log email when failed',
+      async () => {
+        global.process.env.ENABLE_EMAIL_LOG = true as unknown as string
+        await insertUsers()
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({
+            ok: false, text: () => {}, status: 400, statusText: 'wrong request',
+          })
+        })
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/verify-email`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({ success: true })
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(1)
+        expect(logs[0]).toStrictEqual({
+          ...emailLogRecord,
+          success: 0,
+          response: '{"status":400,"statusText":"wrong request"}',
+        })
+
+        global.fetch = fetchMock
+        global.process.env.ENABLE_EMAIL_LOG = false as unknown as string
       },
     )
 
