@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import Sqlite, { Database } from 'better-sqlite3'
 import {
-  Mock, vi,
+  Mock, vi, expect,
 } from 'vitest'
 import { adapterConfig } from 'configs'
 import {
@@ -239,6 +239,23 @@ export const migrate = async () => {
   })
 
   return db
+}
+
+export const emailResponseMock = vi.fn(async () => {
+  return Promise.resolve({
+    ok: true, text: () => {}, status: 200, statusText: 'test',
+  })
+})
+
+export const emailLogRecord = {
+  id: 1,
+  content: expect.any(String),
+  success: 1,
+  receiver: 'test@email.com',
+  response: '{"status":200,"statusText":"test"}',
+  createdAt: expect.any(String),
+  updatedAt: expect.any(String),
+  deletedAt: null,
 }
 
 export const fetchMock = vi.fn(async (url) => {

@@ -298,3 +298,7 @@ npm run prod:deploy
 ### PRIVACY_POLICY_LINK
 - **Default:** ""
 - **Description:** URL to display a link to your Privacy Policy on the sign-up page.
+
+### ENABLE_EMAIL_LOG
+- **Default:** false
+- **Description:** Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.

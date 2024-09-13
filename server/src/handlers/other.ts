@@ -39,6 +39,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ALLOW_EMAIL_MFA_AS_BACKUP: environment.ALLOW_EMAIL_MFA_AS_BACKUP,
     TERMS_LINK: environment.TERMS_LINK,
     PRIVACY_POLICY_LINK: environment.PRIVACY_POLICY_LINK,
+    ENABLE_EMAIL_LOG: environment.ENABLE_EMAIL_LOG,
   }
 
   return c.json({ configs })

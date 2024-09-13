@@ -48,6 +48,7 @@ export type Bindings = {
   ENABLE_LOCALE_SELECTOR: boolean;
   TERMS_LINK: string;
   PRIVACY_POLICY_LINK: string;
+  ENABLE_EMAIL_LOG: boolean;
 };
 
 export type Context = {
