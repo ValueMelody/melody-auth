@@ -51,8 +51,9 @@ const Layout = ({
           .text-gray { color: gray; }
           .text-center { text-align: center; }
           .p-2 { padding: 8px; }
+          .pl-2 { padding-left: 8px; }
+          .pr-2 { padding-right: 8px; }
           .p-4 { padding: 16px; }
-          .pr-2 { padding: 8px; }
           .ml-2 { margin-left: 8px; }
           .mt-2 { margin-top: 8px; }
           .mt-4 { margin-top: 16px; }
