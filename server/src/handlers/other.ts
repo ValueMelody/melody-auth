@@ -40,6 +40,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     TERMS_LINK: environment.TERMS_LINK,
     PRIVACY_POLICY_LINK: environment.PRIVACY_POLICY_LINK,
     ENABLE_EMAIL_LOG: environment.ENABLE_EMAIL_LOG,
+    ENABLE_SIGN_IN_LOG: environment.ENABLE_SIGN_IN_LOG,
   }
 
   return c.json({ configs })

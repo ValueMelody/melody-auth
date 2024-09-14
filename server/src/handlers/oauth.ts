@@ -14,7 +14,9 @@ import {
 import {
   cryptoUtil, requestUtil, timeUtil, validateUtil,
 } from 'utils'
-import { userModel } from 'models'
+import {
+  signInLogModel, userModel,
+} from 'models'
 
 export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   const queryDto = await scopeService.parseGetAuthorizeDto(c)
@@ -96,6 +98,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
+    ENABLE_SIGN_IN_LOG: enableSignInLog,
   } = env(c)
 
   if (!isSocialLogin) {
@@ -191,6 +194,37 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     c,
     authInfo.user.id,
   )
+
+  if (enableSignInLog) {
+    const ip = requestUtil.getRequestIP(c)
+    let detail = null
+    if ('cf' in c.req.raw) {
+      const cf = c.req.raw.cf as {
+        longitude: string;
+        continent: string;
+        country: string;
+        timezone: string;
+        region: string;
+        regionCode: string;
+        latitude: string;
+      }
+      detail = JSON.stringify({
+        longitude: cf.longitude,
+        continent: cf.continent,
+        country: cf.country,
+        timezone: cf.timezone,
+        region: cf.region,
+        regionCode: cf.regionCode,
+        latitude: cf.latitude,
+      })
+    }
+    await signInLogModel.create(
+      c.env.DB,
+      {
+        ip: ip ?? null, detail,
+      },
+    )
+  }
 
   return c.json(result)
 }
