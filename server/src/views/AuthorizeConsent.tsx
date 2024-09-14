@@ -28,22 +28,24 @@ const AuthorizeConsent = ({
     >
       <Title title={localeConfig.authorizeConsent.title[queryDto.locale]} />
       <p class='w-text text-center'>{appName} {localeConfig.authorizeConsent.requestAccess[queryDto.locale]}</p>
-      <section class='p-8 border rounded-md w-full'>
-        <ul>
-          {scopes.map((scope) => {
-            if (scope.name === Scope.OpenId || scope.name === Scope.OfflineAccess) return null
-            const locale = scope.locales.find((scopeLocale) => scopeLocale.locale === queryDto.locale)
-            return (
-              <li
-                key={scope}
-                class='w-text pr-2'>{locale?.value || scope.name}
-              </li>
-            )
-          })}
-        </ul>
+      <section class="flex-row pl-2 pr-2 w-full">
+        <section class='p-8 border rounded-md w-full'>
+          <ul>
+            {scopes.map((scope) => {
+              if (scope.name === Scope.OpenId || scope.name === Scope.OfflineAccess) return null
+              const locale = scope.locales.find((scopeLocale) => scopeLocale.locale === queryDto.locale)
+              return (
+                <li
+                  key={scope}
+                  class='w-text p-2'>{locale?.value || scope.name}
+                </li>
+              )
+            })}
+          </ul>
+        </section>
       </section>
       <SubmitError />
-      <section class='mt-8 flex-row gap-8 w-full'>
+      <section class='mt-4 flex-row gap-8 w-full'>
         <button
           class='button-outline w-full'
           type='button'
