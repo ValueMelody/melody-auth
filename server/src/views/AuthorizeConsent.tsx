@@ -28,7 +28,7 @@ const AuthorizeConsent = ({
     >
       <Title title={localeConfig.authorizeConsent.title[queryDto.locale]} />
       <p class='w-text text-center'>{appName} {localeConfig.authorizeConsent.requestAccess[queryDto.locale]}</p>
-      <section class="flex-row pl-2 pr-2 w-full">
+      <section class='flex-row pl-2 pr-2 w-full'>
         <section class='p-8 border rounded-md w-full'>
           <ul>
             {scopes.map((scope) => {
