@@ -11,7 +11,7 @@
 - <b>JWT Authentication</b>: RSA256 based JWT Authentication, JWT Secret Rotate
 - <b>Brute-force Protection</b>: Log in attempts, Password reset attempts, OTP MFA attempts
 - <b>Logging</b>: Email Logs, Sign-in Logs
-- <b>S2S REST API & Admin Panel</b>: Dashboard, Manage Users, Manage Apps, Manage Scopes, Manage Roles, Localization  
+- <b>S2S REST API & Admin Panel</b>: Manage Users, Manage Apps, Manage Scopes, Manage Roles, Localization  
 [Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)  
 [Admin Panel Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)  
 
