@@ -64,6 +64,7 @@ describe(
           TERMS_LINK: '',
           PRIVACY_POLICY_LINK: '',
           ENABLE_EMAIL_LOG: false,
+          ENABLE_SIGN_IN_LOG: false,
         })
       },
     )

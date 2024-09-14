@@ -49,6 +49,7 @@ export type Bindings = {
   TERMS_LINK: string;
   PRIVACY_POLICY_LINK: string;
   ENABLE_EMAIL_LOG: boolean;
+  ENABLE_SIGN_IN_LOG: boolean;
 };
 
 export type Context = {

@@ -324,6 +324,26 @@ describe(
           id_token: expect.any(String),
         })
 
+        const logs = await db.prepare('select * from sign_in_log').all()
+        expect(logs.length).toBe(0)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could enable sign in log',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENABLE_SIGN_IN_LOG = true as unknown as string
+        await insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(200)
+
+        const logs = await db.prepare('select * from sign_in_log').all()
+        expect(logs.length).toBe(1)
+
+        global.process.env.ENABLE_SIGN_IN_LOG = false as unknown as string
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },
     )
