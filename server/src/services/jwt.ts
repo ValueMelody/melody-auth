@@ -240,7 +240,9 @@ export interface FacebookUser {
   id: string;
 }
 
-export const verifyFacebookCredential = async (clientId: string, clientSecret: string, credential: string) => {
+export const verifyFacebookCredential = async (
+  clientId: string, clientSecret: string, credential: string,
+) => {
   const graphBase = 'https://graph.facebook.com'
   const tokenRes = await fetch(`${graphBase}/oauth/access_token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`)
   if (tokenRes.ok) {
@@ -257,7 +259,7 @@ export const verifyFacebookCredential = async (clientId: string, clientSecret: s
             const user = {
               firstName: userBody.name.split(' ')[0] ?? '',
               lastName: userBody.name.split(' ')[2] ?? '',
-              id: userBody.id
+              id: userBody.id,
             } as FacebookUser
             return user
           }

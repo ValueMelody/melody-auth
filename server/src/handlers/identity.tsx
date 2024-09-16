@@ -722,9 +722,15 @@ export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
     bodyDto.redirectUri,
   )
 
-  const { FACEBOOK_AUTH_CLIENT_ID: facebookClientId, FACEBOOK_AUTH_CLIENT_SECRET: facebookClientSecret } = env(c)
+  const {
+    FACEBOOK_AUTH_CLIENT_ID: facebookClientId, FACEBOOK_AUTH_CLIENT_SECRET: facebookClientSecret,
+  } = env(c)
 
-  const facebookUser = await jwtService.verifyFacebookCredential(facebookClientId, facebookClientSecret, bodyDto.credential)
+  const facebookUser = await jwtService.verifyFacebookCredential(
+    facebookClientId,
+    facebookClientSecret,
+    bodyDto.credential,
+  )
   if (!facebookUser) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
 
   const user = await userService.processFacebookAccount(

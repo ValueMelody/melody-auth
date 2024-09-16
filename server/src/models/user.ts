@@ -219,7 +219,10 @@ export const getGoogleUserByGoogleId = async (
 ): Promise<Record | null> => {
   const query = `SELECT * FROM ${TableName} WHERE "socialAccountId" = $1 AND "socialAccountType" = $2  AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
-    .bind(googleId, SocialAccountType.Google)
+    .bind(
+      googleId,
+      SocialAccountType.Google,
+    )
   const user = await stmt.first() as Raw | null
   return user ? convertToRecord(user) : null
 }
@@ -229,7 +232,10 @@ export const getFacebookUserByFacebookId = async (
 ): Promise<Record | null> => {
   const query = `SELECT * FROM ${TableName} WHERE "socialAccountId" = $1 AND "socialAccountType" = $2  AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
-    .bind(facebookId, SocialAccountType.Facebook)
+    .bind(
+      facebookId,
+      SocialAccountType.Facebook,
+    )
   const user = await stmt.first() as Raw | null
   return user ? convertToRecord(user) : null
 }

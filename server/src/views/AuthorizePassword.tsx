@@ -15,10 +15,10 @@ import Field from 'views/components/Field'
 
 const getFBLocale = (locale: typeConfig.Locale) => {
   switch (locale) {
-    case 'fr': return 'fr_FR';
-    case 'en': 
-    default:
-      return 'en_US';
+  case 'fr': return 'fr_FR'
+  case 'en':
+  default:
+    return 'en_US'
   }
 }
 
@@ -101,7 +101,7 @@ const AuthorizePassword = ({
             />
           )}
           {(googleClientId || facebookClientId) && (
-            <section class="flex flex-col gap-4">
+            <section class='flex flex-col gap-4'>
               {googleClientId && (
                 <>
                   <div
@@ -126,13 +126,15 @@ const AuthorizePassword = ({
                 </>
               )}
               {facebookClientId && (
-                <div id="facebook-login-btn" class="flex-row justify-center">
+                <div
+                  id='facebook-login-btn'
+                  class='flex-row justify-center'>
                   <fb:login-button
-                    scope="public_profile"
-                    data-size="Large"
-                    data-width="220"
-                    data-use-continue-as="false"
-                    onlogin="checkLoginState();"
+                    scope='public_profile'
+                    data-size='Large'
+                    data-width='220'
+                    data-use-continue-as='false'
+                    onlogin='checkLoginState();'
                   />
                 </div>
               )}
