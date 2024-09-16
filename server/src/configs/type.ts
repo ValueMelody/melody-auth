@@ -50,6 +50,8 @@ export type Bindings = {
   PRIVACY_POLICY_LINK: string;
   ENABLE_EMAIL_LOG: boolean;
   ENABLE_SIGN_IN_LOG: boolean;
+  POSTMARK_API_KEY: string;
+  POSTMARK_SENDER_ADDRESS: string;
 };
 
 export type Context = {

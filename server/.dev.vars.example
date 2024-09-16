@@ -5,6 +5,8 @@ SENDGRID_API_KEY= # Put your SendGrid api key here
 SENDGRID_SENDER_ADDRESS= # Put your SendGrid sender address here
 BREVO_API_KEY= # Put your Brevo api key here and leave SENDGRID_API_KEY to be empty if you want to use Brevo handle email functionalities
 BREVO_SENDER_ADDRESS= # Put your Brevo sender address here
+POSTMARK_API_KEY= # Put your Postmark api key here and leave SENDGRID_API_KEY to be empty if you want to use Postmark handle email functionalities
+POSTMARK_SENDER_ADDRESS= # Put your Postmark sender address here
 
 AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
 
