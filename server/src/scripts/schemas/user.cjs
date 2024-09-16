@@ -7,7 +7,11 @@ const User = {
       type: 'string',
       nullable: true,
     },
-    googleId: {
+    socialAccountId: {
+      type: 'string',
+      nullable: true,
+    },
+    socialAccountType: {
       type: 'string',
       nullable: true,
     },

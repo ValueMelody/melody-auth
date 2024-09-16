@@ -233,3 +233,37 @@ export const verifyGoogleCredential = async (credential: string) => {
 
   return undefined
 }
+
+export interface FacebookUser {
+  firstName: string;
+  lastName: string;
+  id: string;
+}
+
+export const verifyFacebookCredential = async (clientId: string, clientSecret: string, credential: string) => {
+  const graphBase = 'https://graph.facebook.com'
+  const tokenRes = await fetch(`${graphBase}/oauth/access_token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`)
+  if (tokenRes.ok) {
+    const tokenBody = await tokenRes.json() as object
+    if ('access_token' in tokenBody) {
+      const verifyRes = await fetch(`${graphBase}/debug_token?input_token=${credential}&access_token=${tokenBody.access_token}`)
+      if (verifyRes.ok) {
+        const verifyBody = await verifyRes.json() as object
+        const data = 'data' in verifyBody ? verifyBody.data as object : null
+        if (data && 'is_valid' in data && data.is_valid && 'user_id' in data) {
+          const userRes = await fetch(`${graphBase}/v20.0/${data.user_id}?access_token=${tokenBody.access_token}`)
+          if (userRes.ok) {
+            const userBody = await userRes.json() as { name: string; id: string }
+            const user = {
+              firstName: userBody.name.split(' ')[0] ?? '',
+              lastName: userBody.name.split(' ')[2] ?? '',
+              id: userBody.id
+            } as FacebookUser
+            return user
+          }
+        }
+      }
+    }
+  }
+  return undefined
+}

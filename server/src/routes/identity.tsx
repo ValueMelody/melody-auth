@@ -100,6 +100,13 @@ identityRoutes.post(
   identityHandler.postAuthorizeGoogle,
 )
 
+identityRoutes.post(
+  `${BaseRoute}/authorize-facebook`,
+  setupMiddleware.validOrigin,
+  configMiddleware.enableFacebookSignIn,
+  identityHandler.postAuthorizeFacebook,
+)
+
 identityRoutes.get(
   `${BaseRoute}/authorize-reset`,
   configMiddleware.enablePasswordReset,

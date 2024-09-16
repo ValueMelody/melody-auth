@@ -206,7 +206,8 @@ export const createAccountWithPassword = async (
     {
       authId: crypto.randomUUID(),
       email: bodyDto.email,
-      googleId: null,
+      socialAccountId: null,
+      socialAccountType: null,
       password,
       locale: bodyDto.locale,
       otpSecret,
@@ -234,7 +235,8 @@ export const processGoogleAccount = async (
     {
       authId: crypto.randomUUID(),
       email: googleUser.email,
-      googleId: googleUser.id,
+      socialAccountId: googleUser.id,
+      socialAccountType: userModel.SocialAccountType.Google,
       password: null,
       locale,
       emailVerified: googleUser.emailVerified ? 1 : 0,
@@ -249,6 +251,34 @@ export const processGoogleAccount = async (
       { emailVerified: googleUser.emailVerified ? 1 : 0 },
     )
   }
+  return user
+}
+
+export const processFacebookAccount = async (
+  c: Context<typeConfig.Context>,
+  facebookUser: jwtService.FacebookUser,
+  locale: typeConfig.Locale,
+) => {
+  const currentUser = await userModel.getFacebookUserByFacebookId(
+    c.env.DB,
+    facebookUser.id,
+  )
+  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+
+  const user = currentUser ?? await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      email: null,
+      socialAccountId: facebookUser.id,
+      socialAccountType: userModel.SocialAccountType.Facebook,
+      password: null,
+      locale,
+      emailVerified: 0,
+      firstName: facebookUser.firstName,
+      lastName: facebookUser.lastName,
+    },
+  )
   return user
 }
 

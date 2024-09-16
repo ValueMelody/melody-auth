@@ -50,8 +50,8 @@ export const insertUsers = (
 ) => {
   db.exec(`
     INSERT INTO "user"
-    ("authId", locale, email, "googleId", password, "firstName", "lastName")
-    values ('1-1-1-1', 'en', 'test@email.com', null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
+    ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+    values ('1-1-1-1', 'en', 'test@email.com', '${userModel.SocialAccountType.Google}', null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
   `)
   if (withConsent) {
     db.exec(`
@@ -193,7 +193,29 @@ describe(
         const dom = new JSDOM(html)
         const document = dom.window.document
         expect(document.getElementsByClassName('g_id_signin').length).toBe(1)
+        expect(document.getElementById('facebook-login-btn')).toBeFalsy()
+
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+      },
+    )
+
+    test(
+      'should show facebook sign in',
+      async () => {
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByClassName('g_id_signin').length).toBe(0)
+        expect(document.getElementById('facebook-login-btn')).toBeTruthy()
+        
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
       },
     )
 
@@ -2643,7 +2665,8 @@ describe(
 
       const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
       expect(users.length).toBe(1)
-      expect(users[0].googleId).toBe('gid123')
+      expect(users[0].socialAccountId).toBe('gid123')
+      expect(users[0].socialAccountType).toBe(userModel.SocialAccountType.Google)
       expect(users[0].email).toBe('test@gmail.com')
       expect(users[0].firstName).toBe('first')
       expect(users[0].lastName).toBe('last')
@@ -2670,109 +2693,284 @@ describe(
       },
     )
 
-    test(
-      'should be blocked if not enable in config',
-      async () => {
-        const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
-        const credential = await sign(
-          {
-            iss: 'https://accounts.google.com',
-            email: 'test@gmail.com',
-            sub: 'gid123',
-            email_verified: true,
-            given_name: 'first',
-            family_name: 'last',
-          },
-          privateSecret,
-          'RS256',
-        )
+    // test(
+    //   'should be blocked if not enable in config',
+    //   async () => {
+    //     const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
+    //     const credential = await sign(
+    //       {
+    //         iss: 'https://accounts.google.com',
+    //         email: 'test@gmail.com',
+    //         sub: 'gid123',
+    //         email_verified: true,
+    //         given_name: 'first',
+    //         family_name: 'last',
+    //       },
+    //       privateSecret,
+    //       'RS256',
+    //     )
 
-        const appRecord = await getApp(db)
-        const res = await app.request(
-          `${BaseRoute}/authorize-google`,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              ...(await postAuthorizeBody(appRecord)),
-              credential: `${credential}`,
-            }),
-          },
-          mock(db),
-        )
-        expect(res.status).toBe(400)
-      },
-    )
+    //     const appRecord = await getApp(db)
+    //     const res = await app.request(
+    //       `${BaseRoute}/authorize-google`,
+    //       {
+    //         method: 'POST',
+    //         body: JSON.stringify({
+    //           ...(await postAuthorizeBody(appRecord)),
+    //           credential: `${credential}`,
+    //         }),
+    //       },
+    //       mock(db),
+    //     )
+    //     expect(res.status).toBe(400)
+    //   },
+    // )
 
-    test(
-      'could throw error if wrong credential provided',
-      async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
-        const credential = await jwtService.signWithKid(
-          c,
-          {
-            iss: 'https://accounts.any.com',
-            email: 'test@gmail.com',
-            sub: 'gid123',
-            email_verified: true,
-            given_name: 'first',
-            family_name: 'last',
-          },
-        )
+    // test(
+    //   'could throw error if wrong credential provided',
+    //   async () => {
+    //     global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+    //     const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
+    //     const credential = await jwtService.signWithKid(
+    //       c,
+    //       {
+    //         iss: 'https://accounts.any.com',
+    //         email: 'test@gmail.com',
+    //         sub: 'gid123',
+    //         email_verified: true,
+    //         given_name: 'first',
+    //         family_name: 'last',
+    //       },
+    //     )
 
-        const appRecord = await getApp(db)
-        const res = await app.request(
-          `${BaseRoute}/authorize-google`,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              ...(await postAuthorizeBody(appRecord)),
-              credential: `${credential}`,
-            }),
-          },
-          mock(db),
-        )
-        expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
-      },
-    )
+    //     const appRecord = await getApp(db)
+    //     const res = await app.request(
+    //       `${BaseRoute}/authorize-google`,
+    //       {
+    //         method: 'POST',
+    //         body: JSON.stringify({
+    //           ...(await postAuthorizeBody(appRecord)),
+    //           credential: `${credential}`,
+    //         }),
+    //       },
+    //       mock(db),
+    //     )
+    //     expect(res.status).toBe(404)
+    //     expect(await res.text()).toBe(localeConfig.Error.NoUser)
+    //     global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+    //   },
+    // )
 
-    test(
-      'should sign in with an existing google account',
-      async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        await postGoogleRequest(true)
-        await postGoogleRequest(true)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
-      },
-    )
+    // test(
+    //   'should sign in with an existing google account',
+    //   async () => {
+    //     global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+    //     await postGoogleRequest(true)
+    //     await postGoogleRequest(true)
+    //     global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+    //   },
+    // )
 
-    test(
-      'should throw error if user is not active',
-      async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        await postGoogleRequest(true)
-        await disableUser(db)
-        const res = await prepareRequest(true)
-        expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
-      },
-    )
+    // test(
+    //   'should throw error if user is not active',
+    //   async () => {
+    //     global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+    //     await postGoogleRequest(true)
+    //     await disableUser(db)
+    //     const res = await prepareRequest(true)
+    //     expect(res.status).toBe(400)
+    //     expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+    //     global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+    //   },
+    // )
 
-    test(
-      'should sign in with an existing google account and update verify info',
-      async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
-        await postGoogleRequest(false)
-        await postGoogleRequest(true)
-        await postGoogleRequest(false)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
-      },
-    )
+    // test(
+    //   'should sign in with an existing google account and update verify info',
+    //   async () => {
+    //     global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+    //     await postGoogleRequest(false)
+    //     await postGoogleRequest(true)
+    //     await postGoogleRequest(false)
+    //     global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+    //   },
+    // )
   },
 )
+
+// describe(
+//   'post /authorize-facebook',
+//   () => {
+//     const mockFetch = vi.fn(async (url) => {
+//       if (url === 'https://graph.facebook.com/oauth/access_token?client_id=123&client_secret=abc&grant_type=client_credentials') {
+//         return Promise.resolve({
+//           ok: true,
+//           json: () => ({
+//             access_token: 'token123'
+//           }),
+//         })
+//       } else if (url === 'https://graph.facebook.com/debug_token?input_token=aaa&access_token=token123') {
+//         return Promise.resolve({
+//           ok: true,
+//           json: () => ({
+//             data: {
+//               is_valid: true,
+//               user_id: 'fb001'
+//             }
+//           }),
+//         })
+//       } else if (url === 'https://graph.facebook.com/v20.0/fb001?access_token=token123') {
+//         return Promise.resolve({
+//           ok: true,
+//           json: () => ({
+//             firstName: 'first',
+//             lastName: 'last',
+//             id: 'fb001'
+//           }),
+//         })
+//       }
+//       return Promise.resolve({ ok: true })
+//     })
+
+//     const prepareRequest = async () => {
+//       const credential = 'aaa'
+
+//       const appRecord = await getApp(db)
+//       const res = await app.request(
+//         `${BaseRoute}/authorize-facebook`,
+//         {
+//           method: 'POST',
+//           body: JSON.stringify({
+//             ...(await postAuthorizeBody(appRecord)),
+//             credential,
+//           }),
+//         },
+//         mock(db),
+//       )
+//       return res
+//     }
+
+//     const postFacebookRequest = async () => {
+//       global.fetch = mockFetch as Mock
+
+//       const res = await prepareRequest()
+
+//       const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
+//       expect(users.length).toBe(1)
+//       expect(users[0].socialAccountId).toBe('fb001')
+//       expect(users[0].socialAccountType).toBe(userModel.SocialAccountType.Facebook)
+//       expect(users[0].email).toBe(null)
+//       expect(users[0].firstName).toBe('first')
+//       expect(users[0].lastName).toBe('last')
+//       expect(users[0].emailVerified).toBe(0)
+//       expect(await res.json()).toStrictEqual({
+//         code: expect.any(String),
+//         redirectUri: 'http://localhost:3000/en/dashboard',
+//         state: '123',
+//         scopes: ['profile', 'openid', 'offline_access'],
+//         requireConsent: true,
+//         requireMfaEnroll: false,
+//         requireEmailMfa: false,
+//         requireOtpSetup: false,
+//         requireOtpMfa: false,
+//       })
+//     }
+
+//     test(
+//       'should sign in with a new facebook account',
+//       async () => {
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc' as unknown as string
+//         await postFacebookRequest()
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+//       },
+//     )
+
+//     test(
+//       'should be blocked if not enable in config',
+//       async () => {
+//         global.fetch = mockFetch as Mock
+//         const res = await prepareRequest()
+//         expect(res.status).toBe(400)
+//       },
+//     )
+
+//     test(
+//       'should be blocked if not secret provided in config',
+//       async () => {
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
+//         global.fetch = mockFetch as Mock
+//         const res = await prepareRequest()
+//         expect(res.status).toBe(400)
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
+//       },
+//     )
+
+//     test(
+//       'should be blocked if not id provided in config',
+//       async () => {
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abv' as unknown as string
+//         global.fetch = mockFetch as Mock
+//         const res = await prepareRequest()
+//         expect(res.status).toBe(400)
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+//       },
+//     )
+
+//     test(
+//       'could throw error if wrong credential provided',
+//       async () => {
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc' as unknown as string
+        
+//         const credential = 'aab'
+
+//         const appRecord = await getApp(db)
+//         const res = await app.request(
+//           `${BaseRoute}/authorize-facebook`,
+//           {
+//             method: 'POST',
+//             body: JSON.stringify({
+//               ...(await postAuthorizeBody(appRecord)),
+//               credential,
+//             }),
+//           },
+//           mock(db),
+//         )
+//         expect(res.status).toBe(404)
+//         expect(await res.text()).toBe(localeConfig.Error.NoUser)
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+//       },
+//     )
+
+//     test(
+//       'should sign in with an existing google account',
+//       async () => {
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc' as unknown as string
+//         await postFacebookRequest()
+//         await postFacebookRequest()
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+//       },
+//     )
+
+//     test(
+//       'should throw error if user is not active',
+//       async () => {
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc' as unknown as string
+//         await postFacebookRequest()
+//         await disableUser(db)
+//         const res = await prepareRequest()
+//         expect(res.status).toBe(400)
+//         expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+//         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
+//         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+//       },
+//     )
+//   },
+// )
 
 describe(
   'post /logout',

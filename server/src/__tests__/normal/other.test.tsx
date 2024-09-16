@@ -47,6 +47,7 @@ describe(
           ENABLE_LOCALE_SELECTOR: true,
           COMPANY_LOGO_URL: 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg',
           GOOGLE_AUTH_CLIENT_ID: '',
+          FACEBOOK_AUTH_CLIENT_ID: '',
           ENABLE_SIGN_UP: true,
           ENABLE_PASSWORD_RESET: true,
           PASSWORD_RESET_EMAIL_THRESHOLD: 5,

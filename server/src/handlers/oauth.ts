@@ -92,7 +92,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
   }
 
-  const isSocialLogin = !!authInfo.user.googleId
+  const isSocialLogin = !!authInfo.user.socialAccountId
 
   const {
     EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
