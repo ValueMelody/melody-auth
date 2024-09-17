@@ -26,6 +26,7 @@ enum AuthorizeStep {
   Account = 0,
   Password = 0,
   Google = 0,
+  Facebook = 0,
   Consent = 1,
   MfaEnroll = 2,
   OtpMfa = 3,
@@ -44,7 +45,7 @@ const handlePostAuthorize = async (
     authCodeBody.appId,
   )
 
-  const isSocialLogin = !!authCodeBody.user.googleId
+  const isSocialLogin = !!authCodeBody.user.socialAccountId
 
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
@@ -157,6 +158,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     GOOGLE_AUTH_CLIENT_ID: googleClientId,
+    FACEBOOK_AUTH_CLIENT_ID: facebookClientId,
   } = env(c)
 
   const queryString = requestUtil.getQueryString(c)
@@ -170,6 +172,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     enablePasswordReset={enablePasswordReset}
     enablePasswordSignIn={enablePasswordSignIn}
     googleClientId={googleClientId}
+    facebookClientId={facebookClientId}
   />)
 }
 
@@ -699,6 +702,63 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
   return handlePostAuthorize(
     c,
     AuthorizeStep.Google,
+    authCode,
+    authCodeBody,
+  )
+}
+
+export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+    ...reqBody,
+    scopes: reqBody.scope.split(' '),
+  })
+  await validateUtil.dto(bodyDto)
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
+  const {
+    FACEBOOK_AUTH_CLIENT_ID: facebookClientId, FACEBOOK_AUTH_CLIENT_SECRET: facebookClientSecret,
+  } = env(c)
+
+  const facebookUser = await jwtService.verifyFacebookCredential(
+    facebookClientId,
+    facebookClientSecret,
+    bodyDto.credential,
+  )
+  if (!facebookUser) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+
+  const user = await userService.processFacebookAccount(
+    c,
+    facebookUser,
+    bodyDto.locale,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+
+  const authCode = genRandomString(128)
+  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const authCodeBody = {
+    appId: app.id,
+    appName: app.name,
+    user,
+    request,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    authCodeBody,
+    codeExpiresIn,
+  )
+
+  return handlePostAuthorize(
+    c,
+    AuthorizeStep.Facebook,
     authCode,
     authCodeBody,
   )

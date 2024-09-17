@@ -243,7 +243,7 @@ const Page = () => {
   )
 
   const renderEmailButtons = (user) => {
-    if (user.googleId) return null
+    if (user.socialAccountId) return null
     return (
       <div className='flex items-center gap-4 max-md:gap-2 max-md:flex-col max-md:items-start'>
         {user.isActive && !isEmailEnrolled && (
@@ -337,35 +337,37 @@ const Page = () => {
                 </div>
               </Table.Cell>
             </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('users.email')}</Table.Cell>
-              <Table.Cell>
-                <div className='flex flex-col gap-2'>
-                  <div className='flex items-center gap-4 max-md:gap-2 max-md:flex-col max-md:items-start'>
-                    <p>{user.email}</p>
-                    {configs.ENABLE_EMAIL_VERIFICATION && (
-                      <UserEmailVerified user={user} />
-                    )}
-                    {isEmailEnrolled && (
-                      <Badge color='gray'>{t('users.emailMfaEnrolled')}</Badge>
-                    )}
-                    <div className='md:hidden'>
-                      {renderEmailButtons(user)}
+            {user.email && (
+              <Table.Row>
+                <Table.Cell>{t('users.email')}</Table.Cell>
+                <Table.Cell>
+                  <div className='flex flex-col gap-2'>
+                    <div className='flex items-center gap-4 max-md:gap-2 max-md:flex-col max-md:items-start'>
+                      <p>{user.email}</p>
+                      {configs.ENABLE_EMAIL_VERIFICATION && (
+                        <UserEmailVerified user={user} />
+                      )}
+                      {isEmailEnrolled && (
+                        <Badge color='gray'>{t('users.emailMfaEnrolled')}</Badge>
+                      )}
+                      <div className='md:hidden'>
+                        {renderEmailButtons(user)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Table.Cell>
-              <Table.Cell className='max-md:hidden'>
-                {renderEmailButtons(user)}
-              </Table.Cell>
-            </Table.Row>
-            {user.googleId && (
-              <Table.Row>
-                <Table.Cell>{t('users.social')}</Table.Cell>
-                <Table.Cell>Google: {user.googleId}</Table.Cell>
+                </Table.Cell>
+                <Table.Cell className='max-md:hidden'>
+                  {renderEmailButtons(user)}
+                </Table.Cell>
               </Table.Row>
             )}
-            {!user.googleId && (
+            {user.socialAccountId && (
+              <Table.Row>
+                <Table.Cell>{t('users.social')}</Table.Cell>
+                <Table.Cell>{user.socialAccountType}: {user.socialAccountId}</Table.Cell>
+              </Table.Row>
+            )}
+            {!user.socialAccountId && (
               <Table.Row>
                 <Table.Cell>{t('users.authenticator')}</Table.Cell>
                 <TableCell>
@@ -426,7 +428,7 @@ const Page = () => {
                 )}
               </Table.Cell>
             </Table.Row>
-            {!user.googleId && enableAccountLock && (
+            {!user.socialAccountId && enableAccountLock && (
               <Table.Row>
                 <Table.Cell>{t('users.lockedIPs')}</Table.Cell>
                 <Table.Cell>

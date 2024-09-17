@@ -28,13 +28,13 @@ let db: Database
 const insertUsers = async () => {
   await db.exec(`
     INSERT INTO "user"
-    ("authId", locale, email, "googleId", password, "firstName", "lastName")
-    values ('1-1-1-1', 'en', 'test@email.com', null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
+    ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+    values ('1-1-1-1', 'en', 'test@email.com', null, null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
   `)
   await db.exec(`
     INSERT INTO "user"
-    ("authId", locale, email, "googleId", password, "firstName", "lastName")
-    values ('1-1-1-2', 'fr', 'test1@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', null, null)
+    ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+    values ('1-1-1-2', 'fr', 'test1@email.com', null, null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', null, null)
   `)
   await db.exec(`
     INSERT INTO user_app_consent
@@ -51,7 +51,8 @@ const insertUsers = async () => {
 const user1 = {
   id: 1,
   authId: '1-1-1-1',
-  googleId: null,
+  socialAccountId: null,
+  socialAccountType: null,
   email: 'test@email.com',
   locale: 'en',
   emailVerified: false,
@@ -69,7 +70,8 @@ const user1 = {
 const user2 = {
   id: 2,
   authId: '1-1-1-2',
-  googleId: null,
+  socialAccountId: null,
+  socialAccountType: null,
   email: 'test1@email.com',
   locale: 'fr',
   emailVerified: false,
@@ -119,18 +121,18 @@ describe(
         await insertUsers()
         await db.exec(`
           INSERT INTO "user"
-          ("authId", locale, email, "googleId", password, "firstName", "lastName")
-          values ('1-1-1-3', 'en', 'test2@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'first', 'last')
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-3', 'en', 'test2@email.com', null, null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'first', 'last')
         `)
         await db.exec(`
           INSERT INTO "user"
-          ("authId", locale, email, "googleId", password, "firstName", "lastName")
-          values ('1-1-1-4', 'en', 'test3@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'another', 'one')
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-4', 'en', 'test3@email.com', null, null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'another', 'one')
         `)
         await db.exec(`
           INSERT INTO "user"
-          ("authId", locale, email, "googleId", password, "firstName", "lastName")
-          values ('1-1-1-5', 'en', 'test4@email.com', null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'other', 'name')
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-5', 'en', 'test4@email.com', null, null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'other', 'name')
         `)
 
         const res = await app.request(

@@ -9,11 +9,17 @@ export enum MfaType {
   Email = 'email',
 }
 
+export enum SocialAccountType {
+  Google = 'Google',
+  Facebook = 'Facebook',
+}
+
 export interface Common {
   id: number;
   authId: string;
   email: string | null;
-  googleId: string | null;
+  socialAccountId: string | null;
+  socialAccountType: SocialAccountType | null;
   locale: typeConfig.Locale;
   password: string | null;
   firstName: string | null;
@@ -42,7 +48,8 @@ export interface Record extends Common {
 export interface ApiRecord {
   id: number;
   authId: string;
-  googleId: string | null;
+  socialAccountId: string | null;
+  socialAccountType: SocialAccountType | null;
   email: string | null;
   locale: typeConfig.Locale;
   firstName?: string | null;
@@ -70,7 +77,8 @@ export interface Create {
   authId: string;
   locale: typeConfig.Locale;
   email: string | null;
-  googleId: string | null;
+  socialAccountId: string | null;
+  socialAccountType: SocialAccountType | null;
   password: string | null;
   otpSecret?: string;
   emailVerified?: number;
@@ -110,7 +118,8 @@ export const convertToApiRecord = (
   const result: ApiRecord = {
     id: record.id,
     authId: record.authId,
-    googleId: record.googleId,
+    socialAccountId: record.socialAccountId,
+    socialAccountType: record.socialAccountType,
     email: record.email,
     locale: record.locale,
     emailVerified: record.emailVerified,
@@ -198,7 +207,7 @@ export const getByAuthId = async (
 export const getPasswordUserByEmail = async (
   db: D1Database, email: string,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE email = $1 AND "googleId" IS NULL AND "deletedAt" IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE email = $1 AND "socialAccountId" IS NULL AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
     .bind(email)
   const user = await stmt.first() as Raw | null
@@ -208,9 +217,25 @@ export const getPasswordUserByEmail = async (
 export const getGoogleUserByGoogleId = async (
   db: D1Database, googleId: string,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE "googleId" = $1 AND "deletedAt" IS NULL`
+  const query = `SELECT * FROM ${TableName} WHERE "socialAccountId" = $1 AND "socialAccountType" = $2  AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
-    .bind(googleId)
+    .bind(
+      googleId,
+      SocialAccountType.Google,
+    )
+  const user = await stmt.first() as Raw | null
+  return user ? convertToRecord(user) : null
+}
+
+export const getFacebookUserByFacebookId = async (
+  db: D1Database, facebookId: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "socialAccountId" = $1 AND "socialAccountType" = $2  AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(
+      facebookId,
+      SocialAccountType.Facebook,
+    )
   const user = await stmt.first() as Raw | null
   return user ? convertToRecord(user) : null
 }
@@ -220,7 +245,7 @@ export const create = async (
 ): Promise<Record> => {
   const createKeys: (keyof Create)[] = [
     'authId', 'email', 'password', 'firstName', 'lastName',
-    'locale', 'otpSecret', 'googleId', 'emailVerified',
+    'locale', 'otpSecret', 'socialAccountId', 'socialAccountType', 'emailVerified',
   ]
   const stmt = dbUtil.d1CreateQuery(
     db,

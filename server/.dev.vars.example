@@ -7,6 +7,7 @@ BREVO_API_KEY= # Put your Brevo api key here and leave SENDGRID_API_KEY to be em
 BREVO_SENDER_ADDRESS= # Put your Brevo sender address here
 
 AUTH_SERVER_URL="http://localhost:8787" # The host url of your CF worker
+FACEBOOK_AUTH_CLIENT_SECRET= # To work with FACEBOOK_AUTH_CLIENT_ID
 
 # Config following env vars to run this project using node, Postgres and Redis, with the option to use an SMTP mailer server as well
 # PG_CONNECTION_STRING=postgres://postgres:postgres@127.0.0.1:5432/melody-auth

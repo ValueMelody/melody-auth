@@ -215,7 +215,11 @@ npm run prod:deploy
 
 ### GOOGLE_AUTH_CLIENT_ID
 - **Default:** ""
-- **Description:** The Google Authentication Client ID is required to enable the Google Sign-In function. This ID is obtained from the Google Developer Console and uniquely identifies your application to Google. If this value is left empty, the Google Sign-In button will be suppressed and the sign-in functionality will not be available.
+- **Description:** The Google Authentication Client ID is required to enable the Google Sign-In function. This ID is obtained from the Google Developer Console and uniquely identifies your application to Google. If this value is left empty, the Google Sign-In button will be suppressed and the Google sign-in functionality will not be available.
+
+### FACEBOOK_AUTH_CLIENT_ID
+- **Default:** ""
+- **Description:** The Facebook Authentication Client ID is required to enable the Facebook Sign-In function. This ID is obtained from the Facebook Developer Console and uniquely identifies your application to Facebook. If this value is left empty, the Facebook Sign-In button will be suppressed and the Facebook sign-in functionality will not be available. <b>You also need to set FACEBOOK_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare dev env as well as Node env, and in Cloudflare workers config for Cloudflare prod env.</b>
 
 ### ENABLE_SIGN_UP
 - **Default:** true

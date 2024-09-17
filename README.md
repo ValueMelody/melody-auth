@@ -5,7 +5,7 @@
 ## Features Supported
 - <b>OAuth 2.0</b>: Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, User Info Retrieval, Sign-Out
 - <b>Authorization</b>: Sign-In, Sign-Up, Sign-Out, Email Verification, Password Reset, Role-Based Access Control (RBAC), Localization
-- <b>Social Sign-In</b>: Google Sign-In
+- <b>Social Sign-In</b>: Google Sign-In, Facebook Sign-In
 - <b>Mailer Option</b>: SendGrid, Brevo, STMP (Node.js environment only)
 - <b>Multi-Factor Authentication</b>: Email MFA, OTP MFA, MFA Enrollment
 - <b>JWT Authentication</b>: RSA256 based JWT Authentication, JWT Secret Rotate

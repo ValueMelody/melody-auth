@@ -44,6 +44,16 @@ export const enableGoogleSignIn = async (
   await next()
 }
 
+export const enableFacebookSignIn = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    FACEBOOK_AUTH_CLIENT_ID: facebookId, FACEBOOK_AUTH_CLIENT_SECRET: facebookSecret,
+  } = env(c)
+  if (!facebookId || !facebookSecret) throw new errorConfig.Forbidden()
+  await next()
+}
+
 export const enableEmailVerification = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

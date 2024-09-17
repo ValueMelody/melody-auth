@@ -108,6 +108,10 @@ const Page = () => {
             <Table.Cell>{configs.GOOGLE_AUTH_CLIENT_ID}</Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>FACEBOOK_AUTH_CLIENT_ID</Table.Cell>
+            <Table.Cell>{configs.FACEBOOK_AUTH_CLIENT_ID}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>SUPPORTED_LOCALES</Table.Cell>
             <Table.Cell>{configs.SUPPORTED_LOCALES.join(', ')}</Table.Cell>
           </Table.Row>

@@ -13,11 +13,20 @@ import SubmitError from 'views/components/SubmitError'
 import Title from 'views/components/Title'
 import Field from 'views/components/Field'
 
+const getFBLocale = (locale: typeConfig.Locale) => {
+  switch (locale) {
+  case 'fr': return 'fr_FR'
+  case 'en':
+  default:
+    return 'en_US'
+  }
+}
+
 const AuthorizePassword = ({
   queryDto, logoUrl, enableSignUp,
   enablePasswordReset, enablePasswordSignIn,
   queryString, locales,
-  googleClientId,
+  googleClientId, facebookClientId,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   logoUrl: string;
@@ -27,6 +36,7 @@ const AuthorizePassword = ({
   queryString: string;
   locales: typeConfig.Locale[];
   googleClientId: string;
+  facebookClientId: string;
 }) => {
   return (
     <Layout
@@ -40,6 +50,26 @@ const AuthorizePassword = ({
           async>
         </script>
       )}
+      {facebookClientId && html`
+        <script>
+          window.fbAsyncInit = function() {
+            FB.init({
+              appId: ${facebookClientId},
+              cookie: true,
+              xfbml: true,
+              version: 'v20.0'
+            });
+            FB.AppEvents.logPageView();
+          };
+          (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/${getFBLocale(queryDto.locale)}/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+          }(document, 'script', 'facebook-jssdk'));
+        </script>
+      `}
       <Title title={localeConfig.authorizePassword.title[queryDto.locale]} />
       <SubmitError />
       <form
@@ -70,27 +100,45 @@ const AuthorizePassword = ({
               title={localeConfig.authorizePassword.submit[queryDto.locale]}
             />
           )}
-          {googleClientId && (
-            <>
-              <div
-                id='g_id_onload'
-                data-client_id={googleClientId}
-                data-auto_prompt='false'
-                data-callback='handleGoogleSignIn'
-              />
-              <div class='flex-row justify-center'>
+          {(googleClientId || facebookClientId) && (
+            <section class='flex flex-col gap-4'>
+              {googleClientId && (
+                <>
+                  <div
+                    id='g_id_onload'
+                    data-client_id={googleClientId}
+                    data-auto_prompt='false'
+                    data-callback='handleGoogleSignIn'
+                  />
+                  <div class='flex-row justify-center'>
+                    <div
+                      class='g_id_signin'
+                      data-type='standard'
+                      data-size='large'
+                      data-width='240'
+                      data-theme='outline'
+                      data-text='sign_in_with'
+                      data-locale={queryDto.locale}
+                      data-shape='rectangular'
+                      data-logo_alignment='left'
+                    />
+                  </div>
+                </>
+              )}
+              {facebookClientId && (
                 <div
-                  class='g_id_signin'
-                  data-type='standard'
-                  data-size='large'
-                  data-theme='outline'
-                  data-text='sign_in_with'
-                  data-locale={queryDto.locale}
-                  data-shape='rectangular'
-                  data-logo_alignment='left'
-                />
-              </div>
-            </>
+                  id='facebook-login-btn'
+                  class='flex-row justify-center'>
+                  <fb:login-button
+                    scope='public_profile'
+                    data-size='Large'
+                    data-width='220'
+                    data-use-continue-as='false'
+                    onlogin='checkLoginState();'
+                  />
+                </div>
+              )}
+            </section>
           )}
         </section>
       </form>
@@ -114,10 +162,40 @@ const AuthorizePassword = ({
           )}
         </section>
       )}
-      {html`
+      {facebookClientId && html`
         <script>
-          ${resetErrorScript.resetEmailError()}
-          ${resetErrorScript.resetPasswordError()}
+          function faceBookStatusChangeCallback (response) {
+            if (!response || !response.authResponse || !response.authResponse.accessToken) return false
+            fetch('${routeConfig.InternalRoute.Identity}/authorize-facebook', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                credential: response.authResponse.accessToken,
+                ${requestScript.parseAuthorizeBaseValues(queryDto)}
+              })
+            })
+            .then((response) => {
+              ${responseScript.parseRes()}
+            })
+            .then((data) => {
+              ${responseScript.handleAuthorizeFormRedirect(queryDto.locale)}
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
+          function checkLoginState() {
+            FB.getLoginStatus(function(response) {
+              faceBookStatusChangeCallback(response);
+            });
+          }
+        </script>
+      `}
+      {googleClientId && html`
+        <script>
           function handleGoogleSignIn (response) {
             if (!response.credential) return false;
             fetch('${routeConfig.InternalRoute.Identity}/authorize-google', {
@@ -141,6 +219,12 @@ const AuthorizePassword = ({
               ${responseScript.handleSubmitError(queryDto.locale)}
             });
           }
+        </script>
+      `}
+      {html`
+        <script>
+          ${resetErrorScript.resetEmailError()}
+          ${resetErrorScript.resetPasswordError()}
           function handleSubmit (e) {
             e.preventDefault();
             ${validateScript.email(queryDto.locale)}
