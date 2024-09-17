@@ -6,7 +6,10 @@ exports.up = async function (knex) {
         'googleId',
         'socialAccountId',
       )
-      table.text('socialAccountType').defaultTo(null)
+      table.string(
+        'socialAccountType',
+        10,
+      ).defaultTo(null)
     },
   )
 
