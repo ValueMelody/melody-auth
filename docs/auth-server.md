@@ -221,6 +221,10 @@ npm run prod:deploy
 - **Default:** ""
 - **Description:** The Facebook Authentication Client ID is required to enable the Facebook Sign-In function. This ID is obtained from the Facebook Developer Console and uniquely identifies your application to Facebook. If this value is left empty, the Facebook Sign-In button will be suppressed and the Facebook sign-in functionality will not be available. <b>You also need to set FACEBOOK_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare dev env as well as Node env, and in Cloudflare workers config for Cloudflare prod env.</b>
 
+### GITHUB_AUTH_CLIENT_ID & GITHUB_AUTH_APP_NAME
+- **Default:** ""
+- **Description:** The GitHub Authentication Client ID and App Name is required to enable the GitHub Sign-In function. This Client ID and App Name is obtained from the GitHub Developer Console and uniquely identifies your application to GitHub. If this value is left empty, the GitHub Sign-In button will be suppressed and the GitHub sign-in functionality will not be available. <b>You also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare dev env as well as Node env, and in Cloudflare workers config for Cloudflare prod env. In your GitHub App settings, set the callback URL to [your auth server doamin]/identity/v1/authorize-github, e.g., http://localhost:8787/identity/v1/authorize-github</b>
+
 ### ENABLE_SIGN_UP
 - **Default:** true
 - **Description:** Determines if user sign-up is allowed. If set to false, the sign-up button will be suppressed on the sign-in page.

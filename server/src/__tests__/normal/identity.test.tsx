@@ -170,7 +170,11 @@ describe(
         expect(document.getElementsByName('password').length).toBe(1)
         expect(document.getElementById('submit-button')).toBeTruthy()
         expect(document.getElementsByTagName('form').length).toBe(1)
+
         expect(document.getElementsByClassName('g_id_signin').length).toBe(0)
+        expect(document.getElementById('facebook-login-btn')).toBeFalsy()
+        expect(document.getElementById('github-login-btn')).toBeFalsy()
+
         const links = document.getElementsByTagName('a')
         expect(links.length).toBe(3)
         expect(links[0].innerHTML).toBe(localeConfig.authorizePassword.signUp.en)
@@ -182,7 +186,7 @@ describe(
     test(
       'should show google sign in',
       async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
@@ -194,15 +198,17 @@ describe(
         const document = dom.window.document
         expect(document.getElementsByClassName('g_id_signin').length).toBe(1)
         expect(document.getElementById('facebook-login-btn')).toBeFalsy()
+        expect(document.getElementById('github-login-btn')).toBeFalsy()
 
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )
 
     test(
       'should show facebook sign in',
       async () => {
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
@@ -213,9 +219,78 @@ describe(
         const dom = new JSDOM(html)
         const document = dom.window.document
         expect(document.getElementsByClassName('g_id_signin').length).toBe(0)
+        expect(document.getElementById('github-login-btn')).toBeFalsy()
         expect(document.getElementById('facebook-login-btn')).toBeTruthy()
 
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = ''
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
+      },
+    )
+
+    test(
+      'should show facebook sign in if secret is empty',
+      async () => {
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByClassName('g_id_signin').length).toBe(0)
+        expect(document.getElementById('github-login-btn')).toBeFalsy()
+        expect(document.getElementById('facebook-login-btn')).toBeFalsy()
+
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = ''
+      },
+    )
+
+    test(
+      'should show facebook sign in if id is empty',
+      async () => {
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByClassName('g_id_signin').length).toBe(0)
+        expect(document.getElementById('github-login-btn')).toBeFalsy()
+        expect(document.getElementById('facebook-login-btn')).toBeFalsy()
+
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
+      },
+    )
+
+    test(
+      'should show github sign in',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          `${BaseRoute}/authorize-password`,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByClassName('g_id_signin').length).toBe(0)
+        expect(document.getElementById('github-login-btn')).toBeTruthy()
+        expect(document.getElementById('facebook-login-btn')).toBeFalsy()
+
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
       },
     )
 
@@ -1226,31 +1301,31 @@ describe(
     test(
       'should throw error if no email config set',
       async () => {
-        global.process.env.SENDGRID_API_KEY = '' as unknown as string
+        global.process.env.SENDGRID_API_KEY = ''
         await insertUsers(db)
         const res = await testSendResetCode('/resend-reset-code')
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.NoEmailSender)
-        global.process.env.SENDGRID_API_KEY = 'abc' as unknown as string
+        global.process.env.SENDGRID_API_KEY = 'abc'
       },
     )
 
     test(
       'could send email if brevo config set',
       async () => {
-        global.process.env.SENDGRID_API_KEY = '' as unknown as string
-        global.process.env.SENDGRID_SENDER_ADDRESS = '' as unknown as string
-        global.process.env.BREVO_API_KEY = 'abc' as unknown as string
-        global.process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com' as unknown as string
+        global.process.env.SENDGRID_API_KEY = ''
+        global.process.env.SENDGRID_SENDER_ADDRESS = ''
+        global.process.env.BREVO_API_KEY = 'abc'
+        global.process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
         await insertUsers(db)
         const res = await testSendResetCode('/resend-reset-code')
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
         expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
-        global.process.env.SENDGRID_API_KEY = 'abc' as unknown as string
-        global.process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com' as unknown as string
-        global.process.env.BREVO_API_KEY = '' as unknown as string
-        global.process.env.BREVO_SENDER_ADDRESS = '' as unknown as string
+        global.process.env.SENDGRID_API_KEY = 'abc'
+        global.process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+        global.process.env.BREVO_API_KEY = ''
+        global.process.env.BREVO_SENDER_ADDRESS = ''
       },
     )
   },
@@ -2687,9 +2762,9 @@ describe(
     test(
       'should sign in with a new google account',
       async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
         await postGoogleRequest(true)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )
 
@@ -2729,7 +2804,7 @@ describe(
     test(
       'could throw error if wrong credential provided',
       async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
         const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
         const credential = await jwtService.signWithKid(
           c,
@@ -2757,41 +2832,41 @@ describe(
         )
         expect(res.status).toBe(404)
         expect(await res.text()).toBe(localeConfig.Error.NoUser)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )
 
     test(
       'should sign in with an existing google account',
       async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
         await postGoogleRequest(true)
         await postGoogleRequest(true)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )
 
     test(
       'should throw error if user is not active',
       async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
         await postGoogleRequest(true)
         await disableUser(db)
         const res = await prepareRequest(true)
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )
 
     test(
       'should sign in with an existing google account and update verify info',
       async () => {
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
         await postGoogleRequest(false)
         await postGoogleRequest(true)
         await postGoogleRequest(false)
-        global.process.env.GOOGLE_AUTH_CLIENT_ID = '' as unknown as string
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )
   },
@@ -2875,10 +2950,10 @@ describe(
     test(
       'should sign in with a new facebook account',
       async () => {
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
         await postFacebookRequest()
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
       },
     )
 
@@ -2891,30 +2966,30 @@ describe(
     )
 
     test(
-      'should be blocked if not secret provided in config',
+      'should be blocked if no secret provided in config',
       async () => {
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
         const res = await prepareRequest()
         expect(res.status).toBe(400)
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = ''
       },
     )
 
     test(
-      'should be blocked if not id provided in config',
+      'should be blocked if no id provided in config',
       async () => {
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abv' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abv'
         const res = await prepareRequest()
         expect(res.status).toBe(400)
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
       },
     )
 
     test(
       'could throw error if wrong credential provided',
       async () => {
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
 
         const credential = 'aab'
 
@@ -2932,35 +3007,229 @@ describe(
         )
         expect(res.status).toBe(404)
         expect(await res.text()).toBe(localeConfig.Error.NoUser)
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = ''
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
       },
     )
 
     test(
       'should sign in with an existing facebook account',
       async () => {
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
         await postFacebookRequest()
         await postFacebookRequest()
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = ''
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
       },
     )
 
     test(
       'should throw error if user is not active',
       async () => {
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123' as unknown as string
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
         await postFacebookRequest()
         await disableUser(db)
         const res = await prepareRequest()
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
-        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '' as unknown as string
-        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = '' as unknown as string
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = ''
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
+      },
+    )
+  },
+)
+
+describe(
+  'get /authorize-github',
+  () => {
+    const mockGithubFetch = vi.fn(async (
+      url, params,
+    ) => {
+      if (url === 'https://github.com/login/oauth/access_token' && params.body.includes('aaa')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => ({ access_token: 'token123' }),
+        })
+      } else if (url === 'https://api.github.com/user') {
+        return Promise.resolve({
+          ok: true,
+          json: () => ({
+            name: 'first last',
+            id: 'github001',
+            email: 'test-github@email.com',
+          }),
+        })
+      }
+      return Promise.resolve({ ok: false })
+    })
+
+    const prepareRequest = async (cred?: string) => {
+      const credential = cred ?? 'aaa'
+
+      const appRecord = await getApp(db)
+      const requestBody = await postAuthorizeBody(appRecord)
+      const state = JSON.stringify(new oauthDto.GetAuthorizeReqDto({
+        ...requestBody,
+        scopes: requestBody.scope.split(' ') ?? [],
+        locale: 'en',
+      }))
+      const res = await app.request(
+        `${BaseRoute}/authorize-github?code=${credential}&state=${encodeURIComponent(state)}`,
+        {},
+        mock(db),
+      )
+      return res
+    }
+
+    const getGitHubRequest = async () => {
+      global.fetch = mockGithubFetch as Mock
+
+      const res = await prepareRequest()
+      expect(res.status).toBe(302)
+
+      const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
+      expect(users.length).toBe(1)
+      expect(users[0].socialAccountId).toBe('github001')
+      expect(users[0].socialAccountType).toBe(userModel.SocialAccountType.GitHub)
+      expect(users[0].email).toBe('test-github@email.com')
+      expect(users[0].firstName).toBe('first')
+      expect(users[0].lastName).toBe('last')
+      expect(users[0].emailVerified).toBe(0)
+
+      return res
+    }
+
+    test(
+      'should redirect to consent with a new GitHub account',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+        const res = await getGitHubRequest()
+        expect(res.headers.get('Location')).toContain('/identity/v1/authorize-consent?state=123&code=')
+        expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
+
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+      },
+    )
+
+    test(
+      'should redirect back to app with a new GitHub account when consent not need',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        const res = await getGitHubRequest()
+        expect(res.headers.get('Location')).toContain('http://localhost:3000/en/dashboard?state=123&code=')
+        expect(res.headers.get('Location')).toContain('&locale=en')
+
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should be blocked if not enable in config',
+      async () => {
+        const res = await prepareRequest()
+        expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'should be blocked if no secret provided in config',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+        const res = await prepareRequest()
+        expect(res.status).toBe(400)
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+      },
+    )
+
+    test(
+      'should be blocked if no id provided in config',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+        const res = await prepareRequest()
+        expect(res.status).toBe(400)
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+      },
+    )
+
+    test(
+      'should be blocked if no app name provided in config',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        const res = await prepareRequest()
+        expect(res.status).toBe(400)
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+      },
+    )
+
+    test(
+      'could throw error if wrong credential provided',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+
+        const credential = 'aab'
+        const res = await prepareRequest(credential)
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+      },
+    )
+
+    test(
+      'should sign in with an existing github account',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+        const res = await getGitHubRequest()
+        expect(res.headers.get('Location')).toContain('/identity/v1/authorize-consent?state=123&code=')
+        expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
+
+        const res1 = await getGitHubRequest()
+        expect(res.headers.get('Location')).toContain('/identity/v1/authorize-consent?state=123&code=')
+        expect(res1.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
+
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+      },
+    )
+
+    test(
+      'should throw error if user is not active',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+        await getGitHubRequest()
+        await disableUser(db)
+        const res = await prepareRequest()
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
       },
     )
   },

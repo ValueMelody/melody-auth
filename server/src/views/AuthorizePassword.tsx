@@ -26,7 +26,7 @@ const AuthorizePassword = ({
   queryDto, logoUrl, enableSignUp,
   enablePasswordReset, enablePasswordSignIn,
   queryString, locales,
-  googleClientId, facebookClientId,
+  googleClientId, facebookClientId, githubClientId,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   logoUrl: string;
@@ -37,6 +37,7 @@ const AuthorizePassword = ({
   locales: typeConfig.Locale[];
   googleClientId: string;
   facebookClientId: string;
+  githubClientId: string;
 }) => {
   return (
     <Layout
@@ -100,7 +101,7 @@ const AuthorizePassword = ({
               title={localeConfig.authorizePassword.submit[queryDto.locale]}
             />
           )}
-          {(googleClientId || facebookClientId) && (
+          {(googleClientId || facebookClientId || githubClientId) && (
             <section class='flex flex-col gap-4'>
               {googleClientId && (
                 <>
@@ -128,7 +129,8 @@ const AuthorizePassword = ({
               {facebookClientId && (
                 <div
                   id='facebook-login-btn'
-                  class='flex-row justify-center'>
+                  class='flex-row justify-center'
+                >
                   <fb:login-button
                     scope='public_profile'
                     data-size='Large'
@@ -136,6 +138,36 @@ const AuthorizePassword = ({
                     data-use-continue-as='false'
                     onlogin='checkLoginState();'
                   />
+                </div>
+              )}
+              {githubClientId && (
+                <div class='flex-row justify-center'>
+                  <a
+                    id='github-login-btn'
+                    class='flex-row items-center justify-center'
+                    style={{
+                      width: 240,
+                      height: 40,
+                      backgroundColor: '#24292e',
+                      padding: '0 8px',
+                      gap: 8,
+                      color: 'white',
+                      borderRadius: 4,
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      boxSizing: 'border-box',
+                    }}
+                    href={`https://github.com/login/oauth/authorize?client_id=${githubClientId}&state=${JSON.stringify(queryDto)}`}
+                  >
+                    <img
+                      style={{
+                        width: 20, height: 20, marginRight: 10,
+                      }}
+                      src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
+                      alt='GitHub logo' />
+                    {localeConfig.authorizePassword.githubSignIn[queryDto.locale]}
+                  </a>
                 </div>
               )}
             </section>

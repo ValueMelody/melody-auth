@@ -12,6 +12,7 @@ export enum MfaType {
 export enum SocialAccountType {
   Google = 'Google',
   Facebook = 'Facebook',
+  GitHub = 'GitHub',
 }
 
 export interface Common {
@@ -235,6 +236,19 @@ export const getFacebookUserByFacebookId = async (
     .bind(
       facebookId,
       SocialAccountType.Facebook,
+    )
+  const user = await stmt.first() as Raw | null
+  return user ? convertToRecord(user) : null
+}
+
+export const getGithubUserByGithubId = async (
+  db: D1Database, githubId: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "socialAccountId" = $1 AND "socialAccountType" = $2  AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(
+      githubId,
+      SocialAccountType.GitHub,
     )
   const user = await stmt.first() as Raw | null
   return user ? convertToRecord(user) : null

@@ -108,6 +108,12 @@ identityRoutes.post(
 )
 
 identityRoutes.get(
+  `${BaseRoute}/authorize-github`,
+  configMiddleware.enableGithubSignIn,
+  identityHandler.getAuthorizeGithub,
+)
+
+identityRoutes.get(
   `${BaseRoute}/authorize-reset`,
   configMiddleware.enablePasswordReset,
   identityHandler.getAuthorizeReset,

@@ -147,6 +147,10 @@ export const authorizePassword = Object.freeze({
     en: 'Reset password',
     fr: 'Réinitialiser le mot de passe',
   },
+  githubSignIn: {
+    en: 'Log in with GitHub',
+    fr: 'Se connecter avec GitHub',
+  },
 })
 
 export const authorizeAccount = Object.freeze({

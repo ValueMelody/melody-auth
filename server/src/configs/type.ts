@@ -52,6 +52,9 @@ export type Bindings = {
   ENABLE_SIGN_IN_LOG: boolean;
   FACEBOOK_AUTH_CLIENT_ID: string;
   FACEBOOK_AUTH_CLIENT_SECRET: string;
+  GITHUB_AUTH_CLIENT_ID: string;
+  GITHUB_AUTH_CLIENT_SECRET: string;
+  GITHUB_AUTH_APP_NAME: string;
 };
 
 export type Context = {

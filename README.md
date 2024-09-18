@@ -3,15 +3,51 @@
 **Melody Auth** is turnkey OAuth & authentication system that can be seamlessly deployed on Cloudflare’s infrastructure, utilizing Workers, D1, and KV, or self-hosted with Node.js, Redis, and PostgreSQL. It provides a robust and user-friendly solution for implementing and hosting your own oauth and authentication system with minimal configuration required.
 
 ## Features Supported
-- <b>OAuth 2.0</b>: Authorize, Token Exchange, Token Revoke, App Consent, App Scopes, User Info Retrieval, Sign-Out
-- <b>Authorization</b>: Sign-In, Sign-Up, Sign-Out, Email Verification, Password Reset, Role-Based Access Control (RBAC), Localization
-- <b>Social Sign-In</b>: Google Sign-In, Facebook Sign-In
-- <b>Mailer Option</b>: SendGrid, Brevo, STMP (Node.js environment only)
-- <b>Multi-Factor Authentication</b>: Email MFA, OTP MFA, MFA Enrollment
-- <b>JWT Authentication</b>: RSA256 based JWT Authentication, JWT Secret Rotate
-- <b>Brute-force Protection</b>: Log in attempts, Password reset attempts, OTP MFA attempts
-- <b>Logging</b>: Email Logs, Sign-in Logs
-- <b>S2S REST API & Admin Panel</b>: Manage Users, Manage Apps, Manage Scopes, Manage Roles, Localization  
+- <b>OAuth 2.0</b>:
+  - Authorize
+  - Token Exchange
+  - Refresh Token Revoke
+  - App Consent
+  - App Scopes
+  - User Info Retrieval
+- <b>Authorization</b>:
+  - Sign-In
+  - Sign-Up
+  - Sign-Out
+  - Email Verification
+  - Password Reset
+  - Role-Based Access Control (RBAC)
+  - Localization [How to support a new locale](https://auth.valuemelody.com/q_a.html#how-to-support-a-new-locale)
+- <b>Social Sign-In</b>:
+  - Google Sign-In
+  - Facebook Sign-In
+  - GitHub Sign-In
+- <b>Mailer Option</b>:
+  - SendGrid
+  - Brevo
+  - STMP (Node.js environment only)
+- <b>Multi-Factor Authentication</b>:
+  - Email MFA
+  - OTP MFA
+  - MFA Enrollment
+- <b>JWT Authentication</b>:
+  - RSA256 based JWT Authentication [How to verify a SPA access token](https://auth.valuemelody.com/q_a.html#how-to-verify-a-spa-access-token)
+  - JWT Secret Rotate [How to rotate JWT secret](https://auth.valuemelody.com/q_a.html#how-to-rotate-jwt-secret)
+- <b>Brute-force Protection</b>:
+  - Log in attempts
+  - Password reset attempts
+  - OTP MFA attempts
+- <b>Logging</b>:
+  - Email Logs
+  - Sign-in Logs
+- <b>S2S REST API & Admin Panel</b>:
+  - Manage Users
+  - Manage Apps
+  - Manage Scopes
+  - Manage Roles
+  - Localization
+
+### Screenshots
 [Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)  
 [Admin Panel Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)  
 
