@@ -1,12 +1,8 @@
 import { Database } from 'better-sqlite3'
 import { genCodeChallenge } from 'shared'
 import app from 'index'
-import {
-  mock,
-} from 'tests/mock'
-import {
-  appModel,
-} from 'models'
+import { mock } from 'tests/mock'
+import { appModel } from 'models'
 import { routeConfig } from 'configs'
 
 export const insertUsers = (

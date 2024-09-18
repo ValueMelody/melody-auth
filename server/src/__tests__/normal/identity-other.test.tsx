@@ -3,6 +3,7 @@ import {
   vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { JSDOM } from 'jsdom'
 import app from 'index'
 import {
   emailLogRecord,
@@ -11,17 +12,14 @@ import {
   migrate, mock,
   mockedKV,
 } from 'tests/mock'
-import { JSDOM } from 'jsdom'
 import {
-  adapterConfig, routeConfig, localeConfig
+  adapterConfig, routeConfig, localeConfig,
 } from 'configs'
-import { insertUsers, getAuthorizeParams, postSignInRequest, getApp, postAuthorizeBody } from 'tests/identity'
 import {
-  userModel,
-} from 'models'
-import {
-  disableUser,
-} from 'tests/util'
+  insertUsers, getAuthorizeParams, postSignInRequest, getApp, postAuthorizeBody,
+} from 'tests/identity'
+import { userModel } from 'models'
+import { disableUser } from 'tests/util'
 
 let db: Database
 

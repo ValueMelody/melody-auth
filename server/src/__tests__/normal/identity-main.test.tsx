@@ -13,12 +13,14 @@ import {
 import {
   adapterConfig, localeConfig, routeConfig,
 } from 'configs'
-import {
-  disableUser,
-} from 'tests/util'
+import { disableUser } from 'tests/util'
 import { AuthCodeBody } from 'configs/type'
 import { oauthDto } from 'dtos'
-import { prepareFollowUpBody, prepareFollowUpParams, getSignInRequest, insertUsers, getAuthorizeParams, postSignInRequest, getApp, postAuthorizeBody } from 'tests/identity'
+import {
+  prepareFollowUpBody, prepareFollowUpParams, getSignInRequest,
+  insertUsers, getAuthorizeParams, postSignInRequest, getApp,
+  postAuthorizeBody,
+} from 'tests/identity'
 
 let db: Database
 

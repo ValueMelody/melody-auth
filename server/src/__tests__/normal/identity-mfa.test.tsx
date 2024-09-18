@@ -3,24 +3,24 @@ import {
   vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { JSDOM } from 'jsdom'
+import { authenticator } from 'otplib'
 import app from 'index'
 import {
   fetchMock,
   migrate, mock,
   mockedKV,
 } from 'tests/mock'
-import { JSDOM } from 'jsdom'
 import {
   adapterConfig, localeConfig, routeConfig,
 } from 'configs'
+import { userModel } from 'models'
 import {
-  userModel,
-} from 'models'
-import { prepareFollowUpBody, prepareFollowUpParams, insertUsers } from 'tests/identity'
+  prepareFollowUpBody, prepareFollowUpParams, insertUsers,
+} from 'tests/identity'
 import {
   enrollEmailMfa, enrollOtpMfa,
 } from 'tests/util'
-import { authenticator } from 'otplib'
 
 let db: Database
 

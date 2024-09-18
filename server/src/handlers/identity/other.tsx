@@ -5,12 +5,9 @@ import {
   localeConfig,
   typeConfig,
 } from 'configs'
-import {
-  identityDto,
-} from 'dtos'
+import { identityDto } from 'dtos'
 import {
   kvService,
-  scopeService,
   userService,
 } from 'services'
 import {
@@ -20,6 +17,7 @@ import {
   AuthorizeResetView,
   VerifyEmailView,
 } from 'views'
+import { oauthHandler } from 'handlers'
 
 export const getVerifyEmail = async (c: Context<typeConfig.Context>) => {
   const queryDto = new identityDto.GetVerifyEmailReqDto({
@@ -67,7 +65,7 @@ export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
-  const queryDto = await scopeService.parseGetAuthorizeDto(c)
+  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
   const queryString = requestUtil.getQueryString(c)
 
   return c.html(<AuthorizeResetView

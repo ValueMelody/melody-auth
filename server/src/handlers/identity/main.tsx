@@ -2,7 +2,7 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { genRandomString } from 'shared'
 import {
-  typeConfig, routeConfig
+  typeConfig, routeConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
@@ -17,12 +17,11 @@ import {
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
 } from 'views'
-import {
-  userModel,
-} from 'models'
+import { userModel } from 'models'
+import { oauthHandler } from 'handlers'
 
 export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await scopeService.parseGetAuthorizeDto(c)
+  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
 
   const {
     COMPANY_LOGO_URL: logoUrl,
@@ -112,7 +111,7 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await scopeService.parseGetAuthorizeDto(c)
+  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
 
   const {
     COMPANY_LOGO_URL: logoUrl,

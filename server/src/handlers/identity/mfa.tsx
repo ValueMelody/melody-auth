@@ -3,9 +3,7 @@ import { env } from 'hono/adapter'
 import {
   errorConfig, localeConfig, typeConfig,
 } from 'configs'
-import {
-  identityDto,
-} from 'dtos'
+import { identityDto } from 'dtos'
 import {
   emailService, kvService, userService,
 } from 'services'
@@ -18,9 +16,7 @@ import {
   AuthorizeMfaEnrollView,
 } from 'views'
 import { AuthCodeBody } from 'configs/type'
-import {
-  userModel,
-} from 'models'
+import { userModel } from 'models'
 
 const handleSendEmailMfa = async (
   c: Context<typeConfig.Context>,

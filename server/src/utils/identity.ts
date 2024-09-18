@@ -1,15 +1,11 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import {
-  typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   consentService, sessionService,
 } from 'services'
 import { AuthCodeBody } from 'configs/type'
-import {
-  userModel,
-} from 'models'
+import { userModel } from 'models'
 
 export enum AuthorizeStep {
   Account = 0,

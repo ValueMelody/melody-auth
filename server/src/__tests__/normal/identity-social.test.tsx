@@ -15,16 +15,14 @@ import {
   adapterConfig, localeConfig, routeConfig,
   typeConfig,
 } from 'configs'
-import {
-  userModel,
-} from 'models'
+import { userModel } from 'models'
 import { oauthDto } from 'dtos'
-import {
-  disableUser,
-} from 'tests/util'
+import { disableUser } from 'tests/util'
 import { cryptoUtil } from 'utils'
 import { jwtService } from 'services'
-import { getApp, postAuthorizeBody } from 'tests/identity'
+import {
+  getApp, postAuthorizeBody,
+} from 'tests/identity'
 
 let db: Database
 
