@@ -269,3 +269,62 @@ export const verifyFacebookCredential = async (
   }
   return undefined
 }
+
+export interface GithubUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  id: string;
+}
+
+export const verifyGithubCredential = async (
+  clientId: string,
+  clientSecret: string,
+  appName: string,
+  credential: string,
+) => {
+  const tokenRes = await fetch(
+    'https://github.com/login/oauth/access_token',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code: credential,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    },
+  )
+  if (tokenRes.ok) {
+    const tokenBody = await tokenRes.json() as Object
+    if ('access_token' in tokenBody) {
+      const userRes = await fetch(
+        'https://api.github.com/user',
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${tokenBody.access_token}`,
+            'Content-Type': 'application/json',
+            'User-Agent': appName,
+            Accept: 'application/json',
+          },
+        },
+      )
+      if (userRes.ok) {
+        const userBody = await userRes.json() as { name: string; id: string; email: string }
+        const names = userBody.name.split(' ')
+        const user = {
+          firstName: names.length === 2 ? names[0] : '',
+          lastName: names.length === 2 ? names[1] : '',
+          email: userBody.email,
+          id: userBody.id,
+        } as GithubUser
+        return user
+      }
+    }
+  }
+  return undefined
+}

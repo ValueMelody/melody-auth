@@ -20,13 +20,14 @@ import {
   AuthorizeMfaEnrollView,
 } from 'views'
 import { AuthCodeBody } from 'configs/type'
-import { userModel } from 'models'
+import {
+  appModel, userModel,
+} from 'models'
 
 enum AuthorizeStep {
   Account = 0,
   Password = 0,
-  Google = 0,
-  Facebook = 0,
+  Social = 0,
   Consent = 1,
   MfaEnroll = 2,
   OtpMfa = 3,
@@ -82,7 +83,7 @@ const handlePostAuthorize = async (
     )
   }
 
-  return c.json({
+  return {
     code: authCode,
     redirectUri: authCodeBody.request.redirectUri,
     state: authCodeBody.request.state,
@@ -92,7 +93,7 @@ const handlePostAuthorize = async (
     requireEmailMfa,
     requireOtpSetup,
     requireOtpMfa,
-  })
+  }
 }
 
 const handleSendEmailMfa = async (
@@ -159,6 +160,10 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     GOOGLE_AUTH_CLIENT_ID: googleClientId,
     FACEBOOK_AUTH_CLIENT_ID: facebookClientId,
+    FACEBOOK_AUTH_CLIENT_SECRET: facebookClientSecret,
+    GITHUB_AUTH_CLIENT_ID: githubClientId,
+    GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
+    GITHUB_AUTH_APP_NAME: githubAppName,
   } = env(c)
 
   const queryString = requestUtil.getQueryString(c)
@@ -172,7 +177,8 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     enablePasswordReset={enablePasswordReset}
     enablePasswordSignIn={enablePasswordSignIn}
     googleClientId={googleClientId}
-    facebookClientId={facebookClientId}
+    facebookClientId={facebookClientId && facebookClientSecret ? facebookClientId : ''}
+    githubClientId={githubClientId && githubClientSecret && githubAppName ? githubClientId : ''}
   />)
 }
 
@@ -348,12 +354,12 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     codeExpiresIn,
   )
 
-  return handlePostAuthorize(
+  return c.json(await handlePostAuthorize(
     c,
     AuthorizeStep.Account,
     authCode,
     authCodeBody,
-  )
+  ))
 }
 
 export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
@@ -407,12 +413,12 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     authCodeBody.appId,
   )
 
-  return handlePostAuthorize(
+  return c.json(await handlePostAuthorize(
     c,
     AuthorizeStep.Consent,
     bodyDto.code,
     authCodeBody,
-  )
+  ))
 }
 
 export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
@@ -467,12 +473,12 @@ export const postAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => 
     codeExpiresIn,
   )
 
-  return handlePostAuthorize(
+  return c.json(await handlePostAuthorize(
     c,
     AuthorizeStep.MfaEnroll,
     bodyDto.code,
     newAuthCodeStore,
-  )
+  ))
 }
 
 export const getAuthorizeOtpSetup = async (c: Context<typeConfig.Context>) => {
@@ -576,12 +582,12 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
     )
   }
 
-  return handlePostAuthorize(
+  return c.json(await handlePostAuthorize(
     c,
     AuthorizeStep.OtpMfa,
     bodyDto.code,
     authCodeStore,
-  )
+  ))
 }
 
 export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
@@ -635,12 +641,12 @@ export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
 
   if (!isValid) throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
 
-  return handlePostAuthorize(
+  return c.json(await handlePostAuthorize(
     c,
     AuthorizeStep.OtpEmail,
     bodyDto.code,
     authCodeStore,
-  )
+  ))
 }
 
 export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
@@ -656,6 +662,33 @@ export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.json({ success: true })
+}
+
+const prepareSocialAuthCode = async (
+  c: Context<typeConfig.Context>,
+  bodyDto: identityDto.PostAuthorizeSocialSignInReqDto,
+  app: appModel.Record,
+  user: userModel.Record,
+) => {
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+
+  const authCode = genRandomString(128)
+  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const authCodeBody = {
+    appId: app.id,
+    appName: app.name,
+    user,
+    request,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    authCodeBody,
+    codeExpiresIn,
+  )
+  return {
+    authCode, authCodeBody, codeExpiresIn,
+  }
 }
 
 export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
@@ -682,29 +715,21 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
     bodyDto.locale,
   )
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
-
-  const authCode = genRandomString(128)
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
-  const authCodeBody = {
-    appId: app.id,
-    appName: app.name,
-    user,
-    request,
-  }
-  await kvService.storeAuthCode(
-    c.env.KV,
-    authCode,
-    authCodeBody,
-    codeExpiresIn,
-  )
-
-  return handlePostAuthorize(
+  const {
+    authCode, authCodeBody,
+  } = await prepareSocialAuthCode(
     c,
-    AuthorizeStep.Google,
+    bodyDto,
+    app,
+    user,
+  )
+
+  return c.json(await handlePostAuthorize(
+    c,
+    AuthorizeStep.Social,
     authCode,
     authCodeBody,
-  )
+  ))
 }
 
 export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
@@ -739,29 +764,82 @@ export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
     bodyDto.locale,
   )
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
-
-  const authCode = genRandomString(128)
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
-  const authCodeBody = {
-    appId: app.id,
-    appName: app.name,
-    user,
-    request,
-  }
-  await kvService.storeAuthCode(
-    c.env.KV,
-    authCode,
-    authCodeBody,
-    codeExpiresIn,
-  )
-
-  return handlePostAuthorize(
+  const {
+    authCode, authCodeBody,
+  } = await prepareSocialAuthCode(
     c,
-    AuthorizeStep.Facebook,
+    bodyDto,
+    app,
+    user,
+  )
+
+  return c.json(await handlePostAuthorize(
+    c,
+    AuthorizeStep.Social,
+    authCode,
+    authCodeBody,
+  ))
+}
+
+export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
+  const code = c.req.query('code')
+  const state = c.req.query('state') ?? ''
+  const originRequest = JSON.parse(state)
+
+  if (!code || !state) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+    ...originRequest,
+    credential: code,
+  })
+  await validateUtil.dto(bodyDto)
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
+  const {
+    GITHUB_AUTH_CLIENT_ID: githubClientId,
+    GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
+    GITHUB_AUTH_APP_NAME: githubAppName,
+  } = env(c)
+
+  const githubUser = await jwtService.verifyGithubCredential(
+    githubClientId,
+    githubClientSecret,
+    githubAppName,
+    bodyDto.credential,
+  )
+  if (!githubUser) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+
+  const user = await userService.processGithubAccount(
+    c,
+    githubUser,
+    bodyDto.locale,
+  )
+
+  const {
+    authCode, authCodeBody,
+  } = await prepareSocialAuthCode(
+    c,
+    bodyDto,
+    app,
+    user,
+  )
+
+  const detail = await handlePostAuthorize(
+    c,
+    AuthorizeStep.Social,
     authCode,
     authCodeBody,
   )
+
+  const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
+  const url = detail.requireConsent
+    ? `${routeConfig.InternalRoute.Identity}/authorize-consent${qs}&redirect_uri=${detail.redirectUri}`
+    : `${detail.redirectUri}${qs}`
+  return c.redirect(url)
 }
 
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
@@ -812,12 +890,12 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     codeExpiresIn,
   )
 
-  return handlePostAuthorize(
+  return c.json(await handlePostAuthorize(
     c,
     AuthorizeStep.Password,
     authCode,
     authCodeBody,
-  )
+  ))
 }
 
 export const getVerifyEmail = async (c: Context<typeConfig.Context>) => {

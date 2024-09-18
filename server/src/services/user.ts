@@ -282,6 +282,34 @@ export const processFacebookAccount = async (
   return user
 }
 
+export const processGithubAccount = async (
+  c: Context<typeConfig.Context>,
+  githubUser: jwtService.GithubUser,
+  locale: typeConfig.Locale,
+) => {
+  const currentUser = await userModel.getGithubUserByGithubId(
+    c.env.DB,
+    githubUser.id,
+  )
+  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+
+  const user = currentUser ?? await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      email: githubUser.email,
+      socialAccountId: githubUser.id,
+      socialAccountType: userModel.SocialAccountType.GitHub,
+      password: null,
+      locale,
+      emailVerified: 0,
+      firstName: githubUser.firstName,
+      lastName: githubUser.lastName,
+    },
+  )
+  return user
+}
+
 export const verifyUserEmail = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostVerifyEmailReqDto,

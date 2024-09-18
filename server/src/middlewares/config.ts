@@ -54,6 +54,18 @@ export const enableFacebookSignIn = async (
   await next()
 }
 
+export const enableGithubSignIn = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    GITHUB_AUTH_CLIENT_ID: githubId,
+    GITHUB_AUTH_CLIENT_SECRET: githubSecret,
+    GITHUB_AUTH_APP_NAME: githubAppName,
+  } = env(c)
+  if (!githubId || !githubSecret || !githubAppName) throw new errorConfig.Forbidden()
+  await next()
+}
+
 export const enableEmailVerification = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
