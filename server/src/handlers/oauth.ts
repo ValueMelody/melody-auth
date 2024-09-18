@@ -18,8 +18,42 @@ import {
   signInLogModel, userModel,
 } from 'models'
 
+export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeReqDto> => {
+  const queryDto = new oauthDto.GetAuthorizeReqDto({
+    clientId: c.req.query('client_id') ?? '',
+    redirectUri: c.req.query('redirect_uri') ?? '',
+    responseType: c.req.query('response_type') ?? '',
+    state: c.req.query('state') ?? '',
+    codeChallenge: c.req.query('code_challenge') ?? '',
+    codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
+    scopes: c.req.query('scope')?.split(' ') ?? [],
+    locale: requestUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
+  })
+  await validateUtil.dto(queryDto)
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    queryDto.clientId,
+    queryDto.redirectUri,
+  )
+
+  const validScopes = await scopeService.verifyAppScopes(
+    c,
+    app.id,
+    queryDto.scopes,
+  )
+
+  return {
+    ...queryDto,
+    scopes: validScopes,
+  }
+}
+
 export const getAuthorize = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await scopeService.parseGetAuthorizeDto(c)
+  const queryDto = await parseGetAuthorizeDto(c)
 
   const stored = sessionService.getAuthInfoSession(
     c,

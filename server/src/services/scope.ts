@@ -2,16 +2,10 @@ import { Context } from 'hono'
 import {
   errorConfig, typeConfig,
 } from 'configs'
-import {
-  oauthDto, scopeDto,
-} from 'dtos'
+import { scopeDto } from 'dtos'
 import {
   appScopeModel, scopeLocaleModel, scopeModel,
 } from 'models'
-import { appService } from 'services'
-import {
-  requestUtil, validateUtil,
-} from 'utils'
 
 export const getScopes = async (c: Context<typeConfig.Context>): Promise<scopeModel.Record[]> => {
   const scopes = await scopeModel.getAll(c.env.DB)
@@ -191,38 +185,4 @@ export const verifyAppScopes = async (
     appId,
   )
   return scopes.filter((scope) => validScopes.includes(scope))
-}
-
-export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeReqDto> => {
-  const queryDto = new oauthDto.GetAuthorizeReqDto({
-    clientId: c.req.query('client_id') ?? '',
-    redirectUri: c.req.query('redirect_uri') ?? '',
-    responseType: c.req.query('response_type') ?? '',
-    state: c.req.query('state') ?? '',
-    codeChallenge: c.req.query('code_challenge') ?? '',
-    codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
-    scopes: c.req.query('scope')?.split(' ') ?? [],
-    locale: requestUtil.getLocaleFromQuery(
-      c,
-      c.req.query('locale'),
-    ),
-  })
-  await validateUtil.dto(queryDto)
-
-  const app = await appService.verifySPAClientRequest(
-    c,
-    queryDto.clientId,
-    queryDto.redirectUri,
-  )
-
-  const validScopes = await verifyAppScopes(
-    c,
-    app.id,
-    queryDto.scopes,
-  )
-
-  return {
-    ...queryDto,
-    scopes: validScopes,
-  }
 }
