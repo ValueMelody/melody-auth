@@ -7,6 +7,9 @@ These screenshots showcase various pages and emails related to identity system a
 ### Sign In
 ![Sign In](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/sign_in.jpeg)
 
+### Social Sign In
+![Social Sign In](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/social_sign_in.jpeg)
+
 ### Sign Up
 ![Sign Up](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/sign_up.jpeg)
 
