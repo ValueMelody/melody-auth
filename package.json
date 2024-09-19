@@ -1,6 +1,6 @@
 {
   "name": "melody-auth",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A turnkey OAuth & authentication system.",
   "license": "MIT",
   "author": "Baozier",
