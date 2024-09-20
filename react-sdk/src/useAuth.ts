@@ -39,13 +39,14 @@ export const useAuth = () => {
   const loginRedirect = useCallback(
     (props?: {
       locale?: string;
+      state?: string;
     }) => {
       if (state.isAuthenticating) throw new Error('Please wait until isAuthenticating=false')
       if (state.isAuthenticated) throw new Error('Already authenticated, please logout first')
       try {
         rawLoginRedirect(
           state.config,
-          props?.locale,
+          props,
         )
       } catch (e) {
         const msg = handleError(

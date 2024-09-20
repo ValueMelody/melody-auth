@@ -1,6 +1,6 @@
 {
   "name": "@melody-auth/react",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "dist/index.js",
   "repository": "https://github.com/ValueMelody/melody-auth",
   "license": "MIT",

@@ -6,10 +6,15 @@ import {
 } from '../generators'
 import { getAuthorize } from '../requests'
 
+export interface AdditionalProps {
+  locale?: string;
+  state?: string;
+}
+
 export const loginRedirect = async (
-  config: ProviderConfig, locale?: string,
+  config: ProviderConfig, additionalProps?: AdditionalProps,
 ) => {
-  const state = genAuthorizeState(21)
+  const state = additionalProps?.state || genAuthorizeState(21)
   const {
     codeChallenge, codeVerifier,
   } = await genCodeVerifierAndChallenge()
@@ -25,7 +30,7 @@ export const loginRedirect = async (
     await getAuthorize(
       config,
       {
-        state, codeChallenge, locale,
+        state, codeChallenge, locale: additionalProps.locale,
       },
     )
   } catch (e) {
