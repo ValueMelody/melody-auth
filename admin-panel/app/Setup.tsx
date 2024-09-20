@@ -12,6 +12,7 @@ import {
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
+import { useRouter } from 'next/navigation'
 import useSignalValue from './useSignalValue'
 import {
   configSignal, userInfoSignal,
@@ -190,11 +191,18 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
 }
 
 const Setup = ({ children } : PropsWithChildren) => {
+  const router = useRouter()
+
   return (
     <AuthProvider
       clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
       redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/${locale || 'en'}/dashboard`}
       serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
+      onLoginSuccess={(attr) => {
+        if (attr.locale !== locale) {
+          router.push(`/${attr.locale === 'fr' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`)
+        }
+      }}
     >
       <AuthSetup>
         <LayoutSetup>

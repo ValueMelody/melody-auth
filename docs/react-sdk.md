@@ -17,6 +17,7 @@ Wrap your application inside AuthProvider component to provide the auth related 
 | serverUri | string | The URL where you host the melody auth server | N/A | Yes |
 | scopes | string[] | Permission scopes to request for user access | N/A | No |
 | storage | 'sessionStorage' \| 'localStorage' | Storage type for authentication tokens | 'localStorage' | No |
+| onLoginSuccess | (attr: { locale?: string; state?: string }) => void | Function to execute after a successful login | N/A | No |
 
 ```
 import { AuthProvider } from '@melody-auth/react'
@@ -62,6 +63,7 @@ Triggers a new authentication flow.
 | Parameter | Type | Description | Default | Required |
 |-----------|------|-------------|---------|----------|
 | locale | string | Specifies the locale to use in the authentication flow | N/A | No |
+| state | string | Specifies the state to use in the authentication flow if you prefer not to use a randomly generated string | N/A | No |
 
 ```
 import { useAuth } from '@melody-auth/react'
@@ -70,7 +72,10 @@ export default function Home () {
   const { isAuthenticated, loginRedirect } = useAuth()
 
   const handleLogin = () => {
-    loginRedirect()
+    loginRedirect({
+      locale: 'en',
+      state: JSON.stringify({ info: Math.random() })
+    })
   }
 
   if (!isAuthenticated) {

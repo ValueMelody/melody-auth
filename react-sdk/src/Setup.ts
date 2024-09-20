@@ -20,7 +20,24 @@ const Setup = () => {
 
   useEffect(
     () => {
-      const containCode = window.location.search.includes('?code=') || window.location.search.includes('&code=')
+      const searchString = window.location.search.substring(1)
+      const paramsString = searchString.split('&')
+      const params = searchString
+        ? paramsString.reduce(
+          (
+            params, paramString,
+          ) => {
+            const [key, value] = paramString.split('=')
+            return {
+              ...params,
+              [key]: value,
+            }
+          },
+{} as { [key: string]: string },
+        )
+        : {}
+
+      const containCode = 'code' in params && !!params.code
 
       if (initialized.current) return
 
@@ -40,6 +57,12 @@ const Setup = () => {
               dispatch({
                 type: 'setAccessTokenStorage', payload: res.accessTokenStorage,
               })
+              if (state.config.onLoginSuccess) {
+                state.config.onLoginSuccess({
+                  state: 'state' in params ? params.state : undefined,
+                  locale: 'locale' in params ? params.locale : undefined,
+                })
+              }
             } else {
               dispatch({
                 type: 'setIsAuthenticating', payload: false,

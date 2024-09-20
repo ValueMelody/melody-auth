@@ -4,6 +4,7 @@ export interface ProviderConfig {
   redirectUri: string;
   scopes?: string[];
   storage?: 'sessionStorage' | 'localStorage';
+  onLoginSuccess?: (attributes: { state?: string; locale?: string }) => void;
 }
 
 export interface AccessTokenStorage {
