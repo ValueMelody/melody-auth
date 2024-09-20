@@ -37,6 +37,8 @@ export const sendEmail = async (
     BREVO_SENDER_ADDRESS: brevoSender,
     ENVIRONMENT: environment,
     DEV_EMAIL_RECEIVER: devEmailReceiver,
+    EMAIL_SENDER_NAME: senderName,
+    SMTP_SENDER_ADDRESS: smtpSenderEmail,
   } = env(c)
 
   const receiver = environment === 'prod' ? receiverEmail : devEmailReceiver
@@ -49,7 +51,7 @@ export const sendEmail = async (
   if (c.env.SMTP) {
     const transporter = c.env.SMTP.init()
     const res = await transporter.sendMail({
-      from: process.env.SMTP_SENDER_NAME,
+      from: `"${senderName}" ${smtpSenderEmail}`,
       to: receiver,
       subject,
       html: emailBody,
@@ -79,7 +81,9 @@ export const sendEmail = async (
               ],
             },
           ],
-          from: { email: sendgridSender },
+          from: {
+            email: sendgridSender, name: senderName,
+          },
         }),
       },
     )
@@ -104,7 +108,7 @@ export const sendEmail = async (
         },
         body: JSON.stringify({
           sender: {
-            name: 'Melody Auth',
+            name: senderName,
             email: brevoSender,
           },
           subject,
