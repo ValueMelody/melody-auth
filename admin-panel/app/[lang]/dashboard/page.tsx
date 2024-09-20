@@ -134,6 +134,10 @@ const Page = () => {
             <Table.Cell className='break-all'>{configs.COMPANY_LOGO_URL}</Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>EMAIL_SENDER_NAME</Table.Cell>
+            <Table.Cell className='break-all'>{configs.EMAIL_SENDER_NAME}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>TERMS_LINK</Table.Cell>
             <Table.Cell>{configs.TERMS_LINK}</Table.Cell>
           </Table.Row>

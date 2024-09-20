@@ -151,7 +151,7 @@ Update the following environment variables in your server/.dev.vars file:
 
 ### Configuration Steps (SMTP with Node)
 If you are using the Node version, you can configure the following environment variables in your server/.dev.vars file to use an SMTP server:  
-	•	SMTP_SENDER_NAME  
+	•	SMTP_SENDER_ADDRESS  
 	•	SMTP_CONNECTION_STRING  
 
 ### Mailer Environment Behavior
@@ -212,6 +212,10 @@ npm run prod:deploy
 ### COMPANY_LOGO_URL
 - **Default:** https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg
 - **Description:** The logo used for branding.
+
+### EMAIL_SENDER_NAME
+- **Default:** "Melody Auth"
+- **Description:** The sender name that appears in emails.
 
 ### GOOGLE_AUTH_CLIENT_ID
 - **Default:** ""

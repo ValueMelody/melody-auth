@@ -46,6 +46,7 @@ describe(
           SUPPORTED_LOCALES: ['en', 'fr'],
           ENABLE_LOCALE_SELECTOR: true,
           COMPANY_LOGO_URL: 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg',
+          EMAIL_SENDER_NAME: 'Melody Auth',
           GOOGLE_AUTH_CLIENT_ID: '',
           FACEBOOK_AUTH_CLIENT_ID: '',
           GITHUB_AUTH_CLIENT_ID: '',
