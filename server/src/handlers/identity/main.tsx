@@ -3,6 +3,8 @@ import { env } from 'hono/adapter'
 import { genRandomString } from 'shared'
 import {
   typeConfig, routeConfig,
+  errorConfig,
+  localeConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
@@ -216,6 +218,7 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     queryDto.code,
   )
+  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
 
   const app = await appService.verifySPAClientRequest(
     c,
@@ -254,6 +257,7 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
+  if (!authCodeBody) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
 
   await consentService.createUserAppConsent(
     c,
@@ -293,7 +297,7 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
   }
 
   const { AUTH_SERVER_URL } = env(c)
-  const redirectUri = `${requestUtil.stripEndingSlash(AUTH_SERVER_URL)}${routeConfig.InternalRoute.OAuth}/logout`
+  const redirectUri = `${requestUtil.stripEndingSlash(AUTH_SERVER_URL)}${routeConfig.OauthRoute.Logout}`
 
   return c.json({
     success: true,

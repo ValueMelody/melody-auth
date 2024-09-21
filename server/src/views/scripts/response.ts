@@ -17,23 +17,23 @@ export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
   var queryString = "?state=" + data.state + "&code=" + data.code + "&locale=" + "${locale}";
   if (data.requireConsent) {
     queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.InternalRoute.Identity}/authorize-consent" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeConsent}" + queryString
     window.location.href = url;
   } else if (data.requireMfaEnroll) {
     queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.InternalRoute.Identity}/authorize-mfa-enroll" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeMfaEnroll}" + queryString
     window.location.href = url;
   } else if (data.requireOtpSetup) {
     queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.InternalRoute.Identity}/authorize-otp-setup" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeOtpSetup}" + queryString
     window.location.href = url;
   } else if (data.requireOtpMfa) {
     queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.InternalRoute.Identity}/authorize-otp-mfa" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeOtpMfa}" + queryString
     window.location.href = url;
   } else if (data.requireEmailMfa) {
     queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.InternalRoute.Identity}/authorize-email-mfa" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeEmailMfa}" + queryString
     window.location.href = url;
   } else {
     var url = data.redirectUri + queryString;
@@ -68,6 +68,8 @@ export const handleSubmitError = (locale: typeConfig.Locale) => html`
     msg = "${localeConfig.requestError.requireNewPassword[locale]}";
   } else if (errorString.indexOf("${localeConfig.Error.WrongMfaCode}") !== -1) {
     msg = "${localeConfig.requestError.wrongCode[locale]}";
+  } else if (errorString.indexOf("${localeConfig.Error.WrongAuthCode}") !== -1) {
+    window.location.href = "${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${locale}";
   }
   var errorEl = document.getElementById('submit-error');
   errorEl.classList.remove('hidden');

@@ -68,7 +68,7 @@ const AuthorizeConsent = ({
             window.location.href = "${redirectUri}";
           }
           function handleAccept() {
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-consent', {
+            fetch('${routeConfig.IdentityRoute.AuthorizeConsent}', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

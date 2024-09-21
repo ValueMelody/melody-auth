@@ -35,8 +35,6 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const BaseRoute = routeConfig.InternalRoute.Identity
-
 describe(
   'post /authorize-google',
   () => {
@@ -59,7 +57,7 @@ describe(
 
       const appRecord = await getApp(db)
       const res = await app.request(
-        `${BaseRoute}/authorize-google`,
+        routeConfig.IdentityRoute.AuthorizeGoogle,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -124,7 +122,7 @@ describe(
 
         const appRecord = await getApp(db)
         const res = await app.request(
-          `${BaseRoute}/authorize-google`,
+          routeConfig.IdentityRoute.AuthorizeGoogle,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -157,7 +155,7 @@ describe(
 
         const appRecord = await getApp(db)
         const res = await app.request(
-          `${BaseRoute}/authorize-google`,
+          routeConfig.IdentityRoute.AuthorizeGoogle,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -246,7 +244,7 @@ describe(
 
       const appRecord = await getApp(db)
       const res = await app.request(
-        `${BaseRoute}/authorize-facebook`,
+        routeConfig.IdentityRoute.AuthorizeFacebook,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -333,7 +331,7 @@ describe(
 
         const appRecord = await getApp(db)
         const res = await app.request(
-          `${BaseRoute}/authorize-facebook`,
+          routeConfig.IdentityRoute.AuthorizeFacebook,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -416,7 +414,7 @@ describe(
         locale: 'en',
       }))
       const res = await app.request(
-        `${BaseRoute}/authorize-github?code=${credential}&state=${encodeURIComponent(state)}`,
+        `${routeConfig.IdentityRoute.AuthorizeGitHub}?code=${credential}&state=${encodeURIComponent(state)}`,
         {},
         mock(db),
       )
@@ -447,7 +445,7 @@ describe(
         global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
         global.process.env.GITHUB_AUTH_APP_NAME = 'app'
         const res = await getGitHubRequest()
-        expect(res.headers.get('Location')).toContain('/identity/v1/authorize-consent?state=123&code=')
+        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.AuthorizeConsent}?state=123&code=`)
         expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
 
         global.process.env.GITHUB_AUTH_CLIENT_ID = ''
@@ -542,11 +540,11 @@ describe(
         global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
         global.process.env.GITHUB_AUTH_APP_NAME = 'app'
         const res = await getGitHubRequest()
-        expect(res.headers.get('Location')).toContain('/identity/v1/authorize-consent?state=123&code=')
+        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.AuthorizeConsent}?state=123&code=`)
         expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
 
         const res1 = await getGitHubRequest()
-        expect(res.headers.get('Location')).toContain('/identity/v1/authorize-consent?state=123&code=')
+        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.AuthorizeConsent}?state=123&code=`)
         expect(res1.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
 
         global.process.env.GITHUB_AUTH_CLIENT_ID = ''

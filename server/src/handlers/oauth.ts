@@ -99,7 +99,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   }
 
   const queryString = requestUtil.getQueryString(c)
-  return c.redirect(`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`)
+  return c.redirect(`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`)
 }
 
 export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
@@ -116,6 +116,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
 
   const isValidChallenge = await cryptoUtil.isValidCodeChallenge(
     bodyDto.codeVerifier,

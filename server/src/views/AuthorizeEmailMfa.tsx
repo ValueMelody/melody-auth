@@ -55,7 +55,7 @@ const AuthorizeEmailMfa = ({
         <script>
           ${resetErrorScript.resetCodeError()}
           function resendCode() {
-            fetch('${routeConfig.InternalRoute.Identity}/resend-email-mfa', {
+            fetch('${routeConfig.IdentityRoute.ResendEmailMfa}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -80,7 +80,7 @@ const AuthorizeEmailMfa = ({
           function handleSubmit(e) {
             e.preventDefault();
             ${validateScript.verificationCode(queryDto.locale)}
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-email-mfa', {
+            fetch('${routeConfig.IdentityRoute.AuthorizeEmailMfa}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

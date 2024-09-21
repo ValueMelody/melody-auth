@@ -76,7 +76,7 @@ export const getS2sToken = async (
   const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
   const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
   const res = await app.request(
-    `${routeConfig.InternalRoute.OAuth}/token`,
+    routeConfig.OauthRoute.Token,
     {
       method: 'POST',
       body: new URLSearchParams({

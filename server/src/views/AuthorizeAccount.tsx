@@ -118,7 +118,7 @@ const AuthorizeAccount = ({
       </form>
       <a
         class='button-text'
-        href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
+        href={`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`}
       >
         {localeConfig.authorizeAccount.signIn[queryDto.locale]}
       </a>
@@ -136,7 +136,7 @@ const AuthorizeAccount = ({
             ${validateScript.confirmPassword(queryDto.locale)}
             ${enableNames && namesIsRequired ? validateScript.firstName(queryDto.locale) : ''}
             ${enableNames && namesIsRequired ? validateScript.lastName(queryDto.locale) : ''}
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-account', {
+            fetch('${routeConfig.IdentityRoute.AuthorizeAccount}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

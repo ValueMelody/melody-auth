@@ -32,8 +32,6 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const BaseRoute = routeConfig.InternalRoute.OAuth
-
 describe(
   '/authorize',
   () => {
@@ -41,7 +39,7 @@ describe(
       'should redirect to sign in',
       async () => {
         const appRecord = await getApp(db)
-        const url = `${BaseRoute}/authorize`
+        const url = routeConfig.OauthRoute.Authorize
         const res = await getSignInRequest(
           db,
           url,
@@ -49,7 +47,7 @@ describe(
         )
         const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
-        expect(res.headers.get('Location')).toBe(`/identity/v1/authorize-password${params}`)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizePassword}${params}`)
       },
     )
 
@@ -57,7 +55,7 @@ describe(
       'should throw error if no enough params provided',
       async () => {
         const res = await app.request(
-          `${BaseRoute}/authorize`,
+          routeConfig.OauthRoute.Authorize,
           {},
           mock(db),
         )
@@ -72,7 +70,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize${params}`,
+          `${routeConfig.OauthRoute.Authorize}${params}`,
           {},
           mock(db),
         )
@@ -87,7 +85,7 @@ describe(
         const params = await getAuthorizeParams({ clientId: 'abc' } as appModel.Record)
 
         const res = await app.request(
-          `${BaseRoute}/authorize${params}`,
+          `${routeConfig.OauthRoute.Authorize}${params}`,
           {},
           mock(db),
         )
@@ -104,7 +102,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize${params}`,
+          `${routeConfig.OauthRoute.Authorize}${params}`,
           {},
           mock(db),
         )
@@ -120,7 +118,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize${params.replace(
+          `${routeConfig.OauthRoute.Authorize}${params.replace(
             'http://localhost:3000/en/dashboard',
             'http://localhost:3000/en/dashboard1',
           )}`,
@@ -143,7 +141,7 @@ describe(
           appRecord,
         )
 
-        const url = `${BaseRoute}/authorize`
+        const url = routeConfig.OauthRoute.Authorize
         const res = await getSignInRequest(
           db,
           url,
@@ -154,7 +152,7 @@ describe(
         expect(path).toContain('http://localhost:3000/en/dashboard?code')
         const code = path!.split('?')[1].split('&')[0].split('=')[1]
         const tokenRes = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -190,7 +188,7 @@ describe(
           'aaaaaaaa',
         )
         await app.request(
-          `${routeConfig.InternalRoute.Identity}/authorize-otp-mfa`,
+          routeConfig.IdentityRoute.AuthorizeOtpMfa,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -206,7 +204,7 @@ describe(
           'bbbbbbbb',
         )
         await app.request(
-          `${routeConfig.InternalRoute.Identity}/authorize-email-mfa`,
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -217,7 +215,7 @@ describe(
           mock(db),
         )
 
-        const url = `${BaseRoute}/authorize`
+        const url = routeConfig.OauthRoute.Authorize
         const res = await getSignInRequest(
           db,
           url,
@@ -228,7 +226,7 @@ describe(
         expect(path).toContain('http://localhost:3000/en/dashboard?code')
         const code = path!.split('?')[1].split('&')[0].split('=')[1]
         const tokenRes = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -258,7 +256,7 @@ describe(
           appRecord,
         )
 
-        const url = `${BaseRoute}/authorize`
+        const url = routeConfig.OauthRoute.Authorize
         const res = await getSignInRequest(
           db,
           url,
@@ -266,7 +264,7 @@ describe(
         )
         const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
-        expect(res.headers.get('Location')).toBe(`/identity/v1/authorize-password${params}`)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizePassword}${params}`)
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
         global.process.env.SERVER_SESSION_EXPIRES_IN = 1800 as unknown as string
       },
@@ -289,7 +287,7 @@ const exchangeWithAuthToken = async () => {
     code_verifier: 'abc',
   }
   const tokenRes = await app.request(
-    `${BaseRoute}/token`,
+    routeConfig.OauthRoute.Token,
     {
       method: 'POST',
       body: new URLSearchParams(body).toString(),
@@ -356,7 +354,7 @@ describe(
         const appRecord = await getApp(db)
 
         const res = await app.request(
-          `${routeConfig.InternalRoute.Identity}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -382,7 +380,7 @@ describe(
           code_verifier: 'aaa',
         }
         const tokenRes = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams(body).toString(),
@@ -410,7 +408,7 @@ describe(
         const json = await res.json() as { code: string }
 
         const tokenRes = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -426,7 +424,7 @@ describe(
         expect(await tokenRes.text()).toBe(localeConfig.Error.WrongCode)
 
         const tokenRes1 = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -461,7 +459,7 @@ describe(
         }
 
         const refreshTokenRes = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams(body).toString(),
@@ -491,7 +489,7 @@ describe(
         const refreshToken = tokenJson.refresh_token
 
         const refreshTokenRes = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -506,7 +504,7 @@ describe(
         expect(await refreshTokenRes.text()).toBe(localeConfig.Error.WrongRefreshToken)
 
         const refreshTokenRes1 = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -531,7 +529,7 @@ describe(
 
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
         const res = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -562,7 +560,7 @@ describe(
 
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
         const res = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({ grant_type: oauthDto.TokenGrantType.ClientCredentials }).toString(),
@@ -584,7 +582,7 @@ describe(
 
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}1`)
         const res = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -608,7 +606,7 @@ describe(
       async () => {
         const basicAuth = btoa('abc:123')
         const res = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -634,7 +632,7 @@ describe(
         await db.prepare('update app set "isActive" = ?').run(0)
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
         const res = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -658,7 +656,7 @@ describe(
       async () => {
         const basicAuth = btoa(':')
         const res = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -683,7 +681,7 @@ describe(
 
         const basicAuth = btoa(`${appRecord.clientId}:${appRecord.secret}`)
         const res = await app.request(
-          `${BaseRoute}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -785,7 +783,7 @@ describe(
       'should logout and clear session',
       async () => {
         const appRecord = await getApp(db)
-        const url = `${BaseRoute}/logout`
+        const url = routeConfig.OauthRoute.Logout
         const params = `?client_id=${appRecord.clientId}&post_logout_redirect_uri=http://localhost:3000/en/dashboard`
         session.set(
           `authInfo-${appRecord.clientId}`,
@@ -807,7 +805,7 @@ describe(
       'should throw error if no enough params',
       async () => {
         const appRecord = await getApp(db)
-        const url = `${BaseRoute}/logout`
+        const url = routeConfig.OauthRoute.Logout
         session.set(
           `authInfo-${appRecord.clientId}`,
           'someInfo',
@@ -843,7 +841,7 @@ describe(
         code_verifier: 'abc',
       }
       const tokenRes = await app.request(
-        `${routeConfig.InternalRoute.OAuth}/token`,
+        routeConfig.OauthRoute.Token,
         {
           method: 'POST',
           body: new URLSearchParams(body).toString(),
@@ -864,7 +862,7 @@ describe(
         const tokenJson = await prepareUserInfoRequest()
 
         const userInfoRes = await app.request(
-          `${BaseRoute}/userinfo`,
+          routeConfig.OauthRoute.Userinfo,
           { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
           mock(db),
         )
@@ -892,7 +890,7 @@ describe(
         await db.prepare('update "user" set "deletedAt" = ?').run('2024')
 
         const userInfoRes = await app.request(
-          `${BaseRoute}/userinfo`,
+          routeConfig.OauthRoute.Userinfo,
           { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
           mock(db),
         )
@@ -911,7 +909,7 @@ describe(
         await disableUser(db)
 
         const userInfoRes = await app.request(
-          `${BaseRoute}/userinfo`,
+          routeConfig.OauthRoute.Userinfo,
           { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
           mock(db),
         )

@@ -8,153 +8,157 @@ import {
 } from 'middlewares'
 import { identityHandler } from 'handlers'
 
-const BaseRoute = routeConfig.InternalRoute.Identity
 const identityRoutes = new Hono<typeConfig.Context>()
 export default identityRoutes
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-password`,
+  routeConfig.IdentityRoute.AuthorizePassword,
   identityHandler.getAuthorizePassword,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/authorize-password`,
+  routeConfig.IdentityRoute.AuthorizePassword,
   setupMiddleware.validOrigin,
   configMiddleware.enablePasswordSignIn,
   identityHandler.postAuthorizePassword,
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-account`,
+  routeConfig.IdentityRoute.AuthorizeAccount,
   configMiddleware.enableSignUp,
   identityHandler.getAuthorizeAccount,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/authorize-account`,
+  routeConfig.IdentityRoute.AuthorizeAccount,
   setupMiddleware.validOrigin,
   configMiddleware.enableSignUp,
   identityHandler.postAuthorizeAccount,
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-mfa-enroll`,
+  routeConfig.IdentityRoute.AuthorizeMfaEnroll,
   configMiddleware.enableMfaEnroll,
   identityHandler.getAuthorizeMfaEnroll,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/authorize-mfa-enroll`,
+  routeConfig.IdentityRoute.AuthorizeMfaEnroll,
   configMiddleware.enableMfaEnroll,
   identityHandler.postAuthorizeMfaEnroll,
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-otp-setup`,
+  routeConfig.IdentityRoute.AuthorizeOtpSetup,
   identityHandler.getAuthorizeOtpSetup,
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-otp-mfa`,
+  routeConfig.IdentityRoute.AuthorizeOtpMfa,
   identityHandler.getAuthorizeOtpMfa,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/authorize-otp-mfa`,
+  routeConfig.IdentityRoute.AuthorizeOtpMfa,
   setupMiddleware.validOrigin,
   identityHandler.postAuthorizeOtpMfa,
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-email-mfa`,
+  routeConfig.IdentityRoute.AuthorizeEmailMfa,
   identityHandler.getAuthorizeEmailMfa,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/resend-email-mfa`,
-  setupMiddleware.validOrigin,
-  identityHandler.postResendEmailMfa,
-)
-
-identityRoutes.post(
-  `${BaseRoute}/authorize-email-mfa`,
+  routeConfig.IdentityRoute.AuthorizeEmailMfa,
   setupMiddleware.validOrigin,
   identityHandler.postAuthorizeEmailMfa,
 )
 
+identityRoutes.post(
+  routeConfig.IdentityRoute.ResendEmailMfa,
+  setupMiddleware.validOrigin,
+  identityHandler.postResendEmailMfa,
+)
+
 identityRoutes.get(
-  `${BaseRoute}/authorize-consent`,
+  routeConfig.IdentityRoute.AuthorizeConsent,
   identityHandler.getAuthorizeConsent,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/authorize-consent`,
+  routeConfig.IdentityRoute.AuthorizeConsent,
   setupMiddleware.validOrigin,
   identityHandler.postAuthorizeConsent,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/authorize-google`,
+  routeConfig.IdentityRoute.AuthorizeGoogle,
   setupMiddleware.validOrigin,
   configMiddleware.enableGoogleSignIn,
   identityHandler.postAuthorizeGoogle,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/authorize-facebook`,
+  routeConfig.IdentityRoute.AuthorizeFacebook,
   setupMiddleware.validOrigin,
   configMiddleware.enableFacebookSignIn,
   identityHandler.postAuthorizeFacebook,
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-github`,
+  routeConfig.IdentityRoute.AuthorizeGitHub,
   configMiddleware.enableGithubSignIn,
   identityHandler.getAuthorizeGithub,
 )
 
 identityRoutes.get(
-  `${BaseRoute}/authorize-reset`,
+  routeConfig.IdentityRoute.AuthorizeReset,
   configMiddleware.enablePasswordReset,
   identityHandler.getAuthorizeReset,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/reset-code`,
-  setupMiddleware.validOrigin,
-  configMiddleware.enablePasswordReset,
-  identityHandler.postResetCode,
-)
-
-identityRoutes.post(
-  `${BaseRoute}/resend-reset-code`,
-  setupMiddleware.validOrigin,
-  configMiddleware.enablePasswordReset,
-  identityHandler.postResetCode,
-)
-
-identityRoutes.post(
-  `${BaseRoute}/authorize-reset`,
+  routeConfig.IdentityRoute.AuthorizeReset,
   setupMiddleware.validOrigin,
   configMiddleware.enablePasswordReset,
   identityHandler.postAuthorizeReset,
 )
 
+identityRoutes.post(
+  routeConfig.IdentityRoute.ResetCode,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasswordReset,
+  identityHandler.postResetCode,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ResendResetCode,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasswordReset,
+  identityHandler.postResetCode,
+)
+
 identityRoutes.get(
-  `${BaseRoute}/verify-email`,
+  routeConfig.IdentityRoute.VerifyEmail,
   configMiddleware.enableEmailVerification,
   identityHandler.getVerifyEmail,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/verify-email`,
+  routeConfig.IdentityRoute.VerifyEmail,
   setupMiddleware.validOrigin,
   configMiddleware.enableEmailVerification,
   identityHandler.postVerifyEmail,
 )
 
 identityRoutes.post(
-  `${BaseRoute}/logout`,
+  routeConfig.IdentityRoute.Logout,
   authMiddleware.spa,
   identityHandler.postLogout,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthCodeExpired,
+  identityHandler.getAuthCodeExpired,
 )

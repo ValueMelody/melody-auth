@@ -45,18 +45,14 @@ export const storeAuthCode = async (
 
 export const getAuthCodeBody = async (
   kv: KVNamespace, authCode: string,
-): Promise<typeConfig.AuthCodeBody> => {
+): Promise<typeConfig.AuthCodeBody | false> => {
   const codeInKv = await kv.get(adapterConfig.getKVKey(
     adapterConfig.BaseKVKey.AuthCode,
     authCode,
   ))
-  if (!codeInKv) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
-  }
+  if (!codeInKv) return false
   const codeBody = JSON.parse(codeInKv)
-  if (!codeBody) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
-  }
+  if (!codeBody) return false
   return codeBody
 }
 

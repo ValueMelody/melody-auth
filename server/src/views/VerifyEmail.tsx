@@ -61,7 +61,7 @@ const VerifyEmail = ({
           function handleSubmit (e) {
             e.preventDefault();
             ${validateScript.verificationCode(queryDto.locale)}
-            fetch('${routeConfig.InternalRoute.Identity}/verify-email', {
+            fetch('${routeConfig.IdentityRoute.VerifyEmail}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

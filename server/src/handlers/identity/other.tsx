@@ -14,6 +14,7 @@ import {
   requestUtil, validateUtil,
 } from 'utils'
 import {
+  AuthCodeExpired,
   AuthorizeResetView,
   VerifyEmailView,
 } from 'views'
@@ -138,4 +139,18 @@ export const postAuthorizeReset = async (c: Context<typeConfig.Context>) => {
   }
 
   return c.json({ success: true })
+}
+
+export const getAuthCodeExpired = async (c: Context<typeConfig.Context>) => {
+  const {
+    SUPPORTED_LOCALES: locales,
+    COMPANY_LOGO_URL: logoUrl,
+  } = env(c)
+
+  const locale = c.req.query('locale') || locales[0]
+
+  return c.html(<AuthCodeExpired
+    locale={locale as typeConfig.Locale}
+    logoUrl={logoUrl}
+  />)
 }

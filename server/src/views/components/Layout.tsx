@@ -163,7 +163,7 @@ const Layout = ({
       <main class='flex-col items-center justify-center main'>
         <section class='flex-col justify-center items-center container rounded-lg'>
           <section class='flex-col items-center gap-4 inner-container'>
-            <header class='flex-row justify-between w-full'>
+            <header class={`flex-row w-full ${locales.length > 1 ? 'justify-between' : 'justify-center'}`}>
               {locales.length > 1 && <div class='locale-selector' />}
               <img
                 class='logo'

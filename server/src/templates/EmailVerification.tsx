@@ -14,7 +14,7 @@ const EmailVerification = ({
   authId: string;
   locale: typeConfig.Locale;
 }) => {
-  const route = `${requestUtil.stripEndingSlash(serverUrl)}${routeConfig.InternalRoute.Identity}`
+  const route = `${requestUtil.stripEndingSlash(serverUrl)}${routeConfig.IdentityRoute.VerifyEmail}`
 
   return (
     <Layout
@@ -54,7 +54,7 @@ const EmailVerification = ({
                 >
                   <a
                     href={`
-                      ${route}/verify-email?id=${authId}&locale=${locale}
+                      ${route}?id=${authId}&locale=${locale}
                     `}
                     style='
                       display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #ffffff;

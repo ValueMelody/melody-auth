@@ -6,17 +6,16 @@ import { oauthDto } from 'dtos'
 import { authMiddleware } from 'middlewares'
 import { oauthHandler } from 'handlers'
 
-const BaseRoute = routeConfig.InternalRoute.OAuth
 const oauthRoutes = new Hono<typeConfig.Context>()
 export default oauthRoutes
 
 oauthRoutes.get(
-  `${BaseRoute}/authorize`,
+  routeConfig.OauthRoute.Authorize,
   oauthHandler.getAuthorize,
 )
 
 oauthRoutes.post(
-  `${BaseRoute}/token`,
+  routeConfig.OauthRoute.Token,
   authMiddleware.s2sBasicAuth,
   async (c) => {
     const reqBody = await c.req.parseBody()
@@ -39,12 +38,12 @@ oauthRoutes.post(
 )
 
 oauthRoutes.get(
-  `${BaseRoute}/logout`,
+  routeConfig.OauthRoute.Logout,
   oauthHandler.getLogout,
 )
 
 oauthRoutes.get(
-  `${BaseRoute}/userinfo`,
+  routeConfig.OauthRoute.Userinfo,
   authMiddleware.spaProfile,
   oauthHandler.getUserInfo,
 )
