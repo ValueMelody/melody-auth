@@ -301,13 +301,15 @@ export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
 export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeResendEmailMfaDto(reqBody)
+  const { SUPPORTED_LOCALES: locales } = env(c)
+
+  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   await handleSendEmailMfa(
     c,
     bodyDto.code,
-    bodyDto.locale,
+    bodyDto.locale || locales[0],
   )
 
   return c.json({ success: true })

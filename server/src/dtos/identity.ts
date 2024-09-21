@@ -110,22 +110,7 @@ export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context
   return queryDto
 }
 
-export class PostAuthorizeConsentReqDto extends GetAuthorizeFollowUpReqDto {}
-
-export class PostAuthorizeResendEmailMfaDto {
-  @IsString()
-  @IsNotEmpty()
-    code: string
-
-  @IsString()
-  @IsNotEmpty()
-    locale: typeConfig.Locale
-
-  constructor (dto: PostAuthorizeResendEmailMfaDto) {
-    this.code = dto.code
-    this.locale = dto.locale
-  }
-}
+export class PostAuthorizeFollowUpReqDto extends GetAuthorizeFollowUpReqDto {}
 
 export class PostAuthorizeMfaReqDto extends GetAuthorizeFollowUpReqDto {
   @IsString()

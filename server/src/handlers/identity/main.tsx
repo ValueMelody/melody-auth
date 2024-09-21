@@ -247,7 +247,7 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
 export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeConsentReqDto(reqBody)
+  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(
