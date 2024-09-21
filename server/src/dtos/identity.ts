@@ -87,31 +87,19 @@ export class PostAuthorizeReqWithRequiredNamesDto extends PostAuthorizeReqWithPa
 export class GetAuthorizeFollowUpReqDto {
   @IsString()
   @IsNotEmpty()
-    state: string
-
-  @IsString()
-  @IsNotEmpty()
     code: string
-
-  @IsString()
-  @IsNotEmpty()
-    redirectUri: string
 
   @IsString()
     locale: typeConfig.Locale
 
   constructor (dto: GetAuthorizeFollowUpReqDto) {
-    this.state = dto.state
     this.code = dto.code
     this.locale = dto.locale
-    this.redirectUri = dto.redirectUri
   }
 }
 
 export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context>) => {
   const queryDto = new GetAuthorizeFollowUpReqDto({
-    state: c.req.query('state') ?? '',
-    redirectUri: c.req.query('redirect_uri') ?? '',
     code: c.req.query('code') ?? '',
     locale: requestUtil.getLocaleFromQuery(
       c,

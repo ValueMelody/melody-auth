@@ -12,13 +12,14 @@ import Title from 'views/components/Title'
 import { scopeModel } from 'models'
 
 const AuthorizeConsent = ({
-  queryDto, logoUrl, appName, scopes, locales,
+  queryDto, logoUrl, appName, scopes, locales, redirectUri,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   appName: string;
   scopes: scopeModel.ApiRecord[];
   locales: typeConfig.Locale[];
+  redirectUri: string;
 }) => {
   return (
     <Layout
@@ -64,7 +65,7 @@ const AuthorizeConsent = ({
       {html`
         <script>
           function handleDecline() {
-            window.location.href = "${queryDto.redirectUri}";
+            window.location.href = "${redirectUri}";
           }
           function handleAccept() {
             fetch('${routeConfig.InternalRoute.Identity}/authorize-consent', {
@@ -74,9 +75,7 @@ const AuthorizeConsent = ({
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  state: "${queryDto.state}",
                   code: "${queryDto.code}",
-                  redirectUri: "${queryDto.redirectUri}",
                   locale: "${queryDto.locale}",
                 })
             })

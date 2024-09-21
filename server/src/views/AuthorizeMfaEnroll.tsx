@@ -50,9 +50,7 @@ const AuthorizeMfaEnroll = ({
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                state: "${queryDto.state}",
                 code: "${queryDto.code}",
-                redirectUri: "${queryDto.redirectUri}",
                 locale: "${queryDto.locale}",
                 type
               })

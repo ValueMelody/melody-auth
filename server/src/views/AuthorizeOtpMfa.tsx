@@ -68,7 +68,7 @@ const AuthorizeOtpMfa = ({
           if (qrCodeEl) QRCode.toCanvas(document.getElementById('qr-code'), "${otp}")
           ${resetErrorScript.resetOtpError()}
           function switchToEmail() {
-            var queryString = "?state=${queryDto.state}&code=${queryDto.code}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}";
+            var queryString = "?code=${queryDto.code}&locale=${queryDto.locale}";
             var url = "${routeConfig.InternalRoute.Identity}/authorize-email-mfa" + queryString
             window.location.href = url;
           }
@@ -82,10 +82,8 @@ const AuthorizeOtpMfa = ({
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                state: "${queryDto.state}",
                 code: "${queryDto.code}",
                 locale: "${queryDto.locale}",
-                redirectUri: "${queryDto.redirectUri}",
                 mfaCode: document.getElementById('form-otp').value,
               })
             })
