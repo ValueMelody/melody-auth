@@ -179,7 +179,7 @@ const AuthorizePassword = ({
           {enableSignUp && (
             <a
               class='button-text'
-              href={`${routeConfig.InternalRoute.Identity}/authorize-account?${queryString}`}
+              href={`${routeConfig.IdentityRoute.AuthorizeAccount}?${queryString}`}
             >
               {localeConfig.authorizePassword.signUp[queryDto.locale]}
             </a>
@@ -187,7 +187,7 @@ const AuthorizePassword = ({
           {enablePasswordReset && (
             <a
               class='button-text'
-              href={`${routeConfig.InternalRoute.Identity}/authorize-reset?${queryString}`}
+              href={`${routeConfig.IdentityRoute.AuthorizeReset}?${queryString}`}
             >
               {localeConfig.authorizePassword.passwordReset[queryDto.locale]}
             </a>
@@ -198,7 +198,7 @@ const AuthorizePassword = ({
         <script>
           function faceBookStatusChangeCallback (response) {
             if (!response || !response.authResponse || !response.authResponse.accessToken) return false
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-facebook', {
+            fetch('${routeConfig.IdentityRoute.AuthorizeFacebook}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -230,7 +230,7 @@ const AuthorizePassword = ({
         <script>
           function handleGoogleSignIn (response) {
             if (!response.credential) return false;
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-google', {
+            fetch('${routeConfig.IdentityRoute.AuthorizeGoogle}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -261,7 +261,7 @@ const AuthorizePassword = ({
             e.preventDefault();
             ${validateScript.email(queryDto.locale)}
             ${validateScript.password(queryDto.locale)}
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-password', {
+            fetch('${routeConfig.IdentityRoute.AuthorizePassword}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

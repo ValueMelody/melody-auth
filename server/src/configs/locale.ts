@@ -15,6 +15,7 @@ export enum Error {
   OtpAlreadySet = 'OTP authentication already set',
   MfaEnrolled = 'User already enrolled with MFA',
   NoConsent = 'User consent required',
+  WrongAuthCode = 'Invalid auth code',
   WrongCode = 'Invalid code',
   WrongMfaCode = 'Invalid MFA code',
   RequireDifferentPassword = 'New password same as old password',
@@ -400,5 +401,12 @@ export const emailMfaEmail = Object.freeze({
   desc: {
     en: 'Here is your MFA code, this code will be expired after 5 minutes',
     fr: 'Voici votre code MFA. Ce code expirera après 5 minutes.',
+  },
+})
+
+export const authCodeExpired = Object.freeze({
+  msg: {
+    en: 'Your login state has expired. Please try initializing authentication again.',
+    fr: 'Votre état de connexion a expiré. Veuillez réessayer d’initialiser l’authentification.',
   },
 })

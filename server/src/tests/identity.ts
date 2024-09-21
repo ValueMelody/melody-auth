@@ -69,7 +69,6 @@ export const postSignInRequest = async (
     password?: string;
   },
 ) => {
-  const url = `${routeConfig.InternalRoute.Identity}/authorize-password`
   const body = {
     ...(await postAuthorizeBody(appRecord)),
     email: option?.email ?? 'test@email.com',
@@ -77,7 +76,7 @@ export const postSignInRequest = async (
   }
 
   const res = await app.request(
-    `${url}`,
+    routeConfig.IdentityRoute.AuthorizePassword,
     {
       method: 'POST', body: JSON.stringify(body),
     },
@@ -93,7 +92,7 @@ export const prepareFollowUpParams = async (db: Database) => {
     appRecord,
   )
   const json = await res.json() as { code: string }
-  return `?state=123&redirect_uri=http://localhost:3000/en/dashboard&locale=en&code=${json.code}`
+  return `?locale=en&code=${json.code}`
 }
 
 export const prepareFollowUpBody = async (db: Database) => {
@@ -104,8 +103,6 @@ export const prepareFollowUpBody = async (db: Database) => {
   )
   const json = await res.json() as { code: string }
   return {
-    state: '123',
-    redirectUri: 'http://localhost:3000/en/dashboard',
     code: json.code,
     locale: 'en',
   }

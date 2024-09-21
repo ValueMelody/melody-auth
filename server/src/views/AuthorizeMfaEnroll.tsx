@@ -43,7 +43,7 @@ const AuthorizeMfaEnroll = ({
       {html`
         <script>
           function handleSelect(type) {
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-mfa-enroll', {
+            fetch('${routeConfig.IdentityRoute.AuthorizeMfaEnroll}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

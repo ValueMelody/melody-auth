@@ -33,8 +33,6 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const BaseRoute = routeConfig.InternalRoute.Identity
-
 describe(
   'get /authorize-password',
   () => {
@@ -44,7 +42,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -74,7 +72,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -96,7 +94,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -118,7 +116,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -139,7 +137,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -162,7 +160,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -185,7 +183,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -206,7 +204,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -227,7 +225,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -246,7 +244,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -267,7 +265,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -287,7 +285,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -305,7 +303,7 @@ describe(
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
           db,
-          `${BaseRoute}/authorize-password`,
+          routeConfig.IdentityRoute.AuthorizePassword,
           appRecord,
         )
         const html = await res.text()
@@ -456,7 +454,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
           {},
           mock(db),
         )
@@ -486,7 +484,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
           {},
           mock(db),
         )
@@ -507,7 +505,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
           {},
           mock(db),
         )
@@ -525,7 +523,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeAccount}/${params}`,
           {},
           mock(db),
         )
@@ -548,7 +546,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
           {},
           mock(db),
         )
@@ -575,7 +573,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
           {},
           mock(db),
         )
@@ -600,7 +598,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
           {},
           mock(db),
         )
@@ -623,7 +621,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-account${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
           {},
           mock(db),
         )
@@ -649,7 +647,7 @@ const postAuthorizeAccount = async () => {
   }
 
   const res = await app.request(
-    `${BaseRoute}/authorize-account`,
+    routeConfig.IdentityRoute.AuthorizeAccount,
     {
       method: 'POST', body: JSON.stringify(body),
     },
@@ -699,7 +697,7 @@ describe(
         expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
         expect(body).toContain(verificationCode)
         expect(body).toContain(localeConfig.emailVerificationEmail.verify.en)
-        expect(body).toContain(`/identity/v1/verify-email?id=${codeStore.user.authId}&amp;locale=en`)
+        expect(body).toContain(`${routeConfig.IdentityRoute.VerifyEmail}?id=${codeStore.user.authId}&amp;locale=en`)
 
         global.fetch = fetchMock
       },
@@ -837,7 +835,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-consent${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeConsent}${params}`,
           {},
           mock(db),
         )
@@ -854,6 +852,25 @@ describe(
     )
 
     test(
+      'should redirect if use wrong auth code',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeConsent}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
@@ -864,7 +881,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-consent${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeConsent}${params}`,
           {},
           mock(db),
         )
@@ -888,7 +905,7 @@ describe(
         await db.prepare('delete from scope_locale').run()
 
         const res = await app.request(
-          `${BaseRoute}/authorize-consent${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeConsent}${params}`,
           {},
           mock(db),
         )
@@ -909,7 +926,7 @@ describe(
         await db.prepare('update scope set "deletedAt" = ?').run('2024')
 
         const res = await app.request(
-          `${BaseRoute}/authorize-consent${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeConsent}${params}`,
           {},
           mock(db),
         )
@@ -934,7 +951,7 @@ describe(
         const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-consent`,
+          routeConfig.IdentityRoute.AuthorizeConsent,
           {
             method: 'POST', body: JSON.stringify(body),
           },
@@ -954,6 +971,31 @@ describe(
         })
         const consent = db.prepare('SELECT * from user_app_consent WHERE "userId" = 1 AND "appId" = 1').get()
         expect(consent).toBeTruthy()
+      },
+    )
+
+    test(
+      'should throw error if use wrong auth code',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeConsent,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'en',
+              code: 'abc',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
       },
     )
   },
@@ -978,7 +1020,7 @@ describe(
         code_verifier: 'abc',
       }
       const tokenRes = await app.request(
-        `${routeConfig.InternalRoute.OAuth}/token`,
+        routeConfig.OauthRoute.Token,
         {
           method: 'POST',
           body: new URLSearchParams(body).toString(),
@@ -1007,7 +1049,7 @@ describe(
         const tokenJson = await prepareLogout()
 
         const logoutRes = await app.request(
-          `${BaseRoute}/logout`,
+          routeConfig.IdentityRoute.Logout,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -1023,7 +1065,7 @@ describe(
         )
         expect(await logoutRes.json()).toStrictEqual({
           success: true,
-          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
+          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
         })
 
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
@@ -1040,7 +1082,7 @@ describe(
         const tokenJson = await prepareLogout()
 
         const logoutRes = await app.request(
-          `${BaseRoute}/logout`,
+          routeConfig.IdentityRoute.Logout,
           {
             method: 'POST',
             body: new URLSearchParams({ refresh_token: tokenJson.refresh_token }).toString(),
@@ -1053,7 +1095,7 @@ describe(
         )
         expect(await logoutRes.json()).toStrictEqual({
           success: true,
-          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=&client_id=${appRecord.clientId}`,
+          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=&client_id=${appRecord.clientId}`,
         })
 
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
@@ -1081,7 +1123,7 @@ describe(
           code_verifier: 'abc',
         }
         const tokenRes = await app.request(
-          `${routeConfig.InternalRoute.OAuth}/token`,
+          routeConfig.OauthRoute.Token,
           {
             method: 'POST',
             body: new URLSearchParams(body).toString(),
@@ -1099,7 +1141,7 @@ describe(
           }),
         )
         const logoutRes = await app.request(
-          `${BaseRoute}/logout`,
+          routeConfig.IdentityRoute.Logout,
           {
             method: 'POST',
             body: new URLSearchParams({
@@ -1116,7 +1158,7 @@ describe(
         expect(logoutRes.status).toBe(200)
         expect(await logoutRes.json()).toStrictEqual({
           success: true,
-          redirectUri: `http://localhost:8787/oauth2/v1/logout?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
+          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
         })
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string

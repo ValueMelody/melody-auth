@@ -89,12 +89,11 @@ describe(
         const json = await res.json() as { configs: object }
 
         const serverUrl = 'http://localhost:8787'
-        const oauthRoot = `${serverUrl}${routeConfig.InternalRoute.OAuth}`
         expect(json).toStrictEqual({
           issuer: serverUrl,
-          authorization_endpoint: `${oauthRoot}/authorize`,
-          token_endpoint: `${oauthRoot}/token`,
-          userinfo_endpoint: `${oauthRoot}/userinfo`,
+          authorization_endpoint: `${serverUrl}${routeConfig.OauthRoute.Authorize}`,
+          token_endpoint: `${serverUrl}${routeConfig.OauthRoute.Token}`,
+          userinfo_endpoint: `${serverUrl}${routeConfig.OauthRoute.Userinfo}`,
           scopes_supported: Object.values(Scope),
           response_types_supported: ['code'],
           grant_types_supported: Object.values(oauthDto.TokenGrantType),

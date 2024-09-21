@@ -69,13 +69,13 @@ const AuthorizeOtpMfa = ({
           ${resetErrorScript.resetOtpError()}
           function switchToEmail() {
             var queryString = "?code=${queryDto.code}&locale=${queryDto.locale}";
-            var url = "${routeConfig.InternalRoute.Identity}/authorize-email-mfa" + queryString
+            var url = "${routeConfig.IdentityRoute.AuthorizeEmailMfa}" + queryString
             window.location.href = url;
           }
           function handleSubmit(e) {
             e.preventDefault();
             ${validateScript.verificationOtp(queryDto.locale)}
-            fetch('${routeConfig.InternalRoute.Identity}/authorize-otp-mfa', {
+            fetch('${routeConfig.IdentityRoute.AuthorizeOtpMfa}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

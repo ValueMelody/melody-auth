@@ -35,7 +35,7 @@ const AuthorizeReset = ({
         <p class='text-green text-semibold'>{localeConfig.authorizeReset.success[queryDto.locale]}</p>
         <a
           class='button-text'
-          href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
+          href={`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`}
         >
           {localeConfig.authorizeReset.signIn[queryDto.locale]}
         </a>
@@ -93,7 +93,7 @@ const AuthorizeReset = ({
         </form>
         <a
           class='button-text'
-          href={`${routeConfig.InternalRoute.Identity}/authorize-password?${queryString}`}
+          href={`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`}
         >
           {localeConfig.authorizeReset.backSignIn[queryDto.locale]}
         </a>
@@ -105,7 +105,7 @@ const AuthorizeReset = ({
           ${resetErrorScript.resetPasswordError()}
           ${resetErrorScript.resetConfirmPasswordError()}
           function resendCode() {
-            fetch('${routeConfig.InternalRoute.Identity}/resend-reset-code', {
+            fetch('${routeConfig.IdentityRoute.ResendResetCode}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -141,7 +141,7 @@ const AuthorizeReset = ({
               ${validateScript.confirmPassword(queryDto.locale)}
             }
             if (!containCode) {
-              fetch('${routeConfig.InternalRoute.Identity}/reset-code', {
+              fetch('${routeConfig.IdentityRoute.ResetCode}', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',
@@ -166,7 +166,7 @@ const AuthorizeReset = ({
                 ${responseScript.handleSubmitError(queryDto.locale)}
               });
             } else {
-             fetch('${routeConfig.InternalRoute.Identity}/authorize-reset', {
+             fetch('${routeConfig.IdentityRoute.AuthorizeReset}', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

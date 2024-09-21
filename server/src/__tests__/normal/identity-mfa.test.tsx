@@ -33,8 +33,6 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const BaseRoute = routeConfig.InternalRoute.Identity
-
 describe(
   'get /authorize-mfa-enroll',
   () => {
@@ -48,7 +46,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeMfaEnroll}${params}`,
           {},
           mock(db),
         )
@@ -64,6 +62,25 @@ describe(
     )
 
     test(
+      'should redirect if auth code is wrong',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeMfaEnroll}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
@@ -74,7 +91,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeMfaEnroll}${params}`,
           {},
           mock(db),
         )
@@ -98,7 +115,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeMfaEnroll}${params}`,
           {},
           mock(db),
         )
@@ -118,7 +135,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeMfaEnroll}${params}`,
           {},
           mock(db),
         )
@@ -137,7 +154,7 @@ describe(
         await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll`,
+          routeConfig.IdentityRoute.AuthorizeMfaEnroll,
           {},
           mock(db),
         )
@@ -160,7 +177,7 @@ describe(
         const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll`,
+          routeConfig.IdentityRoute.AuthorizeMfaEnroll,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -189,6 +206,32 @@ describe(
     )
 
     test(
+      'should throw error if auth code is wrong',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'en',
+              code: 'abc',
+              type: userModel.MfaType.Email,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+      },
+    )
+
+    test(
       'should throw error if user already enrolled',
       async () => {
         await insertUsers(
@@ -199,7 +242,7 @@ describe(
         const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll`,
+          routeConfig.IdentityRoute.AuthorizeMfaEnroll,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -224,7 +267,7 @@ describe(
         const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-mfa-enroll`,
+          routeConfig.IdentityRoute.AuthorizeMfaEnroll,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -258,7 +301,7 @@ const testGetOtpMfa = async (route: string) => {
   const params = await prepareFollowUpParams(db)
 
   const res = await app.request(
-    `${BaseRoute}${route}${params}`,
+    `${route}${params}`,
     {},
     mock(db),
   )
@@ -275,13 +318,32 @@ describe(
           db,
           false,
         )
-        const res = await testGetOtpMfa('/authorize-otp-setup')
+        const res = await testGetOtpMfa(routeConfig.IdentityRoute.AuthorizeOtpSetup)
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
         expect(document.getElementsByName('otp').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
         expect(document.getElementsByTagName('select').length).toBe(1)
+      },
+    )
+
+    test(
+      'should redirect if auth code is wrong',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeOtpSetup}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
       },
     )
 
@@ -296,7 +358,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-otp-setup${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeOtpSetup}${params}`,
           {},
           mock(db),
         )
@@ -313,7 +375,7 @@ describe(
           db,
           false,
         )
-        const res = await testGetOtpMfa('/authorize-otp-setup')
+        const res = await testGetOtpMfa(routeConfig.IdentityRoute.AuthorizeOtpSetup)
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
@@ -335,7 +397,7 @@ describe(
           false,
         )
         await enrollOtpMfa(db)
-        const res = await testGetOtpMfa('/authorize-otp-mfa')
+        const res = await testGetOtpMfa(routeConfig.IdentityRoute.AuthorizeOtpMfa)
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
@@ -350,6 +412,26 @@ describe(
     )
 
     test(
+      'should redirect if auth code is wrong',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeOtpMfa}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
@@ -359,7 +441,7 @@ describe(
           false,
         )
         await enrollOtpMfa(db)
-        const res = await testGetOtpMfa('/authorize-otp-mfa')
+        const res = await testGetOtpMfa(routeConfig.IdentityRoute.AuthorizeOtpMfa)
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
@@ -377,7 +459,7 @@ describe(
           false,
         )
         await enrollOtpMfa(db)
-        const res = await testGetOtpMfa('/authorize-otp-mfa')
+        const res = await testGetOtpMfa(routeConfig.IdentityRoute.AuthorizeOtpMfa)
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
@@ -406,7 +488,7 @@ describe(
         const token = authenticator.generate(currentUser.otpSecret)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-otp-mfa`,
+          routeConfig.IdentityRoute.AuthorizeOtpMfa,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -433,24 +515,48 @@ describe(
     )
 
     test(
+      'should throw error if auth code is wrong',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        const token = authenticator.generate(currentUser.otpSecret)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeOtpMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'en',
+              code: 'abc',
+              mfaCode: token,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+      },
+    )
+
+    test(
       'should throw error if otp secret not exists',
       async () => {
         await mockedKV.put(
           `${adapterConfig.BaseKVKey.AuthCode}-abc`,
           JSON.stringify({ user: { otpSecret: null } }),
         )
-        const body = {
-          state: '123',
-          redirectUri: 'http://localhost:3000/en/dashboard',
-          code: 'abc',
-          locale: 'en',
-        }
         const res = await app.request(
-          `${BaseRoute}/authorize-otp-mfa`,
+          routeConfig.IdentityRoute.AuthorizeOtpMfa,
           {
             method: 'POST',
             body: JSON.stringify({
-              ...body,
+              code: 'abc',
+              locale: 'en',
               mfaCode: '123456',
             }),
           },
@@ -472,7 +578,7 @@ describe(
 
         const sendRequest = async () => {
           return app.request(
-            `${BaseRoute}/authorize-otp-mfa`,
+            routeConfig.IdentityRoute.AuthorizeOtpMfa,
             {
               method: 'POST',
               body: JSON.stringify({
@@ -520,19 +626,17 @@ describe(
 
         const params = await prepareFollowUpParams(db)
         await app.request(
-          `${BaseRoute}/authorize-email-mfa${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
           {},
           mock(db),
         )
         const code = getCodeFromParams(params)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-email-mfa`,
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
           {
             method: 'POST',
             body: JSON.stringify({
-              state: '123',
-              redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
               mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
@@ -569,7 +673,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-email-mfa${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
           {},
           mock(db),
         )
@@ -586,6 +690,26 @@ describe(
     )
 
     test(
+      'should redirect if auth code is invalid',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
       'should throw error if email mfa is not required',
       async () => {
         await insertUsers(
@@ -595,7 +719,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-email-mfa${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
           {},
           mock(db),
         )
@@ -615,7 +739,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-email-mfa${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
           {},
           mock(db),
         )
@@ -643,7 +767,7 @@ describe(
         const body = await prepareFollowUpBody(db)
 
         const res = await app.request(
-          `${BaseRoute}/resend-email-mfa`,
+          routeConfig.IdentityRoute.ResendEmailMfa,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -657,6 +781,32 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`) ?? '').length).toBe(8)
+      },
+    )
+
+    test(
+      'should throw error if auth code is wrong',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+        await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ResendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: 'abc',
+              locale: 'en',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
       },
     )
   },
@@ -681,7 +831,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         await app.request(
-          `${BaseRoute}/authorize-email-mfa${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
           {},
           mock(db),
         )
@@ -699,12 +849,10 @@ describe(
         global.fetch = fetchMock
 
         const res = await app.request(
-          `${BaseRoute}/authorize-email-mfa`,
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
           {
             method: 'POST',
             body: JSON.stringify({
-              state: '123',
-              redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
               mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
@@ -729,6 +877,56 @@ describe(
     )
 
     test(
+      'should throw error if auth code is wrong',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+        const params = await prepareFollowUpParams(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
+          {},
+          mock(db),
+        )
+        const code = getCodeFromParams(params)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
+        expect(mfaCode?.length).toBe(8)
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(mfaCode)
+
+        global.fetch = fetchMock
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: 'abc',
+              locale: 'en',
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+      },
+    )
+
+    test(
       'pass through if failed send email',
       async () => {
         const mockFetch = vi.fn(async () => {
@@ -744,7 +942,7 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         await app.request(
-          `${BaseRoute}/authorize-email-mfa${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
           {},
           mock(db),
         )
@@ -767,19 +965,17 @@ describe(
         const params = await prepareFollowUpParams(db)
 
         await app.request(
-          `${BaseRoute}/authorize-email-mfa${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
           {},
           mock(db),
         )
         const code = getCodeFromParams(params)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-email-mfa`,
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
           {
             method: 'POST',
             body: JSON.stringify({
-              state: '123',
-              redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
               mfaCode: 'abcdefgh',
@@ -808,7 +1004,7 @@ describe(
         const body = await prepareFollowUpBody(db)
 
         await app.request(
-          `${BaseRoute}/resend-email-mfa`,
+          routeConfig.IdentityRoute.ResendEmailMfa,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -832,12 +1028,10 @@ describe(
         global.fetch = fetchMock
 
         const res = await app.request(
-          `${BaseRoute}/authorize-email-mfa`,
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
           {
             method: 'POST',
             body: JSON.stringify({
-              state: '123',
-              redirectUri: 'http://localhost:3000/en/dashboard',
               code,
               locale: 'en',
               mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),

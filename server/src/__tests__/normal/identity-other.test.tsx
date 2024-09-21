@@ -32,8 +32,6 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const BaseRoute = routeConfig.InternalRoute.Identity
-
 const prepareUserAccount = async () => {
   const appRecord = await getApp(db)
   const body = {
@@ -43,7 +41,7 @@ const prepareUserAccount = async () => {
   }
 
   const res = await app.request(
-    `${BaseRoute}/authorize-account`,
+    routeConfig.IdentityRoute.AuthorizeAccount,
     {
       method: 'POST', body: JSON.stringify(body),
     },
@@ -64,7 +62,7 @@ describe(
         expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? '').length).toBe(8)
 
         const res = await app.request(
-          `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
+          `${routeConfig.IdentityRoute.VerifyEmail}?id=${currentUser.authId}&locale=en`,
           {},
           mock(db),
         )
@@ -87,7 +85,7 @@ describe(
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
         const res = await app.request(
-          `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
+          `${routeConfig.IdentityRoute.VerifyEmail}?id=${currentUser.authId}&locale=en`,
           {},
           mock(db),
         )
@@ -111,7 +109,7 @@ describe(
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)).toBeFalsy()
 
         const res = await app.request(
-          `${BaseRoute}/verify-email?id=${currentUser.authId}&locale=en`,
+          `${routeConfig.IdentityRoute.VerifyEmail}?id=${currentUser.authId}&locale=en`,
           {},
           mock(db),
         )
@@ -126,7 +124,7 @@ describe(
         await prepareUserAccount()
 
         const res = await app.request(
-          `${BaseRoute}/verify-email`,
+          routeConfig.IdentityRoute.VerifyEmail,
           {},
           mock(db),
         )
@@ -148,7 +146,7 @@ describe(
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
 
         const res = await app.request(
-          `${BaseRoute}/verify-email`,
+          routeConfig.IdentityRoute.VerifyEmail,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -173,7 +171,7 @@ describe(
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
         const res = await app.request(
-          `${BaseRoute}/verify-email`,
+          routeConfig.IdentityRoute.VerifyEmail,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -197,7 +195,7 @@ describe(
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
 
         const res = await app.request(
-          `${BaseRoute}/verify-email`,
+          routeConfig.IdentityRoute.VerifyEmail,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -209,7 +207,7 @@ describe(
         )
         expect(res.status).toBe(200)
         const res1 = await app.request(
-          `${BaseRoute}/verify-email`,
+          routeConfig.IdentityRoute.VerifyEmail,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -235,7 +233,7 @@ describe(
         await disableUser(db)
 
         const res = await app.request(
-          `${BaseRoute}/verify-email`,
+          routeConfig.IdentityRoute.VerifyEmail,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -262,7 +260,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-reset${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeReset}${params}`,
           {},
           mock(db),
         )
@@ -286,7 +284,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-reset${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeReset}${params}`,
           {},
           mock(db),
         )
@@ -307,7 +305,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         const res = await app.request(
-          `${BaseRoute}/authorize-reset${params}`,
+          `${routeConfig.IdentityRoute.AuthorizeReset}${params}`,
           {},
           mock(db),
         )
@@ -325,7 +323,7 @@ const testSendResetCode = async (route: string) => {
   }
 
   const res = await app.request(
-    `${BaseRoute}${route}`,
+    route,
     {
       method: 'POST', body: JSON.stringify(body),
     },
@@ -346,7 +344,7 @@ describe(
         global.fetch = mockFetch as Mock
 
         await insertUsers(db)
-        const res = await testSendResetCode('/reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
@@ -369,7 +367,7 @@ describe(
       async () => {
         await insertUsers(db)
         disableUser(db)
-        const res = await testSendResetCode('/reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`)).toBeFalsy()
@@ -382,7 +380,7 @@ describe(
         await insertUsers(db)
 
         const res = await app.request(
-          `${BaseRoute}/reset-code`,
+          routeConfig.IdentityRoute.ResetCode,
           {
             method: 'POST',
             body: JSON.stringify({ password: 'Password1!' }),
@@ -407,7 +405,7 @@ describe(
         global.fetch = mockFetch as Mock
 
         await insertUsers(db)
-        const res = await testSendResetCode('/resend-reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
@@ -436,7 +434,7 @@ describe(
         global.fetch = mockFetch as Mock
 
         await insertUsers(db)
-        const res = await testSendResetCode('/resend-reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
@@ -465,7 +463,7 @@ describe(
         global.fetch = mockFetch as Mock
 
         await insertUsers(db)
-        const res = await testSendResetCode('/resend-reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
@@ -489,7 +487,7 @@ describe(
         global.fetch = mockFetch as Mock
 
         await insertUsers(db)
-        const res = await testSendResetCode('/resend-reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
@@ -529,7 +527,7 @@ describe(
         global.fetch = mockFetch as Mock
 
         await insertUsers(db)
-        const res = await testSendResetCode('/resend-reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
@@ -555,7 +553,7 @@ describe(
 
         await insertUsers(db)
         const res = await app.request(
-          `${BaseRoute}/resend-reset-code`,
+          routeConfig.IdentityRoute.ResendResetCode,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -588,17 +586,17 @@ describe(
 
         await insertUsers(db)
 
-        const res = await testSendResetCode('/resend-reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`)).toBe('1')
 
-        const res1 = await testSendResetCode('/resend-reset-code')
+        const res1 = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         const json1 = await res1.json()
         expect(json1).toStrictEqual({ success: true })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetAttempts}-test@email.com`)).toBe('2')
 
-        const res2 = await testSendResetCode('/resend-reset-code')
+        const res2 = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         expect(res2.status).toBe(400)
 
         global.process.env.PASSWORD_RESET_EMAIL_THRESHOLD = 5 as unknown as string
@@ -610,7 +608,7 @@ describe(
       async () => {
         global.process.env.SENDGRID_API_KEY = ''
         await insertUsers(db)
-        const res = await testSendResetCode('/resend-reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.NoEmailSender)
         global.process.env.SENDGRID_API_KEY = 'abc'
@@ -625,7 +623,7 @@ describe(
         global.process.env.BREVO_API_KEY = 'abc'
         global.process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
         await insertUsers(db)
-        const res = await testSendResetCode('/resend-reset-code')
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
         expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
@@ -655,7 +653,7 @@ describe(
         )
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
-        await testSendResetCode('/reset-code')
+        await testSendResetCode(routeConfig.IdentityRoute.ResetCode)
 
         const body = {
           email: 'test@email.com',
@@ -664,7 +662,7 @@ describe(
         }
 
         const res = await app.request(
-          `${BaseRoute}/authorize-reset`,
+          routeConfig.IdentityRoute.AuthorizeReset,
           {
             method: 'POST', body: JSON.stringify(body),
           },
@@ -690,7 +688,7 @@ describe(
       async () => {
         await insertUsers(db)
 
-        await testSendResetCode('/reset-code')
+        await testSendResetCode(routeConfig.IdentityRoute.ResetCode)
 
         const body = {
           email: 'test@email.com',
@@ -699,7 +697,7 @@ describe(
         }
 
         const res = await app.request(
-          `${BaseRoute}/authorize-reset`,
+          routeConfig.IdentityRoute.AuthorizeReset,
           {
             method: 'POST', body: JSON.stringify(body),
           },
@@ -715,7 +713,7 @@ describe(
       async () => {
         await insertUsers(db)
 
-        await testSendResetCode('/reset-code')
+        await testSendResetCode(routeConfig.IdentityRoute.ResetCode)
 
         const body = {
           email: 'test@email.com',
@@ -724,7 +722,7 @@ describe(
         }
 
         const res = await app.request(
-          `${BaseRoute}/authorize-reset`,
+          routeConfig.IdentityRoute.AuthorizeReset,
           {
             method: 'POST', body: JSON.stringify(body),
           },
@@ -740,7 +738,7 @@ describe(
       async () => {
         await insertUsers(db)
 
-        await testSendResetCode('/reset-code')
+        await testSendResetCode(routeConfig.IdentityRoute.ResetCode)
 
         disableUser(db)
         const body = {
@@ -750,7 +748,7 @@ describe(
         }
 
         const res = await app.request(
-          `${BaseRoute}/authorize-reset`,
+          routeConfig.IdentityRoute.AuthorizeReset,
           {
             method: 'POST', body: JSON.stringify(body),
           },
@@ -766,7 +764,7 @@ describe(
       async () => {
         await insertUsers(db)
 
-        await testSendResetCode('/reset-code')
+        await testSendResetCode(routeConfig.IdentityRoute.ResetCode)
 
         disableUser(db)
         const body = {
@@ -776,7 +774,7 @@ describe(
         }
 
         const res = await app.request(
-          `${BaseRoute}/authorize-reset`,
+          routeConfig.IdentityRoute.AuthorizeReset,
           {
             method: 'POST', body: JSON.stringify(body),
           },
@@ -803,7 +801,7 @@ describe(
         )
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
-        await testSendResetCode('/reset-code')
+        await testSendResetCode(routeConfig.IdentityRoute.ResetCode)
 
         const body = {
           email: 'test@email.com',
@@ -811,7 +809,7 @@ describe(
           code: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`),
         }
         await app.request(
-          `${BaseRoute}/authorize-reset`,
+          routeConfig.IdentityRoute.AuthorizeReset,
           {
             method: 'POST', body: JSON.stringify(body),
           },
@@ -822,6 +820,38 @@ describe(
 
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 5 as unknown as string
         global.process.env.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET = true as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'get /auth-code-expired',
+  () => {
+    test(
+      'should show auth code expired en view',
+      async () => {
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        expect(html).toContain(localeConfig.authCodeExpired.msg.en)
+      },
+    )
+    test(
+      'should show auth code expired fr view',
+      async () => {
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthCodeExpired}?locale=fr`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        expect(html).toContain(localeConfig.authCodeExpired.msg.fr)
       },
     )
   },

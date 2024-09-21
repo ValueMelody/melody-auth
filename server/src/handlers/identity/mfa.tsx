@@ -1,7 +1,7 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
-  errorConfig, localeConfig, typeConfig,
+  errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
@@ -32,6 +32,8 @@ const handleSendEmailMfa = async (
     c.env.KV,
     authCode,
   )
+  if (!authCodeBody) return false
+
   const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
   const couldFallback = allowSwitchToEmailMfa(
     c,
@@ -53,6 +55,8 @@ const handleSendEmailMfa = async (
       codeExpiresIn,
     )
   }
+
+  return true
 }
 
 const allowSwitchToEmailMfa = (
@@ -77,6 +81,7 @@ export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     queryDto.code,
   )
+  if (!authCodeStore) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
 
   if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
 
@@ -103,6 +108,8 @@ export const postAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => 
     c.env.KV,
     bodyDto.code,
   )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
   if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
 
   const user = await userService.enrollUserMfa(
@@ -137,6 +144,7 @@ export const getAuthorizeOtpSetup = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     queryDto.code,
   )
+  if (!authCodeStore) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
 
   if (authCodeStore.user.otpVerified) throw new errorConfig.Forbidden(localeConfig.Error.OtpAlreadySet)
 
@@ -170,6 +178,8 @@ export const getAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     queryDto.code,
   )
+  if (!authCodeBody) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+
   const allowSwitch = allowSwitchToEmailMfa(
     c,
     authCodeBody,
@@ -193,6 +203,7 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
 
   if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
 
@@ -249,11 +260,12 @@ export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
-  await handleSendEmailMfa(
+  const emailRes = await handleSendEmailMfa(
     c,
     queryDto.code,
     queryDto.locale,
   )
+  if (!emailRes) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
 
   return c.html(<AuthorizeEmailMfaView
     logoUrl={logoUrl}
@@ -274,6 +286,7 @@ export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
 
   const isFallback = allowSwitchToEmailMfa(
     c,
@@ -306,11 +319,12 @@ export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  await handleSendEmailMfa(
+  const emailRes = await handleSendEmailMfa(
     c,
     bodyDto.code,
     bodyDto.locale || locales[0],
   )
+  if (!emailRes) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
 
   return c.json({ success: true })
 }
