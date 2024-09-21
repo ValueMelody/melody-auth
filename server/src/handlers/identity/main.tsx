@@ -220,7 +220,7 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   const app = await appService.verifySPAClientRequest(
     c,
     authInfo.request.clientId,
-    queryDto.redirectUri,
+    authInfo.request.redirectUri,
   )
 
   const scopes = await scopeService.getScopesByName(
@@ -239,6 +239,7 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     logoUrl={logoUrl}
     scopes={scopes}
     appName={app.name}
+    redirectUri={authInfo.request.redirectUri}
     queryDto={queryDto}
   />)
 }
@@ -246,7 +247,7 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
 export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeConsentReqDto(reqBody)
+  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(

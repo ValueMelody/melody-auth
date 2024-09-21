@@ -87,10 +87,8 @@ const AuthorizeEmailMfa = ({
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                state: "${queryDto.state}",
                 code: "${queryDto.code}",
                 locale: "${queryDto.locale}",
-                redirectUri: "${queryDto.redirectUri}",
                 mfaCode: document.getElementById('form-code').value,
               })
             })
