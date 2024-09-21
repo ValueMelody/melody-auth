@@ -824,3 +824,35 @@ describe(
     )
   },
 )
+
+describe(
+  'get /auth-code-expired',
+  () => {
+    test(
+      'should show auth code expired en view',
+      async () => {
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        expect(html).toContain(localeConfig.authCodeExpired.msg.en)
+      },
+    )
+    test(
+      'should show auth code expired fr view',
+      async () => {
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthCodeExpired}?locale=fr`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        expect(html).toContain(localeConfig.authCodeExpired.msg.fr)
+      },
+    )
+  },
+)
