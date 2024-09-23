@@ -97,17 +97,7 @@ npm run node:dev
 ```
 
 ### 3. Production Build
-To prepare for production, follow these steps:
-1. Update server/src/routes/other.tsx file  
-```
-# Comment out the current swagger.json import statement:
-// import swaggerSpec from '../scripts/swagger.json';
-
-# Uncomment the other swagger.json import statement which contains with { type: "json" }:
-import swaggerSpec from '../scripts/swagger.json' with { type: "json" }
-```
-
-2. Run the following commands to build and start the server:
+Run the following commands to build and start the server:
 ```
 cd server
 npm run node:build
