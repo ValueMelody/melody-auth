@@ -123,10 +123,12 @@ Melody Auth supports email-based features such as password reset, email verifica
    |---------------|-------------|---------------|
    | ENVIRONMENT | Determines the email sending behavior | "prod" or "dev" |
    | DEV_EMAIL_RECEIVER | Email address for testing (used when ENVIRONMENT is not 'prod') | "test@example.com" |
-   | SENDGRID_API_KEY | Your SendGrid API key (not needed if you intend to use Brevo) | "SG.xxxxxxxxxxxxxxxxxxxxxxxx" |
-   | SENDGRID_SENDER_ADDRESS | Your verified sender email address in SendGrid (not needed if you intend to use Brevo) | "noreply@yourdomain.com" |
-   | BREVO_API_KEY | Your Brevo API key (not needed if you intend to use SendGrid) | "xkeysib-.xxxxxxxxxxxxxxxxxxxxxxxx" |
-   | BREVO_SENDER_ADDRESS | Your verified sender email address in Brevo (not needed if you intend to use SendGrid) | "noreply@yourdomain.com" |
+   | SENDGRID_API_KEY | Your SendGrid API key (not needed if you intend to use Mailgun or Brevo) | "SG.xxxxxxxxxxxxxxxxxxxxxxxx" |
+   | SENDGRID_SENDER_ADDRESS | Your verified sender email address in SendGrid (not needed if you intend to use Mailgun or Brevo) | "noreply@yourdomain.com" |
+   | MAILGUN_API_KEY | Your Mailgun API key (not needed if you intend to use SendGrid or Brevo) | "xxxxxxxxxxxxxxxxxx-xxxxxxxxx" |
+   | MAILGUN_SENDER_ADDRESS | Your sender email address in Mailgun (not needed if you intend to use SendGrid or Brevo) | "noreply@yourdomain.com" |
+   | BREVO_API_KEY | Your Brevo API key (not needed if you intend to use SendGrid or Mailgun) | "xkeysib-.xxxxxxxxxxxxxxxxxxxxxxxx" |
+   | BREVO_SENDER_ADDRESS | Your verified sender email address in Brevo (not needed if you intend to use SendGrid or Mailgun) | "noreply@yourdomain.com" |
 
 3. Click "Save and deploy" to apply the changes.
 
@@ -136,6 +138,8 @@ Update the following environment variables in your server/.dev.vars file:
 	•	DEV_EMAIL_RECEIVER  
 	•	SENDGRID_API_KEY  
 	•	SENDGRID_SENDER_ADDRESS  
+  •	MAILGUN_API_KEY  
+  • MAILGUN_SENDER_ADDRESS
 	•	BREVO_API_KEY  
 	•	BREVO_SENDER_ADDRESS  
 

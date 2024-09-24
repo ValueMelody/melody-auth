@@ -397,8 +397,13 @@ describe(
   'post /resend-reset-code',
   () => {
     test(
-      'should send reset code',
+      'should send reset code by Sendgrid',
       async () => {
+        process.env.MAILGUN_API_KEY = 'abc'
+        process.env.MAILGUN_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.BREVO_API_KEY = 'abc'
+        process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
+
         const mockFetch = vi.fn(async () => {
           return Promise.resolve({ ok: true })
         })
@@ -420,6 +425,11 @@ describe(
         expect(body).toContain(code)
         expect(body).toContain('"personalizations":[{"to":[{"email":"test@email.com"}]}]')
         global.fetch = fetchMock
+
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
       },
     )
 
@@ -470,6 +480,85 @@ describe(
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
         expect(code.length).toBeFalsy()
         global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'could send reset code by Mailgun',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.MAILGUN_API_KEY = 'abc'
+        process.env.MAILGUN_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.BREVO_API_KEY = 'abc'
+        process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBe(8)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: FormData }).body
+        expect(callArgs[0]).toBe('https://api.mailgun.net/v3/valuemelody.com/messages')
+        expect(body.get('html')).toContain(code)
+        expect(body.get('to')).toContain('test@email.com')
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(0)
+
+        global.fetch = fetchMock
+
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+      },
+    )
+
+    test(
+      'could log email by Mailgun',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.MAILGUN_API_KEY = 'abc'
+        process.env.MAILGUN_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.BREVO_API_KEY = 'abc'
+        process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.ENABLE_EMAIL_LOG = true as unknown as string
+
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(1)
+        expect(logs[0]).toStrictEqual(emailLogRecord)
+        global.fetch = fetchMock
+
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.ENABLE_EMAIL_LOG = false as unknown as string
       },
     )
 
@@ -547,6 +636,11 @@ describe(
     test(
       'could send reset code by smtp',
       async () => {
+        process.env.MAILGUN_API_KEY = 'abc'
+        process.env.MAILGUN_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.BREVO_API_KEY = 'abc'
+        process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
+
         const sendEmailMock = vi.fn(async () => {
           return Promise.resolve({ accepted: ['test@email.com'] })
         })
@@ -576,6 +670,11 @@ describe(
         const callArgs = sendEmailMock.mock.calls[0] as any[]
         const body = (callArgs[0] as unknown as { html: string }).html
         expect(body).toContain(code)
+
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
       },
     )
 
@@ -612,25 +711,6 @@ describe(
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.NoEmailSender)
         global.process.env.SENDGRID_API_KEY = 'abc'
-      },
-    )
-
-    test(
-      'could send email if brevo config set',
-      async () => {
-        global.process.env.SENDGRID_API_KEY = ''
-        global.process.env.SENDGRID_SENDER_ADDRESS = ''
-        global.process.env.BREVO_API_KEY = 'abc'
-        global.process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
-        await insertUsers(db)
-        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
-        const json = await res.json()
-        expect(json).toStrictEqual({ success: true })
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? '').length).toBe(8)
-        global.process.env.SENDGRID_API_KEY = 'abc'
-        global.process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
-        global.process.env.BREVO_API_KEY = ''
-        global.process.env.BREVO_SENDER_ADDRESS = ''
       },
     )
   },
