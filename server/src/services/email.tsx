@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
@@ -18,8 +19,15 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
     BREVO_SENDER_ADDRESS: brevoSender,
     SENDGRID_API_KEY: sendgridApiKey,
     SENDGRID_SENDER_ADDRESS: sendgridSender,
+    MAILGUN_API_KEY: mailgunApiKey,
+    MAILGUN_SENDER_ADDRESS: mailgunSender,
   } = env(c)
-  if (!c.env.SMTP && (!brevoApiKey || !brevoSender) && (!sendgridApiKey || !sendgridSender)) {
+  if (
+    !c.env.SMTP &&
+    (!mailgunApiKey || !mailgunSender) &&
+    (!brevoApiKey || !brevoSender) &&
+    (!sendgridApiKey || !sendgridSender)
+  ) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoEmailSender)
   }
 }
@@ -35,6 +43,8 @@ export const sendEmail = async (
     SENDGRID_SENDER_ADDRESS: sendgridSender,
     BREVO_API_KEY: brevoApiKey,
     BREVO_SENDER_ADDRESS: brevoSender,
+    MAILGUN_API_KEY: mailgunApiKey,
+    MAILGUN_SENDER_ADDRESS: mailgunSender,
     ENVIRONMENT: environment,
     DEV_EMAIL_RECEIVER: devEmailReceiver,
     EMAIL_SENDER_NAME: senderName,
@@ -89,6 +99,46 @@ export const sendEmail = async (
     )
     success = res.ok
 
+    if (enableEmailLog) {
+      response = {
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url,
+        body: await res.text(),
+      }
+    }
+  } else if (mailgunApiKey && mailgunSender) {
+    const form = new FormData()
+    form.append(
+      'from',
+      `${senderName} <${mailgunSender}>`,
+    )
+    form.append(
+      'to',
+      receiver,
+    )
+    form.append(
+      'subject',
+      subject,
+    )
+    form.append(
+      'html',
+      emailBody,
+    )
+
+    const [, domain] = mailgunSender.split('@')
+
+    const auth = Buffer.from(`api:${mailgunApiKey}`).toString('base64')
+
+    const res = await fetch(
+      `https://api.mailgun.net/v3/${domain}/messages`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Basic ${auth}` },
+        body: form,
+      },
+    )
+    success = res.ok
     if (enableEmailLog) {
       response = {
         status: res.status,

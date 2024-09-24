@@ -50,6 +50,7 @@
   - GitHub Sign-In
 - <b>Mailer Option</b>:
   - SendGrid
+  - Mailgun
   - Brevo
   - STMP (Node.js environment only)
 - <b>Multi-Factor Authentication</b>:
