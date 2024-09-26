@@ -717,6 +717,8 @@ describe(
         expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByName('phoneNumber').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementById('resend-btn')?.classList).toContain('hidden')
+        expect(document.getElementById('switch-to-email')).toBeFalsy()
 
         const code = getCodeFromParams(params)
         expect((await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}`) ?? '').length).toBeFalsy()
@@ -803,6 +805,8 @@ describe(
         expect(phoneNumberEl.disabled).toBeTruthy()
         expect(document.getElementsByName('code').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementById('resend-btn')?.classList).not.toContain('hidden')
+        expect(document.getElementById('switch-to-email')).toBeTruthy()
 
         const code = getCodeFromParams(params)
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}`) ?? ''
@@ -820,6 +824,58 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = ''
         process.env.TWILIO_SENDER_NUMBER = ''
         global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'could disable fall back to email mfa',
+      async () => {
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+        process.env.ALLOW_EMAIL_MFA_AS_BACKUP = false as unknown as string
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        }) as Mock
+        global.fetch = mockFetch
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeSmsMfa}${params}`,
+          {},
+          mock(db),
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        const phoneNumberEl = document.getElementById('form-phoneNumber') as HTMLInputElement
+        expect(phoneNumberEl.value).toBe('********1234')
+        expect(phoneNumberEl.disabled).toBeTruthy()
+        expect(document.getElementsByName('code').length).toBe(1)
+        expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementById('resend-btn')?.classList).not.toContain('hidden')
+        expect(document.getElementById('switch-to-email')).toBeFalsy()
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+        process.env.ALLOW_EMAIL_MFA_AS_BACKUP = true as unknown as string
       },
     )
 
@@ -1130,6 +1186,125 @@ describe(
         const reqBody = await prepareFollowUpBody(db)
         const res = await app.request(
           `${routeConfig.IdentityRoute.SetupSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reqBody,
+              code: 'abc',
+              phoneNumber: '+6471111111',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+      },
+    )
+  },
+)
+
+describe(
+  'post /resend-sms-mfa',
+  () => {
+    test(
+      'could resend mfa',
+      async () => {
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        }) as Mock
+        global.fetch = mockFetch
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+
+        const reqBody = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ResendSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify(reqBody),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        expect(mfaCode.length).toBe(8)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: any }).body
+        expect(callArgs[0]).toBe('https://api.twilio.com/2010-04-01/Accounts/123/Messages.json')
+        expect(body.get('To')).toBe('+16471231234')
+        expect(body.get('From')).toBe('+1231231234')
+        expect(body.get('Body')).toBe(`${localeConfig.smsMfaMsg.body.en}: ${mfaCode}`)
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should throw error if user has not setup sms',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+        await db.prepare('update "user" set "smsPhoneNumber" = ?').run('+16471231234')
+
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ResendSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'should throw error if code is wrong',
+      async () => {
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+
+        const reqBody = await prepareFollowUpBody(db)
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ResendSmsMfa}`,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -1558,6 +1733,165 @@ describe(
           requireSmsMfa: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
+      },
+    )
+
+    test(
+      'should throw error if not enrolled with email mfa and fallback is not allowed',
+      async () => {
+        process.env.ALLOW_EMAIL_MFA_AS_BACKUP = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        const code = getCodeFromParams(params)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
+        expect(mfaCode).toBeFalsy()
+
+        const postRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code,
+              locale: 'en',
+              mfaCode: 'abc',
+            }),
+          },
+          mock(db),
+        )
+        expect(postRes.status).toBe(401)
+
+        process.env.ALLOW_EMAIL_MFA_AS_BACKUP = true as unknown as string
+      },
+    )
+
+    test(
+      'could use as otp mfa fallback',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        const params = await prepareFollowUpParams(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
+          {},
+          mock(db),
+        )
+        const code = getCodeFromParams(params)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
+        expect(mfaCode?.length).toBe(8)
+        expect(mockFetch).toBeCalledTimes(1)
+
+        global.fetch = fetchMock
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code,
+              locale: 'en',
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          requireConsent: false,
+          requireMfaEnroll: false,
+          requireEmailMfa: false,
+          requireOtpSetup: false,
+          requireOtpMfa: false,
+          requireSmsMfa: false,
+        })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+      },
+    )
+
+    test(
+      'could use as sms mfa fallback',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+        await enrollSmsMfa(db)
+        const params = await prepareFollowUpParams(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
+          {},
+          mock(db),
+        )
+        const code = getCodeFromParams(params)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
+        expect(mfaCode?.length).toBe(8)
+        expect(mockFetch).toBeCalledTimes(1)
+
+        global.fetch = fetchMock
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code,
+              locale: 'en',
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`),
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          requireConsent: false,
+          requireMfaEnroll: false,
+          requireEmailMfa: false,
+          requireOtpSetup: false,
+          requireOtpMfa: false,
+          requireSmsMfa: false,
+        })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
       },
     )
 

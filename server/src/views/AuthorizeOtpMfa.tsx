@@ -49,7 +49,6 @@ const AuthorizeOtpMfa = ({
           />
           {showEmailMfaBtn && (
             <button
-              id='resend-btn'
               type='button'
               class='button-text w-text'
               onclick='switchToEmail()'

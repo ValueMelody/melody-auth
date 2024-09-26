@@ -75,15 +75,21 @@ identityRoutes.get(
 )
 
 identityRoutes.post(
+  routeConfig.IdentityRoute.SetupSmsMfa,
+  setupMiddleware.validOrigin,
+  identityHandler.postSetupSmsMfa,
+)
+
+identityRoutes.post(
   routeConfig.IdentityRoute.AuthorizeSmsMfa,
   setupMiddleware.validOrigin,
   identityHandler.postAuthorizeSmsMfa,
 )
 
 identityRoutes.post(
-  routeConfig.IdentityRoute.SetupSmsMfa,
+  routeConfig.IdentityRoute.ResendSmsMfa,
   setupMiddleware.validOrigin,
-  identityHandler.postSetupSmsMfa,
+  identityHandler.resendSmsMfa,
 )
 
 identityRoutes.get(
