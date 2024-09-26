@@ -62,6 +62,10 @@ export const enrollOtpMfa = async (db: Database) => {
   await db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('otp')
 }
 
+export const enrollSmsMfa = async (db: Database) => {
+  await db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('sms')
+}
+
 export const enrollEmailMfa = async (db: Database) => {
   await db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('email')
 }

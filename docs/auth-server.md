@@ -163,6 +163,46 @@ If you are using the Node version, you can configure the following environment v
   - For Cloudflare (both prod and dev): SMTP_CONNECTION_STRING will be ignored.
   - If both SendGrid and Brevo keys and sender addresses are provided, SendGrid will take precedence.
 
+## SMS Setup
+Melody Auth supports SMS MFA. To ensure this feature work as expected, you need to configure Twilio integration.
+
+### Configuration Steps (Cloudflare Production)
+
+1. Navigate to the Cloudflare dashboard:
+   - Go to Workers & Pages
+   - Select your Melody Auth worker
+   - Click on "Settings" -> "Variables"
+
+2. Add the following environment variables:
+
+   | Variable Name | Description | Example Value |
+   |---------------|-------------|---------------|
+   | ENVIRONMENT | Determines the sms sending behavior  | "prod" or "dev" |
+   | DEV_SMS_RECEIVER | Phone number for testing (used when ENVIRONMENT is not 'prod') | "+16471231234" |
+   | TWILIO_ACCOUNT_ID | Your Twilio account id ||
+   | TWILIO_AUTH_TOKEN | Your Twilio auth token ||
+   | TWILIO_SENDER_NUMBER | Your Twilio sender number ||
+
+3. Click "Save and deploy" to apply the changes.
+
+### Configuration Steps (Cloudflare Local or Node)
+Update the following environment variables in your server/.dev.vars file:  
+	•	ENVIRONMENT  
+	•	DEV_SMS_RECEIVER  
+	•	TWILIO_ACCOUNT_ID  
+	•	TWILIO_AUTH_TOKEN  
+  •	TWILIO_SENDER_NUMBER  
+
+### SMS Environment Behavior
+
+- When `ENVIRONMENT` is set to "prod":
+  - Messages will be sent to the actual user phone number.
+  - Use this setting for production deployments.
+
+- When `ENVIRONMENT` is not set to "prod" (e.g., set to "dev"):
+  - All messages will be redirected to the phone number specified in `DEV_SMS_RECEIVER`.
+  - This is useful for testing and development to avoid sending messages to real users.
+
 ## Additional Configs
 
 Melody Auth offers a range of customizable options to tailor the server to your specific needs. You can modify these settings by adjusting the values in the `[vars]` section of the `server/wrangler.toml` file.
@@ -261,6 +301,11 @@ npm run prod:deploy
 - **Default:** false
 - **Description:** Enables OTP-based multi-factor authentication (MFA) for user sign-in. When set to true, users are required to configure OTP using an app like Google Authenticator during the sign-in process.
 
+### SMS_MFA_IS_REQUIRED
+- **Default:** false
+- **Description:** Controls sms-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via sms to confirm their login.
+[SMS functionality setup required](#sms-functionality-setup)
+
 ### EMAIL_MFA_IS_REQUIRED
 - **Default:** false
 - **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login.
@@ -268,7 +313,7 @@ npm run prod:deploy
 
 ### ENFORCE_ONE_MFA_ENROLLMENT
 - **Default:** true
-- **Description:** This setting requires that users enroll in at least one form of Multi-Factor Authentication (MFA). This setting is only effective if both OTP_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false.
+- **Description:** This setting requires that users enroll in at least one form of Multi-Factor Authentication (MFA). This setting is only effective if both OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false.
 [Email functionality setup required](#email-functionality-setup)
 
 ### ALLOW_EMAIL_MFA_AS_BACKUP

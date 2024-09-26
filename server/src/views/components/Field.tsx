@@ -5,6 +5,8 @@ const Field = ({
   name,
   autocomplete,
   className,
+  value,
+  disabled,
 }: {
   label?: string;
   required: boolean;
@@ -12,6 +14,8 @@ const Field = ({
   name: string;
   autocomplete?: string;
   className?: string;
+  value?: string;
+  disabled?: boolean;
 }) => {
   return (
     <section
@@ -31,6 +35,8 @@ const Field = ({
         name={name}
         id={`form-${name}`}
         autocomplete={autocomplete}
+        value={value}
+        disabled={disabled}
       />
       <p
         id={`error-${name}`}

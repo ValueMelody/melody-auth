@@ -14,7 +14,8 @@ export enum AuthorizeStep {
   Consent = 1,
   MfaEnroll = 2,
   OtpMfa = 3,
-  OtpEmail = 4,
+  SmsMfa = 4,
+  EmailMfa = 5,
 }
 
 export const processPostAuthorize = async (
@@ -34,6 +35,7 @@ export const processPostAuthorize = async (
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
+    SMS_MFA_IS_REQUIRED: enableSmsMfa,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
   } = env(c)
 
@@ -43,6 +45,7 @@ export const processPostAuthorize = async (
     enforceMfa &&
     !enableEmailMfa &&
     !enableOtpMfa &&
+    !enableSmsMfa &&
     !authCodeBody.user.mfaTypes.length
 
   const requireOtpMfa =
@@ -51,12 +54,17 @@ export const processPostAuthorize = async (
     (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
 
-  const requireEmailMfa =
+  const requireSmsMfa =
     step < 4 &&
+    !isSocialLogin &&
+    (enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms))
+
+  const requireEmailMfa =
+    step < 5 &&
     !isSocialLogin &&
     (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
 
-  if (!requireConsent && !requireMfaEnroll && !requireOtpMfa && !requireEmailMfa) {
+  if (!requireConsent && !requireMfaEnroll && !requireOtpMfa && !requireEmailMfa && !requireSmsMfa) {
     sessionService.setAuthInfoSession(
       c,
       authCodeBody.appId,
@@ -74,6 +82,7 @@ export const processPostAuthorize = async (
     requireConsent,
     requireMfaEnroll,
     requireEmailMfa,
+    requireSmsMfa,
     requireOtpSetup,
     requireOtpMfa,
   }

@@ -112,6 +112,16 @@ export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context
 
 export class PostAuthorizeFollowUpReqDto extends GetAuthorizeFollowUpReqDto {}
 
+export class PostResendMfaReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsString()
+    phoneNumber: string
+
+  constructor (dto: PostResendMfaReqDto) {
+    super(dto)
+    this.phoneNumber = dto.phoneNumber
+  }
+}
+
 export class PostAuthorizeMfaReqDto extends GetAuthorizeFollowUpReqDto {
   @IsString()
   @IsNotEmpty()

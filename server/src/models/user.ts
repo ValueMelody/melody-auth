@@ -7,6 +7,7 @@ import { dbUtil } from 'utils'
 export enum MfaType {
   Otp = 'otp',
   Email = 'email',
+  Sms = 'sms',
 }
 
 export enum SocialAccountType {
@@ -27,6 +28,7 @@ export interface Common {
   lastName: string | null;
   loginCount: number;
   otpSecret: string;
+  smsPhoneNumber: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -35,6 +37,7 @@ export interface Common {
 export interface Raw extends Common {
   emailVerified: number;
   otpVerified: number;
+  smsPhoneNumberVerified: number;
   isActive: number;
   mfaTypes: string;
 }
@@ -42,6 +45,7 @@ export interface Raw extends Common {
 export interface Record extends Common {
   emailVerified: boolean;
   otpVerified: boolean;
+  smsPhoneNumberVerified: boolean;
   isActive: boolean;
   mfaTypes: string[];
 }
@@ -90,6 +94,8 @@ export interface Create {
 export interface Update {
   password?: string | null;
   otpSecret?: string;
+  smsPhoneNumber?: string | null;
+  smsPhoneNumberVerified?: number;
   mfaTypes?: string;
   firstName?: string | null;
   lastName?: string | null;
@@ -108,6 +114,7 @@ export const convertToRecord = (raw: Raw): Record => ({
   ...raw,
   emailVerified: !!raw.emailVerified,
   otpVerified: !!raw.otpVerified,
+  smsPhoneNumberVerified: !!raw.smsPhoneNumberVerified,
   isActive: !!raw.isActive,
   mfaTypes: raw.mfaTypes ? raw.mfaTypes.split(',') : [],
 })
@@ -292,6 +299,7 @@ export const update = async (
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
     'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
+    'smsPhoneNumber', 'smsPhoneNumberVerified',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,

@@ -61,6 +61,7 @@ describe(
           ENABLE_EMAIL_VERIFICATION: true,
           EMAIL_MFA_IS_REQUIRED: false,
           OTP_MFA_IS_REQUIRED: false,
+          SMS_MFA_IS_REQUIRED: false,
           ACCOUNT_LOCKOUT_THRESHOLD: 5,
           ACCOUNT_LOCKOUT_EXPIRES_IN: 86400,
           UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: true,
