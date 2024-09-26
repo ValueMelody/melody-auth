@@ -132,7 +132,8 @@ export const stampEmailMfaCode = async (
   authCode: string,
   mfaCode: string,
   expiresIn: number,
-  isFallbackOfOtp: boolean,
+  isOtpFallback: boolean,
+  isSmsFallback: boolean,
 ) => {
   const key = adapterConfig.getKVKey(
     adapterConfig.BaseKVKey.EmailMfaCode,
@@ -143,12 +144,19 @@ export const stampEmailMfaCode = async (
   const isValid = storedCode && storedCode === mfaCode
 
   if (isValid) {
-    const stampKey = isFallbackOfOtp
-      ? adapterConfig.getKVKey(
+    let stampKey = key
+    if (isOtpFallback) {
+      stampKey = adapterConfig.getKVKey(
         adapterConfig.BaseKVKey.OtpMfaCode,
         authCode,
       )
-      : key
+    } else if (isSmsFallback) {
+      stampKey = adapterConfig.getKVKey(
+        adapterConfig.BaseKVKey.SmsMfaCode,
+        authCode,
+      )
+    }
+
     await kv.put(
       stampKey,
       '1',

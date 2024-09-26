@@ -15,12 +15,13 @@ import Field from 'views/components/Field'
 import SubmitButton from 'views/components/SubmitButton'
 
 const AuthorizeSmsMfa = ({
-  queryDto, logoUrl, locales, phoneNumber,
+  queryDto, logoUrl, locales, phoneNumber, showEmailMfaBtn,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   locales: typeConfig.Locale[];
   phoneNumber: string | null;
+  showEmailMfaBtn: boolean;
 }) => {
   return (
     <Layout
@@ -42,6 +43,14 @@ const AuthorizeSmsMfa = ({
             value={phoneNumber ?? undefined}
             disabled={!!phoneNumber}
           />
+          <button
+            id='resend-btn'
+            type='button'
+            class={`button-text ${phoneNumber ? '' : 'hidden'}`}
+            onclick='resendCode()'
+          >
+            {localeConfig.authorizeSmsMfa.resend[queryDto.locale]}
+          </button>
           <Field
             label={localeConfig.authorizeSmsMfa.code[queryDto.locale]}
             type='text'
@@ -49,6 +58,16 @@ const AuthorizeSmsMfa = ({
             className={phoneNumber ? undefined : 'hidden'}
             name='code'
           />
+          {showEmailMfaBtn && (
+            <button
+              id='switch-to-email'
+              type='button'
+              class='button-text w-text'
+              onclick='switchToEmail()'
+            >
+              {localeConfig.authorizeSmsMfa.switchToEmail[queryDto.locale]}
+            </button>
+          )}
           <SubmitButton
             title={
               phoneNumber
@@ -62,6 +81,68 @@ const AuthorizeSmsMfa = ({
         <script>
           ${resetErrorScript.resetCodeError()}
           ${resetErrorScript.resetPhoneNumberError()}
+          function switchToEmail() {
+            var queryString = "?code=${queryDto.code}&locale=${queryDto.locale}";
+            var url = "${routeConfig.IdentityRoute.AuthorizeEmailMfa}" + queryString
+            window.location.href = url;
+          }
+          function resendCode() {
+            var containNumber = "${phoneNumber}";
+            if (containNumber) {
+              fetch('${routeConfig.IdentityRoute.ResendSmsMfa}', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  locale: "${queryDto.locale}",
+                  code: "${queryDto.code}",
+                })
+              })
+              .then((response) => {
+                if (response.ok) {
+                  var resendBtn = document.getElementById("resend-btn")
+                  resendBtn.disabled = true;
+                  resendBtn.innerHTML = "${localeConfig.authorizeSmsMfa.resent[queryDto.locale]}"
+                } else {
+                  return response.text().then(text => {
+                    throw new Error(text);
+                  });
+                }
+              })
+              .catch((error) => {
+                ${responseScript.handleSubmitError(queryDto.locale)}
+              });
+            } else {
+              fetch('${routeConfig.IdentityRoute.SetupSmsMfa}', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  code: "${queryDto.code}",
+                  locale: "${queryDto.locale}",
+                  phoneNumber: document.getElementById('form-phoneNumber').value,
+                })
+              })
+              .then((response) => {
+                if (response.ok) {
+                  var resendBtn = document.getElementById("resend-btn")
+                  resendBtn.disabled = true;
+                  resendBtn.innerHTML = "${localeConfig.authorizeSmsMfa.resent[queryDto.locale]}"
+                } else {
+                  return response.text().then(text => {
+                    throw new Error(text);
+                  });
+                }
+              })
+              .catch((error) => {
+                ${responseScript.handleSubmitError(queryDto.locale)}
+              });
+            }
+          }
           function handleSubmit(e) {
             e.preventDefault();
             var containNumber = document.getElementById('form-phoneNumber').disabled
@@ -85,12 +166,12 @@ const AuthorizeSmsMfa = ({
                 })
               })
               .then((response) => {
-                ${responseScript.parseRes()}
-              })
-              .then((data) => {
-                document.getElementById('form-phoneNumber').disabled = true;
-                document.getElementById('code-row').classList.remove('hidden');
-                document.getElementById('submit-button').innerHTML = "${localeConfig.authorizeSmsMfa.verify[queryDto.locale]}"
+                if (response.ok) {
+                  document.getElementById('form-phoneNumber').disabled = true;
+                  document.getElementById('code-row').classList.remove('hidden');
+                  document.getElementById('resend-btn').classList.remove('hidden');
+                  document.getElementById('submit-button').innerHTML = "${localeConfig.authorizeSmsMfa.verify[queryDto.locale]}"
+                }
               })
               .catch((error) => {
                 ${responseScript.handleSubmitError(queryDto.locale)}
