@@ -108,6 +108,18 @@ export const postUserOtpMfa = async (c: Context<typeConfig.Context>) => {
   return c.body(null)
 }
 
+export const postUserSmsMfa = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  await userService.enrollUserMfa(
+    c,
+    authId,
+    userModel.MfaType.Sms,
+  )
+  c.status(204)
+  return c.body(null)
+}
+
 export const deleteUserEmailMfa = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
 
@@ -127,6 +139,18 @@ export const deleteUserOtpMfa = async (c: Context<typeConfig.Context>) => {
     c,
     authId,
     userModel.MfaType.Otp,
+  )
+  c.status(204)
+  return c.body(null)
+}
+
+export const deleteUserSmsMfa = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  await userService.resetUserMfa(
+    c,
+    authId,
+    userModel.MfaType.Sms,
   )
   c.status(204)
   return c.body(null)

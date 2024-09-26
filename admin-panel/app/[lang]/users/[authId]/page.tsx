@@ -55,6 +55,7 @@ const Page = () => {
 
   const isEmailEnrolled = configs.EMAIL_MFA_IS_REQUIRED || user?.mfaTypes.includes('email')
   const isOtpEnrolled = configs.OTP_MFA_IS_REQUIRED || user?.mfaTypes.includes('otp')
+  const isSmsEnrolled = configs.SMS_MFA_IS_REQUIRED || user?.mfaTypes.includes('sms')
 
   const updateObj = useMemo(
     () => {
@@ -189,6 +190,16 @@ const Page = () => {
     if (result) getUser()
   }
 
+  const handleResetSmsMfa = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}/sms-mfa`,
+      method: 'DELETE',
+      token,
+    })
+    if (result) getUser()
+  }
+
   const handleResetEmailMfa = async () => {
     const token = await acquireToken()
     const result = await proxyTool.sendNextRequest({
@@ -203,6 +214,16 @@ const Page = () => {
     const token = await acquireToken()
     const result = await proxyTool.sendNextRequest({
       endpoint: `/api/users/${authId}/otp-mfa`,
+      method: 'POST',
+      token,
+    })
+    if (result) getUser()
+  }
+
+  const handleEnrollSmsMfa = async () => {
+    const token = await acquireToken()
+    const result = await proxyTool.sendNextRequest({
+      endpoint: `/api/users/${authId}/sms-mfa`,
       method: 'POST',
       token,
     })
@@ -279,7 +300,7 @@ const Page = () => {
   const renderOtpButtons = (user) => {
     return (
       <>
-        {(user.otpVerified || user.mfaTypes.includes('otp')) && user.isActive && (
+        {user.mfaTypes.includes('otp') && user.isActive && (
           <Button
             size='xs'
             onClick={handleResetOtpMfa}
@@ -291,6 +312,28 @@ const Page = () => {
           <Button
             size='xs'
             onClick={handleEnrollOtpMfa}>
+            {t('users.enrollMfa')}
+          </Button>
+        )}
+      </>
+    )
+  }
+
+  const renderSmsButtons = (user) => {
+    return (
+      <>
+        {user.mfaTypes.includes('sms') && user.isActive && (
+          <Button
+            size='xs'
+            onClick={handleResetSmsMfa}
+          >
+            {t('users.resetMfa')}
+          </Button>
+        )}
+        {user.isActive && !isSmsEnrolled && (
+          <Button
+            size='xs'
+            onClick={handleEnrollSmsMfa}>
             {t('users.enrollMfa')}
           </Button>
         )}
@@ -369,7 +412,7 @@ const Page = () => {
             )}
             {!user.socialAccountId && (
               <Table.Row>
-                <Table.Cell>{t('users.authenticator')}</Table.Cell>
+                <Table.Cell>{t('users.otpMfa')}</Table.Cell>
                 <TableCell>
                   <div className='flex max-md:flex-col gap-2'>
                     {isOtpEnrolled && !user.otpVerified && (
@@ -389,6 +432,31 @@ const Page = () => {
                 </TableCell>
                 <TableCell className='max-md:hidden'>
                   {renderOtpButtons(user)}
+                </TableCell>
+              </Table.Row>
+            )}
+            {!user.socialAccountId && (
+              <Table.Row>
+                <Table.Cell>{t('users.smsMfa')}</Table.Cell>
+                <TableCell>
+                  <div className='flex max-md:flex-col gap-2'>
+                    {isSmsEnrolled && !user.smsPhoneNumberVerified && (
+                      <div className='flex'>
+                        <Badge color='gray'>{t('users.smsMfaEnrolled')}</Badge>
+                      </div>
+                    )}
+                    {isSmsEnrolled && user.smsPhoneNumberVerified && (
+                      <div className='flex'>
+                        <Badge color='success'>{t('users.smsMfaVerified')}</Badge>
+                      </div>
+                    )}
+                    <div className='md:hidden'>
+                      {renderSmsButtons(user)}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className='max-md:hidden'>
+                  {renderSmsButtons(user)}
                 </TableCell>
               </Table.Row>
             )}

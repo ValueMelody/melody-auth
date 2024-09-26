@@ -349,7 +349,7 @@ userRoutes.delete(
  * @swagger
  * /api/v1/users/{authId}/otp-mfa:
  *   post:
- *     summary: enroll user for authenticator MFA.
+ *     summary: enroll user for OTP MFA.
  *     description: Required scope - write_user
  *     tags: [Users]
  *     parameters:
@@ -373,7 +373,7 @@ userRoutes.post(
  * @swagger
  * /api/v1/users/{authId}/otp-mfa:
  *   delete:
- *     summary: Remove user's current authenticator MFA setup.
+ *     summary: Remove user's current OTP MFA setup.
  *     description: Required scope - write_user
  *     tags: [Users]
  *     parameters:
@@ -391,4 +391,52 @@ userRoutes.delete(
   `${BaseRoute}/:authId/otp-mfa`,
   authMiddleware.s2sWriteUser,
   userHandler.deleteUserOtpMfa,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/sms-mfa:
+ *   post:
+ *     summary: enroll user for SMS MFA.
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.post(
+  `${BaseRoute}/:authId/sms-mfa`,
+  authMiddleware.s2sWriteUser,
+  userHandler.postUserSmsMfa,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/sms-mfa:
+ *   delete:
+ *     summary: Remove user's current SMS MFA setup.
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/sms-mfa`,
+  authMiddleware.s2sWriteUser,
+  userHandler.deleteUserSmsMfa,
 )

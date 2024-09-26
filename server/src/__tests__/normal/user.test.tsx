@@ -20,7 +20,7 @@ import {
 } from 'models'
 import {
   attachIndividualScopes,
-  dbTime, disableUser, enrollEmailMfa, enrollOtpMfa, getS2sToken,
+  dbTime, disableUser, enrollEmailMfa, enrollOtpMfa, getS2sToken, enrollSmsMfa,
 } from 'tests/util'
 
 let db: Database
@@ -57,6 +57,7 @@ const user1 = {
   locale: 'en',
   emailVerified: false,
   otpVerified: false,
+  smsPhoneNumberVerified: false,
   mfaTypes: [],
   isActive: true,
   loginCount: 0,
@@ -76,6 +77,7 @@ const user2 = {
   locale: 'fr',
   emailVerified: false,
   otpVerified: false,
+  smsPhoneNumberVerified: false,
   mfaTypes: [],
   isActive: true,
   loginCount: 0,
@@ -1188,6 +1190,97 @@ describe(
       async () => {
         await insertUsers()
         await enrollOtpMfa(db)
+
+        await handleUnenrollCheck()
+      },
+    )
+
+    test(
+      'If user is not enrolled',
+      async () => {
+        await insertUsers()
+        await handleUnenrollCheck()
+      },
+    )
+  },
+)
+
+describe(
+  'enroll sms mfa',
+  () => {
+    const enrollAndCheckUser = async () => {
+      await insertUsers()
+
+      await app.request(
+        `${BaseRoute}/1-1-1-1/sms-mfa`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+        },
+        mock(db),
+      )
+
+      const userRes = await app.request(
+        `${BaseRoute}/1-1-1-1`,
+        { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+        mock(db),
+      )
+      return userRes
+    }
+
+    test(
+      'should enroll sms mfa',
+      async () => {
+        const userRes = await enrollAndCheckUser()
+
+        const userJson = await userRes.json() as { user: userModel.Record }
+        expect(userJson.user.mfaTypes).toStrictEqual(['sms'])
+      },
+    )
+
+    test(
+      'if sms is enforced by config',
+      async () => {
+        global.process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        const userRes = await enrollAndCheckUser()
+
+        const userJson = await userRes.json() as { user: userModel.Record }
+        expect(userJson.user.mfaTypes).toStrictEqual([])
+        global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'Unenroll sms mfa',
+  () => {
+    const handleUnenrollCheck = async () => {
+      const res = await app.request(
+        `${BaseRoute}/1-1-1-1/sms-mfa`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+        },
+        mock(db),
+      )
+      expect(res.status).toBe(204)
+
+      const userRes = await app.request(
+        `${BaseRoute}/1-1-1-1`,
+        { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+        mock(db),
+      )
+
+      const userJson = await userRes.json() as { user: userModel.Record }
+      expect(userJson.user.mfaTypes).toStrictEqual([])
+    }
+
+    test(
+      'should unenroll sms mfa',
+      async () => {
+        await insertUsers()
+        await enrollSmsMfa(db)
 
         await handleUnenrollCheck()
       },

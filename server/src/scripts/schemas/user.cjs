@@ -26,6 +26,7 @@ const User = {
     locale: { type: 'string' },
     emailVerified: { type: 'boolean' },
     otpVerified: { type: 'boolean' },
+    smsPhoneNumberVerified: { type: 'boolean' },
     isActive: { type: 'boolean' },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },

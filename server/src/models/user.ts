@@ -61,6 +61,7 @@ export interface ApiRecord {
   lastName?: string | null;
   emailVerified: boolean;
   otpVerified: boolean;
+  smsPhoneNumberVerified: boolean;
   loginCount: number;
   mfaTypes: string[];
   isActive: boolean;
@@ -131,6 +132,7 @@ export const convertToApiRecord = (
     email: record.email,
     locale: record.locale,
     emailVerified: record.emailVerified,
+    smsPhoneNumberVerified: record.smsPhoneNumberVerified,
     otpVerified: record.otpVerified,
     mfaTypes: record.mfaTypes,
     isActive: record.isActive,
