@@ -292,6 +292,18 @@ export const authorizeSmsMfa = Object.freeze({
     en: 'Verify',
     fr: 'Vérifier',
   },
+  resend: {
+    en: 'Resend a new code',
+    fr: 'Renvoyer un nouveau code',
+  },
+  resent: {
+    en: 'New code sent.',
+    fr: 'Nouveau code envoyé.',
+  },
+  switchToEmail: {
+    en: 'Receive MFA Code by Email',
+    fr: 'Recevoir le code MFA par e-mail',
+  },
 })
 
 export const authorizeEmailMfa = Object.freeze({

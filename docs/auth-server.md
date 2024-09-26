@@ -318,7 +318,7 @@ npm run prod:deploy
 
 ### ALLOW_EMAIL_MFA_AS_BACKUP
 - **Default:** true
-- **Description:** This setting allows users to use email-based MFA as an alternative method for signing in if they are enrolled in OTP MFA and not enrolled in email MFA.
+- **Description:** This setting allows users to use email-based MFA as an alternative method for signing in if they are enrolled in OTP MFA or SMS MFA and not enrolled in email MFA.
 [Email functionality setup required](#email-functionality-setup)
 
 ### ACCOUNT_LOCKOUT_THRESHOLD
