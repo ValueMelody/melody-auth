@@ -8,13 +8,15 @@ import { identityDto } from 'dtos'
 import { responseScript } from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
 import Title from 'views/components/Title'
+import { userModel } from 'models'
 
 const AuthorizeMfaEnroll = ({
-  queryDto, logoUrl, locales,
+  queryDto, logoUrl, locales, mfaTypes,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   locales: typeConfig.Locale[];
+  mfaTypes: userModel.MfaType[];
 }) => {
   return (
     <Layout
@@ -24,21 +26,17 @@ const AuthorizeMfaEnroll = ({
     >
       <Title title={localeConfig.authorizeMfaEnroll.title[queryDto.locale]} />
       <SubmitError />
-      <section class='flex-row justify-around w-full gap-8 mt-4'>
-        <button
-          class='button w-half'
-          type='button'
-          onclick='handleSelect("email")'
-        >
-          {localeConfig.authorizeMfaEnroll.email[queryDto.locale]}
-        </button>
-        <button
-          class='button w-half'
-          type='button'
-          onclick='handleSelect("otp")'
-        >
-          {localeConfig.authorizeMfaEnroll.otp[queryDto.locale]}
-        </button>
+      <section class='flex-col justify-around w-full gap-4 mt-4'>
+        {mfaTypes.map((mfaType) => (
+          <button
+            key={mfaType}
+            class='button'
+            type='button'
+            onclick={`handleSelect("${mfaType}")`}
+          >
+            {localeConfig.authorizeMfaEnroll[mfaType][queryDto.locale]}
+          </button>
+        ))}
       </section>
       {html`
         <script>

@@ -57,7 +57,7 @@ describe(
           ENABLE_NAMES: true,
           NAMES_IS_REQUIRED: false,
           ENABLE_USER_APP_CONSENT: true,
-          ENFORCE_ONE_MFA_ENROLLMENT: true,
+          ENFORCE_ONE_MFA_ENROLLMENT: ['otp', 'email'],
           ENABLE_EMAIL_VERIFICATION: true,
           EMAIL_MFA_IS_REQUIRED: false,
           OTP_MFA_IS_REQUIRED: false,

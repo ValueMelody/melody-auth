@@ -123,12 +123,14 @@ export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
     COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+    ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes,
   } = env(c)
 
   return c.html(<AuthorizeMfaEnrollView
     logoUrl={logoUrl}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
+    mfaTypes={mfaTypes}
   />)
 }
 
