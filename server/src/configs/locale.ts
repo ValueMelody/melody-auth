@@ -265,6 +265,10 @@ export const authorizeMfaEnroll = Object.freeze({
     en: 'Authenticator',
     fr: 'Authentificateur',
   },
+  sms: {
+    en: 'SMS',
+    fr: 'message texte',
+  },
 })
 
 export const authorizeSmsMfa = Object.freeze({

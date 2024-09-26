@@ -22,6 +22,9 @@ These screenshots showcase various pages and emails related to identity system a
 ### OTP MFA
 ![OTP MFA](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/otp_mfa.jpeg)
 
+### SMS MFA
+![SMS MFA](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/sms_mfa.jpeg)
+
 ### Email MFA
 ![Email MFA](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/email_mfa.jpeg)
 

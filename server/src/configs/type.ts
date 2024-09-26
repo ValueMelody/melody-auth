@@ -48,7 +48,7 @@ export type Bindings = {
   EMAIL_MFA_IS_REQUIRED: boolean;
   OTP_MFA_IS_REQUIRED: boolean;
   GOOGLE_AUTH_CLIENT_ID: string;
-  ENFORCE_ONE_MFA_ENROLLMENT: boolean;
+  ENFORCE_ONE_MFA_ENROLLMENT: userModel.MfaType[];
   ALLOW_EMAIL_MFA_AS_BACKUP: boolean;
   ACCOUNT_LOCKOUT_THRESHOLD: number;
   ACCOUNT_LOCKOUT_EXPIRES_IN: number;

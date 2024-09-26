@@ -77,7 +77,6 @@ export const sendSmsMfa = async (
   phoneNumber: string,
   locale: typeConfig.Locale,
 ) => {
-  if (!phoneNumber) return null
   checkSmsSetup(c)
 
   const mfaCode = cryptoUtil.genRandom8DigitString()

@@ -795,7 +795,7 @@ describe(
     test(
       'could skip mfa',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         const res = await postAuthorizeAccount()
         const json = await res.json()
         expect(json).toStrictEqual({
@@ -810,7 +810,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
         })
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -1073,7 +1073,7 @@ describe(
     test(
       'should logout',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         const appRecord = await getApp(db)
         const tokenJson = await prepareLogout()
 
@@ -1099,14 +1099,14 @@ describe(
 
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'could logout without post logout redirect uri',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         const appRecord = await getApp(db)
         const tokenJson = await prepareLogout()
 
@@ -1129,14 +1129,14 @@ describe(
 
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'should pass through even if token has wrong client',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         const appRecord = await getApp(db)
         await insertUsers(db)
         const res = await postSignInRequest(
@@ -1190,7 +1190,7 @@ describe(
           redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
         })
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
   },

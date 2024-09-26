@@ -42,7 +42,7 @@ export const processPostAuthorize = async (
   const requireMfaEnroll =
     step < 2 &&
     !isSocialLogin &&
-    enforceMfa &&
+    !!enforceMfa?.length &&
     !enableEmailMfa &&
     !enableOtpMfa &&
     !enableSmsMfa &&

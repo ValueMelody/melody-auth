@@ -312,8 +312,8 @@ npm run prod:deploy
 [Email functionality setup required](#email-functionality-setup)
 
 ### ENFORCE_ONE_MFA_ENROLLMENT
-- **Default:** true
-- **Description:** This setting requires that users enroll in at least one form of Multi-Factor Authentication (MFA). This setting is only effective if both OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED and EMAIL_MFA_IS_REQUIRED are set to false.
+- **Default:** ['otp', 'email']
+- **Description:** Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 [Email functionality setup required](#email-functionality-setup)
 
 ### ALLOW_EMAIL_MFA_AS_BACKUP

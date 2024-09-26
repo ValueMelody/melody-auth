@@ -57,8 +57,38 @@ describe(
         const document = dom.window.document
         expect(document.getElementsByTagName('select').length).toBe(1)
         expect(document.getElementsByTagName('button').length).toBe(2)
-        expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeMfaEnroll.email.en)
+        expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeMfaEnroll.otp.en)
+        expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeMfaEnroll.email.en)
+      },
+    )
+
+    test(
+      'could render different otp types',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['sms', 'otp', 'email'] as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeMfaEnroll}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        expect(document.getElementsByTagName('button').length).toBe(3)
+        expect(document.getElementsByTagName('button')[0].innerHTML).toBe(localeConfig.authorizeMfaEnroll.sms.en)
         expect(document.getElementsByTagName('button')[1].innerHTML).toBe(localeConfig.authorizeMfaEnroll.otp.en)
+        expect(document.getElementsByTagName('button')[2].innerHTML).toBe(localeConfig.authorizeMfaEnroll.email.en)
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
       },
     )
 
@@ -128,7 +158,7 @@ describe(
     test(
       'should be blocked if not enabled in config',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(
           db,
           false,
@@ -141,7 +171,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -790,6 +820,89 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = ''
         process.env.TWILIO_SENDER_NUMBER = ''
         global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should pass through if request failed',
+      async () => {
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: false })
+        }) as Mock
+        global.fetch = mockFetch
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeSmsMfa}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        const phoneNumberEl = document.getElementById('form-phoneNumber') as HTMLInputElement
+        expect(phoneNumberEl.value).toBe('********1234')
+        expect(phoneNumberEl.disabled).toBeTruthy()
+        expect(document.getElementsByName('code').length).toBe(1)
+        expect(document.getElementsByTagName('form').length).toBe(1)
+
+        const code = getCodeFromParams(params)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}`) ?? ''
+        expect(mfaCode.length).toBe(0)
+        expect(mockFetch).toBeCalledTimes(1)
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'throw error if sms config not set',
+      async () => {
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeSmsMfa}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.NoSmsSender)
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 

@@ -147,7 +147,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
   } = env(c)
 
   if (!isSocialLogin) {
-    if (enforceMfa && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
+    if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
       if (!authInfo.user.mfaTypes.length) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
     }
 

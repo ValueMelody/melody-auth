@@ -86,7 +86,7 @@ export const enableMfaEnroll = async (
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
   } = env(c)
 
-  if (!enforceMfa || requireEmailMfa || requireOtpMfa || requireSmsMfa) {
+  if (!enforceMfa?.length || requireEmailMfa || requireOtpMfa || requireSmsMfa) {
     throw new errorConfig.Forbidden()
   }
 

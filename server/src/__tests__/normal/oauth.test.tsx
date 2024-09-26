@@ -133,7 +133,7 @@ describe(
     test(
       'could login through session',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         const appRecord = await getApp(db)
         await insertUsers(db)
         await postSignInRequest(
@@ -166,7 +166,7 @@ describe(
         )
         expect(tokenRes.status).toBe(200)
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -247,7 +247,7 @@ describe(
     test(
       'could disable session',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         global.process.env.SERVER_SESSION_EXPIRES_IN = 0 as unknown as string
         const appRecord = await getApp(db)
         await insertUsers(db)
@@ -265,7 +265,7 @@ describe(
         const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizePassword}${params}`)
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
         global.process.env.SERVER_SESSION_EXPIRES_IN = 1800 as unknown as string
       },
     )
@@ -304,7 +304,7 @@ describe(
     test(
       'could get token use auth code',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         const tokenJson = await tokenRes.json()
@@ -325,14 +325,14 @@ describe(
         const logs = await db.prepare('select * from sign_in_log').all()
         expect(logs.length).toBe(0)
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'could enable sign in log',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         global.process.env.ENABLE_SIGN_IN_LOG = true as unknown as string
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
@@ -342,14 +342,14 @@ describe(
         expect(logs.length).toBe(1)
 
         global.process.env.ENABLE_SIGN_IN_LOG = false as unknown as string
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'could use plain code challenge',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
         const appRecord = await getApp(db)
 
@@ -390,14 +390,14 @@ describe(
         )
         expect(tokenRes.status).toBe(200)
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'should throw error with wrong code or wrong code_verifier',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
         const appRecord = await getApp(db)
 
@@ -439,14 +439,14 @@ describe(
         expect(tokenRes1.status).toBe(400)
         expect(await tokenRes1.text()).toBe(localeConfig.Error.WrongCodeVerifier)
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'could get token use refresh token',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         const tokenJson = await tokenRes.json() as { refresh_token: string }
@@ -474,14 +474,14 @@ describe(
           token_type: 'Bearer',
         })
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'could throw error if use wrong refresh token or grant type',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken()
         const tokenJson = await tokenRes.json() as { refresh_token: string }
@@ -518,7 +518,7 @@ describe(
         expect(refreshTokenRes1.status).toBe(400)
         expect(await refreshTokenRes1.text()).toBe(localeConfig.Error.WrongGrantType)
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -712,11 +712,11 @@ describe(
           db,
           false,
         )
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         const tokenRes = await exchangeWithAuthToken()
         expect(tokenRes.status).toBe(401)
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -857,7 +857,7 @@ describe(
     test(
       'should get userinfo',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         const tokenJson = await prepareUserInfoRequest()
 
@@ -878,14 +878,14 @@ describe(
           lastName: null,
         })
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'should throw error if user not found',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         const tokenJson = await prepareUserInfoRequest()
         await db.prepare('update "user" set "deletedAt" = ?').run('2024')
 
@@ -897,14 +897,14 @@ describe(
         expect(userInfoRes.status).toBe(404)
         expect(await userInfoRes.text()).toBe(localeConfig.Error.NoUser)
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
     test(
       'should throw error if user disabled',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         const tokenJson = await prepareUserInfoRequest()
         await disableUser(db)
 
@@ -916,7 +916,7 @@ describe(
         expect(userInfoRes.status).toBe(400)
         expect(await userInfoRes.text()).toBe(localeConfig.Error.UserDisabled)
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
   },

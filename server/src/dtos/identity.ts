@@ -114,6 +114,7 @@ export class PostAuthorizeFollowUpReqDto extends GetAuthorizeFollowUpReqDto {}
 
 export class PostSetupSmsMfaReqDto extends GetAuthorizeFollowUpReqDto {
   @IsString()
+  @IsNotEmpty()
     phoneNumber: string
 
   constructor (dto: PostSetupSmsMfaReqDto) {
