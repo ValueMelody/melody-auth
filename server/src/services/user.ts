@@ -420,6 +420,7 @@ export const enrollUserMfa = async (
   const {
     OTP_MFA_IS_REQUIRED: otpMfaRequired,
     EMAIL_MFA_IS_REQUIRED: emailMfaRequired,
+    SMS_MFA_IS_REQUIRED: smsMfaRequired,
   } = env(c)
 
   const user = await userModel.getByAuthId(
@@ -434,23 +435,33 @@ export const enrollUserMfa = async (
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
-  const isOtp = mfaType === userModel.MfaType.Otp
-  if (isOtp && otpMfaRequired) return user
-  if (mfaType === userModel.MfaType.Email && emailMfaRequired) return user
-
   if (user.mfaTypes.includes(mfaType)) return user
 
-  const newUser = await userModel.update(
-    c.env.DB,
-    user.id,
-    {
-      mfaTypes: [...user.mfaTypes, mfaType].join(','),
-      otpVerified: isOtp ? 0 : undefined,
-      otpSecret: isOtp ? cryptoUtil.genOtpSecret() : undefined,
-    },
-  )
+  if (mfaType === userModel.MfaType.Otp && !otpMfaRequired) {
+    return userModel.update(
+      c.env.DB,
+      user.id,
+      {
+        mfaTypes: [...user.mfaTypes, mfaType].join(','),
+        otpVerified: 0,
+        otpSecret: cryptoUtil.genOtpSecret(),
+      },
+    )
+  } else if (mfaType === userModel.MfaType.Email && !emailMfaRequired) {
+    return userModel.update(
+      c.env.DB,
+      user.id,
+      { mfaTypes: [...user.mfaTypes, mfaType].join(',') },
+    )
+  } else if (mfaType === userModel.MfaType.Sms && !smsMfaRequired) {
+    return userModel.update(
+      c.env.DB,
+      user.id,
+      { mfaTypes: [...user.mfaTypes, mfaType].join(',') },
+    )
+  }
 
-  return newUser
+  return user
 }
 
 export const resetUserMfa = async (
@@ -470,23 +481,45 @@ export const resetUserMfa = async (
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
-  const isOtp = mfaType === userModel.MfaType.Otp
-  if (
-    isOtp &&
-    !user.mfaTypes.includes(userModel.MfaType.Otp) &&
-    !user.otpVerified && !user.otpSecret
-  ) return true
-  if (mfaType === userModel.MfaType.Email && !user.mfaTypes.includes(userModel.MfaType.Email)) return true
+  if (mfaType === userModel.MfaType.Otp) {
+    if (
+      !user.mfaTypes.includes(userModel.MfaType.Otp) &&
+      !user.otpVerified &&
+      !user.otpSecret
+    ) return true
 
-  await userModel.update(
-    c.env.DB,
-    user.id,
-    {
-      mfaTypes: user.mfaTypes.filter((type) => type !== mfaType).join(','),
-      otpVerified: isOtp ? 0 : undefined,
-      otpSecret: isOtp ? '' : undefined,
-    },
-  )
+    await userModel.update(
+      c.env.DB,
+      user.id,
+      {
+        mfaTypes: user.mfaTypes.filter((type) => type !== mfaType).join(','),
+        otpVerified: 0,
+        otpSecret: '',
+      },
+    )
+  } else if (mfaType === userModel.MfaType.Email) {
+    if (!user.mfaTypes.includes(userModel.MfaType.Email)) return true
+    await userModel.update(
+      c.env.DB,
+      user.id,
+      { mfaTypes: user.mfaTypes.filter((type) => type !== mfaType).join(',') },
+    )
+  } else if (mfaType === userModel.MfaType.Sms) {
+    if (
+      !user.mfaTypes.includes(userModel.MfaType.Sms) &&
+      !user.smsPhoneNumber &&
+      !user.smsPhoneNumberVerified
+    ) return true
+    await userModel.update(
+      c.env.DB,
+      user.id,
+      {
+        mfaTypes: user.mfaTypes.filter((type) => type !== mfaType).join(','),
+        smsPhoneNumber: null,
+        smsPhoneNumberVerified: 0,
+      },
+    )
+  }
 
   return true
 }

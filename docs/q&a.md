@@ -96,3 +96,8 @@ npm run dev:secret:clean # For Cloudflare local env
 npm run prod:secret:clean # For Cloudflare remote env
 ```
 After running these commands, the old secret will be removed, and any tokens signed with the old secret will no longer be valid.
+
+## How to setup MFA
+- Enforcing specific MFA types: You can set OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, or EMAIL_MFA_IS_REQUIRED to true to enforce those MFA methods as a login requirement.
+- Letting users choose one of the supported MFA types: If OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false, you can set ENFORCE_ONE_MFA_ENROLLMENT to contain the MFA types you want to support. The user will then be required to enroll in one of the selected MFA types.
+- You can also use the MFA enrollment functionality provided by the admin panel or the S2S API to customize your MFA enrollment flow.
