@@ -339,6 +339,7 @@ describe(
           requireEmailMfa: false,
           requireOtpSetup: false,
           requireOtpMfa: false,
+          requireSmsMfa: false,
         })
         const { code } = json as { code: string }
         const codeStore = JSON.parse(await mockedKV.get(`AC-${code}`) ?? '')
@@ -679,6 +680,7 @@ describe(
           requireEmailMfa: false,
           requireOtpSetup: false,
           requireOtpMfa: false,
+          requireSmsMfa: false,
         })
         const appRecord = await getApp(db)
         const { code } = json as { code: string }
@@ -740,6 +742,7 @@ describe(
           requireEmailMfa: false,
           requireOtpSetup: true,
           requireOtpMfa: true,
+          requireSmsMfa: false,
         })
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -761,8 +764,31 @@ describe(
           requireEmailMfa: true,
           requireOtpSetup: false,
           requireOtpMfa: false,
+          requireSmsMfa: false,
         })
         global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'could force sms mfa',
+      async () => {
+        global.process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          requireConsent: true,
+          requireMfaEnroll: false,
+          requireEmailMfa: false,
+          requireOtpSetup: false,
+          requireOtpMfa: false,
+          requireSmsMfa: true,
+        })
+        global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 
@@ -782,6 +808,7 @@ describe(
           requireEmailMfa: false,
           requireOtpSetup: false,
           requireOtpMfa: false,
+          requireSmsMfa: false,
         })
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = true as unknown as string
       },
@@ -803,6 +830,7 @@ describe(
           requireEmailMfa: false,
           requireOtpSetup: false,
           requireOtpMfa: false,
+          requireSmsMfa: false,
         })
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
@@ -968,6 +996,7 @@ describe(
           requireEmailMfa: false,
           requireOtpSetup: false,
           requireOtpMfa: false,
+          requireSmsMfa: false,
         })
         const consent = db.prepare('SELECT * from user_app_consent WHERE "userId" = 1 AND "appId" = 1').get()
         expect(consent).toBeTruthy()

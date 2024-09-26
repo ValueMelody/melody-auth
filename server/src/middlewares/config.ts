@@ -81,11 +81,12 @@ export const enableMfaEnroll = async (
 ) => {
   const {
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
+    SMS_MFA_IS_REQUIRED: requireSmsMfa,
     EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
   } = env(c)
 
-  if (!enforceMfa || requireEmailMfa || requireOtpMfa) {
+  if (!enforceMfa || requireEmailMfa || requireOtpMfa || requireSmsMfa) {
     throw new errorConfig.Forbidden()
   }
 

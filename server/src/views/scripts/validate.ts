@@ -39,6 +39,21 @@ export const email = (locale: typeConfig.Locale) => html`
   }
 `
 
+export const phoneNumber = (locale: typeConfig.Locale) => html`
+var msg;
+var phoneVal = document.getElementById('form-phoneNumber').value.trim();
+if (!phoneVal) msg = "${localeConfig.validateError.phoneNumberIsRequired[locale]}";
+var regex = /^\\\+[1-9]\\\d{1,14}$/;
+const isValid = regex.test(phoneVal);
+if (!isValid) msg = "${localeConfig.validateError.wrongPhoneFormat[locale]}";
+if (msg) {
+  var errorEl = document.getElementById('error-phoneNumber');
+  errorEl.classList.remove('hidden');
+  errorEl.innerHTML = msg;
+  return false;
+}
+`
+
 export const firstName = (locale: typeConfig.Locale) => html`
   var msg;
   var firstNameVal = document.getElementById('form-firstName').value.trim();

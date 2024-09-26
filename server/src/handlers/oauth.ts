@@ -65,6 +65,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
       EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
       OTP_MFA_IS_REQUIRED: enableOtpMfa,
+      SMS_MFA_IS_REQUIRED: enableSmsMfa,
     } = env(c)
     await kvService.storeAuthCode(
       c.env.KV,
@@ -80,6 +81,14 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
 
     if (enableOtpMfa || stored.user.mfaTypes.includes(userModel.MfaType.Otp)) {
       await kvService.markOtpMfaVerified(
+        c.env.KV,
+        authCode,
+        codeExpiresIn,
+      )
+    }
+
+    if (enableSmsMfa || stored.user.mfaTypes.includes(userModel.MfaType.Sms)) {
+      await kvService.markSmsMfaVerified(
         c.env.KV,
         authCode,
         codeExpiresIn,
@@ -134,15 +143,24 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
     ENABLE_SIGN_IN_LOG: enableSignInLog,
+    SMS_MFA_IS_REQUIRED: requireSmsMfa,
   } = env(c)
 
   if (!isSocialLogin) {
-    if (enforceMfa && !requireEmailMfa && !requireOtpMfa) {
+    if (enforceMfa && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
       if (!authInfo.user.mfaTypes.length) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
     }
 
     if (requireOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
       const isVerified = await kvService.optMfaCodeVerified(
+        c.env.KV,
+        bodyDto.code,
+      )
+      if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+    }
+
+    if (requireSmsMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Sms)) {
+      const isVerified = await kvService.smsMfaCodeVerified(
         c.env.KV,
         bodyDto.code,
       )

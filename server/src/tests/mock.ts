@@ -149,6 +149,7 @@ const formatUser = (raw: userModel.Raw) => ({
   isActive: Number(raw.isActive),
   emailVerified: Number(raw.emailVerified),
   otpVerified: Number(raw.otpVerified),
+  smsPhoneNumberVerified: Number(raw.smsPhoneNumberVerified),
   loginCount: Number(raw.loginCount),
 })
 

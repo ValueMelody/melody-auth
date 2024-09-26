@@ -8,6 +8,7 @@
 [Server Setup (Cloudflare)](https://auth.valuemelody.com/auth-server.html#environment-setup-cloudflare)  
 [Server Setup (Node)](https://auth.valuemelody.com/auth-server.html#environment-setup-node)  
 [Mailer Setup](https://auth.valuemelody.com/auth-server.html#mailer-setup)  
+[SMS Setup](https://auth.valuemelody.com/auth-server.html#sms-setup)  
 [Configurations](https://auth.valuemelody.com/auth-server.html#additional-configs)
 - Deploy the entire system within minutes, either using Cloudflare’s infrastructure or self-hosted with Node.js, Redis, and PostgreSQL.
 - Minimize DevOps overhead by leveraging Cloudflare, or maintain full control with a self-hosted solution.
@@ -36,6 +37,7 @@
   - App Consent
   - App Scopes
   - User Info Retrieval
+  - openid-configuration
 - <b>Authorization</b>:
   - Sign-In
   - Sign-Up
@@ -48,15 +50,18 @@
   - Google Sign-In
   - Facebook Sign-In
   - GitHub Sign-In
+- <b>Multi-Factor Authentication</b>:
+  - Email MFA
+  - OTP MFA
+  - SMS MFA
+  - MFA Enrollment
 - <b>Mailer Option</b>:
   - SendGrid
   - Mailgun
   - Brevo
   - STMP (Node.js environment only)
-- <b>Multi-Factor Authentication</b>:
-  - Email MFA
-  - OTP MFA
-  - MFA Enrollment
+- <b>SMS Option</b>:
+  - Twilio
 - <b>JWT Authentication</b>:
   - RSA256 based JWT Authentication [How to verify a SPA access token](https://auth.valuemelody.com/q_a.html#how-to-verify-a-spa-access-token)
   - JWT Secret Rotate [How to rotate JWT secret](https://auth.valuemelody.com/q_a.html#how-to-rotate-jwt-secret)

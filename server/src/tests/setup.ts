@@ -22,6 +22,7 @@ global.process.env = {
   SENDGRID_SENDER_ADDRESS: 'app@valuemelody.com',
   ENVIRONMENT: 'prod',
   DEV_EMAIL_RECEIVER: 'dev@email.com',
+  DEV_SMS_RECEIVER: '+14161231234',
 }
 
 const mockMiddleware = async (

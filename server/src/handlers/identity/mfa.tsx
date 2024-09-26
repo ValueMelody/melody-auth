@@ -5,7 +5,7 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
-  emailService, kvService, userService,
+  emailService, kvService, smsService, userService,
 } from 'services'
 import {
   identityUtil,
@@ -14,9 +14,25 @@ import {
 import {
   AuthorizeEmailMfaView, AuthorizeOtpMfaView,
   AuthorizeMfaEnrollView,
+  AuthorizeSmsMfaView,
 } from 'views'
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
+
+const allowOtpSwitchToEmailMfa = (
+  c: Context<typeConfig.Context>,
+  authCodeStore: AuthCodeBody,
+) => {
+  const {
+    OTP_MFA_IS_REQUIRED: enableOtpMfa,
+    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+    ALLOW_EMAIL_MFA_AS_BACKUP: allowFallback,
+  } = env(c)
+  const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
+  const enrolledOtp = enableOtpMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Otp)
+
+  return allowFallback && notEnrolledEmail && enrolledOtp
+}
 
 const handleSendEmailMfa = async (
   c: Context<typeConfig.Context>,
@@ -35,7 +51,7 @@ const handleSendEmailMfa = async (
   if (!authCodeBody) return false
 
   const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
-  const couldFallback = allowSwitchToEmailMfa(
+  const couldFallback = allowOtpSwitchToEmailMfa(
     c,
     authCodeBody,
   )
@@ -59,19 +75,37 @@ const handleSendEmailMfa = async (
   return true
 }
 
-const allowSwitchToEmailMfa = (
+const handleSendSmsMfa = async (
   c: Context<typeConfig.Context>,
-  authCodeStore: AuthCodeBody,
+  phoneNumber: string,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+  locale: typeConfig.Locale,
 ) => {
   const {
-    OTP_MFA_IS_REQUIRED: enableOtpMfa,
-    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
-    ALLOW_EMAIL_MFA_AS_BACKUP: allowFallback,
+    SMS_MFA_IS_REQUIRED: enableSmsMfa,
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
   } = env(c)
-  const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
-  const enrolledOtp = enableOtpMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Otp)
 
-  return allowFallback && notEnrolledEmail && enrolledOtp
+  const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
+
+  if (!requireSmsMfa) throw new errorConfig.Forbidden()
+
+  const mfaCode = await smsService.sendSmsMfa(
+    c,
+    phoneNumber,
+    locale,
+  )
+  if (mfaCode) {
+    await kvService.storeSmsMfaCode(
+      c.env.KV,
+      authCode,
+      mfaCode,
+      codeExpiresIn,
+    )
+  }
+
+  return true
 }
 
 export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
@@ -180,7 +214,7 @@ export const getAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
   )
   if (!authCodeBody) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
 
-  const allowSwitch = allowSwitchToEmailMfa(
+  const allowSwitch = allowOtpSwitchToEmailMfa(
     c,
     authCodeBody,
   )
@@ -250,6 +284,127 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
   ))
 }
 
+export const getAuthorizeSmsMfa = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  await validateUtil.dto(queryDto)
+
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+    SMS_MFA_IS_REQUIRED: enableSmsMfa,
+  } = env(c)
+
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authCodeBody) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+
+  const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
+  if (!requireSmsMfa) throw new errorConfig.Forbidden()
+
+  if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) {
+    await handleSendSmsMfa(
+      c,
+      authCodeBody.user.smsPhoneNumber,
+      queryDto.code,
+      authCodeBody,
+      queryDto.locale || locales[0],
+    )
+  }
+
+  const phoneNumber = authCodeBody.user.smsPhoneNumber
+  const maskedNumber = phoneNumber && authCodeBody.user.smsPhoneNumberVerified
+    ? '*'.repeat(phoneNumber.length - 4) + phoneNumber.slice(-4)
+    : null
+
+  return c.html(<AuthorizeSmsMfaView
+    phoneNumber={maskedNumber}
+    logoUrl={logoUrl}
+    queryDto={queryDto}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+  />)
+}
+
+export const postAuthorizeSmsMfa = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeMfaReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+
+  const isValid = await kvService.stampSmsMfaCode(
+    c.env.KV,
+    bodyDto.code,
+    bodyDto.mfaCode,
+    expiresIn,
+  )
+
+  if (!isValid) {
+    throw new errorConfig.UnAuthorized(localeConfig.Error.WrongMfaCode)
+  }
+
+  if (!authCodeStore.user.smsPhoneNumberVerified) {
+    await userModel.update(
+      c.env.DB,
+      authCodeStore.user.id,
+      { smsPhoneNumberVerified: 1 },
+    )
+  }
+
+  return c.json(await identityUtil.processPostAuthorize(
+    c,
+    identityUtil.AuthorizeStep.SmsMfa,
+    bodyDto.code,
+    authCodeStore,
+  ))
+}
+
+export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const { SUPPORTED_LOCALES: locales } = env(c)
+
+  const bodyDto = new identityDto.PostSetupSmsMfaReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authCodeBody) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) throw new errorConfig.Forbidden()
+
+  const smsRes = await handleSendSmsMfa(
+    c,
+    bodyDto.phoneNumber,
+    bodyDto.code,
+    authCodeBody,
+    bodyDto.locale || locales[0],
+  )
+  if (!smsRes) throw new errorConfig.Forbidden()
+
+  await userModel.update(
+    c.env.DB,
+    authCodeBody.user.id,
+    {
+      smsPhoneNumber: bodyDto.phoneNumber,
+      smsPhoneNumberVerified: 0,
+    },
+  )
+
+  return c.json({ success: true })
+}
+
 export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
   const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
   await validateUtil.dto(queryDto)
@@ -288,7 +443,7 @@ export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
   )
   if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
 
-  const isFallback = allowSwitchToEmailMfa(
+  const isFallback = allowOtpSwitchToEmailMfa(
     c,
     authCodeStore,
   )
@@ -305,7 +460,7 @@ export const postAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
 
   return c.json(await identityUtil.processPostAuthorize(
     c,
-    identityUtil.AuthorizeStep.OtpEmail,
+    identityUtil.AuthorizeStep.EmailMfa,
     bodyDto.code,
     authCodeStore,
   ))

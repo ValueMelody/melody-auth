@@ -16,12 +16,17 @@ export type Bindings = {
   SMTP: { init: () => Transporter<SentMessageInfo> };
   ENVIRONMENT: string;
   DEV_EMAIL_RECEIVER: string;
+  DEV_SMS_RECEIVER: string;
   SENDGRID_API_KEY: string;
   SENDGRID_SENDER_ADDRESS: string;
   BREVO_API_KEY: string;
   BREVO_SENDER_ADDRESS: string;
   MAILGUN_API_KEY: string;
   MAILGUN_SENDER_ADDRESS: string;
+  SMS_MFA_IS_REQUIRED: boolean;
+  TWILIO_ACCOUNT_ID: string;
+  TWILIO_AUTH_TOKEN: string;
+  TWILIO_SENDER_NUMBER: string;
   AUTHORIZATION_CODE_EXPIRES_IN: number;
   SPA_ACCESS_TOKEN_EXPIRES_IN: number;
   S2S_ACCESS_TOKEN_EXPIRES_IN: number;

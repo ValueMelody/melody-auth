@@ -25,6 +25,7 @@ export enum Error {
   WrongRefreshToken = 'Invalid refresh_token',
   UniqueKey = 'Unique key constraint failed',
   NoEmailSender = 'No email sender',
+  NoSmsSender = 'No sms sender',
 }
 export const common = Object.freeze({
   documentTitle: {
@@ -49,6 +50,14 @@ export const validateError = Object.freeze({
   passwordIsRequired: {
     en: 'Password is required!',
     fr: 'Le mot de passe est requis !',
+  },
+  phoneNumberIsRequired: {
+    en: 'Phone number is required!',
+    fr: 'Le numéro de téléphone est requis !',
+  },
+  wrongPhoneFormat: {
+    en: 'the format must be a number up to fifteen digits in length starting with a ‘+’ with country code.',
+    fr: 'Le format doit être un numéro de maximum quinze chiffres commençant par un ‘+’ avec l’indicatif du pays.',
   },
   emailIsRequired: {
     en: 'Email is required!',
@@ -258,6 +267,29 @@ export const authorizeMfaEnroll = Object.freeze({
   },
 })
 
+export const authorizeSmsMfa = Object.freeze({
+  title: {
+    en: 'SMS Verification',
+    fr: 'Vérification par SMS',
+  },
+  phoneNumber: {
+    en: 'Phone Number',
+    fr: 'Numéro de téléphone',
+  },
+  code: {
+    en: 'Verification Code',
+    fr: 'Code de vérification',
+  },
+  sendCode: {
+    en: 'Send code',
+    fr: 'Envoyer le code',
+  },
+  verify: {
+    en: 'Verify',
+    fr: 'Vérifier',
+  },
+})
+
 export const authorizeEmailMfa = Object.freeze({
   title: {
     en: 'A verification code has been sent to your email.',
@@ -401,6 +433,13 @@ export const emailMfaEmail = Object.freeze({
   desc: {
     en: 'Here is your MFA code, this code will be expired after 5 minutes',
     fr: 'Voici votre code MFA. Ce code expirera après 5 minutes.',
+  },
+})
+
+export const smsMfaMsg = Object.freeze({
+  body: {
+    en: 'Your verification code is',
+    fr: 'Votre code de vérification est',
   },
 })
 

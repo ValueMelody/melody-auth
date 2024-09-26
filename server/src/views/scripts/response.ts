@@ -31,6 +31,10 @@ export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
     queryString += "&redirect_uri=" + data.redirectUri;
     var url = "${routeConfig.IdentityRoute.AuthorizeOtpMfa}" + queryString
     window.location.href = url;
+  } else if (data.requireSmsMfa) {
+    queryString += "&redirect_uri=" + data.redirectUri;
+    var url = "${routeConfig.IdentityRoute.AuthorizeSmsMfa}" + queryString
+    window.location.href = url;
   } else if (data.requireEmailMfa) {
     queryString += "&redirect_uri=" + data.redirectUri;
     var url = "${routeConfig.IdentityRoute.AuthorizeEmailMfa}" + queryString

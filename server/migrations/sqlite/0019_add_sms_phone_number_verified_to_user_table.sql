@@ -1,0 +1,1 @@
+ALTER TABLE user ADD smsPhoneNumberVerified number DEFAULT 0;

@@ -20,6 +20,16 @@ export const resetCodeError = () => html`
   }
 `
 
+export const resetPhoneNumberError = () => html`
+  var phoneEl = document.getElementById('form-phoneNumber')
+  if (phoneEl) {
+    phoneEl.addEventListener('input', function () {
+      ${resetSubmitError()}
+      document.getElementById('error-phoneNumber').classList.add('hidden');
+    });
+  }
+`
+
 export const resetOtpError = () => html`
   var otpEl = document.getElementById('form-otp')
   if (otpEl) {
