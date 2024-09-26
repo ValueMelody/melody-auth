@@ -270,23 +270,23 @@ export const authorizeMfaEnroll = Object.freeze({
 export const authorizeSmsMfa = Object.freeze({
   title: {
     en: 'SMS Verification',
-    fr: 'SMS Verification',
+    fr: 'Vérification par SMS',
   },
   phoneNumber: {
     en: 'Phone Number',
-    fr: 'Phone Number',
+    fr: 'Numéro de téléphone',
   },
   code: {
     en: 'Verification Code',
-    fr: 'Verification Code',
+    fr: 'Code de vérification',
   },
   sendCode: {
     en: 'Send code',
-    fr: 'Send code',
+    fr: 'Envoyer le code',
   },
   verify: {
     en: 'Verify',
-    fr: 'Verify',
+    fr: 'Vérifier',
   },
 })
 

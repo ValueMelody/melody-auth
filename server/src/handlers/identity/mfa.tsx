@@ -373,7 +373,7 @@ export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
 
   const { SUPPORTED_LOCALES: locales } = env(c)
 
-  const bodyDto = new identityDto.PostResendMfaReqDto(reqBody)
+  const bodyDto = new identityDto.PostSetupSmsMfaReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(
