@@ -8,6 +8,7 @@ export enum TableName {
   AppScope = 'app_scope',
   ScopeLocale = 'scope_locale',
   EmailLog = 'email_log',
+  SmsLog = 'sms_log',
   SignInLog = 'sign_in_log',
 }
 

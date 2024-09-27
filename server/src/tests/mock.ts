@@ -259,6 +259,12 @@ export const emailLogRecord = {
   deletedAt: null,
 }
 
+export const getSmsResponseMock = () => vi.fn(async () => {
+  return Promise.resolve({
+    ok: true, text: () => 'test response', status: 200,
+  })
+}) as Mock
+
 export const fetchMock = vi.fn(async (url) => {
   if (url === 'https://www.googleapis.com/oauth2/v3/certs') {
     const key = fs.readFileSync(

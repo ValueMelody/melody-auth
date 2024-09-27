@@ -6,6 +6,7 @@ import {
   localeConfig, typeConfig,
 } from 'configs'
 import { cryptoUtil } from 'utils'
+import { smsLogModel } from 'models'
 
 const checkSmsSetup = (c: Context<typeConfig.Context>) => {
   const {
@@ -31,11 +32,13 @@ export const sendSms = async (
     TWILIO_SENDER_NUMBER: twilioSenderNumber,
     ENVIRONMENT: environment,
     DEV_SMS_RECEIVER: devSmsReceiver,
+    ENABLE_SMS_LOG: enableSmsLog,
   } = env(c)
 
   const receiver = environment === 'prod' ? receiverPhoneNumber : devSmsReceiver
 
   let success = false
+  let response = null
 
   if (twilioAccountId && twilioAuthToken && twilioSenderNumber) {
     const url = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountId}/Messages.json`
@@ -67,6 +70,19 @@ export const sendSms = async (
       },
     )
     success = res.ok
+    response = await res.text()
+  }
+
+  if (enableSmsLog) {
+    await smsLogModel.create(
+      c.env.DB,
+      {
+        success: success ? 1 : 0,
+        receiver,
+        response: response ?? '',
+        content: smsBody,
+      },
+    )
   }
 
   return success

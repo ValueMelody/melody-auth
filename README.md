@@ -73,6 +73,7 @@
   - Email MFA attempts
 - <b>Logging</b>:
   - Email Logs
+  - SMS Logs
   - Sign-in Logs
 - <b>S2S REST API & Admin Panel</b>:
   - Manage Users

@@ -256,6 +256,12 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>ENABLE_SMS_LOG</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.ENABLE_SMS_LOG} />
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>ENABLE_SIGN_IN_LOG</Table.Cell>
             <Table.Cell>
               <ConfigBooleanValue config={configs.ENABLE_SIGN_IN_LOG} />

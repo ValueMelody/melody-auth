@@ -8,6 +8,7 @@ import { authenticator } from 'otplib'
 import app from 'index'
 import {
   fetchMock,
+  getSmsResponseMock,
   migrate, mock,
   mockedKV,
 } from 'tests/mock'
@@ -730,9 +731,7 @@ describe(
       async () => {
         process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        }) as Mock
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch
 
         await insertUsers(
@@ -774,9 +773,7 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = 'abc'
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        }) as Mock
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch
 
         await insertUsers(
@@ -836,9 +833,7 @@ describe(
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
         process.env.ALLOW_EMAIL_MFA_AS_BACKUP = false as unknown as string
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        }) as Mock
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch
 
         await insertUsers(
@@ -888,7 +883,9 @@ describe(
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
 
         const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: false })
+          return Promise.resolve({
+            ok: false, text: () => {},
+          })
         }) as Mock
         global.fetch = mockFetch
 
@@ -1067,9 +1064,7 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = 'abc'
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        }) as Mock
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch
 
         await insertUsers(
@@ -1122,9 +1117,7 @@ describe(
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
         process.env.ENVIRONMENT = 'dev'
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        }) as Mock
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch
 
         await insertUsers(
@@ -1219,9 +1212,7 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = 'abc'
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        }) as Mock
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch
 
         await insertUsers(
@@ -1256,10 +1247,71 @@ describe(
         expect(body.get('From')).toBe('+1231231234')
         expect(body.get('Body')).toBe(`${localeConfig.smsMfaMsg.body.en}: ${mfaCode}`)
 
+        const logs = await db.prepare('select * from sms_log').all()
+        expect(logs.length).toBe(0)
+
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''
         process.env.TWILIO_AUTH_TOKEN = ''
         process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'could log sms',
+      async () => {
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+        process.env.ENABLE_SMS_LOG = true as unknown as string
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+
+        const reqBody = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ResendSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify(reqBody),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: any }).body
+
+        const logs = await db.prepare('select * from sms_log').all()
+        expect(logs.length).toBe(1)
+        expect(logs[0]).toStrictEqual({
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          deletedAt: null,
+          receiver: '+16471231234',
+          response: 'test response',
+          success: 1,
+          id: 1,
+          content: body.get('Body'),
+        })
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        process.env.ENABLE_SMS_LOG = false as unknown as string
         global.fetch = fetchMock
       },
     )
@@ -1273,9 +1325,7 @@ describe(
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
         process.env.SMS_MFA_MESSAGE_THRESHOLD = 2 as unknown as string
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        }) as Mock
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch
 
         await insertUsers(
@@ -1416,9 +1466,7 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = 'abc'
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        })
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch as Mock
 
         await insertUsers(
@@ -1491,9 +1539,7 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = 'abc'
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        })
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch as Mock
 
         await insertUsers(
@@ -1547,9 +1593,7 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = 'abc'
         process.env.TWILIO_SENDER_NUMBER = '+1231231234'
 
-        const mockFetch = vi.fn(async () => {
-          return Promise.resolve({ ok: true })
-        })
+        const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch as Mock
 
         await insertUsers(

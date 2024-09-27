@@ -362,6 +362,10 @@ npm run prod:deploy
 - **Default:** false
 - **Description:** Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
 
+### ENABLE_SMS_LOG
+- **Default:** false
+- **Description:** Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler.
+
 ### ENABLE_SIGN_IN_LOG
 - **Default:** false
 - **Description:** Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.
