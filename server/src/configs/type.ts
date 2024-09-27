@@ -60,6 +60,7 @@ export type Bindings = {
   TERMS_LINK: string;
   PRIVACY_POLICY_LINK: string;
   ENABLE_EMAIL_LOG: boolean;
+  ENABLE_SMS_LOG: boolean;
   ENABLE_SIGN_IN_LOG: boolean;
   FACEBOOK_AUTH_CLIENT_ID: string;
   FACEBOOK_AUTH_CLIENT_SECRET: string;
