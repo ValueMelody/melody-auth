@@ -42,7 +42,7 @@ const handleSendEmailMfa = async (
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    EMAIL_MFA_EMAIL_THRESHOLD: threshold
+    EMAIL_MFA_EMAIL_THRESHOLD: threshold,
   } = env(c)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -125,7 +125,7 @@ const handleSendSmsMfa = async (
   const {
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    SMS_MFA_MESSAGE_THRESHOLD: threshold
+    SMS_MFA_MESSAGE_THRESHOLD: threshold,
   } = env(c)
 
   const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
