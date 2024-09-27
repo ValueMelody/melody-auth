@@ -208,7 +208,7 @@ const Page = () => {
           <Table.Row>
             <Table.Cell>SMS_MFA_MESSAGE_THRESHOLD</Table.Cell>
             <Table.Cell>
-              <ConfigBooleanValue config={configs.SMS_MFA_MESSAGE_THRESHOLD} />
+              {configs.SMS_MFA_MESSAGE_THRESHOLD}
             </Table.Cell>
           </Table.Row>
           <Table.Row>
@@ -220,7 +220,7 @@ const Page = () => {
           <Table.Row>
             <Table.Cell>EMAIL_MFA_EMAIL_THRESHOLD</Table.Cell>
             <Table.Cell>
-              <ConfigBooleanValue config={configs.EMAIL_MFA_EMAIL_THRESHOLD} />
+              {configs.EMAIL_MFA_EMAIL_THRESHOLD}
             </Table.Cell>
           </Table.Row>
           <Table.Row>
