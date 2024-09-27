@@ -426,6 +426,70 @@ export const setFailedOtpMfaAttempts = async (
   )
 }
 
+export const getSmsMfaMessageAttemptsByIP = async (
+  kv: KVNamespace,
+  userId: number,
+  ip?: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.SmsMfaMessageAttempts,
+    String(userId),
+    ip,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setSmsMfaMessageAttempts = async (
+  kv: KVNamespace,
+  userId: number,
+  ip: string | undefined,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.SmsMfaMessageAttempts,
+    String(userId),
+    ip,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: 1800 },
+  )
+}
+
+export const getEmailMfaEmailAttemptsByIP = async (
+  kv: KVNamespace,
+  userId: number,
+  ip?: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.SmsMfaMessageAttempts,
+    String(userId),
+    ip,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setEmailMfaEmailAttempts = async (
+  kv: KVNamespace,
+  userId: number,
+  ip: string | undefined,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.SmsMfaMessageAttempts,
+    String(userId),
+    ip,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: 1800 },
+  )
+}
+
 export const getFailedLoginAttemptsByIP = async (
   kv: KVNamespace,
   email: string,

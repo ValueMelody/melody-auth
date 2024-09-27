@@ -69,6 +69,8 @@
   - Log in attempts
   - Password reset attempts
   - OTP MFA attempts
+  - SMS MFA attempts
+  - Email MFA attempts
 - <b>Logging</b>:
   - Email Logs
   - Sign-in Logs

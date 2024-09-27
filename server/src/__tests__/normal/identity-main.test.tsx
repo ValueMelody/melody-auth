@@ -415,6 +415,15 @@ describe(
           { password: 'Password2!' },
         )
         expect(res2.status).toBe(400)
+
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 0 as unknown as string
+        const res3 = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password2!' },
+        )
+        expect(res3.status).toBe(404)
+
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 1 as unknown as string
       },
     )

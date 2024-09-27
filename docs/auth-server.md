@@ -278,7 +278,7 @@ npm run prod:deploy
 
 ### PASSWORD_RESET_EMAIL_THRESHOLD
 - **Default:** 5
-- **Description:** Limits the number of password reset email requests allowed per email and IP address per day to protect against abuse.
+- **Description:** Limits the number of password reset email requests allowed per email and IP address per day to protect against abuse. 0 means no restriction
 
 ### ENABLE_NAMES
 - **Default:** true
@@ -306,10 +306,18 @@ npm run prod:deploy
 - **Description:** Controls sms-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via sms to confirm their login.
 [SMS functionality setup required](#sms-functionality-setup)
 
+### SMS_MFA_MESSAGE_THRESHOLD
+- **Default:** 5
+- **Description:** Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
+
 ### EMAIL_MFA_IS_REQUIRED
 - **Default:** false
 - **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login.
 [Email functionality setup required](#email-functionality-setup)
+
+### EMAIL_MFA_EMAIL_THRESHOLD
+- **Default:** 5
+- **Description:** Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 
 ### ENFORCE_ONE_MFA_ENROLLMENT
 - **Default:** ['otp', 'email']
@@ -323,7 +331,7 @@ npm run prod:deploy
 
 ### ACCOUNT_LOCKOUT_THRESHOLD
 - **Default:** 5
-- **Description:** Number of failed login attempts before the user account is locked. Set to 0 to disable the account lockout feature.
+- **Description:** Number of failed login attempts before the user account is locked. 0 means no restriction.
 
 ### ACCOUNT_LOCKOUT_EXPIRES_IN
 - **Default:** 86400 (1 day)

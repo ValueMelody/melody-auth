@@ -42,6 +42,7 @@ const handleSendEmailMfa = async (
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    EMAIL_MFA_EMAIL_THRESHOLD: threshold,
   } = env(c)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -61,6 +62,24 @@ const handleSendEmailMfa = async (
   )
 
   if (!requireEmailMfa && !couldFallbackAsOtp && !couldFallbackAsSms) throw new errorConfig.Forbidden()
+
+  const ip = requestUtil.getRequestIP(c)
+  const attempts = await kvService.getEmailMfaEmailAttemptsByIP(
+    c.env.KV,
+    authCodeBody.user.id,
+    ip,
+  )
+
+  if (threshold) {
+    if (attempts >= threshold) throw new errorConfig.Forbidden(localeConfig.Error.EmailMfaLocked)
+
+    await kvService.setEmailMfaEmailAttempts(
+      c.env.KV,
+      authCodeBody.user.id,
+      ip,
+      attempts + 1,
+    )
+  }
 
   const mfaCode = await emailService.sendEmailMfa(
     c,
@@ -106,11 +125,30 @@ const handleSendSmsMfa = async (
   const {
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    SMS_MFA_MESSAGE_THRESHOLD: threshold,
   } = env(c)
 
   const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
 
   if (!requireSmsMfa) throw new errorConfig.Forbidden()
+
+  const ip = requestUtil.getRequestIP(c)
+  const attempts = await kvService.getSmsMfaMessageAttemptsByIP(
+    c.env.KV,
+    authCodeBody.user.id,
+    ip,
+  )
+
+  if (threshold) {
+    if (attempts >= threshold) throw new errorConfig.Forbidden(localeConfig.Error.SmsMfaLocked)
+
+    await kvService.setSmsMfaMessageAttempts(
+      c.env.KV,
+      authCodeBody.user.id,
+      ip,
+      attempts + 1,
+    )
+  }
 
   const mfaCode = await smsService.sendSmsMfa(
     c,
