@@ -698,6 +698,10 @@ describe(
         const res2 = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
         expect(res2.status).toBe(400)
 
+        global.process.env.PASSWORD_RESET_EMAIL_THRESHOLD = 0 as unknown as string
+        const res3 = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
+        expect(res3.status).toBe(200)
+
         global.process.env.PASSWORD_RESET_EMAIL_THRESHOLD = 5 as unknown as string
       },
     )

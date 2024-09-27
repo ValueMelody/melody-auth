@@ -1265,6 +1265,84 @@ describe(
     )
 
     test(
+      'could trigger threshold protection',
+      async () => {
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+        process.env.SMS_MFA_MESSAGE_THRESHOLD = 2 as unknown as string
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        }) as Mock
+        global.fetch = mockFetch
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+
+        const reqBody = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ResendSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify(reqBody),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const res2 = await app.request(
+          `${routeConfig.IdentityRoute.ResendSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify(reqBody),
+          },
+          mock(db),
+        )
+        expect(res2.status).toBe(200)
+
+        const res3 = await app.request(
+          `${routeConfig.IdentityRoute.ResendSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify(reqBody),
+          },
+          mock(db),
+        )
+        expect(res3.status).toBe(400)
+        expect(await res3.text()).toBe(localeConfig.Error.SmsMfaLocked)
+
+        process.env.SMS_MFA_MESSAGE_THRESHOLD = 0 as unknown as string
+
+        const res4 = await app.request(
+          `${routeConfig.IdentityRoute.ResendSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify(reqBody),
+          },
+          mock(db),
+        )
+        expect(res4.status).toBe(200)
+
+        process.env.SMS_MFA_MESSAGE_THRESHOLD = 5 as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
       'should throw error if user has not setup sms',
       async () => {
         await insertUsers(
@@ -1640,6 +1718,49 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`) ?? '').length).toBe(8)
+      },
+    )
+
+    test(
+      'could protect against threshold',
+      async () => {
+        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 2 as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+        const body = await prepareFollowUpBody(db)
+
+        const sendRequest = async () => await app.request(
+          routeConfig.IdentityRoute.ResendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: body.code,
+              locale: 'en',
+            }),
+          },
+          mock(db),
+        )
+
+        const res = await sendRequest()
+        expect(res.status).toBe(200)
+        
+        const res1 = await sendRequest()
+        expect(res1.status).toBe(200)
+
+        const res2 = await sendRequest()
+        expect(res2.status).toBe(400)
+        expect(await res2.text()).toBe(localeConfig.Error.EmailMfaLocked)
+
+        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 0 as unknown as string
+
+        const res3 = await sendRequest()
+        expect(res3.status).toBe(200)
+
+        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 5 as unknown as string
       },
     )
 

@@ -24,6 +24,7 @@ export type Bindings = {
   MAILGUN_API_KEY: string;
   MAILGUN_SENDER_ADDRESS: string;
   SMS_MFA_IS_REQUIRED: boolean;
+  SMS_MFA_MESSAGE_THRESHOLD: number;
   TWILIO_ACCOUNT_ID: string;
   TWILIO_AUTH_TOKEN: string;
   TWILIO_SENDER_NUMBER: string;
@@ -46,6 +47,7 @@ export type Bindings = {
   ENABLE_USER_APP_CONSENT: boolean;
   ENABLE_EMAIL_VERIFICATION: boolean;
   EMAIL_MFA_IS_REQUIRED: boolean;
+  EMAIL_MFA_EMAIL_THRESHOLD: number;
   OTP_MFA_IS_REQUIRED: boolean;
   GOOGLE_AUTH_CLIENT_ID: string;
   ENFORCE_ONE_MFA_ENROLLMENT: userModel.MfaType[];

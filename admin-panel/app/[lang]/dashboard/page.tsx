@@ -206,15 +206,21 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
-            <Table.Cell>SMS_MFA_IS_REQUIRED</Table.Cell>
+            <Table.Cell>SMS_MFA_MESSAGE_THRESHOLD</Table.Cell>
             <Table.Cell>
-              <ConfigBooleanValue config={configs.SMS_MFA_IS_REQUIRED} />
+              <ConfigBooleanValue config={configs.SMS_MFA_MESSAGE_THRESHOLD} />
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>EMAIL_MFA_IS_REQUIRED</Table.Cell>
             <Table.Cell>
               <ConfigBooleanValue config={configs.EMAIL_MFA_IS_REQUIRED} />
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell>EMAIL_MFA_EMAIL_THRESHOLD</Table.Cell>
+            <Table.Cell>
+              <ConfigBooleanValue config={configs.EMAIL_MFA_EMAIL_THRESHOLD} />
             </Table.Cell>
           </Table.Row>
           <Table.Row>
