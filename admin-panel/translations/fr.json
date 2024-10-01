@@ -7,6 +7,7 @@
     "roles": "Gérer les rôles",
     "apps": "Gérer les applications",
     "scopes": "Gérer les portées",
+    "logs": "Afficher les journaux",
     "dashboard": "Tableau de bord"
   },
   "common": {
@@ -105,5 +106,18 @@
     "new": "Créer une portée",
     "locales": "Langues",
     "localeNote": "Ceci sera affiché sur la page de consentement de l'application utilisateur."
+  },
+  "logs": {
+    "receiver": "Destinataire",
+    "success": "Succès",
+    "time": "Heure",
+    "emailLogs": "Journaux des emails",
+    "smsLogs": "Journaux des SMS",
+    "signInLogs": "Journaux de connexion",
+    "userId": "ID utilisateur",
+    "response": "Réponse",
+    "content": "Contenu",
+    "ip": "Adresse IP",
+    "detail": "Détail"
   }
 }

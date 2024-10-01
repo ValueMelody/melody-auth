@@ -7,6 +7,7 @@
     "roles": "Manage Roles",
     "apps": "Manage Apps",
     "scopes": "Manage Scopes",
+    "logs": "View Logs",
     "dashboard": "Dashboard"
   },
   "common": {
@@ -105,5 +106,18 @@
     "new": "Create a scope",
     "locales": "Locales",
     "localeNote": "This will be displayed on the user app consent page."
+  },
+  "logs": {
+    "receiver": "Receiver",
+    "success": "Success",
+    "time": "Time",
+    "emailLogs": "Email Logs",
+    "smsLogs": "SMS Logs",
+    "signInLogs": "Sign-in Logs",
+    "userId": "User ID",
+    "response": "Response",
+    "content": "Content",
+    "ip": "IP Address",
+    "detail": "detail"
   }
 }
