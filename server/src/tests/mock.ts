@@ -175,6 +175,24 @@ export const migrate = async () => {
         name: file,
       })
     }
+    const getRows = (
+      result: any, query: string,
+    ) => {
+      let rows = result.rows
+      if (query.includes(' "user" ')) {
+        rows = result.rows.map((row: userModel.Raw) => formatUser(row))
+      }
+      return rows
+    }
+    const getRow = (
+      record: any, query: string,
+    ) => {
+      let row = record
+      if (query.includes(' "user" ')) {
+        row = formatUser(record)
+      }
+      return row
+    }
     return {
       raw: async (
         query: string, params?: string[],
@@ -185,7 +203,10 @@ export const migrate = async () => {
         )
         const formatted = {
           ...result,
-          rows: query.includes(' "user" ') ? result.rows.map((row: userModel.Raw) => formatUser(row)) : result.rows,
+          rows: getRows(
+            result,
+            query,
+          ),
         }
         return formatted
       },
@@ -202,15 +223,21 @@ export const migrate = async () => {
             params,
           )
           const record = res?.rows[0]
-          return query.includes(' "user" ') ? formatUser(record) : record
+          return getRow(
+            record,
+            query,
+          )
         },
         all: async (...params: string[]) => {
           const res = await db.raw(
             query,
             params,
           )
-          const records = res?.rows
-          return query.includes(' "user" ') ? records.map((record: userModel.Raw) => formatUser(record)) : records
+          const records = getRows(
+            res,
+            query,
+          )
+          return records
         },
       }),
       exec: async (query: string) => db.raw(query),

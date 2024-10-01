@@ -13,6 +13,9 @@ const {
   User, UserDetail, PutUserReq,
   UserConsentedApp,
 } = require('./schemas/user.cjs')
+const {
+  EmailLog, SmsLog, SignInLog,
+} = require('./schemas/log.cjs')
 
 const options = {
   definition: {
@@ -29,6 +32,7 @@ const options = {
             clientCredentials: {
               tokenUrl: '/oauth2/v1/token',
               scopes: {
+                root: 'Full access',
                 read_app: 'Read access to app',
                 write_app: 'Write access to app',
                 read_user: 'Read access to user',
@@ -58,6 +62,9 @@ const options = {
         UserDetail,
         UserConsentedApp,
         PutUserReq,
+        EmailLog,
+        SmsLog,
+        SignInLog,
       },
     },
   },
@@ -66,6 +73,7 @@ const options = {
     './src/routes/role.tsx',
     './src/routes/app.tsx',
     './src/routes/user.tsx',
+    './src/routes/log.tsx',
   ],
 }
 

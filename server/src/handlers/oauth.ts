@@ -274,7 +274,9 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     await signInLogModel.create(
       c.env.DB,
       {
-        ip: ip ?? null, detail,
+        userId: authInfo.user.id,
+        ip: ip ?? null,
+        detail,
       },
     )
   }

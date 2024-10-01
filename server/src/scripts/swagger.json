@@ -12,6 +12,7 @@
           "clientCredentials": {
             "tokenUrl": "/oauth2/v1/token",
             "scopes": {
+              "root": "Full access",
               "read_app": "Read access to app",
               "write_app": "Write access to app",
               "read_user": "Read access to user",
@@ -452,6 +453,89 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "EmailLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "receiver": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SmsLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "receiver": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SignInLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "ip": {
+            "type": "string",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true
           }
         }
       }
@@ -1434,6 +1518,270 @@
         "responses": {
           "204": {
             "description": "Successful operation with no content to return"
+          }
+        }
+      }
+    },
+    "/api/v1/logs/email": {
+      "get": {
+        "summary": "Get a list of email logs",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of logs to return per page"
+          },
+          {
+            "in": "query",
+            "name": "page_number",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of email logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "logs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EmailLog"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "description": "Total number of logs matching the query"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/logs/email/{id}": {
+      "get": {
+        "summary": "Get an email log by id",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the email log"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single email log object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "log": {
+                      "$ref": "#/components/schemas/EmailLog"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/logs/sms": {
+      "get": {
+        "summary": "Get a list of SMS logs",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of logs to return per page"
+          },
+          {
+            "in": "query",
+            "name": "page_number",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of SMS logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "logs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SmsLog"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "description": "Total number of logs matching the query"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/logs/sms/{id}": {
+      "get": {
+        "summary": "Get an SMS log by id",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the SMS log"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single SMS log object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "log": {
+                      "$ref": "#/components/schemas/SmsLog"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/logs/sign-in": {
+      "get": {
+        "summary": "Get a list of Sign-in logs",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of logs to return per page"
+          },
+          {
+            "in": "query",
+            "name": "page_number",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of Sign-in logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "logs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SignInLog"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "description": "Total number of logs matching the query"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/logs/sign-in/{id}": {
+      "get": {
+        "summary": "Get an sign-in log by id",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the sign-in log"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single sign-in log object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "log": {
+                      "$ref": "#/components/schemas/SignInLog"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

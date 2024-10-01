@@ -84,6 +84,18 @@ const s2sScopeGuard = async (
   return true
 }
 
+export const s2sRoot = bearerAuth({
+  verifyToken: async (
+    token, c: Context<typeConfig.Context>,
+  ) => {
+    return s2sScopeGuard(
+      c,
+      token,
+      Scope.Root,
+    )
+  },
+})
+
 export const s2sReadUser = bearerAuth({
   verifyToken: async (
     token, c: Context<typeConfig.Context>,
