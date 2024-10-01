@@ -80,6 +80,7 @@
   - Manage Apps
   - Manage Scopes
   - Manage Roles
+  - View Logs
   - Localization
 
 ### Screenshots
