@@ -1,7 +1,11 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { JwtHeader, SigningKeyCallback, verify } from 'jsonwebtoken'
-import jwksClient, { CertSigningKey, RsaSigningKey } from 'jwks-rsa'
+import {
+  JwtHeader, SigningKeyCallback, verify,
+} from 'jsonwebtoken'
+import jwksClient, {
+  CertSigningKey, RsaSigningKey,
+} from 'jwks-rsa'
 import { typeTool } from 'tools'
 
 let accessToken: string | null = null

@@ -1,7 +1,7 @@
 import {
   Checkbox, Label,
 } from 'flowbite-react'
-import { Scope } from 'services/auth/api';
+import { Scope } from 'services/auth/api'
 
 const ScopesEditor = ({
   scopes,
