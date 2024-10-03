@@ -24,6 +24,11 @@ const User = {
       nullable: true,
     },
     locale: { type: 'string' },
+    loginCount: { type: 'number' },
+    mfaTypes: {
+      type: 'array',
+      items: { type: 'string' },
+    },
     emailVerified: { type: 'boolean' },
     otpVerified: { type: 'boolean' },
     smsPhoneNumberVerified: { type: 'boolean' },
@@ -35,6 +40,9 @@ const User = {
       nullable: true,
     },
   },
+  required: ['id', 'authId', 'email', 'socialAccountId', 'socialAccountType', 'firstName', 'lastName', 'locale',
+    'emailVerified', 'otpVerified', 'loginCount', 'mfaTypes', 'smsPhoneNumberVerified', 'isActive', 'createdAt', 'updatedAt', 'deletedAt',
+  ],
 }
 
 const UserDetail = {
@@ -49,6 +57,7 @@ const UserDetail = {
           nullable: true,
         },
       },
+      required: ['roles'],
     },
   ],
 }
@@ -59,6 +68,7 @@ const UserConsentedApp = {
     appId: { type: 'number' },
     appName: { type: 'string' },
   },
+  required: ['appId', 'appName'],
 }
 
 const PutUserReq = {

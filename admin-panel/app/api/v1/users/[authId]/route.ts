@@ -18,20 +18,6 @@ export async function GET (
   })
 }
 
-export async function POST (
-  request: Request, context: { params: Params },
-) {
-  const authId = context.params.authId
-
-  const reqBody = await request.json()
-  if (!reqBody || !reqBody.action) return throwForbiddenError()
-
-  return sendS2SRequest({
-    method: 'POST',
-    uri: `/api/v1/users/${authId}/${reqBody.action}`,
-  })
-}
-
 export async function PUT (
   request: Request, context: { params: Params },
 ) {
@@ -42,8 +28,8 @@ export async function PUT (
 
   return sendS2SRequest({
     method: 'PUT',
-    uri: reqBody.action ? `/api/v1/users/${authId}/${reqBody.action}` : `/api/v1/users/${authId}`,
-    body: JSON.stringify(reqBody.data),
+    uri: `/api/v1/users/${authId}`,
+    body: JSON.stringify(reqBody),
   })
 }
 

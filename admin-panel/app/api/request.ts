@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { verify } from 'jsonwebtoken'
-import jwksClient from 'jwks-rsa'
+import { JwtHeader, SigningKeyCallback, verify } from 'jsonwebtoken'
+import jwksClient, { CertSigningKey, RsaSigningKey } from 'jwks-rsa'
 import { typeTool } from 'tools'
 
 let accessToken: string | null = null
@@ -19,7 +19,7 @@ export const throwForbiddenError = (message?: string) => {
 const client = jwksClient({ jwksUri: `${process.env.NEXT_PUBLIC_SERVER_URI}/.well-known/jwks.json` })
 
 const getKey = (
-  header, callback,
+  header: JwtHeader, callback: SigningKeyCallback,
 ) => {
   return client.getSigningKey(
     header.kid,
@@ -29,7 +29,7 @@ const getKey = (
       if (err) {
         callback(err)
       } else {
-        const signingKey = key.publicKey || key.rsaPublicKey
+        const signingKey = (key as CertSigningKey).publicKey || (key as RsaSigningKey).rsaPublicKey
         callback(
           null,
           signingKey,
@@ -67,11 +67,11 @@ export const verifyAccessToken = async () => {
 
   if (!accessToken) return false
 
-  const tokenBody = await verifyJwtToken(accessToken)
+  const tokenBody = await verifyJwtToken(accessToken) as {}
 
   if (!tokenBody) return false
 
-  if (!tokenBody.roles || !tokenBody.roles.includes(typeTool.Role.SuperAdmin)) return false
+  if (!('roles' in tokenBody) || !tokenBody.roles || !Array.isArray(tokenBody.roles) || !tokenBody.roles.includes(typeTool.Role.SuperAdmin)) return false
 
   return true
 }

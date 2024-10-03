@@ -107,7 +107,7 @@ userRoutes.get(
  *             schema:
  *               type: object
  *               properties:
- *                 lockedIps:
+ *                 lockedIPs:
  *                   type: array
  *                   items:
  *                     type: string

@@ -1,6 +1,5 @@
 'use client'
 
-import { useAuth } from '@melody-auth/react'
 import {
   Badge, Button, Card, Checkbox, Label, Select, Table,
   TableCell,
@@ -10,13 +9,10 @@ import {
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
-  useCallback,
   useEffect, useMemo, useState,
 } from 'react'
 import UserEmailVerified from 'components/UserEmailVerified'
-import {
-  proxyTool, routeTool,
-} from 'tools'
+import { routeTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import useSignalValue from 'app/useSignalValue'
 import {
@@ -28,6 +24,25 @@ import SubmitError from 'components/SubmitError'
 import SaveButton from 'components/SaveButton'
 import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
+import {
+  PutUserReq,
+  useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation,
+  useDeleteApiV1UsersByAuthIdEmailMfaMutation,
+  useDeleteApiV1UsersByAuthIdLockedIpsMutation,
+  useDeleteApiV1UsersByAuthIdMutation,
+  useDeleteApiV1UsersByAuthIdOtpMfaMutation,
+  useDeleteApiV1UsersByAuthIdSmsMfaMutation,
+  useGetApiV1RolesQuery,
+  useGetApiV1UsersByAuthIdConsentedAppsQuery,
+  useGetApiV1UsersByAuthIdLockedIpsQuery,
+  useGetApiV1UsersByAuthIdQuery,
+  usePostApiV1UsersByAuthIdEmailMfaMutation,
+  usePostApiV1UsersByAuthIdOtpMfaMutation,
+  usePostApiV1UsersByAuthIdSmsMfaMutation,
+  usePostApiV1UsersByAuthIdVerifyEmailMutation,
+  usePutApiV1UsersByAuthIdMutation,
+  UserDetail,
+} from 'services/auth/api'
 
 const Page = () => {
   const { authId } = useParams()
@@ -36,35 +51,59 @@ const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const [user, setUser] = useState()
-  const [roles, setRoles] = useState()
-  const [firstName, setFirstName] = useState()
-  const [lastName, setLastName] = useState()
-  const [locale, setLocale] = useState()
-  const [isActive, setIsActive] = useState()
-  const [lockedIPs, setLockedIPs] = useState([])
+  const [firstName, setFirstName] = useState<string | null>(null)
+  const [lastName, setLastName] = useState<string | null>(null)
+  const [locale, setLocale] = useState('')
+  const [isActive, setIsActive] = useState(true)
   const [emailResent, setEmailResent] = useState(false)
-  const [consentedApps, setConsentedApps] = useState([])
-  const { acquireToken } = useAuth()
-  const [userRoles, setUserRoles] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [userRoles, setUserRoles] = useState<string[] | null>([])
 
   const userInfo = useSignalValue(userInfoSignal)
   const enableConsent = configs.ENABLE_USER_APP_CONSENT
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
 
+  const { data: userData } = useGetApiV1UsersByAuthIdQuery({ authId: String(authId) })
+  const user = userData?.user
+
+  const { data: rolesData } = useGetApiV1RolesQuery()
+  const roles = rolesData?.roles ?? []
+
+  const { data: consentsData } = useGetApiV1UsersByAuthIdConsentedAppsQuery(
+    { authId: String(authId) },
+    { skip: !enableConsent },
+  )
+  const consentedApps = consentsData?.consentedApps ?? []
+
+  const { data: lockedIPsData } = useGetApiV1UsersByAuthIdLockedIpsQuery(
+    { authId: String(authId) },
+    { skip: !enableAccountLock },
+  )
+  const lockedIPs = lockedIPsData?.lockedIPs ?? []
+
   const isEmailEnrolled = configs.EMAIL_MFA_IS_REQUIRED || user?.mfaTypes.includes('email')
   const isOtpEnrolled = configs.OTP_MFA_IS_REQUIRED || user?.mfaTypes.includes('otp')
   const isSmsEnrolled = configs.SMS_MFA_IS_REQUIRED || user?.mfaTypes.includes('sms')
 
+  const [updateUser, { isLoading: isUpdating }] = usePutApiV1UsersByAuthIdMutation()
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteApiV1UsersByAuthIdMutation()
+  const [deleteUserConsent] = useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation()
+  const [deleteUserLockedIps] = useDeleteApiV1UsersByAuthIdLockedIpsMutation()
+  const [resendVerificationEmail] = usePostApiV1UsersByAuthIdVerifyEmailMutation()
+  const [enrollEmailMfa] = usePostApiV1UsersByAuthIdEmailMfaMutation()
+  const [enrollOtpMfa] = usePostApiV1UsersByAuthIdOtpMfaMutation()
+  const [enrollSmsMfa] = usePostApiV1UsersByAuthIdSmsMfaMutation()
+  const [unenrollEmailMfa] = useDeleteApiV1UsersByAuthIdEmailMfaMutation()
+  const [unenrollSmsMfa] = useDeleteApiV1UsersByAuthIdSmsMfaMutation()
+  const [unenrollOtpMfa] = useDeleteApiV1UsersByAuthIdOtpMfaMutation()
+
   const updateObj = useMemo(
     () => {
-      if (!user) return {}
-      const obj = {}
-      if (userRoles !== user.roles) obj.roles = userRoles
+      if (!user) return {} as PutUserReq
+      const obj: PutUserReq = {}
+      if (userRoles !== user.roles) obj.roles = userRoles ?? []
       if (isActive !== user.isActive) obj.isActive = isActive
-      if (firstName !== user.firstName) obj.firstName = firstName
-      if (lastName !== user.lastName) obj.lastName = lastName
+      if (firstName !== user.firstName) obj.firstName = firstName ?? ''
+      if (lastName !== user.lastName) obj.lastName = lastName ?? ''
       if (locale !== user.locale) obj.locale = locale
       return obj
     },
@@ -77,193 +116,78 @@ const Page = () => {
   )
 
   const handleDelete = async () => {
-    const token = await acquireToken()
-    setIsLoading(true)
-    await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}`,
-      method: 'DELETE',
-      token,
-    })
+    await deleteUser({ authId: String(authId) })
     router.push(routeTool.Internal.Users)
-    setIsLoading(false)
   }
 
   const handleDeleteConsent = async (appId: number) => {
-    const token = await acquireToken()
-    setIsLoading(true)
-    await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/consented-apps/${appId}`,
-      method: 'DELETE',
-      token,
+    await deleteUserConsent({
+      authId: String(authId),
+      appId,
     })
-    await getUserConsents()
-    setIsLoading(false)
   }
 
   const handleUnlock = async () => {
-    const token = await acquireToken()
-    setIsLoading(true)
-    await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/locked-ips`,
-      method: 'DELETE',
-      token,
-    })
-    await getLockedIPs()
-    setIsLoading(false)
-  }
-
-  const getUserConsents = useCallback(
-    async () => {
-      if (!enableConsent) return
-      const token = await acquireToken()
-      const consentData = await proxyTool.sendNextRequest({
-        endpoint: `/api/users/${authId}/consented-apps`,
-        method: 'GET',
-        token,
-      })
-      setConsentedApps(consentData.consentedApps)
-    },
-    [acquireToken, authId, enableConsent],
-  )
-
-  const getUser = useCallback(
-    async () => {
-      const token = await acquireToken()
-      const data = await proxyTool.sendNextRequest({
-        endpoint: `/api/users/${authId}`,
-        method: 'GET',
-        token,
-      })
-      setUser(data.user)
-      setFirstName(data.user.firstName)
-      setLastName(data.user.lastName)
-      setIsActive(data.user.isActive)
-      setUserRoles(data.user.roles)
-      setLocale(data.user.locale)
-    },
-    [acquireToken, authId],
-  )
-
-  const getLockedIPs = useCallback(
-    async () => {
-      const token = await acquireToken()
-      const data = await proxyTool.sendNextRequest({
-        endpoint: `/api/users/${authId}/locked-ips`,
-        method: 'GET',
-        token,
-      })
-      setLockedIPs(data.lockedIPs)
-    },
-    [acquireToken, authId],
-  )
-
-  const handleSave = async () => {
-    const token = await acquireToken()
-    setIsLoading(true)
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}`,
-      method: 'PUT',
-      token,
-      body: { data: updateObj },
-    })
-    if (result) await getUser()
-    setIsLoading(false)
-  }
-
-  const handleResendVerifyEmail = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/verify-email`,
-      method: 'POST',
-      token,
-    })
-    if (result) setEmailResent(true)
-  }
-
-  const handleResetOtpMfa = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/otp-mfa`,
-      method: 'DELETE',
-      token,
-    })
-    if (result) getUser()
-  }
-
-  const handleResetSmsMfa = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/sms-mfa`,
-      method: 'DELETE',
-      token,
-    })
-    if (result) getUser()
-  }
-
-  const handleResetEmailMfa = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/email-mfa`,
-      method: 'DELETE',
-      token,
-    })
-    if (result) getUser()
-  }
-
-  const handleEnrollOtpMfa = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/otp-mfa`,
-      method: 'POST',
-      token,
-    })
-    if (result) getUser()
-  }
-
-  const handleEnrollSmsMfa = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/sms-mfa`,
-      method: 'POST',
-      token,
-    })
-    if (result) getUser()
-  }
-
-  const handleEnrollEmailMfa = async () => {
-    const token = await acquireToken()
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/users/${authId}/email-mfa`,
-      method: 'POST',
-      token,
-    })
-    if (result) getUser()
-  }
-
-  const handleToggleUserRole = (role: string) => {
-    const newRoles = userRoles.includes(role)
-      ? userRoles.filter((userRole) => role !== userRole)
-      : [...userRoles, role]
-    setUserRoles(newRoles)
+    await deleteUserLockedIps({ authId: String(authId) })
   }
 
   useEffect(
     () => {
-      const getRoles = async () => {
-        const token = await acquireToken()
-        const data = await proxyTool.getRoles(token)
-        setRoles(data.roles)
+      if (user) {
+        setFirstName(user.firstName)
+        setLastName(user.lastName)
+        setIsActive(user.isActive)
+        setUserRoles(user.roles)
+        setLocale(user.locale)
       }
-
-      getUser()
-      getUserConsents()
-      getRoles()
-      getLockedIPs()
     },
-    [getUser, acquireToken, getUserConsents, getLockedIPs],
+    [user],
   )
 
-  const renderEmailButtons = (user) => {
+  const handleSave = async () => {
+    await updateUser({
+      authId: String(authId),
+      putUserReq: updateObj,
+    })
+  }
+
+  const handleResendVerifyEmail = async () => {
+    const res = await resendVerificationEmail({ authId: String(authId) })
+    if (res.data?.success) setEmailResent(true)
+  }
+
+  const handleResetOtpMfa = async () => {
+    await unenrollOtpMfa({ authId: String(authId) })
+  }
+
+  const handleResetSmsMfa = async () => {
+    await unenrollSmsMfa({ authId: String(authId) })
+  }
+
+  const handleResetEmailMfa = async () => {
+    await unenrollEmailMfa({ authId: String(authId) })
+  }
+
+  const handleEnrollOtpMfa = async () => {
+    await enrollOtpMfa({ authId: String(authId) })
+  }
+
+  const handleEnrollSmsMfa = async () => {
+    await enrollSmsMfa({ authId: String(authId) })
+  }
+
+  const handleEnrollEmailMfa = async () => {
+    await enrollEmailMfa({ authId: String(authId) })
+  }
+
+  const handleToggleUserRole = (role: string) => {
+    const newRoles = userRoles?.includes(role)
+      ? userRoles.filter((userRole) => role !== userRole)
+      : [...(userRoles ?? []), role]
+    setUserRoles(newRoles)
+  }
+
+  const renderEmailButtons = (user: UserDetail) => {
     if (user.socialAccountId) return null
     return (
       <div className='flex items-center gap-4 max-md:gap-2 max-md:flex-col max-md:items-start'>
@@ -297,7 +221,7 @@ const Page = () => {
     )
   }
 
-  const renderOtpButtons = (user) => {
+  const renderOtpButtons = (user: UserDetail) => {
     return (
       <>
         {user.mfaTypes.includes('otp') && user.isActive && (
@@ -319,7 +243,7 @@ const Page = () => {
     )
   }
 
-  const renderSmsButtons = (user) => {
+  const renderSmsButtons = (user: UserDetail) => {
     return (
       <>
         {user.mfaTypes.includes('sms') && user.isActive && (
@@ -341,7 +265,7 @@ const Page = () => {
     )
   }
 
-  const renderIpButtons = (lockedIPs) => {
+  const renderIpButtons = (lockedIPs: string[]) => {
     if (!lockedIPs.length) return null
     return (
       <Button
@@ -469,7 +393,7 @@ const Page = () => {
                     onChange={(e) => setLocale(e.target.value)}
                   >
                     <option disabled></option>
-                    {configs.SUPPORTED_LOCALES.map((locale) => (
+                    {configs.SUPPORTED_LOCALES.map((locale: string) => (
                       <option
                         key={locale}
                         value={locale}>{locale.toUpperCase()}
@@ -528,12 +452,12 @@ const Page = () => {
                       key={role.id}
                       className='flex items-center gap-2'>
                       <Checkbox
-                        id={role.id}
+                        id={`role-${role.id}`}
                         onChange={() => handleToggleUserRole(role.name)}
-                        checked={userRoles.includes(role.name)}
+                        checked={userRoles?.includes(role.name)}
                       />
                       <Label
-                        htmlFor={role.id}
+                        htmlFor={`role-${role.id}`}
                         className='flex'>
                         {role.name}
                       </Label>
@@ -549,7 +473,7 @@ const Page = () => {
                   <Table.Cell>
                     <TextInput
                       onChange={(e) => setFirstName(e.target.value)}
-                      value={firstName}
+                      value={firstName ?? ''}
                     />
                   </Table.Cell>
                 </Table.Row>
@@ -558,7 +482,7 @@ const Page = () => {
                   <Table.Cell>
                     <TextInput
                       onChange={(e) => setLastName(e.target.value)}
-                      value={lastName}
+                      value={lastName ?? ''}
                     />
                   </Table.Cell>
                 </Table.Row>
@@ -578,12 +502,13 @@ const Page = () => {
       <SubmitError />
       <section className='flex items-center gap-4 mt-8'>
         <SaveButton
-          isLoading={isLoading}
-          disabled={!Object.keys(updateObj).length}
+          isLoading={isUpdating}
+          disabled={!Object.keys(updateObj).length || isDeleting}
           onClick={handleSave}
         />
         <DeleteButton
-          isLoading={isLoading}
+          isLoading={isDeleting}
+          disabled={isUpdating}
           confirmDeleteTitle={t(
             'common.deleteConfirm',
             { item: user.email },

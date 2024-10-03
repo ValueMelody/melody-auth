@@ -2,6 +2,7 @@ const EmailLog = {
   type: 'object',
   properties: {
     id: { type: 'number' },
+    success: { type: 'boolean' },
     receiver: { type: 'string' },
     response: { type: 'string' },
     content: { type: 'string' },
@@ -12,12 +13,14 @@ const EmailLog = {
       nullable: true,
     },
   },
+  required: ['id', 'success', 'receiver', 'response', 'content', 'createdAt', 'updatedAt', 'deletedAt'],
 }
 
 const SmsLog = {
   type: 'object',
   properties: {
     id: { type: 'number' },
+    success: { type: 'boolean' },
     receiver: { type: 'string' },
     response: { type: 'string' },
     content: { type: 'string' },
@@ -28,6 +31,7 @@ const SmsLog = {
       nullable: true,
     },
   },
+  required: ['id', 'receiver', 'response', 'content', 'createdAt', 'updatedAt', 'deletedAt'],
 }
 
 const SignInLog = {
@@ -48,6 +52,7 @@ const SignInLog = {
       nullable: true,
     },
   },
+  required: ['id', 'userId', 'ip', 'detail', 'createdAt', 'updatedAt', 'deletedAt'],
 }
 
 module.exports = {

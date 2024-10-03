@@ -5,15 +5,11 @@ import {
   TextInput,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
-import {
-  useEffect,
-  useMemo, useState,
-} from 'react'
-import { useAuth } from '@melody-auth/react'
+import { useState } from 'react'
 import useEditApp from '../useEditApp'
 import RedirectUriEditor from '../RedirectUriEditor'
 import {
-  proxyTool, routeTool, typeTool,
+  routeTool, typeTool,
 } from 'tools'
 import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
@@ -22,36 +18,24 @@ import FieldError from 'components/FieldError'
 import ClientTypeSelector from 'components/ClientTypeSelector'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import ScopesEditor from 'components/ScopesEditor'
+import {
+  useGetApiV1ScopesQuery, usePostApiV1AppsMutation,
+} from 'services/auth/api'
 
 const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const { acquireToken } = useAuth()
   const {
     values, errors, onChange,
-  } = useEditApp()
+  } = useEditApp(undefined)
   const [showErrors, setShowErrors] = useState(false)
-  const [scopes, setScopes] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
 
-  const availableScopes = useMemo(
-    () => scopes.filter((scope) => scope.type === values.type),
-    [values.type, scopes],
-  )
+  const { data: scopesData } = useGetApiV1ScopesQuery()
+  const scopes = scopesData?.scopes ?? []
+  const availableScopes = scopes.filter((scope) => scope.type === values.type)
 
-  useEffect(
-    () => {
-      const getScopes = async () => {
-        const token = await acquireToken()
-        const data = await proxyTool.getScopes(token)
-        setScopes(data.scopes)
-      }
-
-      getScopes()
-    },
-    [acquireToken],
-  )
+  const [createApp, { isLoading: isCreating }] = usePostApiV1AppsMutation()
 
   const handleUpdateType = (newType: string) => {
     if (newType !== values.type) {
@@ -82,24 +66,17 @@ const Page = () => {
       return
     }
 
-    const token = await acquireToken()
-    setIsLoading(true)
-    const res = await proxyTool.sendNextRequest({
-      endpoint: '/api/apps',
-      method: 'POST',
-      token,
-      body: {
-        data: {
-          ...values,
-          redirectUris: values.redirectUris.map((uri) => uri.trim().toLowerCase()).filter((uri) => !!uri),
-        },
+    const res = await createApp({
+      postAppReq: {
+        ...values,
+        type: values.type as 'spa' | 's2s',
+        redirectUris: values.redirectUris.map((uri) => uri.trim().toLowerCase()).filter((uri) => !!uri),
       },
     })
 
-    if (res.app?.id) {
-      router.push(`${routeTool.Internal.Apps}/${res.app.id}`)
+    if (res.data?.app?.id) {
+      router.push(`${routeTool.Internal.Apps}/${res.data.app.id}`)
     }
-    setIsLoading(false)
   }
 
   return (
@@ -171,7 +148,7 @@ const Page = () => {
       <SubmitError />
       <SaveButton
         className='mt-8'
-        isLoading={isLoading}
+        isLoading={isCreating}
         onClick={handleSubmit}
       />
     </section>

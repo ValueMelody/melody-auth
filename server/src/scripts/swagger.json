@@ -56,7 +56,16 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "required": [
+          "id",
+          "name",
+          "note",
+          "type",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
       },
       "ScopeDetail": {
         "allOf": [
@@ -93,10 +102,22 @@
                       "type": "string",
                       "nullable": true
                     }
-                  }
+                  },
+                  "required": [
+                    "id",
+                    "scopeId",
+                    "locale",
+                    "value",
+                    "createdAt",
+                    "updatedAt",
+                    "deletedAt"
+                  ]
                 }
               }
-            }
+            },
+            "required": [
+              "locales"
+            ]
           }
         ]
       },
@@ -195,7 +216,15 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "required": [
+          "id",
+          "name",
+          "note",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
       },
       "PutRoleReq": {
         "type": "object",
@@ -267,7 +296,19 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "required": [
+          "id",
+          "clientId",
+          "name",
+          "isActive",
+          "type",
+          "secret",
+          "redirectUris",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
       },
       "AppDetail": {
         "allOf": [
@@ -283,7 +324,10 @@
                   "type": "string"
                 }
               }
-            }
+            },
+            "required": [
+              "scopes"
+            ]
           }
         ]
       },
@@ -379,6 +423,15 @@
           "locale": {
             "type": "string"
           },
+          "loginCount": {
+            "type": "number"
+          },
+          "mfaTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "emailVerified": {
             "type": "boolean"
           },
@@ -401,7 +454,26 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "required": [
+          "id",
+          "authId",
+          "email",
+          "socialAccountId",
+          "socialAccountType",
+          "firstName",
+          "lastName",
+          "locale",
+          "emailVerified",
+          "otpVerified",
+          "loginCount",
+          "mfaTypes",
+          "smsPhoneNumberVerified",
+          "isActive",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
       },
       "UserDetail": {
         "allOf": [
@@ -418,7 +490,10 @@
                 },
                 "nullable": true
               }
-            }
+            },
+            "required": [
+              "roles"
+            ]
           }
         ]
       },
@@ -431,7 +506,11 @@
           "appName": {
             "type": "string"
           }
-        }
+        },
+        "required": [
+          "appId",
+          "appName"
+        ]
       },
       "PutUserReq": {
         "type": "object",
@@ -462,6 +541,9 @@
           "id": {
             "type": "number"
           },
+          "success": {
+            "type": "boolean"
+          },
           "receiver": {
             "type": "string"
           },
@@ -481,7 +563,17 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "required": [
+          "id",
+          "success",
+          "receiver",
+          "response",
+          "content",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
       },
       "SmsLog": {
         "type": "object",
@@ -489,6 +581,9 @@
           "id": {
             "type": "number"
           },
+          "success": {
+            "type": "boolean"
+          },
           "receiver": {
             "type": "string"
           },
@@ -508,7 +603,16 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "required": [
+          "id",
+          "receiver",
+          "response",
+          "content",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
       },
       "SignInLog": {
         "type": "object",
@@ -537,7 +641,16 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "required": [
+          "id",
+          "userId",
+          "ip",
+          "detail",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
       }
     }
   },
@@ -1229,7 +1342,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "lockedIps": {
+                    "lockedIPs": {
                       "type": "array",
                       "items": {
                         "type": "string"

@@ -2,7 +2,7 @@ import {
   CheckIcon, XMarkIcon,
 } from '@heroicons/react/16/solid'
 
-const ConfigBooleanValue = ({ config }) => {
+const ConfigBooleanValue = ({ config }: { config?: boolean }) => {
   return config
     ? (
       <CheckIcon

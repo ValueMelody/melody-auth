@@ -1,7 +1,8 @@
 import { Badge } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import { UserDetail } from 'services/auth/api'
 
-const UserEmailVerified = ({ user }) => {
+const UserEmailVerified = ({ user }: { user: UserDetail }) => {
   const t = useTranslations()
   return user.emailVerified
     ? (

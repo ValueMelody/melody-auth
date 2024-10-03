@@ -6,27 +6,24 @@ import {
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
-import { useAuth } from '@melody-auth/react'
 import useEditRole from '../useEditRole'
-import {
-  proxyTool, routeTool,
-} from 'tools'
+import { routeTool } from 'tools'
 import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
+import { usePostApiV1RolesMutation } from 'services/auth/api'
 
 const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const { acquireToken } = useAuth()
   const {
     values, errors, onChange,
-  } = useEditRole()
+  } = useEditRole(undefined)
   const [showErrors, setShowErrors] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [createRole, { isLoading: isCreating }] = usePostApiV1RolesMutation()
 
   const handleSubmit = async () => {
     if (Object.values(errors).some((val) => !!val)) {
@@ -34,19 +31,11 @@ const Page = () => {
       return
     }
 
-    const token = await acquireToken()
-    setIsLoading(true)
-    const res = await proxyTool.sendNextRequest({
-      endpoint: '/api/roles',
-      method: 'POST',
-      token,
-      body: { data: values },
-    })
+    const res = await createRole({ postRoleReq: values })
 
-    if (res?.role?.id) {
-      router.push(`${routeTool.Internal.Roles}/${res.role.id}`)
+    if (res.data?.role?.id) {
+      router.push(`${routeTool.Internal.Roles}/${res.data.role.id}`)
     }
-    setIsLoading(false)
   }
 
   return (
@@ -92,7 +81,7 @@ const Page = () => {
       <SubmitError />
       <SaveButton
         className='mt-8'
-        isLoading={isLoading}
+        isLoading={isCreating}
         onClick={handleSubmit}
       />
     </section>

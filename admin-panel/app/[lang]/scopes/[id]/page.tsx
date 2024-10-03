@@ -1,6 +1,5 @@
 'use client'
 
-import { useAuth } from '@melody-auth/react'
 import {
   Table,
   TextInput,
@@ -8,14 +7,13 @@ import {
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
-  useCallback,
-  useEffect, useMemo, useState,
+  useMemo, useState,
 } from 'react'
 import useEditScope from '../useEditScope'
 import LocaleEditor from '../LocaleEditor'
 import {
   dataTool,
-  proxyTool, routeTool,
+  routeTool,
 } from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
@@ -26,6 +24,9 @@ import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
+import {
+  useDeleteApiV1ScopesByIdMutation, useGetApiV1ScopesByIdQuery, usePutApiV1ScopesByIdMutation,
+} from 'services/auth/api'
 
 const Page = () => {
   const { id } = useParams()
@@ -33,19 +34,21 @@ const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const [scope, setScope] = useState()
-  const { acquireToken } = useAuth()
+  const { data } = useGetApiV1ScopesByIdQuery({ id: Number(id) })
+  const scope = data?.scope
+  const [updateScope, { isLoading: isUpdating }] = usePutApiV1ScopesByIdMutation()
+  const [deleteScope, { isLoading: isDeleting }] = useDeleteApiV1ScopesByIdMutation()
+
   const configs = useSignalValue(configSignal)
 
   const isSystem = useMemo(
-    () => dataTool.isSystem(scope?.name),
+    () => scope && dataTool.isSystem(scope.name),
     [scope],
   )
 
   const {
     values, errors, onChange,
   } = useEditScope(scope)
-  const [isLoading, setIsLoading] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
 
   const hasDifferentLocales = useMemo(
@@ -84,57 +87,21 @@ const Page = () => {
       return
     }
 
-    const token = await acquireToken()
-    setIsLoading(true)
-    const res = await proxyTool.sendNextRequest({
-      endpoint: `/api/scopes/${id}`,
-      method: 'PUT',
-      token,
-      body: {
-        data: {
-          name: hasDifferentName ? values.name : undefined,
-          note: hasDifferentNote ? values.note : undefined,
-          locales: hasDifferentLocales ? values.locales : undefined,
-        },
+    await updateScope({
+      id: Number(id),
+      putScopeReq: {
+        name: hasDifferentName ? values.name : undefined,
+        note: hasDifferentNote ? values.note : undefined,
+        locales: hasDifferentLocales ? values.locales : undefined,
       },
     })
-    setIsLoading(false)
-    if (res?.scope) {
-      getScope()
-    }
   }
-
-  const getScope = useCallback(
-    async () => {
-      const token = await acquireToken()
-      const data = await proxyTool.sendNextRequest({
-        endpoint: `/api/scopes/${id}`,
-        method: 'GET',
-        token,
-      })
-      setScope(data.scope)
-    },
-    [acquireToken, id],
-  )
 
   const handleDelete = async () => {
-    const token = await acquireToken()
-    setIsLoading(true)
-    await proxyTool.sendNextRequest({
-      endpoint: `/api/scopes/${id}`,
-      method: 'DELETE',
-      token,
-    })
-    router.push(routeTool.Internal.Scopes)
-    setIsLoading(false)
-  }
+    await deleteScope({ id: Number(id) })
 
-  useEffect(
-    () => {
-      getScope()
-    },
-    [getScope],
-  )
+    router.push(routeTool.Internal.Scopes)
+  }
 
   if (!scope) return null
 
@@ -215,12 +182,13 @@ const Page = () => {
       <SubmitError />
       <section className='flex items-center gap-4 mt-8'>
         <SaveButton
-          isLoading={isLoading}
-          disabled={!canUpdate}
+          isLoading={isUpdating}
+          disabled={!canUpdate || isDeleting}
           onClick={handleSave}
         />
         <DeleteButton
-          isLoading={isLoading}
+          isLoading={isDeleting}
+          disabled={isUpdating}
           confirmDeleteTitle={t(
             'common.deleteConfirm',
             { item: values.name },

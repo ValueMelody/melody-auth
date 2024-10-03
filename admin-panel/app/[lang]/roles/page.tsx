@@ -1,19 +1,18 @@
 'use client'
 
-import { useAuth } from '@melody-auth/react'
 import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
-import {
-  useEffect, useState,
-} from 'react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
-  proxyTool, routeTool, typeTool,
+  routeTool, typeTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
 import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
+import {
+  Role, useGetApiV1RolesQuery,
+} from 'services/auth/api'
 
 const isSystem = (name: string) => name === typeTool.Role.SuperAdmin
 
@@ -21,23 +20,10 @@ const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const [roles, setRoles] = useState([])
-  const { acquireToken } = useAuth()
+  const { data } = useGetApiV1RolesQuery()
+  const roles = data?.roles ?? []
 
-  useEffect(
-    () => {
-      const getRoles = async () => {
-        const token = await acquireToken()
-        const data = await proxyTool.getRoles(token)
-        setRoles(data.roles)
-      }
-
-      getRoles()
-    },
-    [acquireToken],
-  )
-
-  const renderEditButton = (role) => {
+  const renderEditButton = (role: Role) => {
     return isSystem(role.name)
       ? null
       : (

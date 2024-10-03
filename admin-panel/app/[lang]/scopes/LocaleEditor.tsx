@@ -1,11 +1,15 @@
 import { TextInput } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 
+export type LocaleValues = { locale: string; value: string }[]
+
 const LocaleEditor = ({
   supportedLocales,
   values,
   onChange,
 }: {
+  onChange: (newLocales: LocaleValues) => void;
+  values: LocaleValues;
   supportedLocales: string[];
 }) => {
   const t = useTranslations()
@@ -13,14 +17,15 @@ const LocaleEditor = ({
   const handleSetLocale = (
     targetLocale: string, val: string,
   ) => {
-    const isUpdate = values.find((value) => value.locale === targetLocale)
+    const finalValues = values ?? []
+    const isUpdate = finalValues.find((value) => value.locale === targetLocale)
     const newLocales = isUpdate
-      ? values.map((value) => value.locale === targetLocale
+      ? finalValues.map((value) => value.locale === targetLocale
         ? ({
           locale: targetLocale, value: val,
         })
         : value)
-      : [...values, {
+      : [...finalValues, {
         locale: targetLocale, value: val,
       }]
     onChange(newLocales)
@@ -40,7 +45,7 @@ const LocaleEditor = ({
               locale,
               e.target.value,
             )}
-            value={values.find((value) => value.locale === locale)?.value ?? ''}
+            value={values?.find((value) => value.locale === locale)?.value ?? ''}
           />
         </section>
       ))}

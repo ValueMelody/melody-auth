@@ -3,8 +3,9 @@ import {
   useMemo, useState,
 } from 'react'
 import { useTranslations } from 'next-intl'
+import { AppDetail } from 'services/auth/api'
 
-const useEditApp = (app) => {
+const useEditApp = (app: AppDetail | undefined) => {
   const t = useTranslations()
 
   const [name, setName] = useState('')
@@ -25,7 +26,7 @@ const useEditApp = (app) => {
       setName(app?.name ?? '')
       setType(app?.type ?? '')
       setScopes(app?.scopes ?? [])
-      setIsActive(app?.isActive)
+      setIsActive(app?.isActive ?? true)
       setRedirectUris(app?.redirectUris ?? [''])
     },
     [app],

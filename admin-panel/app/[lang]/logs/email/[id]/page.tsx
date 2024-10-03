@@ -1,39 +1,17 @@
 'use client'
 
-import { useAuth } from '@melody-auth/react'
 import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
-import {
-  useEffect, useState,
-} from 'react'
-import { proxyTool } from 'tools'
 import PageTitle from 'components/PageTitle'
+import { useGetApiV1LogsEmailByIdQuery } from 'services/auth/api'
 
 const Page = () => {
   const { id } = useParams()
 
   const t = useTranslations()
-
-  const [log, setLog] = useState()
-  const { acquireToken } = useAuth()
-
-  useEffect(
-    () => {
-      const getLog = async () => {
-        const token = await acquireToken()
-        const data = await proxyTool.sendNextRequest({
-          endpoint: `/api/logs/email/${id}`,
-          method: 'GET',
-          token,
-        })
-        setLog(data.log)
-      }
-
-      getLog()
-    },
-    [acquireToken, id],
-  )
+  const { data } = useGetApiV1LogsEmailByIdQuery({ id: Number(id) })
+  const log = data?.log
 
   if (!log) return null
 
@@ -41,7 +19,7 @@ const Page = () => {
     <section>
       <PageTitle
         className='mb-6'
-        title={t('logs.emailLog')}
+        title={t('logs.emailLogs')}
       />
       <section>
         <Table>

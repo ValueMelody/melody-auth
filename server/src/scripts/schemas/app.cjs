@@ -21,6 +21,7 @@ const App = {
       nullable: true,
     },
   },
+  required: ['id', 'clientId', 'name', 'isActive', 'type', 'secret', 'redirectUris', 'createdAt', 'updatedAt', 'deletedAt'],
 }
 
 const AppDetail = {
@@ -34,6 +35,7 @@ const AppDetail = {
           items: { type: 'string' },
         },
       },
+      required: ['scopes'],
     },
   ],
 }

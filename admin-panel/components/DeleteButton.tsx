@@ -10,6 +10,7 @@ const DeleteButton = ({
   confirmDeleteTitle,
   onConfirmDelete,
   isLoading,
+  disabled,
   buttonText,
   size,
 }: {
@@ -19,6 +20,7 @@ const DeleteButton = ({
   confirmDeleteTitle: string;
   onConfirmDelete: () => void;
   isLoading?: boolean;
+  disabled?: boolean;
 }) => {
   const t = useTranslations()
   const [showModal, setShowModal] = useState(false)
@@ -41,7 +43,7 @@ const DeleteButton = ({
         confirmButtonText={buttonText}
       />
       <Button
-        disabled={isLoading}
+        disabled={isLoading || disabled}
         className={className}
         onClick={handleClick}
         size={size}

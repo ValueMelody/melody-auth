@@ -1,6 +1,5 @@
 'use client'
 
-import { useAuth } from '@melody-auth/react'
 import {
   Button,
   Table,
@@ -10,8 +9,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
-  useCallback,
-  useEffect, useMemo, useState,
+  useMemo, useState,
 } from 'react'
 import {
   EyeIcon, EyeSlashIcon,
@@ -19,7 +17,7 @@ import {
 import RedirectUriEditor from '../RedirectUriEditor'
 import useEditApp from '../useEditApp'
 import {
-  proxyTool, routeTool, typeTool,
+  routeTool, typeTool,
 } from 'tools'
 import PageTitle from 'components/PageTitle'
 import ClientTypeLabel from 'components/ClientTypeLabel'
@@ -29,6 +27,9 @@ import ScopesEditor from 'components/ScopesEditor'
 import SaveButton from 'components/SaveButton'
 import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
+import {
+  useDeleteApiV1AppsByIdMutation, useGetApiV1AppsByIdQuery, useGetApiV1ScopesQuery, usePutApiV1AppsByIdMutation,
+} from 'services/auth/api'
 
 const Page = () => {
   const { id } = useParams()
@@ -36,17 +37,17 @@ const Page = () => {
 
   const t = useTranslations()
 
-  const [app, setApp] = useState()
-  const { acquireToken } = useAuth()
+  const { data: appData } = useGetApiV1AppsByIdQuery({ id: Number(id) })
+  const app = appData?.app
 
-  const [scopes, setScopes] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const { data: scopesData } = useGetApiV1ScopesQuery()
+  const scopes = scopesData?.scopes ?? []
+  const availableScopes = scopes.filter((scope) => scope.type === app?.type)
+
   const [showSecret, setShowSecret] = useState(false)
 
-  const availableScopes = useMemo(
-    () => scopes.filter((scope) => scope.type === app?.type),
-    [app?.type, scopes],
-  )
+  const [updateApp, { isLoading: isUpdating }] = usePutApiV1AppsByIdMutation()
+  const [deleteApp, { isLoading: isDeleting }] = useDeleteApiV1AppsByIdMutation()
 
   const {
     values, errors, onChange,
@@ -55,13 +56,14 @@ const Page = () => {
   const updateObj = useMemo(
     () => {
       if (!app) return {}
-      const updateKeys = ['name', 'scopes', 'redirectUris', 'isActive'].filter((key) => values[key] !== app[key])
+      type Key = 'name' | 'scopes' | 'redirectUris' | 'isActive'
+      const updateKeys = ['name', 'scopes', 'redirectUris', 'isActive'].filter((key) => values[key as Key] !== app[key as Key])
       return updateKeys.reduce(
         (
           obj, key,
         ) => ({
           ...obj,
-          [key]: values[key],
+          [key]: values[key as Key],
         }),
         {},
       )
@@ -69,64 +71,25 @@ const Page = () => {
     [app, values],
   )
 
-  const getApp = useCallback(
-    async () => {
-      const token = await acquireToken()
-      const data = await proxyTool.sendNextRequest({
-        endpoint: `/api/apps/${id}`,
-        method: 'GET',
-        token,
-      })
-      setApp(data.app)
-    },
-    [acquireToken, id],
-  )
-
   const toggleSecret = () => {
     setShowSecret(!showSecret)
   }
 
   const handleDelete = async () => {
-    const token = await acquireToken()
-    setIsLoading(true)
-    await proxyTool.sendNextRequest({
-      endpoint: `/api/apps/${id}`,
-      method: 'DELETE',
-      token,
-    })
+    await deleteApp({ id: Number(id) })
+
     router.push(routeTool.Internal.Apps)
-    setIsLoading(false)
   }
-
-  useEffect(
-    () => {
-      const getScopes = async () => {
-        const token = await acquireToken()
-        const data = await proxyTool.getScopes(token)
-        setScopes(data.scopes)
-      }
-
-      getApp()
-      getScopes()
-    },
-    [getApp, acquireToken],
-  )
 
   const handleSave = async () => {
     if (Object.values(errors).some((val) => !!val)) {
       return
     }
 
-    const token = await acquireToken()
-    setIsLoading(true)
-    const result = await proxyTool.sendNextRequest({
-      endpoint: `/api/apps/${id}`,
-      method: 'PUT',
-      token,
-      body: { data: updateObj },
+    await updateApp({
+      id: Number(id),
+      putAppReq: updateObj,
     })
-    setIsLoading(false)
-    if (result) await getApp()
   }
 
   const handleToggleAppScope = (scope: string) => {
@@ -241,12 +204,13 @@ const Page = () => {
       <SubmitError />
       <section className='flex items-center gap-4 mt-8'>
         <SaveButton
-          isLoading={isLoading}
-          disabled={!Object.keys(updateObj).length}
+          isLoading={isUpdating}
+          disabled={!Object.keys(updateObj).length || isDeleting}
           onClick={handleSave}
         />
         <DeleteButton
-          isLoading={isLoading}
+          isLoading={isDeleting}
+          disabled={isUpdating}
           confirmDeleteTitle={t(
             'common.deleteConfirm',
             { item: app.name },

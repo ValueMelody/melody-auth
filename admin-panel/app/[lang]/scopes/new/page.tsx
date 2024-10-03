@@ -6,12 +6,9 @@ import {
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
-import { useAuth } from '@melody-auth/react'
 import useEditScope from '../useEditScope'
 import LocaleEditor from '../LocaleEditor'
-import {
-  proxyTool, routeTool,
-} from 'tools'
+import { routeTool } from 'tools'
 import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
@@ -20,18 +17,19 @@ import ClientTypeSelector from 'components/ClientTypeSelector'
 import SubmitError from 'components/SubmitError'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
+import { usePostApiV1ScopesMutation } from 'services/auth/api'
 
 const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const { acquireToken } = useAuth()
   const {
     values, errors, onChange,
-  } = useEditScope()
+  } = useEditScope(undefined)
   const [showErrors, setShowErrors] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const configs = useSignalValue(configSignal)
+
+  const [createScope, { isLoading: isCreating }] = usePostApiV1ScopesMutation()
 
   const handleUpdateType = (val: string) => {
     onChange(
@@ -50,18 +48,16 @@ const Page = () => {
       return
     }
 
-    const token = await acquireToken()
-    setIsLoading(true)
-    const res = await proxyTool.sendNextRequest({
-      endpoint: '/api/scopes',
-      method: 'POST',
-      token,
-      body: { data: values },
+    const res = await createScope({
+      postScopeReq: {
+        ...values,
+        type: values.type as 'spa' | 's2s',
+      },
     })
-    if (res?.scope?.id) {
-      router.push(`${routeTool.Internal.Scopes}/${res.scope.id}`)
+
+    if (res.data?.scope?.id) {
+      router.push(`${routeTool.Internal.Scopes}/${res.data.scope.id}`)
     }
-    setIsLoading(false)
   }
 
   return (
@@ -133,7 +129,7 @@ const Page = () => {
       <SubmitError />
       <SaveButton
         className='mt-8'
-        isLoading={isLoading}
+        isLoading={isCreating}
         onClick={handleSubmit}
       />
     </section>
