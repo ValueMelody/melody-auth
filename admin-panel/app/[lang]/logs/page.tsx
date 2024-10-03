@@ -6,16 +6,17 @@ import {
   Spinner, Table,
 } from 'flowbite-react'
 import {
-  useEffect, useMemo, useState,
+  useMemo, useState,
 } from 'react'
-import { useAuth } from '@melody-auth/react'
 import PageTitle from 'components/PageTitle'
 import { configSignal } from 'signals'
 import useSignalValue from 'app/useSignalValue'
-import { proxyTool } from 'tools'
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 import ViewLink from 'components/ViewLink'
 import useCurrentLocale from 'hooks/useCurrentLocale'
+import {
+  useGetApiV1LogsEmailQuery, useGetApiV1LogsSignInQuery, useGetApiV1LogsSmsQuery,
+} from 'services/auth/api'
 
 const PageSize = 10
 
@@ -24,19 +25,30 @@ const Page = () => {
   const locale = useCurrentLocale()
 
   const configs = useSignalValue(configSignal)
-  const { acquireToken } = useAuth()
 
-  const [emailLogs, setEmailLogs] = useState([])
   const [emailLogPageNumber, setEmailLogPageNumber] = useState(1)
-  const [emailLogCount, setEmailLogCount] = useState(0)
+  const { data: emailData } = useGetApiV1LogsEmailQuery({
+    pageNumber: emailLogPageNumber,
+    pageSize: PageSize,
+  })
+  const emailLogs = emailData?.logs ?? []
+  const emailLogCount = emailData?.count ?? 0
 
-  const [smsLogs, setSmsLogs] = useState([])
   const [smsLogPageNumber, setSmsLogPageNumber] = useState(1)
-  const [smsLogCount, setSmsLogCount] = useState(0)
+  const { data: smsData } = useGetApiV1LogsSmsQuery({
+    pageNumber: smsLogPageNumber,
+    pageSize: PageSize,
+  })
+  const smsLogs = smsData?.logs ?? []
+  const smsLogCount = smsData?.count ?? 0
 
-  const [signInLogs, setSignInLogs] = useState([])
   const [signInLogPageNumber, setSignInLogPageNumber] = useState(1)
-  const [signInLogCount, setSignInLogCount] = useState(0)
+  const { data: signInData } = useGetApiV1LogsSignInQuery({
+    pageNumber: signInLogPageNumber,
+    pageSize: PageSize,
+  })
+  const signInLogs = signInData?.logs ?? []
+  const signInLogCount = signInData?.count ?? 0
 
   const emailLogTotalPages = useMemo(
     () => Math.ceil(emailLogCount / PageSize),
@@ -51,63 +63,6 @@ const Page = () => {
   const signInLogTotalPages = useMemo(
     () => Math.ceil(signInLogCount / PageSize),
     [signInLogCount],
-  )
-
-  useEffect(
-    () => {
-      const getEmailLogs = async () => {
-        const token = await acquireToken()
-        const baseUrl = `/api/logs/email?page_size=${PageSize}&page_number=${emailLogPageNumber}`
-        const data = await proxyTool.sendNextRequest({
-          endpoint: baseUrl,
-          method: 'GET',
-          token,
-        })
-        setEmailLogs(data.logs)
-        setEmailLogCount(data.count)
-      }
-
-      getEmailLogs()
-    },
-    [acquireToken, emailLogPageNumber],
-  )
-
-  useEffect(
-    () => {
-      const getSmsLogs = async () => {
-        const token = await acquireToken()
-        const baseUrl = `/api/logs/sms?page_size=${PageSize}&page_number=${smsLogPageNumber}`
-        const data = await proxyTool.sendNextRequest({
-          endpoint: baseUrl,
-          method: 'GET',
-          token,
-        })
-        setSmsLogs(data.logs)
-        setSmsLogCount(data.count)
-      }
-
-      getSmsLogs()
-    },
-    [acquireToken, smsLogPageNumber],
-  )
-
-  useEffect(
-    () => {
-      const getSignInLogs = async () => {
-        const token = await acquireToken()
-        const baseUrl = `/api/logs/sign-in?page_size=${PageSize}&page_number=${signInLogPageNumber}`
-        const data = await proxyTool.sendNextRequest({
-          endpoint: baseUrl,
-          method: 'GET',
-          token,
-        })
-        setSignInLogs(data.logs)
-        setSignInLogCount(data.count)
-      }
-
-      getSignInLogs()
-    },
-    [acquireToken, signInLogPageNumber],
   )
 
   const handleEmailLogPageChange = (page: number) => {

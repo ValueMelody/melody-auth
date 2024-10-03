@@ -1,41 +1,25 @@
 'use client'
 
-import { useAuth } from '@melody-auth/react'
 import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
-import {
-  useEffect, useState,
-} from 'react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
   dataTool,
-  proxyTool, routeTool,
+  routeTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
 import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
 import ClientTypeLabel from 'components/ClientTypeLabel'
+import { useGetApiV1ScopesQuery } from 'services/auth/api'
 
 const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const [scopes, setScopes] = useState([])
-  const { acquireToken } = useAuth()
-
-  useEffect(
-    () => {
-      const getScopes = async () => {
-        const token = await acquireToken()
-        const data = await proxyTool.getScopes(token)
-        setScopes(data.scopes)
-      }
-
-      getScopes()
-    },
-    [acquireToken],
-  )
+  const { data } = useGetApiV1ScopesQuery()
+  const scopes = data?.scopes ?? []
 
   return (
     <section>

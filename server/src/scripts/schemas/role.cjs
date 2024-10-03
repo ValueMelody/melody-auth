@@ -11,6 +11,7 @@ const Role = {
       nullable: true,
     },
   },
+  required: ['id', 'name', 'note', 'createdAt', 'updatedAt', 'deletedAt'],
 }
 
 const PutRoleReq = {

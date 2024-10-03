@@ -5,28 +5,33 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "type:check": "tsc --noEmit",
+    "service:generate": "npx @rtk-query/codegen-openapi ./scripts/generateService.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.4",
     "@melody-auth/react": "^0.0.8",
     "@preact/signals-react": "^2.1.0",
+    "@reduxjs/toolkit": "^2.2.7",
     "class-validator": "^0.14.1",
     "classnames": "^2.5.1",
     "flowbite-react": "^0.10.1",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
-    "next": "14.2.5",
+    "next": "14.2.14",
     "next-intl": "^3.15.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-redux": "^9.1.2"
   },
   "devDependencies": {
+    "@rtk-query/codegen-openapi": "^1.2.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

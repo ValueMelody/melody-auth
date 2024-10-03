@@ -3,14 +3,18 @@ import {
   useMemo, useState,
 } from 'react'
 import { useTranslations } from 'next-intl'
+import { LocaleValues } from './LocaleEditor'
+import { ScopeDetail } from 'services/auth/api'
 
-const useEditScope = (scope) => {
+const useEditScope = (scope: ScopeDetail | undefined) => {
   const t = useTranslations()
 
   const [name, setName] = useState('')
   const [type, setType] = useState('')
   const [note, setNote] = useState('')
-  const [locales, setLocales] = useState(undefined)
+  const [locales, setLocales] = useState<
+  { locale: string; value: string }[] | undefined
+  >(undefined)
 
   useEffect(
     () => {
@@ -38,7 +42,7 @@ const useEditScope = (scope) => {
   )
 
   const onChange = (
-    key: string, value: string | string[],
+    key: string, value: string | string[] | LocaleValues | undefined,
   ) => {
     switch (key) {
     case 'name':
@@ -51,7 +55,7 @@ const useEditScope = (scope) => {
       setNote(value as string)
       break
     case 'locales':
-      setLocales(value)
+      setLocales(value as LocaleValues | undefined)
       break
     }
   }

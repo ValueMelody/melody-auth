@@ -1,6 +1,6 @@
 {
   "name": "melody-auth",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A turnkey OAuth & authentication system.",
   "license": "MIT",
   "author": "Baozier",
@@ -12,7 +12,7 @@
     "react-sdk"
   ],
   "scripts": {
-    "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk",
+    "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk && cd admin-panel && npm run type:check",
     "lint:check": "eslint ./ --ext .ts,.tsx,.js,.cjs",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js,.cjs",
     "build": "npm run build -w=shared &&  npm run build -w=web-sdk && npm run build -w=react-sdk",

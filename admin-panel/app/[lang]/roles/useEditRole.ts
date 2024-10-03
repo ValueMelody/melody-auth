@@ -3,8 +3,9 @@ import {
   useMemo, useState,
 } from 'react'
 import { useTranslations } from 'next-intl'
+import { Role } from 'services/auth/api'
 
-const useEditRole = (role) => {
+const useEditRole = (role: Role | undefined) => {
   const t = useTranslations()
 
   const [name, setName] = useState('')

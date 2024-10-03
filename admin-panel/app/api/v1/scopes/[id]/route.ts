@@ -14,7 +14,7 @@ export async function GET (
 
   return sendS2SRequest({
     method: 'GET',
-    uri: `/api/v1/roles/${id}`,
+    uri: `/api/v1/scopes/${id}`,
   })
 }
 
@@ -24,12 +24,12 @@ export async function PUT (
   const id = context.params.id
 
   const reqBody = await request.json()
-  if (!reqBody || !reqBody.data) return throwForbiddenError()
+  if (!reqBody) return throwForbiddenError()
 
   return sendS2SRequest({
     method: 'PUT',
-    uri: `/api/v1/roles/${id}`,
-    body: JSON.stringify(reqBody.data),
+    uri: `/api/v1/scopes/${id}`,
+    body: JSON.stringify(reqBody),
   })
 }
 
@@ -40,6 +40,6 @@ export async function DELETE (
 
   return sendS2SRequest({
     method: 'DELETE',
-    uri: `/api/v1/roles/${id}`,
+    uri: `/api/v1/scopes/${id}`,
   })
 }

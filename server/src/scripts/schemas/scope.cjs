@@ -15,6 +15,7 @@ const Scope = {
       nullable: true,
     },
   },
+  required: ['id', 'name', 'note', 'type', 'createdAt', 'updatedAt', 'deletedAt'],
 }
 
 const ScopeDetail = {
@@ -39,9 +40,11 @@ const ScopeDetail = {
                 nullable: true,
               },
             },
+            required: ['id', 'scopeId', 'locale', 'value', 'createdAt', 'updatedAt', 'deletedAt'],
           },
         },
       },
+      required: ['locales'],
     },
   ],
 }

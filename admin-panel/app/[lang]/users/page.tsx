@@ -1,16 +1,14 @@
 'use client'
 
-import { useAuth } from '@melody-auth/react'
 import {
   Pagination, Table,
   TextInput,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import {
-  useEffect, useMemo, useState,
+  useMemo, useState,
 } from 'react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
-import { proxyTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
 import useSignalValue from 'app/useSignalValue'
@@ -20,6 +18,7 @@ import {
 import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
 import useDebounce from 'hooks/useDebounce'
+import { useGetApiV1UsersQuery } from 'services/auth/api'
 
 const PageSize = 20
 
@@ -27,14 +26,19 @@ const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const [users, setUsers] = useState([])
-  const { acquireToken } = useAuth()
   const userInfo = useSignalValue(userInfoSignal)
   const configs = useSignalValue(configSignal)
   const [pageNumber, setPageNumber] = useState(1)
-  const [count, setCount] = useState(0)
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search)
+
+  const { data } = useGetApiV1UsersQuery({
+    pageSize: PageSize,
+    pageNumber,
+    search: debouncedSearch || undefined,
+  })
+  const users = data?.users ?? []
+  const count = data?.count ?? 0
 
   const totalPages = useMemo(
     () => Math.ceil(count / PageSize),
@@ -44,48 +48,6 @@ const Page = () => {
   const handlePageChange = (page: number) => {
     setPageNumber(page)
   }
-
-  useEffect(
-    () => {
-      const searchUser = async () => {
-        setPageNumber(1)
-        const token = await acquireToken()
-        const searchVal = debouncedSearch.trim()
-        const baseUrl = `/api/users?page_size=${PageSize}&page_number=1`
-        const link = searchVal ? `${baseUrl}&search=${searchVal}` : baseUrl
-        const data = await proxyTool.sendNextRequest({
-          endpoint: link,
-          method: 'GET',
-          token,
-        })
-        setUsers(data.users)
-        setCount(data.count)
-      }
-      searchUser()
-    },
-    [debouncedSearch, acquireToken],
-  )
-
-  useEffect(
-    () => {
-      const getUsers = async () => {
-        const token = await acquireToken()
-        const searchVal = debouncedSearch.trim()
-        const baseUrl = `/api/users?page_size=${PageSize}&page_number=${pageNumber}`
-        const link = searchVal ? `${baseUrl}&search=${searchVal}` : baseUrl
-        const data = await proxyTool.sendNextRequest({
-          endpoint: link,
-          method: 'GET',
-          token,
-        })
-        setUsers(data.users)
-        setCount(data.count)
-      }
-
-      getUsers()
-    },
-    [acquireToken, pageNumber, debouncedSearch],
-  )
 
   return (
     <section>

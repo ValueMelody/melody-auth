@@ -1,26 +1,23 @@
 'use client'
 
-import { useAuth } from '@melody-auth/react'
 import {
   Table,
   TextInput,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
-import {
-  useCallback,
-  useEffect, useState,
-} from 'react'
+import { useState } from 'react'
 import useEditRole from '../useEditRole'
-import {
-  proxyTool, routeTool,
-} from 'tools'
+import { routeTool } from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import PageTitle from 'components/PageTitle'
 import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
+import {
+  useDeleteApiV1RolesByIdMutation, useGetApiV1RolesByIdQuery, usePutApiV1RolesByIdMutation,
+} from 'services/auth/api'
 
 const Page = () => {
   const { id } = useParams()
@@ -28,9 +25,11 @@ const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const [role, setRole] = useState()
-  const [isLoading, setIsLoading] = useState(false)
-  const { acquireToken } = useAuth()
+  const { data } = useGetApiV1RolesByIdQuery({ id: Number(id) })
+  const [updateRole, { isLoading: isUpdating }] = usePutApiV1RolesByIdMutation()
+  const [deleteRole, { isLoading: isDeleting }] = useDeleteApiV1RolesByIdMutation()
+
+  const role = data?.role
 
   const {
     values, errors, onChange,
@@ -43,51 +42,17 @@ const Page = () => {
       return
     }
 
-    const token = await acquireToken()
-    setIsLoading(true)
-    const res = await proxyTool.sendNextRequest({
-      endpoint: `/api/roles/${id}`,
-      method: 'PUT',
-      token,
-      body: { data: values },
+    await updateRole({
+      id: Number(id),
+      putRoleReq: values,
     })
-    if (res?.role) {
-      getRole()
-    }
-    setIsLoading(false)
   }
-
-  const getRole = useCallback(
-    async () => {
-      const token = await acquireToken()
-      const data = await proxyTool.sendNextRequest({
-        endpoint: `/api/roles/${id}`,
-        method: 'GET',
-        token,
-      })
-      setRole(data.role)
-    },
-    [acquireToken, id],
-  )
 
   const handleDelete = async () => {
-    const token = await acquireToken()
-    setIsLoading(true)
-    await proxyTool.sendNextRequest({
-      endpoint: `/api/roles/${id}`,
-      method: 'DELETE',
-      token,
-    })
-    router.push(routeTool.Internal.Roles)
-    setIsLoading(false)
-  }
+    await deleteRole({ id: Number(id) })
 
-  useEffect(
-    () => {
-      getRole()
-    },
-    [getRole],
-  )
+    router.push(routeTool.Internal.Roles)
+  }
 
   if (!role) return null
 
@@ -141,12 +106,13 @@ const Page = () => {
       <SubmitError />
       <section className='flex items-center gap-4 mt-8'>
         <SaveButton
-          isLoading={isLoading}
+          isLoading={isUpdating}
           disabled={!values.name || (values.name === role.name && values.note === role.note)}
           onClick={handleSave}
         />
         <DeleteButton
-          isLoading={isLoading}
+          isLoading={isDeleting}
+          disabled={isUpdating}
           confirmDeleteTitle={t(
             'common.deleteConfirm',
             { item: values.name },

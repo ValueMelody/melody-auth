@@ -13,6 +13,9 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
 import { useRouter } from 'next/navigation'
+import {
+  Provider, useDispatch, useSelector,
+} from 'react-redux'
 import useSignalValue from './useSignalValue'
 import {
   configSignal, userInfoSignal,
@@ -22,11 +25,17 @@ import {
   proxyTool,
   routeTool, typeTool,
 } from 'tools'
+import {
+  RootState, store,
+} from 'stores'
+import { appSlice } from 'stores/app'
 
 const locale = typeof localStorage !== 'undefined' && localStorage.getItem('Locale')
 
 const AuthSetup = ({ children }: PropsWithChildren) => {
   const t = useTranslations()
+  const state = useSelector((state: RootState) => state.app)
+  const dispatch = useDispatch()
 
   const {
     isAuthenticating, isAuthenticated, acquireUserInfo, acquireToken,
@@ -39,6 +48,13 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   const handleLogout = () => {
     logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
   }
+
+  useEffect(
+    () => {
+      dispatch(appSlice.actions.storeAcquireAuthToken(acquireToken))
+    },
+    [acquireToken, dispatch],
+  )
 
   useEffect(
     () => {
@@ -65,7 +81,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     [acquireUserInfo, isAuthenticated, acquireToken],
   )
 
-  if (isAuthenticating || isLoadingUserInfo) {
+  if (isAuthenticating || isLoadingUserInfo || !state.acquireAuthToken) {
     return (
       <section className='flex flex-col justify-center items-center w-full h-screen'>
         <Spinner size='lg' />
@@ -206,22 +222,24 @@ const Setup = ({ children } : PropsWithChildren) => {
   const router = useRouter()
 
   return (
-    <AuthProvider
-      clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
-      redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/${locale || 'en'}/dashboard`}
-      serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
-      onLoginSuccess={(attr) => {
-        if (attr.locale !== locale) {
-          router.push(`/${attr.locale === 'fr' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`)
-        }
-      }}
-    >
-      <AuthSetup>
-        <LayoutSetup>
-          {children}
-        </LayoutSetup>
-      </AuthSetup>
-    </AuthProvider>
+    <Provider store={store}>
+      <AuthProvider
+        clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
+        redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/${locale || 'en'}/dashboard`}
+        serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
+        onLoginSuccess={(attr) => {
+          if (attr.locale !== locale) {
+            router.push(`/${attr.locale === 'fr' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`)
+          }
+        }}
+      >
+        <AuthSetup>
+          <LayoutSetup>
+            {children}
+          </LayoutSetup>
+        </AuthSetup>
+      </AuthProvider>
+    </Provider>
   )
 }
 
