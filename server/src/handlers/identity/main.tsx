@@ -275,6 +275,7 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
 
 export const postLogout = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.parseBody()
+
   const bodyDto = new identityDto.PostLogoutReqDto({
     refreshToken: String(reqBody.refresh_token),
     postLogoutRedirectUri: reqBody.post_logout_redirect_uri

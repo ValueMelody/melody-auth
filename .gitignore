@@ -5,6 +5,8 @@ docs/.vuepress/.temp
 
 .wrangler
 .next/
+.expo
+expo-env.d.ts
 
 server/.dev.vars
 

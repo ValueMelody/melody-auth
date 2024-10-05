@@ -394,3 +394,36 @@ export const getUserInfo = async (c: Context<typeConfig.Context>) => {
 
   return c.json(user)
 }
+
+export const revokeToken = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.parseBody()
+  const token = String(reqBody.token)
+  const tokenTypeHint = String(reqBody.token_type_hint)
+
+  if (!token) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+  }
+
+  if (tokenTypeHint !== 'refresh_token') {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongTokenType)
+  }
+
+  const { username: clientId } = c.get('basic_auth_body')!
+
+  const refreshTokenBody = await kvService.getRefreshTokenBody(
+    c.env.KV,
+    token,
+  )
+
+  if (!refreshTokenBody || clientId !== refreshTokenBody.clientId) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+  }
+
+  await kvService.invalidRefreshToken(
+    c.env.KV,
+    token,
+  )
+
+  c.status(200)
+  return c.body(null)
+}

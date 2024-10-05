@@ -921,3 +921,137 @@ describe(
     )
   },
 )
+
+describe(
+  'post /revoke',
+  () => {
+    const prepareRevoke = async () => {
+      const appRecord = await getApp(db)
+      await insertUsers(db)
+      const res = await postSignInRequest(
+        db,
+        appRecord,
+      )
+
+      const json = await res.json() as { code: string }
+
+      const body = {
+        grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+        code: json.code,
+        code_verifier: 'abc',
+      }
+      const tokenRes = await app.request(
+        routeConfig.OauthRoute.Token,
+        {
+          method: 'POST',
+          body: new URLSearchParams(body).toString(),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        },
+        mock(db),
+      )
+      const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
+
+      const tokenBody = await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)
+      expect(JSON.parse(tokenBody ?? '')).toStrictEqual({
+        authId: '1-1-1-1',
+        clientId: appRecord.clientId,
+        scope: 'profile openid offline_access',
+        roles: [],
+      })
+
+      return tokenJson
+    }
+
+    test(
+      'should revoke',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        const tokenJson = await prepareRevoke()
+        const basicAuth = btoa(`${appRecord.clientId}:`)
+
+        const revokeRes = await app.request(
+          routeConfig.OauthRoute.Revoke,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              token: tokenJson.refresh_token,
+              token_type_hint: 'refresh_token',
+            }).toString(),
+            headers: {
+              Authorization: `Basic ${basicAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          mock(db),
+        )
+        expect(revokeRes.status).toBe(200)
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if clientId not provided',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const tokenJson = await prepareRevoke()
+        const basicAuth = btoa(':')
+
+        const revokeRes = await app.request(
+          routeConfig.OauthRoute.Revoke,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              token: tokenJson.refresh_token,
+              token_type_hint: 'refresh_token',
+            }).toString(),
+            headers: {
+              Authorization: `Basic ${basicAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          mock(db),
+        )
+        expect(revokeRes.status).toBe(401)
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeTruthy()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if clientId does not match',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const tokenJson = await prepareRevoke()
+        const basicAuth = btoa('a1b2c3:')
+
+        const revokeRes = await app.request(
+          routeConfig.OauthRoute.Revoke,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              token: tokenJson.refresh_token,
+              token_type_hint: 'refresh_token',
+            }).toString(),
+            headers: {
+              Authorization: `Basic ${basicAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          mock(db),
+        )
+        expect(revokeRes.status).toBe(400)
+        expect(await revokeRes.text()).toBe(localeConfig.Error.WrongRefreshToken)
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeTruthy()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+  },
+)

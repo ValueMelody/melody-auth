@@ -25,6 +25,7 @@ export enum Error {
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
   WrongRefreshToken = 'Invalid refresh_token',
+  WrongTokenType = 'Unsupported token type',
   UniqueKey = 'Unique key constraint failed',
   NoEmailSender = 'No email sender',
   NoSmsSender = 'No sms sender',

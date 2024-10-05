@@ -47,3 +47,9 @@ oauthRoutes.get(
   authMiddleware.spaProfile,
   oauthHandler.getUserInfo,
 )
+
+oauthRoutes.post(
+  routeConfig.OauthRoute.Revoke,
+  authMiddleware.spaBasicAuth,
+  oauthHandler.revokeToken,
+)
