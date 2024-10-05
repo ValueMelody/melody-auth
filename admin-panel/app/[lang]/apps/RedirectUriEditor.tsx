@@ -1,12 +1,10 @@
 import {
   PlusIcon, TrashIcon,
 } from '@heroicons/react/16/solid'
-import { isURL } from 'class-validator'
 import {
   Button, TextInput,
 } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
-import FieldError from 'components/FieldError'
 
 const RedirectUriEditor = ({
   redirectUris,
@@ -69,14 +67,7 @@ const RedirectUriEditor = ({
                   <TrashIcon className='w-4 h-4' />
                 </Button>
               </section>
-              {uri && !isURL(
-                uri,
-                {
-                  require_protocol: true, require_tld: false,
-                },
-              ) && (
-                <FieldError error={t('apps.urlFormat')} />
-              )}
+              <p className='mt-2'>{t('apps.urlFormat')}</p>
             </section>
           ))
         }

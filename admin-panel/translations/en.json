@@ -52,7 +52,7 @@
     "type": "Type",
     "scopes": "Scopes",
     "redirectUris": "Redirect URIs",
-    "urlFormat": "Provide full url including protocol"
+    "urlFormat": "* Provide full url including protocol"
   },
   "users": {
     "title": "Users",

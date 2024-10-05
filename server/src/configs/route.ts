@@ -11,8 +11,9 @@ export enum InternalRoute {
 export enum OauthRoute {
   Authorize = `${InternalRoute.OAuth}/authorize`,
   Token = `${InternalRoute.OAuth}/token`,
-  Logout = `${InternalRoute.OAuth}/logout`,
   Userinfo = `${InternalRoute.OAuth}/userinfo`,
+  Revoke = `${InternalRoute.OAuth}/revoke`,
+  Logout = `${InternalRoute.OAuth}/logout`,
 }
 
 export enum IdentityRoute {

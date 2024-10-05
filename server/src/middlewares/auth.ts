@@ -63,6 +63,29 @@ export const spaProfile = bearerAuth({
   },
 })
 
+export const spaBasicAuth = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const authGuard = basicAuth({
+    verifyUser: (
+      username, password, c: Context<typeConfig.Context>,
+    ) => {
+      if (!username) return false
+      c.set(
+        'basic_auth_body',
+        {
+          username, password,
+        },
+      )
+      return true
+    },
+  })
+  return authGuard(
+    c,
+    next,
+  )
+}
+
 const s2sScopeGuard = async (
   c: Context<typeConfig.Context>, token: string, scope: Scope,
 ) => {
