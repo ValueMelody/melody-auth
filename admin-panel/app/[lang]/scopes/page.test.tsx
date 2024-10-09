@@ -1,9 +1,7 @@
 import {
   describe, it, expect, vi, beforeEach, Mock,
 } from 'vitest'
-import {
-  screen,
-} from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { render } from '../../../vitest.setup'
 import Page from 'app/[lang]/scopes/page'
 import { useGetApiV1ScopesQuery } from 'services/auth/api'
@@ -29,7 +27,9 @@ describe(
         const rows = screen.queryAllByTestId('scopeRow')
         expect(rows.length).toBe(4)
 
-        rows.forEach((row, index) => {
+        rows.forEach((
+          row, index,
+        ) => {
           expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(scopes[index].name)
           expect(row.querySelectorAll('td')[1]?.innerHTML).toContain(scopes[index].note)
           expect(row.querySelectorAll('td')[2]?.innerHTML).toContain(scopes[index].type.toUpperCase())

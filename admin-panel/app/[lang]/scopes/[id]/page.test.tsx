@@ -17,14 +17,15 @@ import { configSignal } from 'signals'
 let mockNav = {
   id: '1',
   push: vi.fn(),
-};
+}
 
-vi.mock('next/navigation', () => ({
-  useParams: vi.fn(() => ({ id: mockNav.id })),
-  useRouter: vi.fn(() => ({ 
-    push: mockNav.push, 
-  })),
-}))
+vi.mock(
+  'next/navigation',
+  () => ({
+    useParams: vi.fn(() => ({ id: mockNav.id })),
+    useRouter: vi.fn(() => ({ push: mockNav.push })),
+  }),
+)
 
 vi.mock(
   'services/auth/api',
@@ -35,19 +36,22 @@ vi.mock(
   }),
 )
 
-vi.mock('signals', () => ({
-  configSignal: {
-    value: {
-      ENABLE_USER_APP_CONSENT: true,
-      SUPPORTED_LOCALES: ['en', 'fr'],
+vi.mock(
+  'signals',
+  () => ({
+    configSignal: {
+      value: {
+        ENABLE_USER_APP_CONSENT: true,
+        SUPPORTED_LOCALES: ['en', 'fr'],
+      },
+      subscribe: () => () => {},
     },
-    subscribe: () => () => {},
-  },
-  errorSignal: {
-    value: '',
-    subscribe: () => () => {},
-  },
-}))
+    errorSignal: {
+      value: '',
+      subscribe: () => () => {},
+    },
+  }),
+)
 
 const mockUpdate = vi.fn()
 const mockDelete = vi.fn()
@@ -114,9 +118,13 @@ describe(
           putScopeReq: {
             note: 'new note',
             locales: [
-              { locale: 'en', value: 'test en' },
-              { locale: 'fr', value: 'test fr' },
-            ]
+              {
+                locale: 'en', value: 'test en',
+              },
+              {
+                locale: 'fr', value: 'test fr',
+              },
+            ],
           },
         })
       },
@@ -130,11 +138,11 @@ describe(
     beforeEach(() => {
       (useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({ data: { scope: scopes[2] } });
       (usePutApiV1ScopesByIdMutation as Mock).mockReturnValue([mockUpdate, { isLoading: false }]);
-      (useDeleteApiV1ScopesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }]);
+      (useDeleteApiV1ScopesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }])
       mockNav = {
         id: '3',
         push: vi.fn(),
-      };
+      }
     })
 
     it(
@@ -198,9 +206,13 @@ describe(
             name: 'new name',
             note: 'new note',
             locales: [
-              { locale: 'en', value: 'test en' },
-              { locale: 'fr', value: 'test fr' },
-            ]
+              {
+                locale: 'en', value: 'test en',
+              },
+              {
+                locale: 'fr', value: 'test fr',
+              },
+            ],
           },
         })
       },
@@ -278,11 +290,11 @@ describe(
     beforeEach(() => {
       (useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({ data: { scope: scopes[1] } });
       (usePutApiV1ScopesByIdMutation as Mock).mockReturnValue([mockUpdate, { isLoading: false }]);
-      (useDeleteApiV1ScopesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }]);
+      (useDeleteApiV1ScopesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }])
       mockNav = {
         id: '2',
         push: vi.fn(),
-      };
+      }
     })
 
     it(
@@ -322,9 +334,7 @@ describe(
 
         expect(mockUpdate).toHaveBeenLastCalledWith({
           id: 2,
-          putScopeReq: {
-            note: 'new note',
-          },
+          putScopeReq: { note: 'new note' },
         })
       },
     )
@@ -337,11 +347,11 @@ describe(
     beforeEach(() => {
       (useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({ data: { scope: scopes[3] } });
       (usePutApiV1ScopesByIdMutation as Mock).mockReturnValue([mockUpdate, { isLoading: false }]);
-      (useDeleteApiV1ScopesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }]);
+      (useDeleteApiV1ScopesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }])
       mockNav = {
         id: '4',
         push: vi.fn(),
-      };
+      }
     })
 
     it(

@@ -1,9 +1,7 @@
 import {
   describe, it, expect, vi, beforeEach, Mock,
 } from 'vitest'
-import {
-  screen,
-} from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { render } from '../../../vitest.setup'
 import Page from 'app/[lang]/roles/page'
 import { roles } from 'tests/roleMock'

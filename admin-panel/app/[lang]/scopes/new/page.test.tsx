@@ -20,19 +20,22 @@ vi.mock(
   () => ({ usePostApiV1ScopesMutation: vi.fn() }),
 )
 
-vi.mock('signals', () => ({
-  configSignal: {
-    value: {
-      ENABLE_USER_APP_CONSENT: true,
-      SUPPORTED_LOCALES: ['en', 'fr'],
+vi.mock(
+  'signals',
+  () => ({
+    configSignal: {
+      value: {
+        ENABLE_USER_APP_CONSENT: true,
+        SUPPORTED_LOCALES: ['en', 'fr'],
+      },
+      subscribe: () => () => {},
     },
-    subscribe: () => () => {},
-  },
-  errorSignal: {
-    value: '',
-    subscribe: () => () => {},
-  },
-}))
+    errorSignal: {
+      value: '',
+      subscribe: () => () => {},
+    },
+  }),
+)
 
 const mockCreate = vi.fn().mockReturnValue({ data: { scope: { id: 3 } } })
 
@@ -40,7 +43,7 @@ describe(
   'Page Component',
   () => {
     beforeEach(() => {
-      (usePostApiV1ScopesMutation as Mock).mockReturnValue([mockCreate, { isLoading: false }]);
+      (usePostApiV1ScopesMutation as Mock).mockReturnValue([mockCreate, { isLoading: false }])
     })
 
     it(
@@ -142,9 +145,13 @@ describe(
             note: 'new note',
             type: 'spa',
             locales: [
-              { locale: 'en', value: 'test en'},
-              { locale: 'fr', value: 'test fr'}
-            ]
+              {
+                locale: 'en', value: 'test en',
+              },
+              {
+                locale: 'fr', value: 'test fr',
+              },
+            ],
           },
         })
       },
