@@ -55,11 +55,13 @@ const Page = () => {
               <Table.Cell>{t('roles.name')}</Table.Cell>
               <Table.Cell>
                 <TextInput
+                  data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
                     e.target.value,
                   )}
-                  value={values.name} />
+                  value={values.name}
+                />
                 {showErrors && <FieldError error={errors.name} />}
               </Table.Cell>
             </Table.Row>
@@ -67,6 +69,7 @@ const Page = () => {
               <Table.Cell>{t('common.note')}</Table.Cell>
               <Table.Cell>
                 <TextInput
+                  data-testid='noteInput'
                   onChange={(e) => onChange(
                     'note',
                     e.target.value,

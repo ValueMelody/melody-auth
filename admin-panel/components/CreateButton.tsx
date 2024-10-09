@@ -14,6 +14,7 @@ const CreateButton = ({ href }: {
       color='gray'
       href={href}
       size='sm'
+      data-testid='createButton'
     >
       <div className='flex items-center gap-2'>
         <PlusIcon className='w-4 h-4' />

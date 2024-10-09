@@ -18,6 +18,7 @@ const SaveButton = ({
 
   return (
     <Button
+      data-testid='saveButton'
       disabled={disabled || isLoading}
       className={className}
       onClick={onClick}

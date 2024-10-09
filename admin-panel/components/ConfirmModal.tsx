@@ -25,6 +25,7 @@ const ConfirmModal = ({
       <Modal.Header>{title}</Modal.Header>
       <Modal.Footer>
         <Button
+          data-testid='confirmButton'
           color='failure'
           onClick={onConfirm}>
           {confirmButtonText || t('common.deleteConfirmBtn')}

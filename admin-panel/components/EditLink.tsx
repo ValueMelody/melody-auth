@@ -11,7 +11,9 @@ const EditLink = ({ href }: {
       as={Link}
       href={href}
       color='gray'
-      size='sm'>
+      size='sm'
+      data-testid='editLink'
+    >
       <PencilSquareIcon className='w-4 h-4' />
     </Button>
   )

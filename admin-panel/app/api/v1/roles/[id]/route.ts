@@ -24,7 +24,6 @@ export async function PUT (
   const id = context.params.id
 
   const reqBody = await request.json()
-  console.log(reqBody)
   if (!reqBody) return throwForbiddenError()
 
   return sendS2SRequest({

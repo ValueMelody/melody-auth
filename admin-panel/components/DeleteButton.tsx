@@ -43,6 +43,7 @@ const DeleteButton = ({
         confirmButtonText={buttonText}
       />
       <Button
+        data-testid='deleteButton'
         disabled={isLoading || disabled}
         className={className}
         onClick={handleClick}
