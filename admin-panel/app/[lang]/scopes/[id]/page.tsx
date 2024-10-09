@@ -125,6 +125,7 @@ const Page = () => {
                   ? values.name
                   : (
                     <TextInput
+                      data-testid='nameInput'
                       onChange={(e) => onChange(
                         'name',
                         e.target.value,
@@ -139,6 +140,7 @@ const Page = () => {
               <Table.Cell>{t('common.note')}</Table.Cell>
               <Table.Cell>
                 <TextInput
+                  data-testid='noteInput'
                   onChange={(e) => onChange(
                     'note',
                     e.target.value,
@@ -186,15 +188,17 @@ const Page = () => {
           disabled={!canUpdate || isDeleting}
           onClick={handleSave}
         />
-        <DeleteButton
-          isLoading={isDeleting}
-          disabled={isUpdating}
-          confirmDeleteTitle={t(
-            'common.deleteConfirm',
-            { item: values.name },
-          )}
-          onConfirmDelete={handleDelete}
-        />
+        {!isSystem && (
+          <DeleteButton
+            isLoading={isDeleting}
+            disabled={isUpdating}
+            confirmDeleteTitle={t(
+              'common.deleteConfirm',
+              { item: values.name },
+            )}
+            onConfirmDelete={handleDelete}
+          />
+        )}
       </section>
     </section>
   )

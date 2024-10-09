@@ -10,8 +10,10 @@ export const ClientTypeSelector = ({
 }) => {
   return (
     <Select
+      data-testid='typeSelect'
       value={value}
-      onChange={(e) => onChange(e.target.value)}>
+      onChange={(e) => onChange(e.target.value)}
+    >
       <option disabled></option>
       <option value={typeTool.ClientType.SPA}>SPA</option>
       <option value={typeTool.ClientType.S2S}>S2S</option>
