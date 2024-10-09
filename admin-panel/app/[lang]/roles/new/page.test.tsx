@@ -18,7 +18,7 @@ vi.mock(
   () => ({ usePostApiV1RolesMutation: vi.fn() }),
 )
 
-const mockCreate = vi.fn().mockReturnValue({ data: { role: { id: 1 } } })
+const mockCreate = vi.fn().mockReturnValue({ data: { role: { id: 3 } } })
 describe(
   'Page Component',
   () => {

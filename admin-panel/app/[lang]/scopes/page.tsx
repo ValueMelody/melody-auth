@@ -62,7 +62,9 @@ const Page = () => {
         </Table.Body>
         <Table.Body className='divide-y max-md:hidden'>
           {scopes.map((scope) => (
-            <Table.Row key={scope.id}>
+            <Table.Row
+              data-testid='scopeRow'
+              key={scope.id}>
               <Table.Cell>
                 <div className='flex items-center gap-2'>
                   {scope.name}

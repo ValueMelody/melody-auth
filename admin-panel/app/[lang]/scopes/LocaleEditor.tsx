@@ -40,6 +40,7 @@ const LocaleEditor = ({
           className='flex items-center gap-4'>
           <p>{locale.toUpperCase()}</p>
           <TextInput
+            data-testid='localeInput'
             className='w-full'
             onChange={(e) => handleSetLocale(
               locale,
