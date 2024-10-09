@@ -52,7 +52,9 @@ const Page = () => {
         </Table.Head>
         <Table.Body className='divide-y md:hidden'>
           {roles.map((role) => (
-            <Table.Row key={role.id}>
+            <Table.Row
+              key={role.id}
+              data-testid='roleRow'>
               <Table.Cell>
                 <section className='flex justify-between items-center'>
                   <div className='flex flex-col gap-2'>
