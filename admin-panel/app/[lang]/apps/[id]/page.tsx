@@ -121,6 +121,7 @@ const Page = () => {
               <Table.Cell>{t('apps.name')}</Table.Cell>
               <Table.Cell>
                 <TextInput
+                  data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
                     e.target.value,
@@ -152,6 +153,7 @@ const Page = () => {
               <Table.Cell>{t('apps.status')}</Table.Cell>
               <Table.Cell>
                 <ToggleSwitch
+                  data-testid='statusInput'
                   checked={values.isActive}
                   onChange={() => onChange(
                     'isActive',
