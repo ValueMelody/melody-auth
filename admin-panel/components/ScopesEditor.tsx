@@ -19,6 +19,7 @@ const ScopesEditor = ({
           key={scope.id}
           className='flex items-center gap-2'>
           <Checkbox
+            data-testid='scopeInput'
             id={`scope-${scope.id}`}
             onChange={() => onToggleScope(scope.name)}
             checked={value?.includes(scope.name)}

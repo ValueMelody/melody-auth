@@ -60,7 +60,9 @@ const Page = () => {
         </Table.Body>
         <Table.Body className='divide-y max-md:hidden'>
           {apps.map((app) => (
-            <Table.Row key={app.id}>
+            <Table.Row
+              key={app.id}
+              data-testid='appRow'>
               <Table.Cell>{app.name}</Table.Cell>
               <Table.Cell>{app.clientId}</Table.Cell>
               <Table.Cell>

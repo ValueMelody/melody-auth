@@ -96,6 +96,7 @@ const Page = () => {
               <Table.Cell>{t('apps.name')}</Table.Cell>
               <Table.Cell>
                 <TextInput
+                  data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
                     e.target.value,

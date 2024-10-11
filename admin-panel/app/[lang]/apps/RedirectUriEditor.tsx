@@ -52,6 +52,7 @@ const RedirectUriEditor = ({
             >
               <section className='flex items-center gap-2 w-full'>
                 <TextInput
+                  data-testid='redirectUriInput'
                   onChange={(e) => handleUpdateUri(
                     index,
                     e.target.value,
@@ -76,6 +77,7 @@ const RedirectUriEditor = ({
         onClick={handleAddMoreUri}
         className='mt-4'
         size='xs'
+        data-testid='redirectUriAddButton'
       >
         <PlusIcon className='w-4 h-4' />
       </Button>
