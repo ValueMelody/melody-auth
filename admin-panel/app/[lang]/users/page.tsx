@@ -79,7 +79,8 @@ const Page = () => {
         </Table.Head>
         <Table.Body className='divide-y md:hidden'>
           {users.map((user) => (
-            <Table.Row key={user.id}>
+            <Table.Row
+              key={user.id}>
               <Table.Cell>
                 <section className='flex items-center justify-between'>
                   <section className='flex flex-col gap-2'>
@@ -103,7 +104,9 @@ const Page = () => {
         </Table.Body>
         <Table.Body className='divide-y max-md:hidden'>
           {users.map((user) => (
-            <Table.Row key={user.id}>
+            <Table.Row
+              key={user.id}
+              data-testid='userRow'>
               <Table.Cell>
                 <div className='flex items-center gap-2'>
                   {user.authId}

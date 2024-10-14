@@ -389,6 +389,7 @@ const Page = () => {
               <Table.Cell>
                 {configs.SUPPORTED_LOCALES.length > 1 && (
                   <Select
+                    data-testid='localeSelect'
                     value={locale}
                     onChange={(e) => setLocale(e.target.value)}
                   >
@@ -396,6 +397,7 @@ const Page = () => {
                     {configs.SUPPORTED_LOCALES.map((locale: string) => (
                       <option
                         key={locale}
+                        data-testid='localeOption'
                         value={locale}>{locale.toUpperCase()}
                       </option>
                     ))}
@@ -428,6 +430,7 @@ const Page = () => {
                     <div className='flex items-center gap-6'>
                       {lockedIPs?.map((ip) => (
                         <Badge
+                          data-testid='lockedIpBadge'
                           color='gray'
                           key={ip}>{ip || t('users.noIP')}
                         </Badge>
@@ -453,6 +456,7 @@ const Page = () => {
                       className='flex items-center gap-2'>
                       <Checkbox
                         id={`role-${role.id}`}
+                        data-testid='roleInput'
                         onChange={() => handleToggleUserRole(role.name)}
                         checked={userRoles?.includes(role.name)}
                       />
@@ -472,6 +476,7 @@ const Page = () => {
                   <Table.Cell>{t('users.firstName')}</Table.Cell>
                   <Table.Cell>
                     <TextInput
+                      data-testid='firstNameInput'
                       onChange={(e) => setFirstName(e.target.value)}
                       value={firstName ?? ''}
                     />
@@ -481,6 +486,7 @@ const Page = () => {
                   <Table.Cell>{t('users.lastName')}</Table.Cell>
                   <Table.Cell>
                     <TextInput
+                      data-testid='lastNameInput'
                       onChange={(e) => setLastName(e.target.value)}
                       value={lastName ?? ''}
                     />
