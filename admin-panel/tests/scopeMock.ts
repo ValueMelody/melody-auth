@@ -33,5 +33,4 @@ export const scopes = [{
   createdAt: '2024-08-07 20:45:27',
   updatedAt: '2024-08-07 20:45:27',
   deletedAt: null,
-},
-]
+}]
