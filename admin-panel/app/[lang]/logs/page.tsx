@@ -96,7 +96,9 @@ const Page = () => {
             </Table.Head>
             <Table.Body className='divide-y'>
               {emailLogs.map((log) => (
-                <Table.Row key={log.id}>
+                <Table.Row
+                  data-testid='emailLogRow'
+                  key={log.id}>
                   <Table.Cell>{log.receiver}</Table.Cell>
                   <Table.Cell><ConfigBooleanValue config={log.success}/></Table.Cell>
                   <Table.Cell>{log.createdAt}</Table.Cell>
@@ -138,7 +140,9 @@ const Page = () => {
             </Table.Head>
             <Table.Body className='divide-y'>
               {smsLogs.map((log) => (
-                <Table.Row key={log.id}>
+                <Table.Row
+                  data-testid='smsLogRow'
+                  key={log.id}>
                   <Table.Cell>{log.receiver}</Table.Cell>
                   <Table.Cell><ConfigBooleanValue config={log.success}/></Table.Cell>
                   <Table.Cell>{log.createdAt}</Table.Cell>
@@ -179,7 +183,9 @@ const Page = () => {
             </Table.Head>
             <Table.Body className='divide-y'>
               {signInLogs.map((log) => (
-                <Table.Row key={log.id}>
+                <Table.Row
+                  data-testid='signInRow'
+                  key={log.id}>
                   <Table.Cell>{log.userId}</Table.Cell>
                   <Table.Cell>{log.createdAt}</Table.Cell>
                   <Table.Cell>
