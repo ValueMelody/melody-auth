@@ -38,9 +38,9 @@ GITHUB_AUTH_CLIENT_ID="" # GitHub Sign-in In will be suppressed if it is empty. 
 GITHUB_AUTH_APP_NAME="" # GitHub Sign-in In will be suppressed if it is empty. When enable, you also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
 TERMS_LINK="" # Display a link to your terms on sign-up page
 PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
-ENABLE_EMAIL_LOG=false # Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
-ENABLE_SMS_LOG=false # Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler
-ENABLE_SIGN_IN_LOG=false # Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.
+ENABLE_EMAIL_LOG=true # Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
+ENABLE_SMS_LOG=true # Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler
+ENABLE_SIGN_IN_LOG=true # Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.
 
 [[kv_namespaces]]
 binding = "KV"
