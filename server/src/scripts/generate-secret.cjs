@@ -21,6 +21,14 @@ function arrayBufferToBase64 (buffer) {
   ).toString('base64')
 }
 
+function getWranglerResponse (cmd) {
+  const response = execSync(cmd).toString()
+  return response.replace(
+    "Proxy environment variables detected. We'll use your proxy for fetch requests.",
+    '',
+  )
+}
+
 const PRIVATE_KEY_FILE = 'jwt_private_key.pem'
 const PUBLIC_KEY_FILE = 'jwt_public_key.pem'
 const NODE_PRIVATE_KEY_FILE = 'node_jwt_private_key.pem'
@@ -101,16 +109,16 @@ async function generateRSAKeyPair () {
   } else {
     const condition = isProd ? '' : '--local'
 
-    const [hasSessionSecret] = JSON.parse(execSync(`wrangler kv key list --prefix=sessionSecret --binding=KV ${condition}`).toString())
+    const [hasSessionSecret] = JSON.parse(getWranglerResponse(`wrangler kv key list --prefix=sessionSecret --binding=KV ${condition}`))
     if (!hasSessionSecret) {
       execSync(`wrangler kv key put sessionSecret ${sessionSecret} --binding=KV ${condition}`)
     }
 
-    const [hasPublicKey] = JSON.parse(execSync(`wrangler kv key list --prefix=jwtPublicSecret --binding=KV ${condition}`).toString())
-    const [hasPrivateKey] = JSON.parse(execSync(`wrangler kv key list --prefix=jwtPrivateSecret --binding=KV ${condition}`).toString())
+    const [hasPublicKey] = JSON.parse(getWranglerResponse(`wrangler kv key list --prefix=jwtPublicSecret --binding=KV ${condition}`))
+    const [hasPrivateKey] = JSON.parse(getWranglerResponse(`wrangler kv key list --prefix=jwtPrivateSecret --binding=KV ${condition}`))
     if (hasPublicKey && hasPrivateKey) {
-      const currentPublicKey = execSync(`wrangler kv key get jwtPublicSecret --binding=KV ${condition}`).toString()
-      const currentPrivateKey = execSync(`wrangler kv key get jwtPrivateSecret --binding=KV ${condition}`).toString()
+      const currentPublicKey = getWranglerResponse(`wrangler kv key get jwtPublicSecret --binding=KV ${condition}`)
+      const currentPrivateKey = getWranglerResponse(`wrangler kv key get jwtPrivateSecret --binding=KV ${condition}`)
 
       fs.writeFileSync(
         PUBLIC_KEY_FILE,
