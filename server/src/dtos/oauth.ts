@@ -58,7 +58,7 @@ export class GetAuthorizeReqDto {
 
   @IsEnum(Policy)
   @IsOptional()
-    policy: string | undefined
+    policy?: string | undefined
 
   constructor (dto: GetAuthorizeReqDto) {
     this.clientId = dto.clientId
