@@ -1,5 +1,6 @@
 import {
   ArrayMinSize, IsEnum, IsString, IsNotEmpty,
+  IsOptional,
 } from 'class-validator'
 import { typeConfig } from 'configs'
 
@@ -16,6 +17,11 @@ export enum TokenGrantType {
   AuthorizationCode = 'authorization_code',
   RefreshToken = 'refresh_token',
   ClientCredentials = 'client_credentials',
+}
+
+export enum Policy {
+  SignInOrSignUp = 'sign_in_or_sign_up',
+  ChangePassword = 'change_password',
 }
 
 const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())
@@ -50,6 +56,10 @@ export class GetAuthorizeReqDto {
   @IsString()
     locale: typeConfig.Locale
 
+  @IsEnum(Policy)
+  @IsOptional()
+    policy: string | undefined
+
   constructor (dto: GetAuthorizeReqDto) {
     this.clientId = dto.clientId
     this.redirectUri = dto.redirectUri.toLowerCase()
@@ -59,6 +69,7 @@ export class GetAuthorizeReqDto {
     this.codeChallengeMethod = dto.codeChallengeMethod.toLowerCase()
     this.scopes = parseScopes(dto.scopes)
     this.locale = dto.locale
+    this.policy = dto.policy
   }
 }
 

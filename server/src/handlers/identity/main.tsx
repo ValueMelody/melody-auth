@@ -21,24 +21,33 @@ import {
 } from 'views'
 import { userModel } from 'models'
 import { oauthHandler } from 'handlers'
+import { Policy } from 'dtos/oauth'
 
 export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
 
   const {
     COMPANY_LOGO_URL: logoUrl,
-    ENABLE_SIGN_UP: enableSignUp,
-    ENABLE_PASSWORD_RESET: enablePasswordReset,
-    ENABLE_PASSWORD_SIGN_IN: enablePasswordSignIn,
+    ENABLE_SIGN_UP: allowSignUp,
+    ENABLE_PASSWORD_RESET: allowPasswordReset,
+    ENABLE_PASSWORD_SIGN_IN: allowPasswordSignIn,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-    GOOGLE_AUTH_CLIENT_ID: googleClientId,
-    FACEBOOK_AUTH_CLIENT_ID: facebookClientId,
+    GOOGLE_AUTH_CLIENT_ID: googleAuthId,
+    FACEBOOK_AUTH_CLIENT_ID: facebookAuthId,
     FACEBOOK_AUTH_CLIENT_SECRET: facebookClientSecret,
-    GITHUB_AUTH_CLIENT_ID: githubClientId,
+    GITHUB_AUTH_CLIENT_ID: githubAuthId,
     GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
     GITHUB_AUTH_APP_NAME: githubAppName,
   } = env(c)
+
+  const isChangePassword = queryDto.policy === Policy.ChangePassword
+  const enablePasswordReset = isChangePassword ? false : allowPasswordReset
+  const enableSignUp = isChangePassword ? false : allowSignUp
+  const enablePasswordSignIn = isChangePassword ? true : allowPasswordSignIn
+  const googleClientId = isChangePassword ? '' : googleAuthId
+  const facebookClientId = isChangePassword ? '' : facebookAuthId
+  const githubClientId = isChangePassword ? '' : githubAuthId
 
   const queryString = requestUtil.getQueryString(c)
 

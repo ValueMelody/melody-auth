@@ -37,4 +37,5 @@ export enum IdentityRoute {
   ResendResetCode = `${InternalRoute.Identity}/resend-reset-code`,
   VerifyEmail = `${InternalRoute.Identity}/verify-email`,
   Logout = `${InternalRoute.Identity}/logout`,
+  ChangePassword = `${InternalRoute.Identity}/change-password`,
 }
