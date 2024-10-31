@@ -190,3 +190,16 @@ identityRoutes.get(
   routeConfig.IdentityRoute.AuthCodeExpired,
   identityHandler.getAuthCodeExpired,
 )
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.ChangePassword,
+  configMiddleware.enablePasswordReset,
+  identityHandler.getChangePassword,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ChangePassword,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasswordReset,
+  identityHandler.postChangePassword,
+)

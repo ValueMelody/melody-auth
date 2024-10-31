@@ -145,6 +145,17 @@ export class PostAuthorizeEnrollReqDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
+export class PostChangePasswordReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsString()
+  @IsNotEmpty()
+    password: string
+
+  constructor (dto: PostChangePasswordReqDto) {
+    super(dto)
+    this.password = dto.password
+  }
+}
+
 export class PostLogoutReqDto {
   @IsString()
   @IsNotEmpty()

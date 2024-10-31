@@ -8,6 +8,7 @@ import AuthorizeSmsMfaView from 'views/AuthorizeSmsMfa'
 import AuthorizeMfaEnrollView from 'views/AuthorizeMfaEnroll'
 import VerifyEmailView from 'views/VerifyEmail'
 import AuthCodeExpired from 'views/AuthCodeExpired'
+import ChangePassword from 'views/ChangePassword'
 
 export {
   AuthorizeAccountView,
@@ -20,4 +21,5 @@ export {
   AuthorizeSmsMfaView,
   AuthorizeMfaEnrollView,
   AuthCodeExpired,
+  ChangePassword,
 }

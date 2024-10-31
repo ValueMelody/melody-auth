@@ -412,6 +412,33 @@ export const resetUserPassword = async (
   return true
 }
 
+export const changeUserPassword = async (
+  c: Context<typeConfig.Context>,
+  user: userModel.Record,
+  bodyDto: identityDto.PostChangePasswordReqDto,
+): Promise<true> => {
+  if (!user.password) {
+    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  }
+
+  const isSame = cryptoUtil.bcryptCompare(
+    bodyDto.password,
+    user.password,
+  )
+  if (isSame) {
+    throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentPassword)
+  }
+
+  const password = await cryptoUtil.bcryptText(bodyDto.password)
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    { password },
+  )
+  return true
+}
+
 export const enrollUserMfa = async (
   c: Context<typeConfig.Context>,
   authId: string,

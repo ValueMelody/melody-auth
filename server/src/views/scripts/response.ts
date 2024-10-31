@@ -15,29 +15,27 @@ export const parseRes = () => html`
 
 export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
   var queryString = "?state=" + data.state + "&code=" + data.code + "&locale=" + "${locale}";
+  var innerQueryString = queryString += "&redirect_uri=" + data.redirectUri;
   if (data.requireConsent) {
-    queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.IdentityRoute.AuthorizeConsent}" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeConsent}" + innerQueryString
     window.location.href = url;
   } else if (data.requireMfaEnroll) {
-    queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.IdentityRoute.AuthorizeMfaEnroll}" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeMfaEnroll}" + innerQueryString
     window.location.href = url;
   } else if (data.requireOtpSetup) {
-    queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.IdentityRoute.AuthorizeOtpSetup}" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeOtpSetup}" + innerQueryString
     window.location.href = url;
   } else if (data.requireOtpMfa) {
-    queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.IdentityRoute.AuthorizeOtpMfa}" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeOtpMfa}" + innerQueryString
     window.location.href = url;
   } else if (data.requireSmsMfa) {
-    queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.IdentityRoute.AuthorizeSmsMfa}" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeSmsMfa}" + innerQueryString
     window.location.href = url;
   } else if (data.requireEmailMfa) {
-    queryString += "&redirect_uri=" + data.redirectUri;
-    var url = "${routeConfig.IdentityRoute.AuthorizeEmailMfa}" + queryString
+    var url = "${routeConfig.IdentityRoute.AuthorizeEmailMfa}" + innerQueryString
+    window.location.href = url;
+  } else if (data.requireChangePassword) {
+    var url = "${routeConfig.IdentityRoute.ChangePassword}" + innerQueryString
     window.location.href = url;
   } else {
     var url = data.redirectUri + queryString;

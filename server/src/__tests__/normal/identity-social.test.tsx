@@ -92,6 +92,7 @@ describe(
         requireOtpSetup: false,
         requireOtpMfa: false,
         requireSmsMfa: false,
+        requireChangePassword: false,
       })
     }
 
@@ -281,6 +282,7 @@ describe(
         requireOtpSetup: false,
         requireOtpMfa: false,
         requireSmsMfa: false,
+        requireChangePassword: false,
       })
     }
 
