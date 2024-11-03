@@ -316,7 +316,7 @@ npm run prod:deploy
 [Email functionality setup required](#email-functionality-setup)
 
 ### EMAIL_MFA_EMAIL_THRESHOLD
-- **Default:** 30
+- **Default:** 10
 - **Description:** Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 
 ### ENFORCE_ONE_MFA_ENROLLMENT
