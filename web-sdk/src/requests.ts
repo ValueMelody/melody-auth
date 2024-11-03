@@ -13,16 +13,19 @@ export const getAuthorize = async (
     state,
     codeChallenge,
     locale,
+    policy,
   }: {
   state: string;
   codeChallenge: string;
   locale?: string;
+  policy?: string;
 },
 ) => {
   const combinedScopes = scopes.map((scope) => scope.trim().toLowerCase());
   ['openid', 'profile', 'offline_access'].forEach((scope) => {
     if (!combinedScopes.includes(scope)) combinedScopes.push(scope)
   })
+  const policyString = policy ? `&policy=${policy}` : ''
   const url = serverUri +
     '/oauth2/v1/authorize?response_type=code&state=' +
     state +
@@ -33,6 +36,7 @@ export const getAuthorize = async (
     '&code_challenge=' +
     codeChallenge +
     '&code_challenge_method=S256' +
+    policyString +
     '&scope=' + combinedScopes.join(' ')
 
   window.location.href = locale ? `${url}&locale=${locale}` : url

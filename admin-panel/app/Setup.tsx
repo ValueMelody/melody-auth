@@ -199,6 +199,13 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
           <Navbar.Link
             as={Link}
             className='flex items-center h-6'
+            href={`/${locale}${routeTool.Internal.Account}`}
+          >
+            {t('layout.account')}
+          </Navbar.Link>
+          <Navbar.Link
+            as={Link}
+            className='flex items-center h-6'
             href={`/${locale === 'en' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`}
           >
             {locale === 'en' ? 'FR' : 'EN'}

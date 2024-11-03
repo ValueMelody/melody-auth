@@ -9,6 +9,7 @@ import { getAuthorize } from '../requests'
 export interface AdditionalProps {
   locale?: string;
   state?: string;
+  policy?: string;
 }
 
 export const loginRedirect = async (
@@ -30,7 +31,7 @@ export const loginRedirect = async (
     await getAuthorize(
       config,
       {
-        state, codeChallenge, locale: additionalProps.locale,
+        state, codeChallenge, locale: additionalProps.locale, policy: additionalProps.policy,
       },
     )
   } catch (e) {

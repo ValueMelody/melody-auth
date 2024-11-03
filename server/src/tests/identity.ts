@@ -38,12 +38,12 @@ export const getAuthorizeParams = async (appRecord: appModel.Record) => {
 }
 
 export const getSignInRequest = async (
-  db: Database, url: string, appRecord: appModel.Record,
+  db: Database, url: string, appRecord: appModel.Record, additionalParams?: string,
 ) => {
   const params = await getAuthorizeParams(appRecord)
 
   const res = await app.request(
-    `${url}${params}`,
+    `${url}${params}${additionalParams ?? ''}`,
     {},
     mock(db),
   )

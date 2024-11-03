@@ -60,7 +60,7 @@ describe(
           ENFORCE_ONE_MFA_ENROLLMENT: ['otp', 'email'],
           ENABLE_EMAIL_VERIFICATION: true,
           EMAIL_MFA_IS_REQUIRED: false,
-          EMAIL_MFA_EMAIL_THRESHOLD: 5,
+          EMAIL_MFA_EMAIL_THRESHOLD: 10,
           OTP_MFA_IS_REQUIRED: false,
           SMS_MFA_IS_REQUIRED: false,
           SMS_MFA_MESSAGE_THRESHOLD: 5,

@@ -5,4 +5,5 @@ export enum Internal {
   Apps = '/apps',
   Scopes = '/scopes',
   Logs = '/logs',
+  Account = '/account',
 }

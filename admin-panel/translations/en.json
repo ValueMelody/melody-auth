@@ -8,7 +8,11 @@
     "apps": "Manage Apps",
     "scopes": "Manage Scopes",
     "logs": "View Logs",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "account": "Account"
+  },
+  "account": {
+    "changePassword": "Change Password"
   },
   "common": {
     "enable": "Enable",

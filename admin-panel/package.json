@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.4",
-    "@melody-auth/react": "^0.0.8",
+    "@melody-auth/react": "^0.0.9",
     "@preact/signals-react": "^2.1.0",
     "@reduxjs/toolkit": "^2.2.7",
     "class-validator": "^0.14.1",
