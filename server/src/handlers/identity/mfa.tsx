@@ -49,7 +49,12 @@ const handleSendEmailMfa = async (
     c.env.KV,
     authCode,
   )
-  if (!authCodeBody) return false
+  if (!authCodeBody) {
+    return {
+      result: false,
+      reason: localeConfig.Error.WrongAuthCode,
+    }
+  }
 
   const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
   const couldFallbackAsOtp = allowOtpSwitchToEmailMfa(
@@ -71,7 +76,12 @@ const handleSendEmailMfa = async (
   )
 
   if (threshold) {
-    if (attempts >= threshold) throw new errorConfig.Forbidden(localeConfig.Error.EmailMfaLocked)
+    if (attempts >= threshold) {
+      return {
+        result: false,
+        reason: localeConfig.Error.EmailMfaLocked,
+      }
+    }
 
     await kvService.setEmailMfaEmailAttempts(
       c.env.KV,
@@ -95,7 +105,7 @@ const handleSendEmailMfa = async (
     )
   }
 
-  return true
+  return { result: true }
 }
 
 const allowSmsSwitchToEmailMfa = (
@@ -515,12 +525,19 @@ export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
     queryDto.code,
     queryDto.locale,
   )
-  if (!emailRes) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  if (!emailRes || (!emailRes.result && emailRes.reason === localeConfig.Error.WrongAuthCode)) {
+    return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  }
 
   return c.html(<AuthorizeEmailMfaView
     logoUrl={logoUrl}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
+    error={
+      !emailRes.result && emailRes.reason === localeConfig.Error.EmailMfaLocked
+        ? localeConfig.requestError.emailMfaLocked
+        : undefined
+    }
   />)
 }
 
@@ -580,7 +597,13 @@ export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
     bodyDto.locale || locales[0],
   )
-  if (!emailRes) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!emailRes || (!emailRes.result && emailRes.reason === localeConfig.Error.WrongAuthCode)) {
+    throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  }
+
+  if (!emailRes.result && emailRes.reason === localeConfig.Error.EmailMfaLocked) {
+    throw new errorConfig.Forbidden(localeConfig.Error.EmailMfaLocked)
+  }
 
   return c.json({ success: true })
 }

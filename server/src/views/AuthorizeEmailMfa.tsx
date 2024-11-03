@@ -15,11 +15,12 @@ import Field from 'views/components/Field'
 import SubmitButton from 'views/components/SubmitButton'
 
 const AuthorizeEmailMfa = ({
-  queryDto, logoUrl, locales,
+  queryDto, logoUrl, locales, error,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   logoUrl: string;
   locales: typeConfig.Locale[];
+  error?: { en: string; fr: string };
 }) => {
   return (
     <Layout
@@ -27,30 +28,37 @@ const AuthorizeEmailMfa = ({
       logoUrl={logoUrl}
       locale={queryDto.locale}
     >
-      <h1 class='w-text text-center'>{localeConfig.authorizeEmailMfa.title[queryDto.locale]}</h1>
+      {!error && (
+        <h1 class='w-text text-center'>{localeConfig.authorizeEmailMfa.title[queryDto.locale]}</h1>
+      )}
       <SubmitError />
-      <form
-        onsubmit='return handleSubmit(event)'
-      >
-        <section class='flex-col gap-4'>
-          <Field
-            type='text'
-            required={false}
-            name='code'
-          />
-          <button
-            id='resend-btn'
-            type='button'
-            class='button-text'
-            onclick='resendCode()'
-          >
-            {localeConfig.authorizeEmailMfa.resend[queryDto.locale]}
-          </button>
-          <SubmitButton
-            title={localeConfig.authorizeEmailMfa.verify[queryDto.locale]}
-          />
-        </section>
-      </form>
+      {error && <SubmitError
+        show
+        message={error[queryDto.locale]} />}
+      {!error && (
+        <form
+          onsubmit='return handleSubmit(event)'
+        >
+          <section class='flex-col gap-4'>
+            <Field
+              type='text'
+              required={false}
+              name='code'
+            />
+            <button
+              id='resend-btn'
+              type='button'
+              class='button-text'
+              onclick='resendCode()'
+            >
+              {localeConfig.authorizeEmailMfa.resend[queryDto.locale]}
+            </button>
+            <SubmitButton
+              title={localeConfig.authorizeEmailMfa.verify[queryDto.locale]}
+            />
+          </section>
+        </form>
+      )}
       {html`
         <script>
           ${resetErrorScript.resetCodeError()}
@@ -71,6 +79,10 @@ const AuthorizeEmailMfa = ({
                 var resendBtn = document.getElementById("resend-btn")
                 resendBtn.disabled = true;
                 resendBtn.innerHTML = "${localeConfig.authorizeEmailMfa.resent[queryDto.locale]}"
+              } else {
+                return response.text().then(text => {
+                  throw new Error(text);
+                });
               }
             })
             .catch((error) => {

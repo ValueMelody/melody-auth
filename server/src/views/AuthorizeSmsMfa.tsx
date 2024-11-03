@@ -171,6 +171,10 @@ const AuthorizeSmsMfa = ({
                   document.getElementById('code-row').classList.remove('hidden');
                   document.getElementById('resend-btn').classList.remove('hidden');
                   document.getElementById('submit-button').innerHTML = "${localeConfig.authorizeSmsMfa.verify[queryDto.locale]}"
+                } else {
+                  return response.text().then(text => {
+                    throw new Error(text);
+                  });
                 }
               })
               .catch((error) => {
