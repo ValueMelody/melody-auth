@@ -8,7 +8,11 @@
     "apps": "Gérer les applications",
     "scopes": "Gérer les portées",
     "logs": "Afficher les journaux",
-    "dashboard": "Tableau de bord"
+    "dashboard": "Tableau de bord",
+    "account": "Compte"
+  },
+  "account": {
+    "changePassword": "Changer le mot de passe"
   },
   "common": {
     "enable": "Activer",

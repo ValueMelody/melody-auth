@@ -17,6 +17,7 @@ import {
 import {
   signInLogModel, userModel,
 } from 'models'
+import { Policy } from 'dtos/oauth'
 
 export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeReqDto> => {
   const queryDto = new oauthDto.GetAuthorizeReqDto({
@@ -104,8 +105,13 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       )
     }
 
-    const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
-    return c.redirect(url)
+    if (!queryDto.policy || queryDto.policy === Policy.SignInOrSignUp) {
+      const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
+      return c.redirect(url)
+    } else if (queryDto.policy === Policy.ChangePassword) {
+      const url = `${routeConfig.IdentityRoute.ChangePassword}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}`
+      return c.redirect(url)
+    }
   }
 
   const queryString = requestUtil.getQueryString(c)
