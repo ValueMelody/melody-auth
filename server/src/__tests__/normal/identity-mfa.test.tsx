@@ -1713,6 +1713,48 @@ describe(
     )
 
     test(
+      'could protect against threshold',
+      async () => {
+        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 1 as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(1)
+        expect(document.getElementsByName('code').length).toBe(1)
+        expect(document.getElementsByTagName('form').length).toBe(1)
+
+        const res1 = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeEmailMfa}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res1.status).toBe(200)
+        const html1 = await res1.text()
+        const dom1 = new JSDOM(html1)
+        const document1 = dom1.window.document
+        expect(document1.getElementsByTagName('select').length).toBe(1)
+        expect(document1.getElementsByName('code').length).toBe(0)
+        expect(document1.getElementsByTagName('form').length).toBe(0)
+
+        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 10 as unknown as string
+      },
+    )
+
+    test(
       'could disable locale selector',
       async () => {
         global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
@@ -1808,7 +1850,7 @@ describe(
         const res3 = await sendRequest()
         expect(res3.status).toBe(200)
 
-        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 5 as unknown as string
+        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 10 as unknown as string
       },
     )
 
