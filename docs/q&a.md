@@ -101,3 +101,28 @@ After running these commands, the old secret will be removed, and any tokens sig
 - Enforcing specific MFA types: You can set OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, or EMAIL_MFA_IS_REQUIRED to true to enforce those MFA methods as a login requirement.
 - Letting users choose one of the supported MFA types: If OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false, you can set ENFORCE_ONE_MFA_ENROLLMENT to contain the MFA types you want to support. The user will then be required to enroll in one of the selected MFA types.
 - You can also use the MFA enrollment functionality provided by the admin panel or the S2S API to customize your MFA enrollment flow.
+
+## How to trigger a different policy
+- To trigger a different policy, add policy=[policy] as a query string when redirecting the user to the authorization page.
+```
+  const url = serverUri +
+    '/oauth2/v1/authorize?' +
+    'response_type=code' +
+    '&state=' + state +
+    '&client_id=' + clientId +
+    '&redirect_uri=' + redirectUri +
+    '&code_challenge=' + codeChallenge +
+    '&code_challenge_method=S256' +
+    '&policy=' + policy +
+    '&scope=' + scope +
+    '&locale=' + locale
+  window.location.href = url
+```
+- When using the React SDK, you can trigger the loginRedirect function with a policy parameter:
+```
+const { loginRedirect } = useAuth()
+
+loginRedirect({
+  policy: 'change_password',
+})
+```

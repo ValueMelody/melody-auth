@@ -64,6 +64,7 @@ Triggers a new authentication flow.
 |-----------|------|-------------|---------|----------|
 | locale | string | Specifies the locale to use in the authentication flow | N/A | No |
 | state | string | Specifies the state to use in the authentication flow if you prefer not to use a randomly generated string | N/A | No |
+| policy | string | Specifies the policy to use in the authentication flow | 'sign_in_or_sign_up' | No |
 
 ```
 import { useAuth } from '@melody-auth/react'

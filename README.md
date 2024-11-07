@@ -55,6 +55,9 @@
   - OTP MFA
   - SMS MFA
   - MFA Enrollment
+- <b>Policy</b>
+  - sign_in_or_sign_up
+  - change_password
 - <b>Mailer Option</b>:
   - SendGrid
   - Mailgun
