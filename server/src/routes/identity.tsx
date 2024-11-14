@@ -203,3 +203,21 @@ identityRoutes.post(
   configMiddleware.enablePasswordReset,
   identityHandler.postChangePassword,
 )
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.ChangeEmail,
+  configMiddleware.enableEmailVerification,
+  identityHandler.getChangeEmail,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ChangeEmailCode,
+  configMiddleware.enableEmailVerification,
+  identityHandler.postVerificationCode,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ChangeEmail,
+  configMiddleware.enableEmailVerification,
+  identityHandler.postChangeEmail,
+)

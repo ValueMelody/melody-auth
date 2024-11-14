@@ -12,7 +12,8 @@
     "account": "Account"
   },
   "account": {
-    "changePassword": "Change Password"
+    "changePassword": "Change Password",
+    "changeEmail": "Change Email"
   },
   "common": {
     "enable": "Enable",

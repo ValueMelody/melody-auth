@@ -12,7 +12,8 @@
     "account": "Compte"
   },
   "account": {
-    "changePassword": "Changer le mot de passe"
+    "changePassword": "Changer le mot de passe",
+    "changeEmail": "Changer l'email"
   },
   "common": {
     "enable": "Activer",

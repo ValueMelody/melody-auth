@@ -341,6 +341,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         const { code } = json as { code: string }
         const codeStore = JSON.parse(await mockedKV.get(`AC-${code}`) ?? '')
@@ -692,6 +693,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         const appRecord = await getApp(db)
         const { code } = json as { code: string }
@@ -755,6 +757,7 @@ describe(
           requireOtpMfa: true,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -778,6 +781,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -801,6 +805,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: true,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -824,6 +829,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
@@ -847,6 +853,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
@@ -1014,6 +1021,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         const consent = db.prepare('SELECT * from user_app_consent WHERE "userId" = 1 AND "appId" = 1').get()
         expect(consent).toBeTruthy()

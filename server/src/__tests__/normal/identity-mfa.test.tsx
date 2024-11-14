@@ -232,6 +232,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -324,6 +325,7 @@ describe(
           requireOtpMfa: true,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -547,6 +549,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
@@ -1520,6 +1523,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
 
@@ -1943,6 +1947,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
       },
@@ -2042,6 +2047,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
@@ -2104,6 +2110,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
       },
@@ -2285,6 +2292,7 @@ describe(
           requireOtpMfa: false,
           requireSmsMfa: false,
           requireChangePassword: false,
+          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
       },

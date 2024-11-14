@@ -21,6 +21,7 @@ export enum Error {
   WrongCode = 'Invalid code',
   WrongMfaCode = 'Invalid MFA code',
   RequireDifferentPassword = 'New password same as old password',
+  RequireDifferentEmail = 'New email address same as old email address',
   MfaNotVerified = 'MFA code not verified',
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
@@ -418,6 +419,33 @@ export const changePassword = Object.freeze({
   },
 })
 
+export const changeEmail = Object.freeze({
+  title: {
+    en: 'Change your email',
+    fr: '',
+  },
+  email: {
+    en: 'Email Address',
+    fr: '',
+  },
+  confirm: {
+    en: 'Confirm',
+    fr: 'Confirmer',
+  },
+  redirect: {
+    en: 'Redirect back',
+    fr: 'Rediriger en arrière',
+  },
+  sendCode: {
+    en: 'Send Verification Code',
+    fr: '',
+  },
+  code: {
+    en: 'Verification Code',
+    fr: '',
+  },
+})
+
 export const verifyEmail = Object.freeze({
   title: {
     en: 'Verify your email',
@@ -472,6 +500,21 @@ export const passwordResetEmail = Object.freeze({
   desc: {
     en: 'Here is your reset code, this code will be expired after 2 hour',
     fr: 'Voici votre code de réinitialisation. Ce code expirera après 2 heures.',
+  },
+})
+
+export const changeEmailVerificationEmail = Object.freeze({
+  subject: {
+    en: 'Verify your email',
+    fr: '',
+  },
+  title: {
+    en: 'Verify your email',
+    fr: '',
+  },
+  desc: {
+    en: 'Here is your verification code, this code will be expired after 2 hour',
+    fr: '',
   },
 })
 

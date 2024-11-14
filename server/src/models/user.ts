@@ -93,6 +93,7 @@ export interface Create {
 }
 
 export interface Update {
+  email?: string;
   password?: string | null;
   otpSecret?: string;
   smsPhoneNumber?: string | null;
@@ -301,7 +302,7 @@ export const update = async (
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
     'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
-    'smsPhoneNumber', 'smsPhoneNumberVerified',
+    'smsPhoneNumber', 'smsPhoneNumberVerified', 'email',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,

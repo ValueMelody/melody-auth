@@ -18,6 +18,7 @@ export enum AuthorizeStep {
   SmsMfa = 4,
   EmailMfa = 5,
   ChangePassword = 6,
+  ChangeEmail = 6,
 }
 
 export const processPostAuthorize = async (
@@ -33,7 +34,6 @@ export const processPostAuthorize = async (
   )
 
   const isSocialLogin = !!authCodeBody.user.socialAccountId
-  const isChangePasswordPolicy = authCodeBody.request.policy === Policy.ChangePassword
 
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
@@ -41,6 +41,7 @@ export const processPostAuthorize = async (
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
     ENABLE_PASSWORD_RESET: enablePasswordReset,
+    ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
   } = env(c)
 
   const requireMfaEnroll =
@@ -72,10 +73,17 @@ export const processPostAuthorize = async (
     step < 6 &&
     !isSocialLogin &&
     enablePasswordReset &&
-    isChangePasswordPolicy
+    authCodeBody.request.policy === Policy.ChangePassword
+
+  const requireChangeEmail =
+    step < 6 &&
+    !isSocialLogin &&
+    enableEmailVerification &&
+    authCodeBody.request.policy === Policy.ChangeEmail
 
   if (
-    !isChangePasswordPolicy && !requireConsent && !requireMfaEnroll &&
+    !requireChangePassword && !requireChangeEmail &&
+    !requireConsent && !requireMfaEnroll &&
     !requireOtpMfa && !requireEmailMfa && !requireSmsMfa
   ) {
     sessionService.setAuthInfoSession(
@@ -99,5 +107,6 @@ export const processPostAuthorize = async (
     requireOtpSetup,
     requireOtpMfa,
     requireChangePassword,
+    requireChangeEmail,
   }
 }
