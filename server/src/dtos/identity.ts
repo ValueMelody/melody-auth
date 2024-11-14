@@ -156,6 +156,31 @@ export class PostChangePasswordReqDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
+export class PostChangeEmailCodeReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  constructor (dto: PostChangeEmailCodeReqDto) {
+    super(dto)
+    this.email = dto.email.trim().toLowerCase()
+  }
+}
+
+export class PostChangeEmailReqDto extends PostChangeEmailCodeReqDto {
+  @IsString()
+  @Length(
+    8,
+    8,
+  )
+    verificationCode: string
+
+  constructor (dto: PostChangeEmailReqDto) {
+    super(dto)
+    this.verificationCode = dto.verificationCode.trim()
+  }
+}
+
 export class PostLogoutReqDto {
   @IsString()
   @IsNotEmpty()

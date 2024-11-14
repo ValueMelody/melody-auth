@@ -30,6 +30,7 @@ export enum BaseKVKey {
   SmsMfaMessageAttempts = 'SMMA',
   EmailMfaEmailAttempts = 'EMEA',
   PasswordResetAttempts = 'PRA',
+  ChangeEmailCode = 'CEC',
 }
 
 export const getKVKey = (

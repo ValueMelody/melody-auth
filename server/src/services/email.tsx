@@ -10,6 +10,7 @@ import {
 } from 'models'
 import {
   EmailVerificationTemplate, PasswordResetTemplate, EmailMfaTemplate,
+  ChangeEmailVerificationTemplate,
 } from 'templates'
 import { cryptoUtil } from 'utils'
 
@@ -251,6 +252,33 @@ export const sendPasswordReset = async (
   )
 
   return res ? resetCode : null
+}
+
+export const sendChangeEmailVerificationCode = async (
+  c: Context<typeConfig.Context>,
+  email: string,
+  locale: typeConfig.Locale,
+) => {
+  const { COMPANY_LOGO_URL: logoUrl } = env(c)
+
+  if (!email) return null
+  checkEmailSetup(c)
+
+  const verificationCode = cryptoUtil.genRandom8DigitString()
+  const content = (<ChangeEmailVerificationTemplate
+    verificationCode={verificationCode}
+    logoUrl={logoUrl}
+    locale={locale}
+  />).toString()
+
+  const res = await sendEmail(
+    c,
+    email,
+    localeConfig.changeEmailVerificationEmail.subject[locale],
+    content,
+  )
+
+  return res ? verificationCode : null
 }
 
 export const sendEmailMfa = async (

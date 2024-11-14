@@ -166,7 +166,7 @@ const AuthorizeReset = ({
                 ${responseScript.handleSubmitError(queryDto.locale)}
               });
             } else {
-             fetch('${routeConfig.IdentityRoute.AuthorizeReset}', {
+              fetch('${routeConfig.IdentityRoute.AuthorizeReset}', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

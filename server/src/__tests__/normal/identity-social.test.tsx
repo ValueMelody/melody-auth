@@ -93,6 +93,7 @@ describe(
         requireOtpMfa: false,
         requireSmsMfa: false,
         requireChangePassword: false,
+        requireChangeEmail: false,
       })
     }
 
@@ -283,6 +284,7 @@ describe(
         requireOtpMfa: false,
         requireSmsMfa: false,
         requireChangePassword: false,
+        requireChangeEmail: false,
       })
     }
 

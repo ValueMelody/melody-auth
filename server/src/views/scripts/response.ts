@@ -37,6 +37,9 @@ export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
   } else if (data.requireChangePassword) {
     var url = "${routeConfig.IdentityRoute.ChangePassword}" + innerQueryString
     window.location.href = url;
+  } else if (data.requireChangeEmail) {
+    var url = "${routeConfig.IdentityRoute.ChangeEmail}" + innerQueryString
+    window.location.href = url;
   } else {
     var url = data.redirectUri + queryString;
     window.location.href = url;

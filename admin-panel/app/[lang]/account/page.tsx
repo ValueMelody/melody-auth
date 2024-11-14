@@ -17,10 +17,19 @@ const Page = () => {
     })
   }
 
+  const handleChangeEmail = () => {
+    loginRedirect({
+      locale: locale || undefined, policy: 'change_email',
+    })
+  }
+
   return (
-    <section>
+    <section className='flex flex-col gap-4 w-32'>
       <Button onClick={handleChangePassword}>
         {t('account.changePassword')}
+      </Button>
+      <Button onClick={handleChangeEmail}>
+        {t('account.changeEmail')}
       </Button>
     </section>
   )

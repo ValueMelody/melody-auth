@@ -569,3 +569,37 @@ export const deleteLockedIPsByEmail = async (
     await kv.delete(key.name)
   }
 }
+
+export const storeChangeEmailCode = async (
+  kv: KVNamespace,
+  userId: number,
+  email: string,
+  code: string,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.ChangeEmailCode,
+      String(userId),
+      email,
+    ),
+    code,
+    { expirationTtl: 7200 },
+  )
+}
+
+export const verifyChangeEmailCode = async (
+  kv: KVNamespace,
+  userId: number,
+  email: string,
+  code: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.ChangeEmailCode,
+    String(userId),
+    email,
+  )
+  const storedCode = await kv.get(key)
+  const isValid = storedCode && storedCode === code
+  if (isValid) await kv.delete(key)
+  return isValid
+}

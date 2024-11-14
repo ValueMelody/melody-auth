@@ -75,6 +75,29 @@ describe(
     )
 
     test(
+      'could redirect to sign in for change email',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=change_email',
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizePassword}`)
+        expect(path).toContain('&policy=change_email')
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
       'should throw error if no enough params provided',
       async () => {
         const res = await app.request(
@@ -214,6 +237,33 @@ describe(
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
         expect(path).toContain(`${routeConfig.IdentityRoute.ChangePassword}`)
+        expect(path).toContain('&code=')
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'could redirect to change email through session',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=change_email',
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain(`${routeConfig.IdentityRoute.ChangeEmail}`)
         expect(path).toContain('&code=')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string

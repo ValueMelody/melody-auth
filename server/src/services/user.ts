@@ -439,6 +439,28 @@ export const changeUserPassword = async (
   return true
 }
 
+export const changeUserEmail = async (
+  c: Context<typeConfig.Context>,
+  user: userModel.Record,
+  bodyDto: identityDto.PostChangeEmailReqDto,
+): Promise<true> => {
+  if (!user.email || user.socialAccountId) {
+    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  }
+
+  const isSame = user.email === bodyDto.email
+  if (isSame) {
+    throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentEmail)
+  }
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    { email: bodyDto.email },
+  )
+  return true
+}
+
 export const enrollUserMfa = async (
   c: Context<typeConfig.Context>,
   authId: string,
