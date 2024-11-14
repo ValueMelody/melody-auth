@@ -422,11 +422,11 @@ export const changePassword = Object.freeze({
 export const changeEmail = Object.freeze({
   title: {
     en: 'Change your email',
-    fr: '',
+    fr: 'Changer votre adresse e-mail',
   },
   email: {
     en: 'Email Address',
-    fr: '',
+    fr: 'Adresse e-mail',
   },
   confirm: {
     en: 'Confirm',
@@ -434,15 +434,15 @@ export const changeEmail = Object.freeze({
   },
   redirect: {
     en: 'Redirect back',
-    fr: 'Rediriger en arrière',
+    fr: 'Retourner en arrière',
   },
   sendCode: {
     en: 'Send Verification Code',
-    fr: '',
+    fr: 'Envoyer le code de vérification',
   },
   code: {
     en: 'Verification Code',
-    fr: '',
+    fr: 'Code de vérification',
   },
 })
 
@@ -506,15 +506,15 @@ export const passwordResetEmail = Object.freeze({
 export const changeEmailVerificationEmail = Object.freeze({
   subject: {
     en: 'Verify your email',
-    fr: '',
+    fr: 'Vérifiez votre adresse e-mail',
   },
   title: {
     en: 'Verify your email',
-    fr: '',
+    fr: 'Vérifiez votre adresse e-mail',
   },
   desc: {
-    en: 'Here is your verification code, this code will be expired after 2 hour',
-    fr: '',
+    en: 'Here is your verification code, this code will be expired after 2 hours',
+    fr: 'Voici votre code de vérification, ce code expirera après 2 heures',
   },
 })
 
