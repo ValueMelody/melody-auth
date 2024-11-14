@@ -122,7 +122,7 @@ export const postVerificationCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${bodyDto.locale}`)
 
   const code = await emailService.sendChangeEmailVerificationCode(
     c,
