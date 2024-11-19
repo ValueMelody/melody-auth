@@ -224,6 +224,12 @@ const Page = () => {
             </Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell>CHANGE_EMAIL_EMAIL_THRESHOLD</Table.Cell>
+            <Table.Cell>
+              {configs.CHANGE_EMAIL_EMAIL_THRESHOLD}
+            </Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell>ENFORCE_ONE_MFA_ENROLLMENT</Table.Cell>
             <Table.Cell>
               {configs.ENFORCE_ONE_MFA_ENROLLMENT.join(', ')}

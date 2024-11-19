@@ -603,3 +603,31 @@ export const verifyChangeEmailCode = async (
   if (isValid) await kv.delete(key)
   return isValid
 }
+
+export const getChangeEmailAttempts = async (
+  kv: KVNamespace,
+  email: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.ChangeEmailAttempts,
+    email,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setChangeEmailAttempts = async (
+  kv: KVNamespace,
+  email: string,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.ChangeEmailAttempts,
+    email,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: 1800 },
+  )
+}

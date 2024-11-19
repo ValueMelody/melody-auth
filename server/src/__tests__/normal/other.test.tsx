@@ -61,6 +61,7 @@ describe(
           ENABLE_EMAIL_VERIFICATION: true,
           EMAIL_MFA_IS_REQUIRED: false,
           EMAIL_MFA_EMAIL_THRESHOLD: 10,
+          CHANGE_EMAIL_EMAIL_THRESHOLD: 5,
           OTP_MFA_IS_REQUIRED: false,
           SMS_MFA_IS_REQUIRED: false,
           SMS_MFA_MESSAGE_THRESHOLD: 5,

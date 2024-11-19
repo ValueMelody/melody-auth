@@ -63,6 +63,14 @@ const ChangeEmail = ({
               name='code'
               className='hidden'
             />
+            <button
+              id='resend-btn'
+              type='button'
+              class='button-text hidden'
+              onclick='resendCode()'
+            >
+              {localeConfig.changeEmail.resend[queryDto.locale]}
+            </button>
             <SubmitButton
               title={localeConfig.changeEmail.sendCode[queryDto.locale]}
             />
@@ -73,6 +81,34 @@ const ChangeEmail = ({
         <script>
           ${resetErrorScript.resetEmailError()}
           ${resetErrorScript.resetCodeError()}
+          function resendCode() {
+            fetch('${routeConfig.IdentityRoute.ChangeEmailCode}', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                locale: "${queryDto.locale}",
+                email: document.getElementById('form-email').value,
+                code: "${queryDto.code}",
+              })
+            })
+            .then((response) => {
+              if (response.ok) {
+                var resendBtn = document.getElementById("resend-btn")
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = "${localeConfig.changeEmail.resent[queryDto.locale]}"
+              } else {
+                return response.text().then(text => {
+                  throw new Error(text);
+                });
+              }
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
           function handleSubmit (e) {
             e.preventDefault();
             ${validateScript.email(queryDto.locale)}
@@ -100,6 +136,7 @@ const ChangeEmail = ({
               .then((data) => {
                 document.getElementById('code-row').classList.remove('hidden');
                 document.getElementById('submit-button').innerHTML = '${localeConfig.changeEmail.confirm[queryDto.locale]}'
+                document.getElementById('resend-btn').classList.remove('hidden');
               })
               .catch((error) => {
                 ${responseScript.handleSubmitError(queryDto.locale)}

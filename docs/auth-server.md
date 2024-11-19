@@ -319,6 +319,10 @@ npm run prod:deploy
 - **Default:** 10
 - **Description:** Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 
+### CHANGE_EMAIL_EMAIL_THRESHOLD
+- **Default:** 5
+- **Description:** Maximum number of Change Email verification code requests allowed per 30 minutes for a single account. 0 means no restriction.
+
 ### ENFORCE_ONE_MFA_ENROLLMENT
 - **Default:** ['otp', 'email']
 - **Description:** Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
