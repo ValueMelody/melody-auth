@@ -14,6 +14,13 @@ import { validateUtil } from 'utils'
 import {
   ChangeEmail, ChangePassword,
 } from 'views'
+import { userModel } from 'models'
+
+const checkAccount = (user: userModel.Record) => {
+  if (!user.email || user.socialAccountId) {
+    throw new errorConfig.Forbidden(localeConfig.Error.SocialAccountNotSupported)
+  }
+}
 
 export const getChangePassword = async (c: Context<typeConfig.Context>) => {
   const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
@@ -23,6 +30,7 @@ export const getChangePassword = async (c: Context<typeConfig.Context>) => {
     queryDto.code,
   )
   if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  checkAccount(authInfo.user)
 
   const {
     COMPANY_LOGO_URL: logoUrl,
@@ -49,6 +57,7 @@ export const postChangePassword = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
   if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${bodyDto.locale}`)
+  checkAccount(authInfo.user)
 
   await userService.changeUserPassword(
     c,
@@ -67,6 +76,7 @@ export const getChangeEmail = async (c: Context<typeConfig.Context>) => {
     queryDto.code,
   )
   if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  checkAccount(authInfo.user)
 
   const {
     COMPANY_LOGO_URL: logoUrl,
@@ -93,6 +103,7 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
   if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${bodyDto.locale}`)
+  checkAccount(authInfo.user)
 
   const isCorrectCode = await kvService.verifyChangeEmailCode(
     c.env.KV,
@@ -123,6 +134,24 @@ export const postVerificationCode = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
   if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${bodyDto.locale}`)
+  checkAccount(authInfo.user)
+
+  const { CHANGE_EMAIL_EMAIL_THRESHOLD: emailThreshold } = env(c)
+
+  if (emailThreshold) {
+    const emailAttempts = await kvService.getChangeEmailAttempts(
+      c.env.KV,
+      authInfo.user.email ?? '',
+    )
+
+    if (emailAttempts >= emailThreshold) throw new errorConfig.Forbidden(localeConfig.Error.ChangeEmailLocked)
+
+    await kvService.setChangeEmailAttempts(
+      c.env.KV,
+      authInfo.user.email ?? '',
+      emailAttempts + 1,
+    )
+  }
 
   const code = await emailService.sendChangeEmailVerificationCode(
     c,

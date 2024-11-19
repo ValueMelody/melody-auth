@@ -7,11 +7,13 @@ export enum Error {
   EmailTaken = 'The email address is already in use.',
   WrongRedirectUri = 'Invalid redirect_uri',
   NoUser = 'No user found',
+  SocialAccountNotSupported = 'This function is unavailable for social login accounts.',
   AccountLocked = 'Account temporarily locked due to excessive login failures',
   OtpMfaLocked = 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
   SmsMfaLocked = 'Too many SMS verification attempts. Please try again after 30 minutes.',
   EmailMfaLocked = 'Too many Email verification attempts. Please try again after 30 minutes.',
   PasswordResetLocked = 'Too many password reset email requests. Please try again tomorrow.',
+  ChangeEmailLocked = 'Too many password change email requests. Please try again after 30 minutes.',
   UserDisabled = 'This account has been disabled',
   EmailAlreadyVerified = 'Email already verified',
   OtpAlreadySet = 'OTP authentication already set',
@@ -443,6 +445,14 @@ export const changeEmail = Object.freeze({
   code: {
     en: 'Verification Code',
     fr: 'Code de vérification',
+  },
+  resend: {
+    en: 'Resend a new code',
+    fr: 'Renvoyer un nouveau code',
+  },
+  resent: {
+    en: 'New code sent.',
+    fr: 'Nouveau code envoyé.',
   },
 })
 

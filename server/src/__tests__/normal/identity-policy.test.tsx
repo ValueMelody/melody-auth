@@ -3,18 +3,23 @@ import {
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import { JSDOM } from 'jsdom'
+import { Context } from 'hono'
 import app from 'index'
 import {
   migrate, mock,
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, routeConfig,
+  adapterConfig, localeConfig, routeConfig,
+  typeConfig,
 } from 'configs'
 import {
   prepareFollowUpBody, prepareFollowUpParams,
   insertUsers, postSignInRequest, getApp,
+  postAuthorizeBody,
 } from 'tests/identity'
+import { jwtService } from 'services'
+import { cryptoUtil } from 'utils'
 
 let db: Database
 
@@ -254,6 +259,21 @@ describe(
 describe(
   'post /change-email-code',
   () => {
+    const sendEmailCode = async (code: string) => {
+      return app.request(
+        routeConfig.IdentityRoute.ChangeEmailCode,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            code,
+            email: 'test_new@email.com',
+            locale: 'en',
+          }),
+        },
+        mock(db),
+      )
+    }
+
     test(
       'could send code',
       async () => {
@@ -263,22 +283,86 @@ describe(
         )
         const body = await prepareFollowUpBody(db)
 
-        const res = await app.request(
-          routeConfig.IdentityRoute.ChangeEmailCode,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              code: body.code,
-              email: 'test_new@email.com',
-              locale: 'en',
-            }),
-          },
-          mock(db),
-        )
+        const res = await sendEmailCode(body.code)
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
         expect((await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailCode}-1-test_new@email.com`) ?? '').length).toBe(8)
+      },
+    )
+
+    test(
+      'should stop after reach threshold',
+      async () => {
+        global.process.env.CHANGE_EMAIL_EMAIL_THRESHOLD = 2 as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await sendEmailCode(body.code)
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailAttempts}-test@email.com`)).toBe('1')
+
+        const res1 = await sendEmailCode(body.code)
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({ success: true })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailAttempts}-test@email.com`)).toBe('2')
+
+        const res2 = await sendEmailCode(body.code)
+        expect(res2.status).toBe(400)
+
+        global.process.env.CHANGE_EMAIL_EMAIL_THRESHOLD = 0 as unknown as string
+        const res3 = await sendEmailCode(body.code)
+        expect(res3.status).toBe(200)
+        const json3 = await res3.json()
+        expect(json3).toStrictEqual({ success: true })
+
+        global.process.env.CHANGE_EMAIL_EMAIL_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should throw error for social account',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
+        const publicKey = await mockedKV.get(adapterConfig.BaseKVKey.JwtPublicSecret)
+        const jwk = await cryptoUtil.secretToJwk(publicKey ?? '')
+        const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
+        const credential = await jwtService.signWithKid(
+          c,
+          {
+            iss: 'https://accounts.google.com',
+            email: 'test@gmail.com',
+            sub: 'gid123',
+            email_verified: true,
+            given_name: 'first',
+            family_name: 'last',
+            kid: jwk.kid,
+          },
+        )
+
+        const appRecord = await getApp(db)
+        const tokenRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizeGoogle,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              credential,
+            }),
+          },
+          mock(db),
+        )
+        const tokenJson = await tokenRes.json() as { code: string }
+
+        const res = await sendEmailCode(tokenJson.code)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.SocialAccountNotSupported)
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )
   },

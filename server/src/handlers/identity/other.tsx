@@ -90,14 +90,14 @@ export const postResetCode = async (c: Context<typeConfig.Context>) => {
   if (!email) throw new errorConfig.Forbidden()
 
   const ip = requestUtil.getRequestIP(c)
-  const resetAttempts = await kvService.getPasswordResetAttemptsByIP(
-    c.env.KV,
-    email,
-    ip,
-  )
   const { PASSWORD_RESET_EMAIL_THRESHOLD: resetThreshold } = env(c)
 
   if (resetThreshold) {
+    const resetAttempts = await kvService.getPasswordResetAttemptsByIP(
+      c.env.KV,
+      email,
+      ip,
+    )
     if (resetAttempts >= resetThreshold) throw new errorConfig.Forbidden(localeConfig.Error.PasswordResetLocked)
 
     await kvService.setPasswordResetAttemptsByIP(

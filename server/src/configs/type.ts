@@ -48,6 +48,7 @@ export type Bindings = {
   ENABLE_EMAIL_VERIFICATION: boolean;
   EMAIL_MFA_IS_REQUIRED: boolean;
   EMAIL_MFA_EMAIL_THRESHOLD: number;
+  CHANGE_EMAIL_EMAIL_THRESHOLD: number;
   OTP_MFA_IS_REQUIRED: boolean;
   GOOGLE_AUTH_CLIENT_ID: string;
   ENFORCE_ONE_MFA_ENROLLMENT: userModel.MfaType[];

@@ -444,10 +444,6 @@ export const changeUserEmail = async (
   user: userModel.Record,
   bodyDto: identityDto.PostChangeEmailReqDto,
 ): Promise<true> => {
-  if (!user.email || user.socialAccountId) {
-    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
-  }
-
   const isSame = user.email === bodyDto.email
   if (isSame) {
     throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentEmail)
