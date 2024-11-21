@@ -813,7 +813,7 @@ describe(
 
         const code = getCodeFromParams(params)
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}`) ?? ''
-        expect(mfaCode.length).toBe(8)
+        expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
         const body = (callArgs[1] as unknown as { body: any }).body
@@ -1097,7 +1097,7 @@ describe(
         expect(user.smsPhoneNumberVerified).toBe(0)
 
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
-        expect(mfaCode.length).toBe(8)
+        expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
         const body = (callArgs[1] as unknown as { body: any }).body
@@ -1150,7 +1150,7 @@ describe(
         expect(user.smsPhoneNumberVerified).toBe(0)
 
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
-        expect(mfaCode.length).toBe(8)
+        expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
         const body = (callArgs[1] as unknown as { body: any }).body
@@ -1244,7 +1244,7 @@ describe(
         expect(res.status).toBe(200)
 
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
-        expect(mfaCode.length).toBe(8)
+        expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
         const body = (callArgs[1] as unknown as { body: any }).body
@@ -1495,7 +1495,7 @@ describe(
         )
 
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
-        expect(mfaCode?.length).toBe(8)
+        expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
         const res = await app.request(
@@ -1674,7 +1674,7 @@ describe(
         expect(document.getElementsByTagName('form').length).toBe(1)
 
         const code = getCodeFromParams(params)
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`) ?? '').length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`) ?? '').length).toBe(6)
       },
     )
 
@@ -1811,7 +1811,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`) ?? '').length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`) ?? '').length).toBe(6)
       },
     )
 
@@ -1912,7 +1912,7 @@ describe(
         const code = getCodeFromParams(params)
 
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
-        expect(mfaCode?.length).toBe(8)
+        expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -2017,7 +2017,7 @@ describe(
         const code = getCodeFromParams(params)
 
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
-        expect(mfaCode?.length).toBe(8)
+        expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
         global.fetch = fetchMock
@@ -2080,7 +2080,7 @@ describe(
         const code = getCodeFromParams(params)
 
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
-        expect(mfaCode?.length).toBe(8)
+        expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
         global.fetch = fetchMock
@@ -2139,7 +2139,7 @@ describe(
         const code = getCodeFromParams(params)
 
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${code}`)
-        expect(mfaCode?.length).toBe(8)
+        expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -2257,7 +2257,7 @@ describe(
 
         const code = body.code
         const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`)
-        expect(mfaCode?.length).toBe(8)
+        expect(mfaCode?.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
 

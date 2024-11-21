@@ -95,7 +95,7 @@ export const sendSmsMfa = async (
 ) => {
   checkSmsSetup(c)
 
-  const mfaCode = cryptoUtil.genRandom8DigitString()
+  const mfaCode = cryptoUtil.genRandom6DigitString()
   const content = `${localeConfig.smsMfaMsg.body[locale]}: ${mfaCode}`
 
   const res = await sendSms(

@@ -6,7 +6,7 @@ import {
 export const verificationCode = (locale: typeConfig.Locale) => html`
   var msg;
   var codeVal = document.getElementById('form-code').value.trim();
-  if (codeVal.length !== 8) msg = "${localeConfig.validateError.verificationCodeLengthIssue[locale]}";
+  if (codeVal.length !== 6) msg = "${localeConfig.validateError.verificationCodeLengthIssue[locale]}";
   if (msg) {
     var errorEl = document.getElementById('error-code');
     errorEl.classList.remove('hidden');

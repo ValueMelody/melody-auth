@@ -638,7 +638,7 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
-        expect(code.length).toBe(8)
+        expect(code.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
 
