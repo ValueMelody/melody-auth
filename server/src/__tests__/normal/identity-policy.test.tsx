@@ -287,7 +287,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailCode}-1-test_new@email.com`) ?? '').length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailCode}-1-test_new@email.com`) ?? '').length).toBe(6)
       },
     )
 
@@ -452,7 +452,7 @@ describe(
               locale: 'en',
               code: 'abc',
               email: 'test@email.com',
-              verificationCode: '12345678',
+              verificationCode: '123456',
             }),
           },
           mock(db),

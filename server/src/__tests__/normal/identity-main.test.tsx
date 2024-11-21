@@ -703,7 +703,7 @@ describe(
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
 
         const verificationCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
-        expect(verificationCode.length).toBe(8)
+        expect(verificationCode.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
 

@@ -59,7 +59,7 @@ describe(
         await prepareUserAccount()
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         expect(currentUser.emailVerified).toBe(0)
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? '').length).toBe(8)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? '').length).toBe(6)
 
         const res = await app.request(
           `${routeConfig.IdentityRoute.VerifyEmail}?id=${currentUser.authId}&locale=en`,
@@ -176,7 +176,7 @@ describe(
             method: 'POST',
             body: JSON.stringify({
               id: currentUser.authId,
-              code: 'abcdefgh',
+              code: 'abcdef',
             }),
           },
           mock(db),
@@ -349,7 +349,7 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
-        expect(code.length).toBe(8)
+        expect(code.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -415,7 +415,7 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
-        expect(code.length).toBe(8)
+        expect(code.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -449,7 +449,7 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
-        expect(code.length).toBe(8)
+        expect(code.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -504,7 +504,7 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
-        expect(code.length).toBe(8)
+        expect(code.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -581,7 +581,7 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
-        expect(code.length).toBe(8)
+        expect(code.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -664,7 +664,7 @@ describe(
         expect(json).toStrictEqual({ success: true })
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
-        expect(code.length).toBe(8)
+        expect(code.length).toBe(6)
 
         expect(sendEmailMock).toBeCalledTimes(1)
         const callArgs = sendEmailMock.mock.calls[0] as any[]
@@ -777,7 +777,7 @@ describe(
         const body = {
           email: 'test@email.com',
           password: 'Password2!',
-          code: 'abcdefgh',
+          code: 'abcdef',
         }
 
         const res = await app.request(

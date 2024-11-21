@@ -170,8 +170,8 @@ export class PostChangeEmailCodeReqDto extends GetAuthorizeFollowUpReqDto {
 export class PostChangeEmailReqDto extends PostChangeEmailCodeReqDto {
   @IsString()
   @Length(
-    8,
-    8,
+    6,
+    6,
   )
     verificationCode: string
 
@@ -216,8 +216,8 @@ export class PostVerifyEmailReqDto {
 
   @IsString()
   @Length(
-    8,
-    8,
+    6,
+    6,
   )
     code: string
 
@@ -230,8 +230,8 @@ export class PostVerifyEmailReqDto {
 export class PostAuthorizeResetReqDto {
   @IsString()
   @Length(
-    8,
-    8,
+    6,
+    6,
   )
     code: string
 

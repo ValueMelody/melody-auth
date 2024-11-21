@@ -94,8 +94,8 @@ export const validateError = Object.freeze({
     fr: 'Le code OTP ne peut être composé que de 6 chiffres.',
   },
   verificationCodeLengthIssue: {
-    en: 'Verification code can only be 8 characters.',
-    fr: 'Le code de vérification doit contenir 8 caractères.',
+    en: 'Verification code can only be 6 characters.',
+    fr: 'Le code de vérification doit contenir 6 caractères.',
   },
 })
 
