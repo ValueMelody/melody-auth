@@ -15,30 +15,8 @@ export const parseRes = () => html`
 
 export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
   var queryString = "?state=" + data.state + "&code=" + data.code + "&locale=" + "${locale}";
-  var innerQueryString = queryString += "&redirect_uri=" + data.redirectUri;
-  if (data.requireConsent) {
-    var url = "${routeConfig.IdentityRoute.AuthorizeConsent}" + innerQueryString
-    window.location.href = url;
-  } else if (data.requireMfaEnroll) {
-    var url = "${routeConfig.IdentityRoute.AuthorizeMfaEnroll}" + innerQueryString
-    window.location.href = url;
-  } else if (data.requireOtpSetup) {
-    var url = "${routeConfig.IdentityRoute.AuthorizeOtpSetup}" + innerQueryString
-    window.location.href = url;
-  } else if (data.requireOtpMfa) {
-    var url = "${routeConfig.IdentityRoute.AuthorizeOtpMfa}" + innerQueryString
-    window.location.href = url;
-  } else if (data.requireSmsMfa) {
-    var url = "${routeConfig.IdentityRoute.AuthorizeSmsMfa}" + innerQueryString
-    window.location.href = url;
-  } else if (data.requireEmailMfa) {
-    var url = "${routeConfig.IdentityRoute.AuthorizeEmailMfa}" + innerQueryString
-    window.location.href = url;
-  } else if (data.requireChangePassword) {
-    var url = "${routeConfig.IdentityRoute.ChangePassword}" + innerQueryString
-    window.location.href = url;
-  } else if (data.requireChangeEmail) {
-    var url = "${routeConfig.IdentityRoute.ChangeEmail}" + innerQueryString
+  if (data.nextPage) {
+    var url = data.nextPage + queryString + "&redirect_uri=" + data.redirectUri
     window.location.href = url;
   } else {
     var url = data.redirectUri + queryString;

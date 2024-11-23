@@ -143,14 +143,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: true,
-          requireMfaEnroll: true,
-          requireEmailMfa: false,
-          requireSmsMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeConsent,
         })
       },
     )
@@ -423,14 +416,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: true,
-          requireMfaEnroll: true,
-          requireEmailMfa: false,
-          requireSmsMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeConsent,
         })
       },
     )

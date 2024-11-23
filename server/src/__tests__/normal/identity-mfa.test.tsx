@@ -225,14 +225,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: false,
-          requireEmailMfa: true,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeEmailMfa,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -318,14 +311,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: true,
-          requireOtpMfa: true,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeOtpSetup,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -542,14 +528,6 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
@@ -1516,14 +1494,6 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
 
@@ -1940,14 +1910,6 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
       },
@@ -2040,14 +2002,6 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
@@ -2103,14 +2057,6 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
       },
@@ -2285,14 +2231,6 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
       },

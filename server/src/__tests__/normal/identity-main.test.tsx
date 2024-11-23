@@ -334,14 +334,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: true,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
         })
         const { code } = json as { code: string }
         const codeStore = JSON.parse(await mockedKV.get(`AC-${code}`) ?? '')
@@ -674,6 +667,7 @@ describe(
     test(
       'should get auth code after sign up',
       async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         const mockFetch = vi.fn(async () => {
           return Promise.resolve({ ok: true })
         })
@@ -686,14 +680,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: true,
-          requireMfaEnroll: true,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
         })
         const appRecord = await getApp(db)
         const { code } = json as { code: string }
@@ -715,6 +702,7 @@ describe(
         expect(body).toContain(`${routeConfig.IdentityRoute.VerifyEmail}?id=${codeStore.user.authId}&amp;locale=en`)
 
         global.fetch = fetchMock
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
@@ -743,6 +731,7 @@ describe(
       'could force otp mfa',
       async () => {
         global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         const res = await postAuthorizeAccount()
         const json = await res.json()
         expect(json).toStrictEqual({
@@ -750,16 +739,10 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: true,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: true,
-          requireOtpMfa: true,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeOtpSetup,
         })
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
@@ -767,6 +750,7 @@ describe(
       'could force email mfa',
       async () => {
         global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         const res = await postAuthorizeAccount()
         const json = await res.json()
         expect(json).toStrictEqual({
@@ -774,16 +758,10 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: true,
-          requireMfaEnroll: false,
-          requireEmailMfa: true,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeEmailMfa,
         })
         global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
@@ -791,6 +769,7 @@ describe(
       'could force sms mfa',
       async () => {
         global.process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         const res = await postAuthorizeAccount()
         const json = await res.json()
         expect(json).toStrictEqual({
@@ -798,16 +777,10 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: true,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: true,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeSmsMfa,
         })
         global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
@@ -815,6 +788,7 @@ describe(
       'could skip mfa',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         const res = await postAuthorizeAccount()
         const json = await res.json()
         expect(json).toStrictEqual({
@@ -822,16 +796,9 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: true,
-          requireMfaEnroll: false,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
         })
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
@@ -846,14 +813,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: true,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
         })
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
@@ -1014,14 +974,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          requireConsent: false,
-          requireMfaEnroll: true,
-          requireEmailMfa: false,
-          requireOtpSetup: false,
-          requireOtpMfa: false,
-          requireSmsMfa: false,
-          requireChangePassword: false,
-          requireChangeEmail: false,
+          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
         })
         const consent = db.prepare('SELECT * from user_app_consent WHERE "userId" = 1 AND "appId" = 1').get()
         expect(consent).toBeTruthy()
