@@ -13,7 +13,8 @@
   },
   "account": {
     "changePassword": "Change Password",
-    "changeEmail": "Change Email"
+    "changeEmail": "Change Email",
+    "resetMfa": "Reset MFA"
   },
   "common": {
     "enable": "Enable",

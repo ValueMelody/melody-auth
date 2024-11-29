@@ -23,6 +23,7 @@ export enum Policy {
   SignInOrSignUp = 'sign_in_or_sign_up',
   ChangePassword = 'change_password',
   ChangeEmail = 'change_email',
+  ResetMfa = 'reset_mfa',
 }
 
 const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())

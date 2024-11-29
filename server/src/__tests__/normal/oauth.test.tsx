@@ -244,6 +244,33 @@ describe(
     )
 
     test(
+      'could redirect to reset mfa through session',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=reset_mfa',
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain(`${routeConfig.IdentityRoute.ResetMfa}`)
+        expect(path).toContain('&code=')
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
       'could redirect to change email through session',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

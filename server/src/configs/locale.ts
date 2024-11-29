@@ -475,6 +475,29 @@ export const verifyEmail = Object.freeze({
   },
 })
 
+export const resetMfa = Object.freeze({
+  title: {
+    en: 'Reset your MFA',
+    fr: 'Réinitialisez votre MFA',
+  },
+  success: {
+    en: 'Reset success!',
+    fr: 'Réinitialisation réussie!',
+  },
+  desc: {
+    en: 'Your current Multi-Factor Authentication (MFA) method will be reset. After this reset, you will need to set up MFA again to ensure continued secure access to your account.',
+    fr: "Votre méthode actuelle d'authentification multifactorielle (MFA) sera réinitialisée. Après cette réinitialisation, vous devrez configurer à nouveau votre MFA pour garantir un accès sécurisé continu à votre compte.",
+  },
+  confirm: {
+    en: 'Confirm',
+    fr: 'Confirmer',
+  },
+  redirect: {
+    en: 'Redirect back',
+    fr: 'Rediriger en arrière',
+  },
+})
+
 export const emailVerificationEmail = Object.freeze({
   subject: {
     en: 'Welcome to Melody Auth! Please verify your email address',

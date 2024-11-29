@@ -20,6 +20,9 @@ import {
 } from 'tests/identity'
 import { jwtService } from 'services'
 import { cryptoUtil } from 'utils'
+import {
+  enrollEmailMfa, enrollOtpMfa, enrollSmsMfa,
+} from 'tests/util'
 
 let db: Database
 
@@ -149,7 +152,7 @@ describe(
     )
 
     test(
-      'should redirect if use wrong auth code',
+      'should throw 400 if use wrong auth code',
       async () => {
         await insertUsers(
           db,
@@ -169,8 +172,8 @@ describe(
           },
           mock(db),
         )
-        expect(res.status).toBe(302)
-        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
       },
     )
   },
@@ -422,7 +425,7 @@ describe(
     )
 
     test(
-      'should redirect if use wrong auth code',
+      'should throw 400 if use wrong auth code',
       async () => {
         await insertUsers(
           db,
@@ -443,8 +446,239 @@ describe(
           },
           mock(db),
         )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+      },
+    )
+  },
+)
+
+describe(
+  'get /reset-mfa',
+  () => {
+    test(
+      'should show reset mfa page',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ResetMfa}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('button').length).toBe(1)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+      },
+    )
+
+    test(
+      'should redirect if use wrong auth code',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ResetMfa}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ChangePassword}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'post /reset-mfa',
+  () => {
+    test(
+      'should reset email mfa',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        enrollEmailMfa(db)
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ResetMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const appRecord = await getApp(db)
+        const reLoginRes = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password1!' },
+        )
+        const loginResJson = await reLoginRes.json() as { code: string }
+        expect(loginResJson).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+        })
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should reset sms mfa',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ResetMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const appRecord = await getApp(db)
+        const reLoginRes = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password1!' },
+        )
+        const loginResJson = await reLoginRes.json() as { code: string }
+        expect(loginResJson).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+        })
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should reset otp mfa',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ResetMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const appRecord = await getApp(db)
+        const reLoginRes = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'Password1!' },
+        )
+        const loginResJson = await reLoginRes.json() as { code: string }
+        expect(loginResJson).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+        })
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should redirect if use wrong auth code',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ResetMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'en',
+              code: 'abc',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
       },
     )
   },

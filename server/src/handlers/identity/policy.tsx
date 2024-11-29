@@ -12,7 +12,7 @@ import {
 } from 'services'
 import { validateUtil } from 'utils'
 import {
-  ChangeEmail, ChangePassword,
+  ChangeEmail, ChangePassword, ResetMfa,
 } from 'views'
 import { userModel } from 'models'
 
@@ -56,7 +56,7 @@ export const postChangePassword = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${bodyDto.locale}`)
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
   checkAccount(authInfo.user)
 
   await userService.changeUserPassword(
@@ -102,7 +102,7 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${bodyDto.locale}`)
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
   checkAccount(authInfo.user)
 
   const isCorrectCode = await kvService.verifyChangeEmailCode(
@@ -133,7 +133,7 @@ export const postVerificationCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${bodyDto.locale}`)
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
   checkAccount(authInfo.user)
 
   const { CHANGE_EMAIL_EMAIL_THRESHOLD: emailThreshold } = env(c)
@@ -166,6 +166,50 @@ export const postVerificationCode = async (c: Context<typeConfig.Context>) => {
       code,
     )
   }
+
+  return c.json({ success: true })
+}
+
+export const getResetMfa = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  checkAccount(authInfo.user)
+
+  const {
+    COMPANY_LOGO_URL: logoUrl,
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  return c.html(<ResetMfa
+    redirectUri={authInfo.request.redirectUri}
+    logoUrl={logoUrl}
+    queryDto={queryDto}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+  />)
+}
+
+export const postResetMfa = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authCodeBody) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  await userService.resetUserMfa(
+    c,
+    authCodeBody.user.authId,
+  )
 
   return c.json({ success: true })
 }

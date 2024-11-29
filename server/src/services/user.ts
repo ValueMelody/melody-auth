@@ -512,7 +512,7 @@ export const enrollUserMfa = async (
 export const resetUserMfa = async (
   c: Context<typeConfig.Context>,
   authId: string,
-  mfaType: userModel.MfaType,
+  mfaType?: userModel.MfaType,
 ): Promise<true> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
@@ -560,6 +560,18 @@ export const resetUserMfa = async (
       user.id,
       {
         mfaTypes: user.mfaTypes.filter((type) => type !== mfaType).join(','),
+        smsPhoneNumber: null,
+        smsPhoneNumberVerified: 0,
+      },
+    )
+  } else {
+    await userModel.update(
+      c.env.DB,
+      user.id,
+      {
+        mfaTypes: '',
+        otpVerified: 0,
+        otpSecret: '',
         smsPhoneNumber: null,
         smsPhoneNumberVerified: 0,
       },

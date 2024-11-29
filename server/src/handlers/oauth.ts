@@ -114,6 +114,9 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     } else if (queryDto.policy === Policy.ChangeEmail) {
       const url = `${routeConfig.IdentityRoute.ChangeEmail}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}`
       return c.redirect(url)
+    } else if (queryDto.policy === Policy.ResetMfa) {
+      const url = `${routeConfig.IdentityRoute.ResetMfa}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}`
+      return c.redirect(url)
     }
   }
 

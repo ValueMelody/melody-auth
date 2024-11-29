@@ -41,13 +41,13 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     GITHUB_AUTH_APP_NAME: githubAppName,
   } = env(c)
 
-  const isChangePassword = queryDto.policy === Policy.ChangePassword
-  const enablePasswordReset = isChangePassword ? false : allowPasswordReset
-  const enableSignUp = isChangePassword ? false : allowSignUp
-  const enablePasswordSignIn = isChangePassword ? true : allowPasswordSignIn
-  const googleClientId = isChangePassword ? '' : googleAuthId
-  const facebookClientId = isChangePassword ? '' : facebookAuthId
-  const githubClientId = isChangePassword ? '' : githubAuthId
+  const isBasePolicy = !queryDto.policy || queryDto.policy === Policy.SignInOrSignUp
+  const enablePasswordReset = isBasePolicy ? allowPasswordReset : false
+  const enableSignUp = isBasePolicy ? allowSignUp : false
+  const enablePasswordSignIn = isBasePolicy ? allowPasswordSignIn : true
+  const googleClientId = isBasePolicy ? googleAuthId : ''
+  const facebookClientId = isBasePolicy ? facebookAuthId : ''
+  const githubClientId = isBasePolicy ? githubAuthId : ''
 
   const queryString = requestUtil.getQueryString(c)
 
