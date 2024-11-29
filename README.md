@@ -59,6 +59,7 @@
   - sign_in_or_sign_up
   - change_password
   - change_email
+  - reset_mfa
 - <b>Mailer Option</b>:
   - SendGrid
   - Mailgun

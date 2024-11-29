@@ -107,25 +107,26 @@ export const processPostAuthorize = async (
     }
   }
 
-  const requireChangePassword =
-    step < 6 &&
-    !isSocialLogin &&
-    enablePasswordReset &&
-    authCodeBody.request.policy === Policy.ChangePassword
-  if (requireChangePassword) {
-    return {
-      ...basicInfo, nextPage: IdentityRoute.ChangePassword,
+  if (step < 6 && !isSocialLogin) {
+    const requireChangePassword = enablePasswordReset && authCodeBody.request.policy === Policy.ChangePassword
+    if (requireChangePassword) {
+      return {
+        ...basicInfo, nextPage: IdentityRoute.ChangePassword,
+      }
     }
-  }
 
-  const requireChangeEmail =
-    step < 6 &&
-    !isSocialLogin &&
-    enableEmailVerification &&
-    authCodeBody.request.policy === Policy.ChangeEmail
-  if (requireChangeEmail) {
-    return {
-      ...basicInfo, nextPage: IdentityRoute.ChangeEmail,
+    const requireChangeEmail = enableEmailVerification && authCodeBody.request.policy === Policy.ChangeEmail
+    if (requireChangeEmail) {
+      return {
+        ...basicInfo, nextPage: IdentityRoute.ChangeEmail,
+      }
+    }
+
+    const requireResetMfa = authCodeBody.request.policy === Policy.ResetMfa
+    if (requireResetMfa) {
+      return {
+        ...basicInfo, nextPage: IdentityRoute.ResetMfa,
+      }
     }
   }
 

@@ -23,13 +23,22 @@ const Page = () => {
     })
   }
 
+  const handleResetMfa = () => {
+    loginRedirect({
+      locale: locale || undefined, policy: 'reset_mfa',
+    })
+  }
+
   return (
-    <section className='flex flex-col gap-4 w-32'>
+    <section className='flex flex-col gap-4 w-40'>
       <Button onClick={handleChangePassword}>
         {t('account.changePassword')}
       </Button>
       <Button onClick={handleChangeEmail}>
         {t('account.changeEmail')}
+      </Button>
+      <Button onClick={handleResetMfa}>
+        {t('account.resetMfa')}
       </Button>
     </section>
   )

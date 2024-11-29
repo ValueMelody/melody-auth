@@ -221,3 +221,13 @@ identityRoutes.post(
   configMiddleware.enableEmailVerification,
   identityHandler.postChangeEmail,
 )
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.ResetMfa,
+  identityHandler.getResetMfa,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ResetMfa,
+  identityHandler.postResetMfa,
+)
