@@ -42,6 +42,15 @@ These screenshots showcase various pages and emails related to identity system a
 
 ![Reset Password 2](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/reset_password_2.jpeg)
 
+### Change Email Policy
+![Change Email Policy](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/change_email_policy.jpeg)
+
+### Change Password Policy
+![Change Password Policy](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/change_password_policy.jpeg)
+
+### Reset MFA Policy
+![Reset MFA Policy](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/reset_mfa_policy.jpeg)
+
 ## Admin Panel Pages
 
 ### Dashboard
