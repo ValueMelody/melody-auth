@@ -112,6 +112,14 @@ const Layout = ({
             font-size: 16px;
             color: darkslategray;
           }
+          .code-input {
+            background-color: white;
+            border: 1px solid lightgray;
+            text-align: center;
+            border-radius: 12px;
+            width: 42px;
+            height: 42px;
+          }
           .input {
             background-color: white;
             border: 1px solid lightgray;

@@ -11,8 +11,8 @@ import {
   resetErrorScript,
 } from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
-import Field from 'views/components/Field'
 import SubmitButton from 'views/components/SubmitButton'
+import CodeInput from 'views/components/CodeInput'
 
 const AuthorizeEmailMfa = ({
   queryDto, logoUrl, locales, error,
@@ -40,10 +40,11 @@ const AuthorizeEmailMfa = ({
           onsubmit='return handleSubmit(event)'
         >
           <section class='flex-col gap-4'>
-            <Field
+            <CodeInput
               type='text'
               required={false}
               name='code'
+              label={localeConfig.authorizeEmailMfa.code[queryDto.locale]}
             />
             <button
               id='resend-btn'

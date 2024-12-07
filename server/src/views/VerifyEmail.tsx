@@ -11,8 +11,8 @@ import {
   resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
 import Title from 'views/components/Title'
-import Field from 'views/components/Field'
 import SubmitError from 'views/components/SubmitError'
+import CodeInput from 'views/components/CodeInput'
 
 const VerifyEmail = ({
   queryDto, logoUrl, locales,
@@ -44,7 +44,7 @@ const VerifyEmail = ({
           onsubmit='return handleSubmit(event)'
         >
           <section class='flex-col gap-2'>
-            <Field
+            <CodeInput
               type='text'
               required={false}
               name='code'

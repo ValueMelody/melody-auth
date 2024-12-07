@@ -13,6 +13,7 @@ import Title from 'views/components/Title'
 import Field from 'views/components/Field'
 import { identityDto } from 'dtos'
 import SubmitButton from 'views/components/SubmitButton'
+import CodeInput from 'views/components/CodeInput'
 
 const ChangeEmail = ({
   logoUrl, queryDto, locales, redirectUri,
@@ -56,7 +57,7 @@ const ChangeEmail = ({
               required
               name='email'
             />
-            <Field
+            <CodeInput
               label={localeConfig.changeEmail.code[queryDto.locale]}
               type='text'
               required
