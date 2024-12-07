@@ -329,6 +329,10 @@ export const authorizeEmailMfa = Object.freeze({
     en: 'Verify',
     fr: 'Vérifier',
   },
+  code: {
+    en: 'Enter your verification code here',
+    fr: 'Entrez votre code de vérification ici',
+  },
   resend: {
     en: 'Resend a new code',
     fr: 'Renvoyer un nouveau code',

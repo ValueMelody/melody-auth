@@ -13,6 +13,7 @@ import Title from 'views/components/Title'
 import Field from 'views/components/Field'
 import { oauthDto } from 'dtos'
 import SubmitButton from 'views/components/SubmitButton'
+import CodeInput from 'views/components/CodeInput'
 
 const AuthorizeReset = ({
   logoUrl, queryString, queryDto, locales,
@@ -57,7 +58,7 @@ const AuthorizeReset = ({
               required
               name='email'
             />
-            <Field
+            <CodeInput
               label={localeConfig.authorizeReset.code[queryDto.locale]}
               type='text'
               required

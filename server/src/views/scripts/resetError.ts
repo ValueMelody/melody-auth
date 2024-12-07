@@ -1,6 +1,6 @@
 import { html } from 'hono/html'
 
-const resetSubmitError = () => html`
+export const resetSubmitError = () => html`
   var submitBtn = document.getElementById('submit-button');
   if (submitBtn) submitBtn.disabled = false;
   var errorEl = document.getElementById('submit-error');

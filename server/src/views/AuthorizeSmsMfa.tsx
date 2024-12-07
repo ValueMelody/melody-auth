@@ -13,6 +13,7 @@ import {
 import SubmitError from 'views/components/SubmitError'
 import Field from 'views/components/Field'
 import SubmitButton from 'views/components/SubmitButton'
+import CodeInput from 'views/components/CodeInput'
 
 const AuthorizeSmsMfa = ({
   queryDto, logoUrl, locales, phoneNumber, showEmailMfaBtn,
@@ -51,7 +52,7 @@ const AuthorizeSmsMfa = ({
           >
             {localeConfig.authorizeSmsMfa.resend[queryDto.locale]}
           </button>
-          <Field
+          <CodeInput
             label={localeConfig.authorizeSmsMfa.code[queryDto.locale]}
             type='text'
             required={false}
