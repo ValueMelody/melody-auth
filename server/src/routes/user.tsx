@@ -440,3 +440,71 @@ userRoutes.delete(
   authMiddleware.s2sWriteUser,
   userHandler.deleteUserSmsMfa,
 )
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/account-linking/{linkingAuthId}:
+ *   post:
+ *     summary: Link current user account with another user account
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The authId of the user
+ *       - in: path
+ *         name: linkingAuthId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The authId of the account to link with
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ */
+userRoutes.post(
+  `${BaseRoute}/:authId/account-linking/:linkingAuthId`,
+  authMiddleware.s2sWriteUser,
+  userHandler.linkAccount,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/account-linking:
+ *   delete:
+ *     summary: Unlink current user account with another user account
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The authId of the user
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/account-linking`,
+  authMiddleware.s2sWriteUser,
+  userHandler.unlinkAccount,
+)

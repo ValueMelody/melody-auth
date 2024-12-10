@@ -224,3 +224,72 @@ export const deleteUser = async (c: Context<typeConfig.Context>) => {
   c.status(204)
   return c.body(null)
 }
+
+export const linkAccount = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const linkingAuthId = c.req.param('linkingAuthId')
+
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  if (user.linkedAuthId) {
+    throw new errorConfig.Forbidden(localeConfig.Error.UserAlreadyLinked)
+  }
+
+  const targetUser = await userService.getUserByAuthId(
+    c,
+    linkingAuthId,
+  )
+
+  if (targetUser.linkedAuthId) {
+    throw new errorConfig.Forbidden(localeConfig.Error.TargetUserAlreadyLinked)
+  }
+
+  await userService.updateUserLinking(
+    c,
+    user.id,
+    linkingAuthId,
+  )
+
+  await userService.updateUserLinking(
+    c,
+    targetUser.id,
+    authId,
+  )
+
+  return c.json({ success: true })
+}
+
+export const unlinkAccount = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  await userService.updateUserLinking(
+    c,
+    user.id,
+    null,
+  )
+
+  if (user.linkedAuthId) {
+    const targetUser = await userService.getUserByAuthId(
+      c,
+      user.linkedAuthId,
+    )
+
+    if (targetUser) {
+      await userService.updateUserLinking(
+        c,
+        targetUser.id,
+        null,
+      )
+    }
+  }
+
+  return c.json({ success: true })
+}

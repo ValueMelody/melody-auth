@@ -51,6 +51,7 @@ const insertUsers = async () => {
 const user1 = {
   id: 1,
   authId: '1-1-1-1',
+  linkedAuthId: null,
   socialAccountId: null,
   socialAccountType: null,
   email: 'test@email.com',
@@ -71,6 +72,7 @@ const user1 = {
 const user2 = {
   id: 2,
   authId: '1-1-1-2',
+  linkedAuthId: null,
   socialAccountId: null,
   socialAccountType: null,
   email: 'test1@email.com',
@@ -1291,6 +1293,144 @@ describe(
       async () => {
         await insertUsers()
         await handleUnenrollCheck()
+      },
+    )
+  },
+)
+
+describe(
+  'link account',
+  () => {
+    test(
+      'should linking account',
+      async () => {
+        await insertUsers()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/account-linking/1-1-1-2`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        const user1Res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+
+        const user2Res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+
+        const user1Json = await user1Res.json() as { user: userModel.Record }
+        const user2Json = await user2Res.json() as { user: userModel.Record }
+        expect(user1Json.user.linkedAuthId).toBe('1-1-1-2')
+        expect(user2Json.user.linkedAuthId).toBe('1-1-1-1')
+      },
+    )
+
+    test(
+      'should throw error if account already linked',
+      async () => {
+        await insertUsers()
+        await db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-3', 'en', 'test1@email.com', null, null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/account-linking/1-1-1-2`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        const res1 = await app.request(
+          `${BaseRoute}/1-1-1-1/account-linking/1-1-1-3`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res1.status).toBe(400)
+        expect(await res1.text()).toBe(localeConfig.Error.UserAlreadyLinked)
+
+        const res2 = await app.request(
+          `${BaseRoute}/1-1-1-3/account-linking/1-1-1-1`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res2.status).toBe(400)
+        expect(await res2.text()).toBe(localeConfig.Error.TargetUserAlreadyLinked)
+      },
+    )
+  },
+)
+
+describe(
+  'unlink account',
+  () => {
+    test(
+      'should unlinking account',
+      async () => {
+        await insertUsers()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/account-linking/1-1-1-2`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        const unlinkRes = await app.request(
+          `${BaseRoute}/1-1-1-1/account-linking`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(unlinkRes.status).toBe(200)
+        expect(await unlinkRes.json()).toStrictEqual({ success: true })
+
+        const user1Res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+
+        const user2Res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+
+        const user1Json = await user1Res.json() as { user: userModel.Record }
+        const user2Json = await user2Res.json() as { user: userModel.Record }
+        expect(user1Json.user.linkedAuthId).toBe(null)
+        expect(user2Json.user.linkedAuthId).toBe(null)
       },
     )
   },

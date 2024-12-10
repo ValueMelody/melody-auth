@@ -15,6 +15,8 @@ export enum Error {
   PasswordResetLocked = 'Too many password reset email requests. Please try again tomorrow.',
   ChangeEmailLocked = 'Too many password change email requests. Please try again after 30 minutes.',
   UserDisabled = 'This account has been disabled',
+  UserAlreadyLinked = 'This account has already been linked with one account',
+  TargetUserAlreadyLinked = 'Target account has already been linked with one account',
   EmailAlreadyVerified = 'Email already verified',
   OtpAlreadySet = 'OTP authentication already set',
   MfaEnrolled = 'User already enrolled with MFA',
