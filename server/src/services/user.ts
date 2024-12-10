@@ -41,6 +41,19 @@ export const getUserInfo = async (
     user.id,
   )
 
+  const linkedUser = user.linkedAuthId
+    ? await userModel.getByAuthId(
+      c.env.DB,
+      user.linkedAuthId,
+    )
+    : null
+  const linkedUserRoles = linkedUser
+    ? await roleService.getUserRoles(
+      c,
+      linkedUser.id,
+    )
+    : []
+
   const result: GetUserInfoRes = {
     authId: user.authId,
     email: user.email,
@@ -48,6 +61,17 @@ export const getUserInfo = async (
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     emailVerified: !!user.emailVerified,
+    linkedAccount: linkedUser
+      ? {
+        authId: linkedUser.authId,
+        email: linkedUser.email,
+        locale: linkedUser.locale,
+        createdAt: linkedUser.createdAt,
+        updatedAt: linkedUser.updatedAt,
+        emailVerified: !!linkedUser.emailVerified,
+        roles: linkedUserRoles,
+      }
+      : null,
     roles,
   }
 
@@ -55,6 +79,10 @@ export const getUserInfo = async (
   if (enableNames) {
     result.firstName = user.firstName
     result.lastName = user.lastName
+    if (result.linkedAccount && linkedUser) {
+      result.linkedAccount.firstName = linkedUser.firstName
+      result.linkedAccount.lastName = linkedUser.lastName
+    }
   }
 
   return result
@@ -590,6 +618,19 @@ export const increaseLoginCount = async (
     userId,
   )
   return true
+}
+
+export const updateUserLinking = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+  targetAuthId: string | null,
+): Promise<userModel.Record> => {
+  const user = await userModel.update(
+    c.env.DB,
+    userId,
+    { linkedAuthId: targetAuthId },
+  )
+  return user
 }
 
 export const genUserOtp = async (

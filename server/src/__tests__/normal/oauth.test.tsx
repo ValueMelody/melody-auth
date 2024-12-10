@@ -995,6 +995,56 @@ describe(
         )
         expect(await userInfoRes.json()).toStrictEqual({
           authId: '1-1-1-1',
+          linkedAccount: null,
+          email: 'test@email.com',
+          locale: 'en',
+          createdAt: dbTime,
+          updatedAt: dbTime,
+          emailVerified: false,
+          roles: [],
+          firstName: null,
+          lastName: null,
+        })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should get linkedAccount with userinfo',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        const tokenJson = await prepareUserInfoRequest()
+
+        db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "linkedAuthId", "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-2', 'en', 'test1@email.com', '1-1-1-1', null, null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
+        `)
+
+        db.exec(`
+          UPDATE "user" SET "linkedAuthId" = '1-1-1-2' where id = '1'
+        `)
+
+        const userInfoRes = await app.request(
+          routeConfig.OauthRoute.Userinfo,
+          { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
+          mock(db),
+        )
+        expect(await userInfoRes.json()).toStrictEqual({
+          authId: '1-1-1-1',
+          linkedAccount: {
+            authId: '1-1-1-2',
+            email: 'test1@email.com',
+            locale: 'en',
+            createdAt: dbTime,
+            updatedAt: dbTime,
+            emailVerified: false,
+            roles: [],
+            firstName: null,
+            lastName: null,
+          },
           email: 'test@email.com',
           locale: 'en',
           createdAt: dbTime,

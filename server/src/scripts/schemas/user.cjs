@@ -7,6 +7,10 @@ const User = {
       type: 'string',
       nullable: true,
     },
+    linkedAuthId: {
+      type: 'string',
+      nullable: true,
+    },
     socialAccountId: {
       type: 'string',
       nullable: true,

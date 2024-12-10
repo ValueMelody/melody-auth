@@ -29,6 +29,7 @@ export interface Common {
   loginCount: number;
   otpSecret: string;
   smsPhoneNumber: string | null;
+  linkedAuthId: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -53,6 +54,7 @@ export interface Record extends Common {
 export interface ApiRecord {
   id: number;
   authId: string;
+  linkedAuthId: string | null;
   socialAccountId: string | null;
   socialAccountType: SocialAccountType | null;
   email: string | null;
@@ -108,6 +110,7 @@ export interface Update {
   isActive?: number;
   emailVerified?: number;
   otpVerified?: number;
+  linkedAuthId?: string | null;
 }
 
 const TableName = `"${adapterConfig.TableName.User}"`
@@ -128,6 +131,7 @@ export const convertToApiRecord = (
   const result: ApiRecord = {
     id: record.id,
     authId: record.authId,
+    linkedAuthId: record.linkedAuthId,
     socialAccountId: record.socialAccountId,
     socialAccountType: record.socialAccountType,
     email: record.email,
@@ -302,7 +306,7 @@ export const update = async (
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
     'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
-    'smsPhoneNumber', 'smsPhoneNumberVerified', 'email',
+    'smsPhoneNumber', 'smsPhoneNumberVerified', 'email', 'linkedAuthId',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,

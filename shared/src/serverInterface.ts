@@ -26,7 +26,7 @@ export interface PostTokenByClientCredentialsRes {
   scope: string;
 }
 
-export interface GetUserInfoRes {
+export interface GetUserInfoBase {
   authId: string;
   email: string | null;
   firstName?: string | null;
@@ -36,4 +36,8 @@ export interface GetUserInfoRes {
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface GetUserInfoRes extends GetUserInfoBase {
+  linkedAccount: GetUserInfoBase | null;
 }

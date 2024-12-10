@@ -24,6 +24,9 @@ const options = {
       title: 'Melody Auth S2S API',
       version: '0.0.1',
     },
+    security: [
+      { oauth2: [] },
+    ],
     components: {
       securitySchemes: {
         oauth2: {

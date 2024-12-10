@@ -45,6 +45,7 @@
   - Email Verification
   - Password Reset
   - Role-Based Access Control (RBAC)
+  - Account Linking
   - Localization [How to support a new locale](https://auth.valuemelody.com/q_a.html#how-to-support-a-new-locale)
 - <b>Social Sign-In</b>:
   - Google Sign-In

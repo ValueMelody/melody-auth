@@ -4,6 +4,11 @@
     "title": "Melody Auth S2S API",
     "version": "0.0.1"
   },
+  "security": [
+    {
+      "oauth2": []
+    }
+  ],
   "components": {
     "securitySchemes": {
       "oauth2": {
@@ -401,6 +406,10 @@
             "type": "string"
           },
           "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "linkedAuthId": {
             "type": "string",
             "nullable": true
           },
@@ -1631,6 +1640,89 @@
         "responses": {
           "204": {
             "description": "Successful operation with no content to return"
+          }
+        }
+      }
+    },
+    "/api/v1/users/{authId}/account-linking/{linkingAuthId}": {
+      "post": {
+        "summary": "Link current user account with another user account",
+        "description": "Required scope - write_user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "authId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The authId of the user"
+          },
+          {
+            "in": "path",
+            "name": "linkingAuthId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The authId of the account to link with"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{authId}/account-linking": {
+      "delete": {
+        "summary": "Unlink current user account with another user account",
+        "description": "Required scope - write_user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "authId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The authId of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
