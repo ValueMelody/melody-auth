@@ -70,6 +70,8 @@
     "name": "Name",
     "locale": "Locale",
     "status": "Status",
+    "linkedWith": "Linked Account",
+    "unlink": "Unlink",
     "loginCount": "Login Count",
     "emailVerified": "Email Verified",
     "emailNotVerified": "Email not Verified",

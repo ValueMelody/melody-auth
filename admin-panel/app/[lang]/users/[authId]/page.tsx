@@ -11,6 +11,7 @@ import { useParams } from 'next/navigation'
 import {
   useEffect, useMemo, useState,
 } from 'react'
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/16/solid'
 import UserEmailVerified from 'components/UserEmailVerified'
 import { routeTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
@@ -26,6 +27,7 @@ import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import {
   PutUserReq,
+  useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
   useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation,
   useDeleteApiV1UsersByAuthIdEmailMfaMutation,
   useDeleteApiV1UsersByAuthIdLockedIpsMutation,
@@ -95,6 +97,7 @@ const Page = () => {
   const [unenrollEmailMfa] = useDeleteApiV1UsersByAuthIdEmailMfaMutation()
   const [unenrollSmsMfa] = useDeleteApiV1UsersByAuthIdSmsMfaMutation()
   const [unenrollOtpMfa] = useDeleteApiV1UsersByAuthIdOtpMfaMutation()
+  const [unlinkAccount] = useDeleteApiV1UsersByAuthIdAccountLinkingMutation()
 
   const updateObj = useMemo(
     () => {
@@ -180,11 +183,19 @@ const Page = () => {
     await enrollEmailMfa({ authId: String(authId) })
   }
 
+  const handleUnlink = async () => {
+    await unlinkAccount({ authId: String(authId) })
+  }
+
   const handleToggleUserRole = (role: string) => {
     const newRoles = userRoles?.includes(role)
       ? userRoles.filter((userRole) => role !== userRole)
       : [...(userRoles ?? []), role]
     setUserRoles(newRoles)
+  }
+
+  const handleClickLinkedAccount = () => {
+    router.push(`${routeTool.Internal.Users}/${user?.linkedAuthId}`)
   }
 
   const renderEmailButtons = (user: UserDetail) => {
@@ -273,6 +284,17 @@ const Page = () => {
         onClick={handleUnlock}
       >
         {t('users.unlock')}
+      </Button>
+    )
+  }
+
+  const renderUnlinkAccountButtons = () => {
+    return (
+      <Button
+        size='xs'
+        onClick={handleUnlink}
+      >
+        {t('users.unlink')}
       </Button>
     )
   }
@@ -381,6 +403,28 @@ const Page = () => {
                 </TableCell>
                 <TableCell className='max-md:hidden'>
                   {renderSmsButtons(user)}
+                </TableCell>
+              </Table.Row>
+            )}
+            {user.linkedAuthId && (
+              <Table.Row>
+                <Table.Cell>{t('users.linkedWith')}</Table.Cell>
+                <Table.Cell>
+                  <div className='flex max-md:flex-col gap-2'>
+                    <a
+                      className='text-cyan-600 cursor-pointer flex items-center gap-1'
+                      onClick={handleClickLinkedAccount}
+                    >
+                      {user.linkedAuthId}
+                      <ArrowTopRightOnSquareIcon className='w-4 h-4' />
+                    </a>
+                    <div className='md:hidden'>
+                      {renderUnlinkAccountButtons()}
+                    </div>
+                  </div>
+                </Table.Cell>
+                <TableCell className='max-md:hidden'>
+                  {renderUnlinkAccountButtons()}
                 </TableCell>
               </Table.Row>
             )}
