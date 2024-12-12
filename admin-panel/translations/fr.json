@@ -70,6 +70,8 @@
     "name": "Nom",
     "locale": "Langue",
     "status": "Statut",
+    "linkedWith": "Compte associé",
+    "unlink": "Dissocier",
     "loginCount": "Nombre de connexions",
     "emailVerified": "E-mail vérifié",
     "emailNotVerified": "E-mail non vérifié",

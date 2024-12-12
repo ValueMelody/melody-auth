@@ -285,6 +285,26 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Users'],
       }),
+      postApiV1UsersByAuthIdAccountLinkingAndLinkingAuthId: build.mutation<
+        PostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdApiResponse,
+        PostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/users/${queryArg.authId}/account-linking/${queryArg.linkingAuthId}`,
+          method: 'POST',
+        }),
+        invalidatesTags: ['Users'],
+      }),
+      deleteApiV1UsersByAuthIdAccountLinking: build.mutation<
+        DeleteApiV1UsersByAuthIdAccountLinkingApiResponse,
+        DeleteApiV1UsersByAuthIdAccountLinkingApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/users/${queryArg.authId}/account-linking`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Users'],
+      }),
       getApiV1LogsEmail: build.query<
         GetApiV1LogsEmailApiResponse,
         GetApiV1LogsEmailApiArg
@@ -543,6 +563,24 @@ export type DeleteApiV1UsersByAuthIdSmsMfaApiArg = {
   /** The authId of the user */
   authId: string;
 };
+export type PostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdApiResponse =
+  /** status 200 undefined */ {
+    success?: boolean;
+  };
+export type PostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdApiArg = {
+  /** The authId of the user */
+  authId: string;
+  /** The authId of the account to link with */
+  linkingAuthId: string;
+};
+export type DeleteApiV1UsersByAuthIdAccountLinkingApiResponse =
+  /** status 200 undefined */ {
+    success?: boolean;
+  };
+export type DeleteApiV1UsersByAuthIdAccountLinkingApiArg = {
+  /** The authId of the user */
+  authId: string;
+};
 export type GetApiV1LogsEmailApiResponse =
   /** status 200 A list of email logs */ {
     logs?: EmailLog[];
@@ -686,6 +724,7 @@ export type User = {
   id: number;
   authId: string;
   email: string | null;
+  linkedAuthId?: string | null;
   socialAccountId: string | null;
   socialAccountType: string | null;
   firstName: string | null;
@@ -785,6 +824,8 @@ export const {
   useDeleteApiV1UsersByAuthIdOtpMfaMutation,
   usePostApiV1UsersByAuthIdSmsMfaMutation,
   useDeleteApiV1UsersByAuthIdSmsMfaMutation,
+  usePostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdMutation,
+  useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
   useGetApiV1LogsEmailQuery,
   useLazyGetApiV1LogsEmailQuery,
   useGetApiV1LogsEmailByIdQuery,
