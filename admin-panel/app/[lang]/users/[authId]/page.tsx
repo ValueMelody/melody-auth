@@ -410,13 +410,18 @@ const Page = () => {
               <Table.Row>
                 <Table.Cell>{t('users.linkedWith')}</Table.Cell>
                 <Table.Cell>
-                  <a
-                    className='text-cyan-600 cursor-pointer flex items-center gap-1'
-                    onClick={handleClickLinkedAccount}
-                  >
-                    {user.linkedAuthId}
-                    <ArrowTopRightOnSquareIcon className='w-4 h-4' />
-                  </a>
+                  <div className='flex max-md:flex-col gap-2'>
+                    <a
+                      className='text-cyan-600 cursor-pointer flex items-center gap-1'
+                      onClick={handleClickLinkedAccount}
+                    >
+                      {user.linkedAuthId}
+                      <ArrowTopRightOnSquareIcon className='w-4 h-4' />
+                    </a>
+                    <div className='md:hidden'>
+                      {renderUnlinkAccountButtons()}
+                    </div>
+                  </div>
                 </Table.Cell>
                 <TableCell className='max-md:hidden'>
                   {renderUnlinkAccountButtons()}
