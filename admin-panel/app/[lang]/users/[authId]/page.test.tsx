@@ -22,6 +22,7 @@ import {
   usePostApiV1UsersByAuthIdSmsMfaMutation,
   usePostApiV1UsersByAuthIdVerifyEmailMutation,
   usePutApiV1UsersByAuthIdMutation,
+  useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
@@ -57,6 +58,7 @@ vi.mock(
     usePostApiV1UsersByAuthIdSmsMfaMutation: vi.fn(),
     usePostApiV1UsersByAuthIdVerifyEmailMutation: vi.fn(),
     usePutApiV1UsersByAuthIdMutation: vi.fn(),
+    useDeleteApiV1UsersByAuthIdAccountLinkingMutation: vi.fn(),
   }),
 )
 
@@ -93,6 +95,7 @@ const mockEnrollSmsMfa = vi.fn()
 const mockUnenrollEmailMfa = vi.fn()
 const mockUnenrollSmsMfa = vi.fn()
 const mockUnenrollOtpMfa = vi.fn()
+const mockUnlinkAccount = vi.fn()
 
 describe(
   'user',
@@ -121,7 +124,9 @@ describe(
       (useDeleteApiV1UsersByAuthIdEmailMfaMutation as Mock)
         .mockReturnValue([mockUnenrollEmailMfa, { isLoading: false }]);
       (useDeleteApiV1UsersByAuthIdOtpMfaMutation as Mock).mockReturnValue([mockUnenrollOtpMfa, { isLoading: false }]);
-      (useDeleteApiV1UsersByAuthIdSmsMfaMutation as Mock).mockReturnValue([mockUnenrollSmsMfa, { isLoading: false }])
+      (useDeleteApiV1UsersByAuthIdSmsMfaMutation as Mock).mockReturnValue([mockUnenrollSmsMfa, { isLoading: false }]);
+      (useDeleteApiV1UsersByAuthIdAccountLinkingMutation as Mock)
+        .mockReturnValue([mockUnlinkAccount, { isLoading: false }])
     })
 
     it(
