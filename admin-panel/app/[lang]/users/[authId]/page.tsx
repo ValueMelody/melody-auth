@@ -45,6 +45,7 @@ import {
   usePutApiV1UsersByAuthIdMutation,
   UserDetail,
 } from 'services/auth/api'
+import ConfirmModal from 'components/ConfirmModal'
 
 const Page = () => {
   const { authId } = useParams()
@@ -59,6 +60,11 @@ const Page = () => {
   const [isActive, setIsActive] = useState(true)
   const [emailResent, setEmailResent] = useState(false)
   const [userRoles, setUserRoles] = useState<string[] | null>([])
+
+  const [isUnlinking, setIsUnlinking] = useState(false)
+  const [isResettingSmsMfa, setIsResettingSmsMfa] = useState(false)
+  const [isResettingOtpMfa, setIsResettingOtpMfa] = useState(false)
+  const [isResettingEmailMfa, setIsResettingEmailMfa] = useState(false)
 
   const userInfo = useSignalValue(userInfoSignal)
   const enableConsent = configs.ENABLE_USER_APP_CONSENT
@@ -159,16 +165,31 @@ const Page = () => {
     if (res.data?.success) setEmailResent(true)
   }
 
-  const handleResetOtpMfa = async () => {
+  const handleClickResetOtpMfa = () => setIsResettingOtpMfa(true)
+
+  const handleCancelResetOtpMfa = () => setIsResettingOtpMfa(false)
+
+  const handleConfirmResetOtpMfa = async () => {
     await unenrollOtpMfa({ authId: String(authId) })
+    setIsResettingOtpMfa(false)
   }
 
-  const handleResetSmsMfa = async () => {
+  const handleClickResetSmsMfa = () => setIsResettingSmsMfa(true)
+
+  const handleCancelResetSmsMfa = () => setIsResettingSmsMfa(false)
+
+  const handleConfirmResetSmsMfa = async () => {
     await unenrollSmsMfa({ authId: String(authId) })
+    setIsResettingSmsMfa(false)
   }
 
-  const handleResetEmailMfa = async () => {
+  const handleClickResetEmailMfa = () => setIsResettingEmailMfa(true)
+
+  const handleCancelResetEmailMfa = () => setIsResettingEmailMfa(false)
+
+  const handleConfirmResetEmailMfa = async () => {
     await unenrollEmailMfa({ authId: String(authId) })
+    setIsResettingEmailMfa(false)
   }
 
   const handleEnrollOtpMfa = async () => {
@@ -183,8 +204,13 @@ const Page = () => {
     await enrollEmailMfa({ authId: String(authId) })
   }
 
-  const handleUnlink = async () => {
+  const handleCancelUnlink = () => setIsUnlinking(false)
+
+  const handleClickUnlink = () => setIsUnlinking(true)
+
+  const handleConfirmUnlink = async () => {
     await unlinkAccount({ authId: String(authId) })
+    setIsUnlinking(false)
   }
 
   const handleToggleUserRole = (role: string) => {
@@ -212,7 +238,7 @@ const Page = () => {
         {user.isActive && isEmailEnrolled && !configs.EMAIL_MFA_IS_REQUIRED && (
           <Button
             size='xs'
-            onClick={handleResetEmailMfa}>
+            onClick={handleClickResetEmailMfa}>
             {t('users.resetMfa')}
           </Button>
         )}
@@ -238,7 +264,7 @@ const Page = () => {
         {user.mfaTypes.includes('otp') && user.isActive && (
           <Button
             size='xs'
-            onClick={handleResetOtpMfa}
+            onClick={handleClickResetOtpMfa}
           >
             {t('users.resetMfa')}
           </Button>
@@ -260,7 +286,7 @@ const Page = () => {
         {user.mfaTypes.includes('sms') && user.isActive && (
           <Button
             size='xs'
-            onClick={handleResetSmsMfa}
+            onClick={handleClickResetSmsMfa}
           >
             {t('users.resetMfa')}
           </Button>
@@ -292,7 +318,7 @@ const Page = () => {
     return (
       <Button
         size='xs'
-        onClick={handleUnlink}
+        onClick={handleClickUnlink}
       >
         {t('users.unlink')}
       </Button>
@@ -330,6 +356,13 @@ const Page = () => {
               <Table.Row>
                 <Table.Cell>{t('users.email')}</Table.Cell>
                 <Table.Cell>
+                  <ConfirmModal
+                    title={t('users.resetEmailMfaTitle')}
+                    show={isResettingEmailMfa}
+                    onConfirm={handleConfirmResetEmailMfa}
+                    onClose={handleCancelResetEmailMfa}
+                    confirmButtonText={t('users.resetMfa')}
+                  />
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-4 max-md:gap-2 max-md:flex-col max-md:items-start'>
                       <p>{user.email}</p>
@@ -358,6 +391,13 @@ const Page = () => {
             )}
             {!user.socialAccountId && (
               <Table.Row>
+                <ConfirmModal
+                  title={t('users.resetOtpMfaTitle')}
+                  show={isResettingOtpMfa}
+                  onConfirm={handleConfirmResetOtpMfa}
+                  onClose={handleCancelResetOtpMfa}
+                  confirmButtonText={t('users.resetMfa')}
+                />
                 <Table.Cell>{t('users.otpMfa')}</Table.Cell>
                 <TableCell>
                   <div className='flex max-md:flex-col gap-2'>
@@ -383,6 +423,13 @@ const Page = () => {
             )}
             {!user.socialAccountId && (
               <Table.Row>
+                <ConfirmModal
+                  title={t('users.resetSmsMfaTitle')}
+                  show={isResettingSmsMfa}
+                  onConfirm={handleConfirmResetSmsMfa}
+                  onClose={handleCancelResetSmsMfa}
+                  confirmButtonText={t('users.resetMfa')}
+                />
                 <Table.Cell>{t('users.smsMfa')}</Table.Cell>
                 <TableCell>
                   <div className='flex max-md:flex-col gap-2'>
@@ -408,6 +455,13 @@ const Page = () => {
             )}
             {user.linkedAuthId && (
               <Table.Row>
+                <ConfirmModal
+                  title={t('users.unlinkTitle')}
+                  show={isUnlinking}
+                  onConfirm={handleConfirmUnlink}
+                  onClose={handleCancelUnlink}
+                  confirmButtonText={t('users.unlink')}
+                />
                 <Table.Cell>{t('users.linkedWith')}</Table.Cell>
                 <Table.Cell>
                   <div className='flex max-md:flex-col gap-2'>
