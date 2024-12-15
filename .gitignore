@@ -7,9 +7,9 @@ docs/.vuepress/.temp
 .next/
 .expo
 expo-env.d.ts
+.open-next
 
-server/.dev.vars
-
+.dev.vars
 .env
 .env.local
 *.pem
