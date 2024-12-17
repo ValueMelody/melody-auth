@@ -1,6 +1,9 @@
-name = "middleware"
+name = "melody-auth-admin-panel"
 main = ".open-next/worker.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 assets = { directory = ".open-next/assets", binding = "ASSETS" }
+
+[observability.logs]
+enabled = true
