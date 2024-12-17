@@ -57,3 +57,28 @@ npm run dev
     insert into user_role (userId, roleId) values (1, 1)
     ```
 4. Logout (Required after update user role) and login again. You should now have full access.
+
+### Experimental: Deploy Admin Panel to Cloudflare Workers
+The Admin Panel is a full-stack Next.js application typically deployed in a Node.js environment. Deployment to Cloudflare Workers is now supported via the experimental opennextjs-cloudflare package. Proceed with caution as this feature is under development.
+  
+Steps to Deploy:  
+1. Create a new worker named "melody-auth-admin-panel"
+2. Go to "melody-auth-admin-panel" Cloudflare Dashboard -> Settings -> Variables and Secrets, add following secrets
+```
+SERVER_CLIENT_ID=[Client ID for the Admin Panel (S2S) app]
+SERVER_CLIENT_SECRET=[Client secret for the Admin Panel (S2S) app]
+```
+3. In your project directory, under the /admin-panel folder, create an .env file:
+```
+NEXT_PUBLIC_CLIENT_URI=[The host url of this admin panel worker]
+NEXT_PUBLIC_SERVER_URI=[The host url of your auth server]
+NEXT_PUBLIC_CLIENT_ID=[Client ID for the Admin Panel (SPA) app]
+```
+4. Build the project
+```
+npm run cf:build
+```
+5. Deploy
+```
+npm run cf:deploy
+```

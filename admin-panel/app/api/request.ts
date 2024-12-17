@@ -1,11 +1,7 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
-import {
-  JwtHeader, SigningKeyCallback, verify,
-} from 'jsonwebtoken'
-import jwksClient, {
-  CertSigningKey, RsaSigningKey,
-} from 'jwks-rsa'
+import { verify } from 'hono/jwt'
+import { SignatureKey } from 'hono/utils/jwt/jws'
 import { typeTool } from 'tools'
 
 let accessToken: string | null = null
@@ -20,48 +16,33 @@ export const throwForbiddenError = (message?: string) => {
   )
 }
 
-const client = jwksClient({ jwksUri: `${process.env.NEXT_PUBLIC_SERVER_URI}/.well-known/jwks.json` })
+const extractKid = (token: string) => {
+  if (!token || typeof token !== 'string') {
+    throw new Error('Invalid token provided')
+  }
 
-const getKey = (
-  header: JwtHeader, callback: SigningKeyCallback,
-) => {
-  return client.getSigningKey(
-    header.kid,
-    (
-      err, key,
-    ) => {
-      if (err) {
-        callback(err)
-      } else {
-        const signingKey = (key as CertSigningKey).publicKey || (key as RsaSigningKey).rsaPublicKey
-        callback(
-          null,
-          signingKey,
-        )
-      }
-    },
-  )
+  const [header] = token.split('.')
+  const decodedHeader = JSON.parse(Buffer.from(
+    header,
+    'base64',
+  ).toString('utf8'))
+  return decodedHeader.kid
 }
 
-const verifyJwtToken = (token: string) => {
-  return new Promise((
-    resolve, reject,
-  ) => {
-    verify(
-      token,
-      getKey,
-      {},
-      (
-        err, decoded,
-      ) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(decoded)
-        }
-      },
-    )
-  })
+const verifyJwtToken = async (token: string) => {
+  const kid = extractKid(token)
+  const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/.well-known/jwks.json`)
+  const certs = await response.json() as { keys: { kid: string }[] }
+  const publicKey = certs.keys.find((key) => key.kid === kid)
+  if (!publicKey) return null
+
+  const result = await verify(
+    token,
+    publicKey as unknown as SignatureKey,
+    'RS256',
+  )
+
+  return result
 }
 
 export const verifyAccessToken = async () => {
