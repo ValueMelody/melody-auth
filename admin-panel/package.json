@@ -2,7 +2,6 @@
   "name": "admin-panel",
   "private": true,
   "scripts": {
-    "info": "next info",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

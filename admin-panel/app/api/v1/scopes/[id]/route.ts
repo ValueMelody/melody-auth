@@ -22,6 +22,7 @@ export async function PUT (
   request: Request, context: { params: Params },
 ) {
   const id = context.params.id
+
   const reqBody = await request.json()
   if (!reqBody) return throwForbiddenError()
 
