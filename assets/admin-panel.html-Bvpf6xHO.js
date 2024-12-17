@@ -1,39 +1,4 @@
-<!doctype html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="generator" content="VuePress 2.0.0-rc.14" />
-    <style>
-      :root {
-        --c-bg: #fff;
-      }
-
-      html.dark {
-        --c-bg: #22272e;
-      }
-
-      html,
-      body {
-        background-color: var(--c-bg);
-      }
-    </style>
-    <script>
-      const userMode = localStorage.getItem('vuepress-color-scheme')
-      const systemDarkMode =
-        window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-      if (userMode === 'dark' || (userMode !== 'light' && systemDarkMode)) {
-        document.documentElement.classList.toggle('dark', true)
-      }
-    </script>
-    <title>Admin Panel | Melody Auth</title><meta name="description" content="Effortless OAuth and Authentication, Built for Flexibility and Control.">
-    <link rel="preload" href="/assets/style-pqpGs7N-.css" as="style"><link rel="stylesheet" href="/assets/style-pqpGs7N-.css">
-    <link rel="modulepreload" href="/assets/app-DjQErBj_.js"><link rel="modulepreload" href="/assets/admin-panel.html-Bvpf6xHO.js">
-    <link rel="prefetch" href="/assets/index.html-dOLd-X7v.js" as="script"><link rel="prefetch" href="/assets/auth-server.html-DwG2oWX4.js" as="script"><link rel="prefetch" href="/assets/q_a.html-CBkaZqAh.js" as="script"><link rel="prefetch" href="/assets/react-sdk.html-B0noO3Ca.js" as="script"><link rel="prefetch" href="/assets/s2s-api.html-DPRVITUV.js" as="script"><link rel="prefetch" href="/assets/screenshots.html-BiJKBfSd.js" as="script"><link rel="prefetch" href="/assets/404.html-C_yJ2_QW.js" as="script">
-  </head>
-  <body>
-    <div id="app"><!--[--><div class="vp-theme-container external-link-icon"><!--[--><header class="vp-navbar"><div class="vp-toggle-sidebar-button" title="toggle sidebar" aria-expanded="false" role="button" tabindex="0"><div class="icon" aria-hidden="true"><span></span><span></span><span></span></div></div><span><a class="route-link" href="/"><img class="vp-site-logo" src="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg" alt="Melody Auth"><span class="vp-site-name vp-hide-mobile" aria-hidden="true">Melody Auth</span></a></span><div class="vp-navbar-items-wrapper" style=""><!--[--><!--]--><!----><!--[--><!--]--><button class="vp-toggle-color-mode-button" title="toggle color mode"><svg class="light-icon" viewbox="0 0 32 32" style=""><path d="M16 12.005a4 4 0 1 1-4 4a4.005 4.005 0 0 1 4-4m0-2a6 6 0 1 0 6 6a6 6 0 0 0-6-6z" fill="currentColor"></path><path d="M5.394 6.813l1.414-1.415l3.506 3.506L8.9 10.318z" fill="currentColor"></path><path d="M2 15.005h5v2H2z" fill="currentColor"></path><path d="M5.394 25.197L8.9 21.691l1.414 1.415l-3.506 3.505z" fill="currentColor"></path><path d="M15 25.005h2v5h-2z" fill="currentColor"></path><path d="M21.687 23.106l1.414-1.415l3.506 3.506l-1.414 1.414z" fill="currentColor"></path><path d="M25 15.005h5v2h-5z" fill="currentColor"></path><path d="M21.687 8.904l3.506-3.506l1.414 1.415l-3.506 3.505z" fill="currentColor"></path><path d="M15 2.005h2v5h-2z" fill="currentColor"></path></svg><svg class="dark-icon" viewbox="0 0 32 32" style="display:none;"><path d="M13.502 5.414a15.075 15.075 0 0 0 11.594 18.194a11.113 11.113 0 0 1-7.975 3.39c-.138 0-.278.005-.418 0a11.094 11.094 0 0 1-3.2-21.584M14.98 3a1.002 1.002 0 0 0-.175.016a13.096 13.096 0 0 0 1.825 25.981c.164.006.328 0 .49 0a13.072 13.072 0 0 0 10.703-5.555a1.01 1.01 0 0 0-.783-1.565A13.08 13.08 0 0 1 15.89 4.38A1.015 1.015 0 0 0 14.98 3z" fill="currentColor"></path></svg></button><!----></div></header><!--]--><div class="vp-sidebar-mask"></div><!--[--><aside class="vp-sidebar"><!----><!--[--><!--]--><ul class="vp-sidebar-items"><!--[--><li><p tabindex="0" class="vp-sidebar-item vp-sidebar-heading">Admin Panel <!----></p><!----></li><!--]--></ul><!--[--><!--]--></aside><!--]--><!--[--><main class="vp-page"><!--[--><!--]--><div class="theme-default-content"><!--[--><!--]--><div><h1 id="admin-panel" tabindex="-1"><a class="header-anchor" href="#admin-panel"><span>Admin Panel</span></a></h1><p>Follow these instructions to set up and run the admin panel locally or in production.</p><h2 id="_1-prerequisites" tabindex="-1"><a class="header-anchor" href="#_1-prerequisites"><span>1. Prerequisites</span></a></h2><p>Complete the auth server setup first.</p><h2 id="_2-get-started" tabindex="-1"><a class="header-anchor" href="#_2-get-started"><span>2. Get Started</span></a></h2><div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre class="language-text"><code><span class="line">cd melody-auth/admin-panel</span>
+import{_ as e,c as a,o as t,a as l}from"./app-DjQErBj_.js";const n={},s=l(`<h1 id="admin-panel" tabindex="-1"><a class="header-anchor" href="#admin-panel"><span>Admin Panel</span></a></h1><p>Follow these instructions to set up and run the admin panel locally or in production.</p><h2 id="_1-prerequisites" tabindex="-1"><a class="header-anchor" href="#_1-prerequisites"><span>1. Prerequisites</span></a></h2><p>Complete the auth server setup first.</p><h2 id="_2-get-started" tabindex="-1"><a class="header-anchor" href="#_2-get-started"><span>2. Get Started</span></a></h2><div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre class="language-text"><code><span class="line">cd melody-auth/admin-panel</span>
 <span class="line">cp .env.example .env</span>
 <span class="line"></span></code></pre><div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0;"><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="_3-update-the-env-file-with-the-following-variables" tabindex="-1"><a class="header-anchor" href="#_3-update-the-env-file-with-the-following-variables"><span>3. Update the .env file with the following variables:</span></a></h2><div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre class="language-text"><code><span class="line">NEXT_PUBLIC_CLIENT_URI: Set this to the host url of your admin panel app</span>
 <span class="line">NEXT_PUBLIC_SERVER_URI: Set this to the host url of your auth server.</span>
@@ -55,7 +20,4 @@
 <span class="line">NEXT_PUBLIC_CLIENT_ID=[Client ID for the Admin Panel (SPA) app]</span>
 <span class="line"></span></code></pre><div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0;"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><ol start="4"><li>Build the project</li></ol><div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre class="language-text"><code><span class="line">npm run cf:build</span>
 <span class="line"></span></code></pre><div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0;"><div class="line-number"></div></div></div><ol start="5"><li>Deploy</li></ol><div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre class="language-text"><code><span class="line">npm run cf:deploy</span>
-<span class="line"></span></code></pre><div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0;"><div class="line-number"></div></div></div></div><!--[--><!--]--></div><footer class="vp-page-meta"><!----><div class="vp-meta-item git-info"><div class="vp-meta-item last-updated"><span class="meta-item-label">Last Updated: </span><!----></div><div class="vp-meta-item contributors"><span class="meta-item-label">Contributors: </span><span class="meta-item-info"><!--[--><!--[--><span class="contributor" title="email: byn9826@gmail.com">Baozier</span><!----><!--]--><!--]--></span></div></div></footer><!----><!--[--><!--]--></main><!--]--></div><!--[--><!----><!--]--><!--]--></div>
-    <script type="module" src="/assets/app-DjQErBj_.js" defer></script>
-  </body>
-</html>
+<span class="line"></span></code></pre><div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0;"><div class="line-number"></div></div></div>`,27),i=[s];function r(d,o){return t(),a("div",null,i)}const u=e(n,[["render",r],["__file","admin-panel.html.vue"]]),c=JSON.parse('{"path":"/admin-panel.html","title":"Admin Panel","lang":"en-US","frontmatter":{},"headers":[{"level":2,"title":"1. Prerequisites","slug":"_1-prerequisites","link":"#_1-prerequisites","children":[]},{"level":2,"title":"2. Get Started","slug":"_2-get-started","link":"#_2-get-started","children":[]},{"level":2,"title":"3. Update the .env file with the following variables:","slug":"_3-update-the-env-file-with-the-following-variables","link":"#_3-update-the-env-file-with-the-following-variables","children":[]},{"level":2,"title":"4. Start the admin panel app","slug":"_4-start-the-admin-panel-app","link":"#_4-start-the-admin-panel-app","children":[{"level":3,"title":"First-time Setup","slug":"first-time-setup","link":"#first-time-setup","children":[]},{"level":3,"title":"Experimental: Deploy Admin Panel to Cloudflare Workers","slug":"experimental-deploy-admin-panel-to-cloudflare-workers","link":"#experimental-deploy-admin-panel-to-cloudflare-workers","children":[]}]}],"git":{"updatedTime":1734406388000,"contributors":[{"name":"Baozier","email":"byn9826@gmail.com","commits":5}]},"filePathRelative":"admin-panel.md"}');export{u as comp,c as data};
