@@ -18,8 +18,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: cd ./admin-panel && npm ci
-    - run: cd ./admin-panel && npm run test:check
     - run: npm run build
     - run: npm run lint:check
     - run: npm run type:check
@@ -31,3 +29,5 @@ jobs:
     - run: cd ./server && npm run test:check:node-key-rotate
     - run: cd ./server && npm run node:build
     - run: cd ./admin-panel && npm run build
+    - run: cd ./admin-panel && npm ci
+    - run: cd ./admin-panel && npm run test:check
