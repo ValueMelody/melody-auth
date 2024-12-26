@@ -28,6 +28,6 @@ jobs:
     - run: cd ./server && npm run test:check:cf-key-rotate
     - run: cd ./server && npm run test:check:node-key-rotate
     - run: cd ./server && npm run node:build
-    - run: cd ./admin-panel && npm run build
     - run: cd ./admin-panel && npm ci
+    - run: cd ./admin-panel && npm run build
     - run: cd ./admin-panel && npm run test:check
