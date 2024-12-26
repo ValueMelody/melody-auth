@@ -1,5 +1,5 @@
 name = "melody-auth-admin-panel"
-main = ".open-next/worker.ts"
+main = ".open-next/worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
