@@ -23,6 +23,7 @@ export interface IdTokenBody {
   iss: string;
   sub: string;
   azp: string;
+  aud: string;
   exp: number;
   iat: number;
   email: string | null;

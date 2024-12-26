@@ -556,7 +556,7 @@ const Page = () => {
                         id={`role-${role.id}`}
                         data-testid='roleInput'
                         onChange={() => handleToggleUserRole(role.name)}
-                        checked={userRoles?.includes(role.name)}
+                        checked={userRoles?.includes(role.name) ?? false}
                       />
                       <Label
                         htmlFor={`role-${role.id}`}
