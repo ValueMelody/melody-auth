@@ -91,13 +91,28 @@ const CodeInput = ({
               var value = e.target.value.replace(/[^0-9]/g, '');
               if (value.length > 1) {
                 e.target.value = value.substring(0, 1);
+
+                const chars = value.split('');
+                codeInputs[index].value = chars[0]
+
+                let nextIndex = index + 1;
+                for (let i = 1; i < chars.length && nextIndex < codeInputs.length; i++) {
+                  codeInputs[nextIndex].value = chars[i];
+                  nextIndex++;
+                }
+
+                if (nextIndex < codeInputs.length) {
+                  codeInputs[nextIndex].focus();
+                } else {
+                  codeInputs[codeInputs.length - 1].focus();
+                }
               } else {
                 e.target.value = value;
+                if (value.length !== 0 && index < codeInputs.length - 1) {
+                  codeInputs[index + 1].focus();
+                }
               }
 
-              if (value.length !== 0 && index < codeInputs.length - 1) {
-                codeInputs[index + 1].focus();
-              }
               updateHiddenInput();
             });
 

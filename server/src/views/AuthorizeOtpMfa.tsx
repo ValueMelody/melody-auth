@@ -10,9 +10,9 @@ import {
   validateScript,
   resetErrorScript,
 } from 'views/scripts'
-import Field from 'views/components/Field'
 import SubmitError from 'views/components/SubmitError'
 import SubmitButton from 'views/components/SubmitButton'
+import CodeInput from 'views/components/CodeInput'
 
 const AuthorizeOtpMfa = ({
   queryDto, logoUrl, locales, otp, showEmailMfaBtn,
@@ -41,7 +41,7 @@ const AuthorizeOtpMfa = ({
         onsubmit='return handleSubmit(event)'
       >
         <section class='flex-col gap-4'>
-          <Field
+          <CodeInput
             type='text'
             required={false}
             label={localeConfig.authorizeOtpMfa.code[queryDto.locale]}
