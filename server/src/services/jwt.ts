@@ -184,6 +184,7 @@ export const genIdToken = async (
     iss: authServerUrl,
     sub: authInfo.user.authId,
     azp: authInfo.request.clientId,
+    aud: authInfo.request.clientId,
     exp: idTokenExpiresAt,
     iat: currentTimestamp,
     email: authInfo.user.email,

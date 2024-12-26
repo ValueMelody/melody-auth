@@ -7,6 +7,7 @@ docs/.vuepress/.temp
 .next/
 .expo
 expo-env.d.ts
+next-env.d.ts
 .open-next
 
 .dev.vars
