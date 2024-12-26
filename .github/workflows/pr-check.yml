@@ -18,7 +18,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: cd ./admin-panel && npm install
+    - run: cd ./admin-panel && npm ci
     - run: cd ./admin-panel && npm run test:check
     - run: npm run build
     - run: npm run lint:check
