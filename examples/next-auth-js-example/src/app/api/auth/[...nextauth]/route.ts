@@ -1,7 +1,7 @@
 import NextAuth, { AuthOptions } from 'next-auth'
 
 // The clientId of your spa app
-const CLIENT_ID = '3aDCB32a6E4aee15c46672A23FE11326a26fC3F5c0EBC7ca43ba87CD34865dE5'
+const CLIENT_ID = ''
 const SERVER_URI = 'http://localhost:8787'
 // Make sure add this to the allowed redirect uri list of the spa app
 const REDIRECT_URI = 'http://localhost:3001/api/auth/callback/melody-auth'
