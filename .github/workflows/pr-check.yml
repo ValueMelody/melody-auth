@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.6.0]
+        node-version: [20.17.0]
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
@@ -19,6 +19,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: cd ./admin-panel && npm install
+    - run: cd ./admin-panel && npm run test:check
     - run: npm run build
     - run: npm run lint:check
     - run: npm run type:check
@@ -30,4 +31,3 @@ jobs:
     - run: cd ./server && npm run test:check:node-key-rotate
     - run: cd ./server && npm run node:build
     - run: cd ./admin-panel && npm run build
-    # - run: cd ./admin-panel && npm run test:check
