@@ -28,6 +28,7 @@
     "react-redux": "^9.1.2"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^0.3.2",
     "@rtk-query/codegen-openapi": "^1.2.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
