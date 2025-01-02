@@ -39,7 +39,14 @@
     "deleteConfirmBtn": "Supprimer"
   },
   "dashboard": {
-    "configs": "Configurations système",
+    "brandingConfigs": "Configurations de marque",
+    "localeConfigs": "Configurations de langue",
+    "suppressionConfigs": "Configurations de suppression",
+    "mfaConfigs": "Configurations MFA",
+    "authConfigs": "Configurations d'authentification",
+    "bruteForceConfigs": "Configurations de force brute",
+    "ssoConfigs": "Configurations SSO",
+    "logConfigs": "Configurations des journaux",
     "configName": "Nom",
     "configValue": "Valeur",
     "configSeconds": "secondes",
