@@ -3,7 +3,7 @@ import {
   localeConfig, routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import { identityDto } from 'dtos'
 import {
   responseScript,
@@ -15,17 +15,17 @@ import SubmitButton from 'views/components/SubmitButton'
 import CodeInput from 'views/components/CodeInput'
 
 const AuthorizeEmailMfa = ({
-  queryDto, logoUrl, locales, error,
+  queryDto, branding, locales, error,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
-  logoUrl: string;
+  branding: Branding;
   locales: typeConfig.Locale[];
   error?: { en: string; fr: string };
 }) => {
   return (
     <Layout
       locales={locales}
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
     >
       {!error && (

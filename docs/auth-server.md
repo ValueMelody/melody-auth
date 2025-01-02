@@ -219,157 +219,186 @@ cd server
 npm run prod:deploy
 ```
 
-### AUTHORIZATION_CODE_EXPIRES_IN
-- **Default:** 300 (5 minutes)  
-- **Description:** Determines how long the authorization code is valid before it expires.
 
-### SPA_ACCESS_TOKEN_EXPIRES_IN
-- **Default:** 1800 (30 minutes)  
-- **Description:** Determines how long the access token granted for single page applications is valid before it expires.
+### Branding Configs
 
-### SPA_REFRESH_TOKEN_EXPIRES_IN
-- **Default:** 604800 (7 days)
-- **Description:** Determines how long the refresh token granted for single page applications is valid before it expires.
-
-### S2S_ACCESS_TOKEN_EXPIRES_IN
-- **Default:** 3600 (1 hour)
-- **Description:** Determines how long the access token granted for server-to-server applications is valid before it expires.
-
-### ID_TOKEN_EXPIRES_IN
-- **Default:** 1800 (30 minutes)
-- **Description:** Determines how long the ID token is valid before it expires.
-
-### SERVER_SESSION_EXPIRES_IN
-- **Default:** 1800 (30 minutes)
-- **Description:** Determines how long the server session is valid before it expires. If set to 0, the server session will be disabled.
-
-### COMPANY_LOGO_URL
+#### COMPANY_LOGO_URL
 - **Default:** https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg
 - **Description:** The logo used for branding.
 
-### EMAIL_SENDER_NAME
+#### BG_COLOR
+- **Default:** lightgray
+- **Description:** Specifies the background color of authentication pages.
+
+#### PRIMARY_BUTTON_BG_COLOR
+- **Default:** white
+- **Description:** Specifies the background color of primary buttons on authentication pages.
+
+#### PRIMARY_BUTTON_FG_COLOR
+- **Default:** black
+- **Description:** Specifies the foreground color of primary buttons on authentication pages.
+
+#### EMAIL_SENDER_NAME
 - **Default:** "Melody Auth"
 - **Description:** The sender name that appears in emails.
 
-### GOOGLE_AUTH_CLIENT_ID
+#### TERMS_LINK
 - **Default:** ""
-- **Description:** The Google Authentication Client ID is required to enable the Google Sign-In function. This ID is obtained from the Google Developer Console and uniquely identifies your application to Google. If this value is left empty, the Google Sign-In button will be suppressed and the Google sign-in functionality will not be available.
+- **Description:** URL to display a link to your Terms of Service on the sign-up page.
 
-### FACEBOOK_AUTH_CLIENT_ID
+#### PRIVACY_POLICY_LINK
 - **Default:** ""
-- **Description:** The Facebook Authentication Client ID is required to enable the Facebook Sign-In function. This ID is obtained from the Facebook Developer Console and uniquely identifies your application to Facebook. If this value is left empty, the Facebook Sign-In button will be suppressed and the Facebook sign-in functionality will not be available. <b>You also need to set FACEBOOK_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare dev env as well as Node env, and in Cloudflare workers config for Cloudflare prod env.</b>
+- **Description:** URL to display a link to your Privacy Policy on the sign-up page.
 
-### GITHUB_AUTH_CLIENT_ID & GITHUB_AUTH_APP_NAME
-- **Default:** ""
-- **Description:** The GitHub Authentication Client ID and App Name is required to enable the GitHub Sign-In function. This Client ID and App Name is obtained from the GitHub Developer Console and uniquely identifies your application to GitHub. If this value is left empty, the GitHub Sign-In button will be suppressed and the GitHub sign-in functionality will not be available. <b>You also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare dev env as well as Node env, and in Cloudflare workers config for Cloudflare prod env. In your GitHub App settings, set the callback URL to [your auth server doamin]/identity/v1/authorize-github, e.g., http://localhost:8787/identity/v1/authorize-github</b>
+### Locale Configs
 
-### ENABLE_SIGN_UP
+#### SUPPORTED_LOCALES
+- **Default:** ['en', 'fr']
+- **Description:** Specifies the locales supported for identity pages and emails.
+
+#### ENABLE_LOCALE_SELECTOR
+- **Default:** true
+- **Description:** Determines whether users can switch to a different locale on identity pages. If only one locale is supported (`SUPPORTED_LOCALE`), the locale selector will be suppressed, regardless of this setting.
+
+### Suppression Configs
+
+#### ENABLE_SIGN_UP
 - **Default:** true
 - **Description:** Determines if user sign-up is allowed. If set to false, the sign-up button will be suppressed on the sign-in page.
 
-### ENABLE_PASSWORD_SIGN_IN
+#### ENABLE_PASSWORD_SIGN_IN
 - **Default:** true
 - **Description:** Determines if password sign-in is allowed. If you only want to support social sign-in, you can set ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN and ENABLE_PASSWORD_RESET to false.
 
-### ENABLE_PASSWORD_RESET
+#### ENABLE_PASSWORD_RESET
 - **Default:** true
 - **Description:** Determines if user password reset is allowed. If set to false, the reset password button will be suppressed on the sign-in page.
 [Email functionality setup required](#email-functionality-setup)
 
-### PASSWORD_RESET_EMAIL_THRESHOLD
-- **Default:** 5
-- **Description:** Limits the number of password reset email requests allowed per email and IP address per day to protect against abuse. 0 means no restriction
-
-### ENABLE_NAMES
+#### ENABLE_NAMES
 - **Default:** true
 - **Description:** Provides fields for users to enter their first and last names during sign-up. If set to false, the first and last name fields will not show up on the sign-up page.
 
-### NAMES_IS_REQUIRED
+#### NAMES_IS_REQUIRED
 - **Default:** false
 - **Description:** Determines if users are required to provide their first and last names during sign-up.
 
-### ENABLE_USER_APP_CONSENT
+#### ENABLE_USER_APP_CONSENT
 - **Default:** true
 - **Description:** Requires users to consent to grant access to each app after authentication.
 
-### ENABLE_EMAIL_VERIFICATION
+#### ENABLE_EMAIL_VERIFICATION
 - **Default:** true
 - **Description:** If set to true, users will receive an email to verify their email address after signing up.
 [Email functionality setup required](#email-functionality-setup)
 
-### OTP_MFA_IS_REQUIRED
+### Auth Configs
+
+#### AUTHORIZATION_CODE_EXPIRES_IN
+- **Default:** 300 (5 minutes)  
+- **Description:** Determines how long the authorization code is valid before it expires.
+
+#### SPA_ACCESS_TOKEN_EXPIRES_IN
+- **Default:** 1800 (30 minutes)  
+- **Description:** Determines how long the access token granted for single page applications is valid before it expires.
+
+#### SPA_REFRESH_TOKEN_EXPIRES_IN
+- **Default:** 604800 (7 days)
+- **Description:** Determines how long the refresh token granted for single page applications is valid before it expires.
+
+#### S2S_ACCESS_TOKEN_EXPIRES_IN
+- **Default:** 3600 (1 hour)
+- **Description:** Determines how long the access token granted for server-to-server applications is valid before it expires.
+
+#### ID_TOKEN_EXPIRES_IN
+- **Default:** 1800 (30 minutes)
+- **Description:** Determines how long the ID token is valid before it expires.
+
+#### SERVER_SESSION_EXPIRES_IN
+- **Default:** 1800 (30 minutes)
+- **Description:** Determines how long the server session is valid before it expires. If set to 0, the server session will be disabled.
+
+### MFA Configs
+
+#### OTP_MFA_IS_REQUIRED
 - **Default:** false
 - **Description:** Enables OTP-based multi-factor authentication (MFA) for user sign-in. When set to true, users are required to configure OTP using an app like Google Authenticator during the sign-in process.
 
-### SMS_MFA_IS_REQUIRED
+#### SMS_MFA_IS_REQUIRED
 - **Default:** false
 - **Description:** Controls sms-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via sms to confirm their login.
 [SMS functionality setup required](#sms-functionality-setup)
 
-### SMS_MFA_MESSAGE_THRESHOLD
-- **Default:** 5
-- **Description:** Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
-
-### EMAIL_MFA_IS_REQUIRED
+#### EMAIL_MFA_IS_REQUIRED
 - **Default:** false
 - **Description:** Controls email-based multi-factor authentication (MFA) for user sign-in. If set to true, users receive an MFA code via email to confirm their login.
 [Email functionality setup required](#email-functionality-setup)
 
-### EMAIL_MFA_EMAIL_THRESHOLD
-- **Default:** 10
-- **Description:** Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
-
-### CHANGE_EMAIL_EMAIL_THRESHOLD
-- **Default:** 5
-- **Description:** Maximum number of Change Email verification code requests allowed per 30 minutes for a single account. 0 means no restriction.
-
-### ENFORCE_ONE_MFA_ENROLLMENT
+#### ENFORCE_ONE_MFA_ENROLLMENT
 - **Default:** ['otp', 'email']
 - **Description:** Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 [Email functionality setup required](#email-functionality-setup)
 
-### ALLOW_EMAIL_MFA_AS_BACKUP
+#### ALLOW_EMAIL_MFA_AS_BACKUP
 - **Default:** true
 - **Description:** This setting allows users to use email-based MFA as an alternative method for signing in if they are enrolled in OTP MFA or SMS MFA and not enrolled in email MFA.
 [Email functionality setup required](#email-functionality-setup)
 
-### ACCOUNT_LOCKOUT_THRESHOLD
-- **Default:** 5
-- **Description:** Number of failed login attempts before the user account is locked. 0 means no restriction.
+### Brute-force Configs
 
-### ACCOUNT_LOCKOUT_EXPIRES_IN
+#### ACCOUNT_LOCKOUT_EXPIRES_IN
 - **Default:** 86400 (1 day)
 - **Description:** Duration (in seconds) for which the account remains locked after reaching the lockout threshold. Set to 0 for indefinite lockout until manual intervention.
 
-### UNLOCK_ACCOUNT_VIA_PASSWORD_RESET
+#### UNLOCK_ACCOUNT_VIA_PASSWORD_RESET
 - **Default:** true
 - **Description:** User can unlock their account by reset password. 
 [Email functionality setup required](#email-functionality-setup)
 
-### SUPPORTED_LOCALES
-- **Default:** ['en', 'fr']
-- **Description:** Specifies the locales supported for identity pages and emails.
+#### PASSWORD_RESET_EMAIL_THRESHOLD
+- **Default:** 5
+- **Description:** Limits the number of password reset email requests allowed per email and IP address per day to protect against abuse. 0 means no restriction
 
-### ENABLE_LOCALE_SELECTOR
-- **Default:** true
-- **Description:** Determines whether users can switch to a different locale on identity pages. If only one locale is supported (`SUPPORTED_LOCALE`), the locale selector will be suppressed, regardless of this setting.
+#### EMAIL_MFA_EMAIL_THRESHOLD
+- **Default:** 10
+- **Description:** Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 
-### TERMS_LINK
+#### CHANGE_EMAIL_EMAIL_THRESHOLD
+- **Default:** 5
+- **Description:** Maximum number of Change Email verification code requests allowed per 30 minutes for a single account. 0 means no restriction.
+
+#### SMS_MFA_MESSAGE_THRESHOLD
+- **Default:** 5
+- **Description:** Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
+
+#### ACCOUNT_LOCKOUT_THRESHOLD
+- **Default:** 5
+- **Description:** Number of failed login attempts before the user account is locked. 0 means no restriction.
+
+### Social Sign-in Configs
+
+#### GOOGLE_AUTH_CLIENT_ID
 - **Default:** ""
-- **Description:** URL to display a link to your Terms of Service on the sign-up page.
+- **Description:** The Google Authentication Client ID is required to enable the Google Sign-In function. This ID is obtained from the Google Developer Console and uniquely identifies your application to Google. If this value is left empty, the Google Sign-In button will be suppressed and the Google sign-in functionality will not be available.
 
-### PRIVACY_POLICY_LINK
+#### FACEBOOK_AUTH_CLIENT_ID
 - **Default:** ""
-- **Description:** URL to display a link to your Privacy Policy on the sign-up page.
+- **Description:** The Facebook Authentication Client ID is required to enable the Facebook Sign-In function. This ID is obtained from the Facebook Developer Console and uniquely identifies your application to Facebook. If this value is left empty, the Facebook Sign-In button will be suppressed and the Facebook sign-in functionality will not be available. <b>You also need to set FACEBOOK_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare dev env as well as Node env, and in Cloudflare workers config for Cloudflare prod env.</b>
 
-### ENABLE_EMAIL_LOG
+#### GITHUB_AUTH_CLIENT_ID & GITHUB_AUTH_APP_NAME
+- **Default:** ""
+- **Description:** The GitHub Authentication Client ID and App Name is required to enable the GitHub Sign-In function. This Client ID and App Name is obtained from the GitHub Developer Console and uniquely identifies your application to GitHub. If this value is left empty, the GitHub Sign-In button will be suppressed and the GitHub sign-in functionality will not be available. <b>You also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare dev env as well as Node env, and in Cloudflare workers config for Cloudflare prod env. In your GitHub App settings, set the callback URL to [your auth server doamin]/identity/v1/authorize-github, e.g., http://localhost:8787/identity/v1/authorize-github</b>
+
+### Log Configs
+
+#### ENABLE_EMAIL_LOG
 - **Default:** false
 - **Description:** Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
 
-### ENABLE_SMS_LOG
+#### ENABLE_SMS_LOG
 - **Default:** false
 - **Description:** Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler.
 
-### ENABLE_SIGN_IN_LOG
+#### ENABLE_SIGN_IN_LOG
 - **Default:** false
 - **Description:** Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.

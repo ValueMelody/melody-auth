@@ -5,6 +5,7 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
+  brandingService,
   emailService, kvService, smsService, userService,
 } from 'services'
 import {
@@ -189,14 +190,13 @@ export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
   if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes,
   } = env(c)
 
   return c.html(<AuthorizeMfaEnrollView
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     mfaTypes={mfaTypes}
@@ -254,7 +254,6 @@ export const getAuthorizeOtpSetup = async (c: Context<typeConfig.Context>) => {
   if (authCodeStore.user.otpVerified) throw new errorConfig.Forbidden(localeConfig.Error.OtpAlreadySet)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
@@ -262,7 +261,7 @@ export const getAuthorizeOtpSetup = async (c: Context<typeConfig.Context>) => {
   const otp = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${authCodeStore.user.otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
 
   return c.html(<AuthorizeOtpMfaView
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     otp={otp}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
@@ -274,7 +273,6 @@ export const getAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
   const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
@@ -291,7 +289,7 @@ export const getAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.html(<AuthorizeOtpMfaView
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     showEmailMfaBtn={allowSwitch}
@@ -360,7 +358,6 @@ export const getAuthorizeSmsMfa = async (c: Context<typeConfig.Context>) => {
   await validateUtil.dto(queryDto)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
@@ -397,7 +394,7 @@ export const getAuthorizeSmsMfa = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<AuthorizeSmsMfaView
     phoneNumber={maskedNumber}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     showEmailMfaBtn={allowSwitch}
@@ -515,7 +512,6 @@ export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
   await validateUtil.dto(queryDto)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
@@ -530,7 +526,7 @@ export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
   }
 
   return c.html(<AuthorizeEmailMfaView
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     error={

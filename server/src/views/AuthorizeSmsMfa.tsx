@@ -3,7 +3,7 @@ import {
   localeConfig, routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import { identityDto } from 'dtos'
 import {
   responseScript,
@@ -16,10 +16,10 @@ import SubmitButton from 'views/components/SubmitButton'
 import CodeInput from 'views/components/CodeInput'
 
 const AuthorizeSmsMfa = ({
-  queryDto, logoUrl, locales, phoneNumber, showEmailMfaBtn,
+  queryDto, branding, locales, phoneNumber, showEmailMfaBtn,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
-  logoUrl: string;
+  branding: Branding;
   locales: typeConfig.Locale[];
   phoneNumber: string | null;
   showEmailMfaBtn: boolean;
@@ -27,7 +27,7 @@ const AuthorizeSmsMfa = ({
   return (
     <Layout
       locales={locales}
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
     >
       <h1 class='w-text text-center'>{localeConfig.authorizeSmsMfa.title[queryDto.locale]}</h1>

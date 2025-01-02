@@ -6,9 +6,16 @@ import {
   localeConfig, typeConfig,
 } from 'configs'
 
+export interface Branding {
+  logoUrl: string;
+  bgColor: string;
+  primaryButtonBgColor: string;
+  primaryButtonFgColor: string;
+}
+
 const Layout = ({
-  logoUrl, children, locale, locales,
-}: { logoUrl: string; children: any; locale: typeConfig.Locale; locales: typeConfig.Locale[] }) => (
+  branding, children, locale, locales,
+}: { branding: Branding; children: any; locale: typeConfig.Locale; locales: typeConfig.Locale[] }) => (
   <html lang={locale}>
     <head>
       <meta charset='utf-8' />
@@ -16,7 +23,7 @@ const Layout = ({
       <link
         rel='icon'
         type='image/x-icon'
-        href={logoUrl} />
+        href={branding.logoUrl} />
       <meta
         name='viewport'
         content='width=device-width, initial-scale=1' />
@@ -69,7 +76,7 @@ const Layout = ({
           .w-half { width: 50%; }
           .w-text { width: 280px; }
           .main {
-            background-color: lightgray;
+            background-color: ${branding.bgColor};
             height: 100vh;
             width: 100%;
           }
@@ -85,7 +92,8 @@ const Layout = ({
             width: 280px;
           }
           .button {
-            background-color: white;
+            background-color: ${branding.primaryButtonBgColor};
+            color: ${branding.primaryButtonFgColor};
             cursor: pointer;
             border: 1px solid lightgray;
             padding: 8px;
@@ -175,7 +183,7 @@ const Layout = ({
               {locales.length > 1 && <div class='locale-selector' />}
               <img
                 class='logo'
-                src={logoUrl}
+                src={branding.logoUrl}
                 alt='Logo'
               />
               {locales.length > 1 && (

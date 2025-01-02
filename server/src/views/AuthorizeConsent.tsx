@@ -4,7 +4,7 @@ import {
   localeConfig, routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import { identityDto } from 'dtos'
 import { responseScript } from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
@@ -12,10 +12,10 @@ import Title from 'views/components/Title'
 import { scopeModel } from 'models'
 
 const AuthorizeConsent = ({
-  queryDto, logoUrl, appName, scopes, locales, redirectUri,
+  queryDto, branding, appName, scopes, locales, redirectUri,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
-  logoUrl: string;
+  branding: Branding;
   appName: string;
   scopes: scopeModel.ApiRecord[];
   locales: typeConfig.Locale[];
@@ -24,7 +24,7 @@ const AuthorizeConsent = ({
   return (
     <Layout
       locales={locales}
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
     >
       <Title title={localeConfig.authorizeConsent.title[queryDto.locale]} />

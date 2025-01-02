@@ -3,6 +3,30 @@ compatibility_date = "2023-12-01"
 keep_vars = true
 
 [vars]
+
+# Branding
+COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
+BG_COLOR="lightgray"
+PRIMARY_BUTTON_BG_COLOR="white"
+PRIMARY_BUTTON_FG_COLOR="black"
+EMAIL_SENDER_NAME="Melody Auth"
+TERMS_LINK="" # Display a link to your terms on sign-up page
+PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
+
+# Locale
+SUPPORTED_LOCALES=['en', 'fr']
+ENABLE_LOCALE_SELECTOR=true # If there is only one SUPPORTED_LOCALE, the locale selector will be disabled regardless of this setting.
+
+# Suppression
+ENABLE_SIGN_UP=true
+ENABLE_PASSWORD_SIGN_IN=true
+ENABLE_PASSWORD_RESET=true # Please set up your mailer first https://auth.valuemelody.com/auth-server.html#mailer-setup
+ENABLE_NAMES=true
+NAMES_IS_REQUIRED=false
+ENABLE_USER_APP_CONSENT=true
+ENABLE_EMAIL_VERIFICATION=true # Please set up your mailer first https://auth.valuemelody.com/auth-server.html#mailer-setup
+
+# Auth
 AUTHORIZATION_CODE_EXPIRES_IN=300
 SPA_ACCESS_TOKEN_EXPIRES_IN=1800
 SPA_REFRESH_TOKEN_EXPIRES_IN=604800
@@ -10,35 +34,29 @@ S2S_ACCESS_TOKEN_EXPIRES_IN=3600
 ID_TOKEN_EXPIRES_IN=1800
 SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
 
-COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
-EMAIL_SENDER_NAME="Melody Auth"
-ENABLE_SIGN_UP=true
-ENABLE_PASSWORD_SIGN_IN=true
-ENABLE_PASSWORD_RESET=true # Please set up your mailer first https://auth.valuemelody.com/auth-server.html#mailer-setup
-PASSWORD_RESET_EMAIL_THRESHOLD=5 # Maximum number of password reset email requests allowed per day for a single email address based on ip address. 0 means no restriction.
-ENABLE_NAMES=true
-NAMES_IS_REQUIRED=false
-ENABLE_USER_APP_CONSENT=true
-ENABLE_EMAIL_VERIFICATION=true # Please set up your mailer first https://auth.valuemelody.com/auth-server.html#mailer-setup
+# MFA
 OTP_MFA_IS_REQUIRED=false
 EMAIL_MFA_IS_REQUIRED=false # Please set up your mailer first https://auth.valuemelody.com/auth-server.html#mailer-setup
-EMAIL_MFA_EMAIL_THRESHOLD=10 # Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
-CHANGE_EMAIL_EMAIL_THRESHOLD=5 # Maximum number of change email verification code requests allowed per 30 minutes for a single account. 0 means no restriction.
 SMS_MFA_IS_REQUIRED=false # Please set up your sms provider first https://auth.valuemelody.com/auth-server.html#sms-setup
 SMS_MFA_MESSAGE_THRESHOLD=5 # Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 ENFORCE_ONE_MFA_ENROLLMENT=['otp', 'email'] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 ALLOW_EMAIL_MFA_AS_BACKUP=true
-ACCOUNT_LOCKOUT_THRESHOLD=5 # Number of failed login attempts before the user account is locked. 0 means no restriction.
-ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual intervention.
+
+# Brute-force
 UNLOCK_ACCOUNT_VIA_PASSWORD_RESET=true
-SUPPORTED_LOCALES=['en', 'fr']
-ENABLE_LOCALE_SELECTOR=true # If there is only one SUPPORTED_LOCALE, the locale selector will be disabled regardless of this setting.
+PASSWORD_RESET_EMAIL_THRESHOLD=5 # Maximum number of password reset email requests allowed per day for a single email address based on ip address. 0 means no restriction.
+ACCOUNT_LOCKOUT_THRESHOLD=5 # Number of failed login attempts before the user account is locked. 0 means no restriction.
+EMAIL_MFA_EMAIL_THRESHOLD=10 # Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
+CHANGE_EMAIL_EMAIL_THRESHOLD=5 # Maximum number of change email verification code requests allowed per 30 minutes for a single account. 0 means no restriction.
+ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual intervention.
+
+# Social Sign-in
 GOOGLE_AUTH_CLIENT_ID="" # Google Sign-in will be suppressed if it is empty
 FACEBOOK_AUTH_CLIENT_ID="" # Facebook Sign-in In will be suppressed if it is empty. When enable, you also need to set FACEBOOK_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
 GITHUB_AUTH_CLIENT_ID="" # GitHub Sign-in In will be suppressed if it is empty. When enable, you also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
 GITHUB_AUTH_APP_NAME="" # GitHub Sign-in In will be suppressed if it is empty. When enable, you also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
-TERMS_LINK="" # Display a link to your terms on sign-up page
-PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
+
+# Log
 ENABLE_EMAIL_LOG=false # Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
 ENABLE_SMS_LOG=false # Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler
 ENABLE_SIGN_IN_LOG=false # Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.

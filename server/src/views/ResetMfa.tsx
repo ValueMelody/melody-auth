@@ -5,22 +5,22 @@ import {
   routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import { responseScript } from 'views/scripts'
 import Title from 'views/components/Title'
 import { identityDto } from 'dtos'
 
 const ResetMfa = ({
-  logoUrl, queryDto, locales, redirectUri,
+  branding, queryDto, locales, redirectUri,
 }: {
-  logoUrl: string;
+  branding: Branding;
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   locales: typeConfig.Locale[];
   redirectUri: string;
 }) => {
   return (
     <Layout
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
       locales={locales}
     >

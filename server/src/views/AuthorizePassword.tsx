@@ -3,7 +3,7 @@ import {
   localeConfig, routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import { oauthDto } from 'dtos'
 import {
   requestScript, resetErrorScript, responseScript, validateScript,
@@ -23,13 +23,13 @@ const getFBLocale = (locale: typeConfig.Locale) => {
 }
 
 const AuthorizePassword = ({
-  queryDto, logoUrl, enableSignUp,
+  queryDto, branding, enableSignUp,
   enablePasswordReset, enablePasswordSignIn,
   queryString, locales,
   googleClientId, facebookClientId, githubClientId,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
-  logoUrl: string;
+  branding: Branding;
   enableSignUp: boolean;
   enablePasswordReset: boolean;
   enablePasswordSignIn: boolean;
@@ -42,7 +42,7 @@ const AuthorizePassword = ({
   return (
     <Layout
       locales={locales}
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
     >
       {googleClientId && (

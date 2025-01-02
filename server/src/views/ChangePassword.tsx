@@ -5,7 +5,7 @@ import {
   routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import {
   resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
@@ -15,16 +15,16 @@ import { identityDto } from 'dtos'
 import SubmitButton from 'views/components/SubmitButton'
 
 const ChangePassword = ({
-  logoUrl, queryDto, locales, redirectUri,
+  branding, queryDto, locales, redirectUri,
 }: {
-  logoUrl: string;
+  branding: Branding;
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   locales: typeConfig.Locale[];
   redirectUri: string;
 }) => {
   return (
     <Layout
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
       locales={locales}
     >

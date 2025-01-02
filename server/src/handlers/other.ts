@@ -50,6 +50,10 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ENABLE_EMAIL_LOG: environment.ENABLE_EMAIL_LOG,
     ENABLE_SMS_LOG: environment.ENABLE_SMS_LOG,
     ENABLE_SIGN_IN_LOG: environment.ENABLE_SIGN_IN_LOG,
+    BG_COLOR: environment.BG_COLOR,
+    PRIMARY_BUTTON_BG_COLOR: environment.PRIMARY_BUTTON_BG_COLOR,
+    PRIMARY_BUTTON_FG_COLOR: environment.PRIMARY_BUTTON_FG_COLOR,
+    ENABLE_PASSWORD_SIGN_IN: environment.ENABLE_PASSWORD_SIGN_IN,
   }
 
   return c.json({ configs })

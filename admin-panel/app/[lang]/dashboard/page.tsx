@@ -15,6 +15,41 @@ const Page = () => {
 
   const configs = useSignalValue(configSignal)
 
+  const configTypes = [
+    {
+      name: t('dashboard.brandingConfigs'),
+      value: ['COMPANY_LOGO_URL', 'BG_COLOR', 'PRIMARY_BUTTON_BG_COLOR', 'PRIMARY_BUTTON_FG_COLOR', 'EMAIL_SENDER_NAME', 'TERMS_LINK', 'PRIVACY_POLICY_LINK'],
+    },
+    {
+      name: t('dashboard.localeConfigs'),
+      value: ['SUPPORTED_LOCALES', 'ENABLE_LOCALE_SELECTOR'],
+    },
+    {
+      name: t('dashboard.suppressionConfigs'),
+      value: ['ENABLE_NAMES', 'NAMES_IS_REQUIRED', 'ENABLE_SIGN_UP', 'ENABLE_PASSWORD_SIGN_IN', 'ENABLE_EMAIL_VERIFICATION', 'ENABLE_PASSWORD_RESET', 'PASSWORD_RESET_EMAIL_THRESHOLD', 'ENABLE_USER_APP_CONSENT'],
+    },
+    {
+      name: t('dashboard.authConfigs'),
+      value: ['OTP_MFA_IS_REQUIRED', 'SMS_MFA_IS_REQUIRED', 'SMS_MFA_MESSAGE_THRESHOLD', 'EMAIL_MFA_IS_REQUIRED', 'EMAIL_MFA_EMAIL_THRESHOLD', 'CHANGE_EMAIL_EMAIL_THRESHOLD', 'ENFORCE_ONE_MFA_ENROLLMENT', 'ALLOW_EMAIL_MFA_AS_BACKUP', 'ACCOUNT_LOCKOUT_THRESHOLD', 'ACCOUNT_LOCKOUT_EXPIRES_IN', 'UNLOCK_ACCOUNT_VIA_PASSWORD_RESET'],
+    },
+    {
+      name: t('dashboard.mfaConfigs'),
+      value: ['OTP_MFA_IS_REQUIRED', 'SMS_MFA_IS_REQUIRED', 'SMS_MFA_MESSAGE_THRESHOLD', 'EMAIL_MFA_IS_REQUIRED', 'EMAIL_MFA_EMAIL_THRESHOLD', 'CHANGE_EMAIL_EMAIL_THRESHOLD', 'ENFORCE_ONE_MFA_ENROLLMENT', 'ALLOW_EMAIL_MFA_AS_BACKUP'],
+    },
+    {
+      name: t('dashboard.bruteForceConfigs'),
+      value: ['ACCOUNT_LOCKOUT_THRESHOLD', 'ACCOUNT_LOCKOUT_EXPIRES_IN', 'UNLOCK_ACCOUNT_VIA_PASSWORD_RESET'],
+    },
+    {
+      name: t('dashboard.ssoConfigs'),
+      value: ['GOOGLE_AUTH_CLIENT_ID', 'FACEBOOK_AUTH_CLIENT_ID', 'GITHUB_AUTH_CLIENT_ID', 'GITHUB_AUTH_APP_NAME'],
+    },
+    {
+      name: t('dashboard.logConfigs'),
+      value: ['ENABLE_EMAIL_LOG', 'ENABLE_SMS_LOG', 'ENABLE_SIGN_IN_LOG'],
+    },
+  ]
+
   const links = useMemo(
     () => ({
       openidConfig: `${configs.AUTH_SERVER_URL}/.well-known/openid-configuration`,
@@ -89,216 +124,34 @@ const Page = () => {
           </Table.Row>
         </Table.Body>
       </Table>
-      <PageTitle
-        className='mt-8 mb-6'
-        title={t('dashboard.configs')}
-      />
-      <Table className='break-all'>
-        <Table.Head>
-          <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
-          <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>
-        </Table.Head>
-        <Table.Body className='divide-y'>
-          <Table.Row>
-            <Table.Cell>AUTH_SERVER_URL</Table.Cell>
-            <Table.Cell>{configs.AUTH_SERVER_URL}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>GOOGLE_AUTH_CLIENT_ID</Table.Cell>
-            <Table.Cell>{configs.GOOGLE_AUTH_CLIENT_ID}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>FACEBOOK_AUTH_CLIENT_ID</Table.Cell>
-            <Table.Cell>{configs.FACEBOOK_AUTH_CLIENT_ID}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>GITHUB_AUTH_CLIENT_ID</Table.Cell>
-            <Table.Cell>{configs.GITHUB_AUTH_CLIENT_ID}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>GITHUB_AUTH_APP_NAME</Table.Cell>
-            <Table.Cell>{configs.GITHUB_AUTH_APP_NAME}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>SUPPORTED_LOCALES</Table.Cell>
-            <Table.Cell>{configs.SUPPORTED_LOCALES.join(', ')}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_LOCALE_SELECTOR</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_LOCALE_SELECTOR} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>COMPANY_LOGO_URL</Table.Cell>
-            <Table.Cell className='break-all'>{configs.COMPANY_LOGO_URL}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>EMAIL_SENDER_NAME</Table.Cell>
-            <Table.Cell className='break-all'>{configs.EMAIL_SENDER_NAME}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>TERMS_LINK</Table.Cell>
-            <Table.Cell>{configs.TERMS_LINK}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>PRIVACY_POLICY_LINK</Table.Cell>
-            <Table.Cell>{configs.PRIVACY_POLICY_LINK}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_NAMES</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_NAMES} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>NAMES_IS_REQUIRED</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.NAMES_IS_REQUIRED} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_SIGN_UP</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_SIGN_UP} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_PASSWORD_SIGN_IN</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_PASSWORD_SIGN_IN} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_EMAIL_VERIFICATION</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_EMAIL_VERIFICATION} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_PASSWORD_RESET</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_PASSWORD_RESET} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>PASSWORD_RESET_EMAIL_THRESHOLD</Table.Cell>
-            <Table.Cell>
-              {configs.PASSWORD_RESET_EMAIL_THRESHOLD}
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_USER_APP_CONSENT</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_USER_APP_CONSENT} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>OTP_MFA_IS_REQUIRED</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.OTP_MFA_IS_REQUIRED} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>SMS_MFA_IS_REQUIRED</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.SMS_MFA_IS_REQUIRED} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>SMS_MFA_MESSAGE_THRESHOLD</Table.Cell>
-            <Table.Cell>
-              {configs.SMS_MFA_MESSAGE_THRESHOLD}
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>EMAIL_MFA_IS_REQUIRED</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.EMAIL_MFA_IS_REQUIRED} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>EMAIL_MFA_EMAIL_THRESHOLD</Table.Cell>
-            <Table.Cell>
-              {configs.EMAIL_MFA_EMAIL_THRESHOLD}
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>CHANGE_EMAIL_EMAIL_THRESHOLD</Table.Cell>
-            <Table.Cell>
-              {configs.CHANGE_EMAIL_EMAIL_THRESHOLD}
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENFORCE_ONE_MFA_ENROLLMENT</Table.Cell>
-            <Table.Cell>
-              {configs.ENFORCE_ONE_MFA_ENROLLMENT.join(', ')}
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ALLOW_EMAIL_MFA_AS_BACKUP</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ALLOW_EMAIL_MFA_AS_BACKUP} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ACCOUNT_LOCKOUT_THRESHOLD</Table.Cell>
-            <Table.Cell>{configs.ACCOUNT_LOCKOUT_THRESHOLD}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ACCOUNT_LOCKOUT_EXPIRES_IN</Table.Cell>
-            <Table.Cell>{configs.ACCOUNT_LOCKOUT_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>UNLOCK_ACCOUNT_VIA_PASSWORD_RESET</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_EMAIL_LOG</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_EMAIL_LOG} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_SMS_LOG</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_SMS_LOG} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ENABLE_SIGN_IN_LOG</Table.Cell>
-            <Table.Cell>
-              <ConfigBooleanValue config={configs.ENABLE_SIGN_IN_LOG} />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>AUTHORIZATION_CODE_EXPIRES_IN</Table.Cell>
-            <Table.Cell>{configs.AUTHORIZATION_CODE_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>ID_TOKEN_EXPIRES_IN</Table.Cell>
-            <Table.Cell>{configs.ID_TOKEN_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>SPA_ACCESS_TOKEN_EXPIRES_IN</Table.Cell>
-            <Table.Cell>{configs.SPA_ACCESS_TOKEN_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>SPA_REFRESH_TOKEN_EXPIRES_IN</Table.Cell>
-            <Table.Cell>{configs.SPA_REFRESH_TOKEN_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>S2S_ACCESS_TOKEN_EXPIRES_IN</Table.Cell>
-            <Table.Cell>{configs.S2S_ACCESS_TOKEN_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>SERVER_SESSION_EXPIRES_IN</Table.Cell>
-            <Table.Cell>{configs.SERVER_SESSION_EXPIRES_IN} {t('dashboard.configSeconds')}</Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table>
+      {configTypes.map((configType) => (
+        <section
+          key={configType.name}
+          className='mt-8 gap-6'>
+          <PageTitle
+            className='mt-8 mb-6'
+            title={configType.name}
+          />
+          <Table className='break-all'>
+            <Table.Head>
+              <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
+              <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>
+            </Table.Head>
+            <Table.Body className='divide-y'>
+              {configType.value.map((configName) => (
+                <Table.Row key={configName}>
+                  <Table.Cell>{configName}</Table.Cell>
+                  <Table.Cell>
+                    {typeof configs[configName] === 'boolean' && <ConfigBooleanValue config={configs[configName]} />}
+                    {Array.isArray(configs[configName]) && configs[configName].join(', ')}
+                    {typeof configs[configName] !== 'boolean' && !Array.isArray(configs[configName]) && configs[configName]}
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </section>
+      ))}
     </section>
   )
 }

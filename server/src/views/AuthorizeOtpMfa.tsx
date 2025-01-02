@@ -3,7 +3,7 @@ import {
   localeConfig, routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import { identityDto } from 'dtos'
 import {
   responseScript,
@@ -15,10 +15,10 @@ import SubmitButton from 'views/components/SubmitButton'
 import CodeInput from 'views/components/CodeInput'
 
 const AuthorizeOtpMfa = ({
-  queryDto, logoUrl, locales, otp, showEmailMfaBtn,
+  queryDto, branding, locales, otp, showEmailMfaBtn,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
-  logoUrl: string;
+  branding: Branding;
   locales: typeConfig.Locale[];
   otp?: string;
   showEmailMfaBtn: boolean;
@@ -26,7 +26,7 @@ const AuthorizeOtpMfa = ({
   return (
     <Layout
       locales={locales}
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
     >
       {otp && (

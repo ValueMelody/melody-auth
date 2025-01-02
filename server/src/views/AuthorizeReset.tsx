@@ -5,7 +5,7 @@ import {
   routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import {
   resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
@@ -16,16 +16,16 @@ import SubmitButton from 'views/components/SubmitButton'
 import CodeInput from 'views/components/CodeInput'
 
 const AuthorizeReset = ({
-  logoUrl, queryString, queryDto, locales,
+  branding, queryString, queryDto, locales,
 }: {
-  logoUrl: string;
+  branding: Branding;
   queryString: string;
   queryDto: oauthDto.GetAuthorizeReqDto;
   locales: typeConfig.Locale[];
 }) => {
   return (
     <Layout
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
       locales={locales}
     >
