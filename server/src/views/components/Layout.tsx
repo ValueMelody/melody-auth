@@ -8,9 +8,15 @@ import {
 
 export interface Branding {
   logoUrl: string;
-  bgColor: string;
-  primaryButtonBgColor: string;
-  primaryButtonFgColor: string;
+  layoutColor: string;
+  labelColor: string;
+  primaryButtonColor: string;
+  primaryButtonLabelColor: string;
+  primaryButtonBorderColor: string;
+  secondaryButtonColor: string;
+  secondaryButtonLabelColor: string;
+  secondaryButtonBorderColor: string;
+  criticalIndicatorColor: string;
 }
 
 const Layout = ({
@@ -53,7 +59,7 @@ const Layout = ({
           .hidden { display: none; }
           .text-semibold { font-weight: 600; }
           .text-sm { font-size: 14px; }
-          .text-red { color: #e00; }
+          .text-red { color: ${branding.criticalIndicatorColor}; }
           .text-green { color: green; }
           .text-gray { color: gray; }
           .text-center { text-align: center; }
@@ -76,7 +82,8 @@ const Layout = ({
           .w-half { width: 50%; }
           .w-text { width: 280px; }
           .main {
-            background-color: ${branding.bgColor};
+            background-color: ${branding.layoutColor};
+            color: ${branding.labelColor};
             height: 100vh;
             width: 100%;
           }
@@ -92,33 +99,24 @@ const Layout = ({
             width: 280px;
           }
           .button {
-            background-color: ${branding.primaryButtonBgColor};
-            color: ${branding.primaryButtonFgColor};
+            background-color: ${branding.primaryButtonColor};
+            color: ${branding.primaryButtonLabelColor};
             cursor: pointer;
-            border: 1px solid lightgray;
+            border: 1px solid ${branding.primaryButtonBorderColor};
             padding: 8px;
             border-radius: 8px;
             font-weight: 500;
             font-size: 16px;
           }
-          .button-outline {
-            background-color: white;
-            cursor: pointer;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 16px;
-          }
-          .button-text {
-            background-color: unset;
+          .button-secondary {
+            background-color: ${branding.secondaryButtonColor};
+            color: ${branding.secondaryButtonLabelColor};
+            border: 1px solid ${branding.secondaryButtonBorderColor};
             text-align: center;
             cursor: pointer;
-            border: none;
             border-radius: 8px;
             font-weight: 500;
             font-size: 16px;
-            color: darkslategray;
           }
           .code-input {
             background-color: white;
@@ -142,7 +140,7 @@ const Layout = ({
             width: 62px;
           }
           .alert {
-            background-color: red;
+            background-color: ${branding.criticalIndicatorColor};
             color: white;
             border-radius: 8px;
             padding: 8px 16px;

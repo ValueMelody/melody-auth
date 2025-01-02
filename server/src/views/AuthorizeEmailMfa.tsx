@@ -49,7 +49,7 @@ const AuthorizeEmailMfa = ({
             <button
               id='resend-btn'
               type='button'
-              class='button-text'
+              class='button-secondary'
               onclick='resendCode()'
             >
               {localeConfig.authorizeEmailMfa.resend[queryDto.locale]}

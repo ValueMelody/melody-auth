@@ -50,7 +50,7 @@ const AuthorizeOtpMfa = ({
           {showEmailMfaBtn && (
             <button
               type='button'
-              class='button-text w-text'
+              class='button-secondary w-text'
               onclick='switchToEmail()'
             >
               {localeConfig.authorizeOtpMfa.switchToEmail[queryDto.locale]}

@@ -47,7 +47,7 @@ const AuthorizeSmsMfa = ({
           <button
             id='resend-btn'
             type='button'
-            class={`button-text ${phoneNumber ? '' : 'hidden'}`}
+            class={`button-secondary ${phoneNumber ? '' : 'hidden'}`}
             onclick='resendCode()'
           >
             {localeConfig.authorizeSmsMfa.resend[queryDto.locale]}
@@ -63,7 +63,7 @@ const AuthorizeSmsMfa = ({
             <button
               id='switch-to-email'
               type='button'
-              class='button-text w-text'
+              class='button-secondary w-text'
               onclick='switchToEmail()'
             >
               {localeConfig.authorizeSmsMfa.switchToEmail[queryDto.locale]}

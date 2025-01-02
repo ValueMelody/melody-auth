@@ -18,7 +18,14 @@ const Page = () => {
   const configTypes = [
     {
       name: t('dashboard.brandingConfigs'),
-      value: ['COMPANY_LOGO_URL', 'BG_COLOR', 'PRIMARY_BUTTON_BG_COLOR', 'PRIMARY_BUTTON_FG_COLOR', 'EMAIL_SENDER_NAME', 'TERMS_LINK', 'PRIVACY_POLICY_LINK'],
+      value: [
+        'COMPANY_LOGO_URL',
+        'LAYOUT_COLOR', 'LABEL_COLOR',
+        'PRIMARY_BUTTON_COLOR', 'PRIMARY_BUTTON_LABEL_COLOR', 'PRIMARY_BUTTON_BORDER_COLOR',
+        'SECONDARY_BUTTON_COLOR', 'SECONDARY_BUTTON_LABEL_COLOR', 'SECONDARY_BUTTON_BORDER_COLOR',
+        'CRITICAL_INDICATOR_COLOR',
+        'EMAIL_SENDER_NAME', 'TERMS_LINK', 'PRIVACY_POLICY_LINK',
+      ],
     },
     {
       name: t('dashboard.localeConfigs'),
