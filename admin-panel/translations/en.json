@@ -39,7 +39,6 @@
     "deleteConfirmBtn": "Delete"
   },
   "dashboard": {
-    "configs": "System Configs",
     "brandingConfigs": "Branding Configs",
     "localeConfigs": "Locale Configs",
     "suppressionConfigs": "Suppression Configs",

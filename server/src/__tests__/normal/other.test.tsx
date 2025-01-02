@@ -74,6 +74,10 @@ describe(
           ENABLE_EMAIL_LOG: false,
           ENABLE_SMS_LOG: false,
           ENABLE_SIGN_IN_LOG: false,
+          PRIMARY_BUTTON_BG_COLOR: 'white',
+          PRIMARY_BUTTON_FG_COLOR: 'black',
+          BG_COLOR: 'lightgray',
+          ENABLE_PASSWORD_SIGN_IN: true,
         })
       },
     )
