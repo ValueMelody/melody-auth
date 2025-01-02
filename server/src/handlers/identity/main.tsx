@@ -10,7 +10,7 @@ import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
-  appService, consentService, emailService, kvService, scopeService, userService,
+  appService, brandingService, consentService, emailService, kvService, scopeService, userService,
 } from 'services'
 import {
   identityUtil,
@@ -27,7 +27,6 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     ENABLE_SIGN_UP: allowSignUp,
     ENABLE_PASSWORD_RESET: allowPasswordReset,
     ENABLE_PASSWORD_SIGN_IN: allowPasswordSignIn,
@@ -55,7 +54,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     queryString={queryString}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     queryDto={queryDto}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     enableSignUp={enableSignUp}
     enablePasswordReset={enablePasswordReset}
     enablePasswordSignIn={enablePasswordSignIn}
@@ -125,7 +124,6 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     ENABLE_NAMES: enableNames,
     NAMES_IS_REQUIRED: namesIsRequired,
     SUPPORTED_LOCALES: locales,
@@ -142,7 +140,7 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     queryString={queryString}
     queryDto={queryDto}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     enableNames={enableNames}
     namesIsRequired={namesIsRequired}
   />)
@@ -241,14 +239,13 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
   )
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   return c.html(<AuthorizeConsentView
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     scopes={scopes}
     appName={app.name}
     redirectUri={authInfo.request.redirectUri}

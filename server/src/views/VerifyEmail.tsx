@@ -5,7 +5,7 @@ import {
   routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import { identityDto } from 'dtos'
 import {
   resetErrorScript, responseScript, validateScript,
@@ -15,15 +15,15 @@ import SubmitError from 'views/components/SubmitError'
 import CodeInput from 'views/components/CodeInput'
 
 const VerifyEmail = ({
-  queryDto, logoUrl, locales,
+  queryDto, branding, locales,
 }: {
   queryDto: identityDto.GetVerifyEmailReqDto;
-  logoUrl: string;
+  branding: Branding;
   locales: typeConfig.Locale[];
 }) => {
   return (
     <Layout
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
       locales={locales}
     >

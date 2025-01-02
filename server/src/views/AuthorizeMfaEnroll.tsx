@@ -3,7 +3,7 @@ import {
   localeConfig, routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import { identityDto } from 'dtos'
 import { responseScript } from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
@@ -11,17 +11,17 @@ import Title from 'views/components/Title'
 import { userModel } from 'models'
 
 const AuthorizeMfaEnroll = ({
-  queryDto, logoUrl, locales, mfaTypes,
+  queryDto, branding, locales, mfaTypes,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
-  logoUrl: string;
+  branding: Branding;
   locales: typeConfig.Locale[];
   mfaTypes: userModel.MfaType[];
 }) => {
   return (
     <Layout
       locales={locales}
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
     >
       <Title title={localeConfig.authorizeMfaEnroll.title[queryDto.locale]} />

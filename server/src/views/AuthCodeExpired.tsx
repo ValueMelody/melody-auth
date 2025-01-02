@@ -2,17 +2,17 @@ import {
   localeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 
 const AuthCodeExpired = ({
-  logoUrl, locale,
+  branding, locale,
 }: {
-  logoUrl: string;
+  branding: Branding;
   locale: typeConfig.Locale;
 }) => {
   return (
     <Layout
-      logoUrl={logoUrl}
+      branding={branding}
       locale={locale}
       locales={[locale]}
     >

@@ -4,7 +4,7 @@ import {
   typeConfig,
 } from 'configs'
 import { oauthDto } from 'dtos'
-import Layout from 'views/components/Layout'
+import Layout, { Branding } from 'views/components/Layout'
 import {
   requestScript, resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
@@ -15,7 +15,7 @@ import Field from 'views/components/Field'
 
 const AuthorizeAccount = ({
   queryDto,
-  logoUrl,
+  branding,
   enableNames,
   namesIsRequired,
   queryString,
@@ -24,7 +24,7 @@ const AuthorizeAccount = ({
   privacyPolicyLink,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
-  logoUrl: string;
+  branding: Branding;
   enableNames: boolean;
   namesIsRequired: boolean;
   queryString: string;
@@ -35,7 +35,7 @@ const AuthorizeAccount = ({
   return (
     <Layout
       locales={locales}
-      logoUrl={logoUrl}
+      branding={branding}
       locale={queryDto.locale}
     >
       <Title title={localeConfig.authorizeAccount.title[queryDto.locale]} />

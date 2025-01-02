@@ -7,6 +7,7 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
+  brandingService,
   kvService,
   userService,
 } from 'services'
@@ -31,14 +32,13 @@ export const getVerifyEmail = async (c: Context<typeConfig.Context>) => {
   await validateUtil.dto(queryDto)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   return c.html(<VerifyEmailView
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
   />)
 }
@@ -62,7 +62,6 @@ export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
 
 export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
@@ -71,7 +70,7 @@ export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<AuthorizeResetView
     queryString={queryString}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
@@ -145,15 +144,12 @@ export const postAuthorizeReset = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getAuthCodeExpired = async (c: Context<typeConfig.Context>) => {
-  const {
-    SUPPORTED_LOCALES: locales,
-    COMPANY_LOGO_URL: logoUrl,
-  } = env(c)
+  const { SUPPORTED_LOCALES: locales } = env(c)
 
   const locale = c.req.query('locale') || locales[0]
 
   return c.html(<AuthCodeExpired
     locale={locale as typeConfig.Locale}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
   />)
 }

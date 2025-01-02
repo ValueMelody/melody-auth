@@ -7,6 +7,7 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
+  brandingService,
   emailService,
   kvService, userService,
 } from 'services'
@@ -33,14 +34,13 @@ export const getChangePassword = async (c: Context<typeConfig.Context>) => {
   checkAccount(authInfo.user)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   return c.html(<ChangePassword
     redirectUri={authInfo.request.redirectUri}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
@@ -79,14 +79,13 @@ export const getChangeEmail = async (c: Context<typeConfig.Context>) => {
   checkAccount(authInfo.user)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   return c.html(<ChangeEmail
     redirectUri={authInfo.request.redirectUri}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
@@ -181,14 +180,13 @@ export const getResetMfa = async (c: Context<typeConfig.Context>) => {
   checkAccount(authInfo.user)
 
   const {
-    COMPANY_LOGO_URL: logoUrl,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
 
   return c.html(<ResetMfa
     redirectUri={authInfo.request.redirectUri}
-    logoUrl={logoUrl}
+    branding={brandingService.getDefaultBranding(c)}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
