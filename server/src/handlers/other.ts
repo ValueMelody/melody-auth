@@ -52,6 +52,8 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ENABLE_SIGN_IN_LOG: environment.ENABLE_SIGN_IN_LOG,
     LAYOUT_COLOR: environment.LAYOUT_COLOR,
     LABEL_COLOR: environment.LABEL_COLOR,
+    FONT_FAMILY: environment.FONT_FAMILY,
+    FONT_URL: environment.FONT_URL,
     PRIMARY_BUTTON_COLOR: environment.PRIMARY_BUTTON_COLOR,
     PRIMARY_BUTTON_LABEL_COLOR: environment.PRIMARY_BUTTON_LABEL_COLOR,
     PRIMARY_BUTTON_BORDER_COLOR: environment.PRIMARY_BUTTON_BORDER_COLOR,

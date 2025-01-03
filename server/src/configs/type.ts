@@ -35,6 +35,8 @@ export type Bindings = {
   ID_TOKEN_EXPIRES_IN: number;
   SERVER_SESSION_EXPIRES_IN: number;
   COMPANY_LOGO_URL: string;
+  FONT_FAMILY: string;
+  FONT_URL: string;
   LAYOUT_COLOR: string;
   LABEL_COLOR: string;
   PRIMARY_BUTTON_COLOR: string;

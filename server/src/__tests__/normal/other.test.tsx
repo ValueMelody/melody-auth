@@ -46,6 +46,8 @@ describe(
           SUPPORTED_LOCALES: ['en', 'fr'],
           ENABLE_LOCALE_SELECTOR: true,
           COMPANY_LOGO_URL: 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg',
+          FONT_FAMILY: 'Inter',
+          FONT_URL: 'https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap',
           EMAIL_SENDER_NAME: 'Melody Auth',
           GOOGLE_AUTH_CLIENT_ID: '',
           FACEBOOK_AUTH_CLIENT_ID: '',
