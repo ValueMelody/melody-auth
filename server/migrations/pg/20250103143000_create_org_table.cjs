@@ -7,35 +7,80 @@ exports.up = function (knex) {
         'name',
         50,
       ).notNullable()
-      table.string('companyLogoUrl', 250).notNullable()
+      table.string(
+        'companyLogoUrl',
+        250,
+      ).notNullable()
         .defaultTo('')
-      table.string('fontFamily', 50).notNullable()
+      table.string(
+        'fontFamily',
+        50,
+      ).notNullable()
         .defaultTo('')
-      table.string('fontUrl', 250).notNullable()
+      table.string(
+        'fontUrl',
+        250,
+      ).notNullable()
         .defaultTo('')
-      table.string('layoutColor', 20).notNullable()
+      table.string(
+        'layoutColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('labelColor', 20).notNullable()
+      table.string(
+        'labelColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('primaryButtonColor', 20).notNullable()
+      table.string(
+        'primaryButtonColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('primaryButtonLabelColor', 20).notNullable()
+      table.string(
+        'primaryButtonLabelColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('primaryButtonBorderColor', 20).notNullable()
+      table.string(
+        'primaryButtonBorderColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('secondaryButtonColor', 20).notNullable()
+      table.string(
+        'secondaryButtonColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('secondaryButtonLabelColor', 20).notNullable()
+      table.string(
+        'secondaryButtonLabelColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('secondaryButtonBorderColor', 20).notNullable()
+      table.string(
+        'secondaryButtonBorderColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('criticalIndicatorColor', 20).notNullable()
+      table.string(
+        'criticalIndicatorColor',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('emailSenderName', 20).notNullable()
+      table.string(
+        'emailSenderName',
+        20,
+      ).notNullable()
         .defaultTo('')
-      table.string('termsLink', 250).notNullable()
+      table.string(
+        'termsLink',
+        250,
+      ).notNullable()
         .defaultTo('')
-      table.string('privacyPolicyLink', 250).notNullable()
+      table.string(
+        'privacyPolicyLink',
+        250,
+      ).notNullable()
         .defaultTo('')
       table.string(
         'createdAt',
