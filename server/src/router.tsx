@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 import {
   oauthRoute, userRoute, identityRoute,
   otherRoute, appRoute, roleRoute, scopeRoute, logRoute,
+  orgRoute,
 } from 'routes'
 import { setupMiddleware } from 'middlewares'
 import { typeConfig } from 'configs'
@@ -21,6 +22,10 @@ export const loadRouters = (app: Hono<typeConfig.Context>) => {
   app.route(
     '/',
     roleRoute,
+  )
+  app.route(
+    '/',
+    orgRoute,
   )
   app.route(
     '/',

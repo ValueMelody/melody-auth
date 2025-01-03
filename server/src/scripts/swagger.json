@@ -25,7 +25,9 @@
               "read_role": "Read access to role",
               "write_role": "Write access to role",
               "read_scope": "Read access to scope",
-              "write_scope": "Write access to scope"
+              "write_scope": "Write access to scope",
+              "read_org": "Read access to org",
+              "write_org": "Write access to org"
             }
           }
         }
@@ -254,6 +256,192 @@
           },
           "note": {
             "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "Org": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "companyLogoUrl": {
+            "type": "string"
+          },
+          "fontFamily": {
+            "type": "string"
+          },
+          "fontUrl": {
+            "type": "string"
+          },
+          "layoutColor": {
+            "type": "string"
+          },
+          "labelColor": {
+            "type": "string"
+          },
+          "primaryButtonColor": {
+            "type": "string"
+          },
+          "primaryButtonLabelColor": {
+            "type": "string"
+          },
+          "primaryButtonBorderColor": {
+            "type": "string"
+          },
+          "secondaryButtonColor": {
+            "type": "string"
+          },
+          "secondaryButtonLabelColor": {
+            "type": "string"
+          },
+          "secondaryButtonBorderColor": {
+            "type": "string"
+          },
+          "criticalIndicatorColor": {
+            "type": "string"
+          },
+          "emailSenderName": {
+            "type": "string"
+          },
+          "termsLink": {
+            "type": "string"
+          },
+          "privacyPolicyLink": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "companyLogoUrl",
+          "fontFamily",
+          "fontUrl",
+          "layoutColor",
+          "labelColor",
+          "primaryButtonColor",
+          "primaryButtonLabelColor",
+          "primaryButtonBorderColor",
+          "secondaryButtonColor",
+          "secondaryButtonLabelColor",
+          "secondaryButtonBorderColor",
+          "criticalIndicatorColor",
+          "emailSenderName",
+          "termsLink",
+          "privacyPolicyLink",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "PutOrgReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "companyLogoUrl": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 250
+          },
+          "fontFamily": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 50
+          },
+          "fontUrl": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 250
+          },
+          "layoutColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "labelColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "primaryButtonColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "primaryButtonLabelColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "primaryButtonBorderColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "secondaryButtonColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "secondaryButtonLabelColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "secondaryButtonBorderColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "criticalIndicatorColor": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "emailSenderName": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "termsLink": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          },
+          "privacyPolicyLink": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 20
+          }
+        }
+      },
+      "PostOrgReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
           }
         },
         "required": [
@@ -987,6 +1175,172 @@
               "type": "number"
             },
             "description": "The unique ID of the role"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
+      }
+    },
+    "/api/v1/orgs": {
+      "get": {
+        "summary": "Get a list of orgs",
+        "description": "Required scope - read_org",
+        "tags": [
+          "Orgs"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of orgs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orgs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Org"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new org",
+        "description": "Required scope - write_org",
+        "tags": [
+          "Orgs"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostOrgReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "org": {
+                      "$ref": "#/components/schemas/Org"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orgs/{id}": {
+      "get": {
+        "summary": "Get a single org by ID",
+        "description": "Required scope - read_org",
+        "tags": [
+          "Orgs"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the org"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single org object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "org": {
+                      "$ref": "#/components/schemas/Org"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing org by ID",
+        "description": "Required scope - write_org",
+        "tags": [
+          "Orgs"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the org"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutOrgReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "org": {
+                      "$ref": "#/components/schemas/Org"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an existing org by ID",
+        "description": "Required scope - write_org",
+        "tags": [
+          "Orgs"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the org"
           }
         ],
         "responses": {

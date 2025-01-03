@@ -7,6 +7,9 @@ const {
   Role, PutRoleReq, PostRoleReq,
 } = require('./schemas/role.cjs')
 const {
+  Org, PutOrgReq, PostOrgReq,
+} = require('./schemas/org.cjs')
+const {
   App, AppDetail, PostAppReq, PutAppReq,
 } = require('./schemas/app.cjs')
 const {
@@ -44,6 +47,8 @@ const options = {
                 write_role: 'Write access to role',
                 read_scope: 'Read access to scope',
                 write_scope: 'Write access to scope',
+                read_org: 'Read access to org',
+                write_org: 'Write access to org',
               },
             },
           },
@@ -57,6 +62,9 @@ const options = {
         Role,
         PutRoleReq,
         PostRoleReq,
+        Org,
+        PutOrgReq,
+        PostOrgReq,
         App,
         AppDetail,
         PostAppReq,
@@ -74,6 +82,7 @@ const options = {
   apis: [
     './src/routes/scope.tsx',
     './src/routes/role.tsx',
+    './src/routes/org.tsx',
     './src/routes/app.tsx',
     './src/routes/user.tsx',
     './src/routes/log.tsx',
