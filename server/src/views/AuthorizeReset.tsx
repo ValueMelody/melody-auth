@@ -35,7 +35,7 @@ const AuthorizeReset = ({
       >
         <p class='text-green text-semibold'>{localeConfig.authorizeReset.success[queryDto.locale]}</p>
         <a
-          class='button-text'
+          class='button-secondary'
           href={`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`}
         >
           {localeConfig.authorizeReset.signIn[queryDto.locale]}
@@ -68,7 +68,7 @@ const AuthorizeReset = ({
             <button
               id='resend-btn'
               type='button'
-              class='button-text hidden'
+              class='button-secondary hidden'
               onclick='resendCode()'
             >
               {localeConfig.authorizeReset.resend[queryDto.locale]}
@@ -93,7 +93,7 @@ const AuthorizeReset = ({
           </section>
         </form>
         <a
-          class='button-text'
+          class='button-secondary'
           href={`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`}
         >
           {localeConfig.authorizeReset.backSignIn[queryDto.locale]}

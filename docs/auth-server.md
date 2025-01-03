@@ -226,17 +226,41 @@ npm run prod:deploy
 - **Default:** https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg
 - **Description:** The logo used for branding.
 
-#### BG_COLOR
+#### LAYOUT_COLOR
 - **Default:** lightgray
-- **Description:** Specifies the background color of authentication pages.
+- **Description:** Specifies the background color of the layout on authentication pages.
 
-#### PRIMARY_BUTTON_BG_COLOR
+#### LABEL_COLOR
+- **Default:** black
+- **Description:** Specifies the color of labels on authentication pages.
+
+#### PRIMARY_BUTTON_COLOR
 - **Default:** white
 - **Description:** Specifies the background color of primary buttons on authentication pages.
 
-#### PRIMARY_BUTTON_FG_COLOR
+#### PRIMARY_BUTTON_LABEL_COLOR
 - **Default:** black
-- **Description:** Specifies the foreground color of primary buttons on authentication pages.
+- **Description:** Specifies the label color of primary buttons on authentication pages.
+
+#### PRIMARY_BUTTON_BORDER_COLOR
+- **Default:** black
+- **Description:** Specifies the border color of primary buttons on authentication pages.
+
+#### SECONDARY_BUTTON_COLOR
+- **Default:** white
+- **Description:** Specifies the background color of secondary buttons on authentication pages.
+
+#### SECONDARY_BUTTON_LABEL_COLOR
+- **Default:** black
+- **Description:** Specifies the label color of secondary buttons on authentication pages.
+
+#### SECONDARY_BUTTON_BORDER_COLOR
+- **Default:** black
+- **Description:** Specifies the border color of secondary buttons on authentication pages.
+
+### CRITICAL_INDICATOR_COLOR
+- **Default:** #e00
+- **Description:** Specifies the color of critical indicators, such as error messages, on authentication pages.
 
 #### EMAIL_SENDER_NAME
 - **Default:** "Melody Auth"

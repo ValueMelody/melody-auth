@@ -48,14 +48,14 @@ const AuthorizeConsent = ({
       <SubmitError />
       <section class='mt-4 flex-row gap-8 w-full'>
         <button
-          class='button-outline w-full'
+          class='button-secondary w-full'
           type='button'
           onclick='handleDecline()'
         >
           {localeConfig.authorizeConsent.decline[queryDto.locale]}
         </button>
         <button
-          class='button-outline w-full'
+          class='button-secondary w-full'
           type='button'
           onclick='handleAccept()'
         >

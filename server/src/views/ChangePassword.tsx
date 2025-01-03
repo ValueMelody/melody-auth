@@ -34,7 +34,7 @@ const ChangePassword = ({
       >
         <p class='text-green text-semibold'>{localeConfig.changePassword.success[queryDto.locale]}</p>
         <a
-          class='button-text'
+          class='button-secondary'
           href={`${redirectUri}`}
         >
           {localeConfig.changePassword.redirect[queryDto.locale]}

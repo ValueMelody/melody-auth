@@ -117,7 +117,7 @@ const AuthorizeAccount = ({
         </section>
       </form>
       <a
-        class='button-text'
+        class='button-secondary'
         href={`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`}
       >
         {localeConfig.authorizeAccount.signIn[queryDto.locale]}

@@ -178,7 +178,7 @@ const AuthorizePassword = ({
         <section class='flex-col gap-4'>
           {enableSignUp && (
             <a
-              class='button-text'
+              class='button-secondary'
               href={`${routeConfig.IdentityRoute.AuthorizeAccount}?${queryString}`}
             >
               {localeConfig.authorizePassword.signUp[queryDto.locale]}
@@ -186,7 +186,7 @@ const AuthorizePassword = ({
           )}
           {enablePasswordReset && (
             <a
-              class='button-text'
+              class='button-secondary'
               href={`${routeConfig.IdentityRoute.AuthorizeReset}?${queryString}`}
             >
               {localeConfig.authorizePassword.passwordReset[queryDto.locale]}

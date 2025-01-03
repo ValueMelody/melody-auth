@@ -6,9 +6,15 @@ keep_vars = true
 
 # Branding
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
-BG_COLOR="lightgray"
-PRIMARY_BUTTON_BG_COLOR="white"
-PRIMARY_BUTTON_FG_COLOR="black"
+LAYOUT_COLOR="lightgray"
+LABEL_COLOR="black"
+PRIMARY_BUTTON_COLOR="white"
+PRIMARY_BUTTON_LABEL_COLOR="black"
+PRIMARY_BUTTON_BORDER_COLOR="lightgray"
+SECONDARY_BUTTON_COLOR="white"
+SECONDARY_BUTTON_LABEL_COLOR="black"
+SECONDARY_BUTTON_BORDER_COLOR="white"
+CRITICAL_INDICATOR_COLOR="#e00"
 EMAIL_SENDER_NAME="Melody Auth"
 TERMS_LINK="" # Display a link to your terms on sign-up page
 PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page

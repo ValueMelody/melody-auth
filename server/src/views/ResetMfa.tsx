@@ -30,7 +30,7 @@ const ResetMfa = ({
       >
         <p class='text-green text-semibold'>{localeConfig.resetMfa.success[queryDto.locale]}</p>
         <a
-          class='button-text'
+          class='button-secondary'
           href={`${redirectUri}`}
         >
           {localeConfig.resetMfa.redirect[queryDto.locale]}

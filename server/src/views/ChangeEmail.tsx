@@ -35,7 +35,7 @@ const ChangeEmail = ({
       >
         <p class='text-green text-semibold'>{localeConfig.changePassword.success[queryDto.locale]}</p>
         <a
-          class='button-text'
+          class='button-secondary'
           href={`${redirectUri}`}
         >
           {localeConfig.changeEmail.redirect[queryDto.locale]}
@@ -67,7 +67,7 @@ const ChangeEmail = ({
             <button
               id='resend-btn'
               type='button'
-              class='button-text hidden'
+              class='button-secondary hidden'
               onclick='resendCode()'
             >
               {localeConfig.changeEmail.resend[queryDto.locale]}
