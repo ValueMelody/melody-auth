@@ -24,6 +24,8 @@ afterEach(async () => {
   await db.close()
 })
 
+const newScopeId = Object.keys(Scope).length + 1
+
 const BaseRoute = routeConfig.InternalRoute.ApiScopes
 
 const createNewScope = async (token?: string) => await app.request(
@@ -49,14 +51,14 @@ const createNewScope = async (token?: string) => await app.request(
 )
 
 const newScope = {
-  id: 13,
+  id: newScopeId,
   name: 'test name',
   type: 'spa',
   note: 'test note',
   locales: [
     {
       id: 3,
-      scopeId: 13,
+      scopeId: newScopeId,
       value: 'test en',
       createdAt: dbTime,
       updatedAt: dbTime,
@@ -65,7 +67,7 @@ const newScope = {
     },
     {
       id: 4,
-      scopeId: 13,
+      scopeId: newScopeId,
       value: 'test fr',
       createdAt: dbTime,
       updatedAt: dbTime,
@@ -90,7 +92,7 @@ describe(
           mock(db),
         )
         const json = await res.json() as { scopes: scopeModel.Record[] }
-        expect(json.scopes.length).toBe(12)
+        expect(json.scopes.length).toBe(Object.keys(Scope).length)
         Object.values(Scope).forEach((key) => {
           expect(json.scopes.some((scope) => scope.name === key)).toBeTruthy()
         })
@@ -114,7 +116,7 @@ describe(
           mock(db),
         )
         const json = await res.json() as { scopes: scopeModel.Record[] }
-        expect(json.scopes.length).toBe(12)
+        expect(json.scopes.length).toBe(Object.keys(Scope).length)
         Object.values(Scope).forEach((key) => {
           expect(json.scopes.some((scope) => scope.name === key)).toBeTruthy()
         })
@@ -233,7 +235,7 @@ describe(
       'should return 404 when can not find scope by id',
       async () => {
         const res = await app.request(
-          `${BaseRoute}/13`,
+          `${BaseRoute}/${newScopeId}`,
           { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
@@ -322,7 +324,7 @@ describe(
           ],
         }
         const res = await app.request(
-          `${BaseRoute}/13`,
+          `${BaseRoute}/${newScopeId}`,
           {
             method: 'PUT',
             body: JSON.stringify(updateObj),
@@ -339,7 +341,7 @@ describe(
             locales: [
               {
                 id: 5,
-                scopeId: 13,
+                scopeId: newScopeId,
                 value: 'test en 1',
                 createdAt: dbTime,
                 updatedAt: dbTime,
@@ -348,7 +350,7 @@ describe(
               },
               {
                 id: 6,
-                scopeId: 13,
+                scopeId: newScopeId,
                 value: 'test fr 1',
                 createdAt: dbTime,
                 updatedAt: dbTime,
@@ -376,7 +378,7 @@ describe(
           ],
         }
         const res = await app.request(
-          `${BaseRoute}/13`,
+          `${BaseRoute}/${newScopeId}`,
           {
             method: 'PUT',
             body: JSON.stringify(updateObj),
@@ -392,7 +394,7 @@ describe(
             locales: [
               {
                 id: 5,
-                scopeId: 13,
+                scopeId: newScopeId,
                 value: 'test en 1',
                 createdAt: dbTime,
                 updatedAt: dbTime,
@@ -401,7 +403,7 @@ describe(
               },
               {
                 id: 6,
-                scopeId: 13,
+                scopeId: newScopeId,
                 value: 'test fr 1',
                 createdAt: dbTime,
                 updatedAt: dbTime,
@@ -423,7 +425,7 @@ describe(
           note: '',
         }
         const res = await app.request(
-          `${BaseRoute}/13`,
+          `${BaseRoute}/${newScopeId}`,
           {
             method: 'PUT',
             body: JSON.stringify(updateObj),
@@ -447,7 +449,7 @@ describe(
       async () => {
         const updateObj = { note: 'test name 1' }
         const res = await app.request(
-          `${BaseRoute}/13`,
+          `${BaseRoute}/${newScopeId}`,
           {
             method: 'PUT',
             body: JSON.stringify(updateObj),
@@ -469,7 +471,7 @@ describe(
       async () => {
         await createNewScope()
         const res = await app.request(
-          `${BaseRoute}/13`,
+          `${BaseRoute}/${newScopeId}`,
           {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
@@ -479,7 +481,7 @@ describe(
         expect(res.status).toBe(204)
 
         const checkRes = await app.request(
-          `${BaseRoute}/13`,
+          `${BaseRoute}/${newScopeId}`,
           { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )

@@ -16,6 +16,8 @@ export enum Scope {
   WriteRole= 'write_role',
   ReadScope = 'read_scope',
   WriteScope = 'write_scope',
+  ReadOrg = 'read_org',
+  WriteOrg = 'write_org',
 }
 
 export enum Role {
