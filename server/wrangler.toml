@@ -6,6 +6,8 @@ keep_vars = true
 
 # Branding
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
+FONT_FAMILY="Inter"
+FONT_URL="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap"
 LAYOUT_COLOR="lightgray"
 LABEL_COLOR="black"
 PRIMARY_BUTTON_COLOR="white"
@@ -44,7 +46,6 @@ SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
 OTP_MFA_IS_REQUIRED=false
 EMAIL_MFA_IS_REQUIRED=false # Please set up your mailer first https://auth.valuemelody.com/auth-server.html#mailer-setup
 SMS_MFA_IS_REQUIRED=false # Please set up your sms provider first https://auth.valuemelody.com/auth-server.html#sms-setup
-SMS_MFA_MESSAGE_THRESHOLD=5 # Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 ENFORCE_ONE_MFA_ENROLLMENT=['otp', 'email'] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 ALLOW_EMAIL_MFA_AS_BACKUP=true
 
@@ -55,6 +56,7 @@ ACCOUNT_LOCKOUT_THRESHOLD=5 # Number of failed login attempts before the user ac
 EMAIL_MFA_EMAIL_THRESHOLD=10 # Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 CHANGE_EMAIL_EMAIL_THRESHOLD=5 # Maximum number of change email verification code requests allowed per 30 minutes for a single account. 0 means no restriction.
 ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual intervention.
+SMS_MFA_MESSAGE_THRESHOLD=5 # Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 
 # Social Sign-in
 GOOGLE_AUTH_CLIENT_ID="" # Google Sign-in will be suppressed if it is empty

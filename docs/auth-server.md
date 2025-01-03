@@ -226,6 +226,14 @@ npm run prod:deploy
 - **Default:** https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg
 - **Description:** The logo used for branding.
 
+#### FONT_FAMILY
+- **Default:** Inter
+- **Description:** The font family on authentication pages.
+
+#### FONT_URL
+- **Default:** https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap
+- **Description:** Provides the URL to load the specified font (in this case, “Inter”) from Google Fonts, ensuring that the authentication pages have the appropriate font styles and weights applied.
+
 #### LAYOUT_COLOR
 - **Default:** lightgray
 - **Description:** Specifies the background color of the layout on authentication pages.

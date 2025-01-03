@@ -8,6 +8,8 @@ import {
 
 export interface Branding {
   logoUrl: string;
+  fontFamily: string;
+  fontUrl: string;
   layoutColor: string;
   labelColor: string;
   primaryButtonColor: string;
@@ -40,11 +42,11 @@ const Layout = ({
         rel='preconnect'
         href='https://fonts.gstatic.com' />
       <link
-        href='https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap'
+        href={branding.fontUrl}
         rel='stylesheet' />
       <Style>
         {css`
-          body { padding: 0; margin: 0; font-family: "Inter", sans-serif; font-size: 16px; }
+          body { padding: 0; margin: 0; font-family: ${branding.fontFamily}; font-size: 16px; }
           a { text-decoration: none; }
           p { padding: 0; margin: 0; }
           h1 { padding: 0; margin: 0; }
