@@ -324,6 +324,10 @@ npm run prod:deploy
 - **Description:** If set to true, users will receive an email to verify their email address after signing up.
 [Email functionality setup required](#email-functionality-setup)
 
+#### ENABLE_ORG
+- **Default:** false
+- **Description:** Determines if organization feature are enabled in the application. If set to true, users will have the ability to create and manage organizations through S2S api and admin panel.
+
 ### Auth Configs
 
 #### AUTHORIZATION_CODE_EXPIRES_IN

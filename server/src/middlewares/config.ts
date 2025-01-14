@@ -36,6 +36,16 @@ export const enablePasswordReset = async (
   await next()
 }
 
+export const enableOrg = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_ORG: enabledOrg } = env(c)
+
+  if (!enabledOrg) throw new errorConfig.Forbidden()
+
+  await next()
+}
+
 export const enableGoogleSignIn = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

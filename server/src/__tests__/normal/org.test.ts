@@ -65,6 +65,8 @@ describe(
     test(
       'should return all orgs',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await createNewOrg()
         const res = await app.request(
           BaseRoute,
@@ -75,12 +77,16 @@ describe(
 
         expect(json.orgs.length).toBe(1)
         expect(json).toStrictEqual({ orgs: [newOrg] })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
 
     test(
       'should return all org with read_org scope',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await attachIndividualScopes(db)
         await createNewOrg()
         const res = await app.request(
@@ -99,12 +105,36 @@ describe(
 
         expect(json.orgs.length).toBe(1)
         expect(json).toStrictEqual({ orgs: [newOrg] })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return 401 if org not enabled in config',
+      async () => {
+        await attachIndividualScopes(db)
+        const res = await app.request(
+          BaseRoute,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadOrg,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
       },
     )
 
     test(
       'should return 401 without proper scope',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await attachIndividualScopes(db)
         const res = await app.request(
           BaseRoute,
@@ -126,6 +156,8 @@ describe(
           mock(db),
         )
         expect(res1.status).toBe(401)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
   },
@@ -137,6 +169,8 @@ describe(
     test(
       'should return org by id',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await createNewOrg()
         const res = await app.request(
           `${BaseRoute}/1`,
@@ -146,12 +180,16 @@ describe(
         const json = await res.json()
 
         expect(json).toStrictEqual({ org: newOrg })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
 
     test(
       'should return 404 when can not find org by id',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await createNewOrg()
         const res = await app.request(
           `${BaseRoute}/2`,
@@ -160,6 +198,8 @@ describe(
         )
 
         expect(res.status).toBe(404)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
   },
@@ -171,25 +211,35 @@ describe(
     test(
       'should create org',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         const res = await createNewOrg()
         const json = await res.json()
 
         expect(json).toStrictEqual({ org: newOrg })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
 
     test(
       'should trigger unique constraint',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await createNewOrg()
         const res1 = await createNewOrg()
         expect(res1.status).toBe(500)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
 
     test(
       'should create org with write_org scope',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await attachIndividualScopes(db)
         const res = await createNewOrg(await getS2sToken(
           db,
@@ -198,12 +248,16 @@ describe(
         const json = await res.json()
 
         expect(json).toStrictEqual({ org: newOrg })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
 
     test(
       'should return 401 without proper scope',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         const res = await createNewOrg(await getS2sToken(
           db,
           Scope.ReadOrg,
@@ -212,6 +266,8 @@ describe(
 
         const res1 = await createNewOrg('')
         expect(res1.status).toBe(401)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
   },
@@ -223,6 +279,8 @@ describe(
     test(
       'should update org',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await createNewOrg()
         const updateObj = { name: 'test name 1' }
         const res = await app.request(
@@ -242,6 +300,8 @@ describe(
             ...updateObj,
           },
         })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
   },
@@ -253,6 +313,8 @@ describe(
     test(
       'should delete org',
       async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
         await createNewOrg()
         const res = await app.request(
           `${BaseRoute}/1`,
@@ -270,6 +332,8 @@ describe(
           mock(db),
         )
         expect(checkRes.status).toBe(404)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
   },

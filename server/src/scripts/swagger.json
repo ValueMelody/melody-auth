@@ -426,12 +426,12 @@
           "termsLink": {
             "type": "string",
             "minLength": 0,
-            "maxLength": 20
+            "maxLength": 250
           },
           "privacyPolicyLink": {
             "type": "string",
             "minLength": 0,
-            "maxLength": 20
+            "maxLength": 250
           }
         }
       },

@@ -7,6 +7,7 @@
     "roles": "Manage Roles",
     "apps": "Manage Apps",
     "scopes": "Manage Scopes",
+    "orgs": "Manage Orgs",
     "logs": "View Logs",
     "dashboard": "Dashboard",
     "account": "Account"
@@ -125,6 +126,27 @@
     "new": "Create a scope",
     "locales": "Locales",
     "localeNote": "This will be displayed on the user app consent page."
+  },
+  "orgs": {
+    "title": "Orgs",
+    "role": "Org",
+    "name": "Name",
+    "status": "Status",
+    "new": "Create an org",
+    "companyLogoUrl": "Logo Url",
+    "fontFamily": "Font Family",
+    "fontUrl": "Font Url",
+    "layoutColor": "Layout Color",
+    "labelColor": "Label Color",
+    "primaryButtonColor": "Primary Button Color",
+    "primaryButtonLabelColor": "Primary Button Label Color",
+    "primaryButtonBorderColor": "Primary Button Border Color",
+    "secondaryButtonColor": "Secondary Button Color",
+    "secondaryButtonLabelColor": "Secondary Button Label Color",
+    "secondaryButtonBorderColor": "Secondary Button Border Color",
+    "criticalIndicatorColor": "Critical Indicator Color",
+    "termsLink": "Terms Link",
+    "privacyPolicyLink": "Privacy Policy Link"
   },
   "logs": {
     "receiver": "Receiver",

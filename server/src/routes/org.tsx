@@ -3,7 +3,7 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import { orgHandler } from 'handlers'
-import { authMiddleware } from 'middlewares'
+import { authMiddleware, configMiddleware } from 'middlewares'
 
 const BaseRoute = routeConfig.InternalRoute.ApiOrgs
 const orgRoutes = new Hono<typeConfig.Context>()
@@ -31,6 +31,7 @@ export default orgRoutes
  */
 orgRoutes.get(
   `${BaseRoute}`,
+  configMiddleware.enableOrg,
   authMiddleware.s2sReadOrg,
   orgHandler.getOrgs,
 )
@@ -62,6 +63,7 @@ orgRoutes.get(
  */
 orgRoutes.get(
   `${BaseRoute}/:id`,
+  configMiddleware.enableOrg,
   authMiddleware.s2sReadOrg,
   orgHandler.getOrg,
 )
@@ -91,6 +93,7 @@ orgRoutes.get(
  */
 orgRoutes.post(
   `${BaseRoute}`,
+  configMiddleware.enableOrg,
   authMiddleware.s2sWriteOrg,
   orgHandler.postOrg,
 )
@@ -127,6 +130,7 @@ orgRoutes.post(
  */
 orgRoutes.put(
   `${BaseRoute}/:id`,
+  configMiddleware.enableOrg,
   authMiddleware.s2sWriteOrg,
   orgHandler.putOrg,
 )
@@ -151,6 +155,7 @@ orgRoutes.put(
  */
 orgRoutes.delete(
   `${BaseRoute}/:id`,
+  configMiddleware.enableOrg,
   authMiddleware.s2sWriteOrg,
   orgHandler.deleteOrg,
 )
