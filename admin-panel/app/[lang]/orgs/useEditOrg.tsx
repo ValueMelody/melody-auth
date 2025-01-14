@@ -45,12 +45,39 @@ const useEditOrg = (org: Org | undefined) => {
     [org],
   )
 
-  const values = {
-    name, companyLogoUrl, fontFamily, fontUrl, layoutColor, labelColor,
-    primaryButtonColor, primaryButtonLabelColor, primaryButtonBorderColor,
-    secondaryButtonColor, secondaryButtonLabelColor, secondaryButtonBorderColor,
-    criticalIndicatorColor, termsLink, privacyPolicyLink
-  }
+  const values = useMemo(() => ({
+    name,
+    companyLogoUrl,
+    fontFamily,
+    fontUrl,
+    layoutColor,
+    labelColor,
+    primaryButtonColor,
+    primaryButtonLabelColor,
+    primaryButtonBorderColor,
+    secondaryButtonColor,
+    secondaryButtonLabelColor,
+    secondaryButtonBorderColor,
+    criticalIndicatorColor,
+    termsLink,
+    privacyPolicyLink,
+  }), [
+    name,
+    companyLogoUrl,
+    fontFamily,
+    fontUrl,
+    layoutColor,
+    labelColor,
+    primaryButtonColor,
+    primaryButtonLabelColor,
+    primaryButtonBorderColor,
+    secondaryButtonColor,
+    secondaryButtonLabelColor,
+    secondaryButtonBorderColor,
+    criticalIndicatorColor,
+    termsLink,
+    privacyPolicyLink,
+  ])
 
   const errors = useMemo(
     () => ({ name: values.name.trim().length ? undefined : t('common.fieldIsRequired') }),
@@ -68,8 +95,8 @@ const useEditOrg = (org: Org | undefined) => {
       setCompanyLogoUrl(value as string)
       break
     case 'fontFamily':
-        setFontFamily(value as string)
-        break
+      setFontFamily(value as string)
+      break
     case 'fontUrl':
       setFontUrl(value as string)
       break

@@ -3,14 +3,12 @@
 import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import useCurrentLocale from 'hooks/useCurrentLocale'
-import {
-  routeTool,
-} from 'tools'
+import { routeTool } from 'tools'
 import EditLink from 'components/EditLink'
 import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
 import {
-  useGetApiV1OrgsQuery, Org
+  useGetApiV1OrgsQuery, Org,
 } from 'services/auth/api'
 
 const Page = () => {

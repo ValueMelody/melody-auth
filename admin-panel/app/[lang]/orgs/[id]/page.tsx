@@ -16,7 +16,7 @@ import PageTitle from 'components/PageTitle'
 import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import {
-  useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation
+  useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
 } from 'services/auth/api'
 
 const Page = () => {

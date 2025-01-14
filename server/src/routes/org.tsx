@@ -3,7 +3,9 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import { orgHandler } from 'handlers'
-import { authMiddleware, configMiddleware } from 'middlewares'
+import {
+  authMiddleware, configMiddleware,
+} from 'middlewares'
 
 const BaseRoute = routeConfig.InternalRoute.ApiOrgs
 const orgRoutes = new Hono<typeConfig.Context>()

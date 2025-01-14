@@ -50,7 +50,7 @@ const Page = () => {
         'ENABLE_EMAIL_VERIFICATION',
         'ENABLE_PASSWORD_RESET',
         'ENABLE_USER_APP_CONSENT',
-        'ENABLE_ORG'
+        'ENABLE_ORG',
       ],
     },
     {

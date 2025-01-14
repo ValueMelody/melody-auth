@@ -62,7 +62,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     SECONDARY_BUTTON_BORDER_COLOR: environment.SECONDARY_BUTTON_BORDER_COLOR,
     CRITICAL_INDICATOR_COLOR: environment.CRITICAL_INDICATOR_COLOR,
     ENABLE_PASSWORD_SIGN_IN: environment.ENABLE_PASSWORD_SIGN_IN,
-    ENABLE_ORG: environment.ENABLE_ORG
+    ENABLE_ORG: environment.ENABLE_ORG,
   }
 
   return c.json({ configs })
