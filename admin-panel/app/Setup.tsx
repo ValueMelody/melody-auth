@@ -120,6 +120,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
 
   const configs = useSignalValue(configSignal)
   const showLogs = configs?.ENABLE_SIGN_IN_LOG || configs?.ENABLE_SMS_LOG || configs?.ENABLE_EMAIL_LOG
+  const showOrg = configs?.ENABLE_ORG
 
   useEffect(
     () => {
@@ -187,6 +188,15 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
           >
             {t('layout.scopes')}
           </Navbar.Link>
+          {showOrg && (
+            <Navbar.Link
+              as={Link}
+              className='flex items-center h-6'
+              href={`/${locale}${routeTool.Internal.Orgs}`}
+            >
+              {t('layout.orgs')}
+            </Navbar.Link>
+          )}
           {!!showLogs && (
             <Navbar.Link
               as={Link}

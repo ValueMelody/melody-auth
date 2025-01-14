@@ -2,6 +2,7 @@ import { authApi as api } from './'
 export const addTagTypes = [
   'Scopes',
   'Roles',
+  'Orgs',
   'Apps',
   'Users',
   'Logs',
@@ -98,6 +99,49 @@ const injectedRtkApi = api
           method: 'DELETE',
         }),
         invalidatesTags: ['Roles'],
+      }),
+      getApiV1Orgs: build.query<GetApiV1OrgsApiResponse, GetApiV1OrgsApiArg>({
+        query: () => ({ url: '/api/v1/orgs' }),
+        providesTags: ['Orgs'],
+      }),
+      postApiV1Orgs: build.mutation<
+        PostApiV1OrgsApiResponse,
+        PostApiV1OrgsApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/orgs',
+          method: 'POST',
+          body: queryArg.postOrgReq,
+        }),
+        invalidatesTags: ['Orgs'],
+      }),
+      getApiV1OrgsById: build.query<
+        GetApiV1OrgsByIdApiResponse,
+        GetApiV1OrgsByIdApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/orgs/${queryArg.id}` }),
+        providesTags: ['Orgs'],
+      }),
+      putApiV1OrgsById: build.mutation<
+        PutApiV1OrgsByIdApiResponse,
+        PutApiV1OrgsByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/orgs/${queryArg.id}`,
+          method: 'PUT',
+          body: queryArg.putOrgReq,
+        }),
+        invalidatesTags: ['Orgs'],
+      }),
+      deleteApiV1OrgsById: build.mutation<
+        DeleteApiV1OrgsByIdApiResponse,
+        DeleteApiV1OrgsByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/orgs/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Orgs'],
       }),
       getApiV1Apps: build.query<GetApiV1AppsApiResponse, GetApiV1AppsApiArg>({
         query: () => ({ url: '/api/v1/apps' }),
@@ -431,6 +475,37 @@ export type DeleteApiV1RolesByIdApiArg = {
   /** The unique ID of the role */
   id: number;
 };
+export type GetApiV1OrgsApiResponse = /** status 200 A list of orgs */ {
+  orgs?: Org[];
+};
+export type GetApiV1OrgsApiArg = void;
+export type PostApiV1OrgsApiResponse = /** status 201 undefined */ {
+  org?: Org;
+};
+export type PostApiV1OrgsApiArg = {
+  postOrgReq: PostOrgReq;
+};
+export type GetApiV1OrgsByIdApiResponse =
+  /** status 200 A single org object */ {
+    org?: Org;
+  };
+export type GetApiV1OrgsByIdApiArg = {
+  /** The unique ID of the org */
+  id: number;
+};
+export type PutApiV1OrgsByIdApiResponse = /** status 200 undefined */ {
+  org?: Org;
+};
+export type PutApiV1OrgsByIdApiArg = {
+  /** The unique ID of the org */
+  id: number;
+  putOrgReq: PutOrgReq;
+};
+export type DeleteApiV1OrgsByIdApiResponse = unknown;
+export type DeleteApiV1OrgsByIdApiArg = {
+  /** The unique ID of the org */
+  id: number;
+};
 export type GetApiV1AppsApiResponse = /** status 200 A list of apps */ {
   apps?: App[];
 };
@@ -693,6 +768,49 @@ export type PutRoleReq = {
   name?: string;
   note?: string;
 };
+export type Org = {
+  id: number;
+  name: string;
+  companyLogoUrl: string;
+  fontFamily: string;
+  fontUrl: string;
+  layoutColor: string;
+  labelColor: string;
+  primaryButtonColor: string;
+  primaryButtonLabelColor: string;
+  primaryButtonBorderColor: string;
+  secondaryButtonColor: string;
+  secondaryButtonLabelColor: string;
+  secondaryButtonBorderColor: string;
+  criticalIndicatorColor: string;
+  emailSenderName: string;
+  termsLink: string;
+  privacyPolicyLink: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+export type PostOrgReq = {
+  name: string;
+};
+export type PutOrgReq = {
+  name?: string;
+  companyLogoUrl?: string;
+  fontFamily?: string;
+  fontUrl?: string;
+  layoutColor?: string;
+  labelColor?: string;
+  primaryButtonColor?: string;
+  primaryButtonLabelColor?: string;
+  primaryButtonBorderColor?: string;
+  secondaryButtonColor?: string;
+  secondaryButtonLabelColor?: string;
+  secondaryButtonBorderColor?: string;
+  criticalIndicatorColor?: string;
+  emailSenderName?: string;
+  termsLink?: string;
+  privacyPolicyLink?: string;
+};
 export type App = {
   id: number;
   clientId: string;
@@ -798,6 +916,13 @@ export const {
   useLazyGetApiV1RolesByIdQuery,
   usePutApiV1RolesByIdMutation,
   useDeleteApiV1RolesByIdMutation,
+  useGetApiV1OrgsQuery,
+  useLazyGetApiV1OrgsQuery,
+  usePostApiV1OrgsMutation,
+  useGetApiV1OrgsByIdQuery,
+  useLazyGetApiV1OrgsByIdQuery,
+  usePutApiV1OrgsByIdMutation,
+  useDeleteApiV1OrgsByIdMutation,
   useGetApiV1AppsQuery,
   useLazyGetApiV1AppsQuery,
   usePostApiV1AppsMutation,

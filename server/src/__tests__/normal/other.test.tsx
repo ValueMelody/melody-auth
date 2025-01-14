@@ -77,6 +77,7 @@ describe(
           ENABLE_SMS_LOG: false,
           ENABLE_SIGN_IN_LOG: false,
           ENABLE_PASSWORD_SIGN_IN: true,
+          ENABLE_ORG: false,
           LAYOUT_COLOR: 'lightgray',
           LABEL_COLOR: 'black',
           PRIMARY_BUTTON_COLOR: 'white',
