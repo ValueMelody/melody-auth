@@ -7,6 +7,7 @@
     "roles": "Gérer les rôles",
     "apps": "Gérer les applications",
     "scopes": "Gérer les portées",
+    "orgs": "Gérer les organisations",
     "logs": "Afficher les journaux",
     "dashboard": "Tableau de bord",
     "account": "Compte"
@@ -125,6 +126,27 @@
     "new": "Créer une portée",
     "locales": "Langues",
     "localeNote": "Ceci sera affiché sur la page de consentement de l'application utilisateur."
+  },
+  "orgs": {
+    "title": "Organisations",
+    "role": "Organisation",
+    "name": "Nom",
+    "status": "Statut",
+    "new": "Créer une organisation",
+    "companyLogoUrl": "URL du logo",
+    "fontFamily": "Police d’écriture",
+    "fontUrl": "URL de la police",
+    "layoutColor": "Couleur de la mise en page",
+    "labelColor": "Couleur des étiquettes",
+    "primaryButtonColor": "Couleur du bouton principal",
+    "primaryButtonLabelColor": "Couleur du texte du bouton principal",
+    "primaryButtonBorderColor": "Couleur de la bordure du bouton principal",
+    "secondaryButtonColor": "Couleur du bouton secondaire",
+    "secondaryButtonLabelColor": "Couleur du texte du bouton secondaire",
+    "secondaryButtonBorderColor": "Couleur de la bordure du bouton secondaire",
+    "criticalIndicatorColor": "Couleur de l'indicateur critique",
+    "termsLink": "Lien des conditions d'utilisation",
+    "privacyPolicyLink": "Lien de la politique de confidentialité"
   },
   "logs": {
     "receiver": "Destinataire",
