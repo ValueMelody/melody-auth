@@ -1,8 +1,11 @@
 {
   "name": "@melody-auth/react",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "main": "dist/index.js",
-  "repository": "https://github.com/ValueMelody/melody-auth",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ValueMelody/melody-auth.git"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public"

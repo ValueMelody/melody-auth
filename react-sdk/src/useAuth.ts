@@ -41,6 +41,7 @@ export const useAuth = () => {
       locale?: string;
       state?: string;
       policy?: string;
+      org?: string;
     }) => {
       if (state.isAuthenticating) throw new Error('Please wait until isAuthenticating=false')
       if (state.isAuthenticated && (!props?.policy || props?.policy === 'sign_in_or_sign_up')) throw new Error('Already authenticated, please logout first')

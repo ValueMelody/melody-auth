@@ -129,8 +129,9 @@
   },
   "orgs": {
     "title": "Orgs",
-    "role": "Org",
+    "org": "Org",
     "name": "Name",
+    "slug": "Slug",
     "status": "Status",
     "new": "Create an org",
     "companyLogoUrl": "Logo Url",

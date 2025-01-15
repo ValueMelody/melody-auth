@@ -271,6 +271,9 @@
           "name": {
             "type": "string"
           },
+          "slug": {
+            "type": "string"
+          },
           "companyLogoUrl": {
             "type": "string"
           },
@@ -330,6 +333,7 @@
         "required": [
           "id",
           "name",
+          "slug",
           "companyLogoUrl",
           "fontFamily",
           "fontUrl",
@@ -354,6 +358,11 @@
         "type": "object",
         "properties": {
           "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "slug": {
             "type": "string",
             "minLength": 1,
             "maxLength": 50
@@ -442,10 +451,16 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 50
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
           }
         },
         "required": [
-          "name"
+          "name",
+          "slug"
         ]
       },
       "App": {

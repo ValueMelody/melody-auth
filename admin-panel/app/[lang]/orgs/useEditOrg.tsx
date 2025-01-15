@@ -9,6 +9,7 @@ const useEditOrg = (org: Org | undefined) => {
   const t = useTranslations()
 
   const [name, setName] = useState('')
+  const [slug, setSlug] = useState('')
   const [companyLogoUrl, setCompanyLogoUrl] = useState('')
   const [fontFamily, setFontFamily] = useState('')
   const [fontUrl, setFontUrl] = useState('')
@@ -27,6 +28,7 @@ const useEditOrg = (org: Org | undefined) => {
   useEffect(
     () => {
       setName(org?.name ?? '')
+      setSlug(org?.slug ?? '')
       setCompanyLogoUrl(org?.companyLogoUrl ?? '')
       setFontFamily(org?.fontFamily ?? '')
       setFontUrl(org?.fontUrl ?? '')
@@ -48,6 +50,7 @@ const useEditOrg = (org: Org | undefined) => {
   const values = useMemo(
     () => ({
       name,
+      slug,
       companyLogoUrl,
       fontFamily,
       fontUrl,
@@ -65,6 +68,7 @@ const useEditOrg = (org: Org | undefined) => {
     }),
     [
       name,
+      slug,
       companyLogoUrl,
       fontFamily,
       fontUrl,
@@ -83,7 +87,10 @@ const useEditOrg = (org: Org | undefined) => {
   )
 
   const errors = useMemo(
-    () => ({ name: values.name.trim().length ? undefined : t('common.fieldIsRequired') }),
+    () => ({
+      name: values.name.trim().length ? undefined : t('common.fieldIsRequired'),
+      slug: values.slug.trim().length ? undefined : t('common.fieldIsRequired'),
+    }),
     [values, t],
   )
 
@@ -93,6 +100,9 @@ const useEditOrg = (org: Org | undefined) => {
     switch (key) {
     case 'name':
       setName(value as string)
+      break
+    case 'slug':
+      setSlug(value as string)
       break
     case 'companyLogoUrl':
       setCompanyLogoUrl(value as string)

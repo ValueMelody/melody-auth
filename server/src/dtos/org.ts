@@ -11,8 +11,17 @@ export class PostOrgReqDto {
   @IsNotEmpty()
     name: string
 
+  @IsString()
+  @Length(
+    1,
+    50,
+  )
+  @IsNotEmpty()
+    slug: string
+
   constructor (dto: PostOrgReqDto) {
     this.name = dto.name.trim()
+    this.slug = dto.slug.trim()
   }
 }
 
@@ -24,6 +33,14 @@ export class PutOrgReqDto {
   )
   @IsOptional()
     name: string
+
+  @IsString()
+  @Length(
+    1,
+    50,
+  )
+  @IsOptional()
+    slug: string
 
   @IsString()
   @Length(
@@ -147,6 +164,7 @@ export class PutOrgReqDto {
 
   constructor (dto: PutOrgReqDto) {
     this.name = dto.name?.trim()
+    this.slug = dto.slug?.trim()
     this.companyLogoUrl = dto.companyLogoUrl
     this.fontFamily = dto.fontFamily
     this.fontUrl = dto.fontUrl

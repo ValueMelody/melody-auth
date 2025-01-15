@@ -10,6 +10,7 @@ export interface AdditionalProps {
   locale?: string;
   state?: string;
   policy?: string;
+  org?: string;
 }
 
 export const loginRedirect = async (
@@ -31,7 +32,11 @@ export const loginRedirect = async (
     await getAuthorize(
       config,
       {
-        state, codeChallenge, locale: additionalProps.locale, policy: additionalProps.policy,
+        state,
+        codeChallenge,
+        locale: additionalProps.locale,
+        policy: additionalProps.policy,
+        org: additionalProps.org,
       },
     )
   } catch (e) {
