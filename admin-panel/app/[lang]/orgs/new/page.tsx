@@ -65,6 +65,20 @@ const Page = () => {
                 {showErrors && <FieldError error={errors.name} />}
               </Table.Cell>
             </Table.Row>
+            <Table.Row>
+              <Table.Cell>{t('orgs.slug')}</Table.Cell>
+              <Table.Cell>
+                <TextInput
+                  data-testid='slugInput'
+                  onChange={(e) => onChange(
+                    'slug',
+                    e.target.value,
+                  )}
+                  value={values.slug}
+                />
+                {showErrors && <FieldError error={errors.slug} />}
+              </Table.Cell>
+            </Table.Row>
           </Table.Body>
         </Table>
       </section>

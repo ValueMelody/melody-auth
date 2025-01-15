@@ -31,7 +31,9 @@ export const createOrg = async (
 ): Promise<orgModel.Record> => {
   const org = await orgModel.create(
     c.env.DB,
-    { name: dto.name },
+    {
+      name: dto.name, slug: dto.slug,
+    },
   )
   return org
 }
@@ -46,6 +48,7 @@ export const updateOrg = async (
     orgId,
     {
       name: dto.name,
+      slug: dto.slug,
       companyLogoUrl: dto.companyLogoUrl,
       fontFamily: dto.fontFamily,
       fontUrl: dto.fontUrl,

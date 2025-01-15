@@ -6,6 +6,7 @@ import { dbUtil } from 'utils'
 export interface Record {
   id: number;
   name: string;
+  slug: string;
   companyLogoUrl: string;
   fontFamily: string;
   fontUrl: string;
@@ -28,10 +29,12 @@ export interface Record {
 
 export interface Create {
   name: string;
+  slug: string;
 }
 
 export interface Update {
   name?: string;
+  slug?: string;
   companyLogoUrl?: string;
   fontFamily?: string;
   fontUrl?: string;
@@ -75,8 +78,11 @@ export const getById = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (name) values ($1)`
-  const stmt = db.prepare(query).bind(create.name)
+  const query = `INSERT INTO ${TableName} (name, slug) values ($1, $2)`
+  const stmt = db.prepare(query).bind(
+    create.name,
+    create.slug,
+  )
   const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
   const id = result.meta.last_row_id
@@ -93,7 +99,7 @@ export const update = async (
   db: D1Database, id: number, update: Update,
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
-    'name', 'companyLogoUrl', 'fontFamily', 'fontUrl', 'layoutColor', 'labelColor',
+    'name', 'slug', 'companyLogoUrl', 'fontFamily', 'fontUrl', 'layoutColor', 'labelColor',
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
     'criticalIndicatorColor', 'emailSenderName', 'termsLink', 'privacyPolicyLink',

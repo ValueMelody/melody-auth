@@ -83,6 +83,19 @@ const Page = () => {
               </Table.Cell>
             </Table.Row>
             <Table.Row>
+              <Table.Cell>{t('orgs.slug')}</Table.Cell>
+              <Table.Cell>
+                <TextInput
+                  data-testid='slugInput'
+                  onChange={(e) => onChange(
+                    'slug',
+                    e.target.value,
+                  )}
+                  value={values.slug} />
+                {showErrors && <FieldError error={errors.slug} />}
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
               <Table.Cell>{t('orgs.companyLogoUrl')}</Table.Cell>
               <Table.Cell>
                 <TextInput

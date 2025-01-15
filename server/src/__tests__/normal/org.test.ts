@@ -30,7 +30,9 @@ const createNewOrg = async (token?: string) => await app.request(
   BaseRoute,
   {
     method: 'POST',
-    body: JSON.stringify({ name: 'test name' }),
+    body: JSON.stringify({
+      name: 'test name', slug: 'test slug',
+    }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
   },
   mock(db),
@@ -39,6 +41,7 @@ const createNewOrg = async (token?: string) => await app.request(
 const newOrg = {
   id: 1,
   name: 'test name',
+  slug: 'test slug',
   companyLogoUrl: '',
   fontFamily: '',
   fontUrl: '',
@@ -282,7 +285,9 @@ describe(
         global.process.env.ENABLE_ORG = true as unknown as string
 
         await createNewOrg()
-        const updateObj = { name: 'test name 1' }
+        const updateObj = {
+          name: 'test name 1', slug: 'test slug 1',
+        }
         const res = await app.request(
           `${BaseRoute}/1`,
           {

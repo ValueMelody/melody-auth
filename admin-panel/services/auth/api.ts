@@ -771,6 +771,7 @@ export type PutRoleReq = {
 export type Org = {
   id: number;
   name: string;
+  slug: string;
   companyLogoUrl: string;
   fontFamily: string;
   fontUrl: string;
@@ -792,9 +793,11 @@ export type Org = {
 };
 export type PostOrgReq = {
   name: string;
+  slug: string;
 };
 export type PutOrgReq = {
   name?: string;
+  slug?: string;
   companyLogoUrl?: string;
   fontFamily?: string;
   fontUrl?: string;

@@ -40,6 +40,7 @@ const Page = () => {
         </Table.Head>
         <Table.Head className='max-md:hidden'>
           <Table.HeadCell>{t('orgs.name')}</Table.HeadCell>
+          <Table.HeadCell>{t('orgs.slug')}</Table.HeadCell>
           <Table.HeadCell />
         </Table.Head>
         <Table.Body className='divide-y md:hidden'>
@@ -52,6 +53,9 @@ const Page = () => {
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-2'>
                       {org.name}
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      {org.slug}
                     </div>
                     <div className='md:hidden'>
                       {renderEditButton(org)}
@@ -66,9 +70,10 @@ const Page = () => {
           {orgs.map((org) => (
             <Table.Row key={org.id}>
               <Table.Cell>
-                <div className='flex items-center gap-2'>
-                  {org.name}
-                </div>
+                {org.name}
+              </Table.Cell>
+              <Table.Cell>
+                {org.slug}
               </Table.Cell>
               <Table.Cell>
                 {renderEditButton(org)}

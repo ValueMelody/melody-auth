@@ -3,6 +3,7 @@ const Org = {
   properties: {
     id: { type: 'number' },
     name: { type: 'string' },
+    slug: { type: 'string' },
     companyLogoUrl: { type: 'string' },
     fontFamily: { type: 'string' },
     fontUrl: { type: 'string' },
@@ -26,7 +27,7 @@ const Org = {
     },
   },
   required: [
-    'id', 'name', 'companyLogoUrl',
+    'id', 'name', 'slug', 'companyLogoUrl',
     'fontFamily', 'fontUrl', 'layoutColor', 'labelColor',
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
@@ -39,6 +40,11 @@ const PutOrgReq = {
   type: 'object',
   properties: {
     name: {
+      type: 'string',
+      minLength: 1,
+      maxLength: 50,
+    },
+    slug: {
       type: 'string',
       minLength: 1,
       maxLength: 50,
@@ -129,8 +135,13 @@ const PostOrgReq = {
       minLength: 1,
       maxLength: 50,
     },
+    slug: {
+      type: 'string',
+      minLength: 1,
+      maxLength: 50,
+    },
   },
-  required: ['name'],
+  required: ['name', 'slug'],
 }
 
 module.exports = {
