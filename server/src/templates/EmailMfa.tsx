@@ -1,18 +1,18 @@
 import {
   localeConfig, typeConfig,
 } from 'configs'
-import Layout from 'templates/components/Layout'
+import Layout, { Branding } from 'templates/components/Layout'
 
 const EmailMfa = ({
-  logoUrl, mfaCode, locale,
+  branding, mfaCode, locale,
 }: {
-  logoUrl: string;
+  branding: Branding;
   mfaCode: string;
   locale: typeConfig.Locale;
 }) => {
   return (
     <Layout
-      logoUrl={logoUrl}
+      branding={branding}
       locale={locale}>
       <table
         cellpadding='0'

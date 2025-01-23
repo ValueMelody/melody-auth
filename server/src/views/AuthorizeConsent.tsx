@@ -77,13 +77,17 @@ const AuthorizeConsent = ({
                 body: JSON.stringify({
                   code: "${queryDto.code}",
                   locale: "${queryDto.locale}",
+                  org: "${queryDto.org}",
                 })
             })
             .then((response) => {
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              ${responseScript.handleAuthorizeFormRedirect(queryDto.locale)}
+              ${responseScript.handleAuthorizeFormRedirect(
+      queryDto.locale,
+      queryDto.org,
+    )}
             })
             .catch((error) => {
               ${responseScript.handleSubmitError(queryDto.locale)}

@@ -33,6 +33,7 @@ export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Prom
       c.req.query('locale'),
     ),
     policy: c.req.query('policy') ?? undefined,
+    org: c.req.query('org') ?? undefined,
   })
   await validateUtil.dto(queryDto)
 
@@ -109,13 +110,13 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
       return c.redirect(url)
     } else if (queryDto.policy === Policy.ChangePassword) {
-      const url = `${routeConfig.IdentityRoute.ChangePassword}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}`
+      const url = `${routeConfig.IdentityRoute.ChangePassword}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
       return c.redirect(url)
     } else if (queryDto.policy === Policy.ChangeEmail) {
-      const url = `${routeConfig.IdentityRoute.ChangeEmail}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}`
+      const url = `${routeConfig.IdentityRoute.ChangeEmail}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
       return c.redirect(url)
     } else if (queryDto.policy === Policy.ResetMfa) {
-      const url = `${routeConfig.IdentityRoute.ResetMfa}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}`
+      const url = `${routeConfig.IdentityRoute.ResetMfa}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
       return c.redirect(url)
     }
   }

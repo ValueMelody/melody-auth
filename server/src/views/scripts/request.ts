@@ -11,5 +11,6 @@ export const parseAuthorizeBaseValues = (queryDto: oauthDto.GetAuthorizeReqDto) 
   codeChallenge: "${queryDto.codeChallenge}",
   codeChallengeMethod: "${queryDto.codeChallengeMethod}",
   locale: "${queryDto.locale}",
+  org: "${queryDto.org}",
   scope: "${queryDto.scopes.join(' ')}",
 `

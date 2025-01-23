@@ -90,7 +90,9 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   }
 
   if (!isAuthenticated) {
-    loginRedirect({ locale: locale || undefined })
+    loginRedirect({
+      locale: locale || undefined, org: 'default',
+    })
     return
   }
 

@@ -62,6 +62,10 @@ export class GetAuthorizeReqDto {
   @IsOptional()
     policy?: string | undefined
 
+  @IsString()
+  @IsOptional()
+    org?: string | undefined
+
   constructor (dto: GetAuthorizeReqDto) {
     this.clientId = dto.clientId
     this.redirectUri = dto.redirectUri.toLowerCase()
@@ -72,6 +76,7 @@ export class GetAuthorizeReqDto {
     this.scopes = parseScopes(dto.scopes)
     this.locale = dto.locale
     this.policy = dto.policy
+    this.org = dto.org
   }
 }
 

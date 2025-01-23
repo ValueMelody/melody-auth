@@ -52,6 +52,23 @@ describe(
     )
 
     test(
+      'should redirect to sign in with org slug',
+      async () => {
+        const appRecord = await getApp(db)
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&org=default',
+        )
+        const params = await getAuthorizeParams(appRecord)
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizePassword}${params}&org=default`)
+      },
+    )
+
+    test(
       'could redirect to sign in for change password',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

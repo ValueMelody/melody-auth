@@ -92,9 +92,14 @@ export class GetAuthorizeFollowUpReqDto {
   @IsString()
     locale: typeConfig.Locale
 
+  @IsString()
+  @IsOptional()
+    org: string | undefined
+
   constructor (dto: GetAuthorizeFollowUpReqDto) {
     this.code = dto.code
     this.locale = dto.locale
+    this.org = dto.org
   }
 }
 
@@ -105,6 +110,7 @@ export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context
       c,
       c.req.query('locale'),
     ),
+    org: c.req.query('org'),
   })
   await validateUtil.dto(queryDto)
   return queryDto
@@ -203,9 +209,14 @@ export class GetVerifyEmailReqDto {
   @IsString()
     locale: typeConfig.Locale
 
+  @IsString()
+  @IsOptional()
+    org: string | undefined
+
   constructor (dto: GetVerifyEmailReqDto) {
     this.id = dto.id.trim()
     this.locale = dto.locale
+    this.org = dto.org
   }
 }
 

@@ -154,7 +154,10 @@ const AuthorizeAccount = ({
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              ${responseScript.handleAuthorizeFormRedirect(queryDto.locale)}
+              ${responseScript.handleAuthorizeFormRedirect(
+      queryDto.locale,
+      queryDto.org,
+    )}
             })
             .catch((error) => {
               ${responseScript.handleSubmitError(queryDto.locale)}

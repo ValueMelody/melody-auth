@@ -3,12 +3,16 @@ import {
   localeConfig, typeConfig,
 } from 'configs'
 
+export interface Branding {
+  logoUrl: string;
+}
+
 const Layout = ({
-  logoUrl,
+  branding,
   children,
   locale,
 }: {
-  logoUrl: string;
+  branding: Branding;
   children: any;
   locale: typeConfig.Locale;
 }) => html`
@@ -38,7 +42,7 @@ const Layout = ({
                                 <tr>
                                     <td align="center">
                                         <img
-                                          src="${logoUrl}"
+                                          src="${branding.logoUrl}"
                                           alt="Melody Auth Logo" style="width: 40px; height: auto; margin-bottom: 20px;"
                                         >
                                     </td>

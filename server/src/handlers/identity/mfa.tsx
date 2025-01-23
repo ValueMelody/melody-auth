@@ -196,7 +196,10 @@ export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
   } = env(c)
 
   return c.html(<AuthorizeMfaEnrollView
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     mfaTypes={mfaTypes}
@@ -261,7 +264,10 @@ export const getAuthorizeOtpSetup = async (c: Context<typeConfig.Context>) => {
   const otp = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${authCodeStore.user.otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
 
   return c.html(<AuthorizeOtpMfaView
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     otp={otp}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
@@ -289,7 +295,10 @@ export const getAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.html(<AuthorizeOtpMfaView
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     showEmailMfaBtn={allowSwitch}
@@ -394,7 +403,10 @@ export const getAuthorizeSmsMfa = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<AuthorizeSmsMfaView
     phoneNumber={maskedNumber}
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     showEmailMfaBtn={allowSwitch}
@@ -526,7 +538,10 @@ export const getAuthorizeEmailMfa = async (c: Context<typeConfig.Context>) => {
   }
 
   return c.html(<AuthorizeEmailMfaView
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     error={

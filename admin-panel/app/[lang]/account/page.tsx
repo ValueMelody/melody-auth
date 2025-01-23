@@ -13,19 +13,19 @@ const Page = () => {
 
   const handleChangePassword = () => {
     loginRedirect({
-      locale: locale || undefined, policy: 'change_password',
+      locale: locale || undefined, policy: 'change_password', org: 'default',
     })
   }
 
   const handleChangeEmail = () => {
     loginRedirect({
-      locale: locale || undefined, policy: 'change_email',
+      locale: locale || undefined, policy: 'change_email', org: 'default',
     })
   }
 
   const handleResetMfa = () => {
     loginRedirect({
-      locale: locale || undefined, policy: 'reset_mfa',
+      locale: locale || undefined, policy: 'reset_mfa', org: 'default',
     })
   }
 
