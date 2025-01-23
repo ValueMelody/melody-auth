@@ -212,7 +212,7 @@ export const sendEmailVerification = async (
     serverUrl={serverUrl}
     authId={user.authId}
     verificationCode={verificationCode}
-    org={user.orgSlug}
+    org={user.orgSlug ?? ''}
     branding={await brandingService.getBranding(
       c,
       user.orgSlug,
@@ -274,7 +274,6 @@ export const sendChangeEmailVerificationCode = async (
       org,
     )}
     locale={locale}
-    org={org}
   />).toString()
 
   const res = await sendEmail(

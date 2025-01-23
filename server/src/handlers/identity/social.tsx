@@ -67,6 +67,7 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
     c,
     googleUser,
     bodyDto.locale,
+    bodyDto.org,
   )
 
   const {
@@ -116,6 +117,7 @@ export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
     c,
     facebookUser,
     bodyDto.locale,
+    bodyDto.org,
   )
 
   const {
@@ -171,6 +173,7 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
     c,
     githubUser,
     bodyDto.locale,
+    bodyDto.org,
   )
 
   const {

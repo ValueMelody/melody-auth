@@ -266,6 +266,7 @@ export const processGoogleAccount = async (
   c: Context<typeConfig.Context>,
   googleUser: jwtService.GoogleUser,
   locale: typeConfig.Locale,
+  org?: string,
 ) => {
   const currentUser = await userModel.getGoogleUserByGoogleId(
     c.env.DB,
@@ -278,6 +279,7 @@ export const processGoogleAccount = async (
     {
       authId: crypto.randomUUID(),
       email: googleUser.email,
+      orgSlug: org ?? '',
       socialAccountId: googleUser.id,
       socialAccountType: userModel.SocialAccountType.Google,
       password: null,
@@ -301,6 +303,7 @@ export const processFacebookAccount = async (
   c: Context<typeConfig.Context>,
   facebookUser: jwtService.FacebookUser,
   locale: typeConfig.Locale,
+  org?: string,
 ) => {
   const currentUser = await userModel.getFacebookUserByFacebookId(
     c.env.DB,
@@ -313,6 +316,7 @@ export const processFacebookAccount = async (
     {
       authId: crypto.randomUUID(),
       email: null,
+      orgSlug: org ?? '',
       socialAccountId: facebookUser.id,
       socialAccountType: userModel.SocialAccountType.Facebook,
       password: null,
@@ -329,6 +333,7 @@ export const processGithubAccount = async (
   c: Context<typeConfig.Context>,
   githubUser: jwtService.GithubUser,
   locale: typeConfig.Locale,
+  org?: string,
 ) => {
   const currentUser = await userModel.getGithubUserByGithubId(
     c.env.DB,
@@ -340,6 +345,7 @@ export const processGithubAccount = async (
     c.env.DB,
     {
       authId: crypto.randomUUID(),
+      orgSlug: org ?? '',
       email: githubUser.email,
       socialAccountId: githubUser.id,
       socialAccountType: userModel.SocialAccountType.GitHub,

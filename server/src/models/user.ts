@@ -170,6 +170,7 @@ export const convertToApiRecordWithRoles = (
   const result: ApiRecordWithRoles = convertToApiRecord(
     record,
     enableNames,
+    enableOrg,
   )
   return {
     ...result,
