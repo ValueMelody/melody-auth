@@ -75,6 +75,18 @@ export const getById = async (
   return org
 }
 
+export const getBySlug = async (
+  db: D1Database,
+  slug: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE slug = $1 AND "deletedAt" IS NULL`
+
+  const stmt = db.prepare(query)
+    .bind(slug)
+  const org = await stmt.first() as Record | null
+  return org
+}
+
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {

@@ -13,6 +13,7 @@ import {
   PostAuthorizeReqWithNamesDto, PostAuthorizeReqWithPasswordDto,
 } from 'dtos/identity'
 import {
+  orgModel,
   roleModel, userAppConsentModel, userModel, userRoleModel,
 } from 'models'
 import {
@@ -114,11 +115,14 @@ export const getUsers = async (
     )
     : users.length
 
-  const { ENABLE_NAMES: enableNames } = env(c)
+  const {
+    ENABLE_NAMES: enableNames, ENABLE_ORG: enableOrg,
+  } = env(c)
 
   const result = users.map((user) => userModel.convertToApiRecord(
     user,
     enableNames,
+    enableOrg,
   ))
   return {
     users: result, count,
@@ -147,7 +151,9 @@ export const getUserDetailByAuthId = async (
   )
   if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
 
-  const { ENABLE_NAMES: enableNames } = env(c)
+  const {
+    ENABLE_NAMES: enableNames, ENABLE_ORG: enableOrg,
+  } = env(c)
 
   const roles = await roleService.getUserRoles(
     c,
@@ -157,6 +163,7 @@ export const getUserDetailByAuthId = async (
   const result = userModel.convertToApiRecordWithRoles(
     user,
     enableNames,
+    enableOrg,
     roles,
   )
   return result
@@ -225,6 +232,13 @@ export const createAccountWithPassword = async (
 
   if (user) throw new Forbidden(localeConfig.Error.EmailTaken)
 
+  const org = bodyDto.org
+    ? await orgModel.getBySlug(
+      c.env.DB,
+      bodyDto.org,
+    )
+    : null
+
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
   const { OTP_MFA_IS_REQUIRED: enableOtp } = env(c)
@@ -233,6 +247,7 @@ export const createAccountWithPassword = async (
     c.env.DB,
     {
       authId: crypto.randomUUID(),
+      orgSlug: org?.slug ?? '',
       email: bodyDto.email,
       socialAccountId: null,
       socialAccountType: null,
@@ -251,6 +266,7 @@ export const processGoogleAccount = async (
   c: Context<typeConfig.Context>,
   googleUser: jwtService.GoogleUser,
   locale: typeConfig.Locale,
+  org?: string,
 ) => {
   const currentUser = await userModel.getGoogleUserByGoogleId(
     c.env.DB,
@@ -263,6 +279,7 @@ export const processGoogleAccount = async (
     {
       authId: crypto.randomUUID(),
       email: googleUser.email,
+      orgSlug: org ?? '',
       socialAccountId: googleUser.id,
       socialAccountType: userModel.SocialAccountType.Google,
       password: null,
@@ -286,6 +303,7 @@ export const processFacebookAccount = async (
   c: Context<typeConfig.Context>,
   facebookUser: jwtService.FacebookUser,
   locale: typeConfig.Locale,
+  org?: string,
 ) => {
   const currentUser = await userModel.getFacebookUserByFacebookId(
     c.env.DB,
@@ -298,6 +316,7 @@ export const processFacebookAccount = async (
     {
       authId: crypto.randomUUID(),
       email: null,
+      orgSlug: org ?? '',
       socialAccountId: facebookUser.id,
       socialAccountType: userModel.SocialAccountType.Facebook,
       password: null,
@@ -314,6 +333,7 @@ export const processGithubAccount = async (
   c: Context<typeConfig.Context>,
   githubUser: jwtService.GithubUser,
   locale: typeConfig.Locale,
+  org?: string,
 ) => {
   const currentUser = await userModel.getGithubUserByGithubId(
     c.env.DB,
@@ -325,6 +345,7 @@ export const processGithubAccount = async (
     c.env.DB,
     {
       authId: crypto.randomUUID(),
+      orgSlug: org ?? '',
       email: githubUser.email,
       socialAccountId: githubUser.id,
       socialAccountType: userModel.SocialAccountType.GitHub,
@@ -683,7 +704,9 @@ export const updateUser = async (
     )
     : user
 
-  const { ENABLE_NAMES: enableNames } = env(c)
+  const {
+    ENABLE_NAMES: enableNames, ENABLE_ORG: enableOrg,
+  } = env(c)
 
   const userRoles = await userRoleModel.getAllByUserId(
     c.env.DB,
@@ -721,6 +744,7 @@ export const updateUser = async (
   return userModel.convertToApiRecordWithRoles(
     updatedUser,
     enableNames,
+    enableOrg,
     roleNames,
   )
 }

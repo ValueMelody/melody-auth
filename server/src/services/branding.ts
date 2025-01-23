@@ -2,8 +2,9 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { typeConfig } from 'configs'
 import { Branding } from 'views/components/Layout'
+import { orgModel } from 'models'
 
-export const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
+const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
   const {
     COMPANY_LOGO_URL: logoUrl,
     FONT_FAMILY: fontFamily,
@@ -31,5 +32,24 @@ export const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => 
     secondaryButtonLabelColor,
     secondaryButtonBorderColor,
     criticalIndicatorColor,
+  }
+}
+
+export const getBranding = async (
+  c: Context<typeConfig.Context>, orgSlug?: string | null,
+): Promise<Branding> => {
+  const { ENABLE_ORG: enableOrg } = env(c)
+
+  const org = orgSlug && enableOrg
+    ? await orgModel.getBySlug(
+      c.env.DB,
+      orgSlug,
+    )
+    : null
+
+  const defaultBranding = getDefaultBranding(c)
+  return {
+    ...defaultBranding,
+    logoUrl: org?.companyLogoUrl || defaultBranding.logoUrl,
   }
 }

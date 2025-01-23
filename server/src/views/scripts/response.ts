@@ -13,8 +13,10 @@ export const parseRes = () => html`
   return response.json();
 `
 
-export const handleAuthorizeFormRedirect = (locale: typeConfig.Locale) => html`
-  var queryString = "?state=" + data.state + "&code=" + data.code + "&locale=" + "${locale}";
+export const handleAuthorizeFormRedirect = (
+  locale: typeConfig.Locale, org?: string,
+) => html`
+  var queryString = "?state=" + data.state + "&code=" + data.code + "&locale=" + "${locale}" + "&org=" + "${org ?? ''}";
   if (data.nextPage) {
     var url = data.nextPage + queryString + "&redirect_uri=" + data.redirectUri
     window.location.href = url;

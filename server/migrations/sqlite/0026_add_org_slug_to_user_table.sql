@@ -1,0 +1,1 @@
+ALTER TABLE user ADD "orgSlug" NOT NULL DEFAULT "";

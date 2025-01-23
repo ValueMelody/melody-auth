@@ -21,6 +21,7 @@ import {
   insertUsers, getAuthorizeParams, postSignInRequest, getApp,
   postAuthorizeBody,
 } from 'tests/identity'
+import { userModel } from 'models'
 
 let db: Database
 
@@ -467,6 +468,7 @@ describe(
         const html = await res.text()
         const dom = new JSDOM(html)
         const document = dom.window.document
+        expect((document.getElementsByTagName('img')[0] as HTMLImageElement).src).toBe(global.process.env.COMPANY_LOGO_URL)
         expect(document.getElementsByName('email').length).toBe(1)
         expect(document.getElementsByName('password').length).toBe(1)
         expect(document.getElementsByName('confirmPassword').length).toBe(1)
@@ -478,6 +480,56 @@ describe(
         expect(html).not.toContain(localeConfig.authorizeAccount.bySignUp.en)
         expect(html).not.toContain(localeConfig.authorizeAccount.terms.en)
         expect(html).not.toContain(localeConfig.authorizeAccount.privacyPolicy.en)
+      },
+    )
+
+    test(
+      'could override logo url using config',
+      async () => {
+        const appRecord = await getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        global.process.env.COMPANY_LOGO_URL = 'https://google.com'
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect((document.getElementsByTagName('img')[0] as HTMLImageElement).src).toBe('https://google.com/')
+
+        global.process.env.COMPANY_LOGO_URL = 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+      },
+    )
+
+    test(
+      'could override logo url using org config',
+      async () => {
+        const appRecord = await getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        global.process.env.COMPANY_LOGO_URL = 'https://google.com'
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec('insert into "org" (name, slug, "companyLogoUrl") values (\'test\', \'default\', \'https://test.com\')')
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}&org=default`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect((document.getElementsByTagName('img')[0] as HTMLImageElement).src).toBe('https://test.com/')
+
+        global.process.env.COMPANY_LOGO_URL = 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
 
@@ -703,6 +755,70 @@ describe(
 
         global.fetch = fetchMock
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could override verification email with branding config',
+      async () => {
+        process.env.COMPANY_LOGO_URL = 'https://google.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await postAuthorizeAccount()
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(emailBody).toContain('https://google.com')
+        expect(emailBody).not.toContain('https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg')
+
+        global.fetch = fetchMock
+        process.env.COMPANY_LOGO_URL = 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+      },
+    )
+
+    test(
+      'should store org slug after sign up',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        db.exec('insert into "org" (name, slug, "companyLogoUrl") values (\'test\', \'default\', \'https://test.com\')')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          org: 'default',
+        }
+
+        await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.orgSlug).toBe('default')
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(emailBody).toContain('https://test.com')
+        expect(emailBody).not.toContain(process.env.COMPANY_LOGO_URL)
+
+        process.env.ENABLE_ORG = false as unknown as string
       },
     )
 

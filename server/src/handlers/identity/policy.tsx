@@ -40,7 +40,10 @@ export const getChangePassword = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<ChangePassword
     redirectUri={authInfo.request.redirectUri}
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
@@ -85,7 +88,10 @@ export const getChangeEmail = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<ChangeEmail
     redirectUri={authInfo.request.redirectUri}
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
@@ -156,6 +162,7 @@ export const postVerificationCode = async (c: Context<typeConfig.Context>) => {
     c,
     bodyDto.email,
     bodyDto.locale,
+    authInfo.user.orgSlug,
   )
   if (code) {
     await kvService.storeChangeEmailCode(
@@ -186,7 +193,10 @@ export const getResetMfa = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<ResetMfa
     redirectUri={authInfo.request.redirectUri}
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     queryDto={queryDto}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)

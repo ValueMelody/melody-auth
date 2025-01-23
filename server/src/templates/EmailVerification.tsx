@@ -2,14 +2,15 @@ import {
   localeConfig, routeConfig,
   typeConfig,
 } from 'configs'
-import Layout from 'templates/components/Layout'
+import Layout, { Branding } from 'templates/components/Layout'
 import { requestUtil } from 'utils'
 
 const EmailVerification = ({
-  serverUrl, logoUrl, verificationCode, authId, locale,
+  serverUrl, org, branding, verificationCode, authId, locale,
 }: {
   serverUrl: string;
-  logoUrl: string;
+  org: string;
+  branding: Branding;
   verificationCode: string;
   authId: string;
   locale: typeConfig.Locale;
@@ -18,7 +19,7 @@ const EmailVerification = ({
 
   return (
     <Layout
-      logoUrl={logoUrl}
+      branding={branding}
       locale={locale}>
       <table
         cellpadding='0'
@@ -54,7 +55,7 @@ const EmailVerification = ({
                 >
                   <a
                     href={`
-                      ${route}?id=${authId}&locale=${locale}
+                      ${route}?id=${authId}&locale=${locale}&org=${org}
                     `}
                     style='
                       display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #ffffff;

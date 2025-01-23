@@ -19,6 +19,7 @@ export enum SocialAccountType {
 export interface Common {
   id: number;
   authId: string;
+  orgSlug: string;
   email: string | null;
   socialAccountId: string | null;
   socialAccountType: SocialAccountType | null;
@@ -54,6 +55,7 @@ export interface Record extends Common {
 export interface ApiRecord {
   id: number;
   authId: string;
+  orgSlug?: string;
   linkedAuthId: string | null;
   socialAccountId: string | null;
   socialAccountType: SocialAccountType | null;
@@ -83,6 +85,7 @@ export interface ApiRecordWithRoles extends ApiRecord {
 
 export interface Create {
   authId: string;
+  orgSlug: string;
   locale: typeConfig.Locale;
   email: string | null;
   socialAccountId: string | null;
@@ -96,6 +99,7 @@ export interface Create {
 
 export interface Update {
   email?: string;
+  orgSlug?: string;
   password?: string | null;
   otpSecret?: string;
   smsPhoneNumber?: string | null;
@@ -127,6 +131,7 @@ export const convertToRecord = (raw: Raw): Record => ({
 export const convertToApiRecord = (
   record: Record,
   enableNames: boolean,
+  enableOrg: boolean,
 ): ApiRecord => {
   const result: ApiRecord = {
     id: record.id,
@@ -150,17 +155,22 @@ export const convertToApiRecord = (
     result.firstName = record.firstName
     result.lastName = record.lastName
   }
+  if (enableOrg) {
+    result.orgSlug = record.orgSlug
+  }
   return result
 }
 
 export const convertToApiRecordWithRoles = (
   record: Record,
   enableNames: boolean,
+  enableOrg: boolean,
   roles: string[],
 ): ApiRecordWithRoles => {
   const result: ApiRecordWithRoles = convertToApiRecord(
     record,
     enableNames,
+    enableOrg,
   )
   return {
     ...result,
@@ -272,7 +282,7 @@ export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
   const createKeys: (keyof Create)[] = [
-    'authId', 'email', 'password', 'firstName', 'lastName',
+    'authId', 'email', 'password', 'firstName', 'lastName', 'orgSlug',
     'locale', 'otpSecret', 'socialAccountId', 'socialAccountType', 'emailVerified',
   ]
   const stmt = dbUtil.d1CreateQuery(
@@ -306,7 +316,7 @@ export const update = async (
   const updateKeys: (keyof Update)[] = [
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
     'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
-    'smsPhoneNumber', 'smsPhoneNumberVerified', 'email', 'linkedAuthId',
+    'smsPhoneNumber', 'smsPhoneNumberVerified', 'email', 'linkedAuthId', 'orgSlug',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,

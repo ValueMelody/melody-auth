@@ -1,18 +1,18 @@
 import {
   localeConfig, typeConfig,
 } from 'configs'
-import Layout from 'templates/components/Layout'
+import Layout, { Branding } from 'templates/components/Layout'
 
 const PasswordReset = ({
-  logoUrl, resetCode, locale,
+  branding, resetCode, locale,
 }: {
-  logoUrl: string;
+  branding: Branding;
   resetCode: string;
   locale: typeConfig.Locale;
 }) => {
   return (
     <Layout
-      logoUrl={logoUrl}
+      branding={branding}
       locale={locale}>
       <table
         cellpadding='0'

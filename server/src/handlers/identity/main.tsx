@@ -54,7 +54,10 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     queryString={queryString}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     queryDto={queryDto}
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     enableSignUp={enableSignUp}
     enablePasswordReset={enablePasswordReset}
     enablePasswordSignIn={enablePasswordSignIn}
@@ -140,7 +143,10 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     queryString={queryString}
     queryDto={queryDto}
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     enableNames={enableNames}
     namesIsRequired={namesIsRequired}
   />)
@@ -245,7 +251,10 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
 
   return c.html(<AuthorizeConsentView
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    branding={brandingService.getDefaultBranding(c)}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
     scopes={scopes}
     appName={app.name}
     redirectUri={authInfo.request.redirectUri}

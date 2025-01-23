@@ -13,6 +13,7 @@ import {
   ChangeEmailVerificationTemplate,
 } from 'templates'
 import { cryptoUtil } from 'utils'
+import { brandingService } from 'services'
 
 const checkEmailSetup = (c: Context<typeConfig.Context>) => {
   const {
@@ -201,10 +202,7 @@ export const sendEmailVerification = async (
   user: userModel.Record | userModel.ApiRecord,
   locale: typeConfig.Locale,
 ) => {
-  const {
-    COMPANY_LOGO_URL: logoUrl,
-    AUTH_SERVER_URL: serverUrl,
-  } = env(c)
+  const { AUTH_SERVER_URL: serverUrl } = env(c)
 
   if (!user.email) return null
   checkEmailSetup(c)
@@ -214,7 +212,11 @@ export const sendEmailVerification = async (
     serverUrl={serverUrl}
     authId={user.authId}
     verificationCode={verificationCode}
-    logoUrl={logoUrl}
+    org={user.orgSlug ?? ''}
+    branding={await brandingService.getBranding(
+      c,
+      user.orgSlug,
+    )}
     locale={locale} />).toString()
 
   const res = await sendEmail(
@@ -232,15 +234,16 @@ export const sendPasswordReset = async (
   user: userModel.Record,
   locale: typeConfig.Locale,
 ) => {
-  const { COMPANY_LOGO_URL: logoUrl } = env(c)
-
   if (!user.email) return null
   checkEmailSetup(c)
 
   const resetCode = cryptoUtil.genRandom6DigitString()
   const content = (<PasswordResetTemplate
     resetCode={resetCode}
-    logoUrl={logoUrl}
+    branding={await brandingService.getBranding(
+      c,
+      user.orgSlug,
+    )}
     locale={locale}
   />).toString()
 
@@ -258,16 +261,18 @@ export const sendChangeEmailVerificationCode = async (
   c: Context<typeConfig.Context>,
   email: string,
   locale: typeConfig.Locale,
+  org?: string,
 ) => {
-  const { COMPANY_LOGO_URL: logoUrl } = env(c)
-
   if (!email) return null
   checkEmailSetup(c)
 
   const verificationCode = cryptoUtil.genRandom6DigitString()
   const content = (<ChangeEmailVerificationTemplate
     verificationCode={verificationCode}
-    logoUrl={logoUrl}
+    branding={await brandingService.getBranding(
+      c,
+      org,
+    )}
     locale={locale}
   />).toString()
 
@@ -286,14 +291,16 @@ export const sendEmailMfa = async (
   user: userModel.Record,
   locale: typeConfig.Locale,
 ) => {
-  const { COMPANY_LOGO_URL: logoUrl } = env(c)
   if (!user.email) return null
   checkEmailSetup(c)
 
   const mfaCode = cryptoUtil.genRandom6DigitString()
   const content = (<EmailMfaTemplate
     mfaCode={mfaCode}
-    logoUrl={logoUrl}
+    branding={await brandingService.getBranding(
+      c,
+      user.orgSlug,
+    )}
     locale={locale} />).toString()
 
   const res = await sendEmail(
