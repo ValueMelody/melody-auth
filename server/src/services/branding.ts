@@ -18,6 +18,8 @@ const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
     SECONDARY_BUTTON_LABEL_COLOR: secondaryButtonLabelColor,
     SECONDARY_BUTTON_BORDER_COLOR: secondaryButtonBorderColor,
     CRITICAL_INDICATOR_COLOR: criticalIndicatorColor,
+    TERMS_LINK: termsLink,
+    PRIVACY_POLICY_LINK: privacyPolicyLink,
   } = env(c)
   return {
     logoUrl,
@@ -32,6 +34,8 @@ const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
     secondaryButtonLabelColor,
     secondaryButtonBorderColor,
     criticalIndicatorColor,
+    termsLink,
+    privacyPolicyLink,
   }
 }
 
@@ -51,5 +55,16 @@ export const getBranding = async (
   return {
     ...defaultBranding,
     logoUrl: org?.companyLogoUrl || defaultBranding.logoUrl,
+    layoutColor: org?.layoutColor || defaultBranding.layoutColor,
+    labelColor: org?.labelColor || defaultBranding.labelColor,
+    primaryButtonColor: org?.primaryButtonColor || defaultBranding.primaryButtonColor,
+    primaryButtonLabelColor: org?.primaryButtonLabelColor || defaultBranding.primaryButtonLabelColor,
+    primaryButtonBorderColor: org?.primaryButtonBorderColor || defaultBranding.primaryButtonBorderColor,
+    secondaryButtonColor: org?.secondaryButtonColor || defaultBranding.secondaryButtonColor,
+    secondaryButtonLabelColor: org?.secondaryButtonLabelColor || defaultBranding.secondaryButtonLabelColor,
+    secondaryButtonBorderColor: org?.secondaryButtonBorderColor || defaultBranding.secondaryButtonBorderColor,
+    criticalIndicatorColor: org?.criticalIndicatorColor || defaultBranding.criticalIndicatorColor,
+    termsLink: org?.termsLink || defaultBranding.termsLink,
+    privacyPolicyLink: org?.privacyPolicyLink || defaultBranding.privacyPolicyLink,
   }
 }

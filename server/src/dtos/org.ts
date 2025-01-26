@@ -168,7 +168,7 @@ export class PutOrgReqDto {
     this.companyLogoUrl = dto.companyLogoUrl
     this.fontFamily = dto.fontFamily
     this.fontUrl = dto.fontUrl
-    this.layoutColor = dto.labelColor
+    this.layoutColor = dto.layoutColor
     this.labelColor = dto.labelColor
     this.primaryButtonColor = dto.primaryButtonColor
     this.primaryButtonLabelColor = dto.primaryButtonLabelColor
