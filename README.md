@@ -78,6 +78,8 @@
   - SMS MFA attempts
   - Email MFA attempts
   - Change Email attempts
+- <b>Organization</b>:
+  - Branding config override
 - <b>Logging</b>:
   - Email Logs
   - SMS Logs

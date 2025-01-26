@@ -20,8 +20,6 @@ const AuthorizeAccount = ({
   namesIsRequired,
   queryString,
   locales,
-  termsLink,
-  privacyPolicyLink,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   branding: Branding;
@@ -29,8 +27,6 @@ const AuthorizeAccount = ({
   namesIsRequired: boolean;
   queryString: string;
   locales: typeConfig.Locale[];
-  termsLink: string;
-  privacyPolicyLink: string;
 }) => {
   return (
     <Layout
@@ -84,28 +80,28 @@ const AuthorizeAccount = ({
           <SubmitButton
             title={localeConfig.authorizeAccount.signUp[queryDto.locale]}
           />
-          {(termsLink || privacyPolicyLink) && (
+          {(branding.termsLink || branding.privacyPolicyLink) && (
             <div class='text-center text-gray'>
-              <p>
+              <p class='flex flex-row items-center justify-start flex-wrap w-text'>
                 {localeConfig.authorizeAccount.bySignUp[queryDto.locale]}&nbsp;
-                {termsLink && (
+                {branding.termsLink && (
                   <a
                     target='_blank'
-                    href={termsLink}
+                    href={branding.termsLink}
                     rel='noreferrer'
                   >
                     {localeConfig.authorizeAccount.terms[queryDto.locale]}
                   </a>
                 )}
-                {termsLink && privacyPolicyLink && (
+                {branding.termsLink && branding.privacyPolicyLink && (
                   <>
                     &nbsp;{localeConfig.authorizeAccount.linkConnect[queryDto.locale]}&nbsp;
                   </>
                 )}
-                {privacyPolicyLink && (
+                {branding.privacyPolicyLink && (
                   <a
                     target='_blank'
-                    href={privacyPolicyLink}
+                    href={branding.privacyPolicyLink}
                     rel='noreferrer'
                   >
                     {localeConfig.authorizeAccount.privacyPolicy[queryDto.locale]}

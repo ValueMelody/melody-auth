@@ -484,12 +484,21 @@ describe(
     )
 
     test(
-      'could override logo url using config',
+      'could override branding using config',
       async () => {
         const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
         global.process.env.COMPANY_LOGO_URL = 'https://google.com'
+        global.process.env.LAYOUT_COLOR = 'red'
+        global.process.env.LABEL_COLOR = 'green'
+        global.process.env.PRIMARY_BUTTON_COLOR = 'black'
+        global.process.env.PRIMARY_BUTTON_LABEL_COLOR = 'gray'
+        global.process.env.PRIMARY_BUTTON_BORDER_COLOR = 'orange'
+        global.process.env.SECONDARY_BUTTON_COLOR = 'darkred'
+        global.process.env.SECONDARY_BUTTON_LABEL_COLOR = 'darkgray'
+        global.process.env.SECONDARY_BUTTON_BORDER_COLOR = 'blue'
+        global.process.env.CRITICAL_INDICATOR_COLOR = 'yellow'
 
         const res = await app.request(
           `${routeConfig.IdentityRoute.AuthorizeAccount}${params}`,
@@ -502,20 +511,56 @@ describe(
         const document = dom.window.document
         expect((document.getElementsByTagName('img')[0] as HTMLImageElement).src).toBe('https://google.com/')
 
+        const mainElementStyle = dom.window.getComputedStyle(document.querySelector('.main') as HTMLElement)
+        expect(mainElementStyle.backgroundColor).toBe('rgb(255, 0, 0)')
+        expect(mainElementStyle.color).toBe('rgb(0, 128, 0)')
+
+        const primaryButtonStyle = dom.window.getComputedStyle(document.querySelector('.button') as HTMLElement)
+        expect(primaryButtonStyle.backgroundColor).toBe('rgb(0, 0, 0)')
+        expect(primaryButtonStyle.color).toBe('rgb(128, 128, 128)')
+        expect(primaryButtonStyle.border).toBe('1px solid orange')
+
+        const secondaryButtonStyle = dom.window.getComputedStyle(document.querySelector('.button-secondary') as HTMLElement)
+        expect(secondaryButtonStyle.backgroundColor).toBe('rgb(139, 0, 0)')
+        expect(secondaryButtonStyle.color).toBe('rgb(169, 169, 169)')
+        expect(secondaryButtonStyle.border).toBe('1px solid blue')
+
+        const textRedStyle = dom.window.getComputedStyle(document.querySelector('.text-red') as HTMLElement)
+        const alert = dom.window.getComputedStyle(document.querySelector('.alert') as HTMLElement)
+        expect(textRedStyle.color).toBe('rgb(255, 255, 0)')
+        expect(alert.backgroundColor).toBe('rgb(255, 255, 0)')
+
         global.process.env.COMPANY_LOGO_URL = 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+        global.process.env.LAYOUT_COLOR = 'lightgray'
+        global.process.env.LABEL_COLOR = 'black'
+        global.process.env.PRIMARY_BUTTON_COLOR = 'white'
+        global.process.env.PRIMARY_BUTTON_LABEL_COLOR = 'black'
+        global.process.env.PRIMARY_BUTTON_BORDER_COLOR = 'lightgray'
+        global.process.env.SECONDARY_BUTTON_COLOR = 'white'
+        global.process.env.SECONDARY_BUTTON_LABEL_COLOR = 'black'
+        global.process.env.SECONDARY_BUTTON_BORDER_COLOR = 'white'
+        global.process.env.CRITICAL_INDICATOR_COLOR = '#e00'
       },
     )
 
     test(
-      'could override logo url using org config',
+      'could override branding url using org config',
       async () => {
         const appRecord = await getApp(db)
         const params = await getAuthorizeParams(appRecord)
 
-        global.process.env.COMPANY_LOGO_URL = 'https://google.com'
         global.process.env.ENABLE_ORG = true as unknown as string
 
-        db.exec('insert into "org" (name, slug, "companyLogoUrl") values (\'test\', \'default\', \'https://test.com\')')
+        db.exec(`
+          insert into "org" (
+            name, slug, "companyLogoUrl", "layoutColor", "labelColor",
+            "primaryButtonColor", "primaryButtonLabelColor", "primaryButtonBorderColor",
+            "secondaryButtonColor", "secondaryButtonLabelColor", "secondaryButtonBorderColor",
+            "criticalIndicatorColor"
+          ) values (
+            'test', 'default', 'https://test.com', 'red', 'green', 'black', 'gray', 'orange', 'darkred', 'darkgray', 'blue', 'yellow'
+          )
+        `)
 
         const res = await app.request(
           `${routeConfig.IdentityRoute.AuthorizeAccount}${params}&org=default`,
@@ -528,7 +573,25 @@ describe(
         const document = dom.window.document
         expect((document.getElementsByTagName('img')[0] as HTMLImageElement).src).toBe('https://test.com/')
 
-        global.process.env.COMPANY_LOGO_URL = 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+        const mainElementStyle = dom.window.getComputedStyle(document.querySelector('.main') as HTMLElement)
+        expect(mainElementStyle.backgroundColor).toBe('rgb(255, 0, 0)')
+        expect(mainElementStyle.color).toBe('rgb(0, 128, 0)')
+
+        const primaryButtonStyle = dom.window.getComputedStyle(document.querySelector('.button') as HTMLElement)
+        expect(primaryButtonStyle.backgroundColor).toBe('rgb(0, 0, 0)')
+        expect(primaryButtonStyle.color).toBe('rgb(128, 128, 128)')
+        expect(primaryButtonStyle.border).toBe('1px solid orange')
+
+        const secondaryButtonStyle = dom.window.getComputedStyle(document.querySelector('.button-secondary') as HTMLElement)
+        expect(secondaryButtonStyle.backgroundColor).toBe('rgb(139, 0, 0)')
+        expect(secondaryButtonStyle.color).toBe('rgb(169, 169, 169)')
+        expect(secondaryButtonStyle.border).toBe('1px solid blue')
+
+        const textRedStyle = dom.window.getComputedStyle(document.querySelector('.text-red') as HTMLElement)
+        const alert = dom.window.getComputedStyle(document.querySelector('.alert') as HTMLElement)
+        expect(textRedStyle.color).toBe('rgb(255, 255, 0)')
+        expect(alert.backgroundColor).toBe('rgb(255, 255, 0)')
+
         global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
@@ -642,6 +705,37 @@ describe(
         expect(html).toContain(localeConfig.authorizeAccount.terms.en)
         expect(html).toContain('href="https://microsoft.com"')
         expect(html).toContain(localeConfig.authorizeAccount.privacyPolicy.en)
+        global.process.env.TERMS_LINK = ''
+        global.process.env.PRIVACY_POLICY_LINK = ''
+      },
+    )
+
+    test(
+      'could override terms and privacy condition url using org config',
+      async () => {
+        global.process.env.TERMS_LINK = 'https://google.com'
+        global.process.env.PRIVACY_POLICY_LINK = 'https://microsoft.com'
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'test\', \'default\', \'https://google1.com\', \'https://microsoft1.com\')')
+
+        const appRecord = await getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeAccount}${params}&org=default`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+
+        expect(html).not.toContain('href="https://google.com"')
+        expect(html).not.toContain('href="https://microsoft.com"')
+        expect(html).toContain('href="https://google1.com"')
+        expect(html).toContain('href="https://microsoft1.com"')
+
+        global.process.env.ENABLE_ORG = false as unknown as string
         global.process.env.TERMS_LINK = ''
         global.process.env.PRIVACY_POLICY_LINK = ''
       },

@@ -19,6 +19,8 @@ export interface Branding {
   secondaryButtonLabelColor: string;
   secondaryButtonBorderColor: string;
   criticalIndicatorColor: string;
+  termsLink: string;
+  privacyPolicyLink: string;
 }
 
 const Layout = ({

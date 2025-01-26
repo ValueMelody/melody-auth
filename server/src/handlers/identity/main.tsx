@@ -131,15 +131,11 @@ export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     NAMES_IS_REQUIRED: namesIsRequired,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-    TERMS_LINK: termsLink,
-    PRIVACY_POLICY_LINK: privacyPolicyLink,
   } = env(c)
 
   const queryString = requestUtil.getQueryString(c)
 
   return c.html(<AuthorizeAccountView
-    termsLink={termsLink}
-    privacyPolicyLink={privacyPolicyLink}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     queryString={queryString}
     queryDto={queryDto}

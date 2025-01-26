@@ -108,7 +108,7 @@ const Page = () => {
                 />
               </Table.Cell>
             </Table.Row>
-            <Table.Row>
+            {/* <Table.Row>
               <Table.Cell>{t('orgs.fontFamily')}</Table.Cell>
               <Table.Cell>
                 <TextInput
@@ -133,7 +133,7 @@ const Page = () => {
                   value={values.fontUrl}
                 />
               </Table.Cell>
-            </Table.Row>
+            </Table.Row> */}
             <Table.Row>
               <Table.Cell>{t('orgs.layoutColor')}</Table.Cell>
               <Table.Cell>
