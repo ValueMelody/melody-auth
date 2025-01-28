@@ -26,12 +26,14 @@ afterEach(async () => {
 
 const BaseRoute = routeConfig.InternalRoute.ApiOrgs
 
-const createNewOrg = async (token?: string) => await app.request(
+const createNewOrg = async (
+  token?: string, values?: { name?: string; slug?: string },
+) => await app.request(
   BaseRoute,
   {
     method: 'POST',
     body: JSON.stringify({
-      name: 'test name', slug: 'test slug',
+      name: values?.name ?? 'test name', slug: values?.slug ?? 'test slug',
     }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
   },
@@ -226,12 +228,31 @@ describe(
     )
 
     test(
-      'should trigger unique constraint',
+      'should trigger unique constraint on name',
       async () => {
         global.process.env.ENABLE_ORG = true as unknown as string
 
         await createNewOrg()
-        const res1 = await createNewOrg()
+        const res1 = await createNewOrg(
+          undefined,
+          { slug: 'another slug' },
+        )
+        expect(res1.status).toBe(500)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should trigger unique constraint on slug',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+        const res1 = await createNewOrg(
+          undefined,
+          { name: 'another name' },
+        )
         expect(res1.status).toBe(500)
 
         global.process.env.ENABLE_ORG = false as unknown as string

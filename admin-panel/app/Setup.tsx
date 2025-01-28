@@ -12,13 +12,16 @@ import {
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
-import { useRouter } from 'next/navigation'
+import {
+  usePathname, useRouter,
+} from 'next/navigation'
 import {
   Provider, useDispatch, useSelector,
 } from 'react-redux'
 import useSignalValue from './useSignalValue'
 import {
   configSignal, userInfoSignal,
+  errorSignal,
 } from 'signals'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
@@ -239,6 +242,14 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
 
 const Setup = ({ children } : PropsWithChildren) => {
   const router = useRouter()
+  const pathname = usePathname()
+
+  useEffect(
+    () => {
+      errorSignal.value = ''
+    },
+    [pathname],
+  )
 
   return (
     <Provider store={store}>
