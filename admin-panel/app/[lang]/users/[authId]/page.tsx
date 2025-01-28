@@ -568,6 +568,14 @@ const Page = () => {
                 </div>
               </Table.Cell>
             </Table.Row>
+            {configs.ENABLE_ORG && (
+              <Table.Row>
+                <Table.Cell>{t('users.org')}</Table.Cell>
+                <Table.Cell>
+                  {user.org?.name ?? ''}
+                </Table.Cell>
+              </Table.Row>
+            )}
             {configs.ENABLE_NAMES && (
               <>
                 <Table.Row>

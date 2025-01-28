@@ -115,14 +115,11 @@ export const getUsers = async (
     )
     : users.length
 
-  const {
-    ENABLE_NAMES: enableNames, ENABLE_ORG: enableOrg,
-  } = env(c)
+  const { ENABLE_NAMES: enableNames } = env(c)
 
   const result = users.map((user) => userModel.convertToApiRecord(
     user,
     enableNames,
-    enableOrg,
   ))
   return {
     users: result, count,
@@ -144,7 +141,7 @@ export const getUserByAuthId = async (
 export const getUserDetailByAuthId = async (
   c: Context<typeConfig.Context>,
   authId: string,
-): Promise<userModel.ApiRecordWithRoles> => {
+): Promise<userModel.ApiRecordFull> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
     authId,
@@ -160,11 +157,19 @@ export const getUserDetailByAuthId = async (
     user.id,
   )
 
-  const result = userModel.convertToApiRecordWithRoles(
+  const org = user.orgSlug
+    ? await orgModel.getBySlug(
+      c.env.DB,
+      user.orgSlug,
+    )
+    : undefined
+
+  const result = userModel.convertToApiRecordFull(
     user,
     enableNames,
     enableOrg,
     roles,
+    org,
   )
   return result
 }
@@ -682,7 +687,7 @@ export const updateUser = async (
   c: Context<typeConfig.Context>,
   authId: string,
   dto: userDto.PutUserReqDto,
-): Promise<userModel.ApiRecordWithRoles> => {
+): Promise<userModel.ApiRecordFull> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
     authId,
@@ -741,11 +746,19 @@ export const updateUser = async (
 
   const roleNames = dto.roles ?? (userRoles).map((userRole) => userRole.roleName)
 
-  return userModel.convertToApiRecordWithRoles(
+  const org = updatedUser.orgSlug
+    ? await orgModel.getBySlug(
+      c.env.DB,
+      updatedUser.orgSlug,
+    )
+    : undefined
+
+  return userModel.convertToApiRecordFull(
     updatedUser,
     enableNames,
     enableOrg,
     roleNames,
+    org,
   )
 }
 

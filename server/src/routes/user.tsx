@@ -43,7 +43,7 @@ export default userRoutes
  *                 users:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/UserDetail'
+ *                     $ref: '#/components/schemas/User'
  *                 count:
  *                   type: integer
  *                   description: Total number of users matching the query

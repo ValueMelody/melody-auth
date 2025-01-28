@@ -538,7 +538,7 @@ export type DeleteApiV1AppsByIdApiArg = {
   id: number;
 };
 export type GetApiV1UsersApiResponse = /** status 200 A list of users */ {
-  users?: UserDetail[];
+  users?: User[];
   /** Total number of users matching the query */
   count?: number;
 };
@@ -863,6 +863,11 @@ export type User = {
 };
 export type UserDetail = User & {
   roles: string[] | null;
+  org?: {
+    id?: number;
+    name?: string;
+    slug?: string;
+  } | null;
 };
 export type PutUserReq = {
   firstName?: string;

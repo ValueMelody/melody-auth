@@ -8,7 +8,6 @@ import { errorSignal } from 'signals'
 
 export const rtkQueryErrorLogger: Middleware =
   () => (next) => (action) => {
-    console.log(action)
     if (isRejectedWithValue(action)) {
       if (typeof action.payload === 'object' && action.payload && 'data' in action.payload) {
         errorSignal.value = String(action.payload.data)

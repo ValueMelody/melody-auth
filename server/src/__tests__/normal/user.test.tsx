@@ -310,6 +310,38 @@ describe(
     )
 
     test(
+      'should return user with org info',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'test\', \'default\', \'https://google1.com\', \'https://microsoft1.com\')')
+
+        await insertUsers()
+
+        await db.prepare('update "user" set "orgSlug" = ?').run('default')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+
+        const json = await res.json() as { user: userModel.Record }
+        expect(json.user).toStrictEqual({
+          ...user1,
+          roles: [],
+          org: {
+            name: 'test',
+            slug: 'default',
+            id: 1,
+          },
+        })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
       'should return user by authId 1-1-1-2',
       async () => {
         await insertUsers()

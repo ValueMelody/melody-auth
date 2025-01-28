@@ -199,7 +199,7 @@ export const sendEmail = async (
 
 export const sendEmailVerification = async (
   c: Context<typeConfig.Context>,
-  user: userModel.Record | userModel.ApiRecord,
+  user: userModel.Record,
   locale: typeConfig.Locale,
 ) => {
   const { AUTH_SERVER_URL: serverUrl } = env(c)

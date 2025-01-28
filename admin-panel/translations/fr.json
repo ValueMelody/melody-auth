@@ -99,6 +99,7 @@
     "firstName": "Prénom",
     "lastName": "Nom",
     "roles": "Rôles",
+    "org": "Organisation",
     "resend": "Renvoyer l'e-mail de vérification",
     "sent": "E-mail de vérification envoyé",
     "you": "Vous",
