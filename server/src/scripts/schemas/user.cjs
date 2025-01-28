@@ -60,6 +60,13 @@ const UserDetail = {
           items: { type: 'string' },
           nullable: true,
         },
+        org: {
+          type: 'object',
+          properties: {
+            id: { type: 'number' }, name: { type: 'string' }, slug: { type: 'string' },
+          },
+          nullable: true,
+        },
       },
       required: ['roles'],
     },

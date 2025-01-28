@@ -2,6 +2,7 @@ import {
   adapterConfig, errorConfig,
   typeConfig,
 } from 'configs'
+import { orgModel } from 'models'
 import { dbUtil } from 'utils'
 
 export enum MfaType {
@@ -55,7 +56,6 @@ export interface Record extends Common {
 export interface ApiRecord {
   id: number;
   authId: string;
-  orgSlug?: string;
   linkedAuthId: string | null;
   socialAccountId: string | null;
   socialAccountType: SocialAccountType | null;
@@ -79,8 +79,9 @@ export interface PaginatedApiRecords {
   count: number;
 }
 
-export interface ApiRecordWithRoles extends ApiRecord {
+export interface ApiRecordFull extends ApiRecord {
   roles?: string[];
+  org?: orgModel.ApiRecord | null;
 }
 
 export interface Create {
@@ -131,7 +132,6 @@ export const convertToRecord = (raw: Raw): Record => ({
 export const convertToApiRecord = (
   record: Record,
   enableNames: boolean,
-  enableOrg: boolean,
 ): ApiRecord => {
   const result: ApiRecord = {
     id: record.id,
@@ -155,23 +155,23 @@ export const convertToApiRecord = (
     result.firstName = record.firstName
     result.lastName = record.lastName
   }
-  if (enableOrg) {
-    result.orgSlug = record.orgSlug
-  }
   return result
 }
 
-export const convertToApiRecordWithRoles = (
+export const convertToApiRecordFull = (
   record: Record,
   enableNames: boolean,
   enableOrg: boolean,
   roles: string[],
-): ApiRecordWithRoles => {
-  const result: ApiRecordWithRoles = convertToApiRecord(
+  org: orgModel.Record | null | undefined,
+): ApiRecordFull => {
+  const result: ApiRecordFull = convertToApiRecord(
     record,
     enableNames,
-    enableOrg,
   )
+  if (enableOrg) {
+    result.org = org ? orgModel.convertToApiRecord(org) : null
+  }
   return {
     ...result,
     roles,

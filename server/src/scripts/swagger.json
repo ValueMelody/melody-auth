@@ -701,6 +701,21 @@
                   "type": "string"
                 },
                 "nullable": true
+              },
+              "org": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "slug": {
+                    "type": "string"
+                  }
+                },
+                "nullable": true
               }
             },
             "required": [
@@ -1575,7 +1590,7 @@
                     "users": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/UserDetail"
+                        "$ref": "#/components/schemas/User"
                       }
                     },
                     "count": {

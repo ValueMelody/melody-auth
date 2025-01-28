@@ -27,6 +27,12 @@ export interface Record {
   deletedAt: string | null;
 }
 
+export interface ApiRecord {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export interface Create {
   name: string;
   slug: string;
@@ -55,6 +61,15 @@ export interface Update {
 }
 
 const TableName = adapterConfig.TableName.Org
+
+export const convertToApiRecord = (record: Record): ApiRecord => {
+  const result: ApiRecord = {
+    id: record.id,
+    name: record.name,
+    slug: record.slug,
+  }
+  return result
+}
 
 export const getAll = async (db: D1Database): Promise<Record[]> => {
   const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL ORDER BY id ASC`
