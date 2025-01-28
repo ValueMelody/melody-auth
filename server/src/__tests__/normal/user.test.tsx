@@ -318,7 +318,7 @@ describe(
 
         await insertUsers()
 
-        await db.prepare('update "user" set orgSlug = ?').run('default')
+        await db.prepare('update "user" set "orgSlug" = ?').run('default')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1`,
