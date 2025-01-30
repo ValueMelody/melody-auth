@@ -490,6 +490,8 @@ describe(
         const params = await getAuthorizeParams(appRecord)
 
         global.process.env.COMPANY_LOGO_URL = 'https://google.com'
+        global.process.env.FONT_FAMILY = 'Roboto'
+        global.process.env.FONT_URL = 'https://fonts.googleapis.com/css2?family=Roboto:wght@400..600&display=swap'
         global.process.env.LAYOUT_COLOR = 'red'
         global.process.env.LABEL_COLOR = 'green'
         global.process.env.PRIMARY_BUTTON_COLOR = 'black'
@@ -511,6 +513,13 @@ describe(
         const document = dom.window.document
         expect((document.getElementsByTagName('img')[0] as HTMLImageElement).src).toBe('https://google.com/')
 
+        const bodyElement = dom.window.getComputedStyle(document.querySelector('body') as HTMLElement)
+        expect(bodyElement.fontFamily).toBe('Roboto')
+
+        const linkElements = document.querySelectorAll('link[rel="stylesheet"]') as unknown as HTMLLinkElement[]
+        const matchingLink = Array.from(linkElements).find((link) => link.href === 'https://fonts.googleapis.com/css2?family=Roboto:wght@400..600&display=swap')
+        expect(matchingLink).toBeTruthy()
+
         const mainElementStyle = dom.window.getComputedStyle(document.querySelector('.main') as HTMLElement)
         expect(mainElementStyle.backgroundColor).toBe('rgb(255, 0, 0)')
         expect(mainElementStyle.color).toBe('rgb(0, 128, 0)')
@@ -531,6 +540,8 @@ describe(
         expect(alert.backgroundColor).toBe('rgb(255, 255, 0)')
 
         global.process.env.COMPANY_LOGO_URL = 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+        global.process.env.FONT_FAMILY = 'Inter'
+        global.process.env.FONT_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap'
         global.process.env.LAYOUT_COLOR = 'lightgray'
         global.process.env.LABEL_COLOR = 'black'
         global.process.env.PRIMARY_BUTTON_COLOR = 'white'
@@ -556,9 +567,10 @@ describe(
             name, slug, "companyLogoUrl", "layoutColor", "labelColor",
             "primaryButtonColor", "primaryButtonLabelColor", "primaryButtonBorderColor",
             "secondaryButtonColor", "secondaryButtonLabelColor", "secondaryButtonBorderColor",
-            "criticalIndicatorColor"
+            "criticalIndicatorColor", "fontUrl", "fontFamily"
           ) values (
-            'test', 'default', 'https://test.com', 'red', 'green', 'black', 'gray', 'orange', 'darkred', 'darkgray', 'blue', 'yellow'
+            'test', 'default', 'https://test.com', 'red', 'green', 'black', 'gray', 'orange', 'darkred', 'darkgray', 'blue', 'yellow',
+            'http://font.com', 'Arial'
           )
         `)
 
@@ -572,6 +584,13 @@ describe(
         const dom = new JSDOM(html)
         const document = dom.window.document
         expect((document.getElementsByTagName('img')[0] as HTMLImageElement).src).toBe('https://test.com/')
+
+        const bodyElement = dom.window.getComputedStyle(document.querySelector('body') as HTMLElement)
+        expect(bodyElement.fontFamily).toBe('Arial')
+
+        const linkElements = document.querySelectorAll('link[rel="stylesheet"]') as unknown as HTMLLinkElement[]
+        const matchingLink = Array.from(linkElements).find((link) => link.href === 'http://font.com/')
+        expect(matchingLink).toBeTruthy()
 
         const mainElementStyle = dom.window.getComputedStyle(document.querySelector('.main') as HTMLElement)
         expect(mainElementStyle.backgroundColor).toBe('rgb(255, 0, 0)')
