@@ -567,9 +567,10 @@ describe(
             name, slug, "companyLogoUrl", "layoutColor", "labelColor",
             "primaryButtonColor", "primaryButtonLabelColor", "primaryButtonBorderColor",
             "secondaryButtonColor", "secondaryButtonLabelColor", "secondaryButtonBorderColor",
-            "criticalIndicatorColor"
+            "criticalIndicatorColor", "fontUrl", "fontFamily"
           ) values (
-            'test', 'default', 'https://test.com', 'red', 'green', 'black', 'gray', 'orange', 'darkred', 'darkgray', 'blue', 'yellow'
+            'test', 'default', 'https://test.com', 'red', 'green', 'black', 'gray', 'orange', 'darkred', 'darkgray', 'blue', 'yellow',
+            'http://font.com', 'Arial'
           )
         `)
 
@@ -583,6 +584,13 @@ describe(
         const dom = new JSDOM(html)
         const document = dom.window.document
         expect((document.getElementsByTagName('img')[0] as HTMLImageElement).src).toBe('https://test.com/')
+
+        const bodyElement = dom.window.getComputedStyle(document.querySelector('body') as HTMLElement)
+        expect(bodyElement.fontFamily).toBe('Arial')
+
+        const linkElements = document.querySelectorAll('link[rel="stylesheet"]') as unknown as HTMLLinkElement[]
+        const matchingLink = Array.from(linkElements).find((link) => link.href === 'http://font.com/')
+        expect(matchingLink).toBeTruthy()
 
         const mainElementStyle = dom.window.getComputedStyle(document.querySelector('.main') as HTMLElement)
         expect(mainElementStyle.backgroundColor).toBe('rgb(255, 0, 0)')
