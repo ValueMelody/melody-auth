@@ -54,6 +54,8 @@ export const getBranding = async (
   const defaultBranding = getDefaultBranding(c)
   return {
     ...defaultBranding,
+    fontFamily: org?.fontFamily || defaultBranding.fontFamily,
+    fontUrl: org?.fontUrl || defaultBranding.fontUrl,
     logoUrl: org?.companyLogoUrl || defaultBranding.logoUrl,
     layoutColor: org?.layoutColor || defaultBranding.layoutColor,
     labelColor: org?.labelColor || defaultBranding.labelColor,
