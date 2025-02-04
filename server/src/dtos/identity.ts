@@ -8,6 +8,7 @@ import {
   requestUtil, validateUtil,
 } from 'utils'
 import { userModel } from 'models'
+import { RegistrationResponseJSON } from '@simplewebauthn/server'
 
 export class PostAuthorizeSocialSignInReqDto extends oauthDto.GetAuthorizeReqDto {
   @IsString()
@@ -148,6 +149,16 @@ export class PostAuthorizeEnrollReqDto extends GetAuthorizeFollowUpReqDto {
   constructor (dto: PostAuthorizeEnrollReqDto) {
     super(dto)
     this.type = dto.type
+  }
+}
+
+export class PostAuthorizePasskeyEnrollReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsNotEmpty()
+    enrollInfo: RegistrationResponseJSON
+
+  constructor (dto: PostAuthorizePasskeyEnrollReqDto) {
+    super(dto)
+    this.enrollInfo = dto.enrollInfo
   }
 }
 

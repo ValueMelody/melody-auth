@@ -570,6 +570,29 @@ export const deleteLockedIPsByEmail = async (
   }
 }
 
+export const setPasskeyEnrollChallenge = async (
+  kv: KVNamespace,
+  userId: number,
+  challenge: string,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.PasskeyEnrollChallenge,
+      String(userId),
+    ),
+    challenge,
+    { expirationTtl: 1800 },
+  )
+}
+
+export const getPasskeyEnrollChallenge = async (
+  kv: KVNamespace,
+  userId: number,
+) => {
+  const key = adapterConfig.getKVKey(adapterConfig.BaseKVKey.PasskeyEnrollChallenge, String(userId))
+  return await kv.get(key)
+}
+
 export const storeChangeEmailCode = async (
   kv: KVNamespace,
   userId: number,

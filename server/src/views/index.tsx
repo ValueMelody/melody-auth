@@ -6,6 +6,7 @@ import AuthorizeEmailMfaView from 'views/AuthorizeEmailMfa'
 import AuthorizeOtpMfaView from 'views/AuthorizeOtpMfa'
 import AuthorizeSmsMfaView from 'views/AuthorizeSmsMfa'
 import AuthorizeMfaEnrollView from 'views/AuthorizeMfaEnroll'
+import AuthorizePasskeyEnrollView from 'views/AuthorizePasskeyEnroll'
 import VerifyEmailView from 'views/VerifyEmail'
 import AuthCodeExpired from 'views/AuthCodeExpired'
 import ChangePassword from 'views/ChangePassword'
@@ -22,6 +23,7 @@ export {
   AuthorizeOtpMfaView,
   AuthorizeSmsMfaView,
   AuthorizeMfaEnrollView,
+  AuthorizePasskeyEnrollView,
   AuthCodeExpired,
   ChangePassword,
   ChangeEmail,

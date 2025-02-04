@@ -24,6 +24,7 @@ export enum Error {
   WrongAuthCode = 'Invalid auth code',
   WrongCode = 'Invalid code',
   WrongMfaCode = 'Invalid MFA code',
+  InvalidRequest = 'Invalid request',
   RequireDifferentPassword = 'New password same as old password',
   RequireDifferentEmail = 'New email address same as old email address',
   MfaNotVerified = 'MFA code not verified',
