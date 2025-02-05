@@ -27,6 +27,7 @@
   "dependencies": {
     "@hono/node-server": "^1.12.2",
     "@hono/swagger-ui": "^0.4.0",
+    "@simplewebauthn/server": "^13.1.1",
     "base32-decode": "^1.0.0",
     "base32-encode": "^2.0.0",
     "bcryptjs": "^2.4.3",

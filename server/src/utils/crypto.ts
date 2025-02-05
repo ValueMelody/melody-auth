@@ -163,3 +163,11 @@ export const secretToJwk = async (key: string) => {
     kid: await genJwkKeyId(keyData),
   }
 }
+
+export const uint8ArrayToBase64 = (u8: Uint8Array) => {
+  let binary = ''
+  for (let i = 0; i < u8.length; i++) {
+    binary += String.fromCharCode(u8[i])
+  }
+  return btoa(binary)
+}

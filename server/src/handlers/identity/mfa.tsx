@@ -1,14 +1,18 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
+  verifyRegistrationResponse, generateRegistrationOptions,
+} from '@simplewebauthn/server'
+import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
   brandingService,
-  emailService, kvService, smsService, userService,
+  emailService, kvService, passkeyService, smsService, userService,
 } from 'services'
 import {
+  cryptoUtil,
   identityUtil,
   requestUtil, validateUtil,
 } from 'utils'
@@ -16,9 +20,11 @@ import {
   AuthorizeEmailMfaView, AuthorizeOtpMfaView,
   AuthorizeMfaEnrollView,
   AuthorizeSmsMfaView,
+  AuthorizePasskeyEnrollView,
 } from 'views'
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
+import { EnrollOptions } from 'views/AuthorizePasskeyEnroll'
 
 const allowOtpSwitchToEmailMfa = (
   c: Context<typeConfig.Context>,
@@ -615,6 +621,103 @@ export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
   if (!emailRes.result && emailRes.reason === localeConfig.Error.EmailMfaLocked) {
     throw new errorConfig.Forbidden(localeConfig.Error.EmailMfaLocked)
   }
+
+  return c.json({ success: true })
+}
+
+export const getAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  await validateUtil.dto(queryDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authCodeStore) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+
+  const registrationOptions = await generateRegistrationOptions({
+    rpName: '',
+    rpID: '',
+    userName: '',
+  })
+
+  const challenge = registrationOptions.challenge
+  await kvService.setPasskeyEnrollChallenge(
+    c.env.KV,
+    authCodeStore.user.id,
+    challenge,
+  )
+
+  const enrollOptions: EnrollOptions = {
+    userId: authCodeStore.user.id,
+    userEmail: authCodeStore.user.email ?? '',
+    userDisplayName: `${authCodeStore.user.firstName ?? ''} ${authCodeStore.user.lastName ?? ''}`,
+    challenge,
+  }
+
+  const {
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  return c.html(<AuthorizePasskeyEnrollView
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+    queryDto={queryDto}
+    enrollOptions={enrollOptions}
+  />)
+}
+
+export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizePasskeyEnrollReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  const challenge = await kvService.getPasskeyEnrollChallenge(
+    c.env.KV,
+    authCodeStore.user.id,
+  )
+
+  if (!challenge) throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+
+  const { AUTH_SERVER_URL: authServerUrl } = env(c)
+
+  let verification
+  try {
+    verification = await verifyRegistrationResponse({
+      response: bodyDto.enrollInfo,
+      expectedChallenge: challenge,
+      expectedOrigin: authServerUrl,
+    })
+  } catch (error) {
+    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+  }
+
+  const passkeyId = verification.registrationInfo?.credential.id
+  const passkeyPublickey = verification.registrationInfo?.credential.publicKey
+  const passkeyCounter = verification.registrationInfo?.credential.counter || 0
+
+  if (!verification.verified || !passkeyPublickey || !passkeyId) {
+    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+  }
+
+  await passkeyService.createUserPasskey(
+    c.env.DB,
+    authCodeStore.user.id,
+    passkeyId,
+    cryptoUtil.uint8ArrayToBase64(passkeyPublickey),
+    passkeyCounter,
+  )
 
   return c.json({ success: true })
 }

@@ -2,6 +2,7 @@ import {
   IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
 } from 'class-validator'
 import { Context } from 'hono'
+import { RegistrationResponseJSON } from '@simplewebauthn/server'
 import { typeConfig } from 'configs'
 import { oauthDto } from 'dtos'
 import {
@@ -148,6 +149,16 @@ export class PostAuthorizeEnrollReqDto extends GetAuthorizeFollowUpReqDto {
   constructor (dto: PostAuthorizeEnrollReqDto) {
     super(dto)
     this.type = dto.type
+  }
+}
+
+export class PostAuthorizePasskeyEnrollReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsNotEmpty()
+    enrollInfo: RegistrationResponseJSON
+
+  constructor (dto: PostAuthorizePasskeyEnrollReqDto) {
+    super(dto)
+    this.enrollInfo = dto.enrollInfo
   }
 }
 
