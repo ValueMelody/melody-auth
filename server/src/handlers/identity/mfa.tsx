@@ -1,6 +1,9 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
+  verifyRegistrationResponse, generateRegistrationOptions,
+} from '@simplewebauthn/server'
+import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
@@ -22,7 +25,6 @@ import {
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
 import { EnrollOptions } from 'views/AuthorizePasskeyEnroll'
-import { verifyRegistrationResponse, generateRegistrationOptions } from '@simplewebauthn/server'
 
 const allowOtpSwitchToEmailMfa = (
   c: Context<typeConfig.Context>,
@@ -631,7 +633,7 @@ export const getAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>) 
     c.env.KV,
     queryDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authCodeStore) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
 
   const registrationOptions = await generateRegistrationOptions({
     rpName: '',
@@ -690,15 +692,14 @@ export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>)
 
   const { AUTH_SERVER_URL: authServerUrl } = env(c)
 
-  let verification;
+  let verification
   try {
     verification = await verifyRegistrationResponse({
       response: bodyDto.enrollInfo,
       expectedChallenge: challenge,
       expectedOrigin: authServerUrl,
-    });
+    })
   } catch (error) {
-    console.error(error)
     throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
   }
 
@@ -706,7 +707,9 @@ export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>)
   const passkeyPublickey = verification.registrationInfo?.credential.publicKey
   const passkeyCounter = verification.registrationInfo?.credential.counter || 0
 
-  if (!verification.verified || !passkeyPublickey || !passkeyId) throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+  if (!verification.verified || !passkeyPublickey || !passkeyId) {
+    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+  }
 
   await passkeyService.createUserPasskey(
     c.env.DB,

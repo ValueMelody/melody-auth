@@ -36,6 +36,7 @@
     "react/jsx-indent-props": ["error", 2],
     "react/jsx-first-prop-new-line": ["error",  "multiline"],
     "react/jsx-indent": ["error", 2],
+    "react/jsx-closing-tag-location": "error",
     "jsx-quotes": ["error", "prefer-single"],
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",

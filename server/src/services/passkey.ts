@@ -1,4 +1,4 @@
-import { userPasskeyModel } from "models"
+import { userPasskeyModel } from 'models'
 
 export const createUserPasskey = async (
   db: D1Database,
@@ -7,11 +7,13 @@ export const createUserPasskey = async (
   publicKey: string,
   counter: number,
 ) => {
-  const isCreated = await userPasskeyModel.create(db, {
-    userId,
-    credentialId,
-    publicKey,
-    counter,
-  })
+  const isCreated = await userPasskeyModel.create(
+    db, {
+      userId,
+      credentialId,
+      publicKey,
+      counter,
+    },
+  )
   return isCreated
 }

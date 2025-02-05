@@ -2,13 +2,13 @@ import {
   IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
 } from 'class-validator'
 import { Context } from 'hono'
+import { RegistrationResponseJSON } from '@simplewebauthn/server'
 import { typeConfig } from 'configs'
 import { oauthDto } from 'dtos'
 import {
   requestUtil, validateUtil,
 } from 'utils'
 import { userModel } from 'models'
-import { RegistrationResponseJSON } from '@simplewebauthn/server'
 
 export class PostAuthorizeSocialSignInReqDto extends oauthDto.GetAuthorizeReqDto {
   @IsString()

@@ -589,7 +589,9 @@ export const getPasskeyEnrollChallenge = async (
   kv: KVNamespace,
   userId: number,
 ) => {
-  const key = adapterConfig.getKVKey(adapterConfig.BaseKVKey.PasskeyEnrollChallenge, String(userId))
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.PasskeyEnrollChallenge, String(userId),
+  )
   return await kv.get(key)
 }
 

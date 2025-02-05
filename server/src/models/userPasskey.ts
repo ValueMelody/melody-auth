@@ -27,7 +27,7 @@ export interface Create {
 const TableName = adapterConfig.TableName.UserPasskey
 
 export const create = async (
-    db: D1Database, create: Create,
+  db: D1Database, create: Create,
 ): Promise<true> => {
   const query = `INSERT INTO ${TableName} ("userId", "credentialId", "publicKey", "counter") values ($1, $2, $3, $4)`
   const stmt = db.prepare(query).bind(
@@ -39,4 +39,3 @@ export const create = async (
   const result = await dbUtil.d1Run(stmt)
   return result.success
 }
-

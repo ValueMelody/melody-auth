@@ -30,14 +30,14 @@ const AuthorizePasskeyEnroll = ({
       branding={branding}
       locale={queryDto.locale}
     >
-      <script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
+      <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>
       <Title title={localeConfig.authorizeMfaEnroll.title[queryDto.locale]} />
       <SubmitError />
       <section class='flex-col justify-around w-full gap-4 mt-4'>
         <button
           class='button'
           type='button'
-          onclick={`handleEnroll()`}
+          onclick={'handleEnroll()'}
         >
           enroll
         </button>
@@ -82,7 +82,9 @@ const AuthorizePasskeyEnroll = ({
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              ${responseScript.handleAuthorizeFormRedirect(queryDto.locale, queryDto.org)}
+              ${responseScript.handleAuthorizeFormRedirect(
+      queryDto.locale, queryDto.org,
+    )}
             })
             .catch((error) => {
               ${responseScript.handleSubmitError(queryDto.locale)}

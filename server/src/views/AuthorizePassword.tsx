@@ -213,7 +213,9 @@ const AuthorizePassword = ({
               ${responseScript.parseRes()}
             })
             .then((data) => {
-              ${responseScript.handleAuthorizeFormRedirect(queryDto.locale, queryDto.org)}
+              ${responseScript.handleAuthorizeFormRedirect(
+      queryDto.locale, queryDto.org,
+    )}
             })
             .catch((error) => {
               ${responseScript.handleSubmitError(queryDto.locale)}
