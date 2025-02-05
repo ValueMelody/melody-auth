@@ -29,13 +29,6 @@ exports.up = function (knex) {
         .inTable('user')
     },
   )
-    .then(function () {
-      return knex.schema.raw(`
-          CREATE UNIQUE INDEX idx_unique_user_role
-          ON "user_role" ("userId", "roleId")
-          WHERE "deletedAt" IS NULL;
-        `)
-    })
 }
 
 exports.down = function (knex) {
