@@ -6,9 +6,10 @@ import {
 import { identityDto } from 'dtos'
 import {
   brandingService,
-  emailService, kvService, smsService, userService,
+  emailService, kvService, passkeyService, smsService, userService,
 } from 'services'
 import {
+  cryptoUtil,
   identityUtil,
   requestUtil, validateUtil,
 } from 'utils'
@@ -21,8 +22,7 @@ import {
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
 import { EnrollOptions } from 'views/AuthorizePasskeyEnroll'
-import { verifyRegistrationResponse } from '@simplewebauthn/server'
-import { generateRegistrationOptions } from '@simplewebauthn/server'
+import { verifyRegistrationResponse, generateRegistrationOptions } from '@simplewebauthn/server'
 
 const allowOtpSwitchToEmailMfa = (
   c: Context<typeConfig.Context>,
@@ -708,5 +708,13 @@ export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>)
 
   if (!verification.verified || !passkeyPublickey || !passkeyId) throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
 
-  console.log(verification)
+  await passkeyService.createUserPasskey(
+    c.env.DB,
+    authCodeStore.user.id,
+    passkeyId,
+    cryptoUtil.uint8ArrayToBase64(passkeyPublickey),
+    passkeyCounter,
+  )
+
+  return c.json({ success: true })
 }

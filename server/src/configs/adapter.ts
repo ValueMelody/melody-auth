@@ -4,6 +4,7 @@ export enum TableName {
   UserAppConsent = 'user_app_consent',
   Role = 'role',
   UserRole = 'user_role',
+  UserPasskey = 'user_passkey',
   Scope = 'scope',
   AppScope = 'app_scope',
   ScopeLocale = 'scope_locale',
