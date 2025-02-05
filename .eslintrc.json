@@ -45,6 +45,7 @@
     "object-curly-newline": ["error", { "multiline": true, "minProperties": 2 }],
     "newline-per-chained-call": ["error", { "ignoreChainWithDepth": 2 }],
     "function-paren-newline": ["error", { "minItems": 2 }],
+    "function-call-argument-newline": ["error"],
     "arrow-parens": "error",
     "indent": ["error", 2],
     "object-shorthand": "error",

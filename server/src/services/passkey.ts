@@ -8,7 +8,8 @@ export const createUserPasskey = async (
   counter: number,
 ) => {
   const isCreated = await userPasskeyModel.create(
-    db, {
+    db,
+    {
       userId,
       credentialId,
       publicKey,

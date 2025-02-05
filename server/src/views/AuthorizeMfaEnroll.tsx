@@ -58,7 +58,8 @@ const AuthorizeMfaEnroll = ({
             })
             .then((data) => {
               ${responseScript.handleAuthorizeFormRedirect(
-      queryDto.locale, queryDto.org,
+      queryDto.locale,
+      queryDto.org,
     )}
             })
             .catch((error) => {
