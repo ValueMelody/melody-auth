@@ -2,7 +2,7 @@ import {
   IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
 } from 'class-validator'
 import { Context } from 'hono'
-import { RegistrationResponseJSON } from '@simplewebauthn/server'
+import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
 import { typeConfig } from 'configs'
 import { oauthDto } from 'dtos'
 import {
@@ -269,5 +269,30 @@ export class PostAuthorizeResetReqDto {
     this.email = dto.email.trim().toLowerCase()
     this.password = dto.password.trim()
     this.code = dto.code.trim()
+  }
+}
+
+export class GetAuthorizePasskeyVerifyReqDto {
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  constructor (dto: GetAuthorizePasskeyVerifyReqDto) {
+    this.email = dto.email.toLowerCase()
+  }
+}
+
+export class PostAuthorizePasskeyVerifyReqDto extends oauthDto.GetAuthorizeReqDto {
+  @IsNotEmpty()
+    passkeyInfo: AuthenticationResponseJSON
+
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  constructor (dto: PostAuthorizePasskeyVerifyReqDto) {
+    super(dto)
+    this.passkeyInfo = dto.passkeyInfo
+    this.email = dto.email.toLowerCase()
   }
 }

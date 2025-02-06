@@ -113,6 +113,16 @@ identityRoutes.post(
   identityHandler.postAuthorizePasskeyEnroll,
 )
 
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+  identityHandler.getAuthorizePasskeyVerify,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+  identityHandler.postAuthorizePasskeyVerify,
+)
+
 identityRoutes.post(
   routeConfig.IdentityRoute.ResendEmailMfa,
   setupMiddleware.validOrigin,

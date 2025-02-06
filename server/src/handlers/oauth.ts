@@ -55,6 +55,54 @@ export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Prom
   }
 }
 
+export const createFullAuthorize = async (c: Context<typeConfig.Context>, authInfo: typeConfig.AuthCodeBody) => {
+  const authCode = genRandomString(128)
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+    OTP_MFA_IS_REQUIRED: enableOtpMfa,
+    SMS_MFA_IS_REQUIRED: enableSmsMfa,
+  } = env(c)
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    {
+      appId: authInfo.appId,
+      appName: authInfo.appName,
+      user: authInfo.user,
+      request: authInfo.request,
+      isFullyAuthorized: true,
+    },
+    codeExpiresIn,
+  )
+
+  if (enableOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
+    await kvService.markOtpMfaVerified(
+      c.env.KV,
+      authCode,
+      codeExpiresIn,
+    )
+  }
+
+  if (enableSmsMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Sms)) {
+    await kvService.markSmsMfaVerified(
+      c.env.KV,
+      authCode,
+      codeExpiresIn,
+    )
+  }
+
+  if (enableEmailMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Email)) {
+    await kvService.markEmailMfaVerified(
+      c.env.KV,
+      authCode,
+      codeExpiresIn,
+    )
+  }
+
+  return authCode
+}
+
 export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   const queryDto = await parseGetAuthorizeDto(c)
 
@@ -63,48 +111,12 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     queryDto.clientId,
   )
   if (stored && stored.request.clientId === queryDto.clientId) {
-    const authCode = genRandomString(128)
-    const {
-      AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-      EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
-      OTP_MFA_IS_REQUIRED: enableOtpMfa,
-      SMS_MFA_IS_REQUIRED: enableSmsMfa,
-    } = env(c)
-    await kvService.storeAuthCode(
-      c.env.KV,
-      authCode,
-      {
-        appId: stored.appId,
-        appName: stored.appName,
-        user: stored.user,
-        request: queryDto,
-      },
-      codeExpiresIn,
-    )
-
-    if (enableOtpMfa || stored.user.mfaTypes.includes(userModel.MfaType.Otp)) {
-      await kvService.markOtpMfaVerified(
-        c.env.KV,
-        authCode,
-        codeExpiresIn,
-      )
-    }
-
-    if (enableSmsMfa || stored.user.mfaTypes.includes(userModel.MfaType.Sms)) {
-      await kvService.markSmsMfaVerified(
-        c.env.KV,
-        authCode,
-        codeExpiresIn,
-      )
-    }
-
-    if (enableEmailMfa || stored.user.mfaTypes.includes(userModel.MfaType.Email)) {
-      await kvService.markEmailMfaVerified(
-        c.env.KV,
-        authCode,
-        codeExpiresIn,
-      )
-    }
+    const authCode = await createFullAuthorize(c, {
+      appId: stored.appId,
+      appName: stored.appName,
+      user: stored.user,
+      request: queryDto,
+    })
 
     if (!queryDto.policy || queryDto.policy === Policy.SignInOrSignUp) {
       const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
