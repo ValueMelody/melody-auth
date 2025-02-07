@@ -738,7 +738,7 @@ export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>)
 export const postAuthorizePasskeyEnrollDecline = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  const bodyDto = new identityDto.PostAuthorizePasskeyEnrollDeclineReqDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeStore = await kvService.getAuthCodeBody(
@@ -746,6 +746,14 @@ export const postAuthorizePasskeyEnrollDecline = async (c: Context<typeConfig.Co
     bodyDto.code,
   )
   if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  if (bodyDto.remember) {
+    await userModel.update(
+      c.env.DB,
+      authCodeStore.user.id,
+      { skipPasskeyEnroll: 1 },
+    )
+  }
 
   return c.json(await identityUtil.processPostAuthorize(
     c,

@@ -367,6 +367,10 @@ export const authorizePasskeyEnroll = Object.freeze({
     en: 'Skip',
     fr: 'Passer',
   },
+  rememberSkip: {
+    en: 'Do not ask again',
+    fr: 'Ne pas demander à nouveau',
+  },
 })
 
 export const authorizeReset = Object.freeze({

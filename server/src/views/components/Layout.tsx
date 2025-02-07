@@ -72,6 +72,8 @@ const Layout = ({
           .pr-2 { padding-right: 8px; }
           .p-4 { padding: 16px; }
           .ml-2 { margin-left: 8px; }
+          .ml-12 { margin-left: 48px; }
+          .mr-2 { margin-right: 8px; }
           .mt-2 { margin-top: 8px; }
           .mt-4 { margin-top: 16px; }
           .mt-8 { margin-top: 32px; }

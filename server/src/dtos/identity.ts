@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
 } from 'class-validator'
 import { Context } from 'hono'
@@ -296,5 +297,15 @@ export class PostAuthorizePasskeyVerifyReqDto extends oauthDto.GetAuthorizeReqDt
     super(dto)
     this.passkeyInfo = dto.passkeyInfo
     this.email = dto.email.toLowerCase()
+  }
+}
+
+export class PostAuthorizePasskeyEnrollDeclineReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsBoolean()
+    remember: boolean
+
+  constructor (dto: PostAuthorizePasskeyEnrollDeclineReqDto) {
+    super(dto)
+    this.remember = dto.remember
   }
 }
