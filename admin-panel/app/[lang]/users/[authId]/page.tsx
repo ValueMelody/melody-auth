@@ -33,10 +33,12 @@ import {
   useDeleteApiV1UsersByAuthIdLockedIpsMutation,
   useDeleteApiV1UsersByAuthIdMutation,
   useDeleteApiV1UsersByAuthIdOtpMfaMutation,
+  useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation,
   useDeleteApiV1UsersByAuthIdSmsMfaMutation,
   useGetApiV1RolesQuery,
   useGetApiV1UsersByAuthIdConsentedAppsQuery,
   useGetApiV1UsersByAuthIdLockedIpsQuery,
+  useGetApiV1UsersByAuthIdPasskeysQuery,
   useGetApiV1UsersByAuthIdQuery,
   usePostApiV1UsersByAuthIdEmailMfaMutation,
   usePostApiV1UsersByAuthIdOtpMfaMutation,
@@ -65,10 +67,12 @@ const Page = () => {
   const [isResettingSmsMfa, setIsResettingSmsMfa] = useState(false)
   const [isResettingOtpMfa, setIsResettingOtpMfa] = useState(false)
   const [isResettingEmailMfa, setIsResettingEmailMfa] = useState(false)
+  const [isRemovingPasskey, setIsRemovingPasskey] = useState(false)
 
   const userInfo = useSignalValue(userInfoSignal)
-  const enableConsent = configs.ENABLE_USER_APP_CONSENT
+  const enableConsent = !!configs.ENABLE_USER_APP_CONSENT
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
+  const enablePasskeyEnrollment = !!configs.ALLOW_PASSKEY_ENROLLMENT
 
   const { data: userData } = useGetApiV1UsersByAuthIdQuery({ authId: String(authId) })
   const user = userData?.user
@@ -81,6 +85,12 @@ const Page = () => {
     { skip: !enableConsent },
   )
   const consentedApps = consentsData?.consentedApps ?? []
+
+  const { data: passkeysData } = useGetApiV1UsersByAuthIdPasskeysQuery(
+    { authId: String(authId) },
+    { skip: !enablePasskeyEnrollment },
+  )
+  const passkeys = passkeysData?.passkeys ?? []
 
   const { data: lockedIPsData } = useGetApiV1UsersByAuthIdLockedIpsQuery(
     { authId: String(authId) },
@@ -104,6 +114,7 @@ const Page = () => {
   const [unenrollSmsMfa] = useDeleteApiV1UsersByAuthIdSmsMfaMutation()
   const [unenrollOtpMfa] = useDeleteApiV1UsersByAuthIdOtpMfaMutation()
   const [unlinkAccount] = useDeleteApiV1UsersByAuthIdAccountLinkingMutation()
+  const [deletePasskey] = useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation()
 
   const updateObj = useMemo(
     () => {
@@ -211,6 +222,17 @@ const Page = () => {
   const handleConfirmUnlink = async () => {
     await unlinkAccount({ authId: String(authId) })
     setIsUnlinking(false)
+  }
+
+  const handleClickRemovePasskey = () => setIsRemovingPasskey(true)
+
+  const handleCancelRemovePasskey = () => setIsRemovingPasskey(false)
+
+  const handleConfirmRemovePasskey = async () => {
+    await deletePasskey({
+      authId: String(authId), passkeyId: passkeys[0].id,
+    })
+    setIsRemovingPasskey(false)
   }
 
   const handleToggleUserRole = (role: string) => {
@@ -321,6 +343,17 @@ const Page = () => {
         onClick={handleClickUnlink}
       >
         {t('users.unlink')}
+      </Button>
+    )
+  }
+
+  const renderRemovePasskeyButton = () => {
+    return (
+      <Button
+        size='xs'
+        onClick={handleClickRemovePasskey}
+      >
+        {t('users.removePasskey')}
       </Button>
     )
   }
@@ -451,6 +484,33 @@ const Page = () => {
                 <TableCell className='max-md:hidden'>
                   {renderSmsButtons(user)}
                 </TableCell>
+              </Table.Row>
+            )}
+            {!user.socialAccountId && enablePasskeyEnrollment && (
+              <Table.Row>
+                <ConfirmModal
+                  title={t('users.removePasskeyTitle')}
+                  show={isRemovingPasskey}
+                  onConfirm={handleConfirmRemovePasskey}
+                  onClose={handleCancelRemovePasskey}
+                  confirmButtonText={t('users.removePasskey')}
+                />
+                <Table.Cell>{t('users.passkey')}</Table.Cell>
+                <TableCell>
+                  {!!passkeys.length && (
+                    <div className='flex max-md:flex-col gap-2'>
+                      <Badge color='gray'>{t('users.passkeyEnrolled')}</Badge>
+                      <div className='md:hidden'>
+                        {renderRemovePasskeyButton()}
+                      </div>
+                    </div>
+                  )}
+                </TableCell>
+                {!!passkeys.length && (
+                  <TableCell className='max-md:hidden'>
+                    {renderRemovePasskeyButton()}
+                  </TableCell>
+                )}
               </Table.Row>
             )}
             {user.linkedAuthId && (

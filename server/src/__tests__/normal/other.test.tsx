@@ -71,6 +71,7 @@ describe(
           ACCOUNT_LOCKOUT_EXPIRES_IN: 86400,
           UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: true,
           ALLOW_EMAIL_MFA_AS_BACKUP: true,
+          ALLOW_PASSKEY_ENROLLMENT: false,
           TERMS_LINK: '',
           PRIVACY_POLICY_LINK: '',
           ENABLE_EMAIL_LOG: false,

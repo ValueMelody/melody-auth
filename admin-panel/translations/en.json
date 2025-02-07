@@ -109,7 +109,11 @@
     "noConsented": "No consented app yet.",
     "noIP": "No IP",
     "lockedIPs": "Locked IPs",
-    "unlock": "Unlock All"
+    "unlock": "Unlock All",
+    "passkey": "Passkey",
+    "passkeyEnrolled": "Passkey Enrolled",
+    "removePasskey": "Remove",
+    "removePasskeyTitle": "Are you sure you want to remove this passkey?"
   },
   "roles": {
     "title": "Roles",

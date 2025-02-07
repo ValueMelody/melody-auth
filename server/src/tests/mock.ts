@@ -151,6 +151,7 @@ const formatUser = (raw: userModel.Raw) => ({
   otpVerified: Number(raw.otpVerified),
   smsPhoneNumberVerified: Number(raw.smsPhoneNumberVerified),
   loginCount: Number(raw.loginCount),
+  skipPasskeyEnroll: Number(raw.skipPasskeyEnroll),
 })
 
 export const mock = (db: any) => {
@@ -310,3 +311,33 @@ export const fetchMock = vi.fn(async (url) => {
   }
   return Promise.resolve({ ok: true })
 }) as Mock
+
+export const passkeyEnrollMock = {
+  authenticatorAttachment: 'platform',
+  clientExtensionResults: {},
+  id: 'h-UhQbCS-7orsinq8RdGbt8UzS9B_L_UIpKDWyoB5RU',
+  rawId: 'h-UhQbCS-7orsinq8RdGbt8UzS9B_L_UIpKDWyoB5RU',
+  response: {
+    attestationObject: 'o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVikSZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2NFAAAAAAAAAAAAAAAAAAAAAAAAAAAAIIflIUGwkvu6K7Ip6vEXRm7fFM0vQfy_1CKSg1sqAeUVpQECAyYgASFYII5eFDvbkOZhbFAkOoii666ptszT4ranzvul1NIifUjuIlggsUcAFk2c7Y6yEhcnqKdsCsMLz2cLwZgZeWjI0uFgdts',
+    authenticatorData: 'SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2NFAAAAAAAAAAAAAAAAAAAAAAAAAAAAIIflIUGwkvu6K7Ip6vEXRm7fFM0vQfy_1CKSg1sqAeUVpQECAyYgASFYII5eFDvbkOZhbFAkOoii666ptszT4ranzvul1NIifUjuIlggsUcAFk2c7Y6yEhcnqKdsCsMLz2cLwZgZeWjI0uFgdts',
+    clientDataJSON: 'eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiR3UwOUhueFRzYzAxc213YUN0QzZ5SEUwTUVnX2QtcUtVU3BLaTVCYkxnVSIsIm9yaWdpbiI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODc4NyIsImNyb3NzT3JpZ2luIjpmYWxzZX0',
+    publicKey: 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEjl4UO9uQ5mFsUCQ6iKLrrqm2zNPitqfO-6XU0iJ9SO6xRwAWTZztjrISFyeop2wKwwvPZwvBmBl5aMjS4WB22w',
+    publicKeyAlgorithm: -7,
+    transports: ['internal'],
+  },
+  type: 'public-key',
+}
+
+export const passkeyVerifyMock = {
+  authenticatorAttachment: 'platform',
+  clientExtensionResults: {},
+  id: 'h-UhQbCS-7orsinq8RdGbt8UzS9B_L_UIpKDWyoB5RU',
+  rawId: 'h-UhQbCS-7orsinq8RdGbt8UzS9B_L_UIpKDWyoB5RU',
+  response: {
+    authenticatorData: 'SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MFAAAAAQ',
+    clientDataJSON: 'eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiaEo5NUo1VGM1MmhrSmxXYVdkQlhxUFVobkxHa0dSM05xa24yVndQakFYYyIsIm9yaWdpbiI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODc4NyIsImNyb3NzT3JpZ2luIjpmYWxzZX0',
+    signature: 'MEQCIGoIJgDiEA5W3umY_csiGJbFsPnPh7orU0OZER_8xCanAiA4VXNHLjggdaxm4J4bRsMHqcTWI3L2GXxKLRAqM74trw',
+    userHandle: 'MTE',
+  },
+  type: 'public-key',
+}

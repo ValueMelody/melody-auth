@@ -14,7 +14,7 @@ const {
 } = require('./schemas/app.cjs')
 const {
   User, UserDetail, PutUserReq,
-  UserConsentedApp,
+  UserConsentedApp, UserPasskey,
 } = require('./schemas/user.cjs')
 const {
   EmailLog, SmsLog, SignInLog,
@@ -72,6 +72,7 @@ const options = {
         User,
         UserDetail,
         UserConsentedApp,
+        UserPasskey,
         PutUserReq,
         EmailLog,
         SmsLog,

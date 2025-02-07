@@ -269,6 +269,23 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Users'],
       }),
+      getApiV1UsersByAuthIdPasskeys: build.query<
+        GetApiV1UsersByAuthIdPasskeysApiResponse,
+        GetApiV1UsersByAuthIdPasskeysApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/passkeys` }),
+        providesTags: ['Users'],
+      }),
+      deleteApiV1UsersByAuthIdPasskeysAndPasskeyId: build.mutation<
+        DeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdApiResponse,
+        DeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/users/${queryArg.authId}/passkeys/${queryArg.passkeyId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Users'],
+      }),
       postApiV1UsersByAuthIdEmailMfa: build.mutation<
         PostApiV1UsersByAuthIdEmailMfaApiResponse,
         PostApiV1UsersByAuthIdEmailMfaApiArg
@@ -608,6 +625,24 @@ export type DeleteApiV1UsersByAuthIdConsentedAppsAndAppIdApiArg = {
   /** The id of the app */
   appId: number;
 };
+export type GetApiV1UsersByAuthIdPasskeysApiResponse =
+  /** status 200 A list of passkeys */ {
+    passkeys?: UserPasskey[];
+  };
+export type GetApiV1UsersByAuthIdPasskeysApiArg = {
+  /** The authId of the user */
+  authId: string;
+};
+export type DeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdApiResponse =
+  /** status 200 undefined */ {
+    success?: boolean;
+  };
+export type DeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdApiArg = {
+  /** The authId of the user */
+  authId: string;
+  /** The id of the passkey */
+  passkeyId: number;
+};
 export type PostApiV1UsersByAuthIdEmailMfaApiResponse = unknown;
 export type PostApiV1UsersByAuthIdEmailMfaApiArg = {
   /** The authId of the user */
@@ -880,6 +915,11 @@ export type UserConsentedApp = {
   appId: number;
   appName: string;
 };
+export type UserPasskey = {
+  id: number;
+  credentialId: string;
+  counter: number;
+};
 export type EmailLog = {
   id: number;
   success: boolean;
@@ -951,6 +991,9 @@ export const {
   useGetApiV1UsersByAuthIdConsentedAppsQuery,
   useLazyGetApiV1UsersByAuthIdConsentedAppsQuery,
   useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation,
+  useGetApiV1UsersByAuthIdPasskeysQuery,
+  useLazyGetApiV1UsersByAuthIdPasskeysQuery,
+  useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation,
   usePostApiV1UsersByAuthIdEmailMfaMutation,
   useDeleteApiV1UsersByAuthIdEmailMfaMutation,
   usePostApiV1UsersByAuthIdOtpMfaMutation,
