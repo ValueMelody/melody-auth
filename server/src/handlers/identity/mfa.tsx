@@ -2,12 +2,17 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
   verifyRegistrationResponse, generateRegistrationOptions,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
 } from '@simplewebauthn/server'
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
-import { identityDto } from 'dtos'
 import {
+  identityDto, oauthDto,
+} from 'dtos'
+import {
+  appService,
   brandingService,
   emailService, kvService, passkeyService, smsService, userService,
 } from 'services'
@@ -25,6 +30,7 @@ import {
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
 import { EnrollOptions } from 'views/AuthorizePasskeyEnroll'
+import { oauthHandler } from 'handlers'
 
 const allowOtpSwitchToEmailMfa = (
   c: Context<typeConfig.Context>,
@@ -648,17 +654,18 @@ export const getAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>) 
     challenge,
   )
 
+  const {
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
   const enrollOptions: EnrollOptions = {
+    rpId: identityUtil.getPasskeyRpId(c),
     userId: authCodeStore.user.id,
     userEmail: authCodeStore.user.email ?? '',
     userDisplayName: `${authCodeStore.user.firstName ?? ''} ${authCodeStore.user.lastName ?? ''}`,
     challenge,
   }
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
 
   return c.html(<AuthorizePasskeyEnrollView
     branding={await brandingService.getBranding(
@@ -698,6 +705,7 @@ export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>)
       response: bodyDto.enrollInfo,
       expectedChallenge: challenge,
       expectedOrigin: authServerUrl,
+      expectedRPID: identityUtil.getPasskeyRpId(c),
     })
   } catch (error) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
@@ -712,12 +720,146 @@ export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>)
   }
 
   await passkeyService.createUserPasskey(
-    c.env.DB,
+    c,
     authCodeStore.user.id,
     passkeyId,
     cryptoUtil.uint8ArrayToBase64(passkeyPublickey),
     passkeyCounter,
   )
 
-  return c.json({ success: true })
+  return c.json(await identityUtil.processPostAuthorize(
+    c,
+    identityUtil.AuthorizeStep.PasskeyEnroll,
+    bodyDto.code,
+    authCodeStore,
+  ))
+}
+
+export const postAuthorizePasskeyEnrollDecline = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  return c.json(await identityUtil.processPostAuthorize(
+    c,
+    identityUtil.AuthorizeStep.PasskeyEnroll,
+    bodyDto.code,
+    authCodeStore,
+  ))
+}
+
+export const getAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>) => {
+  const dto = new identityDto.GetAuthorizePasskeyVerifyReqDto({ email: c.req.query('email') ?? '' })
+  await validateUtil.dto(dto)
+
+  const userAndPasskey = await passkeyService.getUserAndPasskeyByEmail(
+    c,
+    dto.email,
+  )
+
+  if (!userAndPasskey) {
+    return c.json({ passkeyOption: null })
+  }
+
+  const options = await generateAuthenticationOptions({
+    rpID: identityUtil.getPasskeyRpId(c),
+    allowCredentials: [{ id: userAndPasskey.passkey.credentialId }],
+  })
+
+  await kvService.setPasskeyVerifyChallenge(
+    c.env.KV,
+    dto.email,
+    options.challenge,
+  )
+
+  return c.json({ passkeyOption: options })
+}
+
+export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizePasskeyVerifyReqDto({
+    ...reqBody,
+    scopes: reqBody.scope.split(' '),
+  })
+  await validateUtil.dto(bodyDto)
+
+  const challenge = await kvService.getPasskeyVerifyChallenge(
+    c.env.KV,
+    bodyDto.email,
+  )
+  if (!challenge) throw new errorConfig.Forbidden(localeConfig.Error.InvalidRequest)
+
+  const userAndPasskey = await passkeyService.getUserAndPasskeyByEmail(
+    c,
+    bodyDto.email,
+  )
+  if (!userAndPasskey) throw new errorConfig.Forbidden(localeConfig.Error.InvalidRequest)
+  const {
+    user, passkey,
+  } = userAndPasskey
+
+  const { AUTH_SERVER_URL: authServerUrl } = env(c)
+
+  let verification
+  try {
+    verification = await verifyAuthenticationResponse({
+      response: bodyDto.passkeyInfo,
+      expectedChallenge: challenge,
+      expectedOrigin: authServerUrl,
+      expectedRPID: identityUtil.getPasskeyRpId(c),
+      credential: {
+        id: passkey.credentialId,
+        publicKey: cryptoUtil.base64ToUint8Array(passkey.publicKey),
+        counter: passkey.counter,
+      },
+    })
+  } catch (error) {
+    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+  }
+
+  if (!verification.verified) {
+    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+  }
+
+  await passkeyService.updatePasskeyCounter(
+    c,
+    passkey.id,
+    verification.authenticationInfo.newCounter,
+  )
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
+  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+
+  const authCodeBody = {
+    appId: app.id,
+    appName: app.name,
+    user,
+    request,
+    isFullyAuthorized: true,
+  }
+
+  const authCode = await oauthHandler.createFullAuthorize(
+    c,
+    authCodeBody,
+  )
+
+  return c.json(await identityUtil.processPostAuthorize(
+    c,
+    identityUtil.AuthorizeStep.PasskeyVerify,
+    authCode,
+    authCodeBody,
+  ))
 }

@@ -38,6 +38,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     GITHUB_AUTH_CLIENT_ID: githubAuthId,
     GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
     GITHUB_AUTH_APP_NAME: githubAppName,
+    ALLOW_PASSKEY_ENROLLMENT: allowPasskey,
   } = env(c)
 
   const isBasePolicy = !queryDto.policy || queryDto.policy === Policy.SignInOrSignUp
@@ -51,6 +52,7 @@ export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const queryString = requestUtil.getQueryString(c)
 
   return c.html(<AuthorizePasswordView
+    allowPasskey={allowPasskey}
     queryString={queryString}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     queryDto={queryDto}

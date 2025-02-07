@@ -64,6 +64,7 @@ export type Bindings = {
   GOOGLE_AUTH_CLIENT_ID: string;
   ENFORCE_ONE_MFA_ENROLLMENT: userModel.MfaType[];
   ALLOW_EMAIL_MFA_AS_BACKUP: boolean;
+  ALLOW_PASSKEY_ENROLLMENT: boolean;
   ACCOUNT_LOCKOUT_THRESHOLD: number;
   ACCOUNT_LOCKOUT_EXPIRES_IN: number;
   UNLOCK_ACCOUNT_VIA_PASSWORD_RESET: boolean;
@@ -99,6 +100,7 @@ export interface AuthCodeBody {
   user: userModel.Record;
   appId: number;
   appName: string;
+  isFullyAuthorized?: boolean;
 }
 
 export interface AccessTokenBody {

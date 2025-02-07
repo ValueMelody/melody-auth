@@ -171,3 +171,13 @@ export const uint8ArrayToBase64 = (u8: Uint8Array) => {
   }
   return btoa(binary)
 }
+
+export const base64ToUint8Array = (base64: string) => {
+  const binary = atob(base64)
+  const buffer = new ArrayBuffer(binary.length)
+  const view = new Uint8Array(buffer)
+  for (let i = 0; i < binary.length; i++) {
+    view[i] = binary.charCodeAt(i)
+  }
+  return view
+}

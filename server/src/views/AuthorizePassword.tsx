@@ -27,6 +27,7 @@ const AuthorizePassword = ({
   enablePasswordReset, enablePasswordSignIn,
   queryString, locales,
   googleClientId, facebookClientId, githubClientId,
+  allowPasskey,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   branding: Branding;
@@ -38,6 +39,7 @@ const AuthorizePassword = ({
   googleClientId: string;
   facebookClientId: string;
   githubClientId: string;
+  allowPasskey: boolean;
 }) => {
   return (
     <Layout
@@ -45,6 +47,7 @@ const AuthorizePassword = ({
       branding={branding}
       locale={queryDto.locale}
     >
+      {allowPasskey && <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>}
       {googleClientId && (
         <script
           src='https://accounts.google.com/gsi/client'
@@ -87,8 +90,18 @@ const AuthorizePassword = ({
                 name='email'
                 autocomplete='email'
               />
+              {allowPasskey && (
+                <button
+                  id='passkey-verify'
+                  type='button'
+                  className='button mt-2 mb-4 hidden'
+                  onclick='handleVerifyPasskey()'>
+                  {localeConfig.authorizePassword.withPasskey[queryDto.locale]}
+                </button>
+              )}
               <Field
                 label={localeConfig.authorizePassword.password[queryDto.locale]}
+                className={allowPasskey ? 'hidden' : ''}
                 type='password'
                 required
                 name='password'
@@ -96,8 +109,18 @@ const AuthorizePassword = ({
               />
             </>
           )}
+          {allowPasskey && (
+            <button
+              id='passkey-load'
+              type='button'
+              className='button mt-4'
+              onclick='handleCheckPasskey()'>
+              {localeConfig.authorizePassword.continue[queryDto.locale]}
+            </button>
+          )}
           {enablePasswordSignIn && (
             <SubmitButton
+              className={allowPasskey ? 'hidden' : ''}
               title={localeConfig.authorizePassword.submit[queryDto.locale]}
             />
           )}
@@ -254,6 +277,71 @@ const AuthorizePassword = ({
     )}
             })
             .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
+        </script>
+      `}
+      {allowPasskey && html`
+        <script>
+          var passkeyOption = null
+          function handleCheckPasskey() {
+            var email = document.getElementById('form-email').value
+            fetch('${routeConfig.IdentityRoute.AuthorizePasskeyVerify}?email=' + email)
+            .then((response) => {
+              ${responseScript.parseRes()}
+            })
+            .then((data) => {
+              passkeyOption = data.passkeyOption
+              document.getElementById('submit-button').classList.remove('hidden')
+              document.getElementById('password-row').classList.remove('hidden')
+              document.getElementById('passkey-load').classList.add('hidden')
+              if (passkeyOption) {
+                document.getElementById('passkey-verify').classList.remove('hidden')
+              }
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
+          function verifyPasskey(passkeyInfo) {
+            var email = document.getElementById('form-email').value
+            fetch('${routeConfig.IdentityRoute.AuthorizePasskeyVerify}', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                locale: "${queryDto.locale}",
+                passkeyInfo,
+                email,
+                ${requestScript.parseAuthorizeBaseValues(queryDto)}
+              })
+            })
+            .then((response) => {
+              ${responseScript.parseRes()}
+            })
+            .then((data) => {
+              ${responseScript.handleAuthorizeFormRedirect(
+      queryDto.locale,
+      queryDto.org,
+    )}
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
+          function handleVerifyPasskey() {
+            navigator.credentials.get({ publicKey: {
+              challenge: window.SimpleWebAuthnBrowser.base64URLStringToBuffer(passkeyOption.challenge),
+              allowCredentials: passkeyOption.allowCredentials.map((credential) => ({
+                id: window.SimpleWebAuthnBrowser.base64URLStringToBuffer(credential.id),
+                type: 'public-key',
+              })),
+            } }).then((res) => {
+              verifyPasskey(res)
+            }).catch((error) => {
               ${responseScript.handleSubmitError(queryDto.locale)}
             });
           }

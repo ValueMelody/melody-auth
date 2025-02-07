@@ -2,7 +2,7 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { typeConfig } from 'configs'
 import {
-  consentService, sessionService,
+  consentService, passkeyService, sessionService,
 } from 'services'
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
@@ -13,13 +13,15 @@ export enum AuthorizeStep {
   Account = 0,
   Password = 0,
   Social = 0,
+  PasskeyVerify = 0,
   Consent = 1,
   MfaEnroll = 2,
   OtpMfa = 3,
   SmsMfa = 4,
   EmailMfa = 5,
-  ChangePassword = 6,
-  ChangeEmail = 6,
+  PasskeyEnroll = 6,
+  ChangePassword = 7,
+  ChangeEmail = 7,
 }
 
 export const processPostAuthorize = async (
@@ -46,6 +48,16 @@ export const processPostAuthorize = async (
     }
   }
 
+  const authorizedResult = {
+    code: authCode,
+    redirectUri: authCodeBody.request.redirectUri,
+    state: authCodeBody.request.state,
+    scopes: authCodeBody.request.scopes,
+    nextPage: undefined,
+  }
+
+  if (authCodeBody.isFullyAuthorized) return authorizedResult
+
   const isSocialLogin = !!authCodeBody.user.socialAccountId
 
   const {
@@ -55,6 +67,7 @@ export const processPostAuthorize = async (
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
     ENABLE_PASSWORD_RESET: enablePasswordReset,
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
+    ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
   } = env(c)
 
   const requireMfaEnroll =
@@ -107,7 +120,23 @@ export const processPostAuthorize = async (
     }
   }
 
-  if (step < 6 && !isSocialLogin) {
+  const requirePasskeyEnroll =
+    step < 6 &&
+    !isSocialLogin &&
+    enablePasskeyEnrollment
+  if (requirePasskeyEnroll) {
+    const passkey = await passkeyService.getPasskeyByUser(
+      c,
+      authCodeBody.user.id,
+    )
+    if (!passkey) {
+      return {
+        ...basicInfo, nextPage: IdentityRoute.AuthorizePasskeyEnroll,
+      }
+    }
+  }
+
+  if (step < 7 && !isSocialLogin) {
     const requireChangePassword = enablePasswordReset && authCodeBody.request.policy === Policy.ChangePassword
     if (requireChangePassword) {
       return {
@@ -132,17 +161,14 @@ export const processPostAuthorize = async (
 
   sessionService.setAuthInfoSession(
     c,
-    authCodeBody.appId,
-    authCodeBody.appName,
-    authCodeBody.user,
-    authCodeBody.request,
+    authCodeBody,
   )
 
-  return {
-    code: authCode,
-    redirectUri: authCodeBody.request.redirectUri,
-    state: authCodeBody.request.state,
-    scopes: authCodeBody.request.scopes,
-    nextPage: undefined,
-  }
+  return authorizedResult
+}
+
+export const getPasskeyRpId = (c: Context<typeConfig.Context>) => {
+  const { AUTH_SERVER_URL: authServerUrl } = env(c)
+  const url = new URL(authServerUrl)
+  return url.hostname
 }

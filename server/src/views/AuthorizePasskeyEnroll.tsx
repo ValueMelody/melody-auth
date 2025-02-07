@@ -10,6 +10,7 @@ import SubmitError from 'views/components/SubmitError'
 import Title from 'views/components/Title'
 
 export interface EnrollOptions {
+  rpId: string;
   userId: number;
   userEmail: string;
   userDisplayName: string;
@@ -31,15 +32,22 @@ const AuthorizePasskeyEnroll = ({
       locale={queryDto.locale}
     >
       <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>
-      <Title title={localeConfig.authorizeMfaEnroll.title[queryDto.locale]} />
+      <Title title={localeConfig.authorizePasskeyEnroll.title[queryDto.locale]} />
       <SubmitError />
-      <section class='flex-col justify-around w-full gap-4 mt-4'>
+      <section class='mt-4 flex-row gap-8 w-full'>
         <button
-          class='button'
+          class='button-secondary w-full'
+          type='button'
+          onclick='handleDecline()'
+        >
+          {localeConfig.authorizePasskeyEnroll.skip[queryDto.locale]}
+        </button>
+        <button
+          class='button-secondary w-full'
           type='button'
           onclick={'handleEnroll()'}
         >
-          enroll
+          {localeConfig.authorizePasskeyEnroll.enroll[queryDto.locale]}
         </button>
       </section>
       {html`
@@ -47,7 +55,7 @@ const AuthorizePasskeyEnroll = ({
           function handleEnroll() {
             navigator.credentials.create({ publicKey: {
               challenge: window.SimpleWebAuthnBrowser.base64URLStringToBuffer("${enrollOptions.challenge}"),
-              rp: { name: "Melody Auth Service" },
+              rp: { name: "Melody Auth Service", id: "${enrollOptions.rpId}" },
               user: {
                 id: new TextEncoder().encode("${enrollOptions.userId}"),
                 name: new TextEncoder().encode("${enrollOptions.userEmail}"),
@@ -64,6 +72,31 @@ const AuthorizePasskeyEnroll = ({
             }}).then((res) => {
               submitEnroll(res)
             })
+          }
+          function handleDecline() {
+            fetch('${routeConfig.IdentityRoute.AuthorizePasskeyEnrollDecline}', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                code: "${queryDto.code}",
+                locale: "${queryDto.locale}",
+              })
+            })
+            .then((response) => {
+              ${responseScript.parseRes()}
+            })
+            .then((data) => {
+              ${responseScript.handleAuthorizeFormRedirect(
+      queryDto.locale,
+      queryDto.org,
+    )}
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
           }
           function submitEnroll(enrollInfo) {
             fetch('${routeConfig.IdentityRoute.AuthorizePasskeyEnroll}', {

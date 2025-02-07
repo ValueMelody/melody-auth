@@ -178,6 +178,14 @@ export const authorizePassword = Object.freeze({
     en: 'Log in with GitHub',
     fr: 'Se connecter avec GitHub',
   },
+  continue: {
+    en: 'Continue',
+    fr: 'Continuer',
+  },
+  withPasskey: {
+    en: 'Log in with Passkey',
+    fr: 'Se connecter avec Passkey',
+  },
 })
 
 export const authorizeAccount = Object.freeze({
@@ -343,6 +351,21 @@ export const authorizeEmailMfa = Object.freeze({
   resent: {
     en: 'New code sent.',
     fr: 'Nouveau code envoyé.',
+  },
+})
+
+export const authorizePasskeyEnroll = Object.freeze({
+  title: {
+    en: 'Enroll Passkey for a faster and more secure login process',
+    fr: 'Enregistrer Passkey pour un processus de connexion plus rapide et plus sécurisé',
+  },
+  enroll: {
+    en: 'Enroll',
+    fr: 'Enregistrer',
+  },
+  skip: {
+    en: 'Skip',
+    fr: 'Passer',
   },
 })
 

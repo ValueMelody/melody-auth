@@ -1,4 +1,6 @@
-import { adapterConfig } from 'configs'
+import {
+  adapterConfig, errorConfig,
+} from 'configs'
 import { dbUtil } from 'utils'
 
 export interface Record {
@@ -13,6 +15,7 @@ export interface Record {
 }
 
 export interface Update {
+  counter?: number;
   updatedAt?: string;
   deletedAt?: string | null;
 }
@@ -37,5 +40,34 @@ export const create = async (
     create.counter,
   )
   const result = await dbUtil.d1Run(stmt)
+  return result.success
+}
+
+export const getByUser = async (
+  db: D1Database, userId: number,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "userId" = $1 AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(userId)
+  const passkey = await stmt.first() as Record | null
+  return passkey
+}
+
+export const update = async (
+  db: D1Database, id: number, update: Update,
+): Promise<boolean> => {
+  const updateKeys: (keyof Update)[] = [
+    'counter', 'updatedAt', 'deletedAt',
+  ]
+  const stmt = dbUtil.d1UpdateQuery(
+    db,
+    TableName,
+    id,
+    updateKeys,
+    update,
+  )
+
+  const result = await dbUtil.d1Run(stmt)
+  if (!result.success) throw new errorConfig.InternalServerError()
   return result.success
 }

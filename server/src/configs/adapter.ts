@@ -27,6 +27,7 @@ export enum BaseKVKey {
   SmsMfaCode = 'SMC',
   EmailVerificationCode = 'EVC',
   PasskeyEnrollChallenge = 'PEC',
+  PasskeyVerifyChallenge = 'PVC',
   PasswordResetCode = 'PRC',
   FailedLoginAttempts = 'FLA',
   FailedOtpMfaAttempts = 'FMA',
