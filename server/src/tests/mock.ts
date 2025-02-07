@@ -151,6 +151,7 @@ const formatUser = (raw: userModel.Raw) => ({
   otpVerified: Number(raw.otpVerified),
   smsPhoneNumberVerified: Number(raw.smsPhoneNumberVerified),
   loginCount: Number(raw.loginCount),
+  skipPasskeyEnroll: Number(raw.skipPasskeyEnroll),
 })
 
 export const mock = (db: any) => {

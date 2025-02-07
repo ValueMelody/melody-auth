@@ -2451,7 +2451,7 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
         })
 
-        const user = db.prepare('SELECT * from user WHERE "id" = 1').get() as userModel.Raw
+        const user = await db.prepare('SELECT * from "user" WHERE "id" = 1').get() as userModel.Raw
         expect(user.skipPasskeyEnroll).toBe(0)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
@@ -2493,7 +2493,7 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
         })
 
-        const user = db.prepare('SELECT * from user WHERE "id" = 1').get() as userModel.Raw
+        const user = await db.prepare('SELECT * from "user" WHERE "id" = 1').get() as userModel.Raw
         expect(user.skipPasskeyEnroll).toBe(1)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
