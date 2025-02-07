@@ -124,7 +124,7 @@ export const processPostAuthorize = async (
     step < 6 &&
     !isSocialLogin &&
     enablePasskeyEnrollment
-  if (requirePasskeyEnroll) {
+  if (requirePasskeyEnroll && !authCodeBody.user.skipPasskeyEnroll) {
     const passkey = await passkeyService.getPasskeyByUser(
       c,
       authCodeBody.user.id,

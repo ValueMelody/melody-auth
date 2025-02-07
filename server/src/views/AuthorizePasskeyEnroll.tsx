@@ -50,6 +50,13 @@ const AuthorizePasskeyEnroll = ({
           {localeConfig.authorizePasskeyEnroll.enroll[queryDto.locale]}
         </button>
       </section>
+      <section class='flex-row w-full'>
+        <input
+          type='checkbox'
+          id='skipPasskeyEnroll'
+          class='ml-12 mr-2' />
+        <label htmlFor='skipPasskeyEnroll'>{localeConfig.authorizePasskeyEnroll.rememberSkip[queryDto.locale]}</label>
+      </section>
       {html`
         <script>
           function handleEnroll() {
@@ -83,6 +90,7 @@ const AuthorizePasskeyEnroll = ({
               body: JSON.stringify({
                 code: "${queryDto.code}",
                 locale: "${queryDto.locale}",
+                remember: document.getElementById('skipPasskeyEnroll').checked
               })
             })
             .then((response) => {

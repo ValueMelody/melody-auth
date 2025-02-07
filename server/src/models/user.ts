@@ -40,6 +40,7 @@ export interface Common {
 export interface Raw extends Common {
   emailVerified: number;
   otpVerified: number;
+  skipPasskeyEnroll: number;
   smsPhoneNumberVerified: number;
   isActive: number;
   mfaTypes: string;
@@ -48,6 +49,7 @@ export interface Raw extends Common {
 export interface Record extends Common {
   emailVerified: boolean;
   otpVerified: boolean;
+  skipPasskeyEnroll: boolean;
   smsPhoneNumberVerified: boolean;
   isActive: boolean;
   mfaTypes: string[];
@@ -116,6 +118,7 @@ export interface Update {
   emailVerified?: number;
   otpVerified?: number;
   linkedAuthId?: string | null;
+  skipPasskeyEnroll?: number;
 }
 
 const TableName = `"${adapterConfig.TableName.User}"`
@@ -123,6 +126,7 @@ const TableName = `"${adapterConfig.TableName.User}"`
 export const convertToRecord = (raw: Raw): Record => ({
   ...raw,
   emailVerified: !!raw.emailVerified,
+  skipPasskeyEnroll: !!raw.skipPasskeyEnroll,
   otpVerified: !!raw.otpVerified,
   smsPhoneNumberVerified: !!raw.smsPhoneNumberVerified,
   isActive: !!raw.isActive,
@@ -327,6 +331,7 @@ export const update = async (
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
     'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
     'smsPhoneNumber', 'smsPhoneNumberVerified', 'email', 'linkedAuthId', 'orgSlug',
+    'skipPasskeyEnroll',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,
