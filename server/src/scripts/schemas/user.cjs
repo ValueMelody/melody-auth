@@ -82,6 +82,16 @@ const UserConsentedApp = {
   required: ['appId', 'appName'],
 }
 
+const UserPasskey = {
+  type: 'object',
+  properties: {
+    id: { type: 'number' },
+    credentialId: { type: 'string' },
+    counter: { type: 'number' },
+  },
+  required: ['id', 'credentialId', 'counter'],
+}
+
 const PutUserReq = {
   type: 'object',
   properties: {
@@ -97,5 +107,5 @@ const PutUserReq = {
 }
 
 module.exports = {
-  User, UserDetail, PutUserReq, UserConsentedApp,
+  User, UserDetail, UserPasskey, PutUserReq, UserConsentedApp,
 }

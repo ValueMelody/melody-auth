@@ -1,5 +1,7 @@
 import { Context } from 'hono'
-import { typeConfig } from 'configs'
+import {
+  errorConfig, typeConfig,
+} from 'configs'
 import {
   userModel, userPasskeyModel,
 } from 'models'
@@ -65,4 +67,21 @@ export const updatePasskeyCounter = async (
     { counter },
   )
   return isUpdated
+}
+
+export const deletePasskey = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+  passkeyId: number,
+) => {
+  const passkey = await userPasskeyModel.getByUser(
+    c.env.DB,
+    userId,
+  )
+  if (!passkey || passkey.id !== passkeyId) throw new errorConfig.UnAuthorized()
+
+  return userPasskeyModel.remove(
+    c.env.DB,
+    passkeyId,
+  )
 }

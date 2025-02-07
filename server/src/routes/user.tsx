@@ -299,6 +299,76 @@ userRoutes.delete(
 
 /**
  * @swagger
+ * /api/v1/users/{authId}/passkeys:
+ *   get:
+ *     summary: Get a list of passkeys for a user
+ *     description: Required scope - read_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       200:
+ *         description: A list of passkeys
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 passkeys:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserPasskey'
+ */
+userRoutes.get(
+  `${BaseRoute}/:authId/passkeys`,
+  authMiddleware.s2sReadUser,
+  userHandler.getUserPasskeys,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/passkeys/{passkeyId}:
+ *   delete:
+ *     summary: Remove a passkey for a user
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The authId of the user
+ *       - in: path
+ *         name: passkeyId
+ *         schema:
+ *           type: number
+ *         required: true
+ *         description: The id of the passkey
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/passkeys/:passkeyId`,
+  authMiddleware.s2sWriteUser,
+  userHandler.removeUserPasskey,
+)
+
+/**
+ * @swagger
  * /api/v1/users/{authId}/email-mfa:
  *   post:
  *     summary: enroll user for email MFA.

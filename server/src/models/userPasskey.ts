@@ -71,3 +71,16 @@ export const update = async (
   if (!result.success) throw new errorConfig.InternalServerError()
   return result.success
 }
+
+export const remove = async (
+  db: D1Database, id: number,
+): Promise<true> => {
+  const stmt = dbUtil.d1SoftDeleteQuery(
+    db,
+    TableName,
+    id,
+  )
+
+  await dbUtil.d1Run(stmt)
+  return true
+}

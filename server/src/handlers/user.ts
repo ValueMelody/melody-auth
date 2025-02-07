@@ -4,7 +4,7 @@ import {
 } from 'configs'
 import {
   consentService,
-  emailService, kvService, userService,
+  emailService, kvService, passkeyService, userService,
 } from 'services'
 import { userDto } from 'dtos'
 import { validateUtil } from 'utils'
@@ -53,6 +53,47 @@ export const getUserAppConsents = async (c: Context<typeConfig.Context>) => {
     user.id,
   )
   return c.json({ consentedApps })
+}
+
+export const getUserPasskeys = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  const passkey = await passkeyService.getPasskeyByUser(
+    c,
+    user.id,
+  )
+  return c.json({
+    passkeys: passkey
+      ? [{
+        id: passkey.id,
+        credentialId: passkey.credentialId,
+        counter: passkey.counter,
+        createdAt: passkey.createdAt,
+        updatedAt: passkey.updatedAt,
+        deletedAt: passkey.deletedAt,
+      }]
+      : [],
+  })
+}
+
+export const removeUserPasskey = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const passkeyId = c.req.param('passkeyId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+  await passkeyService.deletePasskey(
+    c,
+    user.id,
+    Number(passkeyId),
+  )
+  c.status(204)
+  return c.body(null)
 }
 
 export const getUserLockedIPs = async (c: Context<typeConfig.Context>) => {

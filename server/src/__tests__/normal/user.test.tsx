@@ -17,6 +17,7 @@ import {
 } from 'tests/mock'
 import {
   userAppConsentModel, userModel,
+  userPasskeyModel,
 } from 'models'
 import {
   attachIndividualScopes,
@@ -1463,6 +1464,98 @@ describe(
         const user2Json = await user2Res.json() as { user: userModel.Record }
         expect(user1Json.user.linkedAuthId).toBe(null)
         expect(user2Json.user.linkedAuthId).toBe(null)
+      },
+    )
+  },
+)
+
+describe(
+  'get user passkeys',
+  () => {
+    test(
+      'should return user passkeys',
+      async () => {
+        await insertUsers()
+
+        await db.exec(`
+          INSERT INTO "user_passkey"
+          ("userId", "credentialId", "publicKey", "counter")
+          values (1, 'abc', 'def', 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/passkeys`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { passkeys: userPasskeyModel.Record[] }
+        expect(json.passkeys).toStrictEqual([{
+          id: 1,
+          credentialId: 'abc',
+          counter: 1,
+          createdAt: dbTime,
+          updatedAt: dbTime,
+          deletedAt: null,
+        }])
+
+        const res2 = await app.request(
+          `${BaseRoute}/1-1-1-2/passkeys`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json2 = await res2.json() as { passkeys: userPasskeyModel.Record[] }
+        expect(json2.passkeys).toStrictEqual([])
+      },
+    )
+
+    test(
+      'should throw error if user not found',
+      async () => {
+        await insertUsers()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-3/passkeys`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+      },
+    )
+  },
+)
+
+describe(
+  'delete passkey',
+  () => {
+    test(
+      'should delete user passkey',
+      async () => {
+        await insertUsers()
+
+        await db.exec(`
+          INSERT INTO "user_passkey"
+          ("userId", "credentialId", "publicKey", "counter")
+          values (1, 'abc', 'def', 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/passkeys/1`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const checkRes = await app.request(
+          `${BaseRoute}/1-1-1-1/passkeys`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const checkJson = await checkRes.json() as { passkeys: userPasskeyModel.Record[] }
+        expect(checkJson.passkeys).toStrictEqual([])
       },
     )
   },

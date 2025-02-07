@@ -51,7 +51,9 @@ describe(
         const document = dom.window.document
         expect(document.getElementsByName('email').length).toBe(1)
         expect(document.getElementsByName('password').length).toBe(1)
+        expect(document.getElementById('password-row')?.classList).not.toContain('hidden')
         expect(document.getElementById('submit-button')).toBeTruthy()
+        expect(document.getElementById('submit-button')?.classList).not.toContain('hidden')
         expect(document.getElementsByTagName('form').length).toBe(1)
 
         expect(document.getElementsByClassName('g_id_signin').length).toBe(0)
@@ -63,6 +65,31 @@ describe(
         expect(links[0].innerHTML).toBe(localeConfig.authorizePassword.signUp.en)
         expect(links[1].innerHTML).toBe(localeConfig.authorizePassword.passwordReset.en)
         expect(links[2].innerHTML).toBe(localeConfig.common.poweredByAuth.en)
+      },
+    )
+
+    test(
+      'should only show email if passkey enroll enabled',
+      async () => {
+        global.process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.IdentityRoute.AuthorizePassword,
+          appRecord,
+        )
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByName('email').length).toBe(1)
+        expect(document.getElementsByName('password').length).toBe(1)
+        expect(document.getElementById('password-row')?.classList).toContain('hidden')
+        expect(document.getElementById('submit-button')).toBeTruthy()
+        expect(document.getElementById('submit-button')?.classList).toContain('hidden')
+        expect(document.getElementsByTagName('form').length).toBe(1)
+
+        global.process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
     )
 

@@ -51,11 +51,14 @@
   - Google Sign-In
   - Facebook Sign-In
   - GitHub Sign-In
+- <b>Organization</b>:
+  - Branding config override
 - <b>Multi-Factor Authentication</b> [How to setup MFA](https://auth.valuemelody.com/q_a.html#how-to-setup-mfa):
   - Email MFA
   - OTP MFA
   - SMS MFA
   - MFA Enrollment
+  - Passkey Enrollment
 - <b>Policy</b> [How to trigger a different policy](https://auth.valuemelody.com/q_a.html#how-to-trigger-a-different-policy)
   - sign_in_or_sign_up
   - change_password
@@ -78,8 +81,6 @@
   - SMS MFA attempts
   - Email MFA attempts
   - Change Email attempts
-- <b>Organization</b>:
-  - Branding config override
 - <b>Logging</b>:
   - Email Logs
   - SMS Logs
@@ -89,6 +90,7 @@
   - Manage Apps
   - Manage Scopes
   - Manage Roles
+  - Manage Organizations
   - View Logs
   - Localization
 
