@@ -73,6 +73,31 @@ const AuthorizePasskeyEnroll = ({
               submitEnroll(res)
             })
           }
+          function handleDecline() {
+            fetch('${routeConfig.IdentityRoute.AuthorizePasskeyEnrollDecline}', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                code: "${queryDto.code}",
+                locale: "${queryDto.locale}",
+              })
+            })
+            .then((response) => {
+              ${responseScript.parseRes()}
+            })
+            .then((data) => {
+              ${responseScript.handleAuthorizeFormRedirect(
+      queryDto.locale,
+      queryDto.org,
+    )}
+            })
+            .catch((error) => {
+              ${responseScript.handleSubmitError(queryDto.locale)}
+            });
+          }
           function submitEnroll(enrollInfo) {
             fetch('${routeConfig.IdentityRoute.AuthorizePasskeyEnroll}', {
               method: 'POST',

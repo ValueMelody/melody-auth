@@ -105,21 +105,34 @@ identityRoutes.post(
 
 identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizePasskeyEnroll,
+  configMiddleware.enablePasskeyEnrollment,
   identityHandler.getAuthorizePasskeyEnroll,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.AuthorizePasskeyEnroll,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasskeyEnrollment,
   identityHandler.postAuthorizePasskeyEnroll,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.AuthorizePasskeyEnrollDecline,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.postAuthorizePasskeyEnrollDecline,
 )
 
 identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+  configMiddleware.enablePasskeyEnrollment,
   identityHandler.getAuthorizePasskeyVerify,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasskeyEnrollment,
   identityHandler.postAuthorizePasskeyVerify,
 )
 

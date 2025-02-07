@@ -125,7 +125,10 @@ export const processPostAuthorize = async (
     !isSocialLogin &&
     enablePasskeyEnrollment
   if (requirePasskeyEnroll) {
-    const passkey = await passkeyService.getPasskeyByUser(c, authCodeBody.user.id)
+    const passkey = await passkeyService.getPasskeyByUser(
+      c,
+      authCodeBody.user.id,
+    )
     if (!passkey) {
       return {
         ...basicInfo, nextPage: IdentityRoute.AuthorizePasskeyEnroll,
@@ -158,7 +161,7 @@ export const processPostAuthorize = async (
 
   sessionService.setAuthInfoSession(
     c,
-    authCodeBody
+    authCodeBody,
   )
 
   return authorizedResult

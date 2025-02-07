@@ -2,7 +2,9 @@ import {
   IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
 } from 'class-validator'
 import { Context } from 'hono'
-import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
+import {
+  AuthenticationResponseJSON, RegistrationResponseJSON,
+} from '@simplewebauthn/server'
 import { typeConfig } from 'configs'
 import { oauthDto } from 'dtos'
 import {

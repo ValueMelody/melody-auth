@@ -55,7 +55,9 @@ export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Prom
   }
 }
 
-export const createFullAuthorize = async (c: Context<typeConfig.Context>, authInfo: typeConfig.AuthCodeBody) => {
+export const createFullAuthorize = async (
+  c: Context<typeConfig.Context>, authInfo: typeConfig.AuthCodeBody,
+) => {
   const authCode = genRandomString(128)
   const {
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
@@ -111,12 +113,15 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     queryDto.clientId,
   )
   if (stored && stored.request.clientId === queryDto.clientId) {
-    const authCode = await createFullAuthorize(c, {
-      appId: stored.appId,
-      appName: stored.appName,
-      user: stored.user,
-      request: queryDto,
-    })
+    const authCode = await createFullAuthorize(
+      c,
+      {
+        appId: stored.appId,
+        appName: stored.appName,
+        user: stored.user,
+        request: queryDto,
+      },
+    )
 
     if (!queryDto.policy || queryDto.policy === Policy.SignInOrSignUp) {
       const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`

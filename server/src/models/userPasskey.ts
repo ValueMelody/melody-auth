@@ -1,4 +1,6 @@
-import { adapterConfig, errorConfig } from 'configs'
+import {
+  adapterConfig, errorConfig,
+} from 'configs'
 import { dbUtil } from 'utils'
 
 export interface Record {
@@ -46,9 +48,7 @@ export const getByUser = async (
 ): Promise<Record | null> => {
   const query = `SELECT * FROM ${TableName} WHERE "userId" = $1 AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
-    .bind(
-      userId,
-    )
+    .bind(userId)
   const passkey = await stmt.first() as Record | null
   return passkey
 }

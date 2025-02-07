@@ -1,6 +1,8 @@
-import { typeConfig } from 'configs'
 import { Context } from 'hono'
-import { userModel, userPasskeyModel } from 'models'
+import { typeConfig } from 'configs'
+import {
+  userModel, userPasskeyModel,
+} from 'models'
 
 export const createUserPasskey = async (
   c: Context<typeConfig.Context>,
@@ -25,7 +27,10 @@ export const getPasskeyByUser = async (
   c: Context<typeConfig.Context>,
   userId: number,
 ) => {
-  const passkey = await userPasskeyModel.getByUser(c.env.DB, userId)
+  const passkey = await userPasskeyModel.getByUser(
+    c.env.DB,
+    userId,
+  )
   return passkey
 }
 
@@ -33,12 +38,20 @@ export const getUserAndPasskeyByEmail = async (
   c: Context<typeConfig.Context>,
   email: string,
 ) => {
-  const user = await userModel.getByEmail(c.env.DB, email)
+  const user = await userModel.getByEmail(
+    c.env.DB,
+    email,
+  )
   if (!user) return null
 
-  const passkey = await userPasskeyModel.getByUser(c.env.DB, user.id)
+  const passkey = await userPasskeyModel.getByUser(
+    c.env.DB,
+    user.id,
+  )
   if (!passkey) return null
-  return { user, passkey }
+  return {
+    user, passkey,
+  }
 }
 
 export const updatePasskeyCounter = async (
@@ -46,6 +59,10 @@ export const updatePasskeyCounter = async (
   passkeyId: number,
   counter: number,
 ) => {
-  const isUpdated = await userPasskeyModel.update(c.env.DB, passkeyId, { counter })
+  const isUpdated = await userPasskeyModel.update(
+    c.env.DB,
+    passkeyId,
+    { counter },
+  )
   return isUpdated
 }

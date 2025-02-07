@@ -46,6 +46,14 @@ export const enableOrg = async (
   await next()
 }
 
+export const enablePasskeyEnrollment = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ALLOW_PASSKEY_ENROLLMENT: enabledPasskeyEnrollment } = env(c)
+  if (!enabledPasskeyEnrollment) throw new errorConfig.Forbidden()
+  await next()
+}
+
 export const enableGoogleSignIn = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

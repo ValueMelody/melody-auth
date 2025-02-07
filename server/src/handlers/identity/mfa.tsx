@@ -8,7 +8,9 @@ import {
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
-import { identityDto, oauthDto } from 'dtos'
+import {
+  identityDto, oauthDto,
+} from 'dtos'
 import {
   appService,
   brandingService,
@@ -29,8 +31,6 @@ import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
 import { EnrollOptions } from 'views/AuthorizePasskeyEnroll'
 import { oauthHandler } from 'handlers'
-
-
 
 const allowOtpSwitchToEmailMfa = (
   c: Context<typeConfig.Context>,
@@ -735,26 +735,49 @@ export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>)
   ))
 }
 
+export const postAuthorizePasskeyEnrollDecline = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  return c.json(await identityUtil.processPostAuthorize(
+    c,
+    identityUtil.AuthorizeStep.PasskeyEnroll,
+    bodyDto.code,
+    authCodeStore,
+  ))
+}
+
 export const getAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>) => {
-  const dto = new identityDto.GetAuthorizePasskeyVerifyReqDto({
-    email: c.req.query('email') ?? '',
-  })
+  const dto = new identityDto.GetAuthorizePasskeyVerifyReqDto({ email: c.req.query('email') ?? '' })
   await validateUtil.dto(dto)
-  
-  const userAndPasskey = await passkeyService.getUserAndPasskeyByEmail(c, dto.email)
+
+  const userAndPasskey = await passkeyService.getUserAndPasskeyByEmail(
+    c,
+    dto.email,
+  )
 
   if (!userAndPasskey) {
     return c.json({ passkeyOption: null })
   }
 
-  const options: PublicKeyCredentialRequestOptionsJSON = await generateAuthenticationOptions({
+  const options = await generateAuthenticationOptions({
     rpID: identityUtil.getPasskeyRpId(c),
-    allowCredentials: [{
-      id: userAndPasskey.passkey.credentialId,
-    }]
-  });
+    allowCredentials: [{ id: userAndPasskey.passkey.credentialId }],
+  })
 
-  await kvService.setPasskeyVerifyChallenge(c.env.KV, dto.email, options.challenge)
+  await kvService.setPasskeyVerifyChallenge(
+    c.env.KV,
+    dto.email,
+    options.challenge,
+  )
 
   return c.json({ passkeyOption: options })
 }
@@ -768,16 +791,24 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
   })
   await validateUtil.dto(bodyDto)
 
-  const challenge = await kvService.getPasskeyVerifyChallenge(c.env.KV, bodyDto.email)
+  const challenge = await kvService.getPasskeyVerifyChallenge(
+    c.env.KV,
+    bodyDto.email,
+  )
   if (!challenge) throw new errorConfig.Forbidden(localeConfig.Error.InvalidRequest)
 
-  const userAndPasskey = await passkeyService.getUserAndPasskeyByEmail(c, bodyDto.email)
+  const userAndPasskey = await passkeyService.getUserAndPasskeyByEmail(
+    c,
+    bodyDto.email,
+  )
   if (!userAndPasskey) throw new errorConfig.Forbidden(localeConfig.Error.InvalidRequest)
-  const { user, passkey } = userAndPasskey
+  const {
+    user, passkey,
+  } = userAndPasskey
 
   const { AUTH_SERVER_URL: authServerUrl } = env(c)
 
-  let verification;
+  let verification
   try {
     verification = await verifyAuthenticationResponse({
       response: bodyDto.passkeyInfo,
@@ -789,7 +820,7 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
         publicKey: cryptoUtil.base64ToUint8Array(passkey.publicKey),
         counter: passkey.counter,
       },
-    });
+    })
   } catch (error) {
     throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
   }
@@ -798,7 +829,11 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
     throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
   }
 
-  await passkeyService.updatePasskeyCounter(c, passkey.id, verification.authenticationInfo.newCounter)
+  await passkeyService.updatePasskeyCounter(
+    c,
+    passkey.id,
+    verification.authenticationInfo.newCounter,
+  )
 
   const app = await appService.verifySPAClientRequest(
     c,
@@ -816,7 +851,10 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
     isFullyAuthorized: true,
   }
 
-  const authCode = await oauthHandler.createFullAuthorize(c, authCodeBody)
+  const authCode = await oauthHandler.createFullAuthorize(
+    c,
+    authCodeBody,
+  )
 
   return c.json(await identityUtil.processPostAuthorize(
     c,

@@ -33,7 +33,7 @@ export const getAuthInfoSession = (
   if (sessionExpiresIn) {
     const session = c.get('session')
     const key = adapterConfig.getAuthInfoSessionKeyByClientId(clientId)
-    const stored = session.get(key) as AuthInfo & {expiresOn: number} | null
+    const stored = session.get(key) as typeConfig.AuthCodeBody & {expiresOn: number} | null
     if (!stored || timeUtil.getCurrentTimestamp() > stored.expiresOn) return null
 
     return stored

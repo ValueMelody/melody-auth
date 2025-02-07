@@ -27,7 +27,7 @@ const AuthorizePassword = ({
   enablePasswordReset, enablePasswordSignIn,
   queryString, locales,
   googleClientId, facebookClientId, githubClientId,
-  allowPasskey
+  allowPasskey,
 }: {
   queryDto: oauthDto.GetAuthorizeReqDto;
   branding: Branding;
@@ -91,7 +91,11 @@ const AuthorizePassword = ({
                 autocomplete='email'
               />
               {allowPasskey && (
-                <button id='passkey-verify' type='button' className='button mt-2 mb-4 hidden' onclick='handleVerifyPasskey()'>
+                <button
+                  id='passkey-verify'
+                  type='button'
+                  className='button mt-2 mb-4 hidden'
+                  onclick='handleVerifyPasskey()'>
                   {localeConfig.authorizePassword.withPasskey[queryDto.locale]}
                 </button>
               )}
@@ -106,7 +110,11 @@ const AuthorizePassword = ({
             </>
           )}
           {allowPasskey && (
-            <button id='passkey-load' type='button' className='button mt-4' onclick='handleCheckPasskey()'>
+            <button
+              id='passkey-load'
+              type='button'
+              className='button mt-4'
+              onclick='handleCheckPasskey()'>
               {localeConfig.authorizePassword.continue[queryDto.locale]}
             </button>
           )}

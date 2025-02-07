@@ -1,4 +1,6 @@
-const SubmitButton = ({ title, className }: {
+const SubmitButton = ({
+  title, className,
+}: {
   title: string;
   className?: string;
 }) => {
