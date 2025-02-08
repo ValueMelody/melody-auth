@@ -5,6 +5,13 @@ import { mock } from 'tests/mock'
 import { appModel } from 'models'
 import { routeConfig } from 'configs'
 
+export const getCodeFromParams = (params: string) => {
+  const codeParam = params.substring(1).split('&')
+    .find((s) => s.includes('code='))
+  const code = codeParam?.split('=')[1]
+  return code
+}
+
 export const insertUsers = (
   db: Database, withConsent = true,
 ) => {

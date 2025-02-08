@@ -8,12 +8,9 @@ import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
-  appService, jwtService, kvService, userService,
+  appService, jwtService, kvService, userService, identityService,
 } from 'services'
-import {
-  identityUtil,
-  validateUtil,
-} from 'utils'
+import { validateUtil } from 'utils'
 import {
   appModel, userModel,
 } from 'models'
@@ -79,9 +76,9 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
     user,
   )
 
-  return c.json(await identityUtil.processPostAuthorize(
+  return c.json(await identityService.processPostAuthorize(
     c,
-    identityUtil.AuthorizeStep.Social,
+    identityService.AuthorizeStep.Social,
     authCode,
     authCodeBody,
   ))
@@ -129,9 +126,9 @@ export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
     user,
   )
 
-  return c.json(await identityUtil.processPostAuthorize(
+  return c.json(await identityService.processPostAuthorize(
     c,
-    identityUtil.AuthorizeStep.Social,
+    identityService.AuthorizeStep.Social,
     authCode,
     authCodeBody,
   ))
@@ -185,9 +182,9 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
     user,
   )
 
-  const detail = await identityUtil.processPostAuthorize(
+  const detail = await identityService.processPostAuthorize(
     c,
-    identityUtil.AuthorizeStep.Social,
+    identityService.AuthorizeStep.Social,
     authCode,
     authCodeBody,
   )

@@ -8,6 +8,7 @@ import app from 'index'
 import {
   migrate, mock,
   mockedKV,
+  passkeyEnrollMock,
 } from 'tests/mock'
 import {
   adapterConfig, localeConfig, routeConfig,
@@ -23,6 +24,7 @@ import { cryptoUtil } from 'utils'
 import {
   enrollEmailMfa, enrollOtpMfa, enrollSmsMfa,
 } from 'tests/util'
+import { enrollPasskey } from '__tests__/normal/identity-passkey.test'
 
 let db: Database
 
@@ -658,7 +660,7 @@ describe(
     )
 
     test(
-      'should redirect if use wrong auth code',
+      'should throw error if use wrong auth code',
       async () => {
         await insertUsers(
           db,
@@ -679,6 +681,309 @@ describe(
         )
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+      },
+    )
+  },
+)
+
+describe(
+  'get /manage-passkey',
+  () => {
+    test(
+      'should show manage passkey page',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ManagePasskey}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementById('no-passkey')?.classList).not.toContain('hidden')
+        expect(document.getElementById('passkey')?.classList).toContain('hidden')
+        expect(document.getElementsByTagName('button').length).toBe(2)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should show manage passkey page with current passkey',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await enrollPasskey(db)
+
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ManagePasskey}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementById('no-passkey')?.classList).toContain('hidden')
+        expect(document.getElementById('passkey')?.classList).not.toContain('hidden')
+        expect(document.getElementsByTagName('button').length).toBe(2)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ManagePasskey}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'should redirect if use wrong auth code',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ManagePasskey}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ManagePasskey}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'post /manage-passkey',
+  () => {
+    test(
+      'should enroll passkey',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
+          'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
+        )
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          success: true,
+          passkey: {
+            credentialId: passkeyEnrollMock.id,
+            counter: 0,
+          },
+        })
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if use wrong auth code',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'en',
+              code: 'abc',
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
+          'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
+        )
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+      },
+    )
+  },
+)
+
+describe(
+  'delete /manage-passkey',
+  () => {
+    test(
+      'should remove passkey',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await enrollPasskey(db)
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'DELETE',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if use wrong auth code',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'DELETE',
+            body: JSON.stringify({
+              locale: 'en',
+              code: 'abc',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        await enrollPasskey(db)
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'DELETE',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
       },
     )
   },

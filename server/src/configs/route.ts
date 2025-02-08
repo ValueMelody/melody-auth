@@ -45,4 +45,5 @@ export enum IdentityRoute {
   ChangeEmail = `${InternalRoute.Identity}/change-email`,
   ChangeEmailCode = `${InternalRoute.Identity}/change-email-code`,
   ResetMfa = `${InternalRoute.Identity}/reset-mfa`,
+  ManagePasskey = `${InternalRoute.Identity}/manage-passkey`,
 }

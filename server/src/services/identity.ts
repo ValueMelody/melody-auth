@@ -24,6 +24,40 @@ export enum AuthorizeStep {
   ChangeEmail = 7,
 }
 
+const getNextPageForPolicy = (
+  c: Context<typeConfig.Context>, authCodeBody: AuthCodeBody, isSocialLogin: boolean,
+) => {
+  let nextPage
+  if (!isSocialLogin) {
+    const {
+      ENABLE_PASSWORD_RESET: enablePasswordReset,
+      ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
+      ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
+    } = env(c)
+
+    switch (authCodeBody.request.policy) {
+    case Policy.ChangePassword: {
+      if (enablePasswordReset) nextPage = IdentityRoute.ChangePassword
+      break
+    }
+    case Policy.ChangeEmail: {
+      if (enableEmailVerification) nextPage = IdentityRoute.ChangeEmail
+      break
+    }
+    case Policy.ResetMfa: {
+      nextPage = IdentityRoute.ResetMfa
+      break
+    }
+    case Policy.ManagePasskey: {
+      if (enablePasskeyEnrollment) nextPage = IdentityRoute.ManagePasskey
+      break
+    }
+    }
+  }
+
+  return nextPage
+}
+
 export const processPostAuthorize = async (
   c: Context<typeConfig.Context>,
   step: AuthorizeStep,
@@ -56,17 +90,24 @@ export const processPostAuthorize = async (
     nextPage: undefined,
   }
 
-  if (authCodeBody.isFullyAuthorized) return authorizedResult
-
   const isSocialLogin = !!authCodeBody.user.socialAccountId
+
+  if (authCodeBody.isFullyAuthorized) {
+    const nextPage = getNextPageForPolicy(
+      c,
+      authCodeBody,
+      isSocialLogin,
+    )
+    return {
+      ...authorizedResult, nextPage,
+    }
+  }
 
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
-    ENABLE_PASSWORD_RESET: enablePasswordReset,
-    ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
     ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
   } = env(c)
 
@@ -136,25 +177,15 @@ export const processPostAuthorize = async (
     }
   }
 
-  if (step < 7 && !isSocialLogin) {
-    const requireChangePassword = enablePasswordReset && authCodeBody.request.policy === Policy.ChangePassword
-    if (requireChangePassword) {
+  if (step < 7) {
+    const nextPage = getNextPageForPolicy(
+      c,
+      authCodeBody,
+      isSocialLogin,
+    )
+    if (nextPage) {
       return {
-        ...basicInfo, nextPage: IdentityRoute.ChangePassword,
-      }
-    }
-
-    const requireChangeEmail = enableEmailVerification && authCodeBody.request.policy === Policy.ChangeEmail
-    if (requireChangeEmail) {
-      return {
-        ...basicInfo, nextPage: IdentityRoute.ChangeEmail,
-      }
-    }
-
-    const requireResetMfa = authCodeBody.request.policy === Policy.ResetMfa
-    if (requireResetMfa) {
-      return {
-        ...basicInfo, nextPage: IdentityRoute.ResetMfa,
+        ...basicInfo, nextPage,
       }
     }
   }
@@ -165,10 +196,4 @@ export const processPostAuthorize = async (
   )
 
   return authorizedResult
-}
-
-export const getPasskeyRpId = (c: Context<typeConfig.Context>) => {
-  const { AUTH_SERVER_URL: authServerUrl } = env(c)
-  const url = new URL(authServerUrl)
-  return url.hostname
 }

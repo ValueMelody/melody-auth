@@ -12,6 +12,7 @@ import AuthCodeExpired from 'views/AuthCodeExpired'
 import ChangePassword from 'views/ChangePassword'
 import ChangeEmail from 'views/ChangeEmail'
 import ResetMfa from 'views/ResetMfa'
+import ManagePasskey from 'views/ManagePasskey'
 
 export {
   AuthorizeAccountView,
@@ -28,4 +29,5 @@ export {
   ChangePassword,
   ChangeEmail,
   ResetMfa,
+  ManagePasskey,
 }

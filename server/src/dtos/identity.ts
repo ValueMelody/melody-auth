@@ -309,3 +309,5 @@ export class PostAuthorizePasskeyEnrollDeclineReqDto extends GetAuthorizeFollowU
     this.remember = dto.remember
   }
 }
+
+export class DeleteManagePasskeyReqDto extends GetAuthorizeFollowUpReqDto {}

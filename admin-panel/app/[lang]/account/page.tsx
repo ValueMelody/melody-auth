@@ -4,10 +4,14 @@ import { useAuth } from '@melody-auth/react'
 import { Button } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import useCurrentLocale from 'hooks/useCurrentLocale'
+import useSignalValue from 'app/useSignalValue'
+import { configSignal } from 'signals'
 
 const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
+
+  const configs = useSignalValue(configSignal)
 
   const { loginRedirect } = useAuth()
 
@@ -29,6 +33,12 @@ const Page = () => {
     })
   }
 
+  const handleManagePasskey = () => {
+    loginRedirect({
+      locale: locale || undefined, policy: 'manage_passkey', org: 'default',
+    })
+  }
+
   return (
     <section className='flex flex-col gap-4 w-40'>
       <Button onClick={handleChangePassword}>
@@ -40,6 +50,11 @@ const Page = () => {
       <Button onClick={handleResetMfa}>
         {t('account.resetMfa')}
       </Button>
+      {configs.ALLOW_PASSKEY_ENROLLMENT && (
+        <Button onClick={handleManagePasskey}>
+          {t('account.managePasskey')}
+        </Button>
+      )}
     </section>
   )
 }

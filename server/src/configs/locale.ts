@@ -532,6 +532,45 @@ export const resetMfa = Object.freeze({
   },
 })
 
+export const managePasskey = Object.freeze({
+  title: {
+    en: 'Manage Passkey',
+    fr: 'Gérer Passkey',
+  },
+  active: {
+    en: 'Active Key',
+    fr: 'Clé active',
+  },
+  loginCount: {
+    en: 'Login count',
+    fr: 'Compteur de connexion',
+  },
+  remove: {
+    en: 'Remove',
+    fr: 'Supprimer',
+  },
+  enroll: {
+    en: 'Enroll',
+    fr: 'Enregistrer',
+  },
+  redirect: {
+    en: 'Redirect back',
+    fr: 'Rediriger en arrière',
+  },
+  removeSuccess: {
+    en: 'Passkey removed!',
+    fr: 'Passkey supprimé !',
+  },
+  noPasskey: {
+    en: 'No passkey found',
+    fr: 'Aucun Passkey trouvé',
+  },
+  enrollSuccess: {
+    en: 'Passkey enrolled!',
+    fr: 'Passkey enregistré !',
+  },
+})
+
 export const emailVerificationEmail = Object.freeze({
   subject: {
     en: 'Welcome to Melody Auth! Please verify your email address',
