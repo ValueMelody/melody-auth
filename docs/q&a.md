@@ -77,25 +77,24 @@ English (EN) and French (FR) are supported by default in this project. To add su
 
 ## How to rotate JWT secret
 To rotate your JWT secret, follow these steps:
-1. Generate a New JWT Secret
-Run the secret generation script based on your environment:
-```
-cd server
-npm run node:secret:generate # For node env
-npm run dev:secret:generate # For Cloudflare local env
-npm run prod:secret:generate # For Cloudflare remote env
-```
+1. Generate a New JWT Secret:  
+Run the secret generation script based on your environment.  
 After running these commands, a new pair of JWT secrets will take effect. Your old JWT secret will be marked as deprecated. This means the old secret will no longer be used to sign new tokens, but existing tokens signed with the old secret will still be verified.
+    ```
+    cd server
+    npm run node:secret:generate # For node env
+    npm run dev:secret:generate # For Cloudflare local env
+    npm run prod:secret:generate # For Cloudflare remote env
+    ```
 
-2.	Clean the Old Secret
-Run the secret clean script whenever you want to stop verifying tokens signed with the old secret:
-```
-cd server
-npm run node:secret:clean # For node env
-npm run dev:secret:clean # For Cloudflare local env
-npm run prod:secret:clean # For Cloudflare remote env
-```
-After running these commands, the old secret will be removed, and any tokens signed with the old secret will no longer be valid.
+2.	Clean the Old Secret:  
+Run the secret clean script whenever you want to stop verifying tokens signed with the old secret. After running these commands, the old secret will be removed, and any tokens signed with the old secret will no longer be valid.
+    ```
+    cd server
+    npm run node:secret:clean # For node env
+    npm run dev:secret:clean # For Cloudflare local env
+    npm run prod:secret:clean # For Cloudflare remote env
+    ```
 
 ## How to setup MFA
 - Enforcing specific MFA types: You can set OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, or EMAIL_MFA_IS_REQUIRED to true to enforce those MFA methods as a login requirement.
@@ -104,28 +103,28 @@ After running these commands, the old secret will be removed, and any tokens sig
 
 ## How to trigger a different policy
 - To trigger a different policy, add policy=[policy] as a query string when redirecting the user to the authorization page.
-```
-  const url = serverUri +
-    '/oauth2/v1/authorize?' +
-    'response_type=code' +
-    '&state=' + state +
-    '&client_id=' + clientId +
-    '&redirect_uri=' + redirectUri +
-    '&code_challenge=' + codeChallenge +
-    '&code_challenge_method=S256' +
-    '&policy=' + policy +
-    '&scope=' + scope +
-    '&locale=' + locale
-  window.location.href = url
-```
+    ```
+      const url = serverUri +
+        '/oauth2/v1/authorize?' +
+        'response_type=code' +
+        '&state=' + state +
+        '&client_id=' + clientId +
+        '&redirect_uri=' + redirectUri +
+        '&code_challenge=' + codeChallenge +
+        '&code_challenge_method=S256' +
+        '&policy=' + policy +
+        '&scope=' + scope +
+        '&locale=' + locale
+      window.location.href = url
+    ```
 - When using the React SDK, you can trigger the loginRedirect function with a policy parameter:
-```
-const { loginRedirect } = useAuth()
+    ```
+    const { loginRedirect } = useAuth()
 
-loginRedirect({
-  policy: 'change_password',
-})
-```
+    loginRedirect({
+      policy: 'change_password',
+    })
+    ```
 - Supported Policies
   -	sign_in_or_sign_up: Default policy.
   -	change_password: Allows users to change their password (for password-based users only). Requires ENABLE_PASSWORD_RESET to be set to true in the configuration.

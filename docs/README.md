@@ -9,11 +9,17 @@ actions:
   - text: Screenshots
     link: /screenshots.html
     type: secondary
-  - text: Auth Server
-    link: /auth-server.html
+  - text: Auth Server Setup
+    link: /auth-server-setup.html
     type: secondary
-  - text: Admin Panel
-    link: /admin-panel.html
+  - text: Email Provider Setup
+    link: /email-provider-setup.html
+    type: secondary
+  - text: SMS Provider Setup
+    link: /sms-provider-setup.html
+    type: secondary
+  - text: Admin Panel Setup
+    link: /admin-panel-setup.html
     type: secondary
   - text: React SDK
     link: /react-sdk.html
@@ -21,7 +27,10 @@ actions:
   - text: S2S API
     link: /s2s-api.html
     type: secondary
-  - text: Q&A
+  - text: S2S API Swagger
+    link: https://auth-server.valuemelody.com/api/v1/swagger
+    type: secondary
+  - text: Common Questions
     link: /q&a.html
     type: secondary
   - text: Changelog
@@ -30,9 +39,9 @@ actions:
 
 features:
   - title: Flexible Deployment Options
-    details: Deploy quickly on Cloudflare’s edge network for low-latency global access or choose a self-hosted option with Node.js, Redis, and PostgreSQL for full control over your infrastructure.
-  - title: Comprehensive OAuth & Authentication Features
-    details: Melody Auth supports the OAuth 2.0 framework, along with advanced features like multi-factor authentication, brute-force protection, role-based access control, and seamless user authorization flows.
-  - title: Developer-Friendly Tools
-    details: With a user-friendly admin panel, React SDK for seamless front-end integration, and a powerful server-to-server REST API, developers can manage apps, users, and roles easily while ensuring secure communication between services.
+    details: Deploy on Cloudflare’s global edge network for low-latency performance in minutes—or opt for a self-hosted Node.js setup with Redis and PostgreSQL for maximum control over your infrastructure.
+  - title: Comprehensive OAuth & Authentication System
+    details: Harness the power of OAuth 2.0 along with advanced capabilities such as multi-factor authentication, brute-force protection, role-based access control, and seamless user authorization flows.
+  - title: Developer-Friendly Tooling
+    details: Simplify your workflow with a user-friendly admin panel, a React SDK for effortless front-end integration, and a robust REST API for secure server-to-server communication.
 ---
