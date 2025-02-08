@@ -6,21 +6,23 @@ actions:
   - text: GitHub
     link: https://github.com/ValueMelody/melody-auth
     type: primary
-  - text: Screenshots
-    link: /screenshots.html
-    type: secondary
   - text: Auth Server Setup
     link: /auth-server-setup.html
-    type: secondary
+  - text: Auth Server Configuration
+    link: /auth-server-configuration.html
+    type: primary
   - text: Email Provider Setup
     link: /email-provider-setup.html
-    type: secondary
+    type: primary
   - text: SMS Provider Setup
     link: /sms-provider-setup.html
     type: secondary
+  - text: Social Sign-In Provider Setup
+    link: /social-sign-in-provider-setup.html
+    type: secondary
   - text: Admin Panel Setup
     link: /admin-panel-setup.html
-    type: secondary
+    type: primary
   - text: React SDK
     link: /react-sdk.html
     type: secondary
@@ -32,6 +34,9 @@ actions:
     type: secondary
   - text: Common Questions
     link: /q&a.html
+    type: secondary
+  - text: Screenshots
+    link: /screenshots.html
     type: secondary
   - text: Changelog
     link: https://github.com/ValueMelody/melody-auth/releases
