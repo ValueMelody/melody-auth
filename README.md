@@ -1,35 +1,23 @@
 # Melody Auth
 
-**Melody Auth** is turnkey OAuth & authentication system that can be seamlessly deployed on Cloudflare’s infrastructure, utilizing Workers, D1, and KV, or self-hosted with Node.js, Redis, and PostgreSQL. It provides a robust and user-friendly solution for implementing and hosting your own oauth and authentication system with minimal configuration required.
+**Melody Auth** is a user-friendly, robust solution for implementing and hosting your own OAuth and authentication system.
+- Deploy to **Cloudflare** using **Workers, D1, and KV** in just minutes — minimizing infrastructure and DevOps overhead.
+- **Self-Host** with **Node.js, Redis, and PostgreSQL** — giving you full control over your data and infrastructure.
 
-## Why Melody Auth?
+## What's included?
+- Complete **OAuth & Authentication Server**
+  - [Auth Server Setup Doc](https://auth.valuemelody.com/auth-server-setup.html)
+  - [Auth Server Configuration Doc](https://auth.valuemelody.com/auth-server-configuration.html)
+- **Server-to-Server REST API** for backend integrations
+  - [Swagger API Doc](https://auth-server.valuemelody.com/api/v1/swagger)
+  - [S2S API Doc](https://auth.valuemelody.com/s2s-api.html)
+- **React SDK** to seamlessly integrate authentication into your frontend
+  - [NPM Package](https://www.npmjs.com/package/@melody-auth/react)
+  - [React SDK Doc](https://auth.valuemelody.com/react-sdk.html)
+- **Admin Panel** for managing resources (also serves as a full-stack implementation example)
+  - [Admin Panel Setup Doc](https://auth.valuemelody.com/admin-panel-setup.html)
 
-### 1. Self-Controlled
-[Server Setup (Cloudflare)](https://auth.valuemelody.com/auth-server.html#environment-setup-cloudflare)  
-[Server Setup (Node)](https://auth.valuemelody.com/auth-server.html#environment-setup-node)  
-[Mailer Setup](https://auth.valuemelody.com/auth-server.html#mailer-setup)  
-[SMS Setup](https://auth.valuemelody.com/auth-server.html#sms-setup)  
-[Configurations](https://auth.valuemelody.com/auth-server.html#additional-configs)
-- Deploy the entire system within minutes, either using Cloudflare’s infrastructure or self-hosted with Node.js, Redis, and PostgreSQL.
-- Minimize DevOps overhead by leveraging Cloudflare, or maintain full control with a self-hosted solution.
-- Full access to the source code for customization and scalability.
-
-### 2. Admin Panel
-[Admin Panel Setup](https://auth.valuemelody.com/admin-panel.html)
-- Web interface for managing apps, users, scopes, and roles
-- Serves as a simple implementation example using the React SDK and Server-to-Server REST API
-
-### 3. Server-to-Server REST API
-[REST API Swagger](https://auth-server.valuemelody.com/api/v1/swagger)
-- Secure communication channel for backend services using client credentials token exchange flow
-- Provides functionalities for managing apps, users, scopes, and roles with scope protection
-
-### 4. React SDK
-[React SDK Guidance](https://auth.valuemelody.com/react-sdk.html)
-- Enables smooth integration between React applications and the authentication server
-- Implements Proof Key for Code Exchange (PKCE) for enhanced security
-
-## Features Supported
+## Server Features Supported
 - <b>OAuth 2.0</b>:
   - Authorize
   - Token Exchange
@@ -37,14 +25,14 @@
   - App Consent
   - App Scopes
   - User Info Retrieval
-  - openid-configuration
+  - OpenID Configuration
 - <b>Authorization</b>:
   - Sign-In
   - Sign-Up
   - Sign-Out
   - Email Verification
   - Password Reset
-  - Role-Based Access Control (RBAC)
+  - Role-Based Access Control
   - Account Linking
   - Localization [How to support a new locale](https://auth.valuemelody.com/q_a.html#how-to-support-a-new-locale)
 - <b>Social Sign-In</b>:
@@ -53,25 +41,26 @@
   - GitHub Sign-In
 - <b>Organization</b>:
   - Branding config override
-- <b>Multi-Factor Authentication</b> [How to setup MFA](https://auth.valuemelody.com/q_a.html#how-to-setup-mfa):
+- <b>Multi-Factor Authentication [How to setup MFA](https://auth.valuemelody.com/q_a.html#how-to-setup-mfa)</b>
   - Email MFA
   - OTP MFA
   - SMS MFA
   - MFA Enrollment
   - Passkey Enrollment
-- <b>Policy</b> [How to trigger a different policy](https://auth.valuemelody.com/q_a.html#how-to-trigger-a-different-policy)
+- <b>Policy [How to trigger a different policy](https://auth.valuemelody.com/q_a.html#how-to-trigger-a-different-policy)</b>
   - sign_in_or_sign_up
   - change_password
   - change_email
   - reset_mfa
-- <b>Mailer Option</b>:
+  - manage_passkey
+- <b>Mailer Option</b> [Email Provider Setup Doc](https://auth.valuemelody.com/email-provider-setup.html)
   - SendGrid
   - Mailgun
   - Brevo
   - STMP (Node.js environment only)
-- <b>SMS Option</b>:
+- <b>SMS Option</b> [SMS Provider Setup Doc](https://auth.valuemelody.com/sms-provider-setup.html)
   - Twilio
-- <b>JWT Authentication</b>:
+- <b>JWT Authentication</b>
   - RSA256 based JWT Authentication [How to verify a SPA access token](https://auth.valuemelody.com/q_a.html#how-to-verify-a-spa-access-token)
   - JWT Secret Rotate [How to rotate JWT secret](https://auth.valuemelody.com/q_a.html#how-to-rotate-jwt-secret)
 - <b>Brute-force Protection</b>:
@@ -85,16 +74,17 @@
   - Email Logs
   - SMS Logs
   - Sign-in Logs
-- <b>S2S REST API & Admin Panel</b>:
-  - Manage Users
-  - Manage Apps
-  - Manage Scopes
-  - Manage Roles
-  - Manage Organizations
-  - View Logs
-  - Localization
 
-### Screenshots
+## Admin Panel & S2S REST API Features Supported
+- View Configurations
+- Manage Users
+- Manage Apps
+- Manage Scopes
+- Manage Roles
+- Manage Organizations
+- View Logs
+
+## Screenshots
 [Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)  
 [Admin Panel Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)  
 
