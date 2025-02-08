@@ -264,3 +264,21 @@ identityRoutes.post(
   routeConfig.IdentityRoute.ResetMfa,
   identityHandler.postResetMfa,
 )
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.ManagePasskey,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.getManagePasskey,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ManagePasskey,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.postManagePasskey,
+)
+
+identityRoutes.delete(
+  routeConfig.IdentityRoute.ManagePasskey,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.deleteManagePasskey,
+)

@@ -10,10 +10,9 @@ import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
-  appService, brandingService, consentService, emailService, kvService, scopeService, userService,
+  appService, brandingService, consentService, emailService, identityService, kvService, scopeService, userService,
 } from 'services'
 import {
-  identityUtil,
   requestUtil, validateUtil,
 } from 'utils'
 import {
@@ -117,9 +116,9 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     codeExpiresIn,
   )
 
-  return c.json(await identityUtil.processPostAuthorize(
+  return c.json(await identityService.processPostAuthorize(
     c,
-    identityUtil.AuthorizeStep.Password,
+    identityService.AuthorizeStep.Password,
     authCode,
     authCodeBody,
   ))
@@ -214,9 +213,9 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     codeExpiresIn,
   )
 
-  return c.json(await identityUtil.processPostAuthorize(
+  return c.json(await identityService.processPostAuthorize(
     c,
-    identityUtil.AuthorizeStep.Account,
+    identityService.AuthorizeStep.Account,
     authCode,
     authCodeBody,
   ))
@@ -278,9 +277,9 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     authCodeBody.appId,
   )
 
-  return c.json(await identityUtil.processPostAuthorize(
+  return c.json(await identityService.processPostAuthorize(
     c,
-    identityUtil.AuthorizeStep.Consent,
+    identityService.AuthorizeStep.Consent,
     bodyDto.code,
     authCodeBody,
   ))

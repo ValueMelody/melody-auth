@@ -3,7 +3,10 @@ import { genCodeChallenge } from 'shared'
 import bcrypt from 'bcryptjs'
 import base32Encode from 'base32-encode'
 import base32Decode from 'base32-decode'
+import { env } from 'hono/adapter'
+import { Context } from 'hono'
 import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
+import { typeConfig } from 'configs'
 
 export const genRandom6DigitString = (): string => {
   return (Math.floor(100000 + Math.random() * 900000)).toString()
@@ -180,4 +183,10 @@ export const base64ToUint8Array = (base64: string) => {
     view[i] = binary.charCodeAt(i)
   }
   return view
+}
+
+export const getPasskeyRpId = (c: Context<typeConfig.Context>) => {
+  const { AUTH_SERVER_URL: authServerUrl } = env(c)
+  const url = new URL(authServerUrl)
+  return url.hostname
 }

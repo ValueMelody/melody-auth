@@ -112,6 +112,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     c,
     queryDto.clientId,
   )
+
   if (stored && stored.request.clientId === queryDto.clientId) {
     const authCode = await createFullAuthorize(
       c,
@@ -126,15 +127,29 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     if (!queryDto.policy || queryDto.policy === Policy.SignInOrSignUp) {
       const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
       return c.redirect(url)
-    } else if (queryDto.policy === Policy.ChangePassword) {
-      const url = `${routeConfig.IdentityRoute.ChangePassword}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
-      return c.redirect(url)
-    } else if (queryDto.policy === Policy.ChangeEmail) {
-      const url = `${routeConfig.IdentityRoute.ChangeEmail}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
-      return c.redirect(url)
-    } else if (queryDto.policy === Policy.ResetMfa) {
-      const url = `${routeConfig.IdentityRoute.ResetMfa}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
-      return c.redirect(url)
+    } else {
+      let baseUrl = ''
+      switch (queryDto.policy) {
+      case Policy.ChangePassword: {
+        baseUrl = routeConfig.IdentityRoute.ChangePassword
+        break
+      }
+      case Policy.ChangeEmail: {
+        baseUrl = routeConfig.IdentityRoute.ChangeEmail
+        break
+      }
+      case Policy.ResetMfa: {
+        baseUrl = routeConfig.IdentityRoute.ResetMfa
+        break
+      }
+      case Policy.ManagePasskey: {
+        baseUrl = routeConfig.IdentityRoute.ManagePasskey
+        break
+      }
+      }
+      if (baseUrl) {
+        return c.redirect(`${baseUrl}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`)
+      }
     }
   }
 

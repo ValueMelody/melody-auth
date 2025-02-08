@@ -15,7 +15,8 @@
   "account": {
     "changePassword": "Change Password",
     "changeEmail": "Change Email",
-    "resetMfa": "Reset MFA"
+    "resetMfa": "Reset MFA",
+    "managePasskey": "Manage Passkey"
   },
   "common": {
     "enable": "Enable",

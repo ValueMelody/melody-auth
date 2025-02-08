@@ -9,11 +9,13 @@ import { identityDto } from 'dtos'
 import {
   brandingService,
   emailService,
-  kvService, userService,
+  kvService, passkeyService, userService,
 } from 'services'
-import { validateUtil } from 'utils'
 import {
-  ChangeEmail, ChangePassword, ResetMfa,
+  cryptoUtil, validateUtil,
+} from 'utils'
+import {
+  ChangeEmail, ChangePassword, ManagePasskey, ResetMfa,
 } from 'views'
 import { userModel } from 'models'
 
@@ -217,6 +219,111 @@ export const postResetMfa = async (c: Context<typeConfig.Context>) => {
   await userService.resetUserMfa(
     c,
     authCodeBody.user.authId,
+  )
+
+  return c.json({ success: true })
+}
+
+export const getManagePasskey = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  checkAccount(authInfo.user)
+
+  const passkey = await passkeyService.getPasskeyByUser(
+    c,
+    authInfo.user.id,
+  )
+
+  const {
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  const enrollOptions = await passkeyService.genPasskeyEnrollOptions(
+    c,
+    authInfo,
+  )
+
+  return c.html(<ManagePasskey
+    passkey={passkey}
+    enrollOptions={enrollOptions}
+    redirectUri={authInfo.request.redirectUri}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
+    queryDto={queryDto}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+  />)
+}
+
+export const postManagePasskey = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizePasskeyEnrollReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  checkAccount(authInfo.user)
+
+  const {
+    passkeyId, passkeyPublickey, passkeyCounter,
+  } = await passkeyService.processPasskeyEnroll(
+    c,
+    authInfo,
+    bodyDto.enrollInfo,
+  )
+
+  await passkeyService.createUserPasskey(
+    c,
+    authInfo.user.id,
+    passkeyId,
+    cryptoUtil.uint8ArrayToBase64(passkeyPublickey),
+    passkeyCounter,
+  )
+
+  return c.json({
+    success: true,
+    passkey: {
+      credentialId: passkeyId,
+      counter: passkeyCounter,
+    },
+  })
+}
+
+export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.DeleteManagePasskeyReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  checkAccount(authInfo.user)
+
+  const passkey = await passkeyService.getPasskeyByUser(
+    c,
+    authInfo.user.id,
+  )
+
+  if (!passkey) throw new errorConfig.Forbidden(localeConfig.Error.InvalidRequest)
+
+  await passkeyService.deletePasskey(
+    c,
+    authInfo.user.id,
+    passkey.id,
   )
 
   return c.json({ success: true })

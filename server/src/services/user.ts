@@ -511,6 +511,18 @@ export const changeUserEmail = async (
   return true
 }
 
+export const skipUserPasskeyEnroll = async (
+  c: Context<typeConfig.Context>,
+  user: userModel.Record,
+) => {
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    { skipPasskeyEnroll: 1 },
+  )
+  return true
+}
+
 export const enrollUserMfa = async (
   c: Context<typeConfig.Context>,
   authId: string,

@@ -5,7 +5,9 @@ import {
 } from 'configs'
 import Layout, { Branding } from 'views/components/Layout'
 import { identityDto } from 'dtos'
-import { responseScript } from 'views/scripts'
+import {
+  requestScript, responseScript,
+} from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
 import Title from 'views/components/Title'
 
@@ -60,23 +62,7 @@ const AuthorizePasskeyEnroll = ({
       {html`
         <script>
           function handleEnroll() {
-            navigator.credentials.create({ publicKey: {
-              challenge: window.SimpleWebAuthnBrowser.base64URLStringToBuffer("${enrollOptions.challenge}"),
-              rp: { name: "Melody Auth Service", id: "${enrollOptions.rpId}" },
-              user: {
-                id: new TextEncoder().encode("${enrollOptions.userId}"),
-                name: new TextEncoder().encode("${enrollOptions.userEmail}"),
-                displayName: "${enrollOptions.userDisplayName}",
-              },
-              pubKeyCredParams: [
-                { alg: -8, type: 'public-key' },
-                { alg: -7, type: 'public-key' },
-                { alg: -257, type: 'public-key' }
-              ],
-              authenticatorSelection: {
-                userVerification: "preferred",
-              }
-            }}).then((res) => {
+            ${requestScript.triggerPasskeyEnroll(enrollOptions)}.then((res) => {
               submitEnroll(res)
             })
           }
