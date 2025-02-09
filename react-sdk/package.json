@@ -1,6 +1,6 @@
 {
   "name": "@melody-auth/react",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
@@ -11,18 +11,19 @@
     "access": "public"
   },
   "devDependencies": {
-    "@rollup/plugin-alias": "^5.1.0",
+    "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "react": "^18.2.0",
-    "rollup": "^4.19.2"
+    "rollup": "^4.19.2",
+    "tsc-alias": "^1.8.10"
   },
   "peerDependencies": {
     "react": "^16.11.0 || ^17 || ^18"
   },
   "scripts": {
-    "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && mkdir ./dist/web-sdk && cp -r ../shared/dist/* ./dist/shared && cp -r ../web-sdk/dist/* ./dist/web-sdk && rollup -c --bundleConfigAsCjs",
+    "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && mkdir ./dist/web-sdk && cp -r ../shared/dist/* ./dist/shared && cp -r ../web-sdk/dist/* ./dist/web-sdk && rollup -c --bundleConfigAsCjs && tsc-alias",
     "type:check": "tsc --noEmit"
   }
 }

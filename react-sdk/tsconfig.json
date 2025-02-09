@@ -11,6 +11,9 @@
     "module": "ESNext",
     "rootDir": "src",
     "outDir": "./dist",
+    "paths": {
+      "shared": ["./shared"] 
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules"]
