@@ -21,7 +21,7 @@ export default {
       entries: [
         { find: 'shared', replacement: path.resolve(__dirname, 'dist/shared') },
         { find: 'web-sdk', replacement: path.resolve(__dirname, 'dist/web-sdk') }
-      ]
+      ],
     }),
     resolve(),
     commonjs(),
