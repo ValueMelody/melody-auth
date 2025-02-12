@@ -176,6 +176,20 @@ export class PostChangePasswordReqDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
+export class PostUpdateInfoReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsString()
+    firstName?: string
+
+  @IsString()
+    lastName?: string
+
+  constructor (dto: PostUpdateInfoReqDto) {
+    super(dto)
+    this.firstName = dto.firstName
+    this.lastName = dto.lastName
+  }
+}
+
 export class PostChangeEmailCodeReqDto extends GetAuthorizeFollowUpReqDto {
   @IsEmail()
   @IsNotEmpty()

@@ -428,6 +428,33 @@ export const authorizeReset = Object.freeze({
   },
 })
 
+export const updateInfo = Object.freeze({
+  title: {
+    en: 'Update your info',
+    fr: 'Mettre à jour vos informations',
+  },
+  firstName: {
+    en: 'First Name',
+    fr: 'Prénom',
+  },
+  lastName: {
+    en: 'Last Name',
+    fr: 'Nom',
+  },
+  success: {
+    en: 'Info updated!',
+    fr: 'Informations mises à jour !',
+  },
+  confirm: {
+    en: 'Confirm',
+    fr: 'Confirmer',
+  },
+  redirect: {
+    en: 'Redirect back',
+    fr: 'Rediriger en arrière',
+  },
+})
+
 export const changePassword = Object.freeze({
   title: {
     en: 'Update your password',

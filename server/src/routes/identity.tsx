@@ -282,3 +282,15 @@ identityRoutes.delete(
   configMiddleware.enablePasskeyEnrollment,
   identityHandler.deleteManagePasskey,
 )
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.UpdateInfo,
+  configMiddleware.enableNames,
+  identityHandler.getUpdateInfo,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.UpdateInfo,
+  configMiddleware.enableNames,
+  identityHandler.postUpdateInfo,
+)

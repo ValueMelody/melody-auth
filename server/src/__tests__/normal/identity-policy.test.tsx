@@ -25,6 +25,7 @@ import {
   enrollEmailMfa, enrollOtpMfa, enrollSmsMfa,
 } from 'tests/util'
 import { enrollPasskey } from '__tests__/normal/identity-passkey.test'
+import { userModel } from 'models'
 
 let db: Database
 
@@ -984,6 +985,170 @@ describe(
         )
 
         expect(res.status).toBe(400)
+      },
+    )
+  },
+)
+
+describe(
+  'get /update-info',
+  () => {
+    test(
+      'should show update info page',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.UpdateInfo}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByName('firstName').length).toBe(1)
+        expect(document.getElementsByName('lastName').length).toBe(1)
+        expect(document.getElementsByTagName('form').length).toBe(1)
+        expect(document.getElementsByTagName('select').length).toBe(1)
+      },
+    )
+
+    test(
+      'should redirect if use wrong auth code',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.UpdateInfo}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
+      'could disable locale selector',
+      async () => {
+        global.process.env.ENABLE_LOCALE_SELECTOR = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.UpdateInfo}${params}`,
+          {},
+          mock(db),
+        )
+
+        const html = await res.text()
+        const dom = new JSDOM(html)
+        const document = dom.window.document
+        expect(document.getElementsByTagName('select').length).toBe(0)
+        global.process.env.ENABLE_LOCALE_SELECTOR = true as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'post /update-info',
+  () => {
+    test(
+      'should update info',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.UpdateInfo,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              firstName: 'John',
+              lastName: 'Doe',
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const user = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(user.firstName).toBe('John')
+        expect(user.lastName).toBe('Doe')
+      },
+    )
+
+    test(
+      'should throw 400 if use wrong auth code',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.UpdateInfo,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'en',
+              code: 'abc',
+              firstName: 'John',
+              lastName: 'Doe',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+      },
+    )
+
+    test(
+      'should throw 401 if feature not enabled',
+      async () => {
+        global.process.env.ENABLE_NAMES = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.UpdateInfo,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              firstName: 'John',
+              lastName: 'Doe',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.ENABLE_NAMES = true as unknown as string
       },
     )
   },

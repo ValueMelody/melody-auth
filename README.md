@@ -49,6 +49,7 @@
   - Passkey Enrollment
 - <b>Policy [How to trigger a different policy](https://auth.valuemelody.com/q_a.html#how-to-trigger-a-different-policy)</b>
   - sign_in_or_sign_up
+  - update_info
   - change_password
   - change_email
   - reset_mfa

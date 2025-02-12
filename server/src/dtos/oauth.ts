@@ -25,6 +25,7 @@ export enum Policy {
   ChangeEmail = 'change_email',
   ResetMfa = 'reset_mfa',
   ManagePasskey = 'manage_passkey',
+  UpdateInfo = 'update_info',
 }
 
 const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())

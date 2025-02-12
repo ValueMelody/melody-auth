@@ -15,7 +15,7 @@ import {
   cryptoUtil, validateUtil,
 } from 'utils'
 import {
-  ChangeEmail, ChangePassword, ManagePasskey, ResetMfa,
+  ChangeEmail, ChangePassword, ManagePasskey, ResetMfa, UpdateInfo,
 } from 'views'
 import { userModel } from 'models'
 
@@ -324,6 +324,63 @@ export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {
     c,
     authInfo.user.id,
     passkey.id,
+  )
+
+  return c.json({ success: true })
+}
+
+export const getUpdateInfo = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  checkAccount(authInfo.user)
+
+  const user = await userService.getUserByAuthId(
+    c,
+    authInfo.user.authId,
+  )
+
+  const {
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  return c.html(<UpdateInfo
+    firstName={user.firstName ?? ''}
+    lastName={user.lastName ?? ''}
+    redirectUri={authInfo.request.redirectUri}
+    branding={await brandingService.getBranding(
+      c,
+      queryDto.org,
+    )}
+    queryDto={queryDto}
+    locales={enableLocaleSelector ? locales : [queryDto.locale]}
+  />)
+}
+
+export const postUpdateInfo = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostUpdateInfoReqDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  checkAccount(authInfo.user)
+
+  await userService.updateUser(
+    c,
+    authInfo.user.authId,
+    {
+      firstName: bodyDto.firstName, lastName: bodyDto.lastName,
+    },
   )
 
   return c.json({ success: true })
