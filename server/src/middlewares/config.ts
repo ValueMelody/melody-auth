@@ -110,3 +110,12 @@ export const enableMfaEnroll = async (
 
   await next()
 }
+
+export const enableNames = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_NAMES: enableNames } = env(c)
+  if (!enableNames) throw new errorConfig.Forbidden()
+
+  await next()
+}

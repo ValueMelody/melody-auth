@@ -15,6 +15,12 @@ const Page = () => {
 
   const { loginRedirect } = useAuth()
 
+  const handleUpdateInfo = () => {
+    loginRedirect({
+      locale: locale || undefined, policy: 'update_info', org: 'default',
+    })
+  }
+
   const handleChangePassword = () => {
     loginRedirect({
       locale: locale || undefined, policy: 'change_password', org: 'default',
@@ -41,6 +47,9 @@ const Page = () => {
 
   return (
     <section className='flex flex-col gap-4 w-40'>
+      <Button onClick={handleUpdateInfo}>
+        {t('account.updateInfo')}
+      </Button>
       <Button onClick={handleChangePassword}>
         {t('account.changePassword')}
       </Button>

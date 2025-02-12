@@ -146,6 +146,10 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
         baseUrl = routeConfig.IdentityRoute.ManagePasskey
         break
       }
+      case Policy.UpdateInfo: {
+        baseUrl = routeConfig.IdentityRoute.UpdateInfo
+        break
+      }
       }
       if (baseUrl) {
         return c.redirect(`${baseUrl}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`)

@@ -13,6 +13,7 @@
     "account": "Account"
   },
   "account": {
+    "updateInfo": "Update Info",
     "changePassword": "Change Password",
     "changeEmail": "Change Email",
     "resetMfa": "Reset MFA",

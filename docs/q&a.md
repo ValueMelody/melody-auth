@@ -127,6 +127,7 @@ Run the secret clean script whenever you want to stop verifying tokens signed wi
     ```
 - Supported Policies
   -	sign_in_or_sign_up: Default policy.
+  -	update_info: Allows users to update their information.
   -	change_password: Allows users to change their password (for password-based users only). Requires ENABLE_PASSWORD_RESET to be set to true in the configuration.
   -	change_email: Allows users to change their email address (for password-based users only). Requires ENABLE_EMAIL_VERIFICATION to be set to true in the configuration.
   -	reset_mfa: Allows users to reset their enrolled MFA (Multi-Factor Authentication) method.

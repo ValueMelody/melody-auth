@@ -22,6 +22,7 @@ export enum AuthorizeStep {
   PasskeyEnroll = 6,
   ChangePassword = 7,
   ChangeEmail = 7,
+  UpdateInfo = 7,
 }
 
 const getNextPageForPolicy = (
@@ -50,6 +51,10 @@ const getNextPageForPolicy = (
     }
     case Policy.ManagePasskey: {
       if (enablePasskeyEnrollment) nextPage = IdentityRoute.ManagePasskey
+      break
+    }
+    case Policy.UpdateInfo: {
+      nextPage = IdentityRoute.UpdateInfo
       break
     }
     }
