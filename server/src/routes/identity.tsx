@@ -226,71 +226,73 @@ identityRoutes.get(
 
 identityRoutes.get(
   routeConfig.IdentityRoute.ChangePassword,
-  configMiddleware.enablePasswordReset,
+  configMiddleware.enableChangePasswordPolicy,
   identityHandler.getChangePassword,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ChangePassword,
   setupMiddleware.validOrigin,
-  configMiddleware.enablePasswordReset,
+  configMiddleware.enableChangePasswordPolicy,
   identityHandler.postChangePassword,
 )
 
 identityRoutes.get(
   routeConfig.IdentityRoute.ChangeEmail,
-  configMiddleware.enableEmailVerification,
+  configMiddleware.enableChangeEmailPolicy,
   identityHandler.getChangeEmail,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ChangeEmailCode,
-  configMiddleware.enableEmailVerification,
+  configMiddleware.enableChangeEmailPolicy,
   identityHandler.postVerificationCode,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ChangeEmail,
-  configMiddleware.enableEmailVerification,
+  configMiddleware.enableChangeEmailPolicy,
   identityHandler.postChangeEmail,
 )
 
 identityRoutes.get(
   routeConfig.IdentityRoute.ResetMfa,
+  configMiddleware.enableResetMfaPolicy,
   identityHandler.getResetMfa,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ResetMfa,
+  configMiddleware.enableResetMfaPolicy,
   identityHandler.postResetMfa,
 )
 
 identityRoutes.get(
   routeConfig.IdentityRoute.ManagePasskey,
-  configMiddleware.enablePasskeyEnrollment,
+  configMiddleware.enableManagePasskeyPolicy,
   identityHandler.getManagePasskey,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ManagePasskey,
-  configMiddleware.enablePasskeyEnrollment,
+  configMiddleware.enableManagePasskeyPolicy,
   identityHandler.postManagePasskey,
 )
 
 identityRoutes.delete(
   routeConfig.IdentityRoute.ManagePasskey,
-  configMiddleware.enablePasskeyEnrollment,
+  configMiddleware.enableManagePasskeyPolicy,
   identityHandler.deleteManagePasskey,
 )
 
 identityRoutes.get(
   routeConfig.IdentityRoute.UpdateInfo,
-  configMiddleware.enableNames,
+  configMiddleware.enableUpdateInfoPolicy,
   identityHandler.getUpdateInfo,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.UpdateInfo,
-  configMiddleware.enableNames,
+  configMiddleware.enableUpdateInfoPolicy,
   identityHandler.postUpdateInfo,
 )

@@ -26,6 +26,7 @@ import {
 } from 'tests/util'
 import { enrollPasskey } from '__tests__/normal/identity-passkey.test'
 import { userModel } from 'models'
+import { Policy } from 'dtos/oauth'
 
 let db: Database
 
@@ -82,6 +83,48 @@ describe(
         )
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        global.process.env.ENABLE_PASSWORD_RESET = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ChangePassword}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.ENABLE_PASSWORD_RESET = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.ChangePassword] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ChangePassword}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
       },
     )
 
@@ -179,6 +222,60 @@ describe(
         expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
       },
     )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        global.process.env.ENABLE_PASSWORD_RESET = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              password: 'Password2!',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.ENABLE_PASSWORD_RESET = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.ChangePassword] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              password: 'Password2!',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
+      },
+    )
   },
 )
 
@@ -226,6 +323,48 @@ describe(
         )
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ChangeEmail}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.ChangeEmail] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ChangeEmail}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
       },
     )
 
@@ -321,6 +460,40 @@ describe(
         expect(json3).toStrictEqual({ success: true })
 
         global.process.env.CHANGE_EMAIL_EMAIL_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await sendEmailCode(body.code)
+        expect(res.status).toBe(400)
+
+        global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.ChangeEmail] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await sendEmailCode(body.code)
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
       },
     )
 
@@ -453,6 +626,64 @@ describe(
         expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
       },
     )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangeEmail,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'en',
+              code: body.code,
+              email: 'test@email.com',
+              verificationCode: '123456',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.ChangeEmail] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangeEmail,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'en',
+              code: body.code,
+              email: 'test@email.com',
+              verificationCode: '123456',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
+      },
+    )
   },
 )
 
@@ -498,6 +729,27 @@ describe(
         )
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.ResetMfa] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ResetMfa}?locale=en&code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
       },
     )
 
@@ -684,6 +936,30 @@ describe(
         expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
       },
     )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.ResetMfa] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ResetMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
+      },
+    )
   },
 )
 
@@ -761,6 +1037,29 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        global.process.env.BLOCKED_POLICIES = [Policy.ManagePasskey] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ManagePasskey}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
     )
 
@@ -917,6 +1216,32 @@ describe(
         expect(res.status).toBe(400)
       },
     )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        global.process.env.BLOCKED_POLICIES = [Policy.ManagePasskey] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
   },
 )
 
@@ -987,6 +1312,29 @@ describe(
         expect(res.status).toBe(400)
       },
     )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        global.process.env.BLOCKED_POLICIES = [Policy.ManagePasskey] as unknown as string
+        await enrollPasskey(db)
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'DELETE',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
   },
 )
 
@@ -1034,6 +1382,54 @@ describe(
         )
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=en`)
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        global.process.env.ENABLE_NAMES = false as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.UpdateInfo,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.ENABLE_NAMES = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.UpdateInfo] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.UpdateInfo,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
       },
     )
 
@@ -1149,6 +1545,30 @@ describe(
         expect(res.status).toBe(400)
 
         global.process.env.ENABLE_NAMES = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if policy is blocked',
+      async () => {
+        global.process.env.BLOCKED_POLICIES = [Policy.UpdateInfo] as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.UpdateInfo,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...body }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
       },
     )
   },
