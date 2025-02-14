@@ -18,6 +18,7 @@ import useLocaleRouter from 'hooks/useLocaleRoute'
 import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
 } from 'services/auth/api'
+import ColorInput from 'components/ColorInput'
 
 const Page = () => {
   const { id } = useParams()
@@ -137,12 +138,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.layoutColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'layoutColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='layoutColorInput'
+                  onChange={(value) => onChange('layoutColor', value)}
                   value={values.layoutColor}
                 />
               </Table.Cell>
@@ -150,12 +148,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.labelColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'labelColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='labelColorInput'
+                  onChange={(value) => onChange('labelColor', value)}
                   value={values.labelColor}
                 />
               </Table.Cell>
@@ -163,12 +158,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.primaryButtonColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'primaryButtonColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='primaryButtonColorInput'
+                  onChange={(value) => onChange('primaryButtonColor', value)}
                   value={values.primaryButtonColor}
                 />
               </Table.Cell>
@@ -176,12 +168,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.primaryButtonLabelColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'primaryButtonLabelColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='primaryButtonLabelColorInput'
+                  onChange={(value) => onChange('primaryButtonLabelColor', value)}
                   value={values.primaryButtonLabelColor}
                 />
               </Table.Cell>
@@ -189,12 +178,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.primaryButtonBorderColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'primaryButtonBorderColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='primaryButtonBorderColorInput'
+                  onChange={(value) => onChange('primaryButtonBorderColor', value)}
                   value={values.primaryButtonBorderColor}
                 />
               </Table.Cell>
@@ -202,12 +188,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.secondaryButtonColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'secondaryButtonColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='secondaryButtonColorInput'
+                  onChange={(value) => onChange('secondaryButtonColor', value)}
                   value={values.secondaryButtonColor}
                 />
               </Table.Cell>
@@ -215,12 +198,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.secondaryButtonLabelColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'secondaryButtonLabelColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='secondaryButtonLabelColorInput'
+                  onChange={(value) => onChange('secondaryButtonLabelColor', value)}
                   value={values.secondaryButtonLabelColor}
                 />
               </Table.Cell>
@@ -228,12 +208,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.secondaryButtonBorderColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'secondaryButtonBorderColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='secondaryButtonBorderColorInput'
+                  onChange={(value) => onChange('secondaryButtonBorderColor', value)}
                   value={values.secondaryButtonBorderColor}
                 />
               </Table.Cell>
@@ -241,12 +218,9 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.criticalIndicatorColor')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'criticalIndicatorColor',
-                    e.target.value,
-                  )}
+                <ColorInput
+                  data-testid='criticalIndicatorColorInput'
+                  onChange={(value) => onChange('criticalIndicatorColor', value)}
                   value={values.criticalIndicatorColor}
                 />
               </Table.Cell>
