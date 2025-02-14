@@ -19,6 +19,7 @@ import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
 } from 'services/auth/api'
 import ColorInput from 'components/ColorInput'
+import LinkInput from 'components/LinkInput'
 
 const Page = () => {
   const { id } = useParams()
@@ -99,11 +100,11 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.companyLogoUrl')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
+                <LinkInput
+                  data-testid='companyLogoUrlInput'
+                  onChange={(value) => onChange(
                     'companyLogoUrl',
-                    e.target.value,
+                    value,
                   )}
                   value={values.companyLogoUrl}
                 />
@@ -125,11 +126,11 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.fontUrl')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
+                <LinkInput
+                  data-testid='fontUrlInput'
+                  onChange={(value) => onChange(
                     'fontUrl',
-                    e.target.value,
+                    value,
                   )}
                   value={values.fontUrl}
                 />
@@ -140,7 +141,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='layoutColorInput'
-                  onChange={(value) => onChange('layoutColor', value)}
+                  onChange={(value) => onChange(
+                    'layoutColor',
+                    value,
+                  )}
                   value={values.layoutColor}
                 />
               </Table.Cell>
@@ -150,7 +154,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='labelColorInput'
-                  onChange={(value) => onChange('labelColor', value)}
+                  onChange={(value) => onChange(
+                    'labelColor',
+                    value,
+                  )}
                   value={values.labelColor}
                 />
               </Table.Cell>
@@ -160,7 +167,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='primaryButtonColorInput'
-                  onChange={(value) => onChange('primaryButtonColor', value)}
+                  onChange={(value) => onChange(
+                    'primaryButtonColor',
+                    value,
+                  )}
                   value={values.primaryButtonColor}
                 />
               </Table.Cell>
@@ -170,7 +180,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='primaryButtonLabelColorInput'
-                  onChange={(value) => onChange('primaryButtonLabelColor', value)}
+                  onChange={(value) => onChange(
+                    'primaryButtonLabelColor',
+                    value,
+                  )}
                   value={values.primaryButtonLabelColor}
                 />
               </Table.Cell>
@@ -180,7 +193,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='primaryButtonBorderColorInput'
-                  onChange={(value) => onChange('primaryButtonBorderColor', value)}
+                  onChange={(value) => onChange(
+                    'primaryButtonBorderColor',
+                    value,
+                  )}
                   value={values.primaryButtonBorderColor}
                 />
               </Table.Cell>
@@ -190,7 +206,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='secondaryButtonColorInput'
-                  onChange={(value) => onChange('secondaryButtonColor', value)}
+                  onChange={(value) => onChange(
+                    'secondaryButtonColor',
+                    value,
+                  )}
                   value={values.secondaryButtonColor}
                 />
               </Table.Cell>
@@ -200,7 +219,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='secondaryButtonLabelColorInput'
-                  onChange={(value) => onChange('secondaryButtonLabelColor', value)}
+                  onChange={(value) => onChange(
+                    'secondaryButtonLabelColor',
+                    value,
+                  )}
                   value={values.secondaryButtonLabelColor}
                 />
               </Table.Cell>
@@ -210,7 +232,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='secondaryButtonBorderColorInput'
-                  onChange={(value) => onChange('secondaryButtonBorderColor', value)}
+                  onChange={(value) => onChange(
+                    'secondaryButtonBorderColor',
+                    value,
+                  )}
                   value={values.secondaryButtonBorderColor}
                 />
               </Table.Cell>
@@ -220,7 +245,10 @@ const Page = () => {
               <Table.Cell>
                 <ColorInput
                   data-testid='criticalIndicatorColorInput'
-                  onChange={(value) => onChange('criticalIndicatorColor', value)}
+                  onChange={(value) => onChange(
+                    'criticalIndicatorColor',
+                    value,
+                  )}
                   value={values.criticalIndicatorColor}
                 />
               </Table.Cell>
@@ -228,11 +256,11 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.termsLink')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
+                <LinkInput
+                  data-testid='termsLinkInput'
+                  onChange={(value) => onChange(
                     'termsLink',
-                    e.target.value,
+                    value,
                   )}
                   value={values.termsLink}
                 />
@@ -241,11 +269,11 @@ const Page = () => {
             <Table.Row>
               <Table.Cell>{t('orgs.privacyPolicyLink')}</Table.Cell>
               <Table.Cell>
-                <TextInput
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
+                <LinkInput
+                  data-testid='privacyPolicyLinkInput'
+                  onChange={(value) => onChange(
                     'privacyPolicyLink',
-                    e.target.value,
+                    value,
                   )}
                   value={values.privacyPolicyLink}
                 />
