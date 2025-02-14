@@ -88,6 +88,7 @@ describe(
           SECONDARY_BUTTON_LABEL_COLOR: 'black',
           SECONDARY_BUTTON_BORDER_COLOR: 'white',
           CRITICAL_INDICATOR_COLOR: '#e00',
+          BLOCKED_POLICIES: [],
         })
       },
     )

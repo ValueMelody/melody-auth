@@ -51,6 +51,7 @@ const Page = () => {
         'ENABLE_PASSWORD_RESET',
         'ENABLE_USER_APP_CONSENT',
         'ENABLE_ORG',
+        'BLOCKED_POLICIES',
       ],
     },
     {

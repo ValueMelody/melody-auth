@@ -5,6 +5,7 @@ import { env } from 'hono/adapter'
 import {
   errorConfig, typeConfig,
 } from 'configs'
+import { Policy } from 'dtos/oauth'
 
 export const enableSignUp = async (
   c: Context<typeConfig.Context>, next: Next,
@@ -117,5 +118,53 @@ export const enableNames = async (
   const { ENABLE_NAMES: enableNames } = env(c)
   if (!enableNames) throw new errorConfig.Forbidden()
 
+  await next()
+}
+
+export const enableChangePasswordPolicy = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    BLOCKED_POLICIES: blockedPolicies, ENABLE_PASSWORD_RESET: enablePasswordReset,
+  } = env(c)
+  if (!enablePasswordReset || blockedPolicies.includes(Policy.ChangePassword)) throw new errorConfig.Forbidden()
+  await next()
+}
+
+export const enableChangeEmailPolicy = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    BLOCKED_POLICIES: blockedPolicies, ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
+  } = env(c)
+  if (!enableEmailVerification || blockedPolicies.includes(Policy.ChangeEmail)) throw new errorConfig.Forbidden()
+  await next()
+}
+
+export const enableResetMfaPolicy = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { BLOCKED_POLICIES: blockedPolicies } = env(c)
+  if (blockedPolicies.includes(Policy.ResetMfa)) throw new errorConfig.Forbidden()
+  await next()
+}
+
+export const enableManagePasskeyPolicy = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    BLOCKED_POLICIES: blockedPolicies, ALLOW_PASSKEY_ENROLLMENT: allowPasskeyEnrollment,
+  } = env(c)
+  if (!allowPasskeyEnrollment || blockedPolicies.includes(Policy.ManagePasskey)) throw new errorConfig.Forbidden()
+  await next()
+}
+
+export const enableUpdateInfoPolicy = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    BLOCKED_POLICIES: blockedPolicies, ENABLE_NAMES: enableNames,
+  } = env(c)
+  if (!enableNames || blockedPolicies.includes(Policy.UpdateInfo)) throw new errorConfig.Forbidden()
   await next()
 }
