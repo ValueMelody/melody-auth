@@ -114,7 +114,7 @@ const Page = () => {
               <Table.Cell>{t('orgs.fontFamily')}</Table.Cell>
               <Table.Cell>
                 <TextInput
-                  data-testid='nameInput'
+                  data-testid='fontFamilyInput'
                   onChange={(e) => onChange(
                     'fontFamily',
                     e.target.value,

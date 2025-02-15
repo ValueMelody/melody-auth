@@ -74,6 +74,50 @@ describe(
     )
 
     it(
+      'removes a scope when clicked',
+      async () => {
+      // Start with two scopes selected
+        const appWithScopes = {
+          ...apps[0],
+          scopes: ['spa_scope', 'another_spa'],
+        };
+
+        (useGetApiV1AppsByIdQuery as Mock).mockReturnValue({ data: { app: appWithScopes } })
+
+        const mixedScopes = [
+          {
+            id: 1, name: 'spa_scope', type: 'spa', description: 'SPA scope',
+          },
+          {
+            id: 2, name: 'another_spa', type: 'spa', description: 'Another SPA scope',
+          },
+        ];
+
+        (useGetApiV1ScopesQuery as Mock).mockReturnValue({ data: { scopes: mixedScopes } })
+
+        render(<Page />)
+
+        // Verify both scopes are initially selected
+        const scopeInputs = screen.getAllByTestId('scopeInput') as HTMLInputElement[]
+        expect(scopeInputs[0].checked).toBe(true)
+        expect(scopeInputs[1].checked).toBe(true)
+
+        // Click to remove one scope
+        fireEvent.click(scopeInputs[0])
+
+        // Try to save the changes
+        const saveBtn = screen.getByTestId('saveButton')
+        fireEvent.click(saveBtn)
+
+        // Verify the update was called with only one scope
+        expect(mockUpdate).toHaveBeenCalledWith({
+          id: 1,
+          putAppReq: { scopes: ['another_spa'] },
+        })
+      },
+    )
+
+    it(
       'update app',
       async () => {
         render(<Page />)
@@ -134,6 +178,138 @@ describe(
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 
         expect(mockDelete).toHaveBeenLastCalledWith({ id: 1 })
+      },
+    )
+
+    it(
+      'toggles client secret visibility',
+      async () => {
+        render(<Page />)
+
+        const secretCell = screen.getByText('*****')
+        const toggleButton = secretCell.parentElement?.querySelector('button')
+        expect(toggleButton).toBeInTheDocument()
+
+        // Initially secret is hidden
+        expect(screen.queryByText(apps[0].secret)).not.toBeInTheDocument()
+
+        // Show secret
+        fireEvent.click(toggleButton!)
+        expect(screen.getByText(apps[0].secret)).toBeInTheDocument()
+
+        // Hide secret again
+        fireEvent.click(toggleButton!)
+        expect(screen.queryByText(apps[0].secret)).not.toBeInTheDocument()
+      },
+    )
+
+    it(
+      'prevents save when there are validation errors',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.getByTestId('nameInput')
+        const saveBtn = screen.getByTestId('saveButton')
+
+        const callCountBefore = mockUpdate.mock.calls.length
+
+        // Trigger validation error by setting empty name
+        fireEvent.change(
+          nameInput,
+          { target: { value: '' } },
+        )
+
+        // Try to save
+        fireEvent.click(saveBtn)
+
+        // Verify update was not called
+        expect(mockUpdate.mock.calls.length).toBe(callCountBefore)
+      },
+    )
+
+    it(
+      'redirects to apps page after successful delete',
+      async () => {
+        render(<Page />)
+
+        const deleteBtn = screen.getByTestId('deleteButton')
+
+        // Open delete dialog
+        fireEvent.click(deleteBtn)
+
+        // Confirm delete
+        const confirmBtn = screen.getByTestId('confirmButton')
+        fireEvent.click(confirmBtn)
+
+        // Verify delete was called and redirect happened
+        expect(mockDelete).toHaveBeenCalledWith({ id: 1 })
+        expect(mockNav.push).toHaveBeenCalledWith('/en/apps')
+      },
+    )
+
+    it(
+      'filters available scopes by app type',
+      async () => {
+      // Mock scopes with different types
+        const mixedScopes = [
+          {
+            id: 1, name: 'spa_scope', type: 'spa', description: 'SPA scope',
+          },
+          {
+            id: 2, name: 's2s_scope', type: 's2s', description: 'S2S scope',
+          },
+          {
+            id: 3, name: 'another_spa', type: 'spa', description: 'Another SPA scope',
+          },
+        ];
+
+        (useGetApiV1ScopesQuery as Mock).mockReturnValue({ data: { scopes: mixedScopes } })
+
+        render(<Page />)
+
+        // Should only show SPA scopes since apps[0] is a SPA app
+        const scopeInputs = screen.queryAllByTestId('scopeInput')
+        expect(scopeInputs).toHaveLength(2)
+
+        // Verify the scope labels are only for SPA scopes
+        const scopeLabels = screen.getAllByTestId('scopeLabel')
+          .map((label) => label.innerHTML)
+        expect(scopeLabels).toContain('spa_scope')
+        expect(scopeLabels).toContain('another_spa')
+        expect(scopeLabels).not.toContain('s2s_scope')
+      },
+    )
+
+    it(
+      'handles undefined scopes data gracefully',
+      async () => {
+      // Mock scopesData as undefined
+        (useGetApiV1ScopesQuery as Mock).mockReturnValue({ data: undefined })
+
+        render(<Page />)
+
+        // Should render without crashing and show no scope inputs
+        const scopeInputs = screen.queryAllByTestId('scopeInput')
+        expect(scopeInputs).toHaveLength(0)
+      },
+    )
+
+    it(
+      'returns null when app data is not available',
+      async () => {
+      // Mock app data as undefined
+        (useGetApiV1AppsByIdQuery as Mock).mockReturnValue({ data: { app: null } })
+
+        const { container } = render(<Page />)
+
+        // Should render nothing
+        expect(container.firstChild).toBeNull()
+
+        // Verify none of the main elements are present
+        expect(screen.queryByTestId('nameInput')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('statusInput')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('saveButton')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('deleteButton')).not.toBeInTheDocument()
       },
     )
   },

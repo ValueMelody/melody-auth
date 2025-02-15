@@ -25,6 +25,7 @@ const ScopesEditor = ({
             checked={value?.includes(scope.name)}
           />
           <Label
+            data-testid='scopeLabel'
             htmlFor={`scope-${scope.id}`}
             className='flex'>
             {scope.name}

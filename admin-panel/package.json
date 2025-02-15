@@ -9,6 +9,7 @@
     "cf:dev": "wrangler dev --port 3000",
     "cf:deploy": "wrangler deploy",
     "test:check": "vitest run .",
+    "test:coverage": "vitest run --coverage",
     "type:check": "tsc --noEmit",
     "service:generate": "npx @rtk-query/codegen-openapi ./scripts/generateService.ts"
   },

@@ -1,7 +1,9 @@
 import {
   describe, it, expect, vi, beforeEach, Mock,
 } from 'vitest'
-import { screen } from '@testing-library/react'
+import {
+  screen, waitFor,
+} from '@testing-library/react'
 import { render } from '../../../vitest.setup'
 import Page from 'app/[lang]/users/page'
 import { useGetApiV1UsersQuery } from 'services/auth/api'
@@ -32,7 +34,8 @@ describe(
     beforeEach(() => {
       (useGetApiV1UsersQuery as Mock).mockReturnValue({
         data: {
-          users, count: 3,
+          users,
+          count: 30,
         },
       })
     })
@@ -59,6 +62,72 @@ describe(
           const editLink = row.querySelectorAll('td')[4]?.getElementsByTagName('a')
           expect(editLink[0].getAttribute('href')).toBe(`/en/users/${users[index].authId}`)
         })
+      },
+    )
+
+    it(
+      'handles page changes correctly',
+      async () => {
+        render(<Page />)
+
+        ;(useGetApiV1UsersQuery as Mock).mockClear()
+
+        await waitFor(() => {
+          const nextButton = screen.getByText('common.next')
+          expect(nextButton).toBeInTheDocument()
+          nextButton.click()
+        })
+
+        await waitFor(() => {
+        // Verify the API was called with page 2
+          expect(useGetApiV1UsersQuery).toHaveBeenCalledWith(expect.objectContaining({
+            pageNumber: 2,
+            pageSize: 20,
+          }))
+        })
+      },
+    )
+
+    it(
+      'handles undefined API data gracefully',
+      async () => {
+      // Mock API to return undefined data
+        (useGetApiV1UsersQuery as Mock).mockReturnValue({ data: undefined })
+
+        render(<Page />)
+
+        // Should render empty table without crashing
+        const rows = screen.queryAllByTestId('userRow')
+        expect(rows.length).toBe(0)
+
+        // Pagination should not be visible
+        const nextButton = screen.queryByText('common.next')
+        expect(nextButton).not.toBeInTheDocument()
+      },
+    )
+
+    it(
+      'handles undefined user names correctly',
+      () => {
+        (useGetApiV1UsersQuery as Mock).mockReturnValue({
+          data: {
+            users: [{
+              ...users[0],
+              firstName: undefined,
+              lastName: undefined,
+            }],
+            count: 1,
+          },
+        })
+
+        render(<Page />)
+
+        const rows = screen.queryAllByTestId('userRow')
+        expect(rows.length).toBe(1)
+
+        // Verify that the name cell contains empty strings
+        const nameCell = rows[0].querySelectorAll('td')[3]
+        expect(nameCell?.innerHTML).toContain(' ') // Should contain a space between empty strings
       },
     )
   },

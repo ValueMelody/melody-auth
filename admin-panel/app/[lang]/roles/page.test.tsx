@@ -39,5 +39,21 @@ describe(
         expect(createButton.getAttribute('href')).toBe('/en/roles/new')
       },
     )
+
+    it(
+      'renders empty table when no roles are returned',
+      () => {
+        (useGetApiV1RolesQuery as Mock).mockReturnValue({
+          data: undefined,
+          isLoading: false,
+          error: null,
+        })
+
+        render(<Page />)
+
+        const rows = screen.queryAllByTestId('roleRow')
+        expect(rows.length).toBe(0)
+      },
+    )
   },
 )

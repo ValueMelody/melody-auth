@@ -10,5 +10,9 @@ export default defineConfig({
     globals: true,
     setupFiles: './vitest.setup.tsx',
     environment: 'jsdom',
+    coverage: {
+      exclude: ['node_modules/**', '.next/**', 'scripts/**', 'tests/**', 'app/api/**', 'services/**', '*.d.ts', '*.config.*', '**/*.test.*', 'middleware.ts', 'i18n.ts'],
+      provider: 'v8',
+    },
   },
 })

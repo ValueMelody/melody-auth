@@ -253,6 +253,7 @@ const Page = () => {
         {user.isActive && !isEmailEnrolled && (
           <Button
             size='xs'
+            data-testid='enrollEmailButton'
             onClick={handleEnrollEmailMfa}>
             {t('users.enrollMfa')}
           </Button>
@@ -260,6 +261,7 @@ const Page = () => {
         {user.isActive && isEmailEnrolled && !configs.EMAIL_MFA_IS_REQUIRED && (
           <Button
             size='xs'
+            data-testid='resetEmailButton'
             onClick={handleClickResetEmailMfa}>
             {t('users.resetMfa')}
           </Button>
@@ -267,13 +269,14 @@ const Page = () => {
         {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && !emailResent && (
           <Button
             size='xs'
-            onClick={handleResendVerifyEmail}>
+            onClick={handleResendVerifyEmail}
+            data-testid='resendEmailButton'>
             {t('users.resend')}
           </Button>
         )}
         {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && emailResent && (
           <div className='flex'>
-            <Badge>{t('users.sent')}</Badge>
+            <Badge data-testid='emailSentBadge'>{t('users.sent')}</Badge>
           </div>
         )}
       </div>
@@ -286,6 +289,7 @@ const Page = () => {
         {user.mfaTypes.includes('otp') && user.isActive && (
           <Button
             size='xs'
+            data-testid='resetOtpButton'
             onClick={handleClickResetOtpMfa}
           >
             {t('users.resetMfa')}
@@ -294,6 +298,7 @@ const Page = () => {
         {user.isActive && !isOtpEnrolled && (
           <Button
             size='xs'
+            data-testid='enrollOtpButton'
             onClick={handleEnrollOtpMfa}>
             {t('users.enrollMfa')}
           </Button>
@@ -308,6 +313,7 @@ const Page = () => {
         {user.mfaTypes.includes('sms') && user.isActive && (
           <Button
             size='xs'
+            data-testid='resetSmsButton'
             onClick={handleClickResetSmsMfa}
           >
             {t('users.resetMfa')}
@@ -316,6 +322,7 @@ const Page = () => {
         {user.isActive && !isSmsEnrolled && (
           <Button
             size='xs'
+            data-testid='enrollSmsButton'
             onClick={handleEnrollSmsMfa}>
             {t('users.enrollMfa')}
           </Button>
@@ -329,6 +336,7 @@ const Page = () => {
     return (
       <Button
         size='xs'
+        data-testid='unlockIpButton'
         onClick={handleUnlock}
       >
         {t('users.unlock')}

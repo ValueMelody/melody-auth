@@ -1,5 +1,6 @@
 import {
   fireEvent, screen,
+  waitFor,
 } from '@testing-library/react'
 import {
   describe, it, expect, vi, beforeEach, Mock,
@@ -104,6 +105,53 @@ describe(
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 
         expect(mockDelete).toHaveBeenLastCalledWith({ id: 2 })
+      },
+    )
+
+    it(
+      'shows validation errors when saving with empty name',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        // Store initial number of calls
+        const initialCalls = mockUpdate.mock.calls.length
+
+        // Clear the name input to trigger validation error
+        fireEvent.change(
+          nameInput,
+          { target: { value: ' ' } },
+        )
+
+        // Try to save
+        fireEvent.click(saveBtn)
+
+        // Verify error message is displayed
+        await waitFor(() => {
+          const errorMessages = screen.queryAllByTestId('fieldError')
+          expect(errorMessages.length).toBeGreaterThan(0)
+        })
+
+        // Verify the update function was not called by comparing with initial calls
+        expect(mockUpdate.mock.calls.length).toBe(initialCalls)
+      },
+    )
+
+    it(
+      'returns null when role data is not available',
+      () => {
+      // Mock the API to return no role data
+        (useGetApiV1RolesByIdQuery as Mock).mockReturnValue({ data: { role: null } })
+
+        render(<Page />)
+
+        // Verify that none of the role-related elements are rendered
+        expect(screen.queryByTestId('nameInput')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('noteInput')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('saveButton')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('deleteButton')).not.toBeInTheDocument()
       },
     )
   },
