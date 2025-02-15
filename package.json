@@ -1,6 +1,6 @@
 {
   "name": "melody-auth",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "A turnkey OAuth & authentication system.",
   "license": "MIT",
   "author": "Baozier",
@@ -31,6 +31,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "ioredis-mock": "^8.9.0",
     "vue": "^3.4.0",
     "vuepress": "^2.0.0-rc.19"
   }
