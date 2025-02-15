@@ -34,9 +34,9 @@ export const loginRedirect = async (
       {
         state,
         codeChallenge,
-        locale: additionalProps.locale,
-        policy: additionalProps.policy,
-        org: additionalProps.org,
+        locale: additionalProps?.locale,
+        policy: additionalProps?.policy,
+        org: additionalProps?.org,
       },
     )
   } catch (e) {
