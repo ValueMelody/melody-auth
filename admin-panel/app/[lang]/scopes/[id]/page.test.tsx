@@ -3,6 +3,7 @@ import {
 } from '@testing-library/react'
 import {
   describe, it, expect, vi, beforeEach, Mock,
+  afterEach,
 } from 'vitest'
 import Page from 'app/[lang]/scopes/[id]/page'
 import { scopes } from 'tests/scopeMock'
@@ -127,6 +128,19 @@ describe(
             ],
           },
         })
+      },
+    )
+
+    it(
+      'returns null when scope is not found',
+      async () => {
+      // Mock API to return no scope data
+        ;(useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({ data: { scope: undefined } })
+
+        const { container } = render(<Page />)
+
+        // Verify component renders nothing
+        expect(container.firstChild).toBeNull()
       },
     )
   },
@@ -281,6 +295,196 @@ describe(
         expect(mockDelete).toHaveBeenLastCalledWith({ id: 3 })
       },
     )
+
+    it(
+      'shows validation errors on save attempt',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        // Change name to invalid value to trigger validation error
+        fireEvent.change(
+          nameInput,
+          { target: { value: ' ' } }, // Empty name should trigger validation error
+        )
+
+        mockUpdate.mockClear()
+
+        expect(saveBtn?.disabled).toBeFalsy() // Button should be enabled since value changed
+        fireEvent.click(saveBtn)
+
+        // Verify error is displayed
+        const errorMessage = screen.getByTestId('fieldError')
+        expect(errorMessage).toBeInTheDocument()
+
+        // Verify update was not called
+        expect(mockUpdate).not.toHaveBeenCalled()
+      },
+    )
+
+    describe(
+      'locale comparison logic',
+      () => {
+        beforeEach(() => {
+        // Set config for all locale tests
+          vi.mocked(configSignal as unknown as { value: object }).value = {
+            ENABLE_USER_APP_CONSENT: true,
+            SUPPORTED_LOCALES: ['en', 'fr'],
+          }
+        })
+
+        afterEach(() => {
+        // Reset config after each test
+          vi.mocked(configSignal as unknown as { value: object }).value = {
+            ENABLE_USER_APP_CONSENT: false,
+            SUPPORTED_LOCALES: ['en', 'fr'],
+          }
+        })
+
+        it(
+          'detects when locales are added',
+          async () => {
+            const scopeWithoutLocales = {
+              ...scopes[2],
+              locales: undefined,
+            }
+
+        ;(useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({ data: { scope: scopeWithoutLocales } })
+
+            render(<Page />)
+
+            const localeInputs = screen.queryAllByTestId('localeInput') as HTMLInputElement[]
+            const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+            // Add values to locale inputs
+            fireEvent.change(
+              localeInputs[0],
+              { target: { value: 'test en' } },
+            )
+
+            expect(saveBtn?.disabled).toBeFalsy()
+          },
+        )
+
+        it(
+          'detects when number of locales changes',
+          async () => {
+            const scopeWithDifferentLocales = {
+              ...scopes[2],
+              locales: [{
+                locale: 'en', value: 'test',
+              }], // Only one locale
+            }
+
+        ;(useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({ data: { scope: scopeWithDifferentLocales } })
+
+            render(<Page />)
+
+            const localeInputs = screen.queryAllByTestId('localeInput') as HTMLInputElement[]
+            const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+            // Add values to both locale inputs
+            fireEvent.change(
+              localeInputs[0],
+              { target: { value: 'new en' } },
+            )
+            fireEvent.change(
+              localeInputs[1],
+              { target: { value: 'new fr' } },
+            )
+
+            expect(saveBtn?.disabled).toBeFalsy()
+          },
+        )
+
+        it(
+          'detects when locale values change',
+          async () => {
+            const scopeWithLocales = {
+              ...scopes[2],
+              locales: [
+                {
+                  locale: 'en', value: 'original en',
+                },
+                {
+                  locale: 'fr', value: 'original fr',
+                },
+              ],
+            }
+
+        ;(useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({ data: { scope: scopeWithLocales } })
+
+            render(<Page />)
+
+            const localeInputs = screen.queryAllByTestId('localeInput') as HTMLInputElement[]
+            const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+            // Change just one locale value
+            fireEvent.change(
+              localeInputs[0],
+              { target: { value: 'new en' } },
+            )
+
+            expect(saveBtn?.disabled).toBeFalsy()
+          },
+        )
+      },
+    )
+
+    it(
+      'disables save button when no changes made',
+      async () => {
+        const unchangedScope = {
+          ...scopes[2],
+          name: 'test scope',
+          note: 'test note',
+          locales: [
+            {
+              locale: 'en', value: 'english text',
+            },
+            {
+              locale: 'fr', value: 'french text',
+            },
+          ],
+        }
+
+      ;(useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({ data: { scope: unchangedScope } })
+
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const noteInput = screen.queryByTestId('noteInput') as HTMLInputElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        // Verify initial values
+        expect(nameInput?.value).toBe('test scope')
+        expect(noteInput?.value).toBe('test note')
+
+        // Change values and then change back to original
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'changed name' } },
+        )
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'test scope' } }, // Change back to original
+        )
+
+        fireEvent.change(
+          noteInput,
+          { target: { value: 'changed note' } },
+        )
+        fireEvent.change(
+          noteInput,
+          { target: { value: 'test note' } }, // Change back to original
+        )
+
+        // Verify save button is disabled when no actual changes exist
+        expect(saveBtn?.disabled).toBeTruthy()
+      },
+    )
   },
 )
 
@@ -402,6 +606,30 @@ describe(
             name: 'new name',
             note: 'new note',
           },
+        })
+      },
+    )
+
+    it(
+      'update scope name only',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'new name' } },
+        )
+
+        expect(nameInput?.value).toBe('new name')
+        expect(saveBtn?.disabled).toBeFalsy()
+        fireEvent.click(saveBtn)
+
+        expect(mockUpdate).toHaveBeenLastCalledWith({
+          id: 4,
+          putScopeReq: { name: 'new name' },
         })
       },
     )

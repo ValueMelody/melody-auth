@@ -77,7 +77,7 @@ const Page = () => {
     setSignInLogPageNumber(page)
   }
 
-  if (!configs) return <Spinner />
+  if (!configs) return <Spinner data-testid='flowbite-spinner' />
 
   return (
     <section>

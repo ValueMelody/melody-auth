@@ -47,7 +47,8 @@ const Page = () => {
           {orgs.map((org) => (
             <Table.Row
               key={org.id}
-              data-testid='roleRow'>
+              data-testid={`roleRow-${org.id}`}
+            >
               <Table.Cell>
                 <section className='flex justify-between items-center'>
                   <div className='flex flex-col gap-2'>

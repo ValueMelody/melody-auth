@@ -1,6 +1,7 @@
 import {
   fireEvent,
   screen,
+  waitFor,
 } from '@testing-library/react'
 import {
   describe, it, expect, vi, beforeEach, Mock,
@@ -44,6 +45,10 @@ describe(
   () => {
     beforeEach(() => {
       (usePostApiV1ScopesMutation as Mock).mockReturnValue([mockCreate, { isLoading: false }])
+      vi.mocked(configSignal as unknown as { value: object }).value = {
+        ENABLE_USER_APP_CONSENT: true,
+        SUPPORTED_LOCALES: ['en', 'fr'],
+      }
     })
 
     it(
@@ -197,6 +202,156 @@ describe(
             type: 'spa',
           },
         })
+      },
+    )
+
+    it(
+      'updates existing locale value',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const typeSelect = screen.queryByTestId('typeSelect') as HTMLSelectElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        // Setup form
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'new name' } },
+        )
+        fireEvent.change(
+          typeSelect,
+          { target: { value: 'spa' } },
+        )
+
+        await waitFor(() => {
+          const localeInputs = screen.queryAllByTestId('localeInput')
+          expect(localeInputs.length).toBe(2)
+        })
+
+        const localeInputs = screen.getAllByTestId('localeInput')
+
+        // Add initial values
+        fireEvent.change(
+          localeInputs[0],
+          { target: { value: 'initial en' } },
+        )
+        fireEvent.change(
+          localeInputs[1],
+          { target: { value: 'initial fr' } },
+        )
+
+        // Update existing value
+        fireEvent.change(
+          localeInputs[0],
+          { target: { value: 'updated en' } },
+        )
+
+        fireEvent.click(saveBtn)
+
+        expect(mockCreate).toHaveBeenLastCalledWith({
+          postScopeReq: {
+            name: 'new name',
+            type: 'spa',
+            note: '',
+            locales: [
+              {
+                locale: 'en', value: 'updated en',
+              },
+              {
+                locale: 'fr', value: 'initial fr',
+              },
+            ],
+          },
+        })
+      },
+    )
+
+    it(
+      'handles empty initial values for locales',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const typeSelect = screen.queryByTestId('typeSelect') as HTMLSelectElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'new name' } },
+        )
+        fireEvent.change(
+          typeSelect,
+          { target: { value: 'spa' } },
+        )
+
+        // Setup form
+        await waitFor(() => {
+          const localeInputs = screen.queryAllByTestId('localeInput')
+          expect(localeInputs.length).toBe(2)
+        })
+
+        const localeInputs = screen.getAllByTestId('localeInput')
+
+        // Add single locale value
+        fireEvent.change(
+          localeInputs[0],
+          { target: { value: 'new en' } },
+        )
+
+        fireEvent.click(saveBtn)
+
+        expect(mockCreate).toHaveBeenLastCalledWith({
+          postScopeReq: {
+            name: 'new name',
+            type: 'spa',
+            note: '',
+            locales: [
+              {
+                locale: 'en', value: 'new en',
+              },
+            ],
+          },
+        })
+      },
+    )
+
+    it(
+      'shows validation errors on submit',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const typeSelect = screen.queryByTestId('typeSelect') as HTMLSelectElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        mockCreate.mockClear()
+
+        // Submit without required fields
+        fireEvent.click(saveBtn)
+
+        // Verify error messages are displayed
+        const errors = await screen.findAllByTestId('fieldError')
+        expect(errors.length).toBe(2) // Should show errors for name and type
+        expect(mockCreate).not.toHaveBeenCalled()
+
+        // Fill required fields
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'new name' } },
+        )
+        fireEvent.change(
+          typeSelect,
+          { target: { value: 'spa' } },
+        )
+
+        mockCreate.mockClear()
+
+        // Submit again
+        fireEvent.click(saveBtn)
+
+        // Verify successful submission
+        expect(mockCreate).toHaveBeenCalledTimes(1)
       },
     )
   },

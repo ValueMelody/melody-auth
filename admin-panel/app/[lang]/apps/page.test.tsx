@@ -20,6 +20,17 @@ describe(
     })
 
     it(
+      'renders empty table when no apps data',
+      () => {
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({ data: undefined })
+        render(<Page />)
+
+        const rows = screen.queryAllByTestId('appRow')
+        expect(rows.length).toBe(0)
+      },
+    )
+
+    it(
       'render apps',
       async () => {
         render(<Page />)

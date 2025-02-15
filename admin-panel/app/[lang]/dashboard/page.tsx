@@ -96,79 +96,85 @@ const Page = () => {
   ]
 
   const links = useMemo(
-    () => ({
-      openidConfig: `${configs.AUTH_SERVER_URL}/.well-known/openid-configuration`,
-      jwks: `${configs.AUTH_SERVER_URL}/.well-known/jwks.json`,
-      apiSwagger: `${configs.AUTH_SERVER_URL}/api/v1/swagger`,
-      systemInfo: `${configs.AUTH_SERVER_URL}/info`,
-    }),
+    () => configs
+      ? ({
+        openidConfig: `${configs.AUTH_SERVER_URL}/.well-known/openid-configuration`,
+        jwks: `${configs.AUTH_SERVER_URL}/.well-known/jwks.json`,
+        apiSwagger: `${configs.AUTH_SERVER_URL}/api/v1/swagger`,
+        systemInfo: `${configs.AUTH_SERVER_URL}/info`,
+      })
+      : null,
     [configs],
   )
 
-  if (!configs) return <Spinner />
+  if (!configs) return <Spinner data-testid='spinner' />
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('dashboard.links')}
-      />
-      <Table className='break-all'>
-        <Table.Head>
-          <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
-          <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>
-        </Table.Head>
-        <Table.Body className='divide-y'>
-          <Table.Row>
-            <Table.Cell>OPENID CONFIGURATION</Table.Cell>
-            <Table.Cell>
-              <a
-                target='_blank'
-                href={links.openidConfig}
-                rel='noreferrer'
-              >
-                {links.openidConfig}
-              </a>
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>JWKS</Table.Cell>
-            <Table.Cell>
-              <a
-                target='_blank'
-                href={links.jwks}
-                rel='noreferrer'
-              >
-                {links.jwks}
-              </a>
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>{t('dashboard.apiSwagger')}</Table.Cell>
-            <Table.Cell>
-              <a
-                target='_blank'
-                href={links.apiSwagger}
-                rel='noreferrer'
-              >
-                {links.apiSwagger}
-              </a>
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>{t('dashboard.systemInfo')}</Table.Cell>
-            <Table.Cell>
-              <a
-                target='_blank'
-                href={links.systemInfo}
-                rel='noreferrer'
-              >
-                {links.systemInfo}
-              </a>
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table>
+      {links && (
+        <>
+          <PageTitle
+            className='mb-6'
+            title={t('dashboard.links')}
+          />
+          <Table className='break-all'>
+            <Table.Head>
+              <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
+              <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>
+            </Table.Head>
+            <Table.Body className='divide-y'>
+              <Table.Row>
+                <Table.Cell>OPENID CONFIGURATION</Table.Cell>
+                <Table.Cell>
+                  <a
+                    target='_blank'
+                    href={links.openidConfig}
+                    rel='noreferrer'
+                  >
+                    {links.openidConfig}
+                  </a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>JWKS</Table.Cell>
+                <Table.Cell>
+                  <a
+                    target='_blank'
+                    href={links.jwks}
+                    rel='noreferrer'
+                  >
+                    {links.jwks}
+                  </a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>{t('dashboard.apiSwagger')}</Table.Cell>
+                <Table.Cell>
+                  <a
+                    target='_blank'
+                    href={links.apiSwagger}
+                    rel='noreferrer'
+                  >
+                    {links.apiSwagger}
+                  </a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>{t('dashboard.systemInfo')}</Table.Cell>
+                <Table.Cell>
+                  <a
+                    target='_blank'
+                    href={links.systemInfo}
+                    rel='noreferrer'
+                  >
+                    {links.systemInfo}
+                  </a>
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        </>
+      )}
       {configTypes.map((configType) => (
         <section
           key={configType.name}

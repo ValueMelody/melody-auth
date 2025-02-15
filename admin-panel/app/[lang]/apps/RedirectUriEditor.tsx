@@ -64,6 +64,7 @@ const RedirectUriEditor = ({
                   color='gray'
                   onClick={() => handleRemoveUri(index)}
                   size='xs'
+                  data-testid='redirectUriRemoveButton'
                 >
                   <TrashIcon className='w-4 h-4' />
                 </Button>

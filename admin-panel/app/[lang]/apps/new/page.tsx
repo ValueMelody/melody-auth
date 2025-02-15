@@ -125,7 +125,7 @@ const Page = () => {
                     value={values.scopes}
                     onToggleScope={handleToggleAppScope}
                   />
-                  {showErrors && <p className='text-red-600 mt-2'>{errors.scopes}</p>}
+                  {showErrors && <FieldError error={errors.scopes} />}
                 </Table.Cell>
               </Table.Row>
             )}

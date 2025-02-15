@@ -38,5 +38,17 @@ describe(
         })
       },
     )
+
+    it(
+      'renders empty table when data is undefined',
+      async () => {
+        (useGetApiV1ScopesQuery as Mock).mockReturnValue({ data: undefined })
+
+        render(<Page />)
+
+        const rows = screen.queryAllByTestId('scopeRow')
+        expect(rows.length).toBe(0)
+      },
+    )
   },
 )

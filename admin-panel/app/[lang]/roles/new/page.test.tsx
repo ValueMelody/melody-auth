@@ -68,5 +68,32 @@ describe(
         })
       },
     )
+
+    it(
+      'should show errors and not create role when validation fails',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        // Reset mock before test
+        mockCreate.mockClear()
+
+        // Leave name empty to trigger validation error
+        fireEvent.change(
+          nameInput,
+          { target: { value: ' ' } },
+        )
+        fireEvent.click(saveBtn)
+
+        // Verify error is displayed
+        const errorMessage = await screen.findByTestId('fieldError')
+        expect(errorMessage).toBeInTheDocument()
+
+        // Verify create was not called
+        expect(mockCreate).not.toHaveBeenCalled()
+      },
+    )
   },
 )
