@@ -15,15 +15,20 @@
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
-    "react": "^18.2.0",
+    "@testing-library/dom": "^10.4.0",
+    "react": "^18",
+    "react-dom": "^18.3.1",
     "rollup": "^4.19.2",
-    "tsc-alias": "^1.8.10"
+    "tsc-alias": "^1.8.10",
+    "vitest": "^3.0.5"
   },
   "peerDependencies": {
     "react": "^16.11.0 || ^17 || ^18"
   },
   "scripts": {
     "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && mkdir ./dist/web-sdk && cp -r ../shared/dist/* ./dist/shared && cp -r ../web-sdk/dist/* ./dist/web-sdk && rollup -c --bundleConfigAsCjs && tsc-alias",
-    "type:check": "tsc --noEmit"
+    "type:check": "tsc --noEmit",
+    "test:check": "vitest run .",
+    "test:coverage": "vitest run . --coverage"
   }
 }

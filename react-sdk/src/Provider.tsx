@@ -14,7 +14,7 @@ export interface ProviderProps extends ProviderConfig {
   children: ReactNode;
 }
 
-const reducer = (
+export const reducer = (
   state: AuthState, action: DispatchAction,
 ) => {
   switch (action.type) {
