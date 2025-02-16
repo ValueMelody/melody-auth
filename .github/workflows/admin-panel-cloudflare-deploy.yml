@@ -1,4 +1,4 @@
-name: server-deploy CI
+name: admin-panel-cloudflare-deploy CI
 
 on:
   workflow_dispatch: {}
@@ -19,18 +19,10 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm ci
+        run: cd admin-panel && npm ci
 
       - name: Build package
-        run: npm run build
-
-      - name: Run Migration
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: 'server'
-          command: d1 migrations apply melody-auth --remote
+        run: cd admin-panel && npm run cf:build
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
@@ -38,4 +30,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: 'server'
-          command: deploy
+          command: deploy --minify src/index.tsx
