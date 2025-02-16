@@ -19,14 +19,10 @@ jobs:
           node-version: '18'
 
       - name: Create .env file
-        env:
-          NEXT_PUBLIC_CLIENT_URI: ${{ env.NEXT_PUBLIC_CLIENT_URI }}
-          NEXT_PUBLIC_SERVER_URI: ${{ env.NEXT_PUBLIC_SERVER_URI }}
-          NEXT_PUBLIC_CLIENT_ID: ${{ env.NEXT_PUBLIC_CLIENT_ID }}
         run: |
-          echo "NEXT_PUBLIC_CLIENT_URI=${NEXT_PUBLIC_CLIENT_URI}" >> admin-panel/.env
-          echo "NEXT_PUBLIC_SERVER_URI=${NEXT_PUBLIC_SERVER_URI}" >> admin-panel/.env
-          echo "NEXT_PUBLIC_CLIENT_ID=${NEXT_PUBLIC_CLIENT_ID}" >> admin-panel/.env
+          echo "NEXT_PUBLIC_CLIENT_URI=${vars.NEXT_PUBLIC_CLIENT_URI}" >> admin-panel/.env
+          echo "NEXT_PUBLIC_SERVER_URI=${vars.NEXT_PUBLIC_SERVER_URI}" >> admin-panel/.env
+          echo "NEXT_PUBLIC_CLIENT_ID=${vars.NEXT_PUBLIC_CLIENT_ID}" >> admin-panel/.env
 
       - name: Install dependencies
         run: cd admin-panel && npm ci
