@@ -1,0 +1,43 @@
+name: admin-panel-cloudflare-deploy CI
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Create .env file
+        env:
+          NEXT_PUBLIC_CLIENT_URI: ${{ vars.NEXT_PUBLIC_CLIENT_URI }}
+          NEXT_PUBLIC_SERVER_URI: ${{ vars.NEXT_PUBLIC_SERVER_URI }}
+          NEXT_PUBLIC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_CLIENT_ID }}
+        run: |
+          echo "NEXT_PUBLIC_CLIENT_URI=${NEXT_PUBLIC_CLIENT_URI}" >> admin-panel/.env
+          echo "NEXT_PUBLIC_SERVER_URI=${NEXT_PUBLIC_SERVER_URI}" >> admin-panel/.env
+          echo "NEXT_PUBLIC_CLIENT_ID=${NEXT_PUBLIC_CLIENT_ID}" >> admin-panel/.env
+
+      - name: Install dependencies
+        run: cd admin-panel && npm ci
+
+      - name: Build package
+        run: cd admin-panel && npm run cf:build
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'admin-panel'
+          command: deploy

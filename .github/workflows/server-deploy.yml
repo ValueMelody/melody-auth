@@ -24,10 +24,12 @@ jobs:
       - name: Build package
         run: npm run build
 
-      - name: Deploy
+      - name: Run Migration
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: 'server'
-          command: deploy --minify src/index.tsx
+          command: | 
+            d1 migrations apply melody-auth --remote
+            deploy --minify src/index.tsx

@@ -1,10 +1,7 @@
-name: admin-panel-deploy CI
+name: admin-panel-vercel-deploy CI
 
 on:
   workflow_dispatch: {}
-  push:
-    branches:
-      - main
 
 jobs:
   publish:
