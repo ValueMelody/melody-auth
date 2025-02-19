@@ -7,6 +7,8 @@ export interface ProviderConfig {
   onLoginSuccess?: (attributes: { state?: string; locale?: string }) => void;
 }
 
+export type AuthorizeMethod = 'popup' | 'redirect';
+
 export interface AccessTokenStorage {
   accessToken: string;
   expiresIn: number;

@@ -513,6 +513,47 @@ describe(
         global.process.env.SERVER_SESSION_EXPIRES_IN = 1800 as unknown as string
       },
     )
+
+    test(
+      'should return a page with redirect script when authorize_method is popup and session is active',
+      async () => {
+        // disable MFA enforcement for this test
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        const appRecord = await getApp(db)
+        insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        // Build the authorize URL with authorize_method=popup and other required query parameters
+        const url = `${routeConfig.OauthRoute.Authorize}?client_id=${appRecord.clientId}` +
+          '&redirect_uri=http://localhost:3000/en/dashboard' +
+          '&response_type=code' +
+          '&state=popupState' +
+          '&code_challenge=abc' +
+          '&code_challenge_method=S256' +
+          '&scope=profile+openid+offline_access' +
+          '&locale=en' +
+          '&authorize_method=popup'
+        const res = await app.request(
+          url,
+          {},
+          mock(db),
+        )
+        // Expect an HTML response instead of a redirect
+        expect(res.status).toBe(200)
+        expect(res.headers.get('content-type')?.toLowerCase()).toContain('text/html')
+        const html = await res.text()
+        // Check for the existence of a script tag (which the PopupRedirect view should render)
+        expect(html).toContain('<script')
+        // Verify that the state value (or any popup-related value) is present in the returned HTML
+        expect(html).toContain('popupState')
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
   },
 )
 

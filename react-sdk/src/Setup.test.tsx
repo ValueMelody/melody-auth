@@ -5,10 +5,35 @@ import {
 import {
   vi, describe, it, expect, beforeEach,
 } from 'vitest'
-import { exchangeTokenByAuthCode } from 'web-sdk'
+import {
+  exchangeTokenByAuthCode, loadCodeAndStateFromUrl,
+} from 'web-sdk'
 import Setup from './Setup'
 import authContext from './context'
-import * as utils from './utils'
+
+// Polyfill for window.history.pushState for tests (if not defined)
+if (typeof window.history.pushState !== 'function') {
+  window.history.pushState = (
+    state: any, title: string, url?: string,
+  ) => {
+    if (url) {
+      // Create a new URL object based on the provided URL and update window.location.
+      const newUrl = new URL(
+        url,
+        window.location.origin,
+      )
+      Object.defineProperty(
+        window,
+        'location',
+        {
+          configurable: true,
+          writable: true,
+          value: newUrl,
+        },
+      )
+    }
+  }
+}
 
 // Create a mock for the useAuth hook and its acquireToken function
 const mockAcquireToken = vi.fn()
@@ -21,7 +46,16 @@ vi.mock(
 
 vi.mock(
   'web-sdk',
-  () => ({ exchangeTokenByAuthCode: vi.fn() }),
+  () => ({
+    exchangeTokenByAuthCode: vi.fn(),
+    loadCodeAndStateFromUrl: vi.fn(() => {
+      const params = new URLSearchParams(window.location.search)
+      return {
+        code: params.get('code') || '',
+        state: params.get('state') || '',
+      }
+    }),
+  }),
 )
 
 describe(
@@ -129,7 +163,11 @@ describe(
 
         await waitFor(() => {
           // ensure the token exchange is invoked with the provided config
-          expect(exchangeTokenByAuthCode).toHaveBeenCalledWith(state.config)
+          expect(exchangeTokenByAuthCode).toHaveBeenCalledWith(
+            'sampleCode',
+            'xyz',
+            state.config,
+          )
         })
 
         await waitFor(() => {
@@ -181,7 +219,11 @@ describe(
         </authContext.Provider>)
 
         await waitFor(() => {
-          expect(exchangeTokenByAuthCode).toHaveBeenCalledWith(state.config)
+          expect(exchangeTokenByAuthCode).toHaveBeenCalledWith(
+            'sampleCode',
+            '',
+            state.config,
+          )
         })
 
         await waitFor(() => {
@@ -208,15 +250,13 @@ describe(
         window.history.pushState(
           {},
           'Test Title',
-          '/?code=sampleCode',
-        )
+          '/?code=sampleCode&state=xyz',
+        );
+        // Ensure that loadCodeAndStateFromUrl returns the expected code and state.
+        (loadCodeAndStateFromUrl as vi.Mock).mockReturnValueOnce({
+          code: 'sampleCode', state: 'xyz',
+        })
         const error = new Error('Token exchange failed')
-
-        // Mock handleError to return a predictable error message.
-        vi.spyOn(
-          utils,
-          'handleError',
-        ).mockReturnValue('handled error message')
 
         const state = {
           ...defaultState, config: {},
@@ -231,12 +271,16 @@ describe(
         </authContext.Provider>)
 
         await waitFor(() => {
-          expect(exchangeTokenByAuthCode).toHaveBeenCalledWith(state.config)
+          expect(exchangeTokenByAuthCode).toHaveBeenCalledWith(
+            'sampleCode',
+            'xyz',
+            state.config,
+          )
         })
         await waitFor(() => {
           expect(dispatch).toHaveBeenCalledWith({
             type: 'setAuthenticationError',
-            payload: 'handled error message',
+            payload: 'Can not obtain access token',
           })
         })
       },

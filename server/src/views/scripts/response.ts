@@ -21,10 +21,19 @@ export const handleAuthorizeFormRedirect = (
     var url = data.nextPage + queryString + "&redirect_uri=" + data.redirectUri
     window.location.href = url;
   } else {
-    var url = data.redirectUri + queryString;
-    window.location.href = url;
+    if (window.opener) {
+      window.opener.postMessage({
+        state: data.state,
+        code: data.code,
+        locale: "${locale}",
+        org: "${org ?? ''}",
+        redirectUri: data.redirectUri,
+      }, "*");
+    } else {
+      var url = data.redirectUri + queryString;
+      window.location.href = url;
+    }
   }
-  return true
 `
 
 export const handleSubmitError = (locale: typeConfig.Locale) => html`

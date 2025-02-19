@@ -53,6 +53,10 @@ export class GetAuthorizeReqDto {
   @IsEnum(AuthorizeCodeChallengeMethod)
     codeChallengeMethod: string
 
+  @IsString()
+  @IsOptional()
+    authorizeMethod?: string | undefined
+
   @IsString({ each: true })
   @ArrayMinSize(1)
     scopes: string[]
@@ -79,6 +83,7 @@ export class GetAuthorizeReqDto {
     this.locale = dto.locale
     this.policy = dto.policy
     this.org = dto.org
+    this.authorizeMethod = dto.authorizeMethod
   }
 }
 

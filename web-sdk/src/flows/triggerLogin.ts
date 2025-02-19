@@ -1,5 +1,5 @@
 import {
-  ProviderConfig, SessionStorageKey,
+  ProviderConfig, SessionStorageKey, AuthorizeMethod,
 } from 'shared'
 import {
   genCodeVerifierAndChallenge, genAuthorizeState,
@@ -11,10 +11,11 @@ export interface AdditionalProps {
   state?: string;
   policy?: string;
   org?: string;
+  authorizePopupHandler?: (data: { state: string; code: string }) => void;
 }
 
-export const loginRedirect = async (
-  config: ProviderConfig, additionalProps?: AdditionalProps,
+export const triggerLogin = async (
+  authorizeMethod: AuthorizeMethod, config: ProviderConfig, additionalProps?: AdditionalProps,
 ) => {
   const state = additionalProps?.state || genAuthorizeState(21)
   const {
@@ -34,9 +35,11 @@ export const loginRedirect = async (
       {
         state,
         codeChallenge,
+        authorizeMethod,
         locale: additionalProps?.locale,
         policy: additionalProps?.policy,
         org: additionalProps?.org,
+        authorizePopupHandler: additionalProps?.authorizePopupHandler,
       },
     )
   } catch (e) {

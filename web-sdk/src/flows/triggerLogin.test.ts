@@ -15,7 +15,7 @@ import {
   genAuthorizeState,
 } from '../generators'
 import { getAuthorize } from '../requests'
-import { loginRedirect } from './loginRedirect'
+import { triggerLogin } from './triggerLogin'
 
 // Mock dependencies
 vi.mock(
@@ -32,7 +32,7 @@ vi.mock(
 )
 
 describe(
-  'loginRedirect',
+  'triggerLogin',
   () => {
     const mockProviderConfig: ProviderConfig = {
       serverUri: 'https://test.server',
@@ -69,7 +69,10 @@ describe(
     it(
       'should handle undefined additionalProps',
       async () => {
-        await loginRedirect(mockProviderConfig)
+        await triggerLogin(
+          'redirect',
+          mockProviderConfig,
+        )
 
         // Verify authorize call
         expect(getAuthorize).toHaveBeenCalledWith(
@@ -80,6 +83,8 @@ describe(
             locale: undefined,
             policy: undefined,
             org: undefined,
+            authorizeMethod: 'redirect',
+            authorizePopupHandler: undefined,
           },
         )
       },
@@ -88,7 +93,8 @@ describe(
     it(
       'should initiate login redirect with generated values',
       async () => {
-        await loginRedirect(
+        await triggerLogin(
+          'redirect',
           mockProviderConfig,
           {},
         )
@@ -118,6 +124,8 @@ describe(
             locale: undefined,
             policy: undefined,
             org: undefined,
+            authorizeMethod: 'redirect',
+            authorizePopupHandler: undefined,
           },
         )
       },
@@ -128,7 +136,8 @@ describe(
       async () => {
         const customState = 'custom-state'
 
-        await loginRedirect(
+        await triggerLogin(
+          'redirect',
           mockProviderConfig,
           { state: customState },
         )
@@ -157,7 +166,8 @@ describe(
           org: 'test-org',
         }
 
-        await loginRedirect(
+        await triggerLogin(
+          'redirect',
           mockProviderConfig,
           additionalProps,
         )
@@ -175,7 +185,8 @@ describe(
         const error = new Error('Authorize failed')
         vi.mocked(getAuthorize).mockRejectedValueOnce(error)
 
-        await expect(loginRedirect(
+        await expect(triggerLogin(
+          'redirect',
           mockProviderConfig,
           {},
         )).rejects.toThrow('Failed to initial authorize flow: Error: Authorize failed')

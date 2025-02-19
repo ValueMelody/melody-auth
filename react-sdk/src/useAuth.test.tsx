@@ -6,7 +6,7 @@ import {
   vi, describe, it, expect, beforeEach,
 } from 'vitest'
 import {
-  loginRedirect as rawLoginRedirect,
+  triggerLogin,
   logout,
   exchangeTokenByRefreshToken,
   getUserInfo,
@@ -19,7 +19,7 @@ import * as utils from './utils'
 vi.mock(
   'web-sdk',
   () => ({
-    loginRedirect: vi.fn(),
+    triggerLogin: vi.fn(),
     logout: vi.fn(),
     exchangeTokenByRefreshToken: vi.fn(),
     getUserInfo: vi.fn(),
@@ -125,18 +125,19 @@ describe(
     )
 
     it(
-      'loginRedirect should call rawLoginRedirect with proper config and props',
+      'loginRedirect should call triggerLogin with proper config and props',
       () => {
         const auth = renderHookWithState({
           isAuthenticated: false, isAuthenticating: false,
         })
-    // Ensure rawLoginRedirect does not throw.
-    ;(rawLoginRedirect as any).mockImplementation(() => {})
+    // Ensure triggerLogin does not throw.
+    ;(triggerLogin as any).mockImplementation(() => {})
         const props = {
-          locale: 'en', state: 'test', policy: 'custom_policy',
+          locale: 'en', state: 'test', policy: 'custom_policy', authorizePopupHandler: expect.any(Function),
         }
         auth.loginRedirect(props)
-        expect(rawLoginRedirect).toHaveBeenCalledWith(
+        expect(triggerLogin).toHaveBeenCalledWith(
+          'redirect',
           defaultState.config,
           props,
         )
@@ -144,19 +145,20 @@ describe(
     )
 
     it(
-      'loginRedirect should call rawLoginRedirect when already authenticated with a custom policy',
+      'loginRedirect should call triggerLogin when already authenticated with a custom policy',
       () => {
         const auth = renderHookWithState({
           isAuthenticated: true, isAuthenticating: false,
         });
         // Ensure rawLoginRedirect does not throw.
-        (rawLoginRedirect as any).mockImplementation(() => {})
+        (triggerLogin as any).mockImplementation(() => {})
         // Use a custom policy that is not "sign_in_or_sign_up".
         const props = {
-          locale: 'en', state: 'test', policy: 'custom_policy',
+          locale: 'en', state: 'test', policy: 'custom_policy', authorizePopupHandler: expect.any(Function),
         }
         auth.loginRedirect(props)
-        expect(rawLoginRedirect).toHaveBeenCalledWith(
+        expect(triggerLogin).toHaveBeenCalledWith(
+          'redirect',
           defaultState.config,
           props,
         )
@@ -167,7 +169,7 @@ describe(
       'loginRedirect should dispatch setLoginError when rawLoginRedirect throws',
       () => {
         // Simulate rawLoginRedirect throwing an error.
-        (rawLoginRedirect as any).mockImplementation(() => { throw new Error('Test error') })
+        (triggerLogin as any).mockImplementation(() => { throw new Error('Test error') })
         // Spy on handleError to return a predictable error message.
         vi.spyOn(
           utils,
@@ -413,12 +415,10 @@ describe(
             refreshToken: 'refreshValid', expiresOn: futureTime,
           },
         }
-        // Force handleError to return a predictable error message.
         vi.spyOn(
           utils,
           'handleError',
         ).mockImplementation(() => 'handled logout error')
-        // Simulate logout throwing an error.
         ;(logout as any).mockRejectedValue(new Error('Test error'))
         const auth = renderHookWithState(state)
         await act(async () => {
@@ -429,12 +429,127 @@ describe(
           'accessValid',
           'refreshValid',
           'https://redirect',
-          false, // isLocalOnly is false because both tokens are present
+          false,
         )
         expect(dispatch).toHaveBeenCalledWith({
           type: 'setLogoutError',
           payload: 'handled logout error',
         })
+      },
+    )
+
+    it(
+      'loginPopup should throw if isAuthenticating is true',
+      () => {
+        const auth = renderHookWithState({ isAuthenticating: true })
+        expect(() => auth.loginPopup()).toThrow('Please wait until isAuthenticating=false')
+      },
+    )
+
+    it(
+      'loginPopup should throw if already authenticated and policy is sign_in_or_sign_up',
+      () => {
+        const auth = renderHookWithState({ isAuthenticated: true })
+        expect(() => auth.loginPopup()).toThrow('Already authenticated, please logout first')
+      },
+    )
+
+    it(
+      'loginPopup should throw if already authenticated and policy is sign_in_or_sign_up when explicitly provided',
+      () => {
+        const auth = renderHookWithState({ isAuthenticated: true })
+        expect(() =>
+          auth.loginPopup({
+            locale: 'en', state: 'test',
+          })).toThrow('Already authenticated, please logout first')
+      },
+    )
+
+    it(
+      'loginPopup should call triggerLogin with proper config and props',
+      () => {
+        const auth = renderHookWithState({
+          isAuthenticated: false, isAuthenticating: false,
+        })
+        // Ensure triggerLogin does not throw.
+        ;(triggerLogin as any).mockImplementation(() => {})
+        const props = {
+          locale: 'en', state: 'test', policy: 'custom_policy',
+        }
+        auth.loginPopup(props)
+        expect(triggerLogin).toHaveBeenCalledWith(
+          'popup',
+          defaultState.config,
+          {
+            ...props, authorizePopupHandler: expect.any(Function),
+          },
+        )
+      },
+    )
+
+    it(
+      'loginPopup should dispatch setLoginError when triggerLogin throws',
+      () => {
+        // Simulate triggerLogin throwing an error.
+        ;(triggerLogin as any).mockImplementation(() => { throw new Error('Test error') })
+        // Spy on handleError to return a predictable error message.
+        vi.spyOn(
+          utils,
+          'handleError',
+        ).mockImplementation(() => 'handled error message')
+        const auth = renderHookWithState({
+          isAuthenticated: false, isAuthenticating: false,
+        })
+        auth.loginPopup({ locale: 'en' })
+        expect(dispatch).toHaveBeenCalledWith({
+          type: 'setLoginError',
+          payload: 'handled error message',
+        })
+      },
+    )
+
+    it(
+      'authorizePopupHandler should call handleTokenExchangeByAuthCode with correct parameters',
+      () => {
+        // Render hook with proper state.
+        const auth = renderHookWithState({
+          isAuthenticated: false, isAuthenticating: false,
+        })
+
+        // Capture the authorizePopupHandler callback from triggerLogin
+        let capturedHandler: ((params: { state: string; code: string }) => any) | undefined;
+        (triggerLogin as any).mockImplementation((
+          method, config, props,
+        ) => {
+          capturedHandler = props.authorizePopupHandler
+        })
+
+        // Call loginPopup to trigger capture of authorizePopupHandler.
+        const props = {
+          locale: 'en', state: 'test', policy: 'custom_policy',
+        }
+        auth.loginPopup(props)
+        expect(capturedHandler).toBeDefined()
+
+        // Spy on handleTokenExchangeByAuthCode.
+        const handleSpy = vi.spyOn(
+          utils,
+          'handleTokenExchangeByAuthCode',
+        ).mockImplementation(() => {})
+
+        // Define sample payload to pass to authorizePopupHandler.
+        const testPayload = {
+          state: 'request_state', code: 'test_code',
+        }
+        capturedHandler!(testPayload)
+
+        expect(handleSpy).toHaveBeenCalledWith(
+          testPayload.code,
+          testPayload.state,
+          defaultState.config,
+          dispatch,
+          props.locale,
+        )
       },
     )
   },

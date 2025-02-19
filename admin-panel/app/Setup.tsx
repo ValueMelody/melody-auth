@@ -84,6 +84,17 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     [acquireUserInfo, isAuthenticated, acquireToken],
   )
 
+  useEffect(
+    () => {
+      if (!isAuthenticated && !isAuthenticating) {
+        loginRedirect({
+          locale: locale || undefined, org: 'default',
+        })
+      }
+    },
+    [isAuthenticated, isAuthenticating, loginRedirect],
+  )
+
   if (isAuthenticating || isLoadingUserInfo || !state.acquireAuthToken) {
     return (
       <section className='flex flex-col justify-center items-center w-full h-screen'>
@@ -93,9 +104,6 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   }
 
   if (!isAuthenticated) {
-    loginRedirect({
-      locale: locale || undefined, org: 'default',
-    })
     return
   }
 

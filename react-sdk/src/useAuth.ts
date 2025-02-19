@@ -3,13 +3,28 @@ import {
   useMemo,
 } from 'react'
 import {
-  loginRedirect as rawLoginRedirect, logout,
+  triggerLogin, logout,
   exchangeTokenByRefreshToken, getUserInfo,
 } from 'web-sdk'
+import { AuthorizeMethod } from 'shared'
 import authContext, { AuthContext } from './context'
 import {
   ErrorType, handleError,
+  handleTokenExchangeByAuthCode,
 } from './utils'
+
+export interface LoginProps {
+  locale?: string;
+  state?: string;
+  policy?: string;
+  org?: string;
+}
+
+export interface LoginPopupProps {
+  locale?: string;
+  state?: string;
+  org?: string;
+}
 
 export const useAuth = () => {
   const context = useContext<AuthContext>(authContext)
@@ -36,19 +51,28 @@ export const useAuth = () => {
     [state.isAuthenticating],
   )
 
-  const loginRedirect = useCallback(
-    (props?: {
-      locale?: string;
-      state?: string;
-      policy?: string;
-      org?: string;
-    }) => {
+  const login = useCallback(
+    (
+      method: AuthorizeMethod, props?: LoginProps,
+    ) => {
       if (state.isAuthenticating) throw new Error('Please wait until isAuthenticating=false')
       if (state.isAuthenticated && (!props?.policy || props?.policy === 'sign_in_or_sign_up')) throw new Error('Already authenticated, please logout first')
       try {
-        rawLoginRedirect(
+        triggerLogin(
+          method,
           state.config,
-          props,
+          {
+            ...props,
+            authorizePopupHandler: ({
+              state: requestState, code,
+            }) => handleTokenExchangeByAuthCode(
+              code,
+              requestState,
+              state.config,
+              dispatch,
+              props?.locale,
+            ),
+          },
         )
       } catch (e) {
         const msg = handleError(
@@ -61,6 +85,26 @@ export const useAuth = () => {
       }
     },
     [state.config, state.isAuthenticating, state.isAuthenticated, dispatch],
+  )
+
+  const loginRedirect = useCallback(
+    (props?: LoginProps) => {
+      login(
+        'redirect',
+        props,
+      )
+    },
+    [login],
+  )
+
+  const loginPopup = useCallback(
+    (props?: LoginPopupProps) => {
+      login(
+        'popup',
+        props,
+      )
+    },
+    [login],
   )
 
   const acquireToken = useCallback(
@@ -174,6 +218,7 @@ export const useAuth = () => {
 
   return {
     loginRedirect,
+    loginPopup,
     refreshToken,
     logoutRedirect,
     accessToken,
