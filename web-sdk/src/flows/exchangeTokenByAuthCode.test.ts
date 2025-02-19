@@ -7,7 +7,9 @@ import {
   SessionStorageKey, StorageKey,
 } from 'shared'
 import { postTokenByAuthCode } from '../requests'
-import { exchangeTokenByAuthCode } from './exchangeTokenByAuthCode'
+import {
+  exchangeTokenByAuthCode, loadCodeAndStateFromUrl,
+} from './exchangeTokenByAuthCode'
 
 // ----------------------------------------------------------------------------
 // Mock the external dependency that makes the HTTP call.
@@ -49,7 +51,11 @@ describe(
         )
 
         const config: ProviderConfig = { storage: 'sessionStorage' } as any
-        const result = await exchangeTokenByAuthCode(config)
+        const result = await exchangeTokenByAuthCode(
+          '',
+          '',
+          config,
+        )
         expect(result).toBeUndefined()
       },
     )
@@ -64,7 +70,11 @@ describe(
           '/?code=authCode&state=someState',
         )
         const config: ProviderConfig = { storage: 'sessionStorage' } as any
-        const result = await exchangeTokenByAuthCode(config)
+        const result = await exchangeTokenByAuthCode(
+          'authCode',
+          'someState',
+          config,
+        )
         expect(result).toBeUndefined()
       },
     )
@@ -84,7 +94,11 @@ describe(
           'differentState',
         )
         const config: ProviderConfig = { storage: 'sessionStorage' } as any
-        await expect(exchangeTokenByAuthCode(config)).rejects.toThrow('Invalid state')
+        await expect(exchangeTokenByAuthCode(
+          'authCode',
+          'strateFromQuery',
+          config,
+        )).rejects.toThrow('Invalid state')
       },
     )
 
@@ -127,7 +141,11 @@ describe(
         )
 
         const config: ProviderConfig = { storage: 'sessionStorage' } as any
-        const result = await exchangeTokenByAuthCode(config)
+        const result = await exchangeTokenByAuthCode(
+          'authCode',
+          'validState',
+          config,
+        )
 
         // Ensure the returned response has correct token properties
         expect(result).toEqual({
@@ -163,7 +181,7 @@ describe(
         expect(mockedPostTokenByAuthCode).toHaveBeenCalledWith(
           config,
           {
-            code: 'authcode',
+            code: 'authCode',
             codeVerifier: 'verifierValue',
           },
         )
@@ -203,7 +221,11 @@ describe(
 
         mockedPostTokenByAuthCode.mockResolvedValueOnce(fakeTokenResult)
         const config: ProviderConfig = { storage: 'sessionStorage' } as any
-        const result = await exchangeTokenByAuthCode(config)
+        const result = await exchangeTokenByAuthCode(
+          'authCode',
+          'validState',
+          config,
+        )
 
         expect(result).toEqual({
           accessTokenStorage: {
@@ -273,7 +295,11 @@ describe(
         mockedPostTokenByAuthCode.mockResolvedValueOnce(fakeTokenResult)
 
         const config: ProviderConfig = { storage: 'sessionStorage' } as any
-        const result = await exchangeTokenByAuthCode(config)
+        const result = await exchangeTokenByAuthCode(
+          'authCode',
+          'validState',
+          config,
+        )
 
         // Validate that the idTokenBody is correctly decoded from our URL-safe base64 string.
         expect(result?.idTokenBody).toEqual(payloadObj)
@@ -305,7 +331,11 @@ describe(
         const config: ProviderConfig = { storage: 'sessionStorage' } as any
 
         // Ensure the function throws the expected error with our custom message.
-        await expect(exchangeTokenByAuthCode(config))
+        await expect(exchangeTokenByAuthCode(
+          'errorCode',
+          'errorState',
+          config,
+        ))
           .rejects.toThrow(`Failed to exchange token by auth code: Error: ${errorMessage}`)
       },
     )
@@ -347,7 +377,11 @@ describe(
 
         // Use localStorage by setting config.storage to something other than 'sessionStorage'
         const config: ProviderConfig = { storage: 'localStorage' } as any
-        const result = await exchangeTokenByAuthCode(config)
+        const result = await exchangeTokenByAuthCode(
+          'localCode',
+          'validLocalState',
+          config,
+        )
 
         // Validate returned response has the expected tokens
         expect(result).toEqual({
@@ -375,6 +409,60 @@ describe(
         // Ensure that the tokens are not stored in sessionStorage
         expect(window.sessionStorage.getItem(StorageKey.RefreshToken)).toBeNull()
         expect(window.sessionStorage.getItem(StorageKey.Account)).toBeNull()
+      },
+    )
+  },
+)
+
+// Add the following tests for loadCodeAndStateFromUrl function
+describe(
+  'loadCodeAndStateFromUrl',
+  () => {
+    it(
+      'should return empty code and state if they are not present in the URL',
+      () => {
+        // Set URL with no code and state parameters
+        window.history.pushState(
+          {},
+          'Test Title',
+          '/?foo=bar',
+        )
+        const result = loadCodeAndStateFromUrl()
+        expect(result).toEqual({
+          code: '', state: '',
+        })
+      },
+    )
+
+    it(
+      'should return the correct code and state from the URL',
+      () => {
+        // Set URL with both code and state parameters
+        window.history.pushState(
+          {},
+          'Test Title',
+          '/?code=auth123&state=state456',
+        )
+        const result = loadCodeAndStateFromUrl()
+        expect(result).toEqual({
+          code: 'auth123', state: 'state456',
+        })
+      },
+    )
+
+    it(
+      'should return empty code and state if only one parameter exists',
+      () => {
+        // Set URL with only a code parameter
+        window.history.pushState(
+          {},
+          'Test Title',
+          '/?code=onlyCode',
+        )
+        const result = loadCodeAndStateFromUrl()
+        expect(result).toEqual({
+          code: '', state: '',
+        })
       },
     )
   },

@@ -14,6 +14,7 @@ import ChangeEmail from 'views/ChangeEmail'
 import ResetMfa from 'views/ResetMfa'
 import UpdateInfo from 'views/UpdateInfo'
 import ManagePasskey from 'views/ManagePasskey'
+import PopupRedirect from 'views/PopupRedirect'
 
 export {
   AuthorizeAccountView,
@@ -32,4 +33,5 @@ export {
   ResetMfa,
   ManagePasskey,
   UpdateInfo,
+  PopupRedirect,
 }

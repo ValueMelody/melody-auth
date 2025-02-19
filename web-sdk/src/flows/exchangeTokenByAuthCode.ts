@@ -18,20 +18,35 @@ const base64UrlDecode = (str: string) => {
   return atob(str)
 }
 
-export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {
+export const loadCodeAndStateFromUrl = () => {
   const params = window.location.search.substring(1).split('&')
     .map((param) => param.split('='))
   const codeParam = params.find(([key]) => key === 'code')
   const stateParam = params.find(([key]) => key === 'state')
 
-  if (!codeParam || !stateParam) return
+  if (!codeParam || !stateParam) {
+    return {
+      code: '', state: '',
+    }
+  }
 
-  const state = window.sessionStorage.getItem(SessionStorageKey.State)
-  if (!state) return
+  return {
+    code: codeParam[1],
+    state: stateParam[1],
+  }
+}
+
+export const exchangeTokenByAuthCode = async (
+  code: string, state: string, config: ProviderConfig,
+) => {
+  if (!code || !state) return
+
+  const storedState = window.sessionStorage.getItem(SessionStorageKey.State)
+  if (!storedState) return
 
   window.sessionStorage.removeItem(SessionStorageKey.State)
 
-  if (state !== stateParam[1]) {
+  if (state !== storedState) {
     throw new Error('Invalid state')
   }
 
@@ -42,7 +57,7 @@ export const exchangeTokenByAuthCode = async (config: ProviderConfig) => {
     const result = await postTokenByAuthCode(
       config,
       {
-        code: codeParam[1], codeVerifier,
+        code, codeVerifier,
       },
     )
     const accessTokenStorage: AccessTokenStorage = {

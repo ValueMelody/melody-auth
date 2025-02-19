@@ -1,5 +1,5 @@
 import {
-  ProviderConfig, GetUserInfoRes,
+  ProviderConfig, GetUserInfoRes, AuthorizeMethod,
   PostTokenByAuthCodeRes, PostTokenByRefreshTokenRes,
 } from 'shared'
 
@@ -15,9 +15,13 @@ export const getAuthorize = async (
     locale,
     policy,
     org,
+    authorizeMethod,
+    authorizePopupHandler,
   }: {
   state: string;
   codeChallenge: string;
+  authorizeMethod: AuthorizeMethod;
+  authorizePopupHandler?: (data: { state: string; code: string }) => void;
   locale?: string;
   policy?: string;
   org?: string;
@@ -39,10 +43,49 @@ export const getAuthorize = async (
     '&code_challenge=' +
     codeChallenge +
     '&code_challenge_method=S256' +
+    '&authorize_method=' +
+    authorizeMethod +
     policyString + orgString +
     '&scope=' + combinedScopes.join(' ')
 
-  window.location.href = locale ? `${url}&locale=${locale}` : url
+  const authUrlWithLocale = locale ? `${url}&locale=${locale}` : url
+
+  if (authorizeMethod === 'popup') {
+    const authWindow = window.open(
+      authUrlWithLocale,
+      'LoginPopup',
+      'width=500,height=600,left=200,top=200',
+    )
+
+    if (authWindow) {
+      authWindow.focus()
+    }
+
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data
+      if (data && data.state && data.code) {
+        if (authorizePopupHandler) {
+          authorizePopupHandler(data)
+        }
+
+        if (authWindow && !authWindow.closed) {
+          authWindow.close()
+        }
+
+        window.removeEventListener(
+          'message',
+          onMessage,
+        )
+      }
+    }
+
+    window.addEventListener(
+      'message',
+      onMessage,
+    )
+  } else {
+    window.location.href = authUrlWithLocale
+  }
 }
 
 export const getUserInfo = async (

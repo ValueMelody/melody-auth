@@ -76,6 +76,98 @@ describe(
             expect(mockWindow.location.href).toContain('org=test-org')
           },
         )
+
+        it(
+          'should open popup and handle message event when authorizeMethod is "popup"',
+          async () => {
+            // Create a fake popup window with spy functions for focus and close
+            const fakePopup = {
+              focus: vi.fn(),
+              close: vi.fn(),
+              closed: false,
+            }
+            // Ensure window.open exists and then spy on it
+            if (!window.open) {
+              (window as any).open = () => null
+            }
+            // Spy on window.open to return our fake popup
+            const windowOpenSpy = vi.spyOn(
+              window,
+              'open',
+            ).mockImplementation(() => fakePopup as unknown as Window)
+
+            // Ensure addEventListener and removeEventListener exist on window
+            if (!window.addEventListener) {
+              (window as any).addEventListener = () => {}
+            }
+            if (!window.removeEventListener) {
+              (window as any).removeEventListener = () => {}
+            }
+            // Capture the message event listener callback when added.
+            let messageHandler: ((e: MessageEvent) => void) | null = null
+            const addEventListenerSpy = vi.spyOn(
+              window,
+              'addEventListener',
+            ).mockImplementation((
+              event: string, handler: EventListenerOrEventListenerObject,
+            ) => {
+              if (event === 'message') {
+                messageHandler = handler as (e: MessageEvent) => void
+              }
+            })
+
+            // Spy on removeEventListener to verify that it is called later.
+            const removeEventListenerSpy = vi.spyOn(
+              window,
+              'removeEventListener',
+            ).mockImplementation(() => {})
+
+            const authorizePopupHandler = vi.fn()
+
+            // Call getAuthorize with authorizeMethod set to 'popup'
+            await getAuthorize(
+              mockProviderConfig,
+              {
+                state: 'test-state',
+                codeChallenge: 'test-codeChallenge',
+                authorizeMethod: 'popup',
+                authorizePopupHandler,
+                locale: 'en',
+              },
+            )
+
+            // Assert that the popup was opened and focused.
+            expect(windowOpenSpy).toHaveBeenCalled()
+            expect(fakePopup.focus).toHaveBeenCalled()
+
+            // Simulate an incoming message event with the expected state and code.
+            const eventData = {
+              state: 'test-state', code: 'test-code',
+            }
+            expect(messageHandler).toBeDefined()
+            if (messageHandler) {
+              messageHandler(new MessageEvent(
+                'message',
+                { data: eventData },
+              ))
+            }
+
+            // Verify that the authorizePopupHandler was called with the event data.
+            expect(authorizePopupHandler).toHaveBeenCalledWith(eventData)
+            // Assert that the popup was closed.
+            expect(fakePopup.close).toHaveBeenCalled()
+            // Assert that the message event listener was removed.
+            expect(removeEventListenerSpy).toHaveBeenCalledWith(
+              'message',
+              messageHandler,
+            )
+
+            // Cleanup spies.
+            windowOpenSpy.mockRestore()
+            addEventListenerSpy.mockRestore()
+            removeEventListenerSpy.mockRestore()
+          },
+        )
       },
     )
 

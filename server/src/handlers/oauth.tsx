@@ -18,6 +18,7 @@ import {
   signInLogModel, userModel,
 } from 'models'
 import { Policy } from 'dtos/oauth'
+import { PopupRedirect } from 'views'
 
 export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeReqDto> => {
   const queryDto = new oauthDto.GetAuthorizeReqDto({
@@ -28,6 +29,7 @@ export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Prom
     codeChallenge: c.req.query('code_challenge') ?? '',
     codeChallengeMethod: c.req.query('code_challenge_method') ?? '',
     scopes: c.req.query('scope')?.split(' ') ?? [],
+    authorizeMethod: c.req.query('authorize_method') ?? '',
     locale: requestUtil.getLocaleFromQuery(
       c,
       c.req.query('locale'),
@@ -107,7 +109,6 @@ export const createFullAuthorize = async (
 
 export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   const queryDto = await parseGetAuthorizeDto(c)
-
   const stored = sessionService.getAuthInfoSession(
     c,
     queryDto.clientId,
@@ -125,8 +126,15 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     )
 
     if (!queryDto.policy || queryDto.policy === Policy.SignInOrSignUp) {
-      const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
-      return c.redirect(url)
+      if (queryDto.authorizeMethod === 'popup') {
+        return c.html(<PopupRedirect
+          code={authCode}
+          queryDto={queryDto}
+        />)
+      } else {
+        const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
+        return c.redirect(url)
+      }
     } else {
       let baseUrl = ''
       switch (queryDto.policy) {

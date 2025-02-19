@@ -2,12 +2,10 @@ import {
   useContext, useEffect,
   useRef,
 } from 'react'
-import { exchangeTokenByAuthCode } from 'web-sdk'
+import { loadCodeAndStateFromUrl } from 'web-sdk'
 import { useAuth } from './useAuth'
 import authContext, { AuthContext } from './context'
-import {
-  ErrorType, handleError,
-} from './utils'
+import { handleTokenExchangeByAuthCode } from './utils'
 
 const Setup = () => {
   const { acquireToken } = useAuth()
@@ -33,7 +31,7 @@ const Setup = () => {
               [key]: value,
             }
           },
-{} as { [key: string]: string },
+          {} as { [key: string]: string },
         )
         : {}
 
@@ -51,42 +49,16 @@ const Setup = () => {
       }
 
       if (containCode || state.checkedStorage) {
-        exchangeTokenByAuthCode(state.config)
-          .then((res) => {
-            if (res?.accessTokenStorage) {
-              dispatch({
-                type: 'setAccessTokenStorage', payload: res.accessTokenStorage,
-              })
-              if (state.config.onLoginSuccess) {
-                state.config.onLoginSuccess({
-                  state: 'state' in params ? params.state : undefined,
-                  locale: 'locale' in params ? params.locale : undefined,
-                })
-              }
-            } else {
-              dispatch({
-                type: 'setIsAuthenticating', payload: false,
-              })
-            }
-            if (res?.refreshTokenStorage) {
-              dispatch({
-                type: 'setAuth',
-                payload: {
-                  refreshTokenStorage: res.refreshTokenStorage,
-                  idTokenBody: res.idTokenBody,
-                },
-              })
-            }
-          })
-          .catch((e) => {
-            const msg = handleError(
-              e,
-              ErrorType.ObtainAccessToken,
-            )
-            dispatch({
-              type: 'setAuthenticationError', payload: msg,
-            })
-          })
+        const {
+          code, state: requestState,
+        } = loadCodeAndStateFromUrl()
+        handleTokenExchangeByAuthCode(
+          code,
+          requestState,
+          state.config,
+          dispatch,
+          'locale' in params ? params.locale : undefined,
+        )
       }
     },
     [dispatch, state.checkedStorage, state.accessTokenStorage, state.config, acquireToken, state.refreshTokenStorage],
