@@ -82,7 +82,7 @@ const CodeInput = ({
               code = code + input.value
             })
             hiddenInput.value = code;
-            document.getElementById('error-code').classList.add('hidden');
+            document.getElementById('error-${name}').classList.add('hidden');
             ${resetSubmitError()}
           }
 
