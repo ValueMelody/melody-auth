@@ -1,19 +1,24 @@
-import { Buffer } from 'buffer'
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { BrevoMailer } from './email/brevo'
+import { IMailer } from './email/interface'
+import { MailgunMailer } from './email/mailgun'
+import { SendgridMailer } from './email/sendgrid'
+import { SmtpMailer } from './email/smtp'
+import { cryptoUtil } from 'utils'
 import {
-  errorConfig,
-  localeConfig, typeConfig,
-} from 'configs'
+  ChangeEmailVerificationTemplate,
+  EmailMfaTemplate,
+  EmailVerificationTemplate, PasswordResetTemplate,
+} from 'templates'
+import { brandingService } from 'services'
 import {
   emailLogModel, userModel,
 } from 'models'
 import {
-  EmailVerificationTemplate, PasswordResetTemplate, EmailMfaTemplate,
-  ChangeEmailVerificationTemplate,
-} from 'templates'
-import { cryptoUtil } from 'utils'
-import { brandingService } from 'services'
+  errorConfig,
+  localeConfig, typeConfig,
+} from 'configs'
 
 const checkEmailSetup = (c: Context<typeConfig.Context>) => {
   const {
@@ -34,6 +39,26 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
   }
 }
 
+const buildMailer = (context: Context<typeConfig.Context>): IMailer => {
+  if (context.env.SMTP) {
+    return new SmtpMailer({ context })
+  }
+
+  if (context.env.SENDGRID_API_KEY && context.env.SENDGRID_SENDER_ADDRESS) {
+    return new SendgridMailer({ context })
+  }
+
+  if (context.env.MAILGUN_API_KEY && context.env.MAILGUN_SENDER_ADDRESS) {
+    return new MailgunMailer({ context })
+  }
+
+  if (context.env.BREVO_API_KEY && context.env.BREVO_SENDER_ADDRESS) {
+    return new BrevoMailer({ context })
+  }
+
+  throw new errorConfig.Forbidden(localeConfig.Error.NoEmailProvider)
+}
+
 export const sendEmail = async (
   c: Context<typeConfig.Context>,
   receiverEmail: string,
@@ -41,154 +66,27 @@ export const sendEmail = async (
   emailBody: string,
 ) => {
   const {
-    SENDGRID_API_KEY: sendgridApiKey,
-    SENDGRID_SENDER_ADDRESS: sendgridSender,
-    BREVO_API_KEY: brevoApiKey,
-    BREVO_SENDER_ADDRESS: brevoSender,
-    MAILGUN_API_KEY: mailgunApiKey,
-    MAILGUN_SENDER_ADDRESS: mailgunSender,
     ENVIRONMENT: environment,
     DEV_EMAIL_RECEIVER: devEmailReceiver,
     EMAIL_SENDER_NAME: senderName,
-    SMTP_SENDER_ADDRESS: smtpSenderEmail,
   } = env(c)
 
   const receiver = environment === 'prod' ? receiverEmail : devEmailReceiver
-
-  let success = false
-  let response = null
-
   const { ENABLE_EMAIL_LOG: enableEmailLog } = env(c)
 
-  if (c.env.SMTP) {
-    const transporter = c.env.SMTP.init()
-    const res = await transporter.sendMail({
-      from: `"${senderName}" ${smtpSenderEmail}`,
-      to: receiver,
-      subject,
-      html: emailBody,
-    })
-
-    success = res?.accepted[0] === receiver
-    response = res
-  } else if (sendgridApiKey && sendgridSender) {
-    const res = await fetch(
-      'https://api.sendgrid.com/v3/mail/send',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `bearer ${sendgridApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          subject,
-          content: [{
-            type: 'text/html',
-            value: emailBody,
-          }],
-          personalizations: [
-            {
-              to: [
-                { email: receiver },
-              ],
-            },
-          ],
-          from: {
-            email: sendgridSender, name: senderName,
-          },
-        }),
-      },
-    )
-    success = res.ok
-
-    if (enableEmailLog) {
-      response = {
-        status: res.status,
-        statusText: res.statusText,
-        url: res.url,
-        body: await res.text(),
-      }
-    }
-  } else if (mailgunApiKey && mailgunSender) {
-    const form = new FormData()
-    form.append(
-      'from',
-      `${senderName} <${mailgunSender}>`,
-    )
-    form.append(
-      'to',
-      receiver,
-    )
-    form.append(
-      'subject',
-      subject,
-    )
-    form.append(
-      'html',
-      emailBody,
-    )
-
-    const [, domain] = mailgunSender.split('@')
-
-    const auth = Buffer.from(`api:${mailgunApiKey}`).toString('base64')
-
-    const res = await fetch(
-      `https://api.mailgun.net/v3/${domain}/messages`,
-      {
-        method: 'POST',
-        headers: { Authorization: `Basic ${auth}` },
-        body: form,
-      },
-    )
-    success = res.ok
-    if (enableEmailLog) {
-      response = {
-        status: res.status,
-        statusText: res.statusText,
-        url: res.url,
-        body: await res.text(),
-      }
-    }
-  } else if (brevoApiKey && brevoSender) {
-    const res = await fetch(
-      'https://api.brevo.com/v3/smtp/email',
-      {
-        method: 'POST',
-        headers: {
-          'api-key': brevoApiKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sender: {
-            name: senderName,
-            email: brevoSender,
-          },
-          subject,
-          htmlContent: emailBody,
-          to: [
-            { email: receiver },
-          ],
-        }),
-      },
-    )
-    success = res.ok
-    if (enableEmailLog) {
-      response = {
-        status: res.status,
-        statusText: res.statusText,
-        url: res.url,
-        body: await res.text(),
-      }
-    }
-  }
+  const mailer = buildMailer(c)
+  const mailerResponse = await mailer.sendEmail({
+    senderName, content: emailBody, email: receiver, subject,
+  })
+  const success = mailerResponse.status < 400 ? 1 : 0
 
   if (enableEmailLog) {
     await emailLogModel.create(
       c.env.DB,
       {
-        success: success ? 1 : 0,
+        success,
         receiver,
-        response: JSON.stringify(response),
+        response: JSON.stringify(mailerResponse),
         content: emailBody,
       },
     )

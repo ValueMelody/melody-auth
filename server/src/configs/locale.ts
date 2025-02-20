@@ -34,6 +34,7 @@ export enum Error {
   WrongTokenType = 'Unsupported token type',
   UniqueKey = 'Unique key constraint failed',
   NoEmailSender = 'No email sender',
+  NoEmailProvider = 'No email provider was found',
   NoSmsSender = 'No sms sender',
 }
 export const common = Object.freeze({
