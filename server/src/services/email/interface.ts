@@ -19,10 +19,5 @@ export abstract class IMailer {
     this.context = opts.context
   }
 
-  abstract sendEmail(options: SendEmailOptions): Promise<{
-    status: number;
-    statusText: string;
-    url: string;
-    body: string;
-  }>
+  abstract sendEmail(options: SendEmailOptions): Promise<any>
 }

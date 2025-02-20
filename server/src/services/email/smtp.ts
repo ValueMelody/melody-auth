@@ -19,11 +19,6 @@ export class SmtpMailer extends IMailer {
       html: content,
     })
 
-    return {
-      status: res?.accepted[0] === email ? 200 : 422,
-      statusText: res?.accepted[0] === email ? 'OK' : 'Unprocessable Entity',
-      url: 'smtp://',
-      body: JSON.stringify(res),
-    }
+    return res
   }
 }

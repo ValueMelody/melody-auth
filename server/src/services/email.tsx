@@ -40,19 +40,20 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
 }
 
 const buildMailer = (context: Context<typeConfig.Context>): IMailer | null => {
+  const vars = env(context)
   if (context.env.SMTP) {
     return new SmtpMailer({ context })
   }
 
-  if (context.env.SENDGRID_API_KEY && context.env.SENDGRID_SENDER_ADDRESS) {
+  if (vars.SENDGRID_API_KEY && vars.SENDGRID_SENDER_ADDRESS) {
     return new SendgridMailer({ context })
   }
 
-  if (context.env.MAILGUN_API_KEY && context.env.MAILGUN_SENDER_ADDRESS) {
+  if (vars.MAILGUN_API_KEY && vars.MAILGUN_SENDER_ADDRESS) {
     return new MailgunMailer({ context })
   }
 
-  if (context.env.BREVO_API_KEY && context.env.BREVO_SENDER_ADDRESS) {
+  if (vars.BREVO_API_KEY && vars.BREVO_SENDER_ADDRESS) {
     return new BrevoMailer({ context })
   }
 
@@ -80,11 +81,25 @@ export const sendEmail = async (
   const mailer = buildMailer(c)
 
   if (mailer) {
-    response = await mailer.sendEmail({
+    const res = await mailer.sendEmail({
       senderName, content: emailBody, email: receiver, subject,
     })
 
-    success = response.statusText === 'OK'
+    if (mailer instanceof SmtpMailer) {
+      success = res?.accepted[0] === receiver
+      response = res
+    } else {
+      success = res.ok
+
+      if (enableEmailLog) {
+        response = {
+          status: res.status,
+          statusText: res.statusText,
+          url: res.url,
+          body: await res.text(),
+        }
+      }
+    }
   }
 
   if (enableEmailLog) {

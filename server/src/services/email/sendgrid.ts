@@ -39,11 +39,6 @@ export class SendgridMailer extends IMailer {
       },
     )
 
-    return {
-      status: res.status,
-      statusText: res.statusText,
-      url: res.url,
-      body: await res.text(),
-    }
+    return res
   }
 }

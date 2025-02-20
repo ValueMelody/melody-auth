@@ -33,11 +33,6 @@ export class BrevoMailer extends IMailer {
       },
     )
 
-    return {
-      status: res.status,
-      statusText: res.statusText,
-      url: res.url,
-      body: await res.text(),
-    }
+    return res
   }
 }
