@@ -20,10 +20,10 @@ export class SmtpMailer extends IMailer {
     })
 
     return {
-      status: res?.accepted[0] === email ? 200 : 500,
-      statusText: res?.accepted[0] === email ? 'OK' : 'Internal Server Error',
+      status: res?.accepted[0] === email ? 200 : 422,
+      statusText: res?.accepted[0] === email ? 'OK' : 'Unprocessable Entity',
       url: 'smtp://',
-      body: JSON.stringify(res.response),
+      body: JSON.stringify(res),
     }
   }
 }

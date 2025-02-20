@@ -39,7 +39,7 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
   }
 }
 
-const buildMailer = (context: Context<typeConfig.Context>): IMailer => {
+const buildMailer = (context: Context<typeConfig.Context>): IMailer | null => {
   if (context.env.SMTP) {
     return new SmtpMailer({ context })
   }
@@ -56,7 +56,7 @@ const buildMailer = (context: Context<typeConfig.Context>): IMailer => {
     return new BrevoMailer({ context })
   }
 
-  throw new errorConfig.Forbidden(localeConfig.Error.NoEmailProvider)
+  return null
 }
 
 export const sendEmail = async (
@@ -71,22 +71,29 @@ export const sendEmail = async (
     EMAIL_SENDER_NAME: senderName,
   } = env(c)
 
+  let success = false
+  let response = null
+
   const receiver = environment === 'prod' ? receiverEmail : devEmailReceiver
   const { ENABLE_EMAIL_LOG: enableEmailLog } = env(c)
 
   const mailer = buildMailer(c)
-  const mailerResponse = await mailer.sendEmail({
-    senderName, content: emailBody, email: receiver, subject,
-  })
-  const success = mailerResponse.status < 400 ? 1 : 0
+
+  if (mailer) {
+    response = await mailer.sendEmail({
+      senderName, content: emailBody, email: receiver, subject,
+    })
+
+    success = response.statusText === 'OK'
+  }
 
   if (enableEmailLog) {
     await emailLogModel.create(
       c.env.DB,
       {
-        success,
+        success: success ? 1 : 0,
         receiver,
-        response: JSON.stringify(mailerResponse),
+        response: JSON.stringify(response),
         content: emailBody,
       },
     )
