@@ -10,9 +10,9 @@ import {
   resetErrorScript, responseScript, validateScript,
 } from 'views/scripts'
 import Title from 'views/components/Title'
-import Field from 'views/components/Field'
 import { identityDto } from 'dtos'
 import SubmitButton from 'views/components/SubmitButton'
+import PasswordField from 'views/components/PasswordField'
 
 const ChangePassword = ({
   branding, queryDto, locales, redirectUri,
@@ -50,15 +50,13 @@ const ChangePassword = ({
           onsubmit='return handleSubmit(event)'
         >
           <section class='flex-col gap-4'>
-            <Field
+            <PasswordField
               label={localeConfig.changePassword.newPassword[queryDto.locale]}
-              type='password'
               required
               name='password'
             />
-            <Field
+            <PasswordField
               label={localeConfig.changePassword.confirmNewPassword[queryDto.locale]}
-              type='password'
               required
               name='confirmPassword'
             />
