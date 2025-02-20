@@ -12,6 +12,7 @@ import SubmitButton from 'views/components/SubmitButton'
 import SubmitError from 'views/components/SubmitError'
 import Title from 'views/components/Title'
 import Field from 'views/components/Field'
+import PasswordField from 'views/components/PasswordField'
 
 const AuthorizeAccount = ({
   queryDto,
@@ -48,16 +49,14 @@ const AuthorizeAccount = ({
             name='email'
             autocomplete='email'
           />
-          <Field
+          <PasswordField
             label={localeConfig.authorizeAccount.password[queryDto.locale]}
-            type='password'
             required
             name='password'
             autocomplete='password'
           />
-          <Field
+          <PasswordField
             label={localeConfig.authorizeAccount.confirmPassword[queryDto.locale]}
-            type='password'
             required
             name='confirmPassword'
           />

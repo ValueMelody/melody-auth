@@ -87,6 +87,20 @@ const Layout = ({
           .w-full { width: 100%; }
           .w-half { width: 50%; }
           .w-text { width: 280px; }
+          .input-icon-button {
+            position: absolute;
+            margin-left: 255px;
+            width: unset !important;
+            height: unset !important;
+            background-color: unset !important;
+            border: unset !important;
+            padding: unset !important;
+            cursor: pointer;
+          }
+          .input-icon {
+            width: 18px;
+            height: 18px;
+          }
           .main {
             background-color: ${branding.layoutColor};
             color: ${branding.labelColor};

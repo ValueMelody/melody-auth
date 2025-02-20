@@ -12,6 +12,7 @@ import SubmitButton from 'views/components/SubmitButton'
 import SubmitError from 'views/components/SubmitError'
 import Title from 'views/components/Title'
 import Field from 'views/components/Field'
+import PasswordField from 'views/components/PasswordField'
 
 const getFBLocale = (locale: typeConfig.Locale) => {
   switch (locale) {
@@ -99,10 +100,9 @@ const AuthorizePassword = ({
                   {localeConfig.authorizePassword.withPasskey[queryDto.locale]}
                 </button>
               )}
-              <Field
+              <PasswordField
                 label={localeConfig.authorizePassword.password[queryDto.locale]}
                 className={allowPasskey ? 'hidden' : ''}
-                type='password'
                 required
                 name='password'
                 autocomplete='password'
