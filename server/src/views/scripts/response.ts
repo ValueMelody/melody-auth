@@ -28,7 +28,7 @@ export const handleAuthorizeFormRedirect = (
         locale: "${locale}",
         org: "${org ?? ''}",
         redirectUri: data.redirectUri,
-      }, "*");
+      }, data.redirectUri);
     } else {
       var url = data.redirectUri + queryString;
       window.location.href = url;
