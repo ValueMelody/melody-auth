@@ -43,5 +43,8 @@
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^2.1.2",
     "wrangler": "^3.95.0"
+  },
+  "overrides": {
+    "esbuild": "0.25.0"
   }
 }
