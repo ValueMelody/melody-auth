@@ -85,6 +85,13 @@
 - Manage Organizations
 - View Logs
 
+## Demo && Examples
+- [Vite React Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/vite-react-demo)
+  - [Demo Site: Password Sign-in/Sign-up with OTP MFA and Passkey enrollment](https://auth-demo.valuemelody.com)
+- [Next.js Full stack implementation Example](https://github.com/ValueMelody/melody-auth/tree/main/admin-panel)
+- [Next.js Auth.js Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/next-auth-js-example)
+- [React Native Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/react-native-example)
+
 ## Screenshots
 [Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)  
 [Admin Panel Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)  

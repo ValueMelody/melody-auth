@@ -41,6 +41,9 @@ actions:
   - text: Screenshots
     link: /screenshots.html
     type: secondary
+  - text: Demo [OTP MFA&Passkey Enrollment]
+    link: https://auth-demo.valuemelody.com
+    type: secondary
   - text: Changelog
     link: https://github.com/ValueMelody/melody-auth/releases
     type: secondary
