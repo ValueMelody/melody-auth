@@ -17,7 +17,7 @@
 - **Admin Panel** for managing resources (also serves as a full-stack implementation example)
   - [Admin Panel Setup Doc](https://auth.valuemelody.com/admin-panel-setup.html)
 
-## Server Features Supported
+## Auth Server Features Supported
 - <b>OAuth 2.0</b>:
   - Authorize
   - Token Exchange

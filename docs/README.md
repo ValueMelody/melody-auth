@@ -32,6 +32,9 @@ actions:
   - text: S2S API Swagger
     link: https://auth-server.valuemelody.com/api/v1/swagger
     type: secondary
+  - text: Deployment Pipelines
+    link: /deployment-pipelines.html
+    type: secondary
   - text: Common Questions
     link: /q&a.html
     type: secondary
