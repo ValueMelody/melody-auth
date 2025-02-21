@@ -42,6 +42,8 @@ async function generateRSAKeyPair () {
   const isProd = argv[2] === 'prod'
   const isNode = argv[2] === 'node'
 
+  const configPath = argv[3] || ''
+
   const keyPair = await crypto.subtle.generateKey(
     {
       name: 'RSASSA-PKCS1-v1_5',
@@ -107,7 +109,7 @@ async function generateRSAKeyPair () {
 
     console.info('Secrets generated for node env')
   } else {
-    const condition = isProd ? '' : '--local'
+    const condition = isProd ? (configPath ? `--config ${configPath}` : '') : '--local'
 
     const [hasSessionSecret] = JSON.parse(getWranglerResponse(`wrangler kv key list --prefix=sessionSecret --binding=KV ${condition}`))
     if (!hasSessionSecret) {
