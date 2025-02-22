@@ -6,7 +6,9 @@ const EyeIcon = ({ name }: {
   <button
     type='button'
     id={`${name}-eye-icon`}
-    class='input-icon-button'>
+    class='input-icon-button'
+    aria-label='Show password'
+  >
     <svg
       xmlns='http://www.w3.org/2000/svg'
       class='input-icon'
@@ -33,7 +35,9 @@ const EyeSlashIcon = ({ name }: {
   <button
     type='button'
     id={`${name}-eye-slash-icon`}
-    class='input-icon-button hidden'>
+    class='input-icon-button hidden'
+    aria-label='Hide password'
+  >
     <svg
       xmlns='http://www.w3.org/2000/svg'
       class='input-icon'

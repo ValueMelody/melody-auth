@@ -53,7 +53,7 @@ const AuthorizeAccount = ({
             label={localeConfig.authorizeAccount.password[queryDto.locale]}
             required
             name='password'
-            autocomplete='password'
+            autocomplete='new-password'
           />
           <PasswordField
             label={localeConfig.authorizeAccount.confirmPassword[queryDto.locale]}
