@@ -730,6 +730,8 @@ describe(
         expect(document.getElementsByTagName('select').length).toBe(1)
         const phoneNumberEl = document.getElementById('form-phoneNumber') as HTMLInputElement
         expect(phoneNumberEl.value).toBe('')
+        const phoneNumberRow = document.getElementById('phoneNumber-row') as HTMLDivElement
+        expect(phoneNumberRow.innerHTML).toContain('+1')
         expect(phoneNumberEl.disabled).toBeFalsy()
         expect(document.getElementsByName('code').length).toBe(1)
         expect(document.getElementsByTagName('form').length).toBe(1)

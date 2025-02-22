@@ -39,9 +39,11 @@ export const email = (locale: typeConfig.Locale) => html`
   }
 `
 
-export const phoneNumber = (locale: typeConfig.Locale) => html`
+export const phoneNumber = (
+  locale: typeConfig.Locale, countryCode: string,
+) => html`
 var msg;
-var phoneVal = document.getElementById('form-phoneNumber').value.trim();
+var phoneVal = "${countryCode}" + document.getElementById('form-phoneNumber').value.trim();
 if (!phoneVal) msg = "${localeConfig.validateError.phoneNumberIsRequired[locale]}";
 var regex = /^\\\+[1-9]\\\d{1,14}$/;
 const isValid = regex.test(phoneVal);

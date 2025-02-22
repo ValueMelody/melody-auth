@@ -11,18 +11,19 @@ import {
   resetErrorScript,
 } from 'views/scripts'
 import SubmitError from 'views/components/SubmitError'
-import Field from 'views/components/Field'
 import SubmitButton from 'views/components/SubmitButton'
 import CodeInput from 'views/components/CodeInput'
+import PhoneField from 'views/components/PhoneField'
 
 const AuthorizeSmsMfa = ({
-  queryDto, branding, locales, phoneNumber, showEmailMfaBtn,
+  queryDto, branding, locales, phoneNumber, showEmailMfaBtn, countryCode,
 }: {
   queryDto: identityDto.GetAuthorizeFollowUpReqDto;
   branding: Branding;
   locales: typeConfig.Locale[];
   phoneNumber: string | null;
   showEmailMfaBtn: boolean;
+  countryCode: string;
 }) => {
   return (
     <Layout
@@ -36,14 +37,16 @@ const AuthorizeSmsMfa = ({
         onsubmit='return handleSubmit(event)'
       >
         <section class='flex-col gap-4'>
-          <Field
-            label={localeConfig.authorizeSmsMfa.phoneNumber[queryDto.locale]}
-            type='text'
-            required={false}
-            name='phoneNumber'
-            value={phoneNumber ?? undefined}
-            disabled={!!phoneNumber}
-          />
+          <div class='flex-row items-center'>
+            <PhoneField
+              countryCode={countryCode}
+              label={localeConfig.authorizeSmsMfa.phoneNumber[queryDto.locale]}
+              required={false}
+              name='phoneNumber'
+              value={phoneNumber ?? undefined}
+              disabled={!!phoneNumber}
+            />
+          </div>
           <button
             id='resend-btn'
             type='button'
@@ -125,7 +128,7 @@ const AuthorizeSmsMfa = ({
                 body: JSON.stringify({
                   code: "${queryDto.code}",
                   locale: "${queryDto.locale}",
-                  phoneNumber: document.getElementById('form-phoneNumber').value,
+                  phoneNumber: "${countryCode}" + document.getElementById('form-phoneNumber').value,
                 })
               })
               .then((response) => {
@@ -150,7 +153,10 @@ const AuthorizeSmsMfa = ({
             if (containNumber) {
               ${validateScript.verificationCode(queryDto.locale)}
             } else {
-              ${validateScript.phoneNumber(queryDto.locale)}
+              ${validateScript.phoneNumber(
+      queryDto.locale,
+      countryCode,
+    )}
             }
 
             if (!containNumber) {
@@ -163,7 +169,7 @@ const AuthorizeSmsMfa = ({
                 body: JSON.stringify({
                   code: "${queryDto.code}",
                   locale: "${queryDto.locale}",
-                  phoneNumber: document.getElementById('form-phoneNumber').value,
+                  phoneNumber: "${countryCode}" + document.getElementById('form-phoneNumber').value,
                 })
               })
               .then((response) => {

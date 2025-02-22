@@ -160,6 +160,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Description:** Enables SMS-based MFA. If `true`, users must confirm logins via an SMS code.
 - Requires [SMS Provider Setup](https://auth.valuemelody.com/sms-provider-setup.html)
 
+### SMS_MFA_COUNTRY_CODE
+- **Default:** "+1"
+- **Description:** Prefix of the phone number to be used for SMS MFA. For example, if you are based in the United States, you should set this to "+1".
+
 ### EMAIL_MFA_IS_REQUIRED
 - **Default:** false
 - **Description:** Enables email-based MFA. If `true`, users must confirm logins via an email code.
