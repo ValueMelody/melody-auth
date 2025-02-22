@@ -23,6 +23,8 @@ export type Bindings = {
   BREVO_SENDER_ADDRESS: string;
   MAILGUN_API_KEY: string;
   MAILGUN_SENDER_ADDRESS: string;
+  RESEND_API_KEY: string;
+  RESEND_SENDER_ADDRESS: string;
   SMS_MFA_IS_REQUIRED: boolean;
   SMS_MFA_COUNTRY_CODE: string;
   SMS_MFA_MESSAGE_THRESHOLD: number;

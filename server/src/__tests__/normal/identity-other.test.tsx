@@ -1,25 +1,31 @@
-import {
-  afterEach, beforeEach, describe, expect, Mock, test,
-  vi,
-} from 'vitest'
 import { Database } from 'better-sqlite3'
-import { JSDOM } from 'jsdom'
-import app from 'index'
 import {
-  emailLogRecord,
-  emailResponseMock,
-  fetchMock,
-  migrate, mock,
-  mockedKV,
-} from 'tests/mock'
-import {
-  adapterConfig, routeConfig, localeConfig,
+    adapterConfig,
+    localeConfig,
+    routeConfig,
 } from 'configs'
-import {
-  insertUsers, getAuthorizeParams, postSignInRequest, getApp, postAuthorizeBody,
-} from 'tests/identity'
+import app from 'index'
+import { JSDOM } from 'jsdom'
 import { userModel } from 'models'
+import {
+    getApp,
+    getAuthorizeParams,
+    insertUsers,
+    postAuthorizeBody,
+    postSignInRequest,
+} from 'tests/identity'
+import {
+    emailLogRecord,
+    emailResponseMock,
+    fetchMock,
+    migrate, mock,
+    mockedKV,
+} from 'tests/mock'
 import { disableUser } from 'tests/util'
+import {
+    afterEach, beforeEach, describe, expect, Mock, test,
+    vi,
+} from 'vitest'
 
 let db: Database
 
@@ -627,6 +633,89 @@ describe(
 
         process.env.BREVO_API_KEY = ''
         process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.ENABLE_EMAIL_LOG = false as unknown as string
+      },
+    )
+
+    test(
+      'could send reset code by Resend',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.RESEND_API_KEY = 're_2232323'
+        process.env.RESEND_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBe(6)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.resend.com/emails')
+        expect(body).toContain(code)
+        expect(body).toContain('"to":["test@email.com"]')
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(0)
+
+        global.fetch = fetchMock
+
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.RESEND_API_KEY = ''
+        process.env.RESEND_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+      },
+    )
+
+    test(
+      'could log email by Resend',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.RESEND_API_KEY = 're_2232323'
+        process.env.RESEND_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.ENABLE_EMAIL_LOG = true as unknown as string
+
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const res = await testSendResetCode(routeConfig.IdentityRoute.ResendResetCode)
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(1)
+        expect(logs[0]).toStrictEqual(emailLogRecord)
+        global.fetch = fetchMock
+
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.RESEND_API_KEY = ''
+        process.env.RESEND_SENDER_ADDRESS = ''
         process.env.SENDGRID_API_KEY = 'abc'
         process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
         process.env.ENABLE_EMAIL_LOG = false as unknown as string
