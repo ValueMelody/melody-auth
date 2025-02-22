@@ -18,6 +18,8 @@ Use the table below to configure your chosen email provider. Some variables are 
 | MAILGUN_SENDER_ADDRESS | Sender email address in Mailgun (Required if you intend to use Mailgun) | "noreply@yourdomain.com" |
 | BREVO_API_KEY | Your Brevo API key (Required if you intend to use Brevo) | "xkeysib-xxxxxxxxxxxxxxxxxxxxxxxx" |
 | BREVO_SENDER_ADDRESS | Verified sender address in Brevo (Required if you intend to use Brevo) | "noreply@yourdomain.com" |
+| RESEND_API_KEY | Your Resend.io API key (Required if you intend to use Resend.io) | "re_xxxxxxxxxxxxxxxxxxxxxxx" |
+| RESEND_SENDER_ADDRESS | Verified sender address in Resend.com (Required if you intend to use Resend.com) |
 | SMTP_SENDER_ADDRESS | SMTP sender email address (Node.js only) | "noreply@yourdomain.com" |
 | SMTP_CONNECTION_STRING | SMTP connection string (Node.js only) | "smtp://username:password@smtp.mailserver.com:587" |
 
