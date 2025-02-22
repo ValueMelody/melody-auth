@@ -1,31 +1,31 @@
 import { Database } from 'better-sqlite3'
+import { JSDOM } from 'jsdom'
 import {
-    adapterConfig,
-    localeConfig,
-    routeConfig,
+  afterEach, beforeEach, describe, expect, Mock, test,
+  vi,
+} from 'vitest'
+import {
+  adapterConfig,
+  localeConfig,
+  routeConfig,
 } from 'configs'
 import app from 'index'
-import { JSDOM } from 'jsdom'
 import { userModel } from 'models'
 import {
-    getApp,
-    getAuthorizeParams,
-    insertUsers,
-    postAuthorizeBody,
-    postSignInRequest,
+  getApp,
+  getAuthorizeParams,
+  insertUsers,
+  postAuthorizeBody,
+  postSignInRequest,
 } from 'tests/identity'
 import {
-    emailLogRecord,
-    emailResponseMock,
-    fetchMock,
-    migrate, mock,
-    mockedKV,
+  emailLogRecord,
+  emailResponseMock,
+  fetchMock,
+  migrate, mock,
+  mockedKV,
 } from 'tests/mock'
 import { disableUser } from 'tests/util'
-import {
-    afterEach, beforeEach, describe, expect, Mock, test,
-    vi,
-} from 'vitest'
 
 let db: Database
 

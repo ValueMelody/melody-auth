@@ -26,7 +26,7 @@ export class ResendMailer extends IMailer {
           subject,
           html: content,
           to: [email],
-          from: `${senderName} <${senderEmail}>`
+          from: `${senderName} <${senderEmail}>`,
         }),
       },
     )

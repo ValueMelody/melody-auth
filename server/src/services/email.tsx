@@ -1,25 +1,25 @@
-import {
-    errorConfig,
-    localeConfig, typeConfig,
-} from 'configs'
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import {
-    emailLogModel, userModel,
-} from 'models'
-import { brandingService } from 'services'
-import {
-    ChangeEmailVerificationTemplate,
-    EmailMfaTemplate,
-    EmailVerificationTemplate, PasswordResetTemplate,
-} from 'templates'
-import { cryptoUtil } from 'utils'
 import { BrevoMailer } from './email/brevo'
 import { IMailer } from './email/interface'
 import { MailgunMailer } from './email/mailgun'
 import { ResendMailer } from './email/resend'
 import { SendgridMailer } from './email/sendgrid'
 import { SmtpMailer } from './email/smtp'
+import { cryptoUtil } from 'utils'
+import {
+  ChangeEmailVerificationTemplate,
+  EmailMfaTemplate,
+  EmailVerificationTemplate, PasswordResetTemplate,
+} from 'templates'
+import { brandingService } from 'services'
+import {
+  emailLogModel, userModel,
+} from 'models'
+import {
+  errorConfig,
+  localeConfig, typeConfig,
+} from 'configs'
 
 const checkEmailSetup = (c: Context<typeConfig.Context>) => {
   const {

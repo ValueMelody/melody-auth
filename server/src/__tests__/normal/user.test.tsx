@@ -1,30 +1,30 @@
 import { Database } from 'better-sqlite3'
+import { Scope } from 'shared'
 import {
-    adapterConfig, localeConfig, routeConfig,
+  afterEach, beforeEach, describe, expect, Mock, test,
+  vi,
+} from 'vitest'
+import {
+  adapterConfig, localeConfig, routeConfig,
 } from 'configs'
 import app from 'index'
 import {
-    userAppConsentModel, userModel,
-    userPasskeyModel,
+  userAppConsentModel, userModel,
+  userPasskeyModel,
 } from 'models'
-import { Scope } from 'shared'
 import {
-    emailLogRecord,
-    emailResponseMock,
-    fetchMock,
-    migrate, mock,
-    mockedKV,
+  emailLogRecord,
+  emailResponseMock,
+  fetchMock,
+  migrate, mock,
+  mockedKV,
 } from 'tests/mock'
 import {
-    attachIndividualScopes,
-    dbTime, disableUser, enrollEmailMfa, enrollOtpMfa,
-    enrollSmsMfa,
-    getS2sToken,
+  attachIndividualScopes,
+  dbTime, disableUser, enrollEmailMfa, enrollOtpMfa,
+  enrollSmsMfa,
+  getS2sToken,
 } from 'tests/util'
-import {
-    afterEach, beforeEach, describe, expect, Mock, test,
-    vi,
-} from 'vitest'
 
 let db: Database
 
