@@ -33,31 +33,37 @@ const CodeInput = ({
           class='code-input'
           type='text'
           id='code-input-1'
+          aria-label='Code input 1'
         />
         <input
           class='code-input'
           type='text'
           id='code-input-2'
+          aria-label='Code input 2'
         />
         <input
           class='code-input'
           type='text'
           id='code-input-3'
+          aria-label='Code input 3'
         />
         <input
           class='code-input'
           type='text'
           id='code-input-4'
+          aria-label='Code input 4'
         />
         <input
           class='code-input'
           type='text'
           id='code-input-5'
+          aria-label='Code input 5'
         />
         <input
           class='code-input'
           type='text'
           id='code-input-6'
+          aria-label='Code input 6'
         />
       </section>
       <input

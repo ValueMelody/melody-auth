@@ -105,7 +105,7 @@ const AuthorizePassword = ({
                 className={allowPasskey ? 'hidden' : ''}
                 required
                 name='password'
-                autocomplete='password'
+                autocomplete='current-password'
               />
             </>
           )}
