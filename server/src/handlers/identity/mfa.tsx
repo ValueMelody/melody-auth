@@ -369,6 +369,7 @@ export const getAuthorizeSmsMfa = async (c: Context<typeConfig.Context>) => {
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
+    SMS_MFA_COUNTRY_CODE: countryCode,
   } = env(c)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -407,6 +408,7 @@ export const getAuthorizeSmsMfa = async (c: Context<typeConfig.Context>) => {
       queryDto.org,
     )}
     queryDto={queryDto}
+    countryCode={countryCode}
     locales={enableLocaleSelector ? locales : [queryDto.locale]}
     showEmailMfaBtn={allowSwitch}
   />)

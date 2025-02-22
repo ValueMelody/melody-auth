@@ -70,6 +70,7 @@ const Page = () => {
       value: [
         'OTP_MFA_IS_REQUIRED',
         'SMS_MFA_IS_REQUIRED',
+        'SMS_MFA_COUNTRY_CODE',
         'EMAIL_MFA_IS_REQUIRED',
         'ENFORCE_ONE_MFA_ENROLLMENT',
         'ALLOW_EMAIL_MFA_AS_BACKUP',
