@@ -14,7 +14,7 @@ DEV_SMS_RECEIVER= # When the ENVIRONMENT is not set to 'prod', all SMS messages 
 #MAILGUN_SENDER_ADDRESS= # Put your Mailgun sender address here
 #BREVO_API_KEY= # Put your Brevo api key here and leave both SENDGRID_API_KEY and MAILGUN_API_KEY to be empty if you want to use Brevo handle email functionalities
 #BREVO_SENDER_ADDRESS= # Put your Brevo sender address here
-#RESEND_API_KEY= # Put your Resend api key here and leave SENDGRID_API_KEY, MAILGUN, BREVO empty if you want to use Resend handle email functionalities
+#RESEND_API_KEY= # Put your Resend api key here and leave SENDGRID_API_KEY, MAILGUN_API_KEY, BREVO_API_KEY empty if you want to use Resend handle email functionalities
 #RESEND_SENDER_ADDRESS= # Put your Resend sender address here
 
 # Config following env vars to work with SMS MFA

@@ -29,7 +29,7 @@ import {
 let db: Database
 
 const insertUsers = async () => {
-  db.exec(`
+  await db.exec(`
     INSERT INTO "user"
     ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
     values ('1-1-1-1', 'en', 'test@email.com', null, null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
