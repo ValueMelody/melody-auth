@@ -34,12 +34,12 @@ Use the table below to configure your chosen email provider. Some variables are 
 
 ## Priority Between Providers
 - Node.js Environment
-  - If SMTP_CONNECTION_STRING is defined, SMTP will always be used—regardless of SendGrid, Mailgun, or Brevo settings.
-  - Otherwise, if more than one API key and sender address are provided (SendGrid, Mailgun, Brevo), SendGrid is used first, then Mailgun, and finally Brevo.
+  - If SMTP_CONNECTION_STRING is defined, SMTP will always be used—regardless of SendGrid, Mailgun, Brevo or Resend settings.
+  - Otherwise, if more than one API key and sender address are provided (SendGrid, Mailgun, Brevo, Resend), SendGrid is used first, then Mailgun, Brevo and finally Resend.
 
 - Cloudflare Environment
   - SMTP settings are ignored.
-  - If you set up multiple providers (SendGrid, Mailgun, Brevo), SendGrid takes priority, followed by Mailgun and then Brevo.
+  - If you set up multiple providers (SendGrid, Mailgun, Brevo), SendGrid takes priority, followed by Mailgun, Brevo and then Resend.
 
 ## Cloudflare Remote/Production Configuration
 1. Navigate to the Cloudflare dashboard -> Go to "Workers & Pages"
