@@ -58,6 +58,7 @@
   - SendGrid
   - Mailgun
   - Brevo
+  - Resend
   - STMP (Node.js environment only)
 - <b>SMS Option</b> [SMS Provider Setup Doc](https://auth.valuemelody.com/sms-provider-setup.html)
   - Twilio
@@ -93,8 +94,8 @@
 - [React Native Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/react-native-example)
 
 ## Screenshots
-[Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)  
-[Admin Panel Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)  
+[Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)
+[Admin Panel Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)
 
 ## License
 

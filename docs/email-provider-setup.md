@@ -2,7 +2,7 @@
 Melody Auth relies on an email provider to send password reset links, email verification notices, and email-based MFA codes. This guide explains how to configure either SendGrid, Mailgun, Brevo, or SMTP (Node.js only) depending on your needs.
 
 ## Supported Email Providers
-- **Cloudflare Workers or Node.js**: SendGrid, Mailgun, and Brevo
+- **Cloudflare Workers or Node.js**: SendGrid, Mailgun, Resend.com and Brevo
 -	**Node.js (Only)**: SMTP server (in addition to the above)
 
 ## Environment Variables
@@ -18,6 +18,8 @@ Use the table below to configure your chosen email provider. Some variables are 
 | MAILGUN_SENDER_ADDRESS | Sender email address in Mailgun (Required if you intend to use Mailgun) | "noreply@yourdomain.com" |
 | BREVO_API_KEY | Your Brevo API key (Required if you intend to use Brevo) | "xkeysib-xxxxxxxxxxxxxxxxxxxxxxxx" |
 | BREVO_SENDER_ADDRESS | Verified sender address in Brevo (Required if you intend to use Brevo) | "noreply@yourdomain.com" |
+| RESEND_API_KEY | Your Resend.com API key (Required if you intend to use Resend.com) | "re_xxxxxxxxxxxxxxxxxxxxxxx" |
+| RESEND_SENDER_ADDRESS | Verified sender address in Resend.com (Required if you intend to use Resend.com) |
 | SMTP_SENDER_ADDRESS | SMTP sender email address (Node.js only) | "noreply@yourdomain.com" |
 | SMTP_CONNECTION_STRING | SMTP connection string (Node.js only) | "smtp://username:password@smtp.mailserver.com:587" |
 
@@ -32,12 +34,12 @@ Use the table below to configure your chosen email provider. Some variables are 
 
 ## Priority Between Providers
 - Node.js Environment
-  - If SMTP_CONNECTION_STRING is defined, SMTP will always be used—regardless of SendGrid, Mailgun, or Brevo settings.
-  - Otherwise, if more than one API key and sender address are provided (SendGrid, Mailgun, Brevo), SendGrid is used first, then Mailgun, and finally Brevo.
+  - If SMTP_CONNECTION_STRING is defined, SMTP will always be used—regardless of SendGrid, Mailgun, Brevo or Resend settings.
+  - Otherwise, if more than one API key and sender address are provided (SendGrid, Mailgun, Brevo, Resend), SendGrid is used first, then Mailgun, Brevo and finally Resend.
 
 - Cloudflare Environment
   - SMTP settings are ignored.
-  - If you set up multiple providers (SendGrid, Mailgun, Brevo), SendGrid takes priority, followed by Mailgun and then Brevo.
+  - If you set up multiple providers (SendGrid, Mailgun, Brevo), SendGrid takes priority, followed by Mailgun, Brevo and then Resend.
 
 ## Cloudflare Remote/Production Configuration
 1. Navigate to the Cloudflare dashboard -> Go to "Workers & Pages"

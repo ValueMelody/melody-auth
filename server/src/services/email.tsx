@@ -3,6 +3,7 @@ import { env } from 'hono/adapter'
 import { BrevoMailer } from './email/brevo'
 import { IMailer } from './email/interface'
 import { MailgunMailer } from './email/mailgun'
+import { ResendMailer } from './email/resend'
 import { SendgridMailer } from './email/sendgrid'
 import { SmtpMailer } from './email/smtp'
 import { cryptoUtil } from 'utils'
@@ -28,12 +29,15 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
     SENDGRID_SENDER_ADDRESS: sendgridSender,
     MAILGUN_API_KEY: mailgunApiKey,
     MAILGUN_SENDER_ADDRESS: mailgunSender,
+    RESEND_API_KEY: resendApiKey,
+    RESEND_SENDER_ADDRESS: resendSender,
   } = env(c)
   if (
     !c.env.SMTP &&
     (!mailgunApiKey || !mailgunSender) &&
     (!brevoApiKey || !brevoSender) &&
-    (!sendgridApiKey || !sendgridSender)
+    (!sendgridApiKey || !sendgridSender) &&
+    (!resendApiKey || !resendSender)
   ) {
     throw new errorConfig.Forbidden(localeConfig.Error.NoEmailSender)
   }
@@ -55,6 +59,10 @@ const buildMailer = (context: Context<typeConfig.Context>): IMailer | null => {
 
   if (vars.BREVO_API_KEY && vars.BREVO_SENDER_ADDRESS) {
     return new BrevoMailer({ context })
+  }
+
+  if (vars.RESEND_API_KEY && vars.RESEND_SENDER_ADDRESS) {
+    return new ResendMailer({ context })
   }
 
   return null
