@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-layoutColor: var(--layout-color);
+  --color-labelColor: var(--label-color);
+}

@@ -1,5 +1,5 @@
 name = "melody-auth"
-compatibility_date = "2023-12-01"
+compatibility_date = "2024-07-20"
 keep_vars = true
 
 [vars]

@@ -19,6 +19,7 @@ export enum OauthRoute {
 
 export enum IdentityRoute {
   AuthCodeExpired = `${InternalRoute.Identity}/auth-code-expired`,
+  AuthorizeMain = `${InternalRoute.Identity}/authorize`,
   AuthorizePassword = `${InternalRoute.Identity}/authorize-password`,
   AuthorizeAccount = `${InternalRoute.Identity}/authorize-account`,
   AuthorizeMfaEnroll = `${InternalRoute.Identity}/authorize-mfa-enroll`,

@@ -21,6 +21,97 @@ import {
 import { userModel } from 'models'
 import { oauthHandler } from 'handlers'
 import { Policy } from 'dtos/oauth'
+import { html } from 'hono/html'
+import { css, Style } from 'hono/css'
+
+export const getAuthorizeMain = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
+
+  const {
+    ENABLE_SIGN_UP: allowSignUp,
+    ENABLE_PASSWORD_RESET: allowPasswordReset,
+    ENABLE_PASSWORD_SIGN_IN: allowPasswordSignIn,
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+    GOOGLE_AUTH_CLIENT_ID: googleAuthId,
+    FACEBOOK_AUTH_CLIENT_ID: facebookAuthId,
+    FACEBOOK_AUTH_CLIENT_SECRET: facebookClientSecret,
+    GITHUB_AUTH_CLIENT_ID: githubAuthId,
+    GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
+    GITHUB_AUTH_APP_NAME: githubAppName,
+    ALLOW_PASSKEY_ENROLLMENT: allowPasskey,
+  } = env(c)
+
+  const isBasePolicy = !queryDto.policy || queryDto.policy === Policy.SignInOrSignUp
+  const enablePasswordReset = isBasePolicy ? allowPasswordReset : false
+  const enableSignUp = isBasePolicy ? allowSignUp : false
+  const enablePasswordSignIn = isBasePolicy ? allowPasswordSignIn : true
+  const googleClientId = isBasePolicy ? googleAuthId : ''
+  const facebookClientId = isBasePolicy ? facebookAuthId : ''
+  const githubClientId = isBasePolicy ? githubAuthId : ''
+
+  const branding = await brandingService.getBranding(
+    c,
+    queryDto.org,
+  )
+
+  const initialProps = {
+    locales,
+    locale: queryDto.locale,
+    logoUrl: branding.logoUrl,
+  }
+
+  return c.html(
+    <html lang={queryDto.locale}>
+      <head>
+        <meta charset='utf-8' />
+        <title>{localeConfig.common.documentTitle[queryDto.locale]}</title>
+        <link
+          rel='icon'
+          type='image/x-icon'
+          href={branding.logoUrl}
+        />
+        <meta
+          name='viewport'
+          content='width=device-width, initial-scale=1'
+        />
+        <link
+          rel='preconnect'
+          href='https://fonts.googleapis.com'
+        />
+        <link
+          rel='preconnect'
+          href='https://fonts.gstatic.com'
+        />
+        <link
+          href={branding.fontUrl}
+          rel='stylesheet'
+        />
+        <link rel="stylesheet" href="/src/pages/index.css" />
+        <Style>
+          {css`
+            :root {
+              --layout-color: ${branding.layoutColor};
+              --label-color: ${branding.labelColor};
+            }
+          `}
+        </Style>
+      </head>
+      <body>
+        <div id="root" />
+        <script type="module" src="/src/pages/client.tsx" />
+        {html`
+          <script>
+            window.__initialProps = {
+              "locales": "${locales.join(',')}",
+              "logoUrl": "${branding.logoUrl}"
+            }
+          </script>
+        `}
+      </body>
+    </html>
+  );
+}
 
 export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const queryDto = await oauthHandler.parseGetAuthorizeDto(c)

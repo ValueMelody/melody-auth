@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "lib": ["ES2015", "DOM"],
-    "target": "es5",
+    "target": "ES2017",
     "declaration": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "commonjs",
+    "module": "ESNext",
     "rootDir": "src",
     "outDir": "dist",
   },

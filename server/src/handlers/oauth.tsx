@@ -166,7 +166,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   }
 
   const queryString = requestUtil.getQueryString(c)
-  return c.redirect(`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`)
+  return c.redirect(`${routeConfig.IdentityRoute.AuthorizeMain}?${queryString}`)
 }
 
 export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
