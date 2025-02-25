@@ -20,7 +20,8 @@
     "test:check:node-key-rotate": "TEST_MODE=node vitest run ./src/__tests__/key-rotate",
     "test:check:cf": "vitest run ./src/__tests__/normal",
     "test:check:cf-key-rotate": "vitest run ./src/__tests__/key-rotate",
-    "test:coverage": "vitest run --coverage ./src/__tests__/normal",
+    "test:check:templates": "vitest run ./src/templates",
+    "test:coverage": "vitest run --coverage ./src --exclude ./src/__tests__/key-rotate",
     "type:check": "tsc --noEmit",
     "swagger:generate": "node ./src/scripts/generate-swagger.cjs"
   },
