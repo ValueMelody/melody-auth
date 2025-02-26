@@ -1,15 +1,15 @@
+import { ReactNode } from 'hono/jsx'
 import {
   localeConfig, typeConfig,
 } from 'configs'
-import { ReactNode } from 'hono/jsx';
-import { LocaleSelector } from 'pages/components';
+import { LocaleSelector } from 'pages/components'
 
 const Layout = ({
   children, locale, locales, logoUrl,
-  handleSwitchLocale,
+  onSwitchLocale,
 }: { logoUrl: string;
   children: ReactNode; locale: typeConfig.Locale; locales: typeConfig.Locale[];
-  handleSwitchLocale: (locale: typeConfig.Locale) => void
+  onSwitchLocale: (locale: typeConfig.Locale) => void;
 }) => (
   <main className='flex flex-col items-center justify-center w-full h-screen bg-layoutColor text-labelColor'>
     <section className='flex flex-col justify-center items-center p-8 bg-white box-shadow rounded-lg'>
@@ -25,7 +25,7 @@ const Layout = ({
               <LocaleSelector
                 locale={locale}
                 locales={locales}
-                onChange={handleSwitchLocale}
+                onChange={onSwitchLocale}
               />
             </div>
           )}

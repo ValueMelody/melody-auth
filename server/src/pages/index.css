@@ -3,4 +3,9 @@
 @theme {
   --color-layoutColor: var(--layout-color);
   --color-labelColor: var(--label-color);
+  --font-default: var(--font-default);
+}
+
+body {
+  @apply p-0 m-0 font-(family-name:--font-default) text-base;
 }

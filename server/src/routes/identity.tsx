@@ -12,8 +12,8 @@ const identityRoutes = new Hono<typeConfig.Context>()
 export default identityRoutes
 
 identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeMain,
-  identityHandler.getAuthorizeMain,
+  routeConfig.IdentityRoute.AuthorizeView,
+  identityHandler.getAuthorizeView,
 )
 
 identityRoutes.get(

@@ -1,5 +1,5 @@
-import { typeConfig } from 'configs';
-import { Event } from 'hono/jsx';
+import { Event } from 'hono/jsx'
+import { typeConfig } from 'configs'
 
 const LocaleSelector = ({
   locale,
@@ -11,7 +11,9 @@ const LocaleSelector = ({
   onChange: (locale: typeConfig.Locale) => void;
 }) => {
   const handleChange = (event: Event) => {
-    onChange(event.target.value as typeConfig.Locale)
+    if (event.target && 'value' in event.target) {
+      onChange(event.target.value as typeConfig.Locale)
+    }
   }
 
   return (
@@ -33,4 +35,4 @@ const LocaleSelector = ({
   )
 }
 
-export default LocaleSelector;
+export default LocaleSelector

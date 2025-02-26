@@ -1,7 +1,3 @@
-import LocaleSelector from 'pages/components/LocaleSelector';
-import Layout from 'pages/components/Layout';
+import LocaleSelector from 'pages/components/vanilla/LocaleSelector'
 
-export {
-  LocaleSelector,
-  Layout,
-}
+export { LocaleSelector }

@@ -1,41 +1,30 @@
-import { useEffect, useState } from "hono/jsx";
-import { render } from "hono/jsx/dom";
-import qs from 'qs'
-import { Layout } from "./components";
+import { render } from 'hono/jsx/dom'
+import { Layout } from 'pages/blocks'
+import {
+  useLocale, useInitialProps,
+} from 'pages/hooks'
 
 const App = () => {
-  const [props, setProps] = useState(null)
+  const { initialProps } = useInitialProps()
 
-  useEffect(() => {
-    const params = qs.parse(window.location.search, { ignoreQueryPrefix: true })
-    const initialProps = {
-      locales: window.__initialProps.locales ? window.__initialProps.locales.split(',') : [],
-      logoUrl: window.__initialProps.logoUrl,
-    }
-
-    setProps({
-      ...params,
-      ...initialProps,
-    })
-  }, [])
-
-  const handleSwitchLocale = (locale: typeConfig.Locale) => {
-    window.location.href = window.location.href.replace(`locale=${props.locale}`, `locale=${locale}`)
-    setProps((prevProps) => ({
-      ...prevProps,
-      locale,
-    }))
-  }
-
-  if (!props) {
-    return null
-  }
+  const {
+    locale, handleSwitchLocale,
+  } = useLocale({ initialLocale: initialProps.locale })
 
   return (
-    <Layout locale={props.locale} locales={props.locales} logoUrl={props.logoUrl} handleSwitchLocale={handleSwitchLocale} >
+    <Layout
+      locale={locale}
+      locales={initialProps.enableLocaleSelector ? initialProps.locales : [locale]}
+      logoUrl={initialProps.logoUrl}
+      onSwitchLocale={handleSwitchLocale}
+    >
+      content
     </Layout>
-  );
-};
+  )
+}
 
-const root = document.getElementById("root")!;
-render(<App />, root);
+const root = document.getElementById('root')!
+render(
+  <App />,
+  root,
+)
