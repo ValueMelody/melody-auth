@@ -43,7 +43,8 @@
     "qs": "^6.14.0",
     "shared": "*",
     "tailwindcss": "^4.0.8",
-    "toml": "^3.0.0"
+    "toml": "^3.0.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240529.0",

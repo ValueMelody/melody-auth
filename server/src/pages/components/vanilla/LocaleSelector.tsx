@@ -1,15 +1,17 @@
 import { Event } from 'hono/jsx'
 import { typeConfig } from 'configs'
 
+export interface LocaleSelectorProps {
+  locale: typeConfig.Locale;
+  locales: typeConfig.Locale[];
+  onChange: (locale: typeConfig.Locale) => void;
+}
+
 const LocaleSelector = ({
   locale,
   locales,
   onChange,
-}: {
-  locale: typeConfig.Locale;
-  locales: typeConfig.Locale[];
-  onChange: (locale: typeConfig.Locale) => void;
-}) => {
+}: LocaleSelectorProps) => {
   const handleChange = (event: Event) => {
     if (event.target && 'value' in event.target) {
       onChange(event.target.value as typeConfig.Locale)

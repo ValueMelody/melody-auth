@@ -60,6 +60,10 @@ export const validateError = Object.freeze({
     en: 'Password is required!',
     fr: 'Le mot de passe est requis !',
   },
+  passwordFormat: {
+    en: 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+    fr: 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',
+  },
   phoneNumberIsRequired: {
     en: 'Phone number is required!',
     fr: 'Le numéro de téléphone est requis !',
@@ -71,6 +75,10 @@ export const validateError = Object.freeze({
   emailIsRequired: {
     en: 'Email is required!',
     fr: "L'adresse e-mail est requise !",
+  },
+  wrongEmailFormat: {
+    en: 'Wrong email format.',
+    fr: "Format d'e-mail incorrect.",
   },
   isNotEmail: {
     en: 'Wrong email format.',

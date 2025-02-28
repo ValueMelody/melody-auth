@@ -73,7 +73,7 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
 
   const bodyDto = new identityDto.PostAuthorizeReqWithPasswordDto({
     ...reqBody,
-    scopes: reqBody.scope.split(' '),
+    scopes: reqBody.scope ? reqBody.scope.split(' ') : [],
   })
   await validateUtil.dto(bodyDto)
 
