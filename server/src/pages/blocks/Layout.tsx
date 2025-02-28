@@ -1,4 +1,3 @@
-import { ReactNode } from 'hono/jsx'
 import {
   localeConfig, typeConfig,
 } from 'configs'
@@ -8,7 +7,7 @@ const Layout = ({
   children, locale, locales, logoUrl,
   onSwitchLocale,
 }: { logoUrl: string;
-  children: ReactNode; locale: typeConfig.Locale; locales: typeConfig.Locale[];
+  children: any; locale: typeConfig.Locale; locales: typeConfig.Locale[];
   onSwitchLocale: (locale: typeConfig.Locale) => void;
 }) => (
   <main className='flex flex-col items-center justify-center w-full h-screen bg-layoutColor text-labelColor'>
@@ -30,7 +29,9 @@ const Layout = ({
             </div>
           )}
         </header>
-        {children}
+        <section className='flex flex-col justify-center gap-4'>
+          {children}
+        </section>
         <a
           target='__blank'
           href='https://github.com/ValueMelody/melody-auth'
