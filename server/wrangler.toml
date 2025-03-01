@@ -49,9 +49,9 @@ OTP_MFA_IS_REQUIRED=false
 EMAIL_MFA_IS_REQUIRED=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html
 SMS_MFA_IS_REQUIRED=false # Please set up your sms provider first https://auth.valuemelody.com/sms-provider-setup.html
 SMS_MFA_COUNTRY_CODE="+1" # Prefix of the phone number to be used for SMS MFA. For example, if you are based in the United States, you should set this to "+1".
-ENFORCE_ONE_MFA_ENROLLMENT=[] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
+ENFORCE_ONE_MFA_ENROLLMENT=['otp', 'email'] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 ALLOW_EMAIL_MFA_AS_BACKUP=true
-ALLOW_PASSKEY_ENROLLMENT=true
+ALLOW_PASSKEY_ENROLLMENT=false
 
 # Brute-force
 UNLOCK_ACCOUNT_VIA_PASSWORD_RESET=true
