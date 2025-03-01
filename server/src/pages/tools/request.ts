@@ -40,6 +40,7 @@ const NextPage = Object.freeze({
   [routeConfig.IdentityRoute.AuthorizeSmsMfa]: View.SmsMfa,
   [routeConfig.IdentityRoute.AuthorizeOtpSetup]: View.OtpSetup,
   [routeConfig.IdentityRoute.AuthorizeOtpMfa]: View.OtpMfa,
+  [routeConfig.IdentityRoute.AuthorizePasskeyEnroll]: View.PasskeyEnroll,
 }) as { [key: string]: View }
 
 export const handleAuthorizeStep = (

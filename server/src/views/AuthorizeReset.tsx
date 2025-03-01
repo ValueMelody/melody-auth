@@ -30,8 +30,7 @@ const AuthorizeReset = ({
       locales={locales}
     >
       <section
-        id='success-message'
-        class='flex-col gap-4 hidden'
+        class='flex flex-col gap-4 hidden'
       >
         <p class='text-green text-semibold'>{localeConfig.authorizeReset.success[queryDto.locale]}</p>
         <a

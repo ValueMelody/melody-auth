@@ -11,6 +11,9 @@ import useMfaEnrollForm from './useMfaEnrollForm'
 import useOtpMfaForm from './useOtpMfaForm'
 import useSmsMfaForm from './useSmsMfaForm'
 import useEmailMfaForm from './useEmailMfaForm'
+import usePasskeyEnroll from './usePasskeyEnroll'
+import usePasskeyVerify from './usePasskeyVerify'
+import useResetPasswordForm from './useResetPasswordForm'
 
 export {
   useInitialProps,
@@ -27,4 +30,7 @@ export {
   useOtpMfaForm,
   useSmsMfaForm,
   useEmailMfaForm,
+  usePasskeyEnroll,
+  usePasskeyVerify,
+  useResetPasswordForm,
 }
