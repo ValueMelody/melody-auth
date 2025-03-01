@@ -2,36 +2,27 @@ import {
   localeConfig, typeConfig,
 } from 'configs'
 import {
-  Field, PrimaryButton, SecondaryButton, ViewTitle, PasswordField, GoogleSignIn, SubmitError, FacebookSignIn,
+  Field, PrimaryButton, SecondaryButton, ViewTitle,
+  PasswordField, GoogleSignIn, GithubSignIn, SubmitError, FacebookSignIn,
 } from 'pages/components'
-import GithubSignIn from 'pages/components/vanilla/GithubSignIn'
 import {
-  InitialProps, View, useSubmitError, usePasswordViewForm,
+  View, useSubmitError, useSignInForm,
+  useInitialProps,
 } from 'pages/hooks'
+import { getAuthorizeParams } from 'pages/tools/param'
 
 export interface PasswordViewProps {
   locale: typeConfig.Locale;
-  onSwitchView: (view: View) => void;
-  enableSignUp: boolean;
-  enablePasswordSignIn: boolean;
-  enablePasswordReset: boolean;
-  initialProps: InitialProps;
-  googleClientId: string;
-  facebookClientId: string;
-  githubClientId: string;
+  onSwitchView: (view: View, response?: any) => void;
 }
 
-const PasswordView = ({
+const SignIn = ({
   locale,
   onSwitchView,
-  enableSignUp,
-  enablePasswordSignIn,
-  enablePasswordReset,
-  initialProps,
-  googleClientId,
-  facebookClientId,
-  githubClientId,
 }: PasswordViewProps) => {
+  const { initialProps } = useInitialProps()
+  const params = getAuthorizeParams()
+
   const {
     submitError, handleSubmitError,
   } = useSubmitError({
@@ -40,8 +31,11 @@ const PasswordView = ({
   })
   const {
     values, errors, handleChange, handleSubmit,
-  } = usePasswordViewForm({
-    locale, initialProps, handleSubmitError,
+  } = useSignInForm({
+    locale,
+    params,
+    onSubmitError: handleSubmitError,
+    onSwitchView,
   })
 
   return (
@@ -52,7 +46,7 @@ const PasswordView = ({
         onSubmit={handleSubmit}
       >
         <section className='flex flex-col gap-2'>
-          {enablePasswordSignIn && (
+          {initialProps.enablePasswordSignIn && (
             <>
               <Field
                 label={localeConfig.authorizePassword.email[locale]}
@@ -82,7 +76,7 @@ const PasswordView = ({
             </>
           )}
           <SubmitError error={submitError} />
-          {enablePasswordSignIn && (
+          {initialProps.enablePasswordSignIn && (
             <PrimaryButton
               className='mt-4'
               title={localeConfig.authorizePassword.submit[locale]}
@@ -90,37 +84,38 @@ const PasswordView = ({
             />
           )}
         </section>
-        {(googleClientId || facebookClientId || githubClientId) && (
+        {(initialProps.googleClientId || initialProps.facebookClientId || initialProps.githubClientId) && (
           <section className='flex flex-col gap-4 mt-4'>
             <GoogleSignIn
-              googleClientId={googleClientId}
+              googleClientId={initialProps.googleClientId}
               locale={locale}
-              initialProps={initialProps}
+              params={params}
               handleSubmitError={handleSubmitError}
             />
             <FacebookSignIn
-              facebookClientId={facebookClientId}
+              facebookClientId={initialProps.facebookClientId}
               locale={locale}
-              initialProps={initialProps}
+              params={params}
               handleSubmitError={handleSubmitError}
             />
             <GithubSignIn
-              githubClientId={githubClientId}
+              githubClientId={initialProps.githubClientId}
               locale={locale}
-              initialProps={initialProps}
+              params={params}
+              handleSubmitError={handleSubmitError}
             />
           </section>
         )}
       </form>
-      {(enableSignUp || enablePasswordReset) && (
+      {(initialProps.enableSignUp || initialProps.enablePasswordReset) && (
         <section className='flex flex-col gap-2'>
-          {enableSignUp && (
+          {initialProps.enableSignUp && (
             <SecondaryButton
               title={localeConfig.authorizePassword.signUp[locale]}
-              onClick={() => onSwitchView(View.Account)}
+              onClick={() => onSwitchView(View.SignUp)}
             />
           )}
-          {enablePasswordReset && (
+          {initialProps.enablePasswordReset && (
             <SecondaryButton
               title={localeConfig.authorizePassword.passwordReset[locale]}
               onClick={() => onSwitchView(View.ResetPassword)}
@@ -132,4 +127,4 @@ const PasswordView = ({
   )
 }
 
-export default PasswordView
+export default SignIn

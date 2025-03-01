@@ -8,18 +8,25 @@ import {
 import {
   validate, emailField, passwordField,
 } from 'pages/tools/form'
-import { InitialProps } from 'pages/hooks'
-import { parseAuthorizeBaseValues } from 'pages/tools/request'
+import { View } from 'pages/hooks'
+import {
+  handleAuthorizeStep, parseAuthorizeBaseValues,
+} from 'pages/tools/request'
+import { AuthorizeParams } from 'pages/tools/param'
 
-const usePasswordViewForm = ({
-  locale,
-  initialProps,
-  handleSubmitError,
-}: {
+export interface UseSignInFormProps {
   locale: typeConfig.Locale;
-  initialProps: InitialProps;
-  handleSubmitError: (error: string) => void;
-}) => {
+  params: AuthorizeParams;
+  onSubmitError: (error: string | null) => void;
+  onSwitchView: (view: View) => void;
+}
+
+const useSignInForm = ({
+  locale,
+  params,
+  onSubmitError,
+  onSwitchView,
+}: UseSignInFormProps) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -49,6 +56,7 @@ const usePasswordViewForm = ({
   const handleChange = (
     name: 'email' | 'password', value: string,
   ) => {
+    onSubmitError(null)
     switch (name) {
     case 'email':
       setEmail(value)
@@ -82,7 +90,10 @@ const usePasswordViewForm = ({
           body: JSON.stringify({
             email,
             password,
-            ...parseAuthorizeBaseValues(initialProps),
+            ...parseAuthorizeBaseValues(
+              params,
+              locale,
+            ),
           }),
         },
       )
@@ -94,11 +105,18 @@ const usePasswordViewForm = ({
           }
           return response.json()
         })
+        .then((response) => {
+          handleAuthorizeStep(
+            response,
+            locale,
+            onSwitchView,
+          )
+        })
         .catch((error) => {
-          handleSubmitError(error)
+          onSubmitError(error)
         })
     },
-    [initialProps, handleSubmitError, email, password, errors],
+    [params, locale, onSubmitError, onSwitchView, email, password, errors],
   )
 
   return {
@@ -112,4 +130,4 @@ const usePasswordViewForm = ({
   }
 }
 
-export default usePasswordViewForm
+export default useSignInForm

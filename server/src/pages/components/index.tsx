@@ -6,9 +6,10 @@ import Field from 'pages/components/vanilla/Field'
 import PasswordField from 'pages/components/vanilla/PasswordField'
 import GoogleSignIn from 'pages/components/vanilla/GoogleSignIn'
 import FacebookSignIn from 'pages/components/vanilla/FacebookSignIn'
+import GithubSignIn from 'pages/components/vanilla/GithubSignIn'
 import SubmitError from 'pages/components/vanilla/SubmitError'
 
 export {
   LocaleSelector, PrimaryButton, SecondaryButton, ViewTitle, Field, PasswordField,
-  GoogleSignIn, FacebookSignIn, SubmitError,
+  GoogleSignIn, FacebookSignIn, GithubSignIn, SubmitError,
 }

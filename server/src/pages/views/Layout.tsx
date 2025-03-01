@@ -29,7 +29,7 @@ const Layout = ({
             </div>
           )}
         </header>
-        <section className='flex flex-col justify-center gap-4'>
+        <section className='flex flex-col justify-center items-center gap-4'>
           {children}
         </section>
         <a

@@ -1,19 +1,28 @@
 import {
   localeConfig, typeConfig,
 } from 'configs'
-import { InitialProps } from 'pages/hooks'
+import { useSocialSignIn } from 'pages/hooks'
+import { AuthorizeParams } from 'pages/tools/param'
 
 export interface GithubSignInProps {
   githubClientId: string;
   locale: typeConfig.Locale;
-  initialProps: InitialProps;
+  params: AuthorizeParams;
+  handleSubmitError: (error: string) => void;
 }
 
 const GithubSignIn = ({
   githubClientId,
   locale,
-  initialProps,
+  params,
+  handleSubmitError,
 }: GithubSignInProps) => {
+  const { githubSignInState } = useSocialSignIn({
+    params,
+    locale,
+    handleSubmitError,
+  })
+
   if (!githubClientId) return null
 
   return (
@@ -34,18 +43,7 @@ const GithubSignIn = ({
           cursor: 'pointer',
           boxSizing: 'border-box',
         }}
-        href={`https://github.com/login/oauth/authorize?client_id=${githubClientId}&state=${JSON.stringify({
-          clientId: initialProps.clientId,
-          redirectUri: initialProps.redirectUri,
-          responseType: initialProps.responseType,
-          state: initialProps.state,
-          codeChallenge: initialProps.codeChallenge,
-          codeChallengeMethod: initialProps.codeChallengeMethod,
-          locale,
-          policy: initialProps.policy,
-          org: initialProps.org,
-          scopes: initialProps.scope.split(' '),
-        })}`}
+        href={`https://github.com/login/oauth/authorize?client_id=${githubClientId}&state=${JSON.stringify(githubSignInState)}`}
       >
         <img
           style={{

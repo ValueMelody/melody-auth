@@ -1,3 +1,8 @@
-import PasswordView from './PasswordView'
+import SignIn from './SignIn'
+import SignUp from './SignUp'
+import Layout from './Layout'
+import Consent from './Consent'
 
-export { PasswordView }
+export {
+  SignIn, SignUp, Layout, Consent,
+}

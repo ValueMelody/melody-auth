@@ -1,19 +1,20 @@
 import {
   render, useMemo,
 } from 'hono/jsx/dom'
-import { Layout } from 'pages/blocks'
 import {
   useLocale, useInitialProps, useCurrentView,
   View,
 } from 'pages/hooks'
-import { PasswordView } from 'pages/views'
-
+import {
+  SignIn, Layout, SignUp, Consent,
+} from 'pages/views'
+import { getLocaleFromParams } from 'pages/tools/param'
 const App = () => {
   const { initialProps } = useInitialProps()
 
   const {
     locale, handleSwitchLocale,
-  } = useLocale({ initialLocale: initialProps.locale })
+  } = useLocale({ initialLocale: getLocaleFromParams() })
 
   const {
     view, handleSwitchView,
@@ -22,23 +23,26 @@ const App = () => {
   const currentView = useMemo(
     () => {
       switch (view) {
-      case View.Password:
-        return <PasswordView
-          googleClientId={initialProps.googleClientId}
-          facebookClientId={initialProps.facebookClientId}
-          githubClientId={initialProps.githubClientId}
+      case View.SignIn:
+        return <SignIn
           locale={locale}
           onSwitchView={handleSwitchView}
-          enableSignUp={initialProps.enableSignUp}
-          enablePasswordReset={initialProps.enablePasswordReset}
-          enablePasswordSignIn={initialProps.enablePasswordSignIn}
-          initialProps={initialProps}
+        />
+      case View.SignUp:
+        return <SignUp
+          locale={locale}
+          onSwitchView={handleSwitchView}
+        />
+      case View.Consent:
+        return <Consent
+          locale={locale}
+          onSwitchView={handleSwitchView}
         />
       default:
         return null
       }
     },
-    [view, locale, handleSwitchView, initialProps],
+    [view, locale, handleSwitchView],
   )
 
   return (

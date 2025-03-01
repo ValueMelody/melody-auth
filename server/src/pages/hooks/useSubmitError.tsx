@@ -17,6 +17,11 @@ const useSubmitError = ({
 
   const handleSubmitError = useCallback(
     (error: any) => {
+      if (error === null) {
+        setSubmitError(null)
+        return
+      }
+
       const errorString = String(error)
 
       let msg = localeConfig.requestError.authFailed[locale]

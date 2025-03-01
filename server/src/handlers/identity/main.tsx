@@ -1,4 +1,6 @@
-import { Context } from 'hono'
+import {
+  Context, TypedResponse,
+} from 'hono'
 import { env } from 'hono/adapter'
 import { genRandomString } from 'shared'
 import {
@@ -18,9 +20,43 @@ import {
 import {
   AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
 } from 'views'
-import { userModel } from 'models'
+import {
+  scopeModel, userModel,
+} from 'models'
 import { oauthHandler } from 'handlers'
 import { Policy } from 'dtos/oauth'
+
+export interface AuthorizeConsentInfo {
+  scopes: scopeModel.ApiRecord[];
+  appName: string;
+}
+
+export const getAuthorizeConsentInfo = async (c: Context<typeConfig.Context>):
+Promise<TypedResponse<AuthorizeConsentInfo>> => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    authInfo.request.clientId,
+    authInfo.request.redirectUri,
+  )
+
+  const scopes = await scopeService.getScopesByName(
+    c,
+    authInfo.request.scopes,
+  )
+
+  return c.json({
+    scopes,
+    appName: app.name,
+  })
+}
 
 export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
