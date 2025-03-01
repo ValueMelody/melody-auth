@@ -1,66 +1,37 @@
-import {
-  useCallback, useEffect,
-} from 'hono/jsx'
-import { InitialProps } from 'pages/hooks'
-import { routeConfig } from 'configs'
-import { parseAuthorizeBaseValues } from 'pages/tools/request'
+import { useEffect } from 'hono/jsx'
+import { useSocialSignIn } from 'pages/hooks'
+import { typeConfig } from 'configs'
+import { AuthorizeParams } from 'pages/tools/param'
 
 export interface GoogleSignInProps {
   googleClientId: string;
-  locale: string;
-  initialProps: InitialProps;
+  locale: typeConfig.Locale;
+  params: AuthorizeParams;
   handleSubmitError: (error: string) => void;
 }
 
 const GoogleSignIn = ({
   googleClientId,
   locale,
-  initialProps,
+  params,
   handleSubmitError,
 }: GoogleSignInProps) => {
-  const handleSubmit = useCallback(
-    (response: any) => {
-      if (!response.credential) return false
-
-      fetch(
-        routeConfig.IdentityRoute.AuthorizeGoogle,
-        {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            credential: response.credential,
-            ...parseAuthorizeBaseValues(initialProps),
-          }),
-        },
-      )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
-        .catch((error) => {
-          handleSubmitError(error)
-        })
-    },
-    [initialProps, handleSubmitError],
-  )
+  const { handleGoogleSignIn } = useSocialSignIn({
+    params,
+    locale,
+    handleSubmitError,
+  })
 
   useEffect(
     () => {
       if (googleClientId) {
-        (window as any).handleGoogleSignIn = handleSubmit
+        (window as any).handleGoogleSignIn = handleGoogleSignIn
         return () => {
           (window as any).handleGoogleSignIn = undefined
         }
       }
     },
-    [googleClientId, handleSubmit],
+    [googleClientId, handleGoogleSignIn],
   )
 
   if (!googleClientId) {

@@ -3,26 +3,26 @@ import {
 } from 'hono/jsx'
 
 export enum View {
-  Password = 'password',
-  Account = 'account',
+  SignIn = 'sign-in',
+  Consent = 'consent',
+  SignUp = 'sign-up',
   ResetPassword = 'reset-password',
   AuthCodeExpired = 'auth-code-expired',
 }
 
 const useCurrentView = () => {
-  const views = useMemo(
+  const initialView = useMemo(
     () => {
       switch (location.pathname) {
       case '/identity/v1/view/authorize':
-        return [View.Password]
       default:
-        return []
+        return View.SignIn
       }
     },
     [],
   )
 
-  const [view, setView] = useState(views[0])
+  const [view, setView] = useState(initialView)
 
   const handleSwitchView = useCallback(
     (view: View) => {

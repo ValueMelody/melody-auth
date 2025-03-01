@@ -17,6 +17,12 @@ identityRoutes.get(
 )
 
 identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizeConsentInfo,
+  setupMiddleware.validOrigin,
+  identityHandler.getAuthorizeConsentInfo,
+)
+
+identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizePassword,
   identityHandler.getAuthorizePassword,
 )

@@ -1,11 +1,7 @@
-import {
-  useCallback, useEffect,
-} from 'hono/jsx'
-import {
-  routeConfig, typeConfig,
-} from 'configs'
-import { InitialProps } from 'pages/hooks'
-import { parseAuthorizeBaseValues } from 'pages/tools/request'
+import { useEffect } from 'hono/jsx'
+import { typeConfig } from 'configs'
+import { useSocialSignIn } from 'pages/hooks'
+import { AuthorizeParams } from 'pages/tools/param'
 
 const getFBLocale = (locale: typeConfig.Locale) => {
   switch (locale) {
@@ -19,58 +15,32 @@ const getFBLocale = (locale: typeConfig.Locale) => {
 export interface FacebookSignInProps {
   facebookClientId: string;
   locale: typeConfig.Locale;
-  initialProps: InitialProps;
+  params: AuthorizeParams;
   handleSubmitError: (error: string) => void;
 }
 
 const FacebookSignIn = ({
   facebookClientId,
   locale,
-  initialProps,
+  params,
   handleSubmitError,
 }: FacebookSignInProps) => {
-  const handleSubmit = useCallback(
-    (response: any) => {
-      if (!response || !response.authResponse || !response.authResponse.accessToken) return false
-      fetch(
-        routeConfig.IdentityRoute.AuthorizeFacebook,
-        {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            credential: response.authResponse.accessToken,
-            ...parseAuthorizeBaseValues(initialProps),
-          }),
-        },
-      )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
-        .catch((error) => {
-          handleSubmitError(error)
-        })
-    },
-    [initialProps, handleSubmitError],
-  )
+  const { handeFacebookSignIn } = useSocialSignIn({
+    params,
+    handleSubmitError,
+    locale,
+  })
 
   useEffect(
     () => {
       if (facebookClientId) {
-        (window as any).handleFacebookSignIn = handleSubmit
+        (window as any).handleFacebookSignIn = handeFacebookSignIn
         return () => {
           (window as any).handleFacebookSignIn = undefined
         }
       }
     },
-    [facebookClientId, handleSubmit],
+    [facebookClientId, handeFacebookSignIn],
   )
 
   if (!facebookClientId) {

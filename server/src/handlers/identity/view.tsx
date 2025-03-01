@@ -88,6 +88,8 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     ENABLE_SIGN_UP: allowSignUp,
     ENABLE_PASSWORD_RESET: allowPasswordReset,
     ENABLE_PASSWORD_SIGN_IN: allowPasswordSignIn,
+    ENABLE_NAMES: enableNames,
+    NAMES_IS_REQUIRED: namesIsRequired,
     GOOGLE_AUTH_CLIENT_ID: googleAuthId,
     FACEBOOK_AUTH_CLIENT_ID: facebookAuthId,
     FACEBOOK_AUTH_CLIENT_SECRET: facebookClientSecret,
@@ -123,7 +125,11 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         enablePasswordSignIn: ${enablePasswordSignIn.toString()},
         googleClientId: "${googleClientId}",
         facebookClientId: "${facebookClientId}",
-        githubClientId: "${githubClientId}"
+        githubClientId: "${githubClientId}",
+        enableNames: ${enableNames.toString()},
+        namesIsRequired: ${namesIsRequired.toString()},
+        termsLink: "${branding.termsLink}",
+        privacyPolicyLink: "${branding.privacyPolicyLink}",
       }
     </script>
   `
