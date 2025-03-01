@@ -47,6 +47,11 @@ identityRoutes.get(
 )
 
 identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizePasskeyEnrollInfo,
+  identityHandler.getAuthorizePasskeyEnrollInfo,
+)
+
+identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizePassword,
   identityHandler.getAuthorizePassword,
 )

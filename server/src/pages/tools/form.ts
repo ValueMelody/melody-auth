@@ -45,11 +45,8 @@ export const codeField = (locale: typeConfig.Locale) => {
       function (
         _, context,
       ) {
-        // Check if all 6 digits are filled and are numbers
         const mfaArray = context.parent.mfaCode
         if (!Array.isArray(mfaArray) || mfaArray.length !== 6) return false
-
-        // Check if all elements are digits
         return mfaArray.every((digit) => /^\d$/.test(digit))
       },
     )

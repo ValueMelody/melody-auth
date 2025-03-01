@@ -100,7 +100,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     GITHUB_AUTH_CLIENT_ID: githubAuthId,
     GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
     GITHUB_AUTH_APP_NAME: githubAppName,
-    // ALLOW_PASSKEY_ENROLLMENT: allowPasskey,
+    ALLOW_PASSKEY_ENROLLMENT: allowPasskey,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
   } = env(c)
@@ -134,6 +134,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         namesIsRequired: ${namesIsRequired.toString()},
         termsLink: "${branding.termsLink}",
         privacyPolicyLink: "${branding.privacyPolicyLink}",
+        allowPasskey: ${allowPasskey.toString()},
       }
     </script>
   `

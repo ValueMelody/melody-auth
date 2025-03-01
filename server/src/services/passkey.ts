@@ -14,7 +14,6 @@ import {
   userModel, userPasskeyModel,
 } from 'models'
 import { cryptoUtil } from 'utils'
-import { EnrollOptions } from 'views/AuthorizePasskeyEnroll'
 import { kvService } from 'services'
 import { AuthCodeBody } from 'configs/type'
 
@@ -96,6 +95,14 @@ export const deletePasskey = async (
     c.env.DB,
     passkeyId,
   )
+}
+
+export interface EnrollOptions {
+  rpId: string;
+  userId: number;
+  userEmail: string;
+  userDisplayName: string;
+  challenge: string;
 }
 
 export const genPasskeyEnrollOptions = async (

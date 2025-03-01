@@ -1,5 +1,8 @@
-import { Context } from 'hono'
+import {
+  Context, TypedResponse,
+} from 'hono'
 import { env } from 'hono/adapter'
+import { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/server'
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
 } from 'configs'
@@ -18,6 +21,29 @@ import {
 } from 'utils'
 import { AuthorizePasskeyEnrollView } from 'views'
 import { oauthHandler } from 'handlers'
+
+export interface AuthorizePasskeyEnrollInfo {
+  enrollOptions: passkeyService.EnrollOptions;
+}
+
+export const getAuthorizePasskeyEnrollInfo = async (c: Context<typeConfig.Context>)
+: Promise<TypedResponse<AuthorizePasskeyEnrollInfo>> => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  await validateUtil.dto(queryDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  const enrollOptions = await passkeyService.genPasskeyEnrollOptions(
+    c,
+    authCodeStore,
+  )
+
+  return c.json({ enrollOptions })
+}
 
 export const getAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>) => {
   const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
@@ -111,6 +137,10 @@ export const postAuthorizePasskeyEnrollDecline = async (c: Context<typeConfig.Co
     bodyDto.code,
     authCodeStore,
   ))
+}
+
+export interface AuthorizePasskeyVerify {
+  passkeyOption: PublicKeyCredentialRequestOptionsJSON | null;
 }
 
 export const getAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>) => {

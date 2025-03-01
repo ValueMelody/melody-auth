@@ -11,6 +11,8 @@ import {
   OtpMfa,
   SmsMfa,
   EmailMfa,
+  PasskeyEnroll,
+  ResetPassword,
 } from 'pages/views'
 import { getLocaleFromParams } from 'pages/tools/param'
 
@@ -63,6 +65,14 @@ const App = () => {
         />
       case View.EmailMfa:
         return <EmailMfa
+          {...commonProps}
+        />
+      case View.PasskeyEnroll:
+        return <PasskeyEnroll
+          {...commonProps}
+        />
+      case View.ResetPassword:
+        return <ResetPassword
           {...commonProps}
         />
       default:

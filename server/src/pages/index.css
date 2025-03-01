@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
+  --color-green: #008000;
   --color-layoutColor: var(--layout-color);
   --color-labelColor: var(--label-color);
   --font-default: var(--font-default);

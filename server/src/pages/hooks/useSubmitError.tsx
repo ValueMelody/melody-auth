@@ -26,7 +26,7 @@ const useSubmitError = ({
 
       let msg = localeConfig.requestError.authFailed[locale]
 
-      if (errorString.indexOf('isEmail') !== -1) {
+      if (errorString.indexOf('isEmail') !== -1 || errorString === localeConfig.validateError.isNotEmail[locale]) {
         msg = localeConfig.validateError.isNotEmail[locale]
       } else if (errorString.indexOf('isStrongPassword') !== -1) {
         msg = localeConfig.validateError.isWeakPassword[locale]

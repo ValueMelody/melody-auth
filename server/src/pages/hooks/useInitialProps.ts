@@ -9,6 +9,7 @@ export interface InitialProps {
   enablePasswordReset: boolean;
   enablePasswordSignIn: boolean;
   enableNames: boolean;
+  allowPasskey: boolean;
   namesIsRequired: boolean;
   appName: string;
   termsLink: string;
@@ -49,6 +50,7 @@ const useInitialProps = () => {
         termsLink: 'termsLink' in intialProps ? String(intialProps.termsLink) : '',
         privacyPolicyLink: 'privacyPolicyLink' in intialProps ? String(intialProps.privacyPolicyLink) : '',
         appName: 'appName' in intialProps ? String(intialProps.appName) : '',
+        allowPasskey: 'allowPasskey' in intialProps ? Boolean(intialProps.allowPasskey) : false,
       }
     },
     [],

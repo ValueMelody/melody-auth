@@ -7,7 +7,7 @@ import {
 } from 'pages/components'
 import {
   View, useSubmitError, useSignInForm,
-  useInitialProps,
+  useInitialProps, usePasskeyVerify,
 } from 'pages/hooks'
 import { getAuthorizeParams } from 'pages/tools/param'
 
@@ -38,8 +38,22 @@ const SignIn = ({
     onSwitchView,
   })
 
+  const {
+    passkeyOption, getPasskeyOption,
+    handleVerifyPasskey,
+  } = usePasskeyVerify({
+    params,
+    email: values.email,
+    locale,
+    onSubmitError: handleSubmitError,
+    onSwitchView,
+  })
+
+  const shouldLoadPasskeyInfo = initialProps.allowPasskey && passkeyOption === null
+
   return (
     <>
+      {initialProps.allowPasskey && <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>}
       <ViewTitle title={localeConfig.authorizePassword.title[locale]} />
       <form
         autoComplete='on'
@@ -61,22 +75,42 @@ const SignIn = ({
                   value,
                 )}
               />
-              <PasswordField
-                label={localeConfig.authorizePassword.password[locale]}
-                required
-                name='password'
-                value={values.password}
-                error={errors.password}
-                autoComplete='current-password'
-                onChange={(value) => handleChange(
-                  'password',
-                  value,
-                )}
-              />
+
+              {!!passkeyOption && (
+                <PrimaryButton
+                  type='button'
+                  className='mt-2 mb-4'
+                  title={localeConfig.authorizePassword.withPasskey[locale]}
+                  onClick={handleVerifyPasskey}
+                />
+              )}
+
+              {!shouldLoadPasskeyInfo && (
+                <PasswordField
+                  label={localeConfig.authorizePassword.password[locale]}
+                  required
+                  name='password'
+                  value={values.password}
+                  error={errors.password}
+                  autoComplete='current-password'
+                  onChange={(value) => handleChange(
+                    'password',
+                    value,
+                  )}
+                />
+              )}
             </>
           )}
           <SubmitError error={submitError} />
-          {initialProps.enablePasswordSignIn && (
+          {shouldLoadPasskeyInfo && (
+            <PrimaryButton
+              type='button'
+              className='mt-4'
+              title={localeConfig.authorizePassword.continue[locale]}
+              onClick={getPasskeyOption}
+            />
+          )}
+          {initialProps.enablePasswordSignIn && !shouldLoadPasskeyInfo && (
             <PrimaryButton
               className='mt-4'
               title={localeConfig.authorizePassword.submit[locale]}
