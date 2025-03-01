@@ -8,7 +8,6 @@ export default function Dashboard () {
   const {
     data: session, status,
   } = useSession()
-  console.log(session)
 
   if (status === 'loading') {
     return <p>Loading...</p>

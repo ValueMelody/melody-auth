@@ -25,8 +25,6 @@ const App = () => {
     view, handleSwitchView,
   } = useCurrentView()
 
-  console.log(view)
-
   const currentView = useMemo(
     () => {
       const commonProps = {
