@@ -8,10 +8,14 @@ import { HtmlEscapedString } from 'hono/utils/html'
 import {
   typeConfig,
   localeConfig,
+  routeConfig,
 } from 'configs'
-import { brandingService } from 'services'
+import {
+  brandingService, kvService,
+} from 'services'
 import { oauthHandler } from 'handlers'
 import { Policy } from 'dtos/oauth'
+import { identityDto } from 'dtos'
 
 const viewRender = async (
   c: Context<typeConfig.Context>,
@@ -133,6 +137,43 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
       }
     </script>
   `
+
+  return viewRender(
+    c,
+    propsScript,
+    queryDto.locale,
+    queryDto.org,
+  )
+}
+
+export const getProcessView = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+
+  const {
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  const branding = await brandingService.getBranding(
+    c,
+    queryDto.org,
+  )
+
+  const propsScript = html`
+  <script>
+    window.__initialProps = {
+      locales: "${locales.join(',')}",
+      logoUrl: "${branding.logoUrl}",
+      enableLocaleSelector: ${enableLocaleSelector.toString()},
+    }
+  </script>
+`
 
   return viewRender(
     c,

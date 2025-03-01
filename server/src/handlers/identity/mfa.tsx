@@ -1,4 +1,6 @@
-import { Context } from 'hono'
+import {
+  Context, TypedResponse,
+} from 'hono'
 import { env } from 'hono/adapter'
 import {
   errorConfig, localeConfig, routeConfig, typeConfig,
@@ -177,6 +179,27 @@ const handleSendSmsMfa = async (
   return true
 }
 
+export interface MfaEnrollInfo {
+  mfaTypes: userModel.MfaType[];
+}
+
+export const getAuthorizeMfaEnrollInfo = async (c: Context<typeConfig.Context>)
+:Promise<TypedResponse<MfaEnrollInfo>> => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
+
+  const { ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes } = env(c)
+
+  return c.json({ mfaTypes })
+}
+
 export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
   const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
 
@@ -242,6 +265,49 @@ export const postAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => 
     bodyDto.code,
     newAuthCodeStore,
   ))
+}
+
+export interface OtpSetupInfo {
+  otpUri: string;
+}
+
+export const getAuthorizeOtpSetupInfo = async (c: Context<typeConfig.Context>)
+:Promise<TypedResponse<OtpSetupInfo>> => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  if (authCodeStore.user.otpVerified) throw new errorConfig.Forbidden(localeConfig.Error.OtpAlreadySet)
+
+  const otpUri = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${authCodeStore.user.otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
+
+  return c.json({ otpUri })
+}
+
+export interface OtpMfaInfo {
+  allowFallbackToEmailMfa: boolean;
+}
+
+export const getAuthorizeOtpMfaInfo = async (c: Context<typeConfig.Context>)
+:Promise<TypedResponse<OtpMfaInfo>> => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authCodeBody) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  const allowFallbackToEmailMfa = allowOtpSwitchToEmailMfa(
+    c,
+    authCodeBody,
+  )
+
+  return c.json({ allowFallbackToEmailMfa })
 }
 
 export const getAuthorizeOtpSetup = async (c: Context<typeConfig.Context>) => {
@@ -359,6 +425,59 @@ export const postAuthorizeOtpMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
     authCodeStore,
   ))
+}
+
+export interface SmsMfaInfo {
+  allowFallbackToEmailMfa: boolean;
+  countryCode: string;
+  phoneNumber: string | null;
+}
+
+export const getAuthorizeSmsMfaInfo = async (c: Context<typeConfig.Context>)
+:Promise<TypedResponse<SmsMfaInfo>> => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  await validateUtil.dto(queryDto)
+
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authCodeBody) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  const {
+    SMS_MFA_IS_REQUIRED: enableSmsMfa,
+    SMS_MFA_COUNTRY_CODE: countryCode,
+    SUPPORTED_LOCALES: locales,
+  } = env(c)
+
+  const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
+  if (!requireSmsMfa) throw new errorConfig.Forbidden()
+
+  if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) {
+    await handleSendSmsMfa(
+      c,
+      authCodeBody.user.smsPhoneNumber,
+      queryDto.code,
+      authCodeBody,
+      queryDto.locale || locales[0],
+    )
+  }
+
+  const phoneNumber = authCodeBody.user.smsPhoneNumber
+  const maskedNumber = phoneNumber && authCodeBody.user.smsPhoneNumberVerified
+    ? '*'.repeat(phoneNumber.length - 4) + phoneNumber.slice(-4)
+    : null
+
+  const allowFallbackToEmailMfa = allowSmsSwitchToEmailMfa(
+    c,
+    authCodeBody,
+  )
+
+  return c.json({
+    allowFallbackToEmailMfa,
+    countryCode,
+    phoneNumber: maskedNumber,
+  })
 }
 
 export const getAuthorizeSmsMfa = async (c: Context<typeConfig.Context>) => {

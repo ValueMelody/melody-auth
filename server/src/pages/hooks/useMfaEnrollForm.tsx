@@ -1,40 +1,40 @@
 import {
   useCallback, useMemo, useState,
 } from 'hono/jsx'
-
-import { View } from './useCurrentView'
-import { getFollowUpParams } from 'pages/tools/param'
+import { View } from './'
 import {
   routeConfig, typeConfig,
 } from 'configs'
-import { AuthorizeConsentInfo } from 'handlers/identity'
+import { MfaEnrollInfo } from 'handlers/identity/mfa'
+import { userModel } from 'models'
+import { getFollowUpParams } from 'pages/tools/param'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
 } from 'pages/tools/request'
 
-export interface UseConsentFormProps {
+export interface UseMfaEnrollFormProps {
   locale: typeConfig.Locale;
   onSubmitError: (error: string | null) => void;
   onSwitchView: (view: View) => void;
 }
 
-const useConsentForm = ({
+const useMfaEnrollForm = ({
   locale,
   onSubmitError,
   onSwitchView,
-}: UseConsentFormProps) => {
+}: UseMfaEnrollFormProps) => {
   const followUpParams = useMemo(
     () => getFollowUpParams(),
     [],
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
-  const [consentInfo, setConsentInfo] = useState<AuthorizeConsentInfo | null>(null)
+  const [mfaEnrollInfo, setMfaEnrollInfo] = useState<MfaEnrollInfo | null>(null)
 
-  const getConsentInfo = useCallback(
+  const getMfaEnrollInfo = useCallback(
     () => {
       fetch(
-        `${routeConfig.IdentityRoute.AuthorizeConsentInfo}${qs}`,
+        `${routeConfig.IdentityRoute.AuthorizeMfaEnrollInfo}${qs}`,
         {
           method: 'GET',
           headers: {
@@ -52,7 +52,7 @@ const useConsentForm = ({
           return response.json()
         })
         .then((response) => {
-          setConsentInfo(response as AuthorizeConsentInfo)
+          setMfaEnrollInfo(response as MfaEnrollInfo)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -61,10 +61,10 @@ const useConsentForm = ({
     [onSubmitError, qs],
   )
 
-  const handleAccept = useCallback(
-    () => {
+  const handleEnroll = useCallback(
+    (mfaType: userModel.MfaType) => {
       fetch(
-        routeConfig.IdentityRoute.AuthorizeConsent,
+        routeConfig.IdentityRoute.AuthorizeMfaEnroll,
         {
           method: 'POST',
           headers: {
@@ -76,6 +76,7 @@ const useConsentForm = ({
               followUpParams,
               locale,
             ),
+            type: mfaType,
           }),
         },
       )
@@ -101,19 +102,11 @@ const useConsentForm = ({
     [onSubmitError, locale, followUpParams, onSwitchView],
   )
 
-  const handleDecline = useCallback(
-    () => {
-      window.location.href = followUpParams.redirectUri
-    },
-    [followUpParams],
-  )
-
   return {
-    getConsentInfo,
-    consentInfo,
-    handleAccept,
-    handleDecline,
+    mfaEnrollInfo,
+    getMfaEnrollInfo,
+    handleEnroll,
   }
 }
 
-export default useConsentForm
+export default useMfaEnrollForm

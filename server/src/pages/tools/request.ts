@@ -2,7 +2,9 @@ import {
   FollowUpParams, AuthorizeParams,
 } from './param'
 import { View } from 'pages/hooks'
-import { typeConfig } from 'configs'
+import {
+  routeConfig, typeConfig,
+} from 'configs'
 
 export const parseAuthorizeBaseValues = (
   params: AuthorizeParams, locale: typeConfig.Locale,
@@ -31,16 +33,24 @@ export const parseAuthorizeFollowUpValues = (
   }
 }
 
-const NextPage = Object.freeze({ '/identity/v1/authorize-consent': View.Consent }) as { [key: string]: View }
+const NextPage = Object.freeze({
+  [routeConfig.IdentityRoute.AuthorizeConsent]: View.Consent,
+  [routeConfig.IdentityRoute.AuthorizeMfaEnroll]: View.MfaEnroll,
+  [routeConfig.IdentityRoute.AuthorizeEmailMfa]: View.EmailMfa,
+  [routeConfig.IdentityRoute.AuthorizeSmsMfa]: View.SmsMfa,
+  [routeConfig.IdentityRoute.AuthorizeOtpSetup]: View.OtpSetup,
+  [routeConfig.IdentityRoute.AuthorizeOtpMfa]: View.OtpMfa,
+}) as { [key: string]: View }
 
 export const handleAuthorizeStep = (
   data: any,
   locale: typeConfig.Locale,
   onSwitchView: (view: View) => void,
 ) => {
-  if (data.nextPage && NextPage[data.nextPage]) {
+  if (data.nextPage) {
+    const step = NextPage[data.nextPage]
     if (data.code && data.state && data.redirectUri) {
-      const newUrl = new URL(`${window.location.origin}${window.location.pathname}`)
+      const newUrl = new URL(`${window.location.origin}${routeConfig.IdentityRoute.ProcessView}`)
       newUrl.searchParams.set(
         'code',
         data.code,
@@ -61,13 +71,17 @@ export const handleAuthorizeStep = (
         'locale',
         locale,
       )
+      newUrl.searchParams.set(
+        'step',
+        step,
+      )
       window.history.pushState(
         {},
         '',
         newUrl,
       )
     }
-    onSwitchView(NextPage[data.nextPage])
+    onSwitchView(step)
   } else {
     if (window.opener) {
       window.opener.postMessage(

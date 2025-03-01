@@ -1,5 +1,6 @@
 import {
   ValidationError, ObjectSchema, string,
+  array,
 } from 'yup'
 import {
   localeConfig, typeConfig,
@@ -36,6 +37,24 @@ export const passwordField = (locale: typeConfig.Locale) => {
     )
 }
 
+export const codeField = (locale: typeConfig.Locale) => {
+  return array()
+    .test(
+      'is-valid-mfa-code',
+      localeConfig.validateError.verificationCodeLengthIssue[locale],
+      function (
+        _, context,
+      ) {
+        // Check if all 6 digits are filled and are numbers
+        const mfaArray = context.parent.mfaCode
+        if (!Array.isArray(mfaArray) || mfaArray.length !== 6) return false
+
+        // Check if all elements are digits
+        return mfaArray.every((digit) => /^\d$/.test(digit))
+      },
+    )
+}
+
 export const validate = <T extends object>(schema: ObjectSchema<T>, values: T): Record<keyof T, string | undefined> => {
   const keys = Object.keys(values) as Array<keyof T>
   const errors = keys.reduce(
@@ -44,7 +63,7 @@ export const validate = <T extends object>(schema: ObjectSchema<T>, values: T): 
     ) => ({
       ...acc, [key]: undefined,
     }),
-{} as Record<keyof T, string | undefined>,
+    {} as Record<keyof T, string | undefined>,
   )
 
   try {

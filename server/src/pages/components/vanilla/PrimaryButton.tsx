@@ -2,7 +2,7 @@ export interface PrimaryButtonProps {
   title: string;
   className?: string;
   type: 'submit' | 'button';
-  onClick?: () => void;
+  onClick?: (e: Event) => void;
 }
 
 const PrimaryButton = ({

@@ -6,9 +6,14 @@ import {
   View,
 } from 'pages/hooks'
 import {
-  SignIn, Layout, SignUp, Consent,
+  SignIn, Layout, SignUp, Consent, MfaEnroll,
+  OtpSetup,
+  OtpMfa,
+  SmsMfa,
+  EmailMfa,
 } from 'pages/views'
 import { getLocaleFromParams } from 'pages/tools/param'
+
 const App = () => {
   const { initialProps } = useInitialProps()
 
@@ -22,21 +27,43 @@ const App = () => {
 
   const currentView = useMemo(
     () => {
+      const commonProps = {
+        locale,
+        onSwitchView: handleSwitchView,
+      }
+
       switch (view) {
       case View.SignIn:
         return <SignIn
-          locale={locale}
-          onSwitchView={handleSwitchView}
+          {...commonProps}
         />
       case View.SignUp:
         return <SignUp
-          locale={locale}
-          onSwitchView={handleSwitchView}
+          {...commonProps}
         />
       case View.Consent:
         return <Consent
-          locale={locale}
-          onSwitchView={handleSwitchView}
+          {...commonProps}
+        />
+      case View.MfaEnroll:
+        return <MfaEnroll
+          {...commonProps}
+        />
+      case View.OtpSetup:
+        return <OtpSetup
+          {...commonProps}
+        />
+      case View.OtpMfa:
+        return <OtpMfa
+          {...commonProps}
+        />
+      case View.SmsMfa:
+        return <SmsMfa
+          {...commonProps}
+        />
+      case View.EmailMfa:
+        return <EmailMfa
+          {...commonProps}
         />
       default:
         return null

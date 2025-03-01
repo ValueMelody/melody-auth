@@ -17,9 +17,33 @@ identityRoutes.get(
 )
 
 identityRoutes.get(
+  routeConfig.IdentityRoute.ProcessView,
+  identityHandler.getProcessView,
+)
+
+identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizeConsentInfo,
-  setupMiddleware.validOrigin,
   identityHandler.getAuthorizeConsentInfo,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizeMfaEnrollInfo,
+  identityHandler.getAuthorizeMfaEnrollInfo,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizeOtpSetupInfo,
+  identityHandler.getAuthorizeOtpSetupInfo,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizeOtpMfaInfo,
+  identityHandler.getAuthorizeOtpMfaInfo,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizeSmsMfaInfo,
+  identityHandler.getAuthorizeSmsMfaInfo,
 )
 
 identityRoutes.get(
