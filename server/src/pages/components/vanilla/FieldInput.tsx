@@ -1,5 +1,8 @@
+import { CSSProperties } from 'hono/jsx'
+
 export interface FieldInputProps {
   className?: string;
+  style?: CSSProperties;
   type: 'email' | 'text' | 'password';
   name: string;
   autoComplete?: string;
@@ -10,6 +13,7 @@ export interface FieldInputProps {
 
 const FieldInput = ({
   className,
+  style,
   type,
   name,
   autoComplete,
@@ -27,6 +31,7 @@ const FieldInput = ({
     <input
       className={`bg-white border border-[lightGray] rounded-lg p-3 w-(--text-width) ${className || ''}`}
       type={type}
+      style={style}
       id={`form-${name}`}
       name={name}
       autoComplete={autoComplete}

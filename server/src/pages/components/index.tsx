@@ -8,8 +8,10 @@ import GoogleSignIn from 'pages/components/vanilla/GoogleSignIn'
 import FacebookSignIn from 'pages/components/vanilla/FacebookSignIn'
 import GithubSignIn from 'pages/components/vanilla/GithubSignIn'
 import SubmitError from 'pages/components/vanilla/SubmitError'
+import CodeInput from 'pages/components/vanilla/CodeInput'
+import PhoneField from 'pages/components/vanilla/PhoneField'
 
 export {
   LocaleSelector, PrimaryButton, SecondaryButton, ViewTitle, Field, PasswordField,
-  GoogleSignIn, FacebookSignIn, GithubSignIn, SubmitError,
+  GoogleSignIn, FacebookSignIn, GithubSignIn, SubmitError, CodeInput, PhoneField,
 }

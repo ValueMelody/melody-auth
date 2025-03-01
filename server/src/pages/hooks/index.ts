@@ -7,6 +7,10 @@ import useSignUpForm from './useSignUpForm'
 import useSubmitError from './useSubmitError'
 import useSocialSignIn from './useSocialSignIn'
 import useConsentForm from './useConsentForm'
+import useMfaEnrollForm from './useMfaEnrollForm'
+import useOtpMfaForm from './useOtpMfaForm'
+import useSmsMfaForm from './useSmsMfaForm'
+import useEmailMfaForm from './useEmailMfaForm'
 
 export {
   useInitialProps,
@@ -19,4 +23,8 @@ export {
   useSubmitError,
   useSocialSignIn,
   useConsentForm,
+  useMfaEnrollForm,
+  useOtpMfaForm,
+  useSmsMfaForm,
+  useEmailMfaForm,
 }

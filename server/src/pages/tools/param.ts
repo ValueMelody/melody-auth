@@ -11,6 +11,15 @@ export const getLocaleFromParams = () => {
   return ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale
 }
 
+export const getStepFromParams = () => {
+  const params = parse(
+    window.location.search,
+    { ignoreQueryPrefix: true },
+  )
+
+  return 'step' in params ? String(params.step) : ''
+}
+
 export interface AuthorizeParams {
   locale: typeConfig.Locale;
   clientId: string;

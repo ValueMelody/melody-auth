@@ -167,8 +167,8 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
 
   const queryString = requestUtil.getQueryString(c)
   // For testing with new views only, do not change
-  // return c.redirect(`${routeConfig.IdentityRoute.AuthorizeView}?${queryString}`)
-  return c.redirect(`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`)
+  return c.redirect(`${routeConfig.IdentityRoute.AuthorizeView}?${queryString}`)
+  // return c.redirect(`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`)
 }
 
 export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
