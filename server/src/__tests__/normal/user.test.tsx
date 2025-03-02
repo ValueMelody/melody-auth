@@ -684,7 +684,7 @@ describe(
         expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
         expect(body).toContain(code)
         expect(body).toContain(localeConfig.emailVerificationEmail.verify.en)
-        expect(body).toContain('/identity/v1/verify-email?id=1-1-1-1&amp;locale=en')
+        expect(body).toContain('/identity/v1/view/verify-email?id=1-1-1-1&amp;locale=en')
 
         const logs = await db.prepare('select * from email_log').all()
         expect(logs.length).toBe(0)

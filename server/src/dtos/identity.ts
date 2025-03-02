@@ -229,43 +229,6 @@ export class PostLogoutReqDto {
   }
 }
 
-export class GetVerifyEmailReqDto {
-  @IsString()
-  @IsNotEmpty()
-    id: string
-
-  @IsString()
-    locale: typeConfig.Locale
-
-  @IsString()
-  @IsOptional()
-    org: string | undefined
-
-  constructor (dto: GetVerifyEmailReqDto) {
-    this.id = dto.id.trim()
-    this.locale = dto.locale
-    this.org = dto.org
-  }
-}
-
-export class PostVerifyEmailReqDto {
-  @IsString()
-  @IsNotEmpty()
-    id: string
-
-  @IsString()
-  @Length(
-    6,
-    6,
-  )
-    code: string
-
-  constructor (dto: PostVerifyEmailReqDto) {
-    this.id = dto.id.trim()
-    this.code = dto.code.trim()
-  }
-}
-
 export class PostAuthorizeResetReqDto {
   @IsString()
   @Length(
@@ -341,6 +304,49 @@ export class GetAuthCodeExpiredReqDto {
   constructor (dto: GetAuthCodeExpiredReqDto) {
     this.locale = dto.locale
     this.redirect_uri = dto.redirect_uri
+    this.org = dto.org
+  }
+}
+
+/**
+ * DTO for other requests
+ */
+export class PostVerifyEmailDto {
+  @IsString()
+  @IsNotEmpty()
+    id: string
+
+  @IsString()
+  @Length(
+    6,
+    6,
+  )
+    code: string
+
+  constructor (dto: PostVerifyEmailDto) {
+    this.id = dto.id.trim()
+    this.code = dto.code.trim()
+  }
+}
+
+/**
+ * DTO for views
+ */
+export class GetVerifyEmailViewDto {
+  @IsString()
+  @IsNotEmpty()
+    id: string
+
+  @IsString()
+    locale: typeConfig.Locale
+
+  @IsString()
+  @IsOptional()
+    org: string | undefined
+
+  constructor (dto: GetVerifyEmailViewDto) {
+    this.id = dto.id.trim()
+    this.locale = dto.locale
     this.org = dto.org
   }
 }

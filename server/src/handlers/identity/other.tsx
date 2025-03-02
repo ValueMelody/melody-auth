@@ -17,52 +17,8 @@ import {
 import {
   AuthCodeExpired,
   AuthorizeResetView,
-  VerifyEmailView,
 } from 'views'
 import { oauthHandler } from 'handlers'
-
-export const getVerifyEmail = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetVerifyEmailReqDto({
-    id: c.req.query('id') ?? '',
-    locale: requestUtil.getLocaleFromQuery(
-      c,
-      c.req.query('locale'),
-    ),
-    org: c.req.query('org'),
-  })
-  await validateUtil.dto(queryDto)
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  return c.html(<VerifyEmailView
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-  />)
-}
-
-export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
-  const reqBody = await c.req.json()
-
-  const bodyDto = new identityDto.PostVerifyEmailReqDto({
-    id: String(reqBody.id),
-    code: String(reqBody.code),
-  })
-  await validateUtil.dto(bodyDto)
-
-  await userService.verifyUserEmail(
-    c,
-    bodyDto,
-  )
-
-  return c.json({ success: true })
-}
 
 export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
   const {
@@ -163,4 +119,21 @@ export const getAuthCodeExpired = async (c: Context<typeConfig.Context>) => {
       org,
     )}
   />)
+}
+
+export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostVerifyEmailDto({
+    id: String(reqBody.id),
+    code: String(reqBody.code),
+  })
+  await validateUtil.dto(bodyDto)
+
+  await userService.verifyUserEmail(
+    c,
+    bodyDto,
+  )
+
+  return c.json({ success: true })
 }

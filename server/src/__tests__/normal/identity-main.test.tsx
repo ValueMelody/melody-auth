@@ -891,7 +891,7 @@ describe(
         expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
         expect(body).toContain(verificationCode)
         expect(body).toContain(localeConfig.emailVerificationEmail.verify.en)
-        expect(body).toContain(`${routeConfig.IdentityRoute.VerifyEmail}?id=${codeStore.user.authId}&amp;locale=en`)
+        expect(body).toContain(`${routeConfig.IdentityRoute.VerifyEmailView}?id=${codeStore.user.authId}&amp;locale=en`)
 
         global.fetch = fetchMock
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string

@@ -16,7 +16,7 @@ import {
 import { oauthHandler } from 'handlers'
 import { Policy } from 'dtos/oauth'
 import { identityDto } from 'dtos'
-import { requestUtil } from 'utils'
+import { requestUtil, validateUtil } from 'utils'
 
 const viewRender = async (
   c: Context<typeConfig.Context>,
@@ -224,7 +224,7 @@ export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => 
 }
 
 export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetVerifyEmailReqDto({
+  const queryDto = new identityDto.GetVerifyEmailViewDto({
     locale: requestUtil.getLocaleFromQuery(
       c,
       c.req.query('locale'),
@@ -232,6 +232,8 @@ export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
     id: c.req.query('id') ?? '',
     org: c.req.query('org'),
   })
+
+  await validateUtil.dto(queryDto)
 
   const {
     SUPPORTED_LOCALES: locales,

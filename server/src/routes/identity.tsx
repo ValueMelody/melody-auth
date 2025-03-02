@@ -27,11 +27,6 @@ identityRoutes.get(
 )
 
 identityRoutes.get(
-  routeConfig.IdentityRoute.VerifyEmailView,
-  identityHandler.getVerifyEmailView,
-)
-
-identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizeConsentInfo,
   identityHandler.getAuthorizeConsentInfo,
 )
@@ -244,26 +239,6 @@ identityRoutes.post(
 )
 
 identityRoutes.post(
-  routeConfig.IdentityRoute.ResendResetCode,
-  setupMiddleware.validOrigin,
-  configMiddleware.enablePasswordReset,
-  identityHandler.postResetCode,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.VerifyEmail,
-  configMiddleware.enableEmailVerification,
-  identityHandler.getVerifyEmail,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.VerifyEmail,
-  setupMiddleware.validOrigin,
-  configMiddleware.enableEmailVerification,
-  identityHandler.postVerifyEmail,
-)
-
-identityRoutes.post(
   routeConfig.IdentityRoute.Logout,
   authMiddleware.spa,
   identityHandler.postLogout,
@@ -351,4 +326,23 @@ identityRoutes.post(
   routeConfig.IdentityRoute.UpdateInfo,
   configMiddleware.enableUpdateInfoPolicy,
   identityHandler.postUpdateInfo,
+)
+
+/**
+ * Other
+ * - VerifyEmail
+ * - ResetPassword
+ */
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.VerifyEmailView,
+  configMiddleware.enableEmailVerification,
+  identityHandler.getVerifyEmailView,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.VerifyEmail,
+  setupMiddleware.validOrigin,
+  configMiddleware.enableEmailVerification,
+  identityHandler.postVerifyEmail,
 )

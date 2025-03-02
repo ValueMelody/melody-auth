@@ -15,9 +15,7 @@ const EmailVerification = ({
   authId: string;
   locale: typeConfig.Locale;
 }) => {
-  // [jsx/dom] For testing with new views only, do not change
-  // const route = `${requestUtil.stripEndingSlash(serverUrl)}${routeConfig.IdentityRoute.VerifyEmailView}`
-  const route = `${requestUtil.stripEndingSlash(serverUrl)}${routeConfig.IdentityRoute.VerifyEmail}`
+  const route = `${requestUtil.stripEndingSlash(serverUrl)}${routeConfig.IdentityRoute.VerifyEmailView}`
 
   return (
     <Layout

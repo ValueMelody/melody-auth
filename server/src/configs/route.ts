@@ -20,7 +20,6 @@ export enum OauthRoute {
 export enum IdentityRoute {
   AuthorizeView = `${InternalRoute.Identity}/view/authorize`,
   ProcessView = `${InternalRoute.Identity}/view/process`,
-  VerifyEmailView = `${InternalRoute.Identity}/view/verify-email`,
   AuthCodeExpiredView = `${InternalRoute.Identity}/view/auth-code-expired`,
   AuthorizeConsentInfo = `${InternalRoute.Identity}/consent-info`,
   AuthorizeMfaEnrollInfo = `${InternalRoute.Identity}/mfa-enroll-info`,
@@ -49,8 +48,6 @@ export enum IdentityRoute {
   AuthorizeGitHub = `${InternalRoute.Identity}/authorize-github`,
   AuthorizeReset = `${InternalRoute.Identity}/authorize-reset`,
   ResetCode = `${InternalRoute.Identity}/reset-code`,
-  ResendResetCode = `${InternalRoute.Identity}/resend-reset-code`,
-  VerifyEmail = `${InternalRoute.Identity}/verify-email`,
   Logout = `${InternalRoute.Identity}/logout`,
   ChangePassword = `${InternalRoute.Identity}/change-password`,
   ChangeEmail = `${InternalRoute.Identity}/change-email`,
@@ -58,4 +55,7 @@ export enum IdentityRoute {
   ResetMfa = `${InternalRoute.Identity}/reset-mfa`,
   ManagePasskey = `${InternalRoute.Identity}/manage-passkey`,
   UpdateInfo = `${InternalRoute.Identity}/update-info`,
+  // Other
+  VerifyEmailView = `${InternalRoute.Identity}/view/verify-email`,
+  VerifyEmail = `${InternalRoute.Identity}/verify-email`,
 }
