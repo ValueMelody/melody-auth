@@ -49,7 +49,7 @@ const ChangeEmail = ({
             />
           </section>
           <a
-            className='button-secondary mt-6'
+            className='mt-6'
             href={redirectUri}
           >
             {localeConfig.changePassword.redirect[locale]}

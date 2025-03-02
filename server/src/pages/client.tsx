@@ -22,6 +22,8 @@ import {
   ResetMfa,
   ManagePasskey,
   ChangeEmail,
+  AuthCodeExpired,
+  VerifyEmail,
 } from 'pages/views'
 import { getLocaleFromParams } from 'pages/tools/param'
 
@@ -67,6 +69,10 @@ const App = () => {
         return ManagePasskey
       case View.ChangeEmail:
         return ChangeEmail
+      case View.AuthCodeExpired:
+        return AuthCodeExpired
+      case View.VerifyEmail:
+        return VerifyEmail
       case View.SignIn:
       default:
         return SignIn

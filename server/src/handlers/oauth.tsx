@@ -18,7 +18,7 @@ import {
   signInLogModel, userModel,
 } from 'models'
 import { Policy } from 'dtos/oauth'
-import { PopupRedirect } from 'views'
+import { PopupRedirect } from 'templates'
 
 export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeReqDto> => {
   const queryDto = new oauthDto.GetAuthorizeReqDto({

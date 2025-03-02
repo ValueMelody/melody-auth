@@ -690,4 +690,8 @@ export const authCodeExpired = Object.freeze({
     en: 'Your login state has expired. Please try initializing authentication again.',
     fr: 'Votre état de connexion a expiré. Veuillez réessayer d’initialiser l’authentification.',
   },
+  redirect: {
+    en: 'Redirect back',
+    fr: 'Rediriger en arrière',
+  },
 })

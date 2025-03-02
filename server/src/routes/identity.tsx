@@ -22,6 +22,16 @@ identityRoutes.get(
 )
 
 identityRoutes.get(
+  routeConfig.IdentityRoute.AuthCodeExpiredView,
+  identityHandler.getAuthCodeExpiredView,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.VerifyEmailView,
+  identityHandler.getVerifyEmailView,
+)
+
+identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizeConsentInfo,
   identityHandler.getAuthorizeConsentInfo,
 )

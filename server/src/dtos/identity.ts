@@ -325,3 +325,22 @@ export class PostAuthorizePasskeyEnrollDeclineReqDto extends GetAuthorizeFollowU
 }
 
 export class DeleteManagePasskeyReqDto extends GetAuthorizeFollowUpReqDto {}
+
+export class GetAuthCodeExpiredReqDto {
+  @IsString()
+    locale: typeConfig.Locale
+
+  @IsString()
+  @IsOptional()
+    redirect_uri: string | undefined
+
+  @IsString()
+  @IsOptional()
+    org: string | undefined
+
+  constructor (dto: GetAuthCodeExpiredReqDto) {
+    this.locale = dto.locale
+    this.redirect_uri = dto.redirect_uri
+    this.org = dto.org
+  }
+}
