@@ -51,13 +51,13 @@ SMS_MFA_IS_REQUIRED=false # Please set up your sms provider first https://auth.v
 SMS_MFA_COUNTRY_CODE="+1" # Prefix of the phone number to be used for SMS MFA. For example, if you are based in the United States, you should set this to "+1".
 ENFORCE_ONE_MFA_ENROLLMENT=['otp', 'email'] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 ALLOW_EMAIL_MFA_AS_BACKUP=true
-ALLOW_PASSKEY_ENROLLMENT=true
+ALLOW_PASSKEY_ENROLLMENT=false
 
 # Brute-force
 UNLOCK_ACCOUNT_VIA_PASSWORD_RESET=true
 PASSWORD_RESET_EMAIL_THRESHOLD=5 # Maximum number of password reset email requests allowed per day for a single email address based on ip address. 0 means no restriction.
 ACCOUNT_LOCKOUT_THRESHOLD=5 # Number of failed login attempts before the user account is locked. 0 means no restriction.
-EMAIL_MFA_EMAIL_THRESHOLD=100 # Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
+EMAIL_MFA_EMAIL_THRESHOLD=10 # Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 CHANGE_EMAIL_EMAIL_THRESHOLD=5 # Maximum number of change email verification code requests allowed per 30 minutes for a single account. 0 means no restriction.
 ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual intervention.
 SMS_MFA_MESSAGE_THRESHOLD=5 # Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
