@@ -12,6 +12,7 @@ import {
 } from 'configs'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
+  parseResponse,
 } from 'pages/tools/request'
 
 export interface UseEmailMfaFormProps {
@@ -68,14 +69,7 @@ const useEmailMfaForm = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then(() => {
           if (isResend) setResent(true)
         })
@@ -112,14 +106,7 @@ const useEmailMfaForm = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,

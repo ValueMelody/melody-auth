@@ -9,8 +9,14 @@ import SmsMfa from './SmsMfa'
 import EmailMfa from './EmailMfa'
 import PasskeyEnroll from './PasskeyEnroll'
 import ResetPassword from './ResetPassword'
+import UpdateInfo from './UpdateInfo'
+import ChangePassword from './ChangePassword'
+import ResetMfa from './ResetMfa'
+import ManagePasskey from './ManagePasskey'
+import ChangeEmail from './ChangeEmail'
 
 export {
   SignIn, SignUp, Layout, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
-  PasskeyEnroll, ResetPassword,
+  PasskeyEnroll, ResetPassword, UpdateInfo, ChangePassword, ResetMfa, ManagePasskey,
+  ChangeEmail,
 }

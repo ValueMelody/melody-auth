@@ -2,7 +2,7 @@ import {
   useCallback, useMemo, useState,
 } from 'hono/jsx'
 import {
-  object, ref, string,
+  object, string,
 } from 'yup'
 import {
   localeConfig,
@@ -10,12 +10,14 @@ import {
 } from 'configs'
 import {
   validate, emailField, passwordField,
+  confirmPasswordField,
 } from 'pages/tools/form'
 import {
   InitialProps, View,
 } from 'pages/hooks'
 import {
   handleAuthorizeStep, parseAuthorizeBaseValues,
+  parseResponse,
 } from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
 
@@ -62,11 +64,7 @@ const useSignUpForm = ({
   const signUpSchema = object({
     email: emailField(locale),
     password: passwordField(locale),
-    confirmPassword: string()
-      .oneOf(
-        [ref('password')],
-        localeConfig.validateError.passwordNotMatch[locale],
-      ),
+    confirmPassword: confirmPasswordField(locale),
     firstName: initialProps.namesIsRequired
       ? string().required(localeConfig.validateError.firstNameIsEmpty[locale])
       : string(),
@@ -138,14 +136,7 @@ const useSignUpForm = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,

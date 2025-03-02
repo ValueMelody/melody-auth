@@ -34,7 +34,7 @@ const PhoneField = ({
         required={required}
         fieldName={name}
       />
-      <div class='flex items-center'>
+      <div className='flex items-center'>
         <FieldInput
           className='bg-white border border-[lightGray] rounded-lg p-3 w-(--text-width) '
           type='text'

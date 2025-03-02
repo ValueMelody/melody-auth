@@ -26,10 +26,10 @@ const GithubSignIn = ({
   if (!githubClientId) return null
 
   return (
-    <div class='flex flex-row justify-center'>
+    <div className='flex flex-row justify-center'>
       <a
         id='github-login-btn'
-        class='flex flex-row items-center justify-center'
+        className='flex flex-row items-center justify-center'
         style={{
           width: 240,
           height: 40,

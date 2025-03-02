@@ -8,21 +8,23 @@ import {
 import { getFollowUpParams } from 'pages/tools/param'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
+  parseResponse,
 } from 'pages/tools/request'
 import { passkeyService } from 'services'
 import { AuthorizePasskeyEnrollInfo } from 'handlers/identity'
+import { enroll } from 'pages/tools/passkey'
 
-export interface UsePasskeyEnrollProps {
+export interface UsePasskeyEnrollFormProps {
   locale: typeConfig.Locale;
   onSubmitError: (error: string | null) => void;
   onSwitchView: (view: View) => void;
 }
 
-const usePasskeyEnroll = ({
+const usePasskeyEnrollForm = ({
   locale,
   onSubmitError,
   onSwitchView,
-}: UsePasskeyEnrollProps) => {
+}: UsePasskeyEnrollFormProps) => {
   const followUpParams = useMemo(
     () => getFollowUpParams(),
     [],
@@ -45,14 +47,7 @@ const usePasskeyEnroll = ({
           headers: { 'Content-Type': 'application/json' },
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           setEnrollOptions((response as AuthorizePasskeyEnrollInfo).enrollOptions)
         })
@@ -82,14 +77,7 @@ const usePasskeyEnroll = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,
@@ -107,31 +95,7 @@ const usePasskeyEnroll = ({
   const handleEnroll = useCallback(
     () => {
       if (!enrollOptions) return
-      navigator.credentials.create({
-        publicKey: {
-          challenge: (window as any).SimpleWebAuthnBrowser.base64URLStringToBuffer(enrollOptions.challenge),
-          rp: {
-            name: 'Melody Auth Service', id: enrollOptions.rpId,
-          },
-          user: {
-            id: new TextEncoder().encode(String(enrollOptions.userId)),
-            name: enrollOptions.userEmail,
-            displayName: enrollOptions.userDisplayName,
-          },
-          pubKeyCredParams: [
-            {
-              alg: -8, type: 'public-key',
-            },
-            {
-              alg: -7, type: 'public-key',
-            },
-            {
-              alg: -257, type: 'public-key',
-            },
-          ],
-          authenticatorSelection: { userVerification: 'preferred' },
-        },
-      })
+      enroll(enrollOptions)
         .then((enrollInfo) => {
           if (enrollInfo) submitEnroll(enrollInfo)
         })
@@ -158,14 +122,7 @@ const usePasskeyEnroll = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,
@@ -190,4 +147,4 @@ const usePasskeyEnroll = ({
   }
 }
 
-export default usePasskeyEnroll
+export default usePasskeyEnrollForm

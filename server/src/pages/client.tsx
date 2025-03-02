@@ -6,13 +6,22 @@ import {
   View,
 } from 'pages/hooks'
 import {
-  SignIn, Layout, SignUp, Consent, MfaEnroll,
+  SignIn,
+  Layout,
+  SignUp,
+  Consent,
+  MfaEnroll,
   OtpSetup,
   OtpMfa,
   SmsMfa,
   EmailMfa,
   PasskeyEnroll,
   ResetPassword,
+  UpdateInfo,
+  ChangePassword,
+  ResetMfa,
+  ManagePasskey,
+  ChangeEmail,
 } from 'pages/views'
 import { getLocaleFromParams } from 'pages/tools/param'
 
@@ -27,59 +36,43 @@ const App = () => {
     view, handleSwitchView,
   } = useCurrentView()
 
-  const currentView = useMemo(
+  const CurrentView = useMemo(
     () => {
-      const commonProps = {
-        locale,
-        onSwitchView: handleSwitchView,
-      }
-
       switch (view) {
-      case View.SignIn:
-        return <SignIn
-          {...commonProps}
-        />
       case View.SignUp:
-        return <SignUp
-          {...commonProps}
-        />
+        return SignUp
       case View.Consent:
-        return <Consent
-          {...commonProps}
-        />
+        return Consent
       case View.MfaEnroll:
-        return <MfaEnroll
-          {...commonProps}
-        />
+        return MfaEnroll
       case View.OtpSetup:
-        return <OtpSetup
-          {...commonProps}
-        />
+        return OtpSetup
       case View.OtpMfa:
-        return <OtpMfa
-          {...commonProps}
-        />
+        return OtpMfa
       case View.SmsMfa:
-        return <SmsMfa
-          {...commonProps}
-        />
+        return SmsMfa
       case View.EmailMfa:
-        return <EmailMfa
-          {...commonProps}
-        />
+        return EmailMfa
       case View.PasskeyEnroll:
-        return <PasskeyEnroll
-          {...commonProps}
-        />
+        return PasskeyEnroll
       case View.ResetPassword:
-        return <ResetPassword
-          {...commonProps}
-        />
+        return ResetPassword
+      case View.UpdateInfo:
+        return UpdateInfo
+      case View.ChangePassword:
+        return ChangePassword
+      case View.ResetMfa:
+        return ResetMfa
+      case View.ManagePasskey:
+        return ManagePasskey
+      case View.ChangeEmail:
+        return ChangeEmail
+      case View.SignIn:
       default:
-        return null
+        return SignIn
       }
     },
-    [view, locale, handleSwitchView],
+    [view],
   )
 
   return (
@@ -89,7 +82,10 @@ const App = () => {
       logoUrl={initialProps.logoUrl}
       onSwitchLocale={handleSwitchLocale}
     >
-      {currentView}
+      <CurrentView
+        locale={locale}
+        onSwitchView={handleSwitchView}
+      />
     </Layout>
   )
 }

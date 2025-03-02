@@ -11,9 +11,10 @@ import SubmitError from 'pages/components/vanilla/SubmitError'
 import CodeInput from 'pages/components/vanilla/CodeInput'
 import PhoneField from 'pages/components/vanilla/PhoneField'
 import CheckboxInput from 'pages/components/vanilla/CheckboxInput'
+import SuccessMessage from 'pages/components/vanilla/SuccessMessage'
 
 export {
   LocaleSelector, PrimaryButton, SecondaryButton, ViewTitle, Field, PasswordField,
   GoogleSignIn, FacebookSignIn, GithubSignIn, SubmitError, CodeInput, PhoneField,
-  CheckboxInput,
+  CheckboxInput, SuccessMessage,
 }

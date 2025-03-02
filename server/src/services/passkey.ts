@@ -51,7 +51,7 @@ const getUserAndPasskeyByEmail = async (
   c: Context<typeConfig.Context>,
   email: string,
 ) => {
-  const user = await userModel.getByEmail(
+  const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
     email,
   )

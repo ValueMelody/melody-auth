@@ -15,6 +15,7 @@ import {
 import { SmsMfaInfo } from 'handlers/identity/mfa'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
+  parseResponse,
 } from 'pages/tools/request'
 
 export interface UseSmsMfaFormProps {
@@ -101,14 +102,7 @@ const useSmsMfaForm = ({
           },
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           setCurrentNumber((response as SmsMfaInfo).phoneNumber)
           if ((response as SmsMfaInfo).phoneNumber) {
@@ -143,14 +137,7 @@ const useSmsMfaForm = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then(() => {
           setMfaCode(new Array(6).fill(''))
         })
@@ -184,14 +171,7 @@ const useSmsMfaForm = ({
             }),
           },
         )
-          .then((response) => {
-            if (!response.ok) {
-              return response.text().then((text) => {
-                throw new Error(text)
-              })
-            }
-            return response.json()
-          })
+          .then(parseResponse)
           .then(() => {
             setMfaCode(new Array(6).fill(''))
             setResent(true)
@@ -241,14 +221,7 @@ const useSmsMfaForm = ({
             }),
           },
         )
-          .then((response) => {
-            if (!response.ok) {
-              return response.text().then((text) => {
-                throw new Error(text)
-              })
-            }
-            return response.json()
-          })
+          .then(parseResponse)
           .then((response) => {
             handleAuthorizeStep(
               response,

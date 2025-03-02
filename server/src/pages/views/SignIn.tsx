@@ -7,7 +7,7 @@ import {
 } from 'pages/components'
 import {
   View, useSubmitError, useSignInForm,
-  useInitialProps, usePasskeyVerify,
+  useInitialProps, usePasskeyVerifyForm,
 } from 'pages/hooks'
 import { getAuthorizeParams } from 'pages/tools/param'
 
@@ -41,7 +41,7 @@ const SignIn = ({
   const {
     passkeyOption, getPasskeyOption,
     handleVerifyPasskey,
-  } = usePasskeyVerify({
+  } = usePasskeyVerifyForm({
     params,
     email: values.email,
     locale,

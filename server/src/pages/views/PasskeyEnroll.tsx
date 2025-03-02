@@ -4,9 +4,10 @@ import {
 } from 'configs'
 import {
   SecondaryButton, ViewTitle, CheckboxInput,
+  SubmitError,
 } from 'pages/components'
 import {
-  usePasskeyEnroll, useSubmitError, View,
+  usePasskeyEnrollForm, useSubmitError, View,
 } from 'pages/hooks'
 
 export interface PasskeyEnrollProps {
@@ -18,7 +19,9 @@ const PasskeyEnroll = ({
   locale,
   onSwitchView,
 }: PasskeyEnrollProps) => {
-  const { handleSubmitError } = useSubmitError({
+  const {
+    handleSubmitError, submitError,
+  } = useSubmitError({
     onSwitchView,
     locale,
   })
@@ -29,7 +32,7 @@ const PasskeyEnroll = ({
     handleRememberSkip,
     handleEnroll,
     handleDecline,
-  } = usePasskeyEnroll({
+  } = usePasskeyEnrollForm({
     locale,
     onSubmitError: handleSubmitError,
     onSwitchView,
@@ -56,6 +59,7 @@ const PasskeyEnroll = ({
           onClick={handleEnroll}
         />
       </section>
+      <SubmitError error={submitError} />
       <CheckboxInput
         id='skipPasskeyEnroll'
         label={localeConfig.authorizePasskeyEnroll.rememberSkip[locale]}

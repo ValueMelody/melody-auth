@@ -403,8 +403,8 @@ export const authorizeReset = Object.freeze({
     fr: 'Entrez votre adresse e-mail, nous vous enverrons un code de réinitialisation par e-mail.',
   },
   email: {
-    en: 'Email',
-    fr: 'Adresse e-mail',
+    en: 'New Email Address',
+    fr: 'Nouvelle adresse e-mail',
   },
   code: {
     en: 'Code',
@@ -491,6 +491,10 @@ export const changePassword = Object.freeze({
 })
 
 export const changeEmail = Object.freeze({
+  success: {
+    en: 'Email updated!',
+    fr: 'Adresse e-mail mise à jour !',
+  },
   title: {
     en: 'Change your email',
     fr: 'Changer votre adresse e-mail',

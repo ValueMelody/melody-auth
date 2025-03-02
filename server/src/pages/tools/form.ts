@@ -1,6 +1,7 @@
 import {
   ValidationError, ObjectSchema, string,
   array,
+  ref,
 } from 'yup'
 import {
   localeConfig, typeConfig,
@@ -37,6 +38,12 @@ export const passwordField = (locale: typeConfig.Locale) => {
     )
 }
 
+export const confirmPasswordField = (locale: typeConfig.Locale) => {
+  return string().oneOf(
+    [ref('password')],
+    localeConfig.validateError.passwordNotMatch[locale],
+  )
+}
 export const codeField = (locale: typeConfig.Locale) => {
   return array()
     .test(

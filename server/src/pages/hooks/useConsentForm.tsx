@@ -10,6 +10,7 @@ import {
 import { AuthorizeConsentInfo } from 'handlers/identity'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
+  parseResponse,
 } from 'pages/tools/request'
 
 export interface UseConsentFormProps {
@@ -43,14 +44,7 @@ const useConsentForm = ({
           },
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           setConsentInfo(response as AuthorizeConsentInfo)
         })
@@ -79,14 +73,7 @@ const useConsentForm = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,

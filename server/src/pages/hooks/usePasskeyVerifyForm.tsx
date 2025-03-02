@@ -8,13 +8,15 @@ import {
 } from 'configs'
 import {
   handleAuthorizeStep, parseAuthorizeBaseValues,
+  parseResponse,
 } from 'pages/tools/request'
 import {
   validate, emailField,
 } from 'pages/tools/form'
 import { AuthorizeParams } from 'pages/tools/param'
 import { AuthorizePasskeyVerify } from 'handlers/identity/passkey'
-export interface UsePasskeyVerifyProps {
+
+export interface UsePasskeyVerifyFormProps {
   email: string;
   locale: typeConfig.Locale;
   onSubmitError: (error: string | null) => void;
@@ -22,13 +24,13 @@ export interface UsePasskeyVerifyProps {
   params: AuthorizeParams;
 }
 
-const usePasskeyVerify = ({
+const usePasskeyVerifyForm = ({
   email,
   locale,
   onSubmitError,
   onSwitchView,
   params,
-}: UsePasskeyVerifyProps) => {
+}: UsePasskeyVerifyFormProps) => {
   const [passkeyOption, setPasskeyOption] = useState<AuthorizePasskeyVerify['passkeyOption'] | null | false>(null)
 
   const signInSchema = object({ email: emailField(locale) })
@@ -45,14 +47,7 @@ const usePasskeyVerify = ({
       }
 
       fetch(`${routeConfig.IdentityRoute.AuthorizePasskeyVerify}?email=${email}`)
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           if ((response as AuthorizePasskeyVerify).passkeyOption) {
             setPasskeyOption((response as AuthorizePasskeyVerify).passkeyOption)
@@ -87,14 +82,7 @@ const usePasskeyVerify = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,
@@ -141,4 +129,4 @@ const usePasskeyVerify = ({
   }
 }
 
-export default usePasskeyVerify
+export default usePasskeyVerifyForm

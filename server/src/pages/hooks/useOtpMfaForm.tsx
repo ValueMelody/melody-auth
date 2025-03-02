@@ -9,6 +9,7 @@ import {
 import { getFollowUpParams } from 'pages/tools/param'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
+  parseResponse,
 } from 'pages/tools/request'
 import {
   OtpMfaInfo, OtpSetupInfo,
@@ -68,14 +69,7 @@ const useOtpMfaForm = ({
           },
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           setOtpUri((response as OtpSetupInfo).otpUri)
         })
@@ -98,14 +92,7 @@ const useOtpMfaForm = ({
           },
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           setAllowFallbackToEmailMfa((response as OtpMfaInfo).allowFallbackToEmailMfa)
         })
@@ -142,14 +129,7 @@ const useOtpMfaForm = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,

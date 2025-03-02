@@ -1,0 +1,124 @@
+import {
+  useState, useMemo,
+} from 'hono/jsx'
+import {
+  object, string,
+} from 'yup'
+import {
+  localeConfig, routeConfig, typeConfig,
+} from 'configs'
+import { validate } from 'pages/tools/form'
+import { getFollowUpParams } from 'pages/tools/param'
+import {
+  parseAuthorizeFollowUpValues, parseResponse,
+} from 'pages/tools/request'
+
+export interface UseUpdateInfoFormProps {
+  locale: typeConfig.Locale;
+  onSubmitError: (error: string | null) => void;
+}
+
+const useUpdateInfoForm = ({
+  locale,
+  onSubmitError,
+}: UseUpdateInfoFormProps) => {
+  const followUpParams = useMemo(
+    () => getFollowUpParams(),
+    [],
+  )
+
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [touched, setTouched] = useState({
+    firstName: false,
+    lastName: false,
+  })
+  const [success, setSuccess] = useState(false)
+
+  const values = useMemo(
+    () => ({
+      firstName,
+      lastName,
+    }),
+    [firstName, lastName],
+  )
+
+  const updateInfoSchema = object({
+    firstName: string().required(localeConfig.validateError.firstNameIsEmpty[locale]),
+    lastName: string().required(localeConfig.validateError.lastNameIsEmpty[locale]),
+  })
+
+  const errors = validate(
+    updateInfoSchema,
+    values,
+  )
+
+  const handleChange = (
+    name: 'firstName' | 'lastName',
+    value: string,
+  ) => {
+    onSubmitError(null)
+    setSuccess(false)
+    switch (name) {
+    case 'firstName':
+      setFirstName(value)
+      break
+    case 'lastName':
+      setLastName(value)
+      break
+    }
+  }
+
+  const handleSubmit = (e: Event) => {
+    e.preventDefault()
+
+    setTouched({
+      firstName: true,
+      lastName: true,
+    })
+
+    if (Object.values(errors).some((error) => error !== undefined)) {
+      return
+    }
+
+    fetch(
+      routeConfig.IdentityRoute.UpdateInfo,
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...parseAuthorizeFollowUpValues(
+            followUpParams,
+            locale,
+          ),
+          firstName,
+          lastName,
+        }),
+      },
+    )
+      .then(parseResponse)
+      .then(() => {
+        setSuccess(true)
+      })
+      .catch((error) => {
+        onSubmitError(error)
+      })
+  }
+
+  return {
+    values,
+    errors: {
+      firstName: touched.firstName ? errors.firstName : undefined,
+      lastName: touched.lastName ? errors.lastName : undefined,
+    },
+    handleChange,
+    handleSubmit,
+    success,
+    redirectUri: followUpParams.redirectUri,
+  }
+}
+
+export default useUpdateInfoForm
