@@ -106,7 +106,7 @@ const AuthorizeReset = ({
           ${resetErrorScript.resetPasswordError()}
           ${resetErrorScript.resetConfirmPasswordError()}
           function resendCode() {
-            fetch('${routeConfig.IdentityRoute.ResendResetCode}', {
+            fetch('${routeConfig.IdentityRoute.ResetCode}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

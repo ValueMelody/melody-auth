@@ -84,7 +84,7 @@ const useResetPasswordForm = ({
   const handleResend = useCallback(
     () => {
       fetch(
-        routeConfig.IdentityRoute.ResendResetCode,
+        routeConfig.IdentityRoute.ResetCode,
         {
           method: 'POST',
           headers: {
