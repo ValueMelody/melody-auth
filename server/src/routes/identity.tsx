@@ -308,6 +308,12 @@ identityRoutes.post(
 )
 
 identityRoutes.get(
+  routeConfig.IdentityRoute.ManagePasskeyInfo,
+  configMiddleware.enableManagePasskeyPolicy,
+  identityHandler.getManagePasskeyInfo,
+)
+
+identityRoutes.get(
   routeConfig.IdentityRoute.ManagePasskey,
   configMiddleware.enableManagePasskeyPolicy,
   identityHandler.getManagePasskey,

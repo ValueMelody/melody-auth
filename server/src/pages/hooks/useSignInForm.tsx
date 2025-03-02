@@ -11,6 +11,7 @@ import {
 import { View } from 'pages/hooks'
 import {
   handleAuthorizeStep, parseAuthorizeBaseValues,
+  parseResponse,
 } from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
 
@@ -97,14 +98,7 @@ const useSignInForm = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,

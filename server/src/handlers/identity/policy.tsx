@@ -1,4 +1,6 @@
-import { Context } from 'hono'
+import {
+  Context, TypedResponse,
+} from 'hono'
 import { env } from 'hono/adapter'
 import {
   errorConfig,
@@ -17,7 +19,9 @@ import {
 import {
   ChangeEmail, ChangePassword, ManagePasskey, ResetMfa, UpdateInfo,
 } from 'views'
-import { userModel } from 'models'
+import {
+  userModel, userPasskeyModel,
+} from 'models'
 
 const checkAccount = (user: userModel.Record) => {
   if (!user.email || user.socialAccountId) {
@@ -222,6 +226,38 @@ export const postResetMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.json({ success: true })
+}
+
+export interface ManagePasskeyInfo {
+  passkey: userPasskeyModel.Record | null;
+  enrollOptions: passkeyService.EnrollOptions;
+}
+
+export const getManagePasskeyInfo = async (c: Context<typeConfig.Context>)
+: Promise<TypedResponse<ManagePasskeyInfo>> => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  checkAccount(authInfo.user)
+
+  const passkey = await passkeyService.getPasskeyByUser(
+    c,
+    authInfo.user.id,
+  )
+
+  const enrollOptions = await passkeyService.genPasskeyEnrollOptions(
+    c,
+    authInfo,
+  )
+
+  return c.json({
+    passkey,
+    enrollOptions,
+  })
 }
 
 export const getManagePasskey = async (c: Context<typeConfig.Context>) => {

@@ -10,6 +10,7 @@ import { userModel } from 'models'
 import { getFollowUpParams } from 'pages/tools/param'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
+  parseResponse,
 } from 'pages/tools/request'
 
 export interface UseMfaEnrollFormProps {
@@ -43,14 +44,7 @@ const useMfaEnrollForm = ({
           },
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           setMfaEnrollInfo(response as MfaEnrollInfo)
         })
@@ -80,14 +74,7 @@ const useMfaEnrollForm = ({
           }),
         },
       )
-        .then((response) => {
-          if (!response.ok) {
-            return response.text().then((text) => {
-              throw new Error(text)
-            })
-          }
-          return response.json()
-        })
+        .then(parseResponse)
         .then((response) => {
           handleAuthorizeStep(
             response,

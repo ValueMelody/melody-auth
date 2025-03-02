@@ -136,6 +136,13 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
         return c.redirect(url)
       }
     } else {
+      // [jsx/dom] For testing with new views only, do not change
+      // const queryString = `
+      //  step=${queryDto.policy}&state=${queryDto.state}&code=${authCode}
+      //  &locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}
+      // `
+      // return c.redirect(`${routeConfig.IdentityRoute.ProcessView}?${queryString}`)
+
       let baseUrl = ''
       switch (queryDto.policy) {
       case Policy.ChangePassword: {

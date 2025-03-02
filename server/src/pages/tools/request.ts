@@ -6,6 +6,15 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 
+export const parseResponse = (response: Response) => {
+  if (!response.ok) {
+    return response.text().then((text) => {
+      throw new Error(text)
+    })
+  }
+  return response.json()
+}
+
 export const parseAuthorizeBaseValues = (
   params: AuthorizeParams, locale: typeConfig.Locale,
 ) => {
@@ -41,6 +50,11 @@ const NextPage = Object.freeze({
   [routeConfig.IdentityRoute.AuthorizeOtpSetup]: View.OtpSetup,
   [routeConfig.IdentityRoute.AuthorizeOtpMfa]: View.OtpMfa,
   [routeConfig.IdentityRoute.AuthorizePasskeyEnroll]: View.PasskeyEnroll,
+  [routeConfig.IdentityRoute.UpdateInfo]: View.UpdateInfo,
+  [routeConfig.IdentityRoute.ChangePassword]: View.ChangePassword,
+  [routeConfig.IdentityRoute.ResetMfa]: View.ResetMfa,
+  [routeConfig.IdentityRoute.ManagePasskey]: View.ManagePasskey,
+  [routeConfig.IdentityRoute.ChangeEmail]: View.ChangeEmail,
 }) as { [key: string]: View }
 
 export const handleAuthorizeStep = (
@@ -61,7 +75,7 @@ export const handleAuthorizeStep = (
         data.state,
       )
       newUrl.searchParams.set(
-        'redirectUri',
+        'redirect_uri',
         data.redirectUri,
       )
       newUrl.searchParams.set(

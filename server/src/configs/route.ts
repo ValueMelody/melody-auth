@@ -26,6 +26,7 @@ export enum IdentityRoute {
   AuthorizeOtpMfaInfo = `${InternalRoute.Identity}/otp-mfa-info`,
   AuthorizeSmsMfaInfo = `${InternalRoute.Identity}/sms-mfa-info`,
   AuthorizePasskeyEnrollInfo = `${InternalRoute.Identity}/passkey-enroll-info`,
+  ManagePasskeyInfo = `${InternalRoute.Identity}/manage-passkey-info`,
   AuthCodeExpired = `${InternalRoute.Identity}/auth-code-expired`,
   AuthorizePassword = `${InternalRoute.Identity}/authorize-password`,
   AuthorizeAccount = `${InternalRoute.Identity}/authorize-account`,

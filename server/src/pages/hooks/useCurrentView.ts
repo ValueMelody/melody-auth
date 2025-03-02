@@ -4,17 +4,22 @@ import {
 import { getStepFromParams } from 'pages/tools/param'
 
 export enum View {
-  SignIn = 'sign-in',
+  SignIn = 'sign_in',
   Consent = 'consent',
-  MfaEnroll = 'mfa-enroll',
-  EmailMfa = 'email-mfa',
-  SmsMfa = 'sms-mfa',
-  OtpSetup = 'otp-setup',
-  OtpMfa = 'opt-mfa',
-  PasskeyEnroll = 'passkey-enroll',
-  SignUp = 'sign-up',
-  ResetPassword = 'reset-password',
-  AuthCodeExpired = 'auth-code-expired',
+  MfaEnroll = 'mfa_enroll',
+  EmailMfa = 'email_mfa',
+  SmsMfa = 'sms_mfa',
+  OtpSetup = 'otp_setup',
+  OtpMfa = 'opt_mfa',
+  PasskeyEnroll = 'passkey_enroll',
+  SignUp = 'sign_up',
+  ResetPassword = 'reset_password',
+  UpdateInfo = 'update_info',
+  ChangePassword = 'change_password',
+  ResetMfa = 'reset_mfa',
+  ManagePasskey = 'manage_passkey',
+  ChangeEmail = 'change_email',
+  AuthCodeExpired = 'auth_code_expired',
 }
 
 const useCurrentView = () => {

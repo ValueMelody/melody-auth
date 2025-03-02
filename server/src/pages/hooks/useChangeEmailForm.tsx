@@ -2,67 +2,64 @@ import {
   useCallback, useMemo, useState,
 } from 'hono/jsx'
 import {
-  object, array, string,
+  array, object,
 } from 'yup'
 import {
-  codeField, confirmPasswordField, emailField, passwordField, validate,
+  codeField, emailField, validate,
 } from 'pages/tools/form'
 import {
   routeConfig, typeConfig,
 } from 'configs'
-import { parseResponse } from 'pages/tools/request'
+import { getFollowUpParams } from 'pages/tools/param'
+import {
+  parseAuthorizeFollowUpValues, parseResponse,
+} from 'pages/tools/request'
 
-export interface UseResetPasswordFormProps {
+export interface UseChangeEmailFormProps {
   locale: typeConfig.Locale;
   onSubmitError: (error: string | null) => void;
 }
 
-const useResetPasswordForm = ({
+const useChangeEmailForm = ({
   locale,
   onSubmitError,
-}: UseResetPasswordFormProps) => {
+}: UseChangeEmailFormProps) => {
+  const followUpParams = useMemo(
+    () => getFollowUpParams(),
+    [],
+  )
+
   const [email, setEmail] = useState('')
   const [mfaCode, setMfaCode] = useState<string[] | null>(null)
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [resent, setResent] = useState(false)
   const [success, setSuccess] = useState(false)
-
+  const [resent, setResent] = useState(false)
   const [touched, setTouched] = useState({
     email: false,
     mfaCode: false,
-    password: false,
-    confirmPassword: false,
   })
 
   const values = useMemo(
     () => ({
       email,
       mfaCode,
-      password,
-      confirmPassword,
     }),
-    [email, mfaCode, password, confirmPassword],
+    [email, mfaCode],
   )
 
-  const resetPasswordSchema = object({
+  const changeEmailSchema = object({
     email: emailField(locale),
     mfaCode: mfaCode !== null
       ? codeField(locale)
       : array().nullable(),
-    password: mfaCode !== null ? passwordField(locale) : string(),
-    confirmPassword: mfaCode !== null
-      ? confirmPasswordField(locale)
-      : string(),
   })
 
   const errors = validate(
-    resetPasswordSchema,
+    changeEmailSchema,
     values,
   )
 
   const handleChange = (
-    name: 'email' | 'mfaCode' | 'password' | 'confirmPassword', value: string | string[],
+    name: 'email' | 'mfaCode', value: string | string[],
   ) => {
     onSubmitError(null)
     switch (name) {
@@ -72,19 +69,13 @@ const useResetPasswordForm = ({
     case 'mfaCode':
       setMfaCode(value as string[])
       break
-    case 'password':
-      setPassword(value as string)
-      break
-    case 'confirmPassword':
-      setConfirmPassword(value as string)
-      break
     }
   }
 
-  const handleResend = useCallback(
+  const sendCode = useCallback(
     () => {
-      fetch(
-        routeConfig.IdentityRoute.ResendResetCode,
+      return fetch(
+        routeConfig.IdentityRoute.ChangeEmailCode,
         {
           method: 'POST',
           headers: {
@@ -92,20 +83,16 @@ const useResetPasswordForm = ({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            locale,
+            ...parseAuthorizeFollowUpValues(
+              followUpParams,
+              locale,
+            ),
             email,
           }),
         },
       )
-        .then(parseResponse)
-        .then(() => {
-          setResent(true)
-        })
-        .catch((error) => {
-          onSubmitError(error)
-        })
     },
-    [email, locale, onSubmitError],
+    [email, followUpParams, locale],
   )
 
   const handleSubmit = useCallback(
@@ -114,8 +101,6 @@ const useResetPasswordForm = ({
       setTouched({
         email: true,
         mfaCode: mfaCode !== null,
-        password: mfaCode !== null,
-        confirmPassword: mfaCode !== null,
       })
 
       if (Object.values(errors).some((error) => error !== undefined)) {
@@ -123,20 +108,7 @@ const useResetPasswordForm = ({
       }
 
       if (mfaCode === null) {
-        fetch(
-          routeConfig.IdentityRoute.ResetCode,
-          {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              locale,
-              email,
-            }),
-          },
-        )
+        sendCode()
           .then(parseResponse)
           .then(() => {
             setMfaCode(new Array(6).fill(''))
@@ -146,7 +118,7 @@ const useResetPasswordForm = ({
           })
       } else {
         fetch(
-          routeConfig.IdentityRoute.AuthorizeReset,
+          routeConfig.IdentityRoute.ChangeEmail,
           {
             method: 'POST',
             headers: {
@@ -154,9 +126,12 @@ const useResetPasswordForm = ({
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+              ...parseAuthorizeFollowUpValues(
+                followUpParams,
+                locale,
+              ),
               email,
-              code: mfaCode.join(''),
-              password,
+              verificationCode: mfaCode.join(''),
             }),
           },
         )
@@ -169,7 +144,22 @@ const useResetPasswordForm = ({
           })
       }
     },
-    [errors, email, mfaCode, locale, onSubmitError, password],
+    [onSubmitError, sendCode, mfaCode, errors, email, followUpParams, locale],
+  )
+
+  const handleResend = useCallback(
+    () => {
+      sendCode()
+        .then(parseResponse)
+        .then(() => {
+          setResent(true)
+          setMfaCode(new Array(6).fill(''))
+        })
+        .catch((error) => {
+          onSubmitError(error)
+        })
+    },
+    [onSubmitError, sendCode],
   )
 
   return {
@@ -177,15 +167,14 @@ const useResetPasswordForm = ({
     errors: {
       email: touched.email ? errors.email : '',
       mfaCode: touched.mfaCode ? errors.mfaCode : '',
-      password: touched.password ? errors.password : '',
-      confirmPassword: touched.confirmPassword ? errors.confirmPassword : '',
     },
     handleChange,
     handleSubmit,
-    handleResend,
-    resent,
     success,
+    resent,
+    handleResend,
+    redirectUri: followUpParams.redirectUri,
   }
 }
 
-export default useResetPasswordForm
+export default useChangeEmailForm

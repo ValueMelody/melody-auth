@@ -4,6 +4,7 @@ import {
 import {
   CodeInput, Field, PasswordField, PrimaryButton, SecondaryButton, SubmitError, ViewTitle,
 } from 'pages/components'
+import SuccessMessage from 'pages/components/vanilla/SuccessMessage'
 import {
   useResetPasswordForm, useSubmitError,
 } from 'pages/hooks'
@@ -44,9 +45,9 @@ const ResetPassword = ({
         <section
           class='flex flex-col gap-4 mt-8'
         >
-          <p class='text-green text-semibold text-lg'>
-            {localeConfig.authorizeReset.success[locale]}
-          </p>
+          <SuccessMessage
+            message={localeConfig.authorizeReset.success[locale]}
+          />
           <PrimaryButton
             type='button'
             title={localeConfig.authorizeReset.signIn[locale]}
