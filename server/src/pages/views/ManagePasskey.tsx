@@ -86,7 +86,7 @@ const ManagePasskey = ({
         </div>
       )}
       <a
-        className='button-secondary mt-6'
+        className='mt-6'
         href={redirectUri}
       >
         {localeConfig.managePasskey.redirect[locale]}

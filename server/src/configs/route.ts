@@ -20,6 +20,8 @@ export enum OauthRoute {
 export enum IdentityRoute {
   AuthorizeView = `${InternalRoute.Identity}/view/authorize`,
   ProcessView = `${InternalRoute.Identity}/view/process`,
+  VerifyEmailView = `${InternalRoute.Identity}/view/verify-email`,
+  AuthCodeExpiredView = `${InternalRoute.Identity}/view/auth-code-expired`,
   AuthorizeConsentInfo = `${InternalRoute.Identity}/consent-info`,
   AuthorizeMfaEnrollInfo = `${InternalRoute.Identity}/mfa-enroll-info`,
   AuthorizeOtpSetupInfo = `${InternalRoute.Identity}/otp-setup-info`,

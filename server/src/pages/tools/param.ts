@@ -73,3 +73,39 @@ export const getFollowUpParams = (): FollowUpParams => {
     org: 'org' in params ? String(params.org) : '',
   }
 }
+
+export interface AuthCodeExpiredParams {
+  locale: typeConfig.Locale;
+  redirectUri: string;
+}
+
+export const getAuthCodeExpiredParams = (): AuthCodeExpiredParams => {
+  const params = parse(
+    window.location.search,
+    { ignoreQueryPrefix: true },
+  )
+
+  return {
+    locale: ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale,
+    redirectUri: 'redirect_uri' in params ? String(params.redirect_uri) : '',
+  }
+}
+
+export interface VerifyEmailParams {
+  locale: typeConfig.Locale;
+  id: string;
+  org: string;
+}
+
+export const getVerifyEmailParams = (): VerifyEmailParams => {
+  const params = parse(
+    window.location.search,
+    { ignoreQueryPrefix: true },
+  )
+
+  return {
+    locale: ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale,
+    id: 'id' in params ? String(params.id) : '',
+    org: 'org' in params ? String(params.org) : '',
+  }
+}

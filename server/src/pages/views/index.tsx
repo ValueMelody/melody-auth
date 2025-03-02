@@ -14,9 +14,11 @@ import ChangePassword from './ChangePassword'
 import ResetMfa from './ResetMfa'
 import ManagePasskey from './ManagePasskey'
 import ChangeEmail from './ChangeEmail'
+import AuthCodeExpired from './AuthCodeExpired'
+import VerifyEmail from './VerifyEmail'
 
 export {
   SignIn, SignUp, Layout, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
   PasskeyEnroll, ResetPassword, UpdateInfo, ChangePassword, ResetMfa, ManagePasskey,
-  ChangeEmail,
+  ChangeEmail, AuthCodeExpired, VerifyEmail,
 }

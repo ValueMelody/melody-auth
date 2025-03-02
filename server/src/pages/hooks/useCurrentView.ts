@@ -1,6 +1,7 @@
 import {
   useCallback, useMemo, useState,
 } from 'hono/jsx'
+import { routeConfig } from 'configs'
 import { getStepFromParams } from 'pages/tools/param'
 
 export enum View {
@@ -20,6 +21,7 @@ export enum View {
   ManagePasskey = 'manage_passkey',
   ChangeEmail = 'change_email',
   AuthCodeExpired = 'auth_code_expired',
+  VerifyEmail = 'verify_email',
 }
 
 const useCurrentView = () => {
@@ -29,7 +31,14 @@ const useCurrentView = () => {
       if (step) {
         return step
       }
-      return View.SignIn
+      switch (window.location.pathname) {
+      case routeConfig.IdentityRoute.AuthCodeExpiredView:
+        return View.AuthCodeExpired
+      case routeConfig.IdentityRoute.VerifyEmailView:
+        return View.VerifyEmail
+      default:
+        return View.SignIn
+      }
     },
     [],
   )

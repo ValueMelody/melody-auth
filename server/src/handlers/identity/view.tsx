@@ -16,6 +16,7 @@ import {
 import { oauthHandler } from 'handlers'
 import { Policy } from 'dtos/oauth'
 import { identityDto } from 'dtos'
+import { requestUtil } from 'utils'
 
 const viewRender = async (
   c: Context<typeConfig.Context>,
@@ -155,6 +156,82 @@ export const getProcessView = async (c: Context<typeConfig.Context>) => {
     queryDto.code,
   )
   if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+
+  const {
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  const branding = await brandingService.getBranding(
+    c,
+    queryDto.org,
+  )
+
+  const propsScript = html`
+  <script>
+    window.__initialProps = {
+      locales: "${locales.join(',')}",
+      logoUrl: "${branding.logoUrl}",
+      enableLocaleSelector: ${enableLocaleSelector.toString()},
+    }
+  </script>
+`
+
+  return viewRender(
+    c,
+    propsScript,
+    queryDto.locale,
+    queryDto.org,
+  )
+}
+
+export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new identityDto.GetAuthCodeExpiredReqDto({
+    locale: requestUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
+    redirect_uri: c.req.query('redirect_uri'),
+    org: c.req.query('org'),
+  })
+
+  const {
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  const branding = await brandingService.getBranding(
+    c,
+    queryDto.org,
+  )
+
+  const propsScript = html`
+  <script>
+    window.__initialProps = {
+      locales: "${locales.join(',')}",
+      logoUrl: "${branding.logoUrl}",
+      enableLocaleSelector: ${enableLocaleSelector.toString()},
+    }
+  </script>
+`
+
+  return viewRender(
+    c,
+    propsScript,
+    queryDto.locale,
+    queryDto.org,
+  )
+}
+
+export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new identityDto.GetVerifyEmailReqDto({
+    locale: requestUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
+    id: c.req.query('id') ?? '',
+    org: c.req.query('org'),
+  })
 
   const {
     SUPPORTED_LOCALES: locales,
