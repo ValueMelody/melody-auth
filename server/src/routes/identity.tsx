@@ -27,11 +27,6 @@ identityRoutes.get(
 )
 
 identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeMfaEnrollInfo,
-  identityHandler.getAuthorizeMfaEnrollInfo,
-)
-
-identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizeOtpSetupInfo,
   identityHandler.getAuthorizeOtpSetupInfo,
 )
@@ -74,18 +69,6 @@ identityRoutes.post(
   setupMiddleware.validOrigin,
   configMiddleware.enableSignUp,
   identityHandler.postAuthorizeAccount,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeMfaEnroll,
-  configMiddleware.enableMfaEnroll,
-  identityHandler.getAuthorizeMfaEnroll,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.AuthorizeMfaEnroll,
-  configMiddleware.enableMfaEnroll,
-  identityHandler.postAuthorizeMfaEnroll,
 )
 
 identityRoutes.get(
@@ -194,6 +177,23 @@ identityRoutes.post(
 )
 
 identityRoutes.post(
+  routeConfig.IdentityRoute.Logout,
+  authMiddleware.spa,
+  identityHandler.postLogout,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthCodeExpired,
+  identityHandler.getAuthCodeExpired,
+)
+
+/**
+ * Authorize Social-signin
+ * - AuthorizeGoogle
+ * - AuthorizeFacebook
+ * - AuthorizeGitHub
+ */
+identityRoutes.post(
   routeConfig.IdentityRoute.AuthorizeGoogle,
   setupMiddleware.validOrigin,
   configMiddleware.enableGoogleSignIn,
@@ -213,15 +213,20 @@ identityRoutes.get(
   identityHandler.getAuthorizeGithub,
 )
 
-identityRoutes.post(
-  routeConfig.IdentityRoute.Logout,
-  authMiddleware.spa,
-  identityHandler.postLogout,
+/**
+ * Process MFA
+ * - ProcessMfaEnroll
+ */
+identityRoutes.get(
+  routeConfig.IdentityRoute.ProcessMfaEnroll,
+  configMiddleware.enableMfaEnroll,
+  identityHandler.getProcessMfaEnroll,
 )
 
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthCodeExpired,
-  identityHandler.getAuthCodeExpired,
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessMfaEnroll,
+  configMiddleware.enableMfaEnroll,
+  identityHandler.postProcessMfaEnroll,
 )
 
 /**

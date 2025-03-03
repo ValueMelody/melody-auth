@@ -5,7 +5,7 @@ import { View } from './'
 import {
   routeConfig, typeConfig,
 } from 'configs'
-import { MfaEnrollInfo } from 'handlers/identity/mfa'
+import { GetMfaEnrollRes } from 'handlers/identity/mfa'
 import { userModel } from 'models'
 import { getFollowUpParams } from 'pages/tools/param'
 import {
@@ -30,12 +30,12 @@ const useMfaEnrollForm = ({
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
-  const [mfaEnrollInfo, setMfaEnrollInfo] = useState<MfaEnrollInfo | null>(null)
+  const [mfaEnrollInfo, setMfaEnrollInfo] = useState<GetMfaEnrollRes | null>(null)
 
   const getMfaEnrollInfo = useCallback(
     () => {
       fetch(
-        `${routeConfig.IdentityRoute.AuthorizeMfaEnrollInfo}${qs}`,
+        `${routeConfig.IdentityRoute.AuthorizeMfaEnroll}${qs}`,
         {
           method: 'GET',
           headers: {
@@ -46,7 +46,7 @@ const useMfaEnrollForm = ({
       )
         .then(parseResponse)
         .then((response) => {
-          setMfaEnrollInfo(response as MfaEnrollInfo)
+          setMfaEnrollInfo(response as GetMfaEnrollRes)
         })
         .catch((error) => {
           onSubmitError(error)

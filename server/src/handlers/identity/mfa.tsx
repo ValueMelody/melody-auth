@@ -179,94 +179,6 @@ const handleSendSmsMfa = async (
   return true
 }
 
-export interface MfaEnrollInfo {
-  mfaTypes: userModel.MfaType[];
-}
-
-export const getAuthorizeMfaEnrollInfo = async (c: Context<typeConfig.Context>)
-:Promise<TypedResponse<MfaEnrollInfo>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
-
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
-    queryDto.code,
-  )
-  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
-
-  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
-
-  const { ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes } = env(c)
-
-  return c.json({ mfaTypes })
-}
-
-export const getAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
-
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
-    queryDto.code,
-  )
-  if (!authCodeStore) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
-
-  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-    ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes,
-  } = env(c)
-
-  return c.html(<AuthorizeMfaEnrollView
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    mfaTypes={mfaTypes}
-  />)
-}
-
-export const postAuthorizeMfaEnroll = async (c: Context<typeConfig.Context>) => {
-  const reqBody = await c.req.json()
-
-  const bodyDto = new identityDto.PostAuthorizeEnrollReqDto(reqBody)
-  await validateUtil.dto(bodyDto)
-
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
-    bodyDto.code,
-  )
-  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
-
-  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
-
-  const user = await userService.enrollUserMfa(
-    c,
-    authCodeStore.user.authId,
-    bodyDto.type,
-  )
-  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
-  const newAuthCodeStore = {
-    ...authCodeStore,
-    user,
-  }
-  await kvService.storeAuthCode(
-    c.env.KV,
-    bodyDto.code,
-    newAuthCodeStore,
-    codeExpiresIn,
-  )
-
-  return c.json(await identityService.processPostAuthorize(
-    c,
-    identityService.AuthorizeStep.MfaEnroll,
-    bodyDto.code,
-    newAuthCodeStore,
-  ))
-}
-
 export interface OtpSetupInfo {
   otpUri: string;
 }
@@ -737,4 +649,66 @@ export const postResendEmailMfa = async (c: Context<typeConfig.Context>) => {
   }
 
   return c.json({ success: true })
+}
+
+
+
+
+export interface GetProcessMfaEnrollRes {
+  mfaTypes: userModel.MfaType[];
+}
+export const getProcessMfaEnroll = async (c: Context<typeConfig.Context>)
+:Promise<TypedResponse<GetProcessMfaEnrollRes>> => {
+  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    queryDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
+
+  const { ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes } = env(c)
+
+  return c.json({ mfaTypes })
+}
+
+export const postProcessMfaEnroll = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostProcessMfaEnrollDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+
+  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(localeConfig.Error.MfaEnrolled)
+
+  const user = await userService.enrollUserMfa(
+    c,
+    authCodeStore.user.authId,
+    bodyDto.type,
+  )
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const newAuthCodeStore = {
+    ...authCodeStore,
+    user,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    bodyDto.code,
+    newAuthCodeStore,
+    codeExpiresIn,
+  )
+
+  return c.json(await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.MfaEnroll,
+    bodyDto.code,
+    newAuthCodeStore,
+  ))
 }

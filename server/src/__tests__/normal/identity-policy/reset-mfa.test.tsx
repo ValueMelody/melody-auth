@@ -75,7 +75,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
         })
 
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
@@ -112,7 +112,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
         })
 
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
@@ -145,7 +145,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
         })
 
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string

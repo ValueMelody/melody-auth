@@ -126,7 +126,7 @@ export const processPostAuthorize = async (
     !authCodeBody.user.mfaTypes.length
   if (requireMfaEnroll) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.AuthorizeMfaEnroll,
+      ...basicInfo, nextPage: IdentityRoute.ProcessMfaEnroll,
     }
   }
 

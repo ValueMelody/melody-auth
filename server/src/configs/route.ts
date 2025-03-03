@@ -18,18 +18,13 @@ export enum OauthRoute {
 }
 
 export enum IdentityRoute {
-  AuthorizeView = `${InternalRoute.Identity}/view/authorize`,
   ProcessView = `${InternalRoute.Identity}/view/process`,
   AuthorizeConsentInfo = `${InternalRoute.Identity}/consent-info`,
-  AuthorizeMfaEnrollInfo = `${InternalRoute.Identity}/mfa-enroll-info`,
   AuthorizeOtpSetupInfo = `${InternalRoute.Identity}/otp-setup-info`,
   AuthorizeOtpMfaInfo = `${InternalRoute.Identity}/otp-mfa-info`,
   AuthorizeSmsMfaInfo = `${InternalRoute.Identity}/sms-mfa-info`,
   AuthorizePasskeyEnrollInfo = `${InternalRoute.Identity}/passkey-enroll-info`,
   AuthCodeExpired = `${InternalRoute.Identity}/auth-code-expired`,
-  AuthorizePassword = `${InternalRoute.Identity}/authorize-password`,
-  AuthorizeAccount = `${InternalRoute.Identity}/authorize-account`,
-  AuthorizeMfaEnroll = `${InternalRoute.Identity}/authorize-mfa-enroll`,
   AuthorizeOtpSetup = `${InternalRoute.Identity}/authorize-otp-setup`,
   AuthorizeOtpMfa = `${InternalRoute.Identity}/authorize-otp-mfa`,
   AuthorizeSmsMfa = `${InternalRoute.Identity}/authorize-sms-mfa`,
@@ -41,10 +36,16 @@ export enum IdentityRoute {
   AuthorizeEmailMfa = `${InternalRoute.Identity}/authorize-email-mfa`,
   ResendEmailMfa = `${InternalRoute.Identity}/resend-email-mfa`,
   AuthorizeConsent = `${InternalRoute.Identity}/authorize-consent`,
+  Logout = `${InternalRoute.Identity}/logout`,
+  AuthorizeView = `${InternalRoute.Identity}/view/authorize`,
+  AuthorizePassword = `${InternalRoute.Identity}/authorize-password`,
+  AuthorizeAccount = `${InternalRoute.Identity}/authorize-account`,
+  // Authorize Social-signin
   AuthorizeGoogle = `${InternalRoute.Identity}/authorize-google`,
   AuthorizeFacebook = `${InternalRoute.Identity}/authorize-facebook`,
   AuthorizeGitHub = `${InternalRoute.Identity}/authorize-github`,
-  Logout = `${InternalRoute.Identity}/logout`,
+  // Process MFA
+  ProcessMfaEnroll = `${InternalRoute.Identity}/process-mfa-enroll`,
   // Policy
   ChangePassword = `${InternalRoute.Identity}/change-password`,
   ChangeEmailCode = `${InternalRoute.Identity}/change-email-code`,

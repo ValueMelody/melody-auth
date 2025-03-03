@@ -13,17 +13,6 @@ import {
 } from 'utils'
 import { userModel } from 'models'
 
-export class PostAuthorizeSocialSignInReqDto extends oauthDto.GetAuthorizeReqDto {
-  @IsString()
-  @IsNotEmpty()
-    credential: string
-
-  constructor (dto: PostAuthorizeSocialSignInReqDto) {
-    super(dto)
-    this.credential = dto.credential
-  }
-}
-
 export class PostAuthorizeReqWithPasswordDto extends oauthDto.GetAuthorizeReqDto {
   @IsEmail()
     email: string
@@ -144,17 +133,6 @@ export class PostAuthorizeMfaReqDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
-export class PostAuthorizeEnrollReqDto extends GetAuthorizeFollowUpReqDto {
-  @IsEnum(userModel.MfaType)
-  @IsNotEmpty()
-    type: userModel.MfaType
-
-  constructor (dto: PostAuthorizeEnrollReqDto) {
-    super(dto)
-    this.type = dto.type
-  }
-}
-
 export class GetAuthorizePasskeyVerifyReqDto {
   @IsEmail()
   @IsNotEmpty()
@@ -216,6 +194,34 @@ export class PostAuthorizePasskeyEnrollReqDto extends GetAuthorizeFollowUpReqDto
   constructor (dto: PostAuthorizePasskeyEnrollReqDto) {
     super(dto)
     this.enrollInfo = dto.enrollInfo
+  }
+}
+
+/**
+ * DTO for MFA
+ */
+export class PostProcessMfaEnrollDto extends GetAuthorizeFollowUpReqDto {
+  @IsEnum(userModel.MfaType)
+  @IsNotEmpty()
+    type: userModel.MfaType
+
+  constructor (dto: PostProcessMfaEnrollDto) {
+    super(dto)
+    this.type = dto.type
+  }
+}
+
+/**
+ * DTO for Social-signin
+*/
+export class PostAuthorizeSocialSignInDto extends oauthDto.GetAuthorizeReqDto {
+  @IsString()
+  @IsNotEmpty()
+    credential: string
+
+  constructor (dto: PostAuthorizeSocialSignInDto) {
+    super(dto)
+    this.credential = dto.credential
   }
 }
 

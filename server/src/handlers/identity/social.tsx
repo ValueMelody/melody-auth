@@ -17,7 +17,7 @@ import {
 
 const prepareSocialAuthCode = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostAuthorizeSocialSignInReqDto,
+  bodyDto: identityDto.PostAuthorizeSocialSignInDto,
   app: appModel.Record,
   user: userModel.Record,
 ) => {
@@ -45,9 +45,9 @@ const prepareSocialAuthCode = async (
 export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...reqBody,
-    scopes: reqBody.scope.split(' '),
+    scopes: reqBody.scope?.split(' ') ?? [],
   })
   await validateUtil.dto(bodyDto)
 
@@ -87,9 +87,9 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
 export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...reqBody,
-    scopes: reqBody.scope.split(' '),
+    scopes: reqBody.scope?.split(' ') ?? [],
   })
   await validateUtil.dto(bodyDto)
 
@@ -140,7 +140,7 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
   const originRequest = JSON.parse(state)
 
   if (!code || !state) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
-  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
     credential: code,
   })

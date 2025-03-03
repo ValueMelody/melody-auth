@@ -362,7 +362,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
         })
         const { code } = json as { code: string }
         const codeStore = JSON.parse(await mockedKV.get(`AC-${code}`) ?? '')
@@ -872,7 +872,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
         })
         const appRecord = await getApp(db)
         const { code } = json as { code: string }
@@ -1069,7 +1069,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
         })
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
@@ -1230,7 +1230,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeMfaEnroll,
+          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
         })
         const consent = db.prepare('SELECT * from user_app_consent WHERE "userId" = 1 AND "appId" = 1').get()
         expect(consent).toBeTruthy()
