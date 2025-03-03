@@ -155,103 +155,6 @@ export class PostAuthorizeEnrollReqDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
-export class PostAuthorizePasskeyEnrollReqDto extends GetAuthorizeFollowUpReqDto {
-  @IsNotEmpty()
-    enrollInfo: RegistrationResponseJSON
-
-  constructor (dto: PostAuthorizePasskeyEnrollReqDto) {
-    super(dto)
-    this.enrollInfo = dto.enrollInfo
-  }
-}
-
-export class PostChangePasswordReqDto extends GetAuthorizeFollowUpReqDto {
-  @IsString()
-  @IsNotEmpty()
-    password: string
-
-  constructor (dto: PostChangePasswordReqDto) {
-    super(dto)
-    this.password = dto.password
-  }
-}
-
-export class PostUpdateInfoReqDto extends GetAuthorizeFollowUpReqDto {
-  @IsString()
-    firstName?: string
-
-  @IsString()
-    lastName?: string
-
-  constructor (dto: PostUpdateInfoReqDto) {
-    super(dto)
-    this.firstName = dto.firstName
-    this.lastName = dto.lastName
-  }
-}
-
-export class PostChangeEmailCodeReqDto extends GetAuthorizeFollowUpReqDto {
-  @IsEmail()
-  @IsNotEmpty()
-    email: string
-
-  constructor (dto: PostChangeEmailCodeReqDto) {
-    super(dto)
-    this.email = dto.email.trim().toLowerCase()
-  }
-}
-
-export class PostChangeEmailReqDto extends PostChangeEmailCodeReqDto {
-  @IsString()
-  @Length(
-    6,
-    6,
-  )
-    verificationCode: string
-
-  constructor (dto: PostChangeEmailReqDto) {
-    super(dto)
-    this.verificationCode = dto.verificationCode.trim()
-  }
-}
-
-export class PostLogoutReqDto {
-  @IsString()
-  @IsNotEmpty()
-    refreshToken: string
-
-  @IsString()
-    postLogoutRedirectUri: string
-
-  constructor (dto: PostLogoutReqDto) {
-    this.refreshToken = dto.refreshToken
-    this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
-  }
-}
-
-export class PostAuthorizeResetReqDto {
-  @IsString()
-  @Length(
-    6,
-    6,
-  )
-    code: string
-
-  @IsEmail()
-  @IsNotEmpty()
-    email: string
-
-  @IsStrongPassword()
-  @IsNotEmpty()
-    password: string
-
-  constructor (dto: PostAuthorizeResetReqDto) {
-    this.email = dto.email.trim().toLowerCase()
-    this.password = dto.password.trim()
-    this.code = dto.code.trim()
-  }
-}
-
 export class GetAuthorizePasskeyVerifyReqDto {
   @IsEmail()
   @IsNotEmpty()
@@ -287,8 +190,6 @@ export class PostAuthorizePasskeyEnrollDeclineReqDto extends GetAuthorizeFollowU
   }
 }
 
-export class DeleteManagePasskeyReqDto extends GetAuthorizeFollowUpReqDto {}
-
 export class GetAuthCodeExpiredReqDto {
   @IsString()
     locale: typeConfig.Locale
@@ -305,6 +206,95 @@ export class GetAuthCodeExpiredReqDto {
     this.locale = dto.locale
     this.redirect_uri = dto.redirect_uri
     this.org = dto.org
+  }
+}
+
+export class PostAuthorizePasskeyEnrollReqDto extends GetAuthorizeFollowUpReqDto {
+  @IsNotEmpty()
+    enrollInfo: RegistrationResponseJSON
+
+  constructor (dto: PostAuthorizePasskeyEnrollReqDto) {
+    super(dto)
+    this.enrollInfo = dto.enrollInfo
+  }
+}
+
+/**
+ * DTO for policies
+ */
+export class PostChangePasswordDto extends GetAuthorizeFollowUpReqDto {
+  @IsString()
+  @IsNotEmpty()
+    password: string
+
+  constructor (dto: PostChangePasswordDto) {
+    super(dto)
+    this.password = dto.password
+  }
+}
+
+export class PostChangeEmailCodeDto extends GetAuthorizeFollowUpReqDto {
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  constructor (dto: PostChangeEmailCodeDto) {
+    super(dto)
+    this.email = dto.email.trim().toLowerCase()
+  }
+}
+
+export class PostChangeEmailDto extends PostChangeEmailCodeDto {
+  @IsString()
+  @Length(
+    6,
+    6,
+  )
+    verificationCode: string
+
+  constructor (dto: PostChangeEmailDto) {
+    super(dto)
+    this.verificationCode = dto.verificationCode.trim()
+  }
+}
+
+export class PostManagePasskeyDto extends GetAuthorizeFollowUpReqDto {
+  @IsNotEmpty()
+    enrollInfo: RegistrationResponseJSON
+
+  constructor (dto: PostManagePasskeyDto) {
+    super(dto)
+    this.enrollInfo = dto.enrollInfo
+  }
+}
+
+export class DeleteManagePasskeyDto extends GetAuthorizeFollowUpReqDto {}
+
+export class PostLogoutReqDto {
+  @IsString()
+  @IsNotEmpty()
+    refreshToken: string
+
+  @IsString()
+    postLogoutRedirectUri: string
+
+  constructor (dto: PostLogoutReqDto) {
+    this.refreshToken = dto.refreshToken
+    this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
+  }
+}
+
+export class PostUpdateInfoDto extends GetAuthorizeFollowUpReqDto {
+  @IsString()
+    firstName?: string
+
+  @IsString()
+    lastName?: string
+
+  constructor (dto: PostUpdateInfoDto) {
+    super(dto)
+    this.firstName = dto.firstName
+    this.lastName = dto.lastName
   }
 }
 
@@ -325,6 +315,29 @@ export class PostVerifyEmailDto {
 
   constructor (dto: PostVerifyEmailDto) {
     this.id = dto.id.trim()
+    this.code = dto.code.trim()
+  }
+}
+
+export class PostResetPasswordDto {
+  @IsString()
+  @Length(
+    6,
+    6,
+  )
+    code: string
+
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  @IsStrongPassword()
+  @IsNotEmpty()
+    password: string
+
+  constructor (dto: PostResetPasswordDto) {
+    this.email = dto.email.trim().toLowerCase()
+    this.password = dto.password.trim()
     this.code = dto.code.trim()
   }
 }

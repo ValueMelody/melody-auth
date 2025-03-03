@@ -14,32 +14,41 @@ import {
 import {
   requestUtil, validateUtil,
 } from 'utils'
-import {
-  AuthCodeExpired,
-  AuthorizeResetView,
-} from 'views'
-import { oauthHandler } from 'handlers'
+import { AuthCodeExpired } from 'views'
 
-export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
-  const queryString = requestUtil.getQueryString(c)
+export const getAuthCodeExpired = async (c: Context<typeConfig.Context>) => {
+  const { SUPPORTED_LOCALES: locales } = env(c)
 
-  return c.html(<AuthorizeResetView
-    queryString={queryString}
+  const locale = c.req.query('locale') || locales[0]
+  const org = c.req.query('org')
+
+  return c.html(<AuthCodeExpired
+    locale={locale as typeConfig.Locale}
     branding={await brandingService.getBranding(
       c,
-      queryDto.org,
+      org,
     )}
-    queryDto={queryDto}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
   />)
 }
 
-export const postResetCode = async (c: Context<typeConfig.Context>) => {
+export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostVerifyEmailDto({
+    id: String(reqBody.id),
+    code: String(reqBody.code),
+  })
+  await validateUtil.dto(bodyDto)
+
+  await userService.verifyUserEmail(
+    c,
+    bodyDto,
+  )
+
+  return c.json({ success: true })
+}
+
+export const postResetPasswordCode = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const email = reqBody.email
     ? String(reqBody.email).trim()
@@ -78,10 +87,10 @@ export const postResetCode = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
-export const postAuthorizeReset = async (c: Context<typeConfig.Context>) => {
+export const postResetPassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeResetReqDto({
+  const bodyDto = new identityDto.PostResetPasswordDto({
     email: String(reqBody.email),
     code: String(reqBody.code),
     password: String(reqBody.password),
@@ -102,38 +111,6 @@ export const postAuthorizeReset = async (c: Context<typeConfig.Context>) => {
       ip,
     )
   }
-
-  return c.json({ success: true })
-}
-
-export const getAuthCodeExpired = async (c: Context<typeConfig.Context>) => {
-  const { SUPPORTED_LOCALES: locales } = env(c)
-
-  const locale = c.req.query('locale') || locales[0]
-  const org = c.req.query('org')
-
-  return c.html(<AuthCodeExpired
-    locale={locale as typeConfig.Locale}
-    branding={await brandingService.getBranding(
-      c,
-      org,
-    )}
-  />)
-}
-
-export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
-  const reqBody = await c.req.json()
-
-  const bodyDto = new identityDto.PostVerifyEmailDto({
-    id: String(reqBody.id),
-    code: String(reqBody.code),
-  })
-  await validateUtil.dto(bodyDto)
-
-  await userService.verifyUserEmail(
-    c,
-    bodyDto,
-  )
 
   return c.json({ success: true })
 }

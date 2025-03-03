@@ -32,10 +32,46 @@ afterEach(async () => {
   await db.close()
 })
 
-const BaseRoute = routeConfig.InternalRoute.ApiRoles
+describe(
+  'get jwks',
+  () => {
+    test(
+      'should return jwks',
+      async () => {
+        const res = await app.request(
+          '/.well-known/jwks.json',
+          {},
+          mock(db),
+        )
+        const json = await res.json() as { keys: any[] }
+
+        expect(json).toStrictEqual({
+          keys: [
+            {
+              kty: 'RSA',
+              n: expect.any(String),
+              e: 'AQAB',
+              alg: 'RS256',
+              use: 'sig',
+              kid: expect.any(String),
+            },
+            {
+              kty: 'RSA',
+              n: expect.any(String),
+              e: 'AQAB',
+              alg: 'RS256',
+              use: 'sig',
+              kid: expect.any(String),
+            },
+          ],
+        })
+      },
+    )
+  },
+)
 
 const createNewRole = async (token?: string) => await app.request(
-  BaseRoute,
+  routeConfig.InternalRoute.ApiRoles,
   {
     method: 'POST',
     body: JSON.stringify({
@@ -64,7 +100,7 @@ describe(
       async () => {
         await createNewRole()
         const res = await app.request(
-          BaseRoute,
+          routeConfig.InternalRoute.ApiRoles,
           { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
@@ -134,7 +170,7 @@ describe(
         const accessToken = `${signingInput}.${signatureBase64Url}`
 
         const res = await app.request(
-          BaseRoute,
+          routeConfig.InternalRoute.ApiRoles,
           { headers: { Authorization: `Bearer ${accessToken}` } },
           mock(db),
         )

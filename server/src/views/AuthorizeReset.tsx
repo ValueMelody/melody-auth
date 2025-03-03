@@ -106,7 +106,7 @@ const AuthorizeReset = ({
           ${resetErrorScript.resetPasswordError()}
           ${resetErrorScript.resetConfirmPasswordError()}
           function resendCode() {
-            fetch('${routeConfig.IdentityRoute.ResetCode}', {
+            fetch('${routeConfig.IdentityRoute.ResetPasswordCode}', {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -142,7 +142,7 @@ const AuthorizeReset = ({
               ${validateScript.confirmPassword(queryDto.locale)}
             }
             if (!containCode) {
-              fetch('${routeConfig.IdentityRoute.ResetCode}', {
+              fetch('${routeConfig.IdentityRoute.ResetPasswordCode}', {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

@@ -16,7 +16,9 @@ import {
 import { oauthHandler } from 'handlers'
 import { Policy } from 'dtos/oauth'
 import { identityDto } from 'dtos'
-import { requestUtil, validateUtil } from 'utils'
+import {
+  requestUtil, validateUtil,
+} from 'utils'
 
 const viewRender = async (
   c: Context<typeConfig.Context>,
@@ -185,15 +187,17 @@ export const getProcessView = async (c: Context<typeConfig.Context>) => {
   )
 }
 
-export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetAuthCodeExpiredReqDto({
+export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new identityDto.GetVerifyEmailViewDto({
     locale: requestUtil.getLocaleFromQuery(
       c,
       c.req.query('locale'),
     ),
-    redirect_uri: c.req.query('redirect_uri'),
+    id: c.req.query('id') ?? '',
     org: c.req.query('org'),
   })
+
+  await validateUtil.dto(queryDto)
 
   const {
     SUPPORTED_LOCALES: locales,
@@ -223,17 +227,15 @@ export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => 
   )
 }
 
-export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetVerifyEmailViewDto({
+export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new identityDto.GetAuthCodeExpiredReqDto({
     locale: requestUtil.getLocaleFromQuery(
       c,
       c.req.query('locale'),
     ),
-    id: c.req.query('id') ?? '',
+    redirect_uri: c.req.query('redirect_uri'),
     org: c.req.query('org'),
   })
-
-  await validateUtil.dto(queryDto)
 
   const {
     SUPPORTED_LOCALES: locales,

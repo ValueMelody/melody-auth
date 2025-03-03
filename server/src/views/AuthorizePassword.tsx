@@ -210,7 +210,7 @@ const AuthorizePassword = ({
           {enablePasswordReset && (
             <a
               class='button-secondary'
-              href={`${routeConfig.IdentityRoute.AuthorizeReset}?${queryString}`}
+              href={`${routeConfig.IdentityRoute.ResetPassword}?${queryString}`}
             >
               {localeConfig.authorizePassword.passwordReset[queryDto.locale]}
             </a>

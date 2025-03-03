@@ -50,7 +50,7 @@ export const getByUser = async (
   const stmt = db.prepare(query)
     .bind(userId)
   const passkey = await stmt.first() as Record | null
-  return passkey
+  return passkey ?? null
 }
 
 export const update = async (

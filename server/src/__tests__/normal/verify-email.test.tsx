@@ -50,6 +50,30 @@ const prepareUserAccount = async (db: Database) => {
   expect(res.status).toBe(200)
 }
 
+const sendCorrectVerifyEmailReq = async ({ code }: {
+  code?: string;
+} = {}) => {
+  const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+  const correctCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
+  const finalCode = code ?? correctCode
+
+  const res = await app.request(
+    routeConfig.IdentityRoute.VerifyEmail,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        id: currentUser.authId,
+        code: finalCode,
+      }),
+    },
+    mock(db),
+  )
+
+  return {
+    res, correctCode,
+  }
+}
+
 describe(
   'post /authorize-account',
   () => {
@@ -100,7 +124,10 @@ describe(
         expect(html).toContain(`logoUrl: "${process.env.COMPANY_LOGO_URL}"`)
         expect(html).toContain(`enableLocaleSelector: ${process.env.ENABLE_LOCALE_SELECTOR}`)
         expect(html).toContain(`<link rel="icon" type="image/x-icon" href="${process.env.COMPANY_LOGO_URL}"/>`)
-        expect(html).toContain(`<link href="${process.env.FONT_URL?.replace('&', '&amp;')}" rel="stylesheet"/>`)
+        expect(html).toContain(`<link href="${process.env.FONT_URL?.replace(
+          '&',
+          '&amp;',
+        )}" rel="stylesheet"/>`)
         expect(html).toContain(`--layout-color:${process.env.LAYOUT_COLOR}`)
         expect(html).toContain(`--label-color:${process.env.LABEL_COLOR}`)
         expect(html).toContain(`--font-default:${process.env.FONT_FAMILY}`)
@@ -154,30 +181,11 @@ describe(
 describe(
   'post /verify-email',
   () => {
-    const sendCorrectReq = async () => {
-      const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
-      const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
-
-      const res = await app.request(
-        routeConfig.IdentityRoute.VerifyEmail,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            id: currentUser.authId,
-            code,
-          }),
-        },
-        mock(db),
-      )
-
-      return { res }
-    }
-
     test(
       'should verify email',
       async () => {
         await prepareUserAccount(db)
-        const { res } = await sendCorrectReq()
+        const { res } = await sendCorrectVerifyEmailReq()
         expect(await res.json()).toStrictEqual({ success: true })
 
         const updatedUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
@@ -185,33 +193,24 @@ describe(
       },
     )
 
-    test('should be blocked if feature not enabled', async () => {
-      global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
-      await prepareUserAccount(db)
+    test(
+      'should be blocked if feature not enabled',
+      async () => {
+        global.process.env.ENABLE_EMAIL_VERIFICATION = false as unknown as string
+        await prepareUserAccount(db)
 
-      const { res } = await sendCorrectReq()
-      expect(res.status).toBe(400)
-      global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
-    })
+        const { res } = await sendCorrectVerifyEmailReq()
+        expect(res.status).toBe(400)
+        global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
+      },
+    )
 
     test(
       'should not verify if wrong code provided',
       async () => {
         await prepareUserAccount(db)
 
-        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
-
-        const res = await app.request(
-          routeConfig.IdentityRoute.VerifyEmail,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              id: currentUser.authId,
-              code: 'abcdef',
-            }),
-          },
-          mock(db),
-        )
+        const { res } = await sendCorrectVerifyEmailReq({ code: 'abcdef' })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.WrongCode)
       },
@@ -222,22 +221,11 @@ describe(
       async () => {
         await prepareUserAccount(db)
 
-        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
-        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`)
-
-        const { res } = await sendCorrectReq()
+        const {
+          res, correctCode,
+        } = await sendCorrectVerifyEmailReq()
         expect(res.status).toBe(200)
-        const res1 = await app.request(
-          routeConfig.IdentityRoute.VerifyEmail,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              id: currentUser.authId,
-              code,
-            }),
-          },
-          mock(db),
-        )
+        const { res: res1 } = await sendCorrectVerifyEmailReq({ code: correctCode })
         expect(res1.status).toBe(400)
         expect(await res1.text()).toBe(localeConfig.Error.WrongCode)
       },
@@ -250,7 +238,7 @@ describe(
 
         await disableUser(db)
 
-        const { res } = await sendCorrectReq()
+        const { res } = await sendCorrectVerifyEmailReq()
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
       },

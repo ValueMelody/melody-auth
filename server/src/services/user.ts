@@ -425,7 +425,7 @@ export const sendPasswordReset = async (
 
 export const resetUserPassword = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostAuthorizeResetReqDto,
+  bodyDto: identityDto.PostResetPasswordDto,
 ): Promise<true> => {
   const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
