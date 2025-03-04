@@ -70,7 +70,7 @@ const sendCorrectVerifyEmailReq = async ({ code }: {
   )
 
   return {
-    res, correctCode,
+    res, correctCode: correctCode ?? '',
   }
 }
 

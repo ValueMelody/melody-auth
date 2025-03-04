@@ -157,7 +157,7 @@ export const getProcessView = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     queryDto.code,
   )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpiredView}?locale=${queryDto.locale}`)
 
   const {
     SUPPORTED_LOCALES: locales,

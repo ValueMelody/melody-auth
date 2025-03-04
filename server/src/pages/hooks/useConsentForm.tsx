@@ -7,7 +7,7 @@ import { getFollowUpParams } from 'pages/tools/param'
 import {
   routeConfig, typeConfig,
 } from 'configs'
-import { AuthorizeConsentInfo } from 'handlers/identity'
+import { GetAppConsentRes } from 'handlers/identity'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
   parseResponse,
@@ -30,12 +30,12 @@ const useConsentForm = ({
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
-  const [consentInfo, setConsentInfo] = useState<AuthorizeConsentInfo | null>(null)
+  const [consentInfo, setConsentInfo] = useState<GetAppConsentRes | null>(null)
 
   const getConsentInfo = useCallback(
     () => {
       fetch(
-        `${routeConfig.IdentityRoute.AuthorizeConsentInfo}${qs}`,
+        `${routeConfig.IdentityRoute.AppConsent}${qs}`,
         {
           method: 'GET',
           headers: {
@@ -46,7 +46,7 @@ const useConsentForm = ({
       )
         .then(parseResponse)
         .then((response) => {
-          setConsentInfo(response as AuthorizeConsentInfo)
+          setConsentInfo(response as GetAppConsentRes)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -58,7 +58,7 @@ const useConsentForm = ({
   const handleAccept = useCallback(
     () => {
       fetch(
-        routeConfig.IdentityRoute.AuthorizeConsent,
+        routeConfig.IdentityRoute.AppConsent,
         {
           method: 'POST',
           headers: {

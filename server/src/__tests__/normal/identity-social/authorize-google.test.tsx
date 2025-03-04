@@ -80,7 +80,7 @@ const postGoogleRequest = async (emailVerified: boolean) => {
     redirectUri: 'http://localhost:3000/en/dashboard',
     state: '123',
     scopes: ['profile', 'openid', 'offline_access'],
-    nextPage: routeConfig.IdentityRoute.AuthorizeConsent,
+    nextPage: routeConfig.IdentityRoute.AppConsent,
   })
 }
 

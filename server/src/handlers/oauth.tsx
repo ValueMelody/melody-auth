@@ -136,46 +136,13 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
         return c.redirect(url)
       }
     } else {
-      // [jsx/dom] For testing with new views only, do not change
-      // const queryString = `
-      //  step=${queryDto.policy}&state=${queryDto.state}&code=${authCode}
-      //  &locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}
-      // `
-      // return c.redirect(`${routeConfig.IdentityRoute.ProcessView}?${queryString}`)
-
-      let baseUrl = ''
-      switch (queryDto.policy) {
-      case Policy.ChangePassword: {
-        baseUrl = routeConfig.IdentityRoute.ChangePassword
-        break
-      }
-      case Policy.ChangeEmail: {
-        baseUrl = routeConfig.IdentityRoute.ChangeEmail
-        break
-      }
-      case Policy.ResetMfa: {
-        baseUrl = routeConfig.IdentityRoute.ResetMfa
-        break
-      }
-      case Policy.ManagePasskey: {
-        baseUrl = routeConfig.IdentityRoute.ManagePasskey
-        break
-      }
-      case Policy.UpdateInfo: {
-        baseUrl = routeConfig.IdentityRoute.UpdateInfo
-        break
-      }
-      }
-      if (baseUrl) {
-        return c.redirect(`${baseUrl}?state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`)
-      }
+      const queryString = `step=${queryDto.policy}&state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
+      return c.redirect(`${routeConfig.IdentityRoute.ProcessView}?${queryString}`)
     }
   }
 
   const queryString = requestUtil.getQueryString(c)
-  // [jsx/dom] For testing with new views only, do not change
-  // return c.redirect(`${routeConfig.IdentityRoute.AuthorizeView}?${queryString}`)
-  return c.redirect(`${routeConfig.IdentityRoute.AuthorizePassword}?${queryString}`)
+  return c.redirect(`${routeConfig.IdentityRoute.AuthorizeView}?${queryString}`)
 }
 
 export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {

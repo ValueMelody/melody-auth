@@ -1,17 +1,16 @@
 import {
   Context, TypedResponse,
 } from 'hono'
-import { env } from 'hono/adapter'
 import { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/server'
 import {
-  errorConfig, localeConfig, routeConfig, typeConfig,
+  errorConfig, localeConfig, typeConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
   appService,
-  brandingService, identityService,
+  identityService,
   kvService, passkeyService,
   userService,
 } from 'services'
@@ -19,15 +18,13 @@ import {
   cryptoUtil,
   validateUtil,
 } from 'utils'
-import { AuthorizePasskeyEnrollView } from 'views'
 import { oauthHandler } from 'handlers'
 
-export interface AuthorizePasskeyEnrollInfo {
+export interface GetProcessPasskeyEnrollRes {
   enrollOptions: passkeyService.EnrollOptions;
 }
-
-export const getAuthorizePasskeyEnrollInfo = async (c: Context<typeConfig.Context>)
-: Promise<TypedResponse<AuthorizePasskeyEnrollInfo>> => {
+export const getProcessPasskeyEnroll = async (c: Context<typeConfig.Context>)
+: Promise<TypedResponse<GetProcessPasskeyEnrollRes>> => {
   const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
   await validateUtil.dto(queryDto)
 
@@ -45,41 +42,10 @@ export const getAuthorizePasskeyEnrollInfo = async (c: Context<typeConfig.Contex
   return c.json({ enrollOptions })
 }
 
-export const getAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
-  await validateUtil.dto(queryDto)
-
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
-    queryDto.code,
-  )
-  if (!authCodeStore) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
-
-  const enrollOptions = await passkeyService.genPasskeyEnrollOptions(
-    c,
-    authCodeStore,
-  )
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  return c.html(<AuthorizePasskeyEnrollView
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    queryDto={queryDto}
-    enrollOptions={enrollOptions}
-  />)
-}
-
-export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>) => {
+export const postProcessPasskeyEnroll = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizePasskeyEnrollReqDto(reqBody)
+  const bodyDto = new identityDto.PostProcessPasskeyEnrollDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeStore = await kvService.getAuthCodeBody(
@@ -112,10 +78,10 @@ export const postAuthorizePasskeyEnroll = async (c: Context<typeConfig.Context>)
   ))
 }
 
-export const postAuthorizePasskeyEnrollDecline = async (c: Context<typeConfig.Context>) => {
+export const postProcessPasskeyEnrollDecline = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizePasskeyEnrollDeclineReqDto(reqBody)
+  const bodyDto = new identityDto.PostProcessPasskeyEnrollDeclineDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeStore = await kvService.getAuthCodeBody(
@@ -139,12 +105,12 @@ export const postAuthorizePasskeyEnrollDecline = async (c: Context<typeConfig.Co
   ))
 }
 
-export interface AuthorizePasskeyVerify {
+export interface GetAuthorizePasskeyVerifyRes {
   passkeyOption: PublicKeyCredentialRequestOptionsJSON | null;
 }
-
-export const getAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>) => {
-  const dto = new identityDto.GetAuthorizePasskeyVerifyReqDto({ email: c.req.query('email') ?? '' })
+export const getAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
+: Promise<TypedResponse<GetAuthorizePasskeyVerifyRes>> => {
+  const dto = new identityDto.GetAuthorizePasskeyVerifyDto({ email: c.req.query('email') ?? '' })
   await validateUtil.dto(dto)
 
   const options = await passkeyService.genPasskeyVerifyOptions(
@@ -166,7 +132,7 @@ export const getAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>) 
 export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizePasskeyVerifyReqDto({
+  const bodyDto = new identityDto.PostAuthorizePasskeyVerifyDto({
     ...reqBody,
     scopes: reqBody.scope.split(' '),
   })

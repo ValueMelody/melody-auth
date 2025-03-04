@@ -7,29 +7,12 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
-  brandingService,
   kvService,
   userService,
 } from 'services'
 import {
   requestUtil, validateUtil,
 } from 'utils'
-import { AuthCodeExpired } from 'views'
-
-export const getAuthCodeExpired = async (c: Context<typeConfig.Context>) => {
-  const { SUPPORTED_LOCALES: locales } = env(c)
-
-  const locale = c.req.query('locale') || locales[0]
-  const org = c.req.query('org')
-
-  return c.html(<AuthCodeExpired
-    locale={locale as typeConfig.Locale}
-    branding={await brandingService.getBranding(
-      c,
-      org,
-    )}
-  />)
-}
 
 export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()

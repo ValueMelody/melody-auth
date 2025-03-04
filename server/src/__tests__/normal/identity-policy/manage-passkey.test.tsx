@@ -15,7 +15,6 @@ import {
   prepareFollowUpBody,
   insertUsers,
 } from 'tests/identity'
-import { enrollPasskey } from '__tests__/normal/identity-passkey.test'
 import { Policy } from 'dtos/oauth'
 import { dbTime } from 'tests/util'
 
@@ -75,7 +74,7 @@ const sendCorrectEnrollPasskeyReq = async ({ code }: { code?: string } = {}) => 
 }
 
 const sendCorrectDeletePasskeyReq = async ({ code }: { code?: string } = {}) => {
-  await enrollPasskey(db)
+  await sendCorrectEnrollPasskeyReq()
 
   const body = await prepareFollowUpBody(db)
   const res = await app.request(

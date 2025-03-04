@@ -10,7 +10,15 @@ import { identityHandler } from 'handlers'
 
 const identityRoutes = new Hono<typeConfig.Context>()
 export default identityRoutes
-
+/**
+ * Identity Main
+ * - AuthorizeView
+ * - ProcessView
+ * - AuthorizePassword
+ * - AuthorizeAccount
+ * - AppConsent
+ * - Logout
+ */
 identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizeView,
   identityHandler.getAuthorizeView,
@@ -21,47 +29,11 @@ identityRoutes.get(
   identityHandler.getProcessView,
 )
 
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeConsentInfo,
-  identityHandler.getAuthorizeConsentInfo,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeOtpSetupInfo,
-  identityHandler.getAuthorizeOtpSetupInfo,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeOtpMfaInfo,
-  identityHandler.getAuthorizeOtpMfaInfo,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeSmsMfaInfo,
-  identityHandler.getAuthorizeSmsMfaInfo,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizePasskeyEnrollInfo,
-  identityHandler.getAuthorizePasskeyEnrollInfo,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizePassword,
-  identityHandler.getAuthorizePassword,
-)
-
 identityRoutes.post(
   routeConfig.IdentityRoute.AuthorizePassword,
   setupMiddleware.validOrigin,
   configMiddleware.enablePasswordSignIn,
   identityHandler.postAuthorizePassword,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeAccount,
-  configMiddleware.enableSignUp,
-  identityHandler.getAuthorizeAccount,
 )
 
 identityRoutes.post(
@@ -72,119 +44,20 @@ identityRoutes.post(
 )
 
 identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeOtpSetup,
-  identityHandler.getAuthorizeOtpSetup,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeOtpMfa,
-  identityHandler.getAuthorizeOtpMfa,
+  routeConfig.IdentityRoute.AppConsent,
+  identityHandler.getAppConsent,
 )
 
 identityRoutes.post(
-  routeConfig.IdentityRoute.AuthorizeOtpMfa,
+  routeConfig.IdentityRoute.AppConsent,
   setupMiddleware.validOrigin,
-  identityHandler.postAuthorizeOtpMfa,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeOtpSetup,
-  identityHandler.getAuthorizeOtpSetup,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeSmsMfa,
-  identityHandler.getAuthorizeSmsMfa,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.SetupSmsMfa,
-  setupMiddleware.validOrigin,
-  identityHandler.postSetupSmsMfa,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.AuthorizeSmsMfa,
-  setupMiddleware.validOrigin,
-  identityHandler.postAuthorizeSmsMfa,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.ResendSmsMfa,
-  setupMiddleware.validOrigin,
-  identityHandler.resendSmsMfa,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeEmailMfa,
-  identityHandler.getAuthorizeEmailMfa,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.AuthorizeEmailMfa,
-  setupMiddleware.validOrigin,
-  identityHandler.postAuthorizeEmailMfa,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizePasskeyEnroll,
-  configMiddleware.enablePasskeyEnrollment,
-  identityHandler.getAuthorizePasskeyEnroll,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.AuthorizePasskeyEnroll,
-  setupMiddleware.validOrigin,
-  configMiddleware.enablePasskeyEnrollment,
-  identityHandler.postAuthorizePasskeyEnroll,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.AuthorizePasskeyEnrollDecline,
-  setupMiddleware.validOrigin,
-  configMiddleware.enablePasskeyEnrollment,
-  identityHandler.postAuthorizePasskeyEnrollDecline,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizePasskeyVerify,
-  configMiddleware.enablePasskeyEnrollment,
-  identityHandler.getAuthorizePasskeyVerify,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.AuthorizePasskeyVerify,
-  setupMiddleware.validOrigin,
-  configMiddleware.enablePasskeyEnrollment,
-  identityHandler.postAuthorizePasskeyVerify,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.ResendEmailMfa,
-  setupMiddleware.validOrigin,
-  identityHandler.postResendEmailMfa,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthorizeConsent,
-  identityHandler.getAuthorizeConsent,
-)
-
-identityRoutes.post(
-  routeConfig.IdentityRoute.AuthorizeConsent,
-  setupMiddleware.validOrigin,
-  identityHandler.postAuthorizeConsent,
+  identityHandler.postAppConsent,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.Logout,
   authMiddleware.spa,
   identityHandler.postLogout,
-)
-
-identityRoutes.get(
-  routeConfig.IdentityRoute.AuthCodeExpired,
-  identityHandler.getAuthCodeExpired,
 )
 
 /**
@@ -216,6 +89,9 @@ identityRoutes.get(
 /**
  * Process MFA
  * - ProcessMfaEnroll
+ * - ProcessEmailMfa
+ * - ProcessSmsMfa
+ * - ProcessOtpMfa
  */
 identityRoutes.get(
   routeConfig.IdentityRoute.ProcessMfaEnroll,
@@ -227,6 +103,97 @@ identityRoutes.post(
   routeConfig.IdentityRoute.ProcessMfaEnroll,
   configMiddleware.enableMfaEnroll,
   identityHandler.postProcessMfaEnroll,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.SendEmailMfa,
+  setupMiddleware.validOrigin,
+  identityHandler.postSendEmailMfa,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessEmailMfa,
+  setupMiddleware.validOrigin,
+  identityHandler.postProcessEmailMfa,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.SetupSmsMfa,
+  setupMiddleware.validOrigin,
+  identityHandler.postSetupSmsMfa,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ResendSmsMfa,
+  setupMiddleware.validOrigin,
+  identityHandler.resendSmsMfa,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.ProcessSmsMfa,
+  identityHandler.getProcessSmsMfa,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessSmsMfa,
+  setupMiddleware.validOrigin,
+  identityHandler.postProcessSmsMfa,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.OtpMfaSetup,
+  identityHandler.getOtpMfaSetup,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.ProcessOtpMfa,
+  identityHandler.getProcessOtpMfa,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessOtpMfa,
+  setupMiddleware.validOrigin,
+  identityHandler.postProcessOtpMfa,
+)
+
+/**
+ * Process Passkey
+ * - ProcessPasskeyEnroll
+ * - AuthorizePasskeyEnrollDecline
+ * - AuthorizePasskeyVerify
+ */
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.getProcessPasskeyEnroll,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.postProcessPasskeyEnroll,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.postProcessPasskeyEnrollDecline,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.getAuthorizePasskeyVerify,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  identityHandler.postAuthorizePasskeyVerify,
 )
 
 /**

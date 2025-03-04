@@ -54,7 +54,7 @@ const useEmailMfaForm = ({
   const sendEmailMfa = useCallback(
     (isResend: boolean = false) => {
       fetch(
-        routeConfig.IdentityRoute.ResendEmailMfa,
+        routeConfig.IdentityRoute.SendEmailMfa,
         {
           method: 'POST',
           headers: {
@@ -90,7 +90,7 @@ const useEmailMfaForm = ({
       }
 
       fetch(
-        routeConfig.IdentityRoute.AuthorizeEmailMfa,
+        routeConfig.IdentityRoute.ProcessEmailMfa,
         {
           method: 'POST',
           headers: {

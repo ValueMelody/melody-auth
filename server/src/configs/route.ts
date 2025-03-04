@@ -18,34 +18,31 @@ export enum OauthRoute {
 }
 
 export enum IdentityRoute {
+  // Identity View
   ProcessView = `${InternalRoute.Identity}/view/process`,
-  AuthorizeConsentInfo = `${InternalRoute.Identity}/consent-info`,
-  AuthorizeOtpSetupInfo = `${InternalRoute.Identity}/otp-setup-info`,
-  AuthorizeOtpMfaInfo = `${InternalRoute.Identity}/otp-mfa-info`,
-  AuthorizeSmsMfaInfo = `${InternalRoute.Identity}/sms-mfa-info`,
-  AuthorizePasskeyEnrollInfo = `${InternalRoute.Identity}/passkey-enroll-info`,
-  AuthCodeExpired = `${InternalRoute.Identity}/auth-code-expired`,
-  AuthorizeOtpSetup = `${InternalRoute.Identity}/authorize-otp-setup`,
-  AuthorizeOtpMfa = `${InternalRoute.Identity}/authorize-otp-mfa`,
-  AuthorizeSmsMfa = `${InternalRoute.Identity}/authorize-sms-mfa`,
-  AuthorizePasskeyEnroll = `${InternalRoute.Identity}/authorize-passkey-enroll`,
-  AuthorizePasskeyEnrollDecline = `${InternalRoute.Identity}/authorize-passkey-enroll-decline`,
-  AuthorizePasskeyVerify = `${InternalRoute.Identity}/authorize-passkey-verify`,
-  ResendSmsMfa = `${InternalRoute.Identity}/resend-sms-mfa`,
-  SetupSmsMfa = `${InternalRoute.Identity}/setup-sms-mfa`,
-  AuthorizeEmailMfa = `${InternalRoute.Identity}/authorize-email-mfa`,
-  ResendEmailMfa = `${InternalRoute.Identity}/resend-email-mfa`,
-  AuthorizeConsent = `${InternalRoute.Identity}/authorize-consent`,
-  Logout = `${InternalRoute.Identity}/logout`,
   AuthorizeView = `${InternalRoute.Identity}/view/authorize`,
+  // Identity Main
   AuthorizePassword = `${InternalRoute.Identity}/authorize-password`,
   AuthorizeAccount = `${InternalRoute.Identity}/authorize-account`,
+  AppConsent = `${InternalRoute.Identity}/app-consent`,
+  Logout = `${InternalRoute.Identity}/logout`,
   // Authorize Social-signin
   AuthorizeGoogle = `${InternalRoute.Identity}/authorize-google`,
   AuthorizeFacebook = `${InternalRoute.Identity}/authorize-facebook`,
   AuthorizeGitHub = `${InternalRoute.Identity}/authorize-github`,
   // Process MFA
   ProcessMfaEnroll = `${InternalRoute.Identity}/process-mfa-enroll`,
+  SendEmailMfa = `${InternalRoute.Identity}/send-email-mfa`,
+  ProcessEmailMfa = `${InternalRoute.Identity}/process-email-mfa`,
+  ResendSmsMfa = `${InternalRoute.Identity}/resend-sms-mfa`,
+  SetupSmsMfa = `${InternalRoute.Identity}/setup-sms-mfa`,
+  ProcessSmsMfa = `${InternalRoute.Identity}/process-sms-mfa`,
+  OtpMfaSetup = `${InternalRoute.Identity}/otp-mfa-setup`,
+  ProcessOtpMfa = `${InternalRoute.Identity}/process-otp-mfa`,
+  // Process Passkey
+  ProcessPasskeyEnroll = `${InternalRoute.Identity}/process-passkey-enroll`,
+  ProcessPasskeyEnrollDecline = `${InternalRoute.Identity}/process-passkey-enroll-decline`,
+  AuthorizePasskeyVerify = `${InternalRoute.Identity}/authorize-passkey-verify`,
   // Policy
   ChangePassword = `${InternalRoute.Identity}/change-password`,
   ChangeEmailCode = `${InternalRoute.Identity}/change-email-code`,

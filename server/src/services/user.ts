@@ -366,7 +366,7 @@ export const processGithubAccount = async (
 
 export const verifyUserEmail = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostVerifyEmailReqDto,
+  bodyDto: identityDto.PostVerifyEmailDto,
 ): Promise<true> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
@@ -469,7 +469,7 @@ export const resetUserPassword = async (
 export const changeUserPassword = async (
   c: Context<typeConfig.Context>,
   user: userModel.Record,
-  bodyDto: identityDto.PostChangePasswordReqDto,
+  bodyDto: identityDto.PostChangePasswordDto,
 ): Promise<true> => {
   if (!user.password) {
     throw new errorConfig.NotFound(localeConfig.Error.NoUser)
@@ -496,7 +496,7 @@ export const changeUserPassword = async (
 export const changeUserEmail = async (
   c: Context<typeConfig.Context>,
   user: userModel.Record,
-  bodyDto: identityDto.PostChangeEmailReqDto,
+  bodyDto: identityDto.PostChangeEmailDto,
 ): Promise<true> => {
   const isSame = user.email === bodyDto.email
   if (isSame) {

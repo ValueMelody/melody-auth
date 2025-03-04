@@ -13,7 +13,6 @@ import {
 import { userModel } from 'models'
 import {
   prepareFollowUpBody, insertUsers,
-  prepareFollowUpParams,
 } from 'tests/identity'
 
 let db: Database
@@ -27,26 +26,25 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const sendCorrectGetEnrollRequest = async ({
-  code,
-}: {
+const sendCorrectGetEnrollRequest = async ({ code }: {
   code?: string;
 } = {}) => {
-  await insertUsers(db, false)
+  await insertUsers(
+    db,
+    false,
+  )
   const body = await prepareFollowUpBody(db)
-  
+
   const res = await app.request(
     `${routeConfig.IdentityRoute.ProcessMfaEnroll}?code=${code ?? body.code}`,
-    {
-      method: 'GET',
-    },
-    mock(db)
+    { method: 'GET' },
+    mock(db),
   )
   return { res }
 }
 
 const sendCorrectPostEnrollRequest = async ({
-  type, 
+  type,
   code,
 }: {
   type: userModel.MfaType;
@@ -70,48 +68,54 @@ const sendCorrectPostEnrollRequest = async ({
   return { res }
 }
 
-
 describe(
   'get /process-mfa-enroll',
   () => {
-    test('should get available MFA enrollment options', async () => {
-      const { res } = await sendCorrectGetEnrollRequest()
-      expect(res.status).toBe(200)
-      const json = await res.json()
-      expect(json).toStrictEqual({
-        mfaTypes: ['otp', 'email'],
-      })
-    })
+    test(
+      'should get available MFA enrollment options',
+      async () => {
+        const { res } = await sendCorrectGetEnrollRequest()
+        expect(res.status).toBe(200)
+        const json = await res.json()
+        expect(json).toStrictEqual({ mfaTypes: ['otp', 'email'] })
+      },
+    )
 
-    test('should get type based on env', async () => {
-      process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email', 'sms'] as unknown as string
-      const { res } = await sendCorrectGetEnrollRequest()
-      
-      expect(res.status).toBe(200)
-      const json = await res.json()
-      expect(json).toStrictEqual({
-        mfaTypes: ['otp', 'email', 'sms'],  
-      })
+    test(
+      'should get type based on env',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email', 'sms'] as unknown as string
+        const { res } = await sendCorrectGetEnrollRequest()
 
-      process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
-    })
+        expect(res.status).toBe(200)
+        const json = await res.json()
+        expect(json).toStrictEqual({ mfaTypes: ['otp', 'email', 'sms'] })
 
-    test('should throw error if auth code is wrong', async () => {
-      const { res } = await sendCorrectGetEnrollRequest({ code: 'abc' })
-      expect(res.status).toBe(400)
-      expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
-    })
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
+      },
+    )
 
-    test('should throw error if feature is not enabled', async () => {
-      process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
-      const { res } = await sendCorrectGetEnrollRequest()
-      expect(res.status).toBe(400)
+    test(
+      'should throw error if auth code is wrong',
+      async () => {
+        const { res } = await sendCorrectGetEnrollRequest({ code: 'abc' })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+      },
+    )
 
-      process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
-    })
+    test(
+      'should throw error if feature is not enabled',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const { res } = await sendCorrectGetEnrollRequest()
+        expect(res.status).toBe(400)
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
+      },
+    )
   },
 )
-
 
 describe(
   'post /process-mfa-enroll',
@@ -130,7 +134,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeEmailMfa,
+          nextPage: routeConfig.IdentityRoute.ProcessEmailMfa,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -145,7 +149,9 @@ describe(
           db,
           false,
         )
-        const { res } = await sendCorrectPostEnrollRequest({ type: userModel.MfaType.Email, code: 'abc' })
+        const { res } = await sendCorrectPostEnrollRequest({
+          type: userModel.MfaType.Email, code: 'abc',
+        })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
       },
@@ -180,7 +186,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeOtpSetup,
+          nextPage: routeConfig.IdentityRoute.OtpMfaSetup,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -202,7 +208,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.AuthorizeSmsMfa,
+          nextPage: routeConfig.IdentityRoute.ProcessSmsMfa,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -210,14 +216,20 @@ describe(
       },
     )
 
-    test('should throw error if feature not enabled', async () => {
-      process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
-      await insertUsers(db, false)
-      const { res } = await sendCorrectPostEnrollRequest({ type: userModel.MfaType.Email })
-      expect(res.status).toBe(400)
+        await insertUsers(
+          db,
+          false,
+        )
+        const { res } = await sendCorrectPostEnrollRequest({ type: userModel.MfaType.Email })
+        expect(res.status).toBe(400)
 
-      process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
-    })
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
+      },
+    )
   },
 )

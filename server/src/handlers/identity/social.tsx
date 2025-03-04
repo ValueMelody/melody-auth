@@ -190,8 +190,8 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
   )
 
   const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
-  const url = detail.nextPage === routeConfig.IdentityRoute.AuthorizeConsent
-    ? `${routeConfig.IdentityRoute.AuthorizeConsent}${qs}&redirect_uri=${detail.redirectUri}`
+  const url = detail.nextPage === routeConfig.IdentityRoute.AppConsent
+    ? `${routeConfig.IdentityRoute.AppConsent}${qs}&redirect_uri=${detail.redirectUri}`
     : `${detail.redirectUri}${qs}`
   return c.redirect(url)
 }
