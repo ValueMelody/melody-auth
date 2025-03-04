@@ -49,7 +49,7 @@ describe(
         expect(res.status).toBe(200)
         const json = await res.json()
         expect(json).toStrictEqual({
-          appName: "Admin Panel (SPA)",
+          appName: 'Admin Panel (SPA)',
           scopes: [
             {
               createdAt: dbTime,
@@ -122,26 +122,29 @@ describe(
         )
         expect(res.status).toBe(200)
         expect(await res.json()).toStrictEqual({
-          appName: "Admin Panel (SPA)",
+          appName: 'Admin Panel (SPA)',
           scopes: [],
         })
       },
     )
 
-    test('should throw error if use wrong auth code', async () => {
-      await insertUsers(
-        db,
-        false,
-      )
-      await prepareFollowUpParams(db)
-      const res = await app.request(
-        `${routeConfig.IdentityRoute.AppConsent}?code=abc`,
-        {},
-        mock(db),
-      )
-      expect(res.status).toBe(400)
-      expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
-    })
+    test(
+      'should throw error if use wrong auth code',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await prepareFollowUpParams(db)
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AppConsent}?code=abc`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+      },
+    )
   },
 )
 

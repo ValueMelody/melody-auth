@@ -8,7 +8,9 @@ import {
   migrate, mock,
   mockedKV,
 } from 'tests/mock'
-import { insertUsers, prepareFollowUpParams } from 'tests/identity'
+import {
+  insertUsers, prepareFollowUpParams,
+} from 'tests/identity'
 
 let db: Database
 

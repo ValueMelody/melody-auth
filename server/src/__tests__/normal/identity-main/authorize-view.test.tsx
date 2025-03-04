@@ -7,7 +7,9 @@ import {
   migrate,
   mockedKV,
 } from 'tests/mock'
-import { getApp, getSignInRequest } from 'tests/identity'
+import {
+  getApp, getSignInRequest,
+} from 'tests/identity'
 
 let db: Database
 
@@ -140,10 +142,12 @@ describe(
       },
     )
 
-    test('should override variables using org config', async () => {
-      global.process.env.ENABLE_ORG = true as unknown as string
+    test(
+      'should override variables using org config',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
 
-      db.exec(`
+        db.exec(`
         insert into "org" (
           name, slug, "companyLogoUrl", "layoutColor", "labelColor",
           "primaryButtonColor", "primaryButtonLabelColor", "primaryButtonBorderColor",
@@ -155,31 +159,31 @@ describe(
         )
       `)
 
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.IdentityRoute.AuthorizeView,
+          appRecord,
+          '&org=default',
+        )
 
-      const appRecord = await getApp(db)
-      const res = await getSignInRequest(
-        db,
-        routeConfig.IdentityRoute.AuthorizeView,
-        appRecord,
-        '&org=default',
-      )
-
-      const html = await res.text()
-      expect(html).toContain(`logoUrl: "https://test.com"`)
-      expect(html).toContain(`termsLink: "https://terms.com"`)
-      expect(html).toContain(`privacyPolicyLink: "https://privacy.com"`)
-      expect(html).toContain(`<link rel="icon" type="image/x-icon" href="https://test.com"/>`)
-      expect(html).toContain(`<link href="http://font.com" rel="stylesheet"/>`)
-      expect(html).toContain(`--layout-color:red`)
-      expect(html).toContain(`--label-color:green`)
-      expect(html).toContain(`--font-default:Arial`)
-      expect(html).toContain(`--primary-button-color:black`)
-      expect(html).toContain(`--primary-button-label-color:gray`)
-      expect(html).toContain(`--primary-button-border-color:orange`)
-      expect(html).toContain(`--secondary-button-color:darkred`)
-      expect(html).toContain(`--secondary-button-label-color:darkgray`)
-      expect(html).toContain(`--secondary-button-border-color:blue`)
-      expect(html).toContain(`--critical-indicator-color:yellow`)
-    })
+        const html = await res.text()
+        expect(html).toContain('logoUrl: "https://test.com"')
+        expect(html).toContain('termsLink: "https://terms.com"')
+        expect(html).toContain('privacyPolicyLink: "https://privacy.com"')
+        expect(html).toContain('<link rel="icon" type="image/x-icon" href="https://test.com"/>')
+        expect(html).toContain('<link href="http://font.com" rel="stylesheet"/>')
+        expect(html).toContain('--layout-color:red')
+        expect(html).toContain('--label-color:green')
+        expect(html).toContain('--font-default:Arial')
+        expect(html).toContain('--primary-button-color:black')
+        expect(html).toContain('--primary-button-label-color:gray')
+        expect(html).toContain('--primary-button-border-color:orange')
+        expect(html).toContain('--secondary-button-color:darkred')
+        expect(html).toContain('--secondary-button-label-color:darkgray')
+        expect(html).toContain('--secondary-button-border-color:blue')
+        expect(html).toContain('--critical-indicator-color:yellow')
+      },
+    )
   },
 )

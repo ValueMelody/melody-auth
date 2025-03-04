@@ -89,15 +89,21 @@ describe(
       },
     )
 
-    test('should throw error if feature not allowed', async () => {
-      const { res } = await sendCorrectGetEnrollPasskeyReq()
-      expect(res.status).toBe(400)
-    })
+    test(
+      'should throw error if feature not allowed',
+      async () => {
+        const { res } = await sendCorrectGetEnrollPasskeyReq()
+        expect(res.status).toBe(400)
+      },
+    )
 
-    test('should throw error if use wrong code', async () => {
-      const { res } = await sendCorrectGetEnrollPasskeyReq({ code: 'abc' })
-      expect(res.status).toBe(400)
-    })
+    test(
+      'should throw error if use wrong code',
+      async () => {
+        const { res } = await sendCorrectGetEnrollPasskeyReq({ code: 'abc' })
+        expect(res.status).toBe(400)
+      },
+    )
   },
 )
 
@@ -167,14 +173,17 @@ describe(
       },
     )
 
-    test('should throw error if use wrong code', async () => {
-      process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+    test(
+      'should throw error if use wrong code',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
 
-      const res = await sendCorrectEnrollPasskeyReq({ code: 'abc' })
-      expect(res.status).toBe(400)
+        const res = await sendCorrectEnrollPasskeyReq({ code: 'abc' })
+        expect(res.status).toBe(400)
 
-      process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
-    })
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
   },
 )
 
@@ -265,65 +274,71 @@ describe(
       },
     )
 
-    test('should throw error if use wrong code', async () => {
-      process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+    test(
+      'should throw error if use wrong code',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
 
-      await insertUsers(
-        db,
-        false,
-      )
-      const params = await prepareFollowUpParams(db)
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
 
-      await app.request(
-        `${routeConfig.IdentityRoute.ProcessPasskeyEnroll}${params}`,
-        {},
-        mock(db),
-      )
+        await app.request(
+          `${routeConfig.IdentityRoute.ProcessPasskeyEnroll}${params}`,
+          {},
+          mock(db),
+        )
 
-      const res = await app.request(
-        routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            code: 'abc', locale: 'en', remember: false,
-          }),
-        },
-        mock(db),
-      )
-      expect(res.status).toBe(400)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: 'abc', locale: 'en', remember: false,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
 
-      process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
-    })
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
 
-    test('should throw error if feature not allowed', async () => {
-      process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+    test(
+      'should throw error if feature not allowed',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
 
-      await insertUsers(
-        db,
-        false,
-      )
-      const params = await prepareFollowUpParams(db)
-      const code = getCodeFromParams(params)
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+        const code = getCodeFromParams(params)
 
-      await app.request(
-        `${routeConfig.IdentityRoute.ProcessPasskeyEnroll}${params}`,
-        {},
-        mock(db),
-      )
+        await app.request(
+          `${routeConfig.IdentityRoute.ProcessPasskeyEnroll}${params}`,
+          {},
+          mock(db),
+        )
 
-      process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
 
-      const res = await app.request(
-        routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            code, locale: 'en', remember: false,
-          }),
-        },
-        mock(db),
-      )
-      expect(res.status).toBe(400)
-    })
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code, locale: 'en', remember: false,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
   },
 )
