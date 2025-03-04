@@ -179,7 +179,7 @@ export interface GetProcessMfaEnrollRes {
 }
 export const getProcessMfaEnroll = async (c: Context<typeConfig.Context>)
 :Promise<TypedResponse<GetProcessMfaEnrollRes>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authCodeStore = await kvService.getAuthCodeBody(
     c.env.KV,
@@ -238,7 +238,7 @@ export const postSendEmailMfa = async (c: Context<typeConfig.Context>) => {
 
   const { SUPPORTED_LOCALES: locales } = env(c)
 
-  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const emailRes = await handleSendEmailMfa(
@@ -342,7 +342,7 @@ export const resendSmsMfa = async (c: Context<typeConfig.Context>) => {
 
   const { SUPPORTED_LOCALES: locales } = env(c)
 
-  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -372,7 +372,7 @@ export interface GetProcessSmsMfaRes {
 }
 export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
 :Promise<TypedResponse<GetProcessSmsMfaRes>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
   await validateUtil.dto(queryDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -463,7 +463,7 @@ export interface GetOtpMfaSetupRes {
 }
 export const getOtpMfaSetup = async (c: Context<typeConfig.Context>)
 :Promise<TypedResponse<GetOtpMfaSetupRes>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authCodeStore = await kvService.getAuthCodeBody(
     c.env.KV,
@@ -483,7 +483,7 @@ export interface GetProcessOtpMfaRes {
 }
 export const getProcessOtpMfa = async (c: Context<typeConfig.Context>)
 :Promise<TypedResponse<GetProcessOtpMfaRes>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authCodeBody = await kvService.getAuthCodeBody(
     c.env.KV,

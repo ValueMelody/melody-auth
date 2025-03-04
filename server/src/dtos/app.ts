@@ -9,7 +9,7 @@ import { requestUtil } from 'utils'
 const formatRedirectUri = (redirectUris: string[]) => redirectUris
   .map((uri) => requestUtil.stripEndingSlash(uri.trim().toLowerCase()))
 
-export class PostAppReqDto {
+export class PostAppDto {
   @IsString()
   @Length(
     1,
@@ -30,7 +30,7 @@ export class PostAppReqDto {
   @IsNotEmpty()
     redirectUris: string[]
 
-  constructor (dto: PostAppReqDto) {
+  constructor (dto: PostAppDto) {
     this.name = dto.name.trim()
     this.type = dto.type
     this.scopes = dto.scopes
@@ -38,7 +38,7 @@ export class PostAppReqDto {
   }
 }
 
-export class PutAppReqDto {
+export class PutAppDto {
   @IsString({ each: true })
   @IsOptional()
     redirectUris?: string[]
@@ -59,7 +59,7 @@ export class PutAppReqDto {
   @IsOptional()
     scopes?: string[]
 
-  constructor (dto: PutAppReqDto) {
+  constructor (dto: PutAppDto) {
     this.redirectUris = dto.redirectUris ? formatRedirectUri(dto.redirectUris) : undefined
     this.name = dto.name
     this.isActive = dto.isActive

@@ -24,7 +24,7 @@ const prepareSocialAuthCode = async (
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
 
   const authCode = genRandomString(128)
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCodeBody = {
     appId: app.id,
     appName: app.name,

@@ -151,7 +151,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getProcessView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,
@@ -228,7 +228,7 @@ export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetAuthCodeExpiredReqDto({
+  const queryDto = new identityDto.GetAuthCodeExpiredViewDto({
     locale: requestUtil.getLocaleFromQuery(
       c,
       c.req.query('locale'),

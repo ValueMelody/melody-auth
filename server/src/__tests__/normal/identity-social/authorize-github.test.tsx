@@ -60,7 +60,7 @@ describe(
 
       const appRecord = await getApp(db)
       const requestBody = await postAuthorizeBody(appRecord)
-      const state = JSON.stringify(new oauthDto.GetAuthorizeReqDto({
+      const state = JSON.stringify(new oauthDto.GetAuthorizeDto({
         ...requestBody,
         scopes: requestBody.scope.split(' ') ?? [],
         locale: 'en',

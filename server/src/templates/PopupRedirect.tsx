@@ -4,7 +4,7 @@ import { oauthDto } from 'dtos'
 const PopupRedirect = ({
   queryDto, code,
 }: {
-  queryDto: oauthDto.GetAuthorizeReqDto;
+  queryDto: oauthDto.GetAuthorizeDto;
   code: string;
 }) => {
   return (

@@ -13,21 +13,21 @@ import {
 } from 'utils'
 import { userModel } from 'models'
 
-export class PostAuthorizeReqWithPasswordDto extends oauthDto.GetAuthorizeReqDto {
+export class PostAuthorizeWithPasswordDto extends oauthDto.GetAuthorizeDto {
   @IsEmail()
     email: string
 
   @IsStrongPassword()
     password: string
 
-  constructor (dto: PostAuthorizeReqWithPasswordDto) {
+  constructor (dto: PostAuthorizeWithPasswordDto) {
     super(dto)
     this.email = dto.email.toLowerCase()
     this.password = dto.password
   }
 }
 
-export class PostAuthorizeReqWithNamesDto extends PostAuthorizeReqWithPasswordDto {
+export class PostAuthorizeWithNamesDto extends PostAuthorizeWithPasswordDto {
   @IsString()
   @Length(
     0,
@@ -47,7 +47,7 @@ export class PostAuthorizeReqWithNamesDto extends PostAuthorizeReqWithPasswordDt
   @IsString()
     locale: typeConfig.Locale
 
-  constructor (dto: PostAuthorizeReqWithNamesDto) {
+  constructor (dto: PostAuthorizeWithNamesDto) {
     super(dto)
     this.firstName = dto.firstName ?? null
     this.lastName = dto.lastName ?? null
@@ -55,7 +55,7 @@ export class PostAuthorizeReqWithNamesDto extends PostAuthorizeReqWithPasswordDt
   }
 }
 
-export class PostAuthorizeReqWithRequiredNamesDto extends PostAuthorizeReqWithPasswordDto {
+export class PostAuthorizeWithRequiredNamesDto extends PostAuthorizeWithPasswordDto {
   @IsString()
   @Length(
     1,
@@ -70,14 +70,14 @@ export class PostAuthorizeReqWithRequiredNamesDto extends PostAuthorizeReqWithPa
   )
     lastName: string | null
 
-  constructor (dto: PostAuthorizeReqWithRequiredNamesDto) {
+  constructor (dto: PostAuthorizeWithRequiredNamesDto) {
     super(dto)
     this.firstName = dto.firstName
     this.lastName = dto.lastName
   }
 }
 
-export class GetAuthorizeFollowUpReqDto {
+export class GetProcessDto {
   @IsString()
   @IsNotEmpty()
     code: string
@@ -89,15 +89,15 @@ export class GetAuthorizeFollowUpReqDto {
   @IsOptional()
     org: string | undefined
 
-  constructor (dto: GetAuthorizeFollowUpReqDto) {
+  constructor (dto: GetProcessDto) {
     this.code = dto.code
     this.locale = dto.locale
     this.org = dto.org
   }
 }
 
-export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new GetAuthorizeFollowUpReqDto({
+export const parseGetProcess = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new GetProcessDto({
     code: c.req.query('code') ?? '',
     locale: requestUtil.getLocaleFromQuery(
       c,
@@ -109,31 +109,12 @@ export const parseGetAuthorizeFollowUpReq = async (c: Context<typeConfig.Context
   return queryDto
 }
 
-export class PostAuthorizeFollowUpReqDto extends GetAuthorizeFollowUpReqDto {}
-
-export class GetAuthCodeExpiredReqDto {
-  @IsString()
-    locale: typeConfig.Locale
-
-  @IsString()
-  @IsOptional()
-    redirect_uri: string | undefined
-
-  @IsString()
-  @IsOptional()
-    org: string | undefined
-
-  constructor (dto: GetAuthCodeExpiredReqDto) {
-    this.locale = dto.locale
-    this.redirect_uri = dto.redirect_uri
-    this.org = dto.org
-  }
-}
+export class PostProcessDto extends GetProcessDto {}
 
 /**
  * DTO for MFA
  */
-export class PostProcessMfaEnrollDto extends GetAuthorizeFollowUpReqDto {
+export class PostProcessMfaEnrollDto extends GetProcessDto {
   @IsEnum(userModel.MfaType)
   @IsNotEmpty()
     type: userModel.MfaType
@@ -144,7 +125,7 @@ export class PostProcessMfaEnrollDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
-export class PostAuthorizeMfaDto extends GetAuthorizeFollowUpReqDto {
+export class PostAuthorizeMfaDto extends GetProcessDto {
   @IsString()
   @IsNotEmpty()
     mfaCode: string
@@ -155,7 +136,7 @@ export class PostAuthorizeMfaDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
-export class PostSetupSmsMfaDto extends GetAuthorizeFollowUpReqDto {
+export class PostSetupSmsMfaDto extends GetProcessDto {
   @IsString()
   @IsNotEmpty()
     phoneNumber: string
@@ -169,7 +150,7 @@ export class PostSetupSmsMfaDto extends GetAuthorizeFollowUpReqDto {
 /**
  * DTO for Passkey
  */
-export class PostProcessPasskeyEnrollDto extends GetAuthorizeFollowUpReqDto {
+export class PostProcessPasskeyEnrollDto extends GetProcessDto {
   @IsNotEmpty()
     enrollInfo: RegistrationResponseJSON
 
@@ -179,7 +160,7 @@ export class PostProcessPasskeyEnrollDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
-export class PostProcessPasskeyEnrollDeclineDto extends GetAuthorizeFollowUpReqDto {
+export class PostProcessPasskeyEnrollDeclineDto extends GetProcessDto {
   @IsBoolean()
     remember: boolean
 
@@ -199,7 +180,7 @@ export class GetAuthorizePasskeyVerifyDto {
   }
 }
 
-export class PostAuthorizePasskeyVerifyDto extends oauthDto.GetAuthorizeReqDto {
+export class PostAuthorizePasskeyVerifyDto extends oauthDto.GetAuthorizeDto {
   @IsNotEmpty()
     passkeyInfo: AuthenticationResponseJSON
 
@@ -214,11 +195,10 @@ export class PostAuthorizePasskeyVerifyDto extends oauthDto.GetAuthorizeReqDto {
   }
 }
 
-
 /**
  * DTO for Social-signin
 */
-export class PostAuthorizeSocialSignInDto extends oauthDto.GetAuthorizeReqDto {
+export class PostAuthorizeSocialSignInDto extends oauthDto.GetAuthorizeDto {
   @IsString()
   @IsNotEmpty()
     credential: string
@@ -232,7 +212,7 @@ export class PostAuthorizeSocialSignInDto extends oauthDto.GetAuthorizeReqDto {
 /**
  * DTO for policies
  */
-export class PostChangePasswordDto extends GetAuthorizeFollowUpReqDto {
+export class PostChangePasswordDto extends GetProcessDto {
   @IsString()
   @IsNotEmpty()
     password: string
@@ -243,7 +223,7 @@ export class PostChangePasswordDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
-export class PostChangeEmailCodeDto extends GetAuthorizeFollowUpReqDto {
+export class PostChangeEmailCodeDto extends GetProcessDto {
   @IsEmail()
   @IsNotEmpty()
     email: string
@@ -268,7 +248,7 @@ export class PostChangeEmailDto extends PostChangeEmailCodeDto {
   }
 }
 
-export class PostManagePasskeyDto extends GetAuthorizeFollowUpReqDto {
+export class PostManagePasskeyDto extends GetProcessDto {
   @IsNotEmpty()
     enrollInfo: RegistrationResponseJSON
 
@@ -278,9 +258,9 @@ export class PostManagePasskeyDto extends GetAuthorizeFollowUpReqDto {
   }
 }
 
-export class DeleteManagePasskeyDto extends GetAuthorizeFollowUpReqDto {}
+export class DeleteManagePasskeyDto extends GetProcessDto {}
 
-export class PostLogoutReqDto {
+export class PostLogoutDto {
   @IsString()
   @IsNotEmpty()
     refreshToken: string
@@ -288,13 +268,13 @@ export class PostLogoutReqDto {
   @IsString()
     postLogoutRedirectUri: string
 
-  constructor (dto: PostLogoutReqDto) {
+  constructor (dto: PostLogoutDto) {
     this.refreshToken = dto.refreshToken
     this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
   }
 }
 
-export class PostUpdateInfoDto extends GetAuthorizeFollowUpReqDto {
+export class PostUpdateInfoDto extends GetProcessDto {
   @IsString()
     firstName?: string
 
@@ -370,6 +350,25 @@ export class GetVerifyEmailViewDto {
   constructor (dto: GetVerifyEmailViewDto) {
     this.id = dto.id.trim()
     this.locale = dto.locale
+    this.org = dto.org
+  }
+}
+
+export class GetAuthCodeExpiredViewDto {
+  @IsString()
+    locale: typeConfig.Locale
+
+  @IsString()
+  @IsOptional()
+    redirect_uri: string | undefined
+
+  @IsString()
+  @IsOptional()
+    org: string | undefined
+
+  constructor (dto: GetAuthCodeExpiredViewDto) {
+    this.locale = dto.locale
+    this.redirect_uri = dto.redirect_uri
     this.org = dto.org
   }
 }

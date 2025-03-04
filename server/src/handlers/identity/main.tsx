@@ -24,7 +24,7 @@ import {
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeReqWithPasswordDto({
+  const bodyDto = new identityDto.PostAuthorizeWithPasswordDto({
     ...reqBody,
     scopes: reqBody.scope ? reqBody.scope.split(' ') : [],
   })
@@ -54,7 +54,7 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     )
     : user
 
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCode = genRandomString(128)
   const authCodeBody = {
     appId: app.id,
@@ -95,8 +95,8 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   }
 
   const bodyDto = namesIsRequired
-    ? new identityDto.PostAuthorizeReqWithRequiredNamesDto(parsedBody)
-    : new identityDto.PostAuthorizeReqWithNamesDto(parsedBody)
+    ? new identityDto.PostAuthorizeWithRequiredNamesDto(parsedBody)
+    : new identityDto.PostAuthorizeWithNamesDto(parsedBody)
   await validateUtil.dto(bodyDto)
 
   const app = await appService.verifySPAClientRequest(
@@ -126,7 +126,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   }
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCode = genRandomString(128)
   const authCodeBody = {
     appId: app.id,
@@ -155,7 +155,7 @@ export interface GetAppConsentRes {
 }
 export const getAppConsent = async (c: Context<typeConfig.Context>):
 Promise<TypedResponse<GetAppConsentRes>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,
@@ -183,7 +183,7 @@ Promise<TypedResponse<GetAppConsentRes>> => {
 export const postAppConsent = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -209,7 +209,7 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
 export const postLogout = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.parseBody()
 
-  const bodyDto = new identityDto.PostLogoutReqDto({
+  const bodyDto = new identityDto.PostLogoutDto({
     refreshToken: String(reqBody.refresh_token),
     postLogoutRedirectUri: reqBody.post_logout_redirect_uri
       ? String(reqBody.post_logout_redirect_uri)

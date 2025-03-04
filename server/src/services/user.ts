@@ -10,7 +10,7 @@ import {
   identityDto, userDto,
 } from 'dtos'
 import {
-  PostAuthorizeReqWithNamesDto, PostAuthorizeReqWithPasswordDto,
+  PostAuthorizeWithNamesDto, PostAuthorizeWithPasswordDto,
 } from 'dtos/identity'
 import {
   orgModel,
@@ -176,7 +176,7 @@ export const getUserDetailByAuthId = async (
 
 export const verifyPasswordSignIn = async (
   c: Context<typeConfig.Context>,
-  bodyDto: PostAuthorizeReqWithPasswordDto,
+  bodyDto: PostAuthorizeWithPasswordDto,
 ): Promise<userModel.Record> => {
   const {
     ACCOUNT_LOCKOUT_THRESHOLD: lockThreshold, ACCOUNT_LOCKOUT_EXPIRES_IN: lockExpiresIn,
@@ -228,7 +228,7 @@ export const verifyPasswordSignIn = async (
 
 export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
-  bodyDto: PostAuthorizeReqWithNamesDto,
+  bodyDto: PostAuthorizeWithNamesDto,
 ): Promise<userModel.Record> => {
   const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
@@ -698,7 +698,7 @@ export const markOtpAsVerified = async (
 export const updateUser = async (
   c: Context<typeConfig.Context>,
   authId: string,
-  dto: userDto.PutUserReqDto,
+  dto: userDto.PutUserDto,
 ): Promise<userModel.ApiRecordFull> => {
   const user = await userModel.getByAuthId(
     c.env.DB,

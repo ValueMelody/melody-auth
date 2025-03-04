@@ -21,7 +21,7 @@ export const getOrg = async (c: Context<typeConfig.Context>) => {
 export const postOrg = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new orgDto.PostOrgReqDto(reqBody)
+  const bodyDto = new orgDto.PostOrgDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const org = await orgService.createOrg(
@@ -37,7 +37,7 @@ export const putOrg = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const id = Number(c.req.param('id'))
 
-  const bodyDto = new orgDto.PutOrgReqDto(reqBody)
+  const bodyDto = new orgDto.PutOrgDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const org = await orgService.updateOrg(

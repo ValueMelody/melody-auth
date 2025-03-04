@@ -20,8 +20,8 @@ import {
 import { Policy } from 'dtos/oauth'
 import { PopupRedirect } from 'templates'
 
-export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeReqDto> => {
-  const queryDto = new oauthDto.GetAuthorizeReqDto({
+export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeDto> => {
+  const queryDto = new oauthDto.GetAuthorizeDto({
     clientId: c.req.query('client_id') ?? '',
     redirectUri: c.req.query('redirect_uri') ?? '',
     responseType: c.req.query('response_type') ?? '',
@@ -148,7 +148,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
 export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.parseBody()
 
-  const bodyDto = new oauthDto.PostTokenAuthCodeReqDto({
+  const bodyDto = new oauthDto.PostTokenAuthCodeDto({
     grantType: String(reqBody.grant_type),
     code: String(reqBody.code),
     codeVerifier: String(reqBody.code_verifier),
@@ -321,7 +321,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
 export const postTokenRefreshToken = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.parseBody()
 
-  const bodyDto = new oauthDto.PostTokenRefreshTokenReqDto({
+  const bodyDto = new oauthDto.PostTokenRefreshTokenDto({
     grantType: String(reqBody.grant_type),
     refreshToken: String(reqBody.refresh_token),
   })
@@ -360,7 +360,7 @@ export const postTokenClientCredentials = async (c: Context<typeConfig.Context>)
   const basicAuth = c.get('basic_auth_body')!
   const reqBody = await c.req.parseBody()
 
-  const bodyDto = new oauthDto.PostTokenClientCredentialsReqDto({
+  const bodyDto = new oauthDto.PostTokenClientCredentialsDto({
     grantType: String(reqBody.grant_type),
     scopes: reqBody.scope ? String(reqBody.scope).split(' ') : [],
   })
@@ -403,7 +403,7 @@ export const postTokenClientCredentials = async (c: Context<typeConfig.Context>)
 }
 
 export const getLogout = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new oauthDto.GetLogoutReqDto({
+  const queryDto = new oauthDto.GetLogoutDto({
     clientId: c.req.query('client_id') ?? '',
     postLogoutRedirectUri: c.req.query('post_logout_redirect_uri') ?? '',
   })

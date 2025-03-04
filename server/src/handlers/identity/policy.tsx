@@ -129,7 +129,7 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
 export const postResetMfa = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -152,7 +152,7 @@ export interface GetManagePasskeyRes {
 }
 export const getManagePasskey = async (c: Context<typeConfig.Context>)
 : Promise<TypedResponse<GetManagePasskeyRes>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,

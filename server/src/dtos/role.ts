@@ -2,7 +2,7 @@ import {
   IsNotEmpty, IsOptional, IsString, Length,
 } from 'class-validator'
 
-export class PostRoleReqDto {
+export class PostRoleDto {
   @IsString()
   @Length(
     1,
@@ -15,13 +15,13 @@ export class PostRoleReqDto {
   @IsOptional()
     note: string
 
-  constructor (dto: PostRoleReqDto) {
+  constructor (dto: PostRoleDto) {
     this.name = dto.name.trim()
     this.note = dto.note || ''
   }
 }
 
-export class PutRoleReqDto {
+export class PutRoleDto {
   @IsString()
   @Length(
     1,
@@ -34,7 +34,7 @@ export class PutRoleReqDto {
   @IsOptional()
     note: string
 
-  constructor (dto: PutRoleReqDto) {
+  constructor (dto: PutRoleDto) {
     this.name = dto.name?.trim()
     this.note = dto.note
   }

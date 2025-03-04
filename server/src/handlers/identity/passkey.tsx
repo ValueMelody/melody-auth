@@ -25,7 +25,7 @@ export interface GetProcessPasskeyEnrollRes {
 }
 export const getProcessPasskeyEnroll = async (c: Context<typeConfig.Context>)
 : Promise<TypedResponse<GetProcessPasskeyEnrollRes>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
   await validateUtil.dto(queryDto)
 
   const authCodeStore = await kvService.getAuthCodeBody(
@@ -158,7 +158,7 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
     bodyDto.redirectUri,
   )
 
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const request = new oauthDto.GetAuthorizeDto(bodyDto)
 
   const authCodeBody = {
     appId: app.id,
