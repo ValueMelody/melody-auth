@@ -21,7 +21,7 @@ export const getRole = async (c: Context<typeConfig.Context>) => {
 export const postRole = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new roleDto.PostRoleReqDto(reqBody)
+  const bodyDto = new roleDto.PostRoleDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const role = await roleService.createRole(
@@ -37,7 +37,7 @@ export const putRole = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const id = Number(c.req.param('id'))
 
-  const bodyDto = new roleDto.PutRoleReqDto(reqBody)
+  const bodyDto = new roleDto.PutRoleDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const role = await roleService.updateRole(

@@ -47,7 +47,7 @@ describe(
         )
         const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
-        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizePassword}${params}`)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizeView}${params}`)
       },
     )
 
@@ -64,7 +64,7 @@ describe(
         )
         const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
-        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizePassword}${params}&org=default`)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizeView}${params}&org=default`)
       },
     )
 
@@ -84,7 +84,7 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizePassword}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
         expect(path).toContain('&policy=update_info')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -107,7 +107,7 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizePassword}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
         expect(path).toContain('&policy=change_password')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -130,7 +130,7 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizePassword}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
         expect(path).toContain('&policy=change_email')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -153,7 +153,7 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizePassword}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
         expect(path).toContain('&policy=manage_passkey')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -299,7 +299,8 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.UpdateInfo}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.ProcessView}`)
+        expect(path).toContain('step=update_info')
         expect(path).toContain('&code=')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -326,7 +327,8 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.ChangePassword}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.ProcessView}`)
+        expect(path).toContain('step=change_password')
         expect(path).toContain('&code=')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -353,7 +355,8 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.ResetMfa}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.ProcessView}`)
+        expect(path).toContain('step=reset_mfa')
         expect(path).toContain('&code=')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -380,7 +383,8 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.ChangeEmail}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.ProcessView}`)
+        expect(path).toContain('step=change_email')
         expect(path).toContain('&code=')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -407,7 +411,8 @@ describe(
         )
         expect(res.status).toBe(302)
         const path = res.headers.get('Location')
-        expect(path).toContain(`${routeConfig.IdentityRoute.ManagePasskey}`)
+        expect(path).toContain(`${routeConfig.IdentityRoute.ProcessView}`)
+        expect(path).toContain('step=manage_passkey')
         expect(path).toContain('&code=')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -432,7 +437,7 @@ describe(
           'aaaaaaaa',
         )
         await app.request(
-          routeConfig.IdentityRoute.AuthorizeOtpMfa,
+          routeConfig.IdentityRoute.ProcessOtpMfa,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -448,7 +453,7 @@ describe(
           'bbbbbbbb',
         )
         await app.request(
-          routeConfig.IdentityRoute.AuthorizeEmailMfa,
+          routeConfig.IdentityRoute.ProcessEmailMfa,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -508,7 +513,7 @@ describe(
         )
         const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
-        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizePassword}${params}`)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizeView}${params}`)
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
         global.process.env.SERVER_SESSION_EXPIRES_IN = 1800 as unknown as string
       },

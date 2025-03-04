@@ -2,7 +2,7 @@ import {
   IsNotEmpty, IsOptional, IsString, Length,
 } from 'class-validator'
 
-export class PostOrgReqDto {
+export class PostOrgDto {
   @IsString()
   @Length(
     1,
@@ -19,13 +19,13 @@ export class PostOrgReqDto {
   @IsNotEmpty()
     slug: string
 
-  constructor (dto: PostOrgReqDto) {
+  constructor (dto: PostOrgDto) {
     this.name = dto.name.trim()
     this.slug = dto.slug.trim()
   }
 }
 
-export class PutOrgReqDto {
+export class PutOrgDto {
   @IsString()
   @Length(
     1,
@@ -162,7 +162,7 @@ export class PutOrgReqDto {
   @IsOptional()
     privacyPolicyLink: string
 
-  constructor (dto: PutOrgReqDto) {
+  constructor (dto: PutOrgDto) {
     this.name = dto.name?.trim()
     this.slug = dto.slug?.trim()
     this.companyLogoUrl = dto.companyLogoUrl

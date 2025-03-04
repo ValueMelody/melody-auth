@@ -21,7 +21,7 @@ export const getApp = async (c: Context<typeConfig.Context>) => {
 export const postApp = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new appDto.PostAppReqDto(reqBody)
+  const bodyDto = new appDto.PostAppDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const app = await appService.createApp(
@@ -35,7 +35,7 @@ export const postApp = async (c: Context<typeConfig.Context>) => {
 
 export const putApp = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
-  const bodyDto = new appDto.PutAppReqDto(reqBody)
+  const bodyDto = new appDto.PutAppDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const id = c.req.param('id')

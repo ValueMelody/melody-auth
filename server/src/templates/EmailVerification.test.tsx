@@ -90,7 +90,7 @@ describe(
         // The EmailVerification component computes the route as:
         //   route = requestUtil.stripEndingSlash(serverUrl) + routeConfig.IdentityRoute.VerifyEmail
         // And constructs the href as: `${route}?id=${authId}&locale=${locale}&org=${org}`
-        const expectedRoute = `${requestUtil.stripEndingSlash(mockProps.serverUrl)}${routeConfig.IdentityRoute.VerifyEmail}`
+        const expectedRoute = `${requestUtil.stripEndingSlash(mockProps.serverUrl)}${routeConfig.IdentityRoute.VerifyEmailView}`
         const expectedHref = `${expectedRoute}?id=${mockProps.authId}&locale=${mockProps.locale}&org=${mockProps.org}`
 
         // The href may contain extra whitespaces/newlines, so normalize.
@@ -140,7 +140,7 @@ describe(
         // Verify the verification link.
         const link = document.querySelector('a')
         expect(link).toBeTruthy()
-        const expectedRoute = `${requestUtil.stripEndingSlash(propsFr.serverUrl)}${routeConfig.IdentityRoute.VerifyEmail}`
+        const expectedRoute = `${requestUtil.stripEndingSlash(propsFr.serverUrl)}${routeConfig.IdentityRoute.VerifyEmailView}`
         const expectedHref = `${expectedRoute}?id=${propsFr.authId}&locale=${propsFr.locale}&org=${propsFr.org}`
         const actualHref = link!.getAttribute('href')?.replace(
           /\s+/g,

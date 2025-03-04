@@ -27,7 +27,7 @@ export const getOrgById = async (
 
 export const createOrg = async (
   c: Context<typeConfig.Context>,
-  dto: orgDto.PostOrgReqDto,
+  dto: orgDto.PostOrgDto,
 ): Promise<orgModel.Record> => {
   const org = await orgModel.create(
     c.env.DB,
@@ -41,7 +41,7 @@ export const createOrg = async (
 export const updateOrg = async (
   c: Context<typeConfig.Context>,
   orgId: number,
-  dto: orgDto.PutOrgReqDto,
+  dto: orgDto.PutOrgDto,
 ): Promise<orgModel.Record> => {
   const org = await orgModel.update(
     c.env.DB,

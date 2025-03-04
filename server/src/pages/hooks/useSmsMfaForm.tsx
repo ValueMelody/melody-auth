@@ -12,7 +12,7 @@ import {
 import {
   routeConfig, typeConfig, localeConfig,
 } from 'configs'
-import { SmsMfaInfo } from 'handlers/identity/mfa'
+import { GetProcessSmsMfaRes } from 'handlers/identity/mfa'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
   parseResponse,
@@ -93,7 +93,7 @@ const useSmsMfaForm = ({
   const getSmsMfaInfo = useCallback(
     () => {
       fetch(
-        `${routeConfig.IdentityRoute.AuthorizeSmsMfaInfo}${qs}`,
+        `${routeConfig.IdentityRoute.ProcessSmsMfa}${qs}`,
         {
           method: 'GET',
           headers: {
@@ -104,12 +104,12 @@ const useSmsMfaForm = ({
       )
         .then(parseResponse)
         .then((response) => {
-          setCurrentNumber((response as SmsMfaInfo).phoneNumber)
-          if ((response as SmsMfaInfo).phoneNumber) {
+          setCurrentNumber((response as GetProcessSmsMfaRes).phoneNumber)
+          if ((response as GetProcessSmsMfaRes).phoneNumber) {
             setMfaCode(new Array(6).fill(''))
           }
-          setAllowFallbackToEmailMfa((response as SmsMfaInfo).allowFallbackToEmailMfa)
-          setCountryCode((response as SmsMfaInfo).countryCode)
+          setAllowFallbackToEmailMfa((response as GetProcessSmsMfaRes).allowFallbackToEmailMfa)
+          setCountryCode((response as GetProcessSmsMfaRes).countryCode)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -205,7 +205,7 @@ const useSmsMfaForm = ({
         requestSetupMfa()
       } else {
         fetch(
-          routeConfig.IdentityRoute.AuthorizeSmsMfa,
+          routeConfig.IdentityRoute.ProcessSmsMfa,
           {
             method: 'POST',
             headers: {

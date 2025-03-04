@@ -83,7 +83,7 @@ export const processPostAuthorize = async (
   )
   if (requireConsent) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.AuthorizeConsent,
+      ...basicInfo, nextPage: IdentityRoute.AppConsent,
     }
   }
 
@@ -126,7 +126,7 @@ export const processPostAuthorize = async (
     !authCodeBody.user.mfaTypes.length
   if (requireMfaEnroll) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.AuthorizeMfaEnroll,
+      ...basicInfo, nextPage: IdentityRoute.ProcessMfaEnroll,
     }
   }
 
@@ -137,12 +137,12 @@ export const processPostAuthorize = async (
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
   if (requireOtpSetup) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.AuthorizeOtpSetup,
+      ...basicInfo, nextPage: IdentityRoute.OtpMfaSetup,
     }
   }
   if (requireOtpMfa) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.AuthorizeOtpMfa,
+      ...basicInfo, nextPage: IdentityRoute.ProcessOtpMfa,
     }
   }
 
@@ -152,7 +152,7 @@ export const processPostAuthorize = async (
     (enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms))
   if (requireSmsMfa) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.AuthorizeSmsMfa,
+      ...basicInfo, nextPage: IdentityRoute.ProcessSmsMfa,
     }
   }
 
@@ -162,7 +162,7 @@ export const processPostAuthorize = async (
     (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
   if (requireEmailMfa) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.AuthorizeEmailMfa,
+      ...basicInfo, nextPage: IdentityRoute.ProcessEmailMfa,
     }
   }
 
@@ -177,7 +177,7 @@ export const processPostAuthorize = async (
     )
     if (!passkey) {
       return {
-        ...basicInfo, nextPage: IdentityRoute.AuthorizePasskeyEnroll,
+        ...basicInfo, nextPage: IdentityRoute.ProcessPasskeyEnroll,
       }
     }
   }

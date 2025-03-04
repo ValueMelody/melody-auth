@@ -12,102 +12,19 @@ import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
-  appService, brandingService, consentService, emailService, identityService, kvService, scopeService, userService,
+  appService, consentService, emailService, identityService, kvService, scopeService, userService,
 } from 'services'
 import {
   requestUtil, validateUtil,
 } from 'utils'
 import {
-  AuthorizePasswordView, AuthorizeConsentView, AuthorizeAccountView,
-} from 'views'
-import {
   scopeModel, userModel,
 } from 'models'
-import { oauthHandler } from 'handlers'
-import { Policy } from 'dtos/oauth'
-
-export interface AuthorizeConsentInfo {
-  scopes: scopeModel.ApiRecord[];
-  appName: string;
-}
-
-export const getAuthorizeConsentInfo = async (c: Context<typeConfig.Context>):
-Promise<TypedResponse<AuthorizeConsentInfo>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
-
-  const authInfo = await kvService.getAuthCodeBody(
-    c.env.KV,
-    queryDto.code,
-  )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
-
-  const app = await appService.verifySPAClientRequest(
-    c,
-    authInfo.request.clientId,
-    authInfo.request.redirectUri,
-  )
-
-  const scopes = await scopeService.getScopesByName(
-    c,
-    authInfo.request.scopes,
-  )
-
-  return c.json({
-    scopes,
-    appName: app.name,
-  })
-}
-
-export const getAuthorizePassword = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
-
-  const {
-    ENABLE_SIGN_UP: allowSignUp,
-    ENABLE_PASSWORD_RESET: allowPasswordReset,
-    ENABLE_PASSWORD_SIGN_IN: allowPasswordSignIn,
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-    GOOGLE_AUTH_CLIENT_ID: googleAuthId,
-    FACEBOOK_AUTH_CLIENT_ID: facebookAuthId,
-    FACEBOOK_AUTH_CLIENT_SECRET: facebookClientSecret,
-    GITHUB_AUTH_CLIENT_ID: githubAuthId,
-    GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
-    GITHUB_AUTH_APP_NAME: githubAppName,
-    ALLOW_PASSKEY_ENROLLMENT: allowPasskey,
-  } = env(c)
-
-  const isBasePolicy = !queryDto.policy || queryDto.policy === Policy.SignInOrSignUp
-  const enablePasswordReset = isBasePolicy ? allowPasswordReset : false
-  const enableSignUp = isBasePolicy ? allowSignUp : false
-  const enablePasswordSignIn = isBasePolicy ? allowPasswordSignIn : true
-  const googleClientId = isBasePolicy ? googleAuthId : ''
-  const facebookClientId = isBasePolicy ? facebookAuthId : ''
-  const githubClientId = isBasePolicy ? githubAuthId : ''
-
-  const queryString = requestUtil.getQueryString(c)
-
-  return c.html(<AuthorizePasswordView
-    allowPasskey={allowPasskey}
-    queryString={queryString}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    queryDto={queryDto}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    enableSignUp={enableSignUp}
-    enablePasswordReset={enablePasswordReset}
-    enablePasswordSignIn={enablePasswordSignIn}
-    googleClientId={googleClientId}
-    facebookClientId={facebookClientId && facebookClientSecret ? facebookClientId : ''}
-    githubClientId={githubClientId && githubClientSecret && githubAppName ? githubClientId : ''}
-  />)
-}
 
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeReqWithPasswordDto({
+  const bodyDto = new identityDto.PostAuthorizeWithPasswordDto({
     ...reqBody,
     scopes: reqBody.scope ? reqBody.scope.split(' ') : [],
   })
@@ -137,7 +54,7 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     )
     : user
 
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCode = genRandomString(128)
   const authCodeBody = {
     appId: app.id,
@@ -160,31 +77,6 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   ))
 }
 
-export const getAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
-
-  const {
-    ENABLE_NAMES: enableNames,
-    NAMES_IS_REQUIRED: namesIsRequired,
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  const queryString = requestUtil.getQueryString(c)
-
-  return c.html(<AuthorizeAccountView
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    queryString={queryString}
-    queryDto={queryDto}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    enableNames={enableNames}
-    namesIsRequired={namesIsRequired}
-  />)
-}
-
 export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   const {
     NAMES_IS_REQUIRED: namesIsRequired,
@@ -203,8 +95,8 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   }
 
   const bodyDto = namesIsRequired
-    ? new identityDto.PostAuthorizeReqWithRequiredNamesDto(parsedBody)
-    : new identityDto.PostAuthorizeReqWithNamesDto(parsedBody)
+    ? new identityDto.PostAuthorizeWithRequiredNamesDto(parsedBody)
+    : new identityDto.PostAuthorizeWithNamesDto(parsedBody)
   await validateUtil.dto(bodyDto)
 
   const app = await appService.verifySPAClientRequest(
@@ -234,7 +126,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   }
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCode = genRandomString(128)
   const authCodeBody = {
     appId: app.id,
@@ -257,14 +149,19 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   ))
 }
 
-export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+export interface GetAppConsentRes {
+  scopes: scopeModel.ApiRecord[];
+  appName: string;
+}
+export const getAppConsent = async (c: Context<typeConfig.Context>):
+Promise<TypedResponse<GetAppConsentRes>> => {
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,
     queryDto.code,
   )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
 
   const app = await appService.verifySPAClientRequest(
     c,
@@ -277,28 +174,16 @@ export const getAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
     authInfo.request.scopes,
   )
 
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  return c.html(<AuthorizeConsentView
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    scopes={scopes}
-    appName={app.name}
-    redirectUri={authInfo.request.redirectUri}
-    queryDto={queryDto}
-  />)
+  return c.json({
+    scopes,
+    appName: app.name,
+  })
 }
 
-export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
+export const postAppConsent = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -324,7 +209,7 @@ export const postAuthorizeConsent = async (c: Context<typeConfig.Context>) => {
 export const postLogout = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.parseBody()
 
-  const bodyDto = new identityDto.PostLogoutReqDto({
+  const bodyDto = new identityDto.PostLogoutDto({
     refreshToken: String(reqBody.refresh_token),
     postLogoutRedirectUri: reqBody.post_logout_redirect_uri
       ? String(reqBody.post_logout_redirect_uri)

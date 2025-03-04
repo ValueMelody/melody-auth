@@ -1,8 +1,24 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { typeConfig } from 'configs'
-import { Branding } from 'views/components/Layout'
 import { orgModel } from 'models'
+
+export interface Branding {
+  logoUrl: string;
+  fontFamily: string;
+  fontUrl: string;
+  layoutColor: string;
+  labelColor: string;
+  primaryButtonColor: string;
+  primaryButtonLabelColor: string;
+  primaryButtonBorderColor: string;
+  secondaryButtonColor: string;
+  secondaryButtonLabelColor: string;
+  secondaryButtonBorderColor: string;
+  criticalIndicatorColor: string;
+  termsLink: string;
+  privacyPolicyLink: string;
+}
 
 const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
   const {

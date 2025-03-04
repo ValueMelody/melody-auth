@@ -60,7 +60,7 @@ export const getScopesByName = async (
 
 export const createScope = async (
   c: Context<typeConfig.Context>,
-  dto: scopeDto.PostScopeReqDto,
+  dto: scopeDto.PostScopeDto,
 ): Promise<scopeModel.ApiRecord> => {
   const scope = await scopeModel.create(
     c.env.DB,
@@ -95,7 +95,7 @@ export const createScope = async (
 export const updateScope = async (
   c: Context<typeConfig.Context>,
   scopeId: number,
-  dto: scopeDto.PutScopeReqDto,
+  dto: scopeDto.PutScopeDto,
 ): Promise<scopeModel.ApiRecord> => {
   const shouldUpdateScope = dto.name !== undefined || dto.note !== undefined
   const scope = await scopeModel.getById(

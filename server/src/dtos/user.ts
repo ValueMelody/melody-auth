@@ -2,7 +2,7 @@ import {
   IsBoolean, IsOptional, IsString,
 } from 'class-validator'
 
-export class PutUserReqDto {
+export class PutUserDto {
   @IsString()
   @IsOptional()
     firstName?: string
@@ -23,7 +23,7 @@ export class PutUserReqDto {
   @IsOptional()
     roles?: string[]
 
-  constructor (dto: PutUserReqDto) {
+  constructor (dto: PutUserDto) {
     this.roles = dto.roles
     this.isActive = dto.isActive
     this.firstName = dto.firstName

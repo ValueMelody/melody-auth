@@ -241,7 +241,7 @@ export const verifyEmail = async (c: Context<typeConfig.Context>) => {
 
 export const putUser = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
-  const bodyDto = new userDto.PutUserReqDto(reqBody)
+  const bodyDto = new userDto.PutUserDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authId = c.req.param('authId')

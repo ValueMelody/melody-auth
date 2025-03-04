@@ -10,7 +10,7 @@ export interface ScopeLocale {
   value: string;
 }
 
-export class PutScopeReqDto {
+export class PutScopeDto {
   @IsString()
   @Length(
     1,
@@ -27,14 +27,14 @@ export class PutScopeReqDto {
   @IsOptional()
     locales?: ScopeLocale[]
 
-  constructor (dto: PutScopeReqDto) {
+  constructor (dto: PutScopeDto) {
     this.name = dto.name
     this.note = dto.note
     this.locales = dto.locales
   }
 }
 
-export class PostScopeReqDto {
+export class PostScopeDto {
   @IsEnum(ClientType)
     type: ClientType
 
@@ -54,7 +54,7 @@ export class PostScopeReqDto {
   @IsOptional()
     locales?: ScopeLocale[]
 
-  constructor (dto: PostScopeReqDto) {
+  constructor (dto: PostScopeDto) {
     this.name = dto.name
     this.type = dto.type
     this.note = dto.note

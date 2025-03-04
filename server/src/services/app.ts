@@ -85,7 +85,7 @@ export const getAppById = async (
 
 export const createApp = async (
   c: Context<typeConfig.Context>,
-  dto: appDto.PostAppReqDto,
+  dto: appDto.PostAppDto,
 ): Promise<appModel.ApiRecord> => {
   const app = await appModel.create(
     c.env.DB,
@@ -117,7 +117,7 @@ export const createApp = async (
 export const updateApp = async (
   c: Context<typeConfig.Context>,
   appId: number,
-  dto: appDto.PutAppReqDto,
+  dto: appDto.PutAppDto,
 ): Promise<appModel.ApiRecord> => {
   const updateDto: appModel.Update = {
     redirectUris: dto.redirectUris ? dto.redirectUris.join(',') : undefined,

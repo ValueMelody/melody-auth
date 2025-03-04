@@ -4,7 +4,7 @@ import {
 import {
   localeConfig, routeConfig, typeConfig,
 } from 'configs'
-import { ManagePasskeyInfo } from 'handlers/identity'
+import { GetManagePasskeyRes } from 'handlers/identity'
 import { userPasskeyModel } from 'models'
 import { getFollowUpParams } from 'pages/tools/param'
 import { enroll } from 'pages/tools/passkey'
@@ -35,7 +35,7 @@ const useManagePasskeyForm = ({
   const getManagePasskeyInfo = useCallback(
     () => {
       fetch(
-        `${routeConfig.IdentityRoute.ManagePasskeyInfo}${qs}`,
+        `${routeConfig.IdentityRoute.ManagePasskey}${qs}`,
         {
           method: 'GET',
           headers: {
@@ -46,8 +46,8 @@ const useManagePasskeyForm = ({
       )
         .then(parseResponse)
         .then((response) => {
-          setPasskey((response as ManagePasskeyInfo).passkey)
-          setEnrollOptions((response as ManagePasskeyInfo).enrollOptions)
+          setPasskey((response as GetManagePasskeyRes).passkey)
+          setEnrollOptions((response as GetManagePasskeyRes).enrollOptions)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -107,7 +107,7 @@ const useManagePasskeyForm = ({
       )
         .then(parseResponse)
         .then((data) => {
-          setPasskey((data as ManagePasskeyInfo).passkey)
+          setPasskey((data as GetManagePasskeyRes).passkey)
           setSuccessMessage(localeConfig.managePasskey.enrollSuccess[locale])
         })
         .catch((error) => {

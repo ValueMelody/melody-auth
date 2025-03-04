@@ -11,7 +11,7 @@ import {
   parseResponse,
 } from 'pages/tools/request'
 import { passkeyService } from 'services'
-import { AuthorizePasskeyEnrollInfo } from 'handlers/identity'
+import { GetProcessPasskeyEnrollRes } from 'handlers/identity'
 import { enroll } from 'pages/tools/passkey'
 
 export interface UsePasskeyEnrollFormProps {
@@ -41,7 +41,7 @@ const usePasskeyEnrollForm = ({
   const getEnrollOptions = useCallback(
     async () => {
       fetch(
-        `${routeConfig.IdentityRoute.AuthorizePasskeyEnrollInfo}${qs}`,
+        `${routeConfig.IdentityRoute.ProcessPasskeyEnroll}${qs}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -49,7 +49,7 @@ const usePasskeyEnrollForm = ({
       )
         .then(parseResponse)
         .then((response) => {
-          setEnrollOptions((response as AuthorizePasskeyEnrollInfo).enrollOptions)
+          setEnrollOptions((response as GetProcessPasskeyEnrollRes).enrollOptions)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -61,7 +61,7 @@ const usePasskeyEnrollForm = ({
   const submitEnroll = useCallback(
     (enrollInfo: Credential) => {
       fetch(
-        routeConfig.IdentityRoute.AuthorizePasskeyEnroll,
+        routeConfig.IdentityRoute.ProcessPasskeyEnroll,
         {
           method: 'POST',
           headers: {
@@ -106,7 +106,7 @@ const usePasskeyEnrollForm = ({
   const handleDecline = useCallback(
     () => {
       fetch(
-        routeConfig.IdentityRoute.AuthorizePasskeyEnrollDecline,
+        routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
         {
           method: 'POST',
           headers: {
