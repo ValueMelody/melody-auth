@@ -35,6 +35,7 @@ In your Cloudflare dashboard:
     - [Email Provider Setup](https://auth.valuemelody.com/email-provider-setup.html)
     - [SMS Provider Setup](https://auth.valuemelody.com/sms-provider-setup.html)
     - [Social Sign-In Provider Setup](https://auth.valuemelody.com/social-sign-in-provider-setup.html)
+5. Define an environment variable “ENVIRONMENT” and ensure it is set to a value other than “dev”.
 
 ### 4. Project Setup
 1. Clone the Repository:
@@ -87,6 +88,7 @@ npm run build
 cd server
 cp .dev.vars.example .dev.vars
 # Include the required environment variables for any email, SMS, or social sign-in providers you plan to use.
+# Make sure the environment variable "ENVIRONMENT" is set to "dev" for your local environment.
 
 npm run dev:secret:generate
 npm run dev:migration:apply
@@ -109,6 +111,7 @@ cd server
 cp .dev.vars.example .dev.vars
 # Fill in PostgreSQL & Redis connection strings
 # Include the required environment variables for any email, SMS, or social sign-in providers you plan to use.
+# Make sure the environment variable "ENVIRONMENT" is set to "dev" for your local environment.
 
 npm run node:secret:generate
 npm run node:migration:apply
@@ -117,8 +120,10 @@ npm run node:dev
 This starts the server in development mode using Node.js, connected to your local or remote databases.
 
 ### 3. Production Build
+
 To build and run in production:
 ```
+# Make sure the environment variable "ENVIRONMENT" is set to a value other than "dev" for your production build.
 cd server
 npm run node:build
 npm run node:start

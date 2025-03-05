@@ -10,7 +10,7 @@ import {
   identityDto, userDto,
 } from 'dtos'
 import {
-  PostAuthorizeReqWithNamesDto, PostAuthorizeReqWithPasswordDto,
+  PostAuthorizeWithNamesDto, PostAuthorizeWithPasswordDto,
 } from 'dtos/identity'
 import {
   orgModel,
@@ -176,7 +176,7 @@ export const getUserDetailByAuthId = async (
 
 export const verifyPasswordSignIn = async (
   c: Context<typeConfig.Context>,
-  bodyDto: PostAuthorizeReqWithPasswordDto,
+  bodyDto: PostAuthorizeWithPasswordDto,
 ): Promise<userModel.Record> => {
   const {
     ACCOUNT_LOCKOUT_THRESHOLD: lockThreshold, ACCOUNT_LOCKOUT_EXPIRES_IN: lockExpiresIn,
@@ -228,7 +228,7 @@ export const verifyPasswordSignIn = async (
 
 export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
-  bodyDto: PostAuthorizeReqWithNamesDto,
+  bodyDto: PostAuthorizeWithNamesDto,
 ): Promise<userModel.Record> => {
   const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
@@ -366,7 +366,7 @@ export const processGithubAccount = async (
 
 export const verifyUserEmail = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostVerifyEmailReqDto,
+  bodyDto: identityDto.PostVerifyEmailDto,
 ): Promise<true> => {
   const user = await userModel.getByAuthId(
     c.env.DB,
@@ -425,7 +425,7 @@ export const sendPasswordReset = async (
 
 export const resetUserPassword = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostAuthorizeResetReqDto,
+  bodyDto: identityDto.PostResetPasswordDto,
 ): Promise<true> => {
   const user = await userModel.getPasswordUserByEmail(
     c.env.DB,
@@ -438,14 +438,6 @@ export const resetUserPassword = async (
     throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
   }
 
-  const isSame = cryptoUtil.bcryptCompare(
-    bodyDto.password,
-    user.password,
-  )
-  if (isSame) {
-    throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentPassword)
-  }
-
   const isValid = await kvService.verifyPasswordResetCode(
     c.env.KV,
     user.id,
@@ -456,6 +448,14 @@ export const resetUserPassword = async (
     throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
   }
 
+  const isSame = cryptoUtil.bcryptCompare(
+    bodyDto.password,
+    user.password,
+  )
+  if (isSame) {
+    throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentPassword)
+  }
+
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
   await userModel.update(
@@ -463,13 +463,19 @@ export const resetUserPassword = async (
     user.id,
     { password },
   )
+
+  await kvService.deletePasswordResetCode(
+    c.env.KV,
+    user.id,
+  )
+
   return true
 }
 
 export const changeUserPassword = async (
   c: Context<typeConfig.Context>,
   user: userModel.Record,
-  bodyDto: identityDto.PostChangePasswordReqDto,
+  bodyDto: identityDto.PostChangePasswordDto,
 ): Promise<true> => {
   if (!user.password) {
     throw new errorConfig.NotFound(localeConfig.Error.NoUser)
@@ -496,7 +502,7 @@ export const changeUserPassword = async (
 export const changeUserEmail = async (
   c: Context<typeConfig.Context>,
   user: userModel.Record,
-  bodyDto: identityDto.PostChangeEmailReqDto,
+  bodyDto: identityDto.PostChangeEmailDto,
 ): Promise<true> => {
   const isSame = user.email === bodyDto.email
   if (isSame) {
@@ -698,7 +704,7 @@ export const markOtpAsVerified = async (
 export const updateUser = async (
   c: Context<typeConfig.Context>,
   authId: string,
-  dto: userDto.PutUserReqDto,
+  dto: userDto.PutUserDto,
 ): Promise<userModel.ApiRecordFull> => {
   const user = await userModel.getByAuthId(
     c.env.DB,

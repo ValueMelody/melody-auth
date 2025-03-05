@@ -43,13 +43,13 @@ export const parseAuthorizeFollowUpValues = (
 }
 
 const NextPage = Object.freeze({
-  [routeConfig.IdentityRoute.AuthorizeConsent]: View.Consent,
-  [routeConfig.IdentityRoute.AuthorizeMfaEnroll]: View.MfaEnroll,
-  [routeConfig.IdentityRoute.AuthorizeEmailMfa]: View.EmailMfa,
-  [routeConfig.IdentityRoute.AuthorizeSmsMfa]: View.SmsMfa,
-  [routeConfig.IdentityRoute.AuthorizeOtpSetup]: View.OtpSetup,
-  [routeConfig.IdentityRoute.AuthorizeOtpMfa]: View.OtpMfa,
-  [routeConfig.IdentityRoute.AuthorizePasskeyEnroll]: View.PasskeyEnroll,
+  [routeConfig.IdentityRoute.AppConsent]: View.Consent,
+  [routeConfig.IdentityRoute.ProcessMfaEnroll]: View.MfaEnroll,
+  [routeConfig.IdentityRoute.ProcessEmailMfa]: View.EmailMfa,
+  [routeConfig.IdentityRoute.ProcessSmsMfa]: View.SmsMfa,
+  [routeConfig.IdentityRoute.OtpMfaSetup]: View.OtpSetup,
+  [routeConfig.IdentityRoute.ProcessOtpMfa]: View.OtpMfa,
+  [routeConfig.IdentityRoute.ProcessPasskeyEnroll]: View.PasskeyEnroll,
   [routeConfig.IdentityRoute.UpdateInfo]: View.UpdateInfo,
   [routeConfig.IdentityRoute.ChangePassword]: View.ChangePassword,
   [routeConfig.IdentityRoute.ResetMfa]: View.ResetMfa,

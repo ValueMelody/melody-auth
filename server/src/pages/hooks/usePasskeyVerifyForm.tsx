@@ -14,7 +14,7 @@ import {
   validate, emailField,
 } from 'pages/tools/form'
 import { AuthorizeParams } from 'pages/tools/param'
-import { AuthorizePasskeyVerify } from 'handlers/identity/passkey'
+import { GetAuthorizePasskeyVerifyRes } from 'handlers/identity/passkey'
 
 export interface UsePasskeyVerifyFormProps {
   email: string;
@@ -31,7 +31,7 @@ const usePasskeyVerifyForm = ({
   onSwitchView,
   params,
 }: UsePasskeyVerifyFormProps) => {
-  const [passkeyOption, setPasskeyOption] = useState<AuthorizePasskeyVerify['passkeyOption'] | null | false>(null)
+  const [passkeyOption, setPasskeyOption] = useState<GetAuthorizePasskeyVerifyRes['passkeyOption'] | null | false>(null)
 
   const signInSchema = object({ email: emailField(locale) })
 
@@ -49,8 +49,8 @@ const usePasskeyVerifyForm = ({
       fetch(`${routeConfig.IdentityRoute.AuthorizePasskeyVerify}?email=${email}`)
         .then(parseResponse)
         .then((response) => {
-          if ((response as AuthorizePasskeyVerify).passkeyOption) {
-            setPasskeyOption((response as AuthorizePasskeyVerify).passkeyOption)
+          if ((response as GetAuthorizePasskeyVerifyRes).passkeyOption) {
+            setPasskeyOption((response as GetAuthorizePasskeyVerifyRes).passkeyOption)
           } else {
             setPasskeyOption(false)
           }

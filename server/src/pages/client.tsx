@@ -26,6 +26,7 @@ import {
   VerifyEmail,
 } from 'pages/views'
 import { getLocaleFromParams } from 'pages/tools/param'
+import './client.css'
 
 const App = () => {
   const { initialProps } = useInitialProps()

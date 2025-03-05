@@ -7,50 +7,17 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
-  brandingService,
   kvService,
   userService,
 } from 'services'
 import {
   requestUtil, validateUtil,
 } from 'utils'
-import {
-  AuthCodeExpired,
-  AuthorizeResetView,
-  VerifyEmailView,
-} from 'views'
-import { oauthHandler } from 'handlers'
-
-export const getVerifyEmail = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetVerifyEmailReqDto({
-    id: c.req.query('id') ?? '',
-    locale: requestUtil.getLocaleFromQuery(
-      c,
-      c.req.query('locale'),
-    ),
-    org: c.req.query('org'),
-  })
-  await validateUtil.dto(queryDto)
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  return c.html(<VerifyEmailView
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-  />)
-}
 
 export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostVerifyEmailReqDto({
+  const bodyDto = new identityDto.PostVerifyEmailDto({
     id: String(reqBody.id),
     code: String(reqBody.code),
   })
@@ -64,26 +31,7 @@ export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
-export const getAuthorizeReset = async (c: Context<typeConfig.Context>) => {
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
-  const queryString = requestUtil.getQueryString(c)
-
-  return c.html(<AuthorizeResetView
-    queryString={queryString}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-  />)
-}
-
-export const postResetCode = async (c: Context<typeConfig.Context>) => {
+export const postResetPasswordCode = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const email = reqBody.email
     ? String(reqBody.email).trim()
@@ -122,10 +70,10 @@ export const postResetCode = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
-export const postAuthorizeReset = async (c: Context<typeConfig.Context>) => {
+export const postResetPassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeResetReqDto({
+  const bodyDto = new identityDto.PostResetPasswordDto({
     email: String(reqBody.email),
     code: String(reqBody.code),
     password: String(reqBody.password),
@@ -148,19 +96,4 @@ export const postAuthorizeReset = async (c: Context<typeConfig.Context>) => {
   }
 
   return c.json({ success: true })
-}
-
-export const getAuthCodeExpired = async (c: Context<typeConfig.Context>) => {
-  const { SUPPORTED_LOCALES: locales } = env(c)
-
-  const locale = c.req.query('locale') || locales[0]
-  const org = c.req.query('org')
-
-  return c.html(<AuthCodeExpired
-    locale={locale as typeConfig.Locale}
-    branding={await brandingService.getBranding(
-      c,
-      org,
-    )}
-  />)
 }

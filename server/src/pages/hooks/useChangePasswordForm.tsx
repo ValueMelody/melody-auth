@@ -95,7 +95,6 @@ const useChangePasswordForm = ({
             locale,
           ),
           password,
-          confirmPassword,
         }),
       },
     )

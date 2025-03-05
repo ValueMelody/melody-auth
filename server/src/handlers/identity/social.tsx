@@ -17,14 +17,14 @@ import {
 
 const prepareSocialAuthCode = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostAuthorizeSocialSignInReqDto,
+  bodyDto: identityDto.PostAuthorizeSocialSignInDto,
   app: appModel.Record,
   user: userModel.Record,
 ) => {
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
 
   const authCode = genRandomString(128)
-  const request = new oauthDto.GetAuthorizeReqDto(bodyDto)
+  const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCodeBody = {
     appId: app.id,
     appName: app.name,
@@ -45,9 +45,9 @@ const prepareSocialAuthCode = async (
 export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...reqBody,
-    scopes: reqBody.scope.split(' '),
+    scopes: reqBody.scope?.split(' ') ?? [],
   })
   await validateUtil.dto(bodyDto)
 
@@ -87,9 +87,9 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
 export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...reqBody,
-    scopes: reqBody.scope.split(' '),
+    scopes: reqBody.scope?.split(' ') ?? [],
   })
   await validateUtil.dto(bodyDto)
 
@@ -140,7 +140,7 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
   const originRequest = JSON.parse(state)
 
   if (!code || !state) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
-  const bodyDto = new identityDto.PostAuthorizeSocialSignInReqDto({
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
     credential: code,
   })
@@ -190,8 +190,8 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
   )
 
   const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
-  const url = detail.nextPage === routeConfig.IdentityRoute.AuthorizeConsent
-    ? `${routeConfig.IdentityRoute.AuthorizeConsent}${qs}&redirect_uri=${detail.redirectUri}`
+  const url = detail.nextPage === routeConfig.IdentityRoute.AppConsent
+    ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
     : `${detail.redirectUri}${qs}`
   return c.redirect(url)
 }

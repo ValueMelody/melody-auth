@@ -120,13 +120,14 @@ const SignUp = ({
           />
           {(initialProps.termsLink || initialProps.privacyPolicyLink) && (
             <div class='text-center text-gray'>
-              <p class='flex flex-row items-center justify-start flex-wrap w-text'>
+              <p class='flex flex-row items-center justify-start flex-wrap w-(--text-width)'>
                 {localeConfig.authorizeAccount.bySignUp[locale]}&nbsp;
                 {initialProps.termsLink && (
                   <a
                     target='_blank'
                     href={initialProps.termsLink}
                     rel='noreferrer'
+                    className='text-blue-500'
                   >
                     {localeConfig.authorizeAccount.terms[locale]}
                   </a>
@@ -141,6 +142,7 @@ const SignUp = ({
                     target='_blank'
                     href={initialProps.privacyPolicyLink}
                     rel='noreferrer'
+                    className='text-blue-500'
                   >
                     {localeConfig.authorizeAccount.privacyPolicy[locale]}
                   </a>

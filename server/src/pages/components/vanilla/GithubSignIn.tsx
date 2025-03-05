@@ -1,7 +1,9 @@
 import {
   localeConfig, typeConfig,
 } from 'configs'
-import { useSocialSignIn } from 'pages/hooks'
+import {
+  useSocialSignIn, View,
+} from 'pages/hooks'
 import { AuthorizeParams } from 'pages/tools/param'
 
 export interface GithubSignInProps {
@@ -9,18 +11,21 @@ export interface GithubSignInProps {
   locale: typeConfig.Locale;
   params: AuthorizeParams;
   handleSubmitError: (error: string) => void;
+  onSwitchView: (view: View) => void;
 }
 
 const GithubSignIn = ({
   githubClientId,
   locale,
   params,
+  onSwitchView,
   handleSubmitError,
 }: GithubSignInProps) => {
   const { githubSignInState } = useSocialSignIn({
     params,
     locale,
     handleSubmitError,
+    onSwitchView,
   })
 
   if (!githubClientId) return null

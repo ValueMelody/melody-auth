@@ -5,20 +5,16 @@ import { env } from 'hono/adapter'
 import {
   errorConfig,
   localeConfig,
-  routeConfig, typeConfig,
+  typeConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
-  brandingService,
   emailService,
   kvService, passkeyService, userService,
 } from 'services'
 import {
   cryptoUtil, validateUtil,
 } from 'utils'
-import {
-  ChangeEmail, ChangePassword, ManagePasskey, ResetMfa, UpdateInfo,
-} from 'views'
 import {
   userModel, userPasskeyModel,
 } from 'models'
@@ -29,36 +25,10 @@ const checkAccount = (user: userModel.Record) => {
   }
 }
 
-export const getChangePassword = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
-
-  const authInfo = await kvService.getAuthCodeBody(
-    c.env.KV,
-    queryDto.code,
-  )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
-  checkAccount(authInfo.user)
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  return c.html(<ChangePassword
-    redirectUri={authInfo.request.redirectUri}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-  />)
-}
-
 export const postChangePassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostChangePasswordReqDto(reqBody)
+  const bodyDto = new identityDto.PostChangePasswordDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authInfo = await kvService.getAuthCodeBody(
@@ -77,67 +47,10 @@ export const postChangePassword = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
-export const getChangeEmail = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
-
-  const authInfo = await kvService.getAuthCodeBody(
-    c.env.KV,
-    queryDto.code,
-  )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
-  checkAccount(authInfo.user)
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  return c.html(<ChangeEmail
-    redirectUri={authInfo.request.redirectUri}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-  />)
-}
-
-export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
+export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostChangeEmailReqDto(reqBody)
-  await validateUtil.dto(bodyDto)
-
-  const authInfo = await kvService.getAuthCodeBody(
-    c.env.KV,
-    bodyDto.code,
-  )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
-  checkAccount(authInfo.user)
-
-  const isCorrectCode = await kvService.verifyChangeEmailCode(
-    c.env.KV,
-    authInfo.user.id,
-    bodyDto.email,
-    bodyDto.verificationCode,
-  )
-
-  if (!isCorrectCode) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
-
-  await userService.changeUserEmail(
-    c,
-    authInfo.user,
-    bodyDto,
-  )
-
-  return c.json({ success: true })
-}
-
-export const postVerificationCode = async (c: Context<typeConfig.Context>) => {
-  const reqBody = await c.req.json()
-
-  const bodyDto = new identityDto.PostChangeEmailCodeReqDto(reqBody)
+  const bodyDto = new identityDto.PostChangeEmailCodeDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authInfo = await kvService.getAuthCodeBody(
@@ -182,36 +95,41 @@ export const postVerificationCode = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
-export const getResetMfa = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostChangeEmailDto(reqBody)
+  await validateUtil.dto(bodyDto)
 
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,
-    queryDto.code,
+    bodyDto.code,
   )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
+  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
   checkAccount(authInfo.user)
 
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
+  const isCorrectCode = await kvService.verifyChangeEmailCode(
+    c.env.KV,
+    authInfo.user.id,
+    bodyDto.email,
+    bodyDto.verificationCode,
+  )
 
-  return c.html(<ResetMfa
-    redirectUri={authInfo.request.redirectUri}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-  />)
+  if (!isCorrectCode) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+
+  await userService.changeUserEmail(
+    c,
+    authInfo.user,
+    bodyDto,
+  )
+
+  return c.json({ success: true })
 }
 
 export const postResetMfa = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizeFollowUpReqDto(reqBody)
+  const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -228,14 +146,13 @@ export const postResetMfa = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
-export interface ManagePasskeyInfo {
+export interface GetManagePasskeyRes {
   passkey: userPasskeyModel.Record | null;
   enrollOptions: passkeyService.EnrollOptions;
 }
-
-export const getManagePasskeyInfo = async (c: Context<typeConfig.Context>)
-: Promise<TypedResponse<ManagePasskeyInfo>> => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+export const getManagePasskey = async (c: Context<typeConfig.Context>)
+: Promise<TypedResponse<GetManagePasskeyRes>> => {
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,
@@ -260,48 +177,10 @@ export const getManagePasskeyInfo = async (c: Context<typeConfig.Context>)
   })
 }
 
-export const getManagePasskey = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
-
-  const authInfo = await kvService.getAuthCodeBody(
-    c.env.KV,
-    queryDto.code,
-  )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
-  checkAccount(authInfo.user)
-
-  const passkey = await passkeyService.getPasskeyByUser(
-    c,
-    authInfo.user.id,
-  )
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  const enrollOptions = await passkeyService.genPasskeyEnrollOptions(
-    c,
-    authInfo,
-  )
-
-  return c.html(<ManagePasskey
-    passkey={passkey}
-    enrollOptions={enrollOptions}
-    redirectUri={authInfo.request.redirectUri}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-  />)
-}
-
 export const postManagePasskey = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostAuthorizePasskeyEnrollReqDto(reqBody)
+  const bodyDto = new identityDto.PostManagePasskeyDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authInfo = await kvService.getAuthCodeBody(
@@ -339,7 +218,7 @@ export const postManagePasskey = async (c: Context<typeConfig.Context>) => {
 export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.DeleteManagePasskeyReqDto(reqBody)
+  const bodyDto = new identityDto.DeleteManagePasskeyDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authInfo = await kvService.getAuthCodeBody(
@@ -365,43 +244,10 @@ export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
-export const getUpdateInfo = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
-
-  const authInfo = await kvService.getAuthCodeBody(
-    c.env.KV,
-    queryDto.code,
-  )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
-  checkAccount(authInfo.user)
-
-  const user = await userService.getUserByAuthId(
-    c,
-    authInfo.user.authId,
-  )
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  return c.html(<UpdateInfo
-    firstName={user.firstName ?? ''}
-    lastName={user.lastName ?? ''}
-    redirectUri={authInfo.request.redirectUri}
-    branding={await brandingService.getBranding(
-      c,
-      queryDto.org,
-    )}
-    queryDto={queryDto}
-    locales={enableLocaleSelector ? locales : [queryDto.locale]}
-  />)
-}
-
 export const postUpdateInfo = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const bodyDto = new identityDto.PostUpdateInfoReqDto(reqBody)
+  const bodyDto = new identityDto.PostUpdateInfoDto(reqBody)
   await validateUtil.dto(bodyDto)
 
   const authInfo = await kvService.getAuthCodeBody(

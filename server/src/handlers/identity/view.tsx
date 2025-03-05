@@ -16,7 +16,9 @@ import {
 import { oauthHandler } from 'handlers'
 import { Policy } from 'dtos/oauth'
 import { identityDto } from 'dtos'
-import { requestUtil } from 'utils'
+import {
+  requestUtil, validateUtil,
+} from 'utils'
 
 const viewRender = async (
   c: Context<typeConfig.Context>,
@@ -28,6 +30,8 @@ const viewRender = async (
     c,
     org,
   )
+
+  const { ENVIRONMENT } = env(c)
 
   return c.html(<html lang={locale}>
     <head>
@@ -42,6 +46,19 @@ const viewRender = async (
         name='viewport'
         content='width=device-width, initial-scale=1'
       />
+      {ENVIRONMENT === 'dev'
+        ? (
+          <link
+            rel='stylesheet'
+            href='/src/pages/client.css'
+          />
+        )
+        : (
+          <link
+            rel='stylesheet'
+            href='/client.css'
+          />
+        )}
       <link
         rel='preconnect'
         href='https://fonts.googleapis.com'
@@ -53,10 +70,6 @@ const viewRender = async (
       <link
         href={branding.fontUrl}
         rel='stylesheet'
-      />
-      <link
-        rel='stylesheet'
-        href='/src/pages/index.css'
       />
       <Style>
         {css`
@@ -77,10 +90,19 @@ const viewRender = async (
     </head>
     <body>
       <div id='root' />
-      <script
-        type='module'
-        src='/src/pages/client.tsx'
-      />
+      {ENVIRONMENT === 'dev'
+        ? (
+          <script
+            type='module'
+            src='/src/pages/client.tsx'
+          />
+        )
+        : (
+          <script
+            type='module'
+            src='/client.js'
+          />
+        )}
       {propsScript}
     </body>
   </html>)
@@ -149,51 +171,13 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getProcessView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await identityDto.parseGetAuthorizeFollowUpReq(c)
+  const queryDto = await identityDto.parseGetProcess(c)
 
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,
     queryDto.code,
   )
-  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpired}?locale=${queryDto.locale}`)
-
-  const {
-    SUPPORTED_LOCALES: locales,
-    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
-  } = env(c)
-
-  const branding = await brandingService.getBranding(
-    c,
-    queryDto.org,
-  )
-
-  const propsScript = html`
-  <script>
-    window.__initialProps = {
-      locales: "${locales.join(',')}",
-      logoUrl: "${branding.logoUrl}",
-      enableLocaleSelector: ${enableLocaleSelector.toString()},
-    }
-  </script>
-`
-
-  return viewRender(
-    c,
-    propsScript,
-    queryDto.locale,
-    queryDto.org,
-  )
-}
-
-export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetAuthCodeExpiredReqDto({
-    locale: requestUtil.getLocaleFromQuery(
-      c,
-      c.req.query('locale'),
-    ),
-    redirect_uri: c.req.query('redirect_uri'),
-    org: c.req.query('org'),
-  })
+  if (!authInfo) return c.redirect(`${routeConfig.IdentityRoute.AuthCodeExpiredView}?locale=${queryDto.locale}`)
 
   const {
     SUPPORTED_LOCALES: locales,
@@ -224,12 +208,52 @@ export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => 
 }
 
 export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = new identityDto.GetVerifyEmailReqDto({
+  const queryDto = new identityDto.GetVerifyEmailViewDto({
     locale: requestUtil.getLocaleFromQuery(
       c,
       c.req.query('locale'),
     ),
     id: c.req.query('id') ?? '',
+    org: c.req.query('org'),
+  })
+
+  await validateUtil.dto(queryDto)
+
+  const {
+    SUPPORTED_LOCALES: locales,
+    ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+  } = env(c)
+
+  const branding = await brandingService.getBranding(
+    c,
+    queryDto.org,
+  )
+
+  const propsScript = html`
+  <script>
+    window.__initialProps = {
+      locales: "${locales.join(',')}",
+      logoUrl: "${branding.logoUrl}",
+      enableLocaleSelector: ${enableLocaleSelector.toString()},
+    }
+  </script>
+`
+
+  return viewRender(
+    c,
+    propsScript,
+    queryDto.locale,
+    queryDto.org,
+  )
+}
+
+export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => {
+  const queryDto = new identityDto.GetAuthCodeExpiredViewDto({
+    locale: requestUtil.getLocaleFromQuery(
+      c,
+      c.req.query('locale'),
+    ),
+    redirect_uri: c.req.query('redirect_uri'),
     org: c.req.query('org'),
   })
 

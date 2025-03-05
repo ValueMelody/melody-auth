@@ -30,7 +30,7 @@ export enum Policy {
 
 const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())
 
-export class GetAuthorizeReqDto {
+export class GetAuthorizeDto {
   @IsString()
   @IsNotEmpty()
     clientId: string
@@ -72,7 +72,7 @@ export class GetAuthorizeReqDto {
   @IsOptional()
     org?: string | undefined
 
-  constructor (dto: GetAuthorizeReqDto) {
+  constructor (dto: GetAuthorizeDto) {
     this.clientId = dto.clientId
     this.redirectUri = dto.redirectUri.toLowerCase()
     this.responseType = dto.responseType.toLowerCase()
@@ -87,7 +87,7 @@ export class GetAuthorizeReqDto {
   }
 }
 
-export class PostTokenAuthCodeReqDto {
+export class PostTokenAuthCodeDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
@@ -99,14 +99,14 @@ export class PostTokenAuthCodeReqDto {
   @IsNotEmpty()
     codeVerifier: string
 
-  constructor (dto: PostTokenAuthCodeReqDto) {
+  constructor (dto: PostTokenAuthCodeDto) {
     this.grantType = dto.grantType
     this.code = dto.code
     this.codeVerifier = dto.codeVerifier
   }
 }
 
-export class PostTokenRefreshTokenReqDto {
+export class PostTokenRefreshTokenDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
@@ -114,13 +114,13 @@ export class PostTokenRefreshTokenReqDto {
   @IsNotEmpty()
     refreshToken: string
 
-  constructor (dto: PostTokenRefreshTokenReqDto) {
+  constructor (dto: PostTokenRefreshTokenDto) {
     this.grantType = dto.grantType
     this.refreshToken = dto.refreshToken
   }
 }
 
-export class PostTokenClientCredentialsReqDto {
+export class PostTokenClientCredentialsDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
@@ -128,13 +128,13 @@ export class PostTokenClientCredentialsReqDto {
   @ArrayMinSize(1)
     scopes: string[]
 
-  constructor (dto: PostTokenClientCredentialsReqDto) {
+  constructor (dto: PostTokenClientCredentialsDto) {
     this.grantType = dto.grantType.toLowerCase()
     this.scopes = parseScopes(dto.scopes)
   }
 }
 
-export class GetLogoutReqDto {
+export class GetLogoutDto {
   @IsString()
   @IsNotEmpty()
     postLogoutRedirectUri: string
@@ -143,7 +143,7 @@ export class GetLogoutReqDto {
   @IsNotEmpty()
     clientId: string
 
-  constructor (dto: GetLogoutReqDto) {
+  constructor (dto: GetLogoutDto) {
     this.clientId = dto.clientId.trim()
     this.postLogoutRedirectUri = dto.postLogoutRedirectUri.trim()
   }

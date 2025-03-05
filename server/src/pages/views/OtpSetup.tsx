@@ -1,6 +1,7 @@
 import {
   useEffect, useRef,
 } from 'hono/jsx'
+import { toCanvas } from 'qrcode'
 import {
   useSubmitError, View, useOtpMfaForm,
 } from 'pages/hooks'
@@ -52,7 +53,7 @@ const OtpSetup = ({
   useEffect(
     () => {
       if (qrCodeEl && qrCodeEl.current && otpUri) {
-        (window as any).QRCode.toCanvas(
+        toCanvas(
           qrCodeEl.current,
           otpUri,
         )

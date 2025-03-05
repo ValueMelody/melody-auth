@@ -12,7 +12,7 @@ import {
   parseResponse,
 } from 'pages/tools/request'
 import {
-  OtpMfaInfo, OtpSetupInfo,
+  GetProcessOtpMfaRes, GetOtpMfaSetupRes,
 } from 'handlers/identity/mfa'
 import {
   codeField, validate,
@@ -60,7 +60,7 @@ const useOtpMfaForm = ({
   const getOtpSetupInfo = useCallback(
     () => {
       fetch(
-        `${routeConfig.IdentityRoute.AuthorizeOtpSetupInfo}${qs}`,
+        `${routeConfig.IdentityRoute.OtpMfaSetup}${qs}`,
         {
           method: 'GET',
           headers: {
@@ -71,7 +71,7 @@ const useOtpMfaForm = ({
       )
         .then(parseResponse)
         .then((response) => {
-          setOtpUri((response as OtpSetupInfo).otpUri)
+          setOtpUri((response as GetOtpMfaSetupRes).otpUri)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -83,7 +83,7 @@ const useOtpMfaForm = ({
   const getOtpMfaInfo = useCallback(
     () => {
       fetch(
-        `${routeConfig.IdentityRoute.AuthorizeOtpMfaInfo}${qs}`,
+        `${routeConfig.IdentityRoute.ProcessOtpMfa}${qs}`,
         {
           method: 'GET',
           headers: {
@@ -94,7 +94,7 @@ const useOtpMfaForm = ({
       )
         .then(parseResponse)
         .then((response) => {
-          setAllowFallbackToEmailMfa((response as OtpMfaInfo).allowFallbackToEmailMfa)
+          setAllowFallbackToEmailMfa((response as GetProcessOtpMfaRes).allowFallbackToEmailMfa)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -113,7 +113,7 @@ const useOtpMfaForm = ({
       }
 
       fetch(
-        routeConfig.IdentityRoute.AuthorizeOtpMfa,
+        routeConfig.IdentityRoute.ProcessOtpMfa,
         {
           method: 'POST',
           headers: {

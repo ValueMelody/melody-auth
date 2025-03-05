@@ -1,3 +1,4 @@
+import { resolve } from 'path'
 import devServer from '@hono/vite-dev-server'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -8,11 +9,19 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig(async ({ mode }) => {
   if (mode === 'client') {
     return {
+      plugins: [
+        tsconfigPaths({ root: './' }),
+        tailwindcss(),
+      ],
       esbuild: { jsxImportSource: 'hono/jsx/dom' },
       build: {
-        rollupOptions: {
-          input: './pages/client.tsx',
-          output: { entryFileNames: './dist/client.js' },
+        lib: {
+          entry: resolve(
+            __dirname,
+            'src/pages/client.tsx',
+          ),
+          name: 'client',
+          fileName: 'static/client',
         },
       },
     }

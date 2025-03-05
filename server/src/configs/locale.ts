@@ -403,8 +403,8 @@ export const authorizeReset = Object.freeze({
     fr: 'Entrez votre adresse e-mail, nous vous enverrons un code de réinitialisation par e-mail.',
   },
   email: {
-    en: 'New Email Address',
-    fr: 'Nouvelle adresse e-mail',
+    en: 'Email Address',
+    fr: 'Adresse e-mail',
   },
   code: {
     en: 'Code',

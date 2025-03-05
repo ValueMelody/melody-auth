@@ -39,7 +39,7 @@ export const getUserRoles = async (
 
 export const createRole = async (
   c: Context<typeConfig.Context>,
-  dto: roleDto.PostRoleReqDto,
+  dto: roleDto.PostRoleDto,
 ): Promise<roleModel.Record> => {
   const role = await roleModel.create(
     c.env.DB,
@@ -53,7 +53,7 @@ export const createRole = async (
 export const updateRole = async (
   c: Context<typeConfig.Context>,
   roleId: number,
-  dto: roleDto.PutRoleReqDto,
+  dto: roleDto.PutRoleDto,
 ): Promise<roleModel.Record> => {
   const role = await roleModel.update(
     c.env.DB,

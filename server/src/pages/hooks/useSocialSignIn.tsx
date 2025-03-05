@@ -1,23 +1,28 @@
 import {
   useCallback, useMemo,
 } from 'hono/jsx'
+import { View } from './useCurrentView'
 import {
   routeConfig, typeConfig,
 } from 'configs'
 import {
+  handleAuthorizeStep,
   parseAuthorizeBaseValues, parseResponse,
 } from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
+
 export interface UseSocialSignInProps {
   params: AuthorizeParams;
   handleSubmitError: (error: string) => void;
   locale: typeConfig.Locale;
+  onSwitchView: (view: View) => void;
 }
 
 const useSocialSignIn = ({
   params,
   handleSubmitError,
   locale,
+  onSwitchView,
 }: UseSocialSignInProps) => {
   const handleGoogleSignIn = useCallback(
     (response: any) => {
@@ -41,11 +46,18 @@ const useSocialSignIn = ({
         },
       )
         .then(parseResponse)
+        .then((response) => {
+          handleAuthorizeStep(
+            response,
+            locale,
+            onSwitchView,
+          )
+        })
         .catch((error) => {
           handleSubmitError(error)
         })
     },
-    [params, locale, handleSubmitError],
+    [params, locale, handleSubmitError, onSwitchView],
   )
 
   const handeFacebookSignIn = useCallback(
@@ -69,11 +81,18 @@ const useSocialSignIn = ({
         },
       )
         .then(parseResponse)
+        .then((response) => {
+          handleAuthorizeStep(
+            response,
+            locale,
+            onSwitchView,
+          )
+        })
         .catch((error) => {
           handleSubmitError(error)
         })
     },
-    [params, locale, handleSubmitError],
+    [params, locale, handleSubmitError, onSwitchView],
   )
 
   const githubSignInState = useMemo(
