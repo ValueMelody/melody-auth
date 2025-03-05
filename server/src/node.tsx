@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs'
 import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
 import {
   Context, Hono, Next,
 } from 'hono'
@@ -25,6 +26,9 @@ redisAdapter.initConnection()
 
 const app = new Hono<typeConfig.Context>()
 
+app.use('/client.css', serveStatic({ path: './dist/static/client.css' }))
+app.use('/client.js', serveStatic({ path: './dist/static/client.js' }))
+
 app.use(
   '/*',
   async (
@@ -43,3 +47,5 @@ serve({
   ...appWithRouters,
   port: 8787,
 })
+
+export default appWithRouters
