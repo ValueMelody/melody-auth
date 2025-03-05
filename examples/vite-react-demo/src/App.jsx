@@ -61,12 +61,6 @@ function Main() {
     })
   }
 
-  const handleChangePassword = () => {
-    loginRedirect({
-      policy: 'change_password',
-    })
-  }
-
   const handleResetMFA = () => {
     loginRedirect({
       policy: 'reset_mfa',
@@ -92,9 +86,6 @@ function Main() {
           </div>
           <button type="button" onClick={handleUpdateInfo} style={ButtonStyle}>
             Update Info
-          </button>
-          <button type="button" onClick={handleChangePassword} style={ButtonStyle}>
-            Change Password
           </button>
           <button type="button" onClick={handleResetMFA} style={ButtonStyle}>
             Reset MFA

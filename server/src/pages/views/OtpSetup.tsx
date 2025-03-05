@@ -10,6 +10,7 @@ import {
 import {
   SubmitError, CodeInput, PrimaryButton, ViewTitle,
 } from 'pages/components'
+import QRCode from 'qrcode'
 
 export interface OtpSetupProps {
   locale: typeConfig.Locale;
@@ -52,7 +53,7 @@ const OtpSetup = ({
   useEffect(
     () => {
       if (qrCodeEl && qrCodeEl.current && otpUri) {
-        (window as any).QRCode.toCanvas(
+        QRCode.toCanvas(
           qrCodeEl.current,
           otpUri,
         )
