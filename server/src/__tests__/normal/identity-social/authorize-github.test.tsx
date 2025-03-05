@@ -97,7 +97,8 @@ describe(
         global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
         global.process.env.GITHUB_AUTH_APP_NAME = 'app'
         const res = await getGitHubRequest()
-        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.AppConsent}?state=123&code=`)
+        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.ProcessView}?state=123&code=`)
+        expect(res.headers.get('Location')).toContain('&step=consent')
         expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
 
         global.process.env.GITHUB_AUTH_CLIENT_ID = ''
@@ -192,11 +193,13 @@ describe(
         global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
         global.process.env.GITHUB_AUTH_APP_NAME = 'app'
         const res = await getGitHubRequest()
-        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.AppConsent}?state=123&code=`)
+        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.ProcessView}?state=123&code=`)
+        expect(res.headers.get('Location')).toContain('&step=consent')
         expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
 
         const res1 = await getGitHubRequest()
-        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.AppConsent}?state=123&code=`)
+        expect(res1.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.ProcessView}?state=123&code=`)
+        expect(res1.headers.get('Location')).toContain('&step=consent')
         expect(res1.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
 
         global.process.env.GITHUB_AUTH_CLIENT_ID = ''
