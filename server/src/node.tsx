@@ -26,8 +26,14 @@ redisAdapter.initConnection()
 
 const app = new Hono<typeConfig.Context>()
 
-app.use('/client.css', serveStatic({ path: './dist/static/client.css' }))
-app.use('/client.js', serveStatic({ path: './dist/static/client.js' }))
+app.use(
+  '/client.css',
+  serveStatic({ path: './dist/static/client.css' }),
+)
+app.use(
+  '/client.js',
+  serveStatic({ path: './dist/static/client.js' }),
+)
 
 app.use(
   '/*',

@@ -1,6 +1,8 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { brandingConfig, typeConfig } from 'configs'
+import {
+  brandingConfig, typeConfig,
+} from 'configs'
 import { orgModel } from 'models'
 
 export interface Branding {

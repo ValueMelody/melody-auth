@@ -2,7 +2,9 @@ import { Database } from 'better-sqlite3'
 import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
-import { brandingConfig, routeConfig } from 'configs'
+import {
+  brandingConfig, routeConfig,
+} from 'configs'
 import app from 'index'
 import {
   migrate, mock,

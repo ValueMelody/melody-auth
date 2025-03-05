@@ -1,6 +1,7 @@
 import {
   useEffect, useRef,
 } from 'hono/jsx'
+import { toCanvas } from 'qrcode'
 import {
   useSubmitError, View, useOtpMfaForm,
 } from 'pages/hooks'
@@ -10,7 +11,6 @@ import {
 import {
   SubmitError, CodeInput, PrimaryButton, ViewTitle,
 } from 'pages/components'
-import QRCode from 'qrcode'
 
 export interface OtpSetupProps {
   locale: typeConfig.Locale;
@@ -53,7 +53,7 @@ const OtpSetup = ({
   useEffect(
     () => {
       if (qrCodeEl && qrCodeEl.current && otpUri) {
-        QRCode.toCanvas(
+        toCanvas(
           qrCodeEl.current,
           otpUri,
         )

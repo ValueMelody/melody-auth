@@ -24,7 +24,6 @@ describe(
     const mockConfigs = {
       AUTH_SERVER_URL: 'https://auth.example.com',
       COMPANY_LOGO_URL: 'https://example.com/logo.png',
-      FONT_FAMILY: 'Arial',
       ENABLE_SIGN_IN_LOG: true,
       ENABLE_SMS_LOG: false,
       SUPPORTED_LOCALES: ['en', 'fr'],
@@ -114,10 +113,6 @@ describe(
       'renders string and number config values as is',
       () => {
         render(<Page />)
-
-        const fontFamilyCell = screen.getByText('FONT_FAMILY')
-          .nextElementSibling
-        expect(fontFamilyCell).toHaveTextContent('Arial')
 
         const expiresInCell = screen.getByText('AUTHORIZATION_CODE_EXPIRES_IN')
           .nextElementSibling

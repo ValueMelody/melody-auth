@@ -1,6 +1,7 @@
 import {
   useCallback, useMemo,
 } from 'hono/jsx'
+import { View } from './useCurrentView'
 import {
   routeConfig, typeConfig,
 } from 'configs'
@@ -9,7 +10,6 @@ import {
   parseAuthorizeBaseValues, parseResponse,
 } from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
-import { View } from './useCurrentView';
 
 export interface UseSocialSignInProps {
   params: AuthorizeParams;
@@ -22,7 +22,7 @@ const useSocialSignIn = ({
   params,
   handleSubmitError,
   locale,
-  onSwitchView
+  onSwitchView,
 }: UseSocialSignInProps) => {
   const handleGoogleSignIn = useCallback(
     (response: any) => {

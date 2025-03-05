@@ -1,6 +1,8 @@
 import { useEffect } from 'hono/jsx'
 import { typeConfig } from 'configs'
-import { useSocialSignIn, View } from 'pages/hooks'
+import {
+  useSocialSignIn, View,
+} from 'pages/hooks'
 import { AuthorizeParams } from 'pages/tools/param'
 
 const getFBLocale = (locale: typeConfig.Locale) => {

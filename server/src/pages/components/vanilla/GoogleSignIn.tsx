@@ -1,5 +1,7 @@
 import { useEffect } from 'hono/jsx'
-import { useSocialSignIn, View } from 'pages/hooks'
+import {
+  useSocialSignIn, View,
+} from 'pages/hooks'
 import { typeConfig } from 'configs'
 import { AuthorizeParams } from 'pages/tools/param'
 

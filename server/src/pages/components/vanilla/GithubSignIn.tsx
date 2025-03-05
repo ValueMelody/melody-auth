@@ -1,7 +1,9 @@
 import {
   localeConfig, typeConfig,
 } from 'configs'
-import { useSocialSignIn, View } from 'pages/hooks'
+import {
+  useSocialSignIn, View,
+} from 'pages/hooks'
 import { AuthorizeParams } from 'pages/tools/param'
 
 export interface GithubSignInProps {
