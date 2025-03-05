@@ -83,7 +83,7 @@ describe(
         render(<Page />)
 
         const expectedSections = [
-          'dashboard.brandingConfigs',
+          'dashboard.informationConfigs',
           'dashboard.localeConfigs',
           'dashboard.suppressionConfigs',
           'dashboard.authConfigs',

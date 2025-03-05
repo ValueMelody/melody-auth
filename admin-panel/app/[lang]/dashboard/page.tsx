@@ -17,20 +17,9 @@ const Page = () => {
 
   const configTypes = [
     {
-      name: t('dashboard.brandingConfigs'),
+      name: t('dashboard.informationConfigs'),
       value: [
         'COMPANY_LOGO_URL',
-        'FONT_FAMILY',
-        'FONT_URL',
-        'LAYOUT_COLOR',
-        'LABEL_COLOR',
-        'PRIMARY_BUTTON_COLOR',
-        'PRIMARY_BUTTON_LABEL_COLOR',
-        'PRIMARY_BUTTON_BORDER_COLOR',
-        'SECONDARY_BUTTON_COLOR',
-        'SECONDARY_BUTTON_LABEL_COLOR',
-        'SECONDARY_BUTTON_BORDER_COLOR',
-        'CRITICAL_INDICATOR_COLOR',
         'EMAIL_SENDER_NAME',
         'TERMS_LINK',
         'PRIVACY_POLICY_LINK',

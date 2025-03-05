@@ -8,55 +8,11 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 4. Save the file.
 5. Redeploy or restart your server
 
-## Branding Configs
+## Information Configs
 
 ### COMPANY_LOGO_URL
 - **Default:** https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg
 - **Description:** URL of the logo displayed on authentication pages.
-
-### FONT_FAMILY
-- **Default:** Inter
-- **Description:** Font family used on authentication pages.
-
-### FONT_URL
-- **Default:** https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap
-- **Description:** URL for loading your chosen font (e.g., Inter) from Google Fonts.
-
-### LAYOUT_COLOR
-- **Default:** lightgray
-- **Description:** Background color for the authentication page layout.
-
-### LABEL_COLOR
-- **Default:** black
-- **Description:** Font color for labels on authentication pages.
-
-### PRIMARY_BUTTON_COLOR
-- **Default:** white
-- **Description:** Background color of primary buttons.
-
-### PRIMARY_BUTTON_LABEL_COLOR
-- **Default:** black
-- **Description:** Label (text) color of primary buttons.
-
-### PRIMARY_BUTTON_BORDER_COLOR
-- **Default:** black
-- **Description:** Border color of primary buttons.
-
-### SECONDARY_BUTTON_COLOR
-- **Default:** white
-- **Description:** Background color of secondary buttons.
-
-### SECONDARY_BUTTON_LABEL_COLOR
-- **Default:** black
-- **Description:** Label (text) color of secondary buttons.
-
-### SECONDARY_BUTTON_BORDER_COLOR
-- **Default:** black
-- **Description:** Border color of secondary buttons.
-
-### CRITICAL_INDICATOR_COLOR
-- **Default:** #e00
-- **Description:** Color used for critical indicators (e.g., errors).
 
 ### EMAIL_SENDER_NAME
 - **Default:** "Melody Auth"

@@ -40,7 +40,7 @@
     "deleteConfirmBtn": "Supprimer"
   },
   "dashboard": {
-    "brandingConfigs": "Configurations de marque",
+    "informationConfigs": "Configurations d'information",
     "localeConfigs": "Configurations de langue",
     "suppressionConfigs": "Configurations de suppression",
     "mfaConfigs": "Configurations MFA",

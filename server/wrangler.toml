@@ -1,22 +1,11 @@
 name = "melody-auth"
-compatibility_date = "2024-07-20"
+compatibility_date = "2025-01-01"
 keep_vars = true
 
 [vars]
 
-# Branding
+# Information
 COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
-FONT_FAMILY="Inter"
-FONT_URL="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap"
-LAYOUT_COLOR="lightgray"
-LABEL_COLOR="black"
-PRIMARY_BUTTON_COLOR="white"
-PRIMARY_BUTTON_LABEL_COLOR="black"
-PRIMARY_BUTTON_BORDER_COLOR="lightgray"
-SECONDARY_BUTTON_COLOR="white"
-SECONDARY_BUTTON_LABEL_COLOR="black"
-SECONDARY_BUTTON_BORDER_COLOR="white"
-CRITICAL_INDICATOR_COLOR="#e00"
 EMAIL_SENDER_NAME="Melody Auth"
 TERMS_LINK="" # Display a link to your terms on sign-up page
 PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
@@ -82,3 +71,6 @@ binding = "DB"
 database_name = "melody-auth"
 database_id = "8dc67df2-771d-4e73-9c16-d04341b9740e" # Replace with your own D1 ID
 migrations_dir = "./migrations/sqlite"
+
+[assets]
+directory = "./dist/static"

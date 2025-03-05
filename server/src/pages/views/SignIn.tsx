@@ -125,18 +125,21 @@ const SignIn = ({
               locale={locale}
               params={params}
               handleSubmitError={handleSubmitError}
+              onSwitchView={onSwitchView}
             />
             <FacebookSignIn
               facebookClientId={initialProps.facebookClientId}
               locale={locale}
               params={params}
               handleSubmitError={handleSubmitError}
+              onSwitchView={onSwitchView}
             />
             <GithubSignIn
               githubClientId={initialProps.githubClientId}
               locale={locale}
               params={params}
               handleSubmitError={handleSubmitError}
+              onSwitchView={onSwitchView}
             />
           </section>
         )}

@@ -1,6 +1,6 @@
 import { useEffect } from 'hono/jsx'
 import { typeConfig } from 'configs'
-import { useSocialSignIn } from 'pages/hooks'
+import { useSocialSignIn, View } from 'pages/hooks'
 import { AuthorizeParams } from 'pages/tools/param'
 
 const getFBLocale = (locale: typeConfig.Locale) => {
@@ -17,6 +17,7 @@ export interface FacebookSignInProps {
   locale: typeConfig.Locale;
   params: AuthorizeParams;
   handleSubmitError: (error: string) => void;
+  onSwitchView: (view: View) => void;
 }
 
 const FacebookSignIn = ({
@@ -24,11 +25,13 @@ const FacebookSignIn = ({
   locale,
   params,
   handleSubmitError,
+  onSwitchView,
 }: FacebookSignInProps) => {
   const { handeFacebookSignIn } = useSocialSignIn({
     params,
     handleSubmitError,
     locale,
+    onSwitchView,
   })
 
   useEffect(

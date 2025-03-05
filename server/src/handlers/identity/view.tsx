@@ -31,6 +31,8 @@ const viewRender = async (
     org,
   )
 
+  const { ENVIRONMENT } = env(c)
+
   return c.html(<html lang={locale}>
     <head>
       <meta charset='utf-8' />
@@ -44,6 +46,17 @@ const viewRender = async (
         name='viewport'
         content='width=device-width, initial-scale=1'
       />
+      {ENVIRONMENT === 'dev'? (
+        <link
+          rel='stylesheet'
+          href='/src/pages/client.css'
+        />
+      ) : (
+        <link
+          rel='stylesheet'
+          href='/client.css'
+        />
+      )}
       <link
         rel='preconnect'
         href='https://fonts.googleapis.com'
@@ -55,10 +68,6 @@ const viewRender = async (
       <link
         href={branding.fontUrl}
         rel='stylesheet'
-      />
-      <link
-        rel='stylesheet'
-        href='/src/pages/index.css'
       />
       <Style>
         {css`
@@ -79,10 +88,17 @@ const viewRender = async (
     </head>
     <body>
       <div id='root' />
-      <script
-        type='module'
-        src='/src/pages/client.tsx'
-      />
+      {ENVIRONMENT === 'dev'? (
+        <script
+          type='module'
+          src='/src/pages/client.tsx'
+        />
+      ) : (
+        <script
+          type='module'
+          src='/client.js'
+        />
+      )}
       {propsScript}
     </body>
   </html>)

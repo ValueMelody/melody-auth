@@ -2,7 +2,7 @@ import { Database } from 'better-sqlite3'
 import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
-import { routeConfig } from 'configs'
+import { brandingConfig, routeConfig } from 'configs'
 import {
   migrate,
   mockedKV,
@@ -52,20 +52,20 @@ describe(
         expect(html).toContain(`privacyPolicyLink: "${process.env.PRIVACY_POLICY_LINK}"`)
         expect(html).toContain(`allowPasskey: ${process.env.ALLOW_PASSKEY_ENROLLMENT}`)
         expect(html).toContain(`<link rel="icon" type="image/x-icon" href="${process.env.COMPANY_LOGO_URL}"/>`)
-        expect(html).toContain(`<link href="${process.env.FONT_URL?.replace(
+        expect(html).toContain(`<link href="${brandingConfig.DefaultBranding.FontUrl?.replace(
           '&',
           '&amp;',
         )}" rel="stylesheet"/>`)
-        expect(html).toContain(`--layout-color:${process.env.LAYOUT_COLOR}`)
-        expect(html).toContain(`--label-color:${process.env.LABEL_COLOR}`)
-        expect(html).toContain(`--font-default:${process.env.FONT_FAMILY}`)
-        expect(html).toContain(`--primary-button-color:${process.env.PRIMARY_BUTTON_COLOR}`)
-        expect(html).toContain(`--primary-button-label-color:${process.env.PRIMARY_BUTTON_LABEL_COLOR}`)
-        expect(html).toContain(`--primary-button-border-color:${process.env.PRIMARY_BUTTON_BORDER_COLOR}`)
-        expect(html).toContain(`--secondary-button-color:${process.env.SECONDARY_BUTTON_COLOR}`)
-        expect(html).toContain(`--secondary-button-label-color:${process.env.SECONDARY_BUTTON_LABEL_COLOR}`)
-        expect(html).toContain(`--secondary-button-border-color:${process.env.SECONDARY_BUTTON_BORDER_COLOR}`)
-        expect(html).toContain(`--critical-indicator-color:${process.env.CRITICAL_INDICATOR_COLOR}`)
+        expect(html).toContain(`--layout-color:${brandingConfig.DefaultBranding.LayoutColor}`)
+        expect(html).toContain(`--label-color:${brandingConfig.DefaultBranding.LabelColor}`)
+        expect(html).toContain(`--font-default:${brandingConfig.DefaultBranding.FontFamily}`)
+        expect(html).toContain(`--primary-button-color:${brandingConfig.DefaultBranding.PrimaryButtonColor}`)
+        expect(html).toContain(`--primary-button-label-color:${brandingConfig.DefaultBranding.PrimaryButtonLabelColor}`)
+        expect(html).toContain(`--primary-button-border-color:${brandingConfig.DefaultBranding.PrimaryButtonBorderColor}`)
+        expect(html).toContain(`--secondary-button-color:${brandingConfig.DefaultBranding.SecondaryButtonColor}`)
+        expect(html).toContain(`--secondary-button-label-color:${brandingConfig.DefaultBranding.SecondaryButtonLabelColor}`)
+        expect(html).toContain(`--secondary-button-border-color:${brandingConfig.DefaultBranding.SecondaryButtonBorderColor}`)
+        expect(html).toContain(`--critical-indicator-color:${brandingConfig.DefaultBranding.CriticalIndicatorColor}`)
       },
     )
 
@@ -89,17 +89,6 @@ describe(
         global.process.env.GITHUB_AUTH_APP_NAME = 'github-app-name'
         global.process.env.ENABLE_NAMES = false as unknown as string
         global.process.env.NAMES_IS_REQUIRED = false as unknown as string
-        global.process.env.FONT_FAMILY = 'Roboto'
-        global.process.env.FONT_URL = 'https://fonts.googleapis.com/css2?family=Roboto:wght@400..600&display=swap'
-        global.process.env.LAYOUT_COLOR = 'red'
-        global.process.env.LABEL_COLOR = 'green'
-        global.process.env.PRIMARY_BUTTON_COLOR = 'black'
-        global.process.env.PRIMARY_BUTTON_LABEL_COLOR = 'gray'
-        global.process.env.PRIMARY_BUTTON_BORDER_COLOR = 'orange'
-        global.process.env.SECONDARY_BUTTON_COLOR = 'darkred'
-        global.process.env.SECONDARY_BUTTON_LABEL_COLOR = 'darkgray'
-        global.process.env.SECONDARY_BUTTON_BORDER_COLOR = 'blue'
-        global.process.env.CRITICAL_INDICATOR_COLOR = 'yellow'
 
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
@@ -125,20 +114,6 @@ describe(
         expect(html).toContain(`privacyPolicyLink: "${process.env.PRIVACY_POLICY_LINK}"`)
         expect(html).toContain(`allowPasskey: ${process.env.ALLOW_PASSKEY_ENROLLMENT}`)
         expect(html).toContain(`<link rel="icon" type="image/x-icon" href="${process.env.COMPANY_LOGO_URL}"/>`)
-        expect(html).toContain(`<link href="${process.env.FONT_URL?.replace(
-          '&',
-          '&amp;',
-        )}" rel="stylesheet"/>`)
-        expect(html).toContain(`--layout-color:${process.env.LAYOUT_COLOR}`)
-        expect(html).toContain(`--label-color:${process.env.LABEL_COLOR}`)
-        expect(html).toContain(`--font-default:${process.env.FONT_FAMILY}`)
-        expect(html).toContain(`--primary-button-color:${process.env.PRIMARY_BUTTON_COLOR}`)
-        expect(html).toContain(`--primary-button-label-color:${process.env.PRIMARY_BUTTON_LABEL_COLOR}`)
-        expect(html).toContain(`--primary-button-border-color:${process.env.PRIMARY_BUTTON_BORDER_COLOR}`)
-        expect(html).toContain(`--secondary-button-color:${process.env.SECONDARY_BUTTON_COLOR}`)
-        expect(html).toContain(`--secondary-button-label-color:${process.env.SECONDARY_BUTTON_LABEL_COLOR}`)
-        expect(html).toContain(`--secondary-button-border-color:${process.env.SECONDARY_BUTTON_BORDER_COLOR}`)
-        expect(html).toContain(`--critical-indicator-color:${process.env.CRITICAL_INDICATOR_COLOR}`)
       },
     )
 

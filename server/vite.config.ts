@@ -4,16 +4,22 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 import build from '@hono/vite-build/cloudflare-workers'
 import { cloudflareAdapter } from '@hono/vite-dev-server/cloudflare'
 import tailwindcss from '@tailwindcss/vite'
+import { resolve } from 'path'
 
 export default defineConfig(async ({ mode }) => {
   if (mode === 'client') {
     return {
+      plugins: [
+        tsconfigPaths({ root: './' }),
+        tailwindcss(),
+      ],
       esbuild: { jsxImportSource: 'hono/jsx/dom' },
       build: {
-        rollupOptions: {
-          input: './pages/client.tsx',
-          output: { entryFileNames: './dist/client.js' },
-        },
+        lib: {
+          entry: resolve(__dirname, 'src/pages/client.tsx'),
+          name: 'client',
+          fileName: 'static/client'
+        }
       },
     }
   }

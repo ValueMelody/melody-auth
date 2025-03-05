@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { typeConfig } from 'configs'
+import { brandingConfig, typeConfig } from 'configs'
 import { orgModel } from 'models'
 
 export interface Branding {
@@ -23,35 +23,24 @@ export interface Branding {
 const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
   const {
     COMPANY_LOGO_URL: logoUrl,
-    FONT_FAMILY: fontFamily,
-    FONT_URL: fontUrl,
-    LAYOUT_COLOR: layoutColor,
-    LABEL_COLOR: labelColor,
-    PRIMARY_BUTTON_COLOR: primaryButtonColor,
-    PRIMARY_BUTTON_LABEL_COLOR: primaryButtonLabelColor,
-    PRIMARY_BUTTON_BORDER_COLOR: primaryButtonBorderColor,
-    SECONDARY_BUTTON_COLOR: secondaryButtonColor,
-    SECONDARY_BUTTON_LABEL_COLOR: secondaryButtonLabelColor,
-    SECONDARY_BUTTON_BORDER_COLOR: secondaryButtonBorderColor,
-    CRITICAL_INDICATOR_COLOR: criticalIndicatorColor,
     TERMS_LINK: termsLink,
     PRIVACY_POLICY_LINK: privacyPolicyLink,
   } = env(c)
   return {
-    logoUrl,
-    fontFamily,
-    fontUrl,
-    layoutColor,
-    labelColor,
-    primaryButtonColor,
-    primaryButtonLabelColor,
-    primaryButtonBorderColor,
-    secondaryButtonColor,
-    secondaryButtonLabelColor,
-    secondaryButtonBorderColor,
-    criticalIndicatorColor,
+    fontFamily: brandingConfig.DefaultBranding.FontFamily,
+    fontUrl: brandingConfig.DefaultBranding.FontUrl,
+    layoutColor: brandingConfig.DefaultBranding.LayoutColor,
+    labelColor: brandingConfig.DefaultBranding.LabelColor,
+    primaryButtonColor: brandingConfig.DefaultBranding.PrimaryButtonColor,
+    primaryButtonLabelColor: brandingConfig.DefaultBranding.PrimaryButtonLabelColor,
+    primaryButtonBorderColor: brandingConfig.DefaultBranding.PrimaryButtonBorderColor,
+    secondaryButtonColor: brandingConfig.DefaultBranding.SecondaryButtonColor,
+    secondaryButtonLabelColor: brandingConfig.DefaultBranding.SecondaryButtonLabelColor,
+    secondaryButtonBorderColor: brandingConfig.DefaultBranding.SecondaryButtonBorderColor,
+    criticalIndicatorColor: brandingConfig.DefaultBranding.CriticalIndicatorColor,
     termsLink,
     privacyPolicyLink,
+    logoUrl,
   }
 }
 

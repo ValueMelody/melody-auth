@@ -1,5 +1,5 @@
 import { useEffect } from 'hono/jsx'
-import { useSocialSignIn } from 'pages/hooks'
+import { useSocialSignIn, View } from 'pages/hooks'
 import { typeConfig } from 'configs'
 import { AuthorizeParams } from 'pages/tools/param'
 
@@ -8,6 +8,7 @@ export interface GoogleSignInProps {
   locale: typeConfig.Locale;
   params: AuthorizeParams;
   handleSubmitError: (error: string) => void;
+  onSwitchView: (view: View) => void;
 }
 
 const GoogleSignIn = ({
@@ -15,11 +16,13 @@ const GoogleSignIn = ({
   locale,
   params,
   handleSubmitError,
+  onSwitchView,
 }: GoogleSignInProps) => {
   const { handleGoogleSignIn } = useSocialSignIn({
     params,
     locale,
     handleSubmitError,
+    onSwitchView,
   })
 
   useEffect(

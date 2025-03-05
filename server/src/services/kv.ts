@@ -358,8 +358,18 @@ export const verifyPasswordResetCode = async (
   )
   const storedCode = await kv.get(key)
   const isValid = storedCode && storedCode === code
-  if (isValid) await kv.delete(key)
   return isValid
+}
+
+export const deletePasswordResetCode = async (
+  kv: KVNamespace,
+  userId: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.PasswordResetCode,
+    String(userId),
+  )
+  await kv.delete(key)
 }
 
 export const getPasswordResetAttemptsByIP = async (

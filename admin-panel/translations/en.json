@@ -42,7 +42,7 @@
     "deleteConfirmBtn": "Delete"
   },
   "dashboard": {
-    "brandingConfigs": "Branding Configs",
+    "informationConfigs": "Information Configs",
     "localeConfigs": "Locale Configs",
     "suppressionConfigs": "Suppression Configs",
     "mfaConfigs": "MFA Configs",
