@@ -17,7 +17,9 @@ import {
   getApp,
   insertUsers,
   prepareFollowUpBody,
+  getSignInRequest,
 } from 'tests/identity'
+import { oauthDto } from 'dtos'
 
 let db: Database
 
@@ -151,6 +153,48 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
         })
 
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could generate session after passkey verify',
+      async () => {
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await passkeyVerify(db)
+        const appRecord = await getApp(db)
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain('http://localhost:3000/en/dashboard?code')
+        const code = path!.split('?')[1].split('&')[0].split('=')[1]
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },

@@ -11,7 +11,9 @@ import {
 import {
   appService,
   identityService,
-  kvService, passkeyService,
+  kvService,
+  passkeyService,
+  sessionService,
   userService,
 } from 'services'
 import {
@@ -169,6 +171,11 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
   }
 
   const authCode = await oauthHandler.createFullAuthorize(
+    c,
+    authCodeBody,
+  )
+
+  sessionService.setAuthInfoSession(
     c,
     authCodeBody,
   )
