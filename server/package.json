@@ -22,6 +22,7 @@
     "test:check:cf": "vitest run ./src/__tests__/normal",
     "test:check:cf-key-rotate": "vitest run ./src/__tests__/key-rotate",
     "test:check:templates": "vitest run ./src/templates",
+    "test:check:pages": "vitest run ./src/pages",
     "test:coverage": "vitest run --coverage ./src --exclude ./src/__tests__/key-rotate",
     "type:check": "tsc --noEmit",
     "swagger:generate": "node ./src/scripts/generate-swagger.cjs"
@@ -53,6 +54,8 @@
     "@hono/vite-build": "^1.3.0",
     "@hono/vite-dev-server": "^0.18.2",
     "@tailwindcss/vite": "^4.0.8",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.11",
     "@types/jsdom": "^21.1.7",
