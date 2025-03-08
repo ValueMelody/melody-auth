@@ -7,7 +7,7 @@ import {
 } from 'vitest'
 import {
   exchangeTokenByAuthCode, loadCodeAndStateFromUrl,
-} from 'web-sdk'
+} from '@melody-auth/web'
 import Setup from './Setup'
 import authContext from './context'
 
@@ -45,7 +45,7 @@ vi.mock(
 )
 
 vi.mock(
-  'web-sdk',
+  '@melody-auth/web',
   () => ({
     exchangeTokenByAuthCode: vi.fn(),
     loadCodeAndStateFromUrl: vi.fn(() => {

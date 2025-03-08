@@ -15,7 +15,7 @@
     "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk && cd admin-panel && npm run type:check",
     "lint:check": "eslint ./ --ext .ts,.tsx,.js,.cjs --ignore-pattern 'examples/*'",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js,.cjs",
-    "build": "npm run build -w=shared &&  npm run build -w=web-sdk && npm run build -w=react-sdk",
+    "build": "npm run build -w=shared && npm run build -w=web-sdk && npm run build -w=react-sdk",
     "docs:build": "vuepress build docs",
     "docs:dev": "vuepress dev docs"
   },

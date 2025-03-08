@@ -1,6 +1,6 @@
 {
   "name": "@melody-auth/react",
-  "version": "0.0.13",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
@@ -27,9 +27,12 @@
     "react": "^16.11.0 || ^17 || ^18"
   },
   "scripts": {
-    "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && mkdir ./dist/web-sdk && cp -r ../shared/dist/* ./dist/shared && cp -r ../web-sdk/dist/* ./dist/web-sdk && rollup -c --bundleConfigAsCjs && tsc-alias",
+    "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && cp -r ../shared/dist/* ./dist/shared && rollup -c --bundleConfigAsCjs && tsc-alias",
     "type:check": "tsc --noEmit",
     "test:check": "vitest run .",
     "test:coverage": "vitest run . --coverage"
+  },
+  "dependencies": {
+    "@melody-auth/web": "^1.0.0"
   }
 }

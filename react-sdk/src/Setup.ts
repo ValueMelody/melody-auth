@@ -2,7 +2,7 @@ import {
   useContext, useEffect,
   useRef,
 } from 'react'
-import { loadCodeAndStateFromUrl } from 'web-sdk'
+import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import { useAuth } from './useAuth'
 import authContext, { AuthContext } from './context'
 import { handleTokenExchangeByAuthCode } from './utils'

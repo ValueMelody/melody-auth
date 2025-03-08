@@ -1,6 +1,6 @@
 import { Dispatch } from 'react'
 import { ProviderConfig } from 'shared'
-import { exchangeTokenByAuthCode } from 'web-sdk'
+import { exchangeTokenByAuthCode } from '@melody-auth/web'
 
 export enum ErrorType {
   Unauthorized = 'Unauthorized',

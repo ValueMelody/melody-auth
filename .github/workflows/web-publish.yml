@@ -1,4 +1,4 @@
-name: react-sdk publish CI
+name: web-sdk publish CI
 
 on:
   workflow_dispatch:
@@ -23,14 +23,14 @@ jobs:
     - name: Build shared package
       run: npm run build
 
-    - name: Build react-sdk package
+    - name: Build web-sdk package
       run: |
-        cd react-sdk
+        cd web-sdk
         npm run build
 
     - name: Publish to npm
       run: |
-        cd react-sdk
+        cd web-sdk
         npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

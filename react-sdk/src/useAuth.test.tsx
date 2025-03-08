@@ -10,14 +10,14 @@ import {
   logout,
   exchangeTokenByRefreshToken,
   getUserInfo,
-} from 'web-sdk'
+} from '@melody-auth/web'
 import { useAuth } from './useAuth'
 import authContext from './context'
 import * as utils from './utils'
 
 // Mock the functions from web-sdk so that they are spies.
 vi.mock(
-  'web-sdk',
+  '@melody-auth/web',
   () => ({
     triggerLogin: vi.fn(),
     logout: vi.fn(),
