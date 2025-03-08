@@ -6,12 +6,12 @@ import {
   renderHook, act,
 } from '@testing-library/react'
 
+import { View } from './useCurrentView'
 import useSmsMfaForm from 'pages/hooks/useSmsMfaForm'
 import {
   routeConfig, typeConfig,
 } from 'configs'
 import * as requestModule from 'pages/tools/request'
-import { View } from './useCurrentView'
 
 // Mock hooks from hono/jsx.
 vi.mock(

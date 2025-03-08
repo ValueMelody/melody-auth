@@ -6,10 +6,10 @@ import {
   renderHook, act,
 } from '@testing-library/react'
 
+import { View } from './useCurrentView'
 import useSignInForm from 'pages/hooks/useSignInForm'
 import { routeConfig } from 'configs'
 import * as requestModule from 'pages/tools/request'
-import { View } from './useCurrentView'
 
 // Mock hooks from hono/jsx.
 vi.mock(

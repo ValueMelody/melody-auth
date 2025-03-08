@@ -6,13 +6,13 @@ import {
   renderHook, act,
 } from '@testing-library/react'
 
+import { View } from './useCurrentView'
 import useSocialSignIn from 'pages/hooks/useSocialSignIn'
 import {
   routeConfig, typeConfig,
 } from 'configs'
 import * as requestModule from 'pages/tools/request'
 import { Policy } from 'dtos/oauth'
-import { View } from './useCurrentView'
 
 // Mock hooks from hono/jsx.
 vi.mock(

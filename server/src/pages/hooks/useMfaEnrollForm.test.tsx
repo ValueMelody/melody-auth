@@ -7,11 +7,11 @@ import {
 } from '@testing-library/react'
 
 // Import the hook to test.
+import { View } from './useCurrentView'
 import useMfaEnrollForm from 'pages/hooks/useMfaEnrollForm'
 import { routeConfig } from 'configs'
 import * as requestModule from 'pages/tools/request'
 import { MfaType } from 'models/user'
-import { View } from './useCurrentView'
 
 // Mock hooks from hono/jsx.
 vi.mock(

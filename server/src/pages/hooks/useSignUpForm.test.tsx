@@ -6,14 +6,14 @@ import {
   renderHook, act,
 } from '@testing-library/react'
 
+import { InitialProps } from './useInitialProps'
+import { View } from './useCurrentView'
 import useSignUpForm from 'pages/hooks/useSignUpForm'
 import {
   localeConfig, routeConfig,
 } from 'configs'
 import * as requestModule from 'pages/tools/request'
-import { InitialProps } from './useInitialProps'
 import { AuthorizeParams } from 'pages/tools/param'
-import { View } from './useCurrentView'
 
 // Mock hooks from hono/jsx.
 vi.mock(

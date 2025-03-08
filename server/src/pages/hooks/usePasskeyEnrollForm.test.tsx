@@ -7,10 +7,10 @@ import {
 } from '@testing-library/react'
 
 // Import the hook and external dependencies.
+import { View } from './useCurrentView'
 import usePasskeyEnrollForm from 'pages/hooks/usePasskeyEnrollForm'
 import { routeConfig } from 'configs'
 import * as requestModule from 'pages/tools/request'
-import { View } from './useCurrentView'
 
 // Mock hooks from hono/jsx.
 vi.mock(

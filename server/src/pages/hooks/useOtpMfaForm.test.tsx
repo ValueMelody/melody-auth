@@ -6,12 +6,12 @@ import {
   renderHook, act,
 } from '@testing-library/react'
 
+import { View } from './useCurrentView'
 import useOtpMfaForm from 'pages/hooks/useOtpMfaForm'
 import { routeConfig } from 'configs'
 
 // Spy on the handleAuthorizeStep function from the request module.
 import * as requestModule from 'pages/tools/request'
-import { View } from './useCurrentView'
 
 // Mock hooks from hono/jsx.
 vi.mock(
