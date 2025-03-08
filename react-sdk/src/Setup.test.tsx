@@ -45,7 +45,7 @@ vi.mock(
 )
 
 vi.mock(
-  'web-sdk',
+  '@melody-auth/web',
   () => ({
     exchangeTokenByAuthCode: vi.fn(),
     loadCodeAndStateFromUrl: vi.fn(() => {

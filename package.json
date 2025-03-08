@@ -8,7 +8,6 @@
   "workspaces": [
     "shared",
     "server",
-    "web-sdk",
     "react-sdk"
   ],
   "scripts": {

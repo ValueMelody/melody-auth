@@ -17,7 +17,7 @@ import * as utils from './utils'
 
 // Mock the functions from web-sdk so that they are spies.
 vi.mock(
-  'web-sdk',
+  '@melody-auth/web',
   () => ({
     triggerLogin: vi.fn(),
     logout: vi.fn(),
