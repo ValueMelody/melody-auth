@@ -19,6 +19,8 @@ export default defineConfig({
         'src/**/__tests__',
         'src/adapters',
         'src/node.tsx',
+        '**/*.test.ts',
+        '**/*.test.tsx'
       ],
     },
   },

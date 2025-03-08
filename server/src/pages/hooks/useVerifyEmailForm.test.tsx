@@ -1,162 +1,205 @@
-import { expect, test, vi } from 'vitest'
+import {
+  expect, test, vi,
+} from 'vitest'
 import * as React from 'react'
-import { renderHook, act } from '@testing-library/react'
-
-vi.mock('hono/jsx', () => ({
-  useCallback: React.useCallback,
-  useMemo: React.useMemo,
-  useState: React.useState,
-}))
+import {
+  renderHook, act,
+} from '@testing-library/react'
 
 import useVerifyEmailForm from 'pages/hooks/useVerifyEmailForm'
 import { localeConfig } from 'configs'
 
-test('returns logged in user', () => {
-  const {result} = renderHook(() => useVerifyEmailForm({
-    locale: 'en',
-    onSubmitError: () => {},
-  }))
-  expect(result.current).toEqual({
-    errors: { mfaCode: '' },
-    values: { mfaCode: [] },
-    handleChange: expect.any(Function),
-    handleSubmit: expect.any(Function),
-    success: false,
-  })
-})
+vi.mock(
+  'hono/jsx',
+  () => ({
+    useCallback: React.useCallback,
+    useMemo: React.useMemo,
+    useState: React.useState,
+  }),
+)
 
-test('could handle change', () => {
-  const onSubmitError = vi.fn();
-  const { result } = renderHook(() => useVerifyEmailForm({
-    locale: 'en',
-    onSubmitError,
-  }));
+test(
+  'returns logged in user',
+  () => {
+    const { result } = renderHook(() => useVerifyEmailForm({
+      locale: 'en',
+      onSubmitError: () => {},
+    }))
+    expect(result.current).toEqual({
+      errors: { mfaCode: '' },
+      values: { mfaCode: [] },
+      handleChange: expect.any(Function),
+      handleSubmit: expect.any(Function),
+      success: false,
+    })
+  },
+)
 
-  act(() => {
-    result.current.handleChange('mfaCode', ['1', '2', '3', '4', '5', '6']);
-  });
+test(
+  'could handle change',
+  () => {
+    const onSubmitError = vi.fn()
+    const { result } = renderHook(() => useVerifyEmailForm({
+      locale: 'en',
+      onSubmitError,
+    }))
 
-  // Verify that onSubmitError is triggered with null
-  expect(onSubmitError).toHaveBeenCalledWith(null);
-  expect(result.current.values.mfaCode).toEqual(['1', '2', '3', '4', '5', '6']);
-})
+    act(() => {
+      result.current.handleChange(
+        'mfaCode',
+        ['1', '2', '3', '4', '5', '6'],
+      )
+    })
 
-test('submits data successfully', async () => {
-  const onSubmitError = vi.fn();
-  const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
-    ok: true,
-    json: async () => ({}),
-  } as Response);
+    // Verify that onSubmitError is triggered with null
+    expect(onSubmitError).toHaveBeenCalledWith(null)
+    expect(result.current.values.mfaCode).toEqual(['1', '2', '3', '4', '5', '6'])
+  },
+)
 
-  const { result } = renderHook(() => useVerifyEmailForm({
-    locale: 'en',
-    onSubmitError,
-  }));
+test(
+  'submits data successfully',
+  async () => {
+    const onSubmitError = vi.fn()
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    ).mockResolvedValue({
+      ok: true,
+      json: async () => ({}),
+    } as Response)
 
-  act(() => {
-    result.current.handleChange('mfaCode', ['1', '2', '3', '4', '5', '6']);
-  });
+    const { result } = renderHook(() => useVerifyEmailForm({
+      locale: 'en',
+      onSubmitError,
+    }))
 
-  // Create a fake event with a preventDefault spy.
-  const fakeEvent = { preventDefault: vi.fn() } as unknown as Event;
+    act(() => {
+      result.current.handleChange(
+        'mfaCode',
+        ['1', '2', '3', '4', '5', '6'],
+      )
+    })
 
-  await act(async () => {
-    result.current.handleSubmit(fakeEvent);
-    // Wait for the promise chain to resolve.
-    await Promise.resolve();
-  });
+    // Create a fake event with a preventDefault spy.
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
 
-  expect(fakeEvent.preventDefault).toHaveBeenCalled();
-  expect(result.current).toStrictEqual({
-    success: true,
-    errors: { mfaCode: undefined },
-    values: { mfaCode: ['1', '2', '3', '4', '5', '6'] },
-    handleChange: expect.any(Function),
-    handleSubmit: expect.any(Function),
-  });
-  expect(fetchSpy).toHaveBeenCalled();
+    await act(async () => {
+      result.current.handleSubmit(fakeEvent)
+      // Wait for the promise chain to resolve.
+      await Promise.resolve()
+    })
 
-  fetchSpy.mockRestore();
-});
+    expect(fakeEvent.preventDefault).toHaveBeenCalled()
+    expect(result.current).toStrictEqual({
+      success: true,
+      errors: { mfaCode: undefined },
+      values: { mfaCode: ['1', '2', '3', '4', '5', '6'] },
+      handleChange: expect.any(Function),
+      handleSubmit: expect.any(Function),
+    })
+    expect(fetchSpy).toHaveBeenCalled()
 
-test('fails submission and calls onSubmitError', async () => {
-  const onSubmitError = vi.fn();
-  const errorMessage = 'Test error';
-  const fetchSpy = vi.spyOn(global, 'fetch').mockRejectedValue(new Error(errorMessage));
+    fetchSpy.mockRestore()
+  },
+)
 
-  const { result } = renderHook(() => useVerifyEmailForm({
-    locale: 'en',
-    onSubmitError,
-  }));
+test(
+  'fails submission and calls onSubmitError',
+  async () => {
+    const onSubmitError = vi.fn()
+    const errorMessage = 'Test error'
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    ).mockRejectedValue(new Error(errorMessage))
 
-  act(() => {
-    result.current.handleChange('mfaCode', ['1', '2', '3', '4', '5', '6']);
-  });
+    const { result } = renderHook(() => useVerifyEmailForm({
+      locale: 'en',
+      onSubmitError,
+    }))
 
-  // Create a fake event with a preventDefault spy.
-  const fakeEvent = { preventDefault: vi.fn() } as unknown as Event;
+    act(() => {
+      result.current.handleChange(
+        'mfaCode',
+        ['1', '2', '3', '4', '5', '6'],
+      )
+    })
 
-  await act(async () => {
-    result.current.handleSubmit(fakeEvent);
-    // Wait for the promise chain to resolve.
-    await Promise.resolve();
-  });
+    // Create a fake event with a preventDefault spy.
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
 
-  expect(fakeEvent.preventDefault).toHaveBeenCalled();
-  expect(result.current).toStrictEqual({
-    success: false,
-    errors: { mfaCode: undefined },
-    values: { mfaCode: ['1', '2', '3', '4', '5', '6'] },
-    handleChange: expect.any(Function),
-    handleSubmit: expect.any(Function),
-  });
+    await act(async () => {
+      result.current.handleSubmit(fakeEvent)
+      // Wait for the promise chain to resolve.
+      await Promise.resolve()
+    })
 
-  expect(onSubmitError).toHaveBeenCalledTimes(2);
-  const calledError = onSubmitError.mock.calls[1][0];
-  expect(calledError).toBeInstanceOf(Error);
-  expect(calledError.message).toBe(errorMessage);
+    expect(fakeEvent.preventDefault).toHaveBeenCalled()
+    expect(result.current).toStrictEqual({
+      success: false,
+      errors: { mfaCode: undefined },
+      values: { mfaCode: ['1', '2', '3', '4', '5', '6'] },
+      handleChange: expect.any(Function),
+      handleSubmit: expect.any(Function),
+    })
 
-  fetchSpy.mockRestore();
-});
+    expect(onSubmitError).toHaveBeenCalledTimes(2)
+    const calledError = onSubmitError.mock.calls[1][0]
+    expect(calledError).toBeInstanceOf(Error)
+    expect(calledError.message).toBe(errorMessage)
 
-test('blocks submit when form validation errors exist', async () => {
-  const onSubmitError = vi.fn();
-  // Spy on fetch so we can confirm that it is not called when validation fails.
-  const fetchSpy = vi.spyOn(global, 'fetch');
+    fetchSpy.mockRestore()
+  },
+)
 
-  const { result } = renderHook(() => useVerifyEmailForm({
-    locale: 'en',
-    onSubmitError,
-  }));
+test(
+  'blocks submit when form validation errors exist',
+  async () => {
+    const onSubmitError = vi.fn()
+    // Spy on fetch so we can confirm that it is not called when validation fails.
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    )
 
-  act(() => {
+    const { result } = renderHook(() => useVerifyEmailForm({
+      locale: 'en',
+      onSubmitError,
+    }))
+
+    act(() => {
     // Provide an invalid MFA code: fewer than 6 digits.
-    result.current.handleChange('mfaCode', ['1', '2', '3']);
-  });
+      result.current.handleChange(
+        'mfaCode',
+        ['1', '2', '3'],
+      )
+    })
 
-  // Create a fake event with a preventDefault spy.
-  const fakeEvent = { preventDefault: vi.fn() } as unknown as Event;
+    // Create a fake event with a preventDefault spy.
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
 
-  await act(async () => {
-    result.current.handleSubmit(fakeEvent);
-    // Wait for any pending promise(s) to resolve.
-    await Promise.resolve();
-  });
+    await act(async () => {
+      result.current.handleSubmit(fakeEvent)
+      // Wait for any pending promise(s) to resolve.
+      await Promise.resolve()
+    })
 
-  expect(fakeEvent.preventDefault).toHaveBeenCalled();
-  // Since the form validation fails, fetch should not have been invoked.
-  expect(fetchSpy).not.toHaveBeenCalled();
+    expect(fakeEvent.preventDefault).toHaveBeenCalled()
+    // Since the form validation fails, fetch should not have been invoked.
+    expect(fetchSpy).not.toHaveBeenCalled()
 
-  // The hook's state should reflect the validation error:
-  // - success remains false.
-  // - errors.mfaCode should be a non-empty error message.
-  expect(result.current).toStrictEqual({
-    success: false,
-    errors: { mfaCode: localeConfig.validateError.verificationCodeLengthIssue.en },
-    values: { mfaCode: ['1', '2', '3'] },
-    handleChange: expect.any(Function),
-    handleSubmit: expect.any(Function),
-  });
+    // The hook's state should reflect the validation error:
+    // - success remains false.
+    // - errors.mfaCode should be a non-empty error message.
+    expect(result.current).toStrictEqual({
+      success: false,
+      errors: { mfaCode: localeConfig.validateError.verificationCodeLengthIssue.en },
+      values: { mfaCode: ['1', '2', '3'] },
+      handleChange: expect.any(Function),
+      handleSubmit: expect.any(Function),
+    })
 
-  fetchSpy.mockRestore();
-});
+    fetchSpy.mockRestore()
+  },
+)
