@@ -7,7 +7,7 @@ import {
 } from 'vitest'
 import {
   exchangeTokenByAuthCode, loadCodeAndStateFromUrl,
-} from 'web-sdk'
+} from '@melody-auth/web'
 import Setup from './Setup'
 import authContext from './context'
 

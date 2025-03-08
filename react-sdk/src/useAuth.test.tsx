@@ -10,7 +10,7 @@ import {
   logout,
   exchangeTokenByRefreshToken,
   getUserInfo,
-} from 'web-sdk'
+} from '@melody-auth/web'
 import { useAuth } from './useAuth'
 import authContext from './context'
 import * as utils from './utils'

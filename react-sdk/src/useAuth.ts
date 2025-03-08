@@ -5,7 +5,7 @@ import {
 import {
   triggerLogin, logout,
   exchangeTokenByRefreshToken, getUserInfo,
-} from 'web-sdk'
+} from '@melody-auth/web'
 import { AuthorizeMethod } from 'shared'
 import authContext, { AuthContext } from './context'
 import {

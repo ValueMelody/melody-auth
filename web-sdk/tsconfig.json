@@ -4,12 +4,14 @@
     "lib": ["DOM", "ES2017"],
     "declaration": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
     "module": "ESNext",
     "rootDir": "src",
     "outDir": "dist",
+    "paths": {
+      "shared": ["./shared"] 
+    }
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts"]

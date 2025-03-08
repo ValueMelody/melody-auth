@@ -10,6 +10,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "@melody-auth/web": "file:../web-sdk"
+  },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-commonjs": "^26.0.1",
@@ -27,7 +30,7 @@
     "react": "^16.11.0 || ^17 || ^18"
   },
   "scripts": {
-    "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && mkdir ./dist/web-sdk && cp -r ../shared/dist/* ./dist/shared && cp -r ../web-sdk/dist/* ./dist/web-sdk && rollup -c --bundleConfigAsCjs && tsc-alias",
+    "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && cp -r ../shared/dist/* ./dist/shared && rollup -c --bundleConfigAsCjs && tsc-alias",
     "type:check": "tsc --noEmit",
     "test:check": "vitest run .",
     "test:coverage": "vitest run . --coverage"
