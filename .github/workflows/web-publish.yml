@@ -1,4 +1,4 @@
-name: react-publish CI
+name: web-sdk publish CI
 
 on:
   workflow_dispatch:
