@@ -3,7 +3,7 @@ import {
 } from 'vitest'
 import {
   ErrorType, handleError,
-} from './utils'
+} from './frontend'
 
 describe(
   'handleError',

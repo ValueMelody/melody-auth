@@ -1,0 +1,34 @@
+{
+  "name": "@melody-auth/vue",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ValueMelody/melody-auth.git"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@rollup/plugin-alias": "^5.1.1",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "rollup": "^4.19.2",
+    "tsc-alias": "^1.8.10",
+    "vitest": "^3.0.5"
+  },
+  "peerDependencies": {
+    "vue": "^3"
+  },
+  "scripts": {
+    "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && cp -r ../shared/dist/* ./dist/shared && rollup -c --bundleConfigAsCjs && tsc-alias",
+    "type:check": "tsc --noEmit",
+    "test:check": "vitest run .",
+    "test:coverage": "vitest run . --coverage"
+  },
+  "dependencies": {
+    "@melody-auth/web": "^1.0.0"
+  }
+}

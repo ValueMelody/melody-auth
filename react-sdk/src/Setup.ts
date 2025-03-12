@@ -3,10 +3,10 @@ import {
   useRef,
 } from 'react'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
+import { getParams } from 'shared'
 import { useAuth } from './useAuth'
 import authContext, { AuthContext } from './context'
 import { handleTokenExchangeByAuthCode } from './utils'
-import { getParams } from 'shared'
 
 const Setup = () => {
   const { acquireToken } = useAuth()

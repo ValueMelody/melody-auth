@@ -1,15 +1,18 @@
 import {
-  App, provide, reactive,
+  App, reactive,
 } from 'vue'
 import {
-  ProviderConfig, StorageKey, RefreshTokenStorage, IdTokenBody, isValidStorage,
-  getParams,
+  ProviderConfig, RefreshTokenStorage, IdTokenBody, isValidStorage, getParams, checkStorage,
 } from 'shared'
-import { AuthState, melodyAuthInjectionKey } from './context'
-import { acquireToken, handleTokenExchangeByAuthCode } from './utils'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
+import {
+  AuthState, melodyAuthInjectionKey,
+} from './context'
+import {
+  acquireToken, handleTokenExchangeByAuthCode,
+} from './utils'
 
-export const MelodyAuth = {
+export const AuthProvider = {
   install (
     app: App, config: ProviderConfig,
   ) {
@@ -31,18 +34,15 @@ export const MelodyAuth = {
       logoutError: '',
     })
 
-    const checkStorage = () => {
+    const initialWithStorage = () => {
       if (typeof window === 'undefined') return
 
-      const storage = config.storage === 'sessionStorage'
-        ? window.sessionStorage
-        : window.localStorage
+      const {
+        storedRefreshToken, storedAccount,
+      } = checkStorage(config.storage)
 
-      const stored = storage.getItem(StorageKey.RefreshToken)
-      const storedAccount = storage.getItem(StorageKey.Account)
-
-      if (stored) {
-        const parsed: RefreshTokenStorage = JSON.parse(stored)
+      if (storedRefreshToken) {
+        const parsed: RefreshTokenStorage = JSON.parse(storedRefreshToken)
         const isValid = isValidStorage(parsed)
 
         if (isValid) {
@@ -59,12 +59,15 @@ export const MelodyAuth = {
       state.checkedStorage = true
     }
 
-    checkStorage()
+    initialWithStorage()
 
-    app.provide(melodyAuthInjectionKey, state)
+    app.provide(
+      melodyAuthInjectionKey,
+      state,
+    )
 
     app.mixin({
-      mounted() {
+      mounted () {
         const params = getParams()
         const containCode = 'code' in params && !!params.code
 

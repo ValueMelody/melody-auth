@@ -1,6 +1,10 @@
+import {
+  exchangeTokenByAuthCode, exchangeTokenByRefreshToken,
+} from '@melody-auth/web'
+import {
+  handleError, ErrorType, isValidTokens,
+} from 'shared'
 import { AuthState } from './context'
-import { exchangeTokenByAuthCode, exchangeTokenByRefreshToken } from '@melody-auth/web'
-import { handleError, ErrorType, isValidTokens } from 'shared/src/frontend'
 
 export const handleTokenExchangeByAuthCode = (
   code: string,
@@ -46,7 +50,9 @@ export const handleTokenExchangeByAuthCode = (
 }
 
 export const acquireToken = async (state: AuthState) => {
-  const { hasValidAccessToken, hasValidRefreshToken } = isValidTokens(
+  const {
+    hasValidAccessToken, hasValidRefreshToken,
+  } = isValidTokens(
     state.accessTokenStorage,
     state.refreshTokenStorage,
   )

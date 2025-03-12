@@ -1,13 +1,23 @@
-import { computed, inject } from "vue"
-import { AuthState, melodyAuthInjectionKey } from "./context"
-import { AuthorizeMethod, LoginProps } from "shared/dist/clientInterface"
-import { getUserInfo, logout, triggerLogin } from "@melody-auth/web"
-import { handleTokenExchangeByAuthCode, acquireToken as rawAcquireToken } from './utils'
-import { handleError, ErrorType } from 'shared'
+import {
+  computed, inject,
+} from 'vue'
+import {
+  AuthorizeMethod, LoginProps,
+} from 'shared/dist/clientInterface'
+import {
+  getUserInfo, logout, triggerLogin,
+} from '@melody-auth/web'
+import {
+  handleError, ErrorType,
+} from 'shared'
+import {
+  handleTokenExchangeByAuthCode, acquireToken as rawAcquireToken,
+} from './utils'
+import { melodyAuthInjectionKey } from './context'
 
 const SetupError = 'Please install melody-auth plugin first.'
 
-export function useAuth() {
+export function useAuth () {
   const state = inject(melodyAuthInjectionKey)
 
   if (!state) {
@@ -65,11 +75,17 @@ export function useAuth() {
   }
 
   async function loginRedirect (props?: LoginProps) {
-    login('redirect', props)
+    login(
+      'redirect',
+      props,
+    )
   }
 
   async function loginPopup (props?: LoginProps) {
-    login('popup', props)
+    login(
+      'popup',
+      props,
+    )
   }
 
   async function acquireToken () {
@@ -114,8 +130,8 @@ export function useAuth() {
     postLogoutRedirectUri = '',
     localOnly = false,
   }: {
-    postLogoutRedirectUri?: string,
-    localOnly?: boolean,
+    postLogoutRedirectUri?: string;
+    localOnly?: boolean;
   }) {
     if (!state) {
       throw new Error(SetupError)
@@ -141,20 +157,18 @@ export function useAuth() {
     }
   }
 
-  console.log(state.userInfo)
-
   return {
     loginRedirect,
     loginPopup,
-    refreshToken: refreshToken.value,
+    refreshToken,
     logoutRedirect,
-    accessToken: accessToken.value,
-    isAuthenticated: isAuthenticated.value,
+    accessToken,
+    isAuthenticated,
     acquireUserInfo,
     acquireToken,
-    isAuthenticating: isAuthenticating.value,
-    account: state.account,
-    userInfo: state.userInfo,
+    isAuthenticating,
+    account: computed(() => state.account),
+    userInfo: computed(() => state.userInfo),
     isLoadingToken: state.isLoadingToken,
     isLoadingUserInfo: state.isLoadingUserInfo,
     authenticationError: state.authenticationError,

@@ -6,12 +6,11 @@ import {
   triggerLogin, logout,
   exchangeTokenByRefreshToken, getUserInfo,
 } from '@melody-auth/web'
-import { AuthorizeMethod, LoginProps, LoginPopupProps, isValidTokens } from 'shared'
-import authContext, { AuthContext } from './context'
 import {
-  ErrorType, handleError,
-  handleTokenExchangeByAuthCode,
-} from './utils'
+  AuthorizeMethod, LoginProps, LoginPopupProps, isValidTokens, ErrorType, handleError,
+} from 'shared'
+import authContext, { AuthContext } from './context'
+import { handleTokenExchangeByAuthCode } from './utils'
 
 export const useAuth = () => {
   const context = useContext<AuthContext>(authContext)
@@ -99,7 +98,9 @@ export const useAuth = () => {
       const accessTokenStorage = state.accessTokenStorage
       const refreshTokenStorage = state.refreshTokenStorage
 
-      const { hasValidAccessToken, hasValidRefreshToken } = isValidTokens(
+      const {
+        hasValidAccessToken, hasValidRefreshToken,
+      } = isValidTokens(
         accessTokenStorage,
         refreshTokenStorage,
       )

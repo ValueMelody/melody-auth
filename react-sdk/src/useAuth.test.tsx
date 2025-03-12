@@ -11,6 +11,7 @@ import {
   exchangeTokenByRefreshToken,
   getUserInfo,
 } from '@melody-auth/web'
+import * as shared from 'shared'
 import { useAuth } from './useAuth'
 import authContext from './context'
 import * as utils from './utils'
@@ -172,7 +173,7 @@ describe(
         (triggerLogin as any).mockImplementation(() => { throw new Error('Test error') })
         // Spy on handleError to return a predictable error message.
         vi.spyOn(
-          utils,
+          shared,
           'handleError',
         ).mockImplementation(() => 'handled error message')
         const auth = renderHookWithState({
@@ -251,7 +252,7 @@ describe(
         }
         // Force handleError to return a predictable error message
         vi.spyOn(
-          utils,
+          shared,
           'handleError',
         ).mockImplementation(() => 'handled acquire token error')
         // Simulate exchangeTokenByRefreshToken throwing an error.
@@ -329,7 +330,7 @@ describe(
         }
         // Force handleError to return a predictable error message.
         vi.spyOn(
-          utils,
+          shared,
           'handleError',
         ).mockImplementation(() => 'handled fetch user info error')
         // Simulate getUserInfo throwing an error.
@@ -416,7 +417,7 @@ describe(
           },
         }
         vi.spyOn(
-          utils,
+          shared,
           'handleError',
         ).mockImplementation(() => 'handled logout error')
         ;(logout as any).mockRejectedValue(new Error('Test error'))
@@ -494,7 +495,7 @@ describe(
         ;(triggerLogin as any).mockImplementation(() => { throw new Error('Test error') })
         // Spy on handleError to return a predictable error message.
         vi.spyOn(
-          utils,
+          shared,
           'handleError',
         ).mockImplementation(() => 'handled error message')
         const auth = renderHookWithState({

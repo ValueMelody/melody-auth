@@ -124,7 +124,7 @@ export const AuthProvider = ({
 
       const {
         storedRefreshToken, storedAccount,
-      } = checkStorage(config)
+      } = checkStorage(config.storage)
 
       if (storedRefreshToken) {
         const parsed: RefreshTokenStorage = JSON.parse(storedRefreshToken)
@@ -146,7 +146,7 @@ export const AuthProvider = ({
         type: 'setCheckedStorage', payload: true,
       })
     },
-    [config],
+    [config.storage],
   )
 
   return (
