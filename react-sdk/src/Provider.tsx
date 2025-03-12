@@ -2,8 +2,11 @@ import {
   ReactNode, useEffect, useReducer,
 } from 'react'
 import {
+  checkStorage,
   IdTokenBody,
-  ProviderConfig, RefreshTokenStorage, StorageKey,
+  ProviderConfig,
+  RefreshTokenStorage,
+  isValidStorage,
 } from 'shared'
 import Setup from './Setup'
 import authContext, {
@@ -119,13 +122,13 @@ export const AuthProvider = ({
     () => {
       if (typeof window === 'undefined') return
 
-      const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
-      const stored = storage.getItem(StorageKey.RefreshToken)
-      const storedAccount = storage.getItem(StorageKey.Account)
-      if (stored) {
-        const parsed: RefreshTokenStorage = JSON.parse(stored)
-        const currentTimestamp = new Date().getTime() / 1000
-        const isValid = parsed.refreshToken && parsed.expiresOn && parsed.expiresOn >= currentTimestamp + 5
+      const {
+        storedRefreshToken, storedAccount,
+      } = checkStorage(config)
+
+      if (storedRefreshToken) {
+        const parsed: RefreshTokenStorage = JSON.parse(storedRefreshToken)
+        const isValid = isValidStorage(parsed)
         if (isValid) {
           const parsedAccount: IdTokenBody = storedAccount ? JSON.parse(storedAccount) : null
 
@@ -143,7 +146,7 @@ export const AuthProvider = ({
         type: 'setCheckedStorage', payload: true,
       })
     },
-    [config.storage],
+    [config],
   )
 
   return (

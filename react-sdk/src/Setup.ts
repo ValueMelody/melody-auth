@@ -6,6 +6,7 @@ import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import { useAuth } from './useAuth'
 import authContext, { AuthContext } from './context'
 import { handleTokenExchangeByAuthCode } from './utils'
+import { getParams } from 'shared'
 
 const Setup = () => {
   const { acquireToken } = useAuth()
@@ -18,23 +19,7 @@ const Setup = () => {
 
   useEffect(
     () => {
-      const searchString = window.location.search.substring(1)
-      const paramsString = searchString.split('&')
-      const params = searchString
-        ? paramsString.reduce(
-          (
-            params, paramString,
-          ) => {
-            const [key, value] = paramString.split('=')
-            return {
-              ...params,
-              [key]: value,
-            }
-          },
-          {} as { [key: string]: string },
-        )
-        : {}
-
+      const params = getParams()
       const containCode = 'code' in params && !!params.code
 
       if (initialized.current) return

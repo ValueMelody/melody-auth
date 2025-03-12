@@ -74,3 +74,7 @@ migrations_dir = "./migrations/sqlite"
 
 [assets]
 directory = "./dist/static"
+
+[observability]
+enabled = true
+head_sampling_rate = 1

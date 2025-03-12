@@ -6,25 +6,12 @@ import {
   triggerLogin, logout,
   exchangeTokenByRefreshToken, getUserInfo,
 } from '@melody-auth/web'
-import { AuthorizeMethod } from 'shared'
+import { AuthorizeMethod, LoginProps, LoginPopupProps, isValidTokens } from 'shared'
 import authContext, { AuthContext } from './context'
 import {
   ErrorType, handleError,
   handleTokenExchangeByAuthCode,
 } from './utils'
-
-export interface LoginProps {
-  locale?: string;
-  state?: string;
-  policy?: string;
-  org?: string;
-}
-
-export interface LoginPopupProps {
-  locale?: string;
-  state?: string;
-  org?: string;
-}
 
 export const useAuth = () => {
   const context = useContext<AuthContext>(authContext)
@@ -109,16 +96,16 @@ export const useAuth = () => {
 
   const acquireToken = useCallback(
     async () => {
-      const currentTimeStamp = new Date().getTime() / 1000
-
       const accessTokenStorage = state.accessTokenStorage
-      const hasValidToken = !!accessTokenStorage?.accessToken && currentTimeStamp < accessTokenStorage.expiresOn - 5
-      if (hasValidToken) return accessTokenStorage.accessToken
-
       const refreshTokenStorage = state.refreshTokenStorage
-      const hasValidRefreshToken =
-        !!refreshTokenStorage?.refreshToken &&
-        currentTimeStamp < refreshTokenStorage.expiresOn - 5
+
+      const { hasValidAccessToken, hasValidRefreshToken } = isValidTokens(
+        accessTokenStorage,
+        refreshTokenStorage,
+      )
+
+      if (hasValidAccessToken) return accessTokenStorage?.accessToken
+
       if (hasValidRefreshToken) {
         dispatch({
           type: 'setIsLoadingToken', payload: true,
@@ -126,7 +113,7 @@ export const useAuth = () => {
         try {
           const res = await exchangeTokenByRefreshToken(
             state.config,
-            refreshTokenStorage.refreshToken,
+            refreshTokenStorage?.refreshToken ?? '',
           )
           dispatch({
             type: 'setAccessTokenStorage', payload: res,
@@ -164,7 +151,7 @@ export const useAuth = () => {
       try {
         const res = await getUserInfo(
           state.config,
-          { accessToken },
+          { accessToken: accessToken ?? '' },
         )
 
         dispatch({
@@ -198,7 +185,7 @@ export const useAuth = () => {
       try {
         await logout(
           state.config,
-          accessToken,
+          accessToken ?? '',
           refreshToken,
           postLogoutRedirectUri,
           isLocalOnly,

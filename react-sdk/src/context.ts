@@ -2,28 +2,12 @@ import {
   createContext, Dispatch,
 } from 'react'
 import {
-  GetUserInfoRes, ProviderConfig,
+  GetUserInfoRes,
   AccessTokenStorage, RefreshTokenStorage,
-  IdTokenBody,
+  IdTokenBody, AuthState as SdkAuthState,
 } from 'shared'
 
-export interface AuthState {
-  config: ProviderConfig;
-  refreshTokenStorage: RefreshTokenStorage | null;
-  isAuthenticated: boolean;
-  isAuthenticating: boolean;
-  authenticationError: string;
-  checkedStorage: boolean;
-  userInfo: GetUserInfoRes | null;
-  account: IdTokenBody | null;
-  isLoadingUserInfo: boolean;
-  acquireUserInfoError: string;
-  accessTokenStorage: AccessTokenStorage | null;
-  isLoadingToken: boolean;
-  acquireTokenError: string;
-  loginError: string;
-  logoutError: string;
-}
+export interface AuthState extends SdkAuthState {}
 
 export type DispatchAction =
   | { type: 'setAuth'; payload: {
