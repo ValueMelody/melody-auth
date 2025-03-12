@@ -1,3 +1,6 @@
 node_modules
 src
 coverage
+vitest.config.ts
+rollup.config.mjs
+tsconfig.json

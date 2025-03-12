@@ -1,3 +1,5 @@
+import { GetUserInfoRes } from './serverInterface.js'
+
 export interface ProviderConfig {
   serverUri: string;
   clientId: string;
@@ -33,4 +35,35 @@ export interface IdTokenBody {
   last_name: string | null;
   locale: string;
   roles?: string[];
+}
+
+export interface AuthState {
+  config: ProviderConfig;
+  refreshTokenStorage: RefreshTokenStorage | null;
+  isAuthenticated: boolean;
+  isAuthenticating: boolean;
+  authenticationError: string;
+  checkedStorage: boolean;
+  userInfo: GetUserInfoRes | null;
+  account: IdTokenBody | null;
+  isLoadingUserInfo: boolean;
+  acquireUserInfoError: string;
+  accessTokenStorage: AccessTokenStorage | null;
+  isLoadingToken: boolean;
+  acquireTokenError: string;
+  loginError: string;
+  logoutError: string;
+}
+
+export interface LoginProps {
+  locale?: string;
+  state?: string;
+  policy?: string;
+  org?: string;
+}
+
+export interface LoginPopupProps {
+  locale?: string;
+  state?: string;
+  org?: string;
 }

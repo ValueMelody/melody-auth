@@ -149,6 +149,7 @@ export default function Home () {
 
   const handleFetchUserInfo = () => {
     const accessToken = await acquireToken()
+    // Use the token to fetch protected resources
     await fetch('/...', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
