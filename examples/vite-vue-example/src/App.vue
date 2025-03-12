@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuth } from './melody-auth/useAuth'
+import { useAuth } from '@melody-auth/vue'
 
 const {
   loginRedirect,
