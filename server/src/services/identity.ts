@@ -1,13 +1,14 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { typeConfig } from 'configs'
+import {
+  routeConfig, typeConfig,
+} from 'configs'
 import {
   consentService, passkeyService, sessionService,
 } from 'services'
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
 import { Policy } from 'dtos/oauth'
-import { IdentityRoute } from 'configs/route'
 
 export enum AuthorizeStep {
   Account = 0,
@@ -38,23 +39,23 @@ const getNextPageForPolicy = (
 
     switch (authCodeBody.request.policy) {
     case Policy.ChangePassword: {
-      if (enablePasswordReset) nextPage = IdentityRoute.ChangePassword
+      if (enablePasswordReset) nextPage = routeConfig.View.ChangePassword
       break
     }
     case Policy.ChangeEmail: {
-      if (enableEmailVerification) nextPage = IdentityRoute.ChangeEmail
+      if (enableEmailVerification) nextPage = routeConfig.View.ChangeEmail
       break
     }
     case Policy.ResetMfa: {
-      nextPage = IdentityRoute.ResetMfa
+      nextPage = routeConfig.View.ResetMfa
       break
     }
     case Policy.ManagePasskey: {
-      if (enablePasskeyEnrollment) nextPage = IdentityRoute.ManagePasskey
+      if (enablePasskeyEnrollment) nextPage = routeConfig.View.ManagePasskey
       break
     }
     case Policy.UpdateInfo: {
-      nextPage = IdentityRoute.UpdateInfo
+      nextPage = routeConfig.View.UpdateInfo
       break
     }
     }
@@ -83,7 +84,7 @@ export const processPostAuthorize = async (
   )
   if (requireConsent) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.AppConsent,
+      ...basicInfo, nextPage: routeConfig.View.Consent,
     }
   }
 
@@ -126,7 +127,7 @@ export const processPostAuthorize = async (
     !authCodeBody.user.mfaTypes.length
   if (requireMfaEnroll) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.ProcessMfaEnroll,
+      ...basicInfo, nextPage: routeConfig.View.MfaEnroll,
     }
   }
 
@@ -137,12 +138,12 @@ export const processPostAuthorize = async (
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
   if (requireOtpSetup) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.OtpMfaSetup,
+      ...basicInfo, nextPage: routeConfig.View.OtpSetup,
     }
   }
   if (requireOtpMfa) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.ProcessOtpMfa,
+      ...basicInfo, nextPage: routeConfig.View.OtpMfa,
     }
   }
 
@@ -152,7 +153,7 @@ export const processPostAuthorize = async (
     (enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms))
   if (requireSmsMfa) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.ProcessSmsMfa,
+      ...basicInfo, nextPage: routeConfig.View.SmsMfa,
     }
   }
 
@@ -162,7 +163,7 @@ export const processPostAuthorize = async (
     (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
   if (requireEmailMfa) {
     return {
-      ...basicInfo, nextPage: IdentityRoute.ProcessEmailMfa,
+      ...basicInfo, nextPage: routeConfig.View.EmailMfa,
     }
   }
 
@@ -177,7 +178,7 @@ export const processPostAuthorize = async (
     )
     if (!passkey) {
       return {
-        ...basicInfo, nextPage: IdentityRoute.ProcessPasskeyEnroll,
+        ...basicInfo, nextPage: routeConfig.View.PasskeyEnroll,
       }
     }
   }

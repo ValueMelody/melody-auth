@@ -67,7 +67,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
+          nextPage: routeConfig.View.MfaEnroll,
         })
         const appRecord = await getApp(db)
         const { code } = json as { code: string }
@@ -190,7 +190,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.OtpMfaSetup,
+          nextPage: routeConfig.View.OtpSetup,
         })
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
@@ -209,7 +209,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.ProcessEmailMfa,
+          nextPage: routeConfig.View.EmailMfa,
         })
         global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
@@ -228,7 +228,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.ProcessSmsMfa,
+          nextPage: routeConfig.View.SmsMfa,
         })
         global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
@@ -264,7 +264,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
+          nextPage: routeConfig.View.MfaEnroll,
         })
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
