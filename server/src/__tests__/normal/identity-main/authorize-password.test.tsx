@@ -43,7 +43,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.ProcessMfaEnroll,
+          nextPage: routeConfig.View.MfaEnroll,
         })
         const { code } = json as { code: string }
         const codeStore = JSON.parse(await mockedKV.get(`AC-${code}`) ?? '')

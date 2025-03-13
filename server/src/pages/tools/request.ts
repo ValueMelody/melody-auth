@@ -42,28 +42,13 @@ export const parseAuthorizeFollowUpValues = (
   }
 }
 
-const NextPage = Object.freeze({
-  [routeConfig.IdentityRoute.AppConsent]: View.Consent,
-  [routeConfig.IdentityRoute.ProcessMfaEnroll]: View.MfaEnroll,
-  [routeConfig.IdentityRoute.ProcessEmailMfa]: View.EmailMfa,
-  [routeConfig.IdentityRoute.ProcessSmsMfa]: View.SmsMfa,
-  [routeConfig.IdentityRoute.OtpMfaSetup]: View.OtpSetup,
-  [routeConfig.IdentityRoute.ProcessOtpMfa]: View.OtpMfa,
-  [routeConfig.IdentityRoute.ProcessPasskeyEnroll]: View.PasskeyEnroll,
-  [routeConfig.IdentityRoute.UpdateInfo]: View.UpdateInfo,
-  [routeConfig.IdentityRoute.ChangePassword]: View.ChangePassword,
-  [routeConfig.IdentityRoute.ResetMfa]: View.ResetMfa,
-  [routeConfig.IdentityRoute.ManagePasskey]: View.ManagePasskey,
-  [routeConfig.IdentityRoute.ChangeEmail]: View.ChangeEmail,
-}) as { [key: string]: View }
-
 export const handleAuthorizeStep = (
   data: any,
   locale: typeConfig.Locale,
   onSwitchView: (view: View) => void,
 ) => {
   if (data.nextPage) {
-    const step = NextPage[data.nextPage]
+    const step = data.nextPage
     if (data.code && data.state && data.redirectUri) {
       const newUrl = new URL(`${window.location.origin}${routeConfig.IdentityRoute.ProcessView}`)
       newUrl.searchParams.set(

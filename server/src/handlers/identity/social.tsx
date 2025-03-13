@@ -190,7 +190,7 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
   )
 
   const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
-  const url = detail.nextPage === routeConfig.IdentityRoute.AppConsent
+  const url = detail.nextPage === routeConfig.View.Consent
     ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
     : `${detail.redirectUri}${qs}`
   return c.redirect(url)

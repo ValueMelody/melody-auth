@@ -134,7 +134,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.ProcessEmailMfa,
+          nextPage: routeConfig.View.EmailMfa,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -186,7 +186,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.OtpMfaSetup,
+          nextPage: routeConfig.View.OtpSetup,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
@@ -208,7 +208,7 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
-          nextPage: routeConfig.IdentityRoute.ProcessSmsMfa,
+          nextPage: routeConfig.View.SmsMfa,
         })
 
         const user = await db.prepare('SELECT * from "user" WHERE id = 1').get() as userModel.Raw
