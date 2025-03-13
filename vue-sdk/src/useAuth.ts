@@ -75,14 +75,14 @@ export function useAuth () {
   }
 
   async function loginRedirect (props?: LoginProps) {
-    login(
+    await login(
       'redirect',
       props,
     )
   }
 
   async function loginPopup (props?: LoginProps) {
-    login(
+    await login(
       'popup',
       props,
     )
