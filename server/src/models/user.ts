@@ -243,6 +243,16 @@ export const getPasswordUserByEmail = async (
   return user ? convertToRecord(user) : null
 }
 
+export const getPasswordlessUserByEmail = async (
+  db: D1Database, email: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE email = $1 AND "password" IS NULL AND "socialAccountId" IS NULL AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(email)
+  const user = await stmt.first() as Raw | null
+  return user ? convertToRecord(user) : null
+}
+
 export const getGoogleUserByGoogleId = async (
   db: D1Database, googleId: string,
 ): Promise<Record | null> => {

@@ -30,7 +30,7 @@ const SignIn = ({
     locale,
   })
   const {
-    values, errors, handleChange, handleSubmit,
+    values, errors, handleChange, handleSubmit, handlePasswordlessSignIn,
   } = useSignInForm({
     locale,
     params,
@@ -60,7 +60,7 @@ const SignIn = ({
         onSubmit={handleSubmit}
       >
         <section className='flex flex-col gap-2'>
-          {initialProps.enablePasswordSignIn && (
+          {(initialProps.enablePasswordSignIn || initialProps.enablePasswordlessSignIn) && (
             <>
               <Field
                 label={localeConfig.authorizePassword.email[locale]}
@@ -84,22 +84,21 @@ const SignIn = ({
                   onClick={handleVerifyPasskey}
                 />
               )}
-
-              {!shouldLoadPasskeyInfo && (
-                <PasswordField
-                  label={localeConfig.authorizePassword.password[locale]}
-                  required
-                  name='password'
-                  value={values.password}
-                  error={errors.password}
-                  autoComplete='current-password'
-                  onChange={(value) => handleChange(
-                    'password',
-                    value,
-                  )}
-                />
-              )}
             </>
+          )}
+          {initialProps.enablePasswordSignIn && !shouldLoadPasskeyInfo && (
+            <PasswordField
+              label={localeConfig.authorizePassword.password[locale]}
+              required
+              name='password'
+              value={values.password}
+              error={errors.password}
+              autoComplete='current-password'
+              onChange={(value) => handleChange(
+                'password',
+                value,
+              )}
+            />
           )}
           <SubmitError error={submitError} />
           {shouldLoadPasskeyInfo && (
@@ -115,6 +114,14 @@ const SignIn = ({
               className='mt-4'
               title={localeConfig.authorizePassword.submit[locale]}
               type='submit'
+            />
+          )}
+          {initialProps.enablePasswordlessSignIn && !shouldLoadPasskeyInfo && (
+            <PrimaryButton
+              type='button'
+              className='mt-4'
+              title={localeConfig.authorizePassword.continue[locale]}
+              onClick={handlePasswordlessSignIn}
             />
           )}
         </section>

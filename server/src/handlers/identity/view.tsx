@@ -126,12 +126,15 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     ALLOW_PASSKEY_ENROLLMENT: allowPasskey,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
 
   const isBasePolicy = !queryDto.policy || queryDto.policy === Policy.SignInOrSignUp
-  const enablePasswordReset = isBasePolicy ? allowPasswordReset : false
-  const enableSignUp = isBasePolicy ? allowSignUp : false
-  const enablePasswordSignIn = isBasePolicy ? allowPasswordSignIn : true
+  const enablePasswordReset = isBasePolicy ? allowPasswordReset && !enablePasswordlessSignIn : false
+  const enableSignUp = isBasePolicy ? allowSignUp && !enablePasswordlessSignIn : false
+  const enablePasswordSignIn = isBasePolicy
+    ? allowPasswordSignIn && !enablePasswordlessSignIn
+    : !enablePasswordlessSignIn
   const googleClientId = isBasePolicy ? googleAuthId : ''
   const facebookClientId = isBasePolicy && facebookClientSecret ? facebookAuthId : ''
   const githubClientId = isBasePolicy && githubClientSecret && githubAppName ? githubAuthId : ''
@@ -150,6 +153,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         enablePasswordReset: ${enablePasswordReset.toString()},
         enableSignUp: ${enableSignUp.toString()},
         enablePasswordSignIn: ${enablePasswordSignIn.toString()},
+        enablePasswordlessSignIn: ${enablePasswordlessSignIn.toString()},
         googleClientId: "${googleClientId}",
         facebookClientId: "${facebookClientId}",
         githubClientId: "${githubClientId}",

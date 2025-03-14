@@ -41,8 +41,6 @@
   - Google Sign-In
   - Facebook Sign-In
   - GitHub Sign-In
-- <b>Organization</b>:
-  - Branding config override
 - <b>Multi-Factor Authentication [How to setup MFA](https://auth.valuemelody.com/q_a.html#how-to-setup-mfa)</b>
   - Email MFA
   - OTP MFA
@@ -56,6 +54,8 @@
   - change_email
   - reset_mfa
   - manage_passkey
+- <b>Organization</b>:
+  - Branding config override
 - <b>Mailer Option</b> [Email Provider Setup Doc](https://auth.valuemelody.com/email-provider-setup.html)
   - SendGrid
   - Mailgun
@@ -97,7 +97,7 @@
 - [React Native Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/react-native-example)
 
 ## Screenshots
-[Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)
+[Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)  
 [Admin Panel Screenshots](https://auth.valuemelody.com/screenshots.html#admin-panel-pages)
 
 ## License

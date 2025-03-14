@@ -66,6 +66,7 @@ export const createFullAuthorize = async (
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     OTP_MFA_IS_REQUIRED: enableOtpMfa,
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
+    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
   await kvService.storeAuthCode(
     c.env.KV,
@@ -79,6 +80,14 @@ export const createFullAuthorize = async (
     },
     codeExpiresIn,
   )
+
+  if (enablePasswordlessSignIn) {
+    await kvService.markPasswordlessVerified(
+      c.env.KV,
+      authCode,
+      codeExpiresIn,
+    )
+  }
 
   if (enableOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
     await kvService.markOtpMfaVerified(
@@ -178,6 +187,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
     ENABLE_SIGN_IN_LOG: enableSignInLog,
     SMS_MFA_IS_REQUIRED: requireSmsMfa,
+    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
 
   if (!isSocialLogin) {
@@ -207,6 +217,14 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         bodyDto.code,
       )
       if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+    }
+
+    if (enablePasswordlessSignIn) {
+      const isVerified = await kvService.passwordlessCodeVerified(
+        c.env.KV,
+        bodyDto.code,
+      )
+      if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.PasswordlessNotVerified)
     }
   }
 

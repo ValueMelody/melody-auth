@@ -174,6 +174,51 @@ export const getUserDetailByAuthId = async (
   return result
 }
 
+export const getPasswordlessUserOrCreate = async (
+  c: Context<typeConfig.Context>,
+  bodyDto: identityDto.PostAuthorizeWithPasswordlessDto,
+): Promise<userModel.Record> => {
+  const user = await userModel.getPasswordlessUserByEmail(
+    c.env.DB,
+    bodyDto.email,
+  )
+
+  if (user) {
+    if (!user.isActive) {
+      throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+    } else {
+      return user
+    }
+  }
+
+  const org = bodyDto.org
+    ? await orgModel.getBySlug(
+      c.env.DB,
+      bodyDto.org,
+    )
+    : null
+
+  const { OTP_MFA_IS_REQUIRED: enableOtp } = env(c)
+  const otpSecret = enableOtp ? cryptoUtil.genOtpSecret() : undefined
+  const newUser = await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      orgSlug: org?.slug ?? '',
+      email: bodyDto.email,
+      socialAccountId: null,
+      socialAccountType: null,
+      password: null,
+      locale: bodyDto.locale,
+      otpSecret,
+      firstName: null,
+      lastName: null,
+    },
+  )
+
+  return newUser
+}
+
 export const verifyPasswordSignIn = async (
   c: Context<typeConfig.Context>,
   bodyDto: PostAuthorizeWithPasswordDto,

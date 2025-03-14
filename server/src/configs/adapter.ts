@@ -25,6 +25,7 @@ export enum BaseKVKey {
   EmailMfaCode = 'EMC',
   OtpMfaCode = 'OMC',
   SmsMfaCode = 'SMC',
+  PasswordlessCode = 'PLC',
   EmailVerificationCode = 'EVC',
   PasskeyEnrollChallenge = 'PEC',
   PasskeyVerifyChallenge = 'PVC',

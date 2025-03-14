@@ -54,6 +54,8 @@ const App = () => {
         return OtpMfa
       case View.SmsMfa:
         return SmsMfa
+      case View.PasswordlessVerify:
+        return PasswordlessCode
       case View.EmailMfa:
         return EmailMfa
       case View.PasskeyEnroll:

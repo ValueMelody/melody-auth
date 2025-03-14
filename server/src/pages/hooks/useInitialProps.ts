@@ -8,6 +8,7 @@ export interface InitialProps {
   enableSignUp: boolean;
   enablePasswordReset: boolean;
   enablePasswordSignIn: boolean;
+  enablePasswordlessSignIn: boolean;
   enableNames: boolean;
   allowPasskey: boolean;
   namesIsRequired: boolean;
@@ -45,6 +46,7 @@ const useInitialProps = () => {
         enableSignUp: 'enableSignUp' in intialProps ? Boolean(intialProps.enableSignUp) : false,
         enablePasswordReset: 'enablePasswordReset' in intialProps ? Boolean(intialProps.enablePasswordReset) : false,
         enablePasswordSignIn: 'enablePasswordSignIn' in intialProps ? Boolean(intialProps.enablePasswordSignIn) : false,
+        enablePasswordlessSignIn: 'enablePasswordlessSignIn' in intialProps ? Boolean(intialProps.enablePasswordlessSignIn) : false,
         enableNames: 'enableNames' in intialProps ? Boolean(intialProps.enableNames) : false,
         namesIsRequired: 'namesIsRequired' in intialProps ? Boolean(intialProps.namesIsRequired) : false,
         termsLink: 'termsLink' in intialProps ? String(intialProps.termsLink) : '',

@@ -24,6 +24,7 @@ ENABLE_USER_APP_CONSENT=true
 ENABLE_EMAIL_VERIFICATION=true # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html
 ENABLE_ORG=false
 BLOCKED_POLICIES=[] # A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info), preventing end users from triggering them
+ENABLE_PASSWORDLESS_SIGN_IN=true
 
 # Auth
 AUTHORIZATION_CODE_EXPIRES_IN=300
