@@ -24,6 +24,7 @@ import {
   ChangeEmail,
   AuthCodeExpired,
   VerifyEmail,
+  PasswordlessVerify,
 } from 'pages/views'
 import { getLocaleFromParams } from 'pages/tools/param'
 import './client.css'
@@ -55,7 +56,7 @@ const App = () => {
       case View.SmsMfa:
         return SmsMfa
       case View.PasswordlessVerify:
-        return PasswordlessCode
+        return PasswordlessVerify
       case View.EmailMfa:
         return EmailMfa
       case View.PasskeyEnroll:

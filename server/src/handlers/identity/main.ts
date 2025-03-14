@@ -19,9 +19,7 @@ import {
 import {
   requestUtil, validateUtil,
 } from 'utils'
-import {
-  scopeModel,
-} from 'models'
+import { scopeModel } from 'models'
 
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
@@ -37,7 +35,9 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     bodyDto,
   )
 
-  const { authCode, authCodeBody } = await identityService.processSignIn(
+  const {
+    authCode, authCodeBody,
+  } = await identityService.processSignIn(
     c,
     bodyDto,
     user,

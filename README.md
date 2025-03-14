@@ -30,6 +30,7 @@
   - OpenID Configuration
 - <b>Authorization</b>:
   - Sign-In
+  - Passwordless Sign-In
   - Sign-Up
   - Sign-Out
   - Email Verification

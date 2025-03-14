@@ -1,4 +1,4 @@
-export enum ExpectedError {
+export enum ConfigError {
   NotSupposeToSendEmailMfa = 'Not suppose to send email mfa',
   SignUpNotEnabled = 'Sign up is not enabled',
   PasswordSignInNotEnabled = 'Password sign in is not enabled',

@@ -1,22 +1,16 @@
-import {
-  Context,
-} from 'hono'
+import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { handleSendEmailMfa } from './mfa'
 import {
   typeConfig,
   errorConfig,
   localeConfig,
 } from 'configs'
-import {
-  identityDto,
-} from 'dtos'
+import { identityDto } from 'dtos'
 import {
   identityService, kvService, userService,
 } from 'services'
-import {
-  validateUtil,
-} from 'utils'
-import { handleSendEmailMfa } from './mfa'
+import { validateUtil } from 'utils'
 
 export const postAuthorizePasswordless = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
@@ -32,7 +26,9 @@ export const postAuthorizePasswordless = async (c: Context<typeConfig.Context>) 
     bodyDto,
   )
 
-  const { authCode, authCodeBody } = await identityService.processSignIn(
+  const {
+    authCode, authCodeBody,
+  } = await identityService.processSignIn(
     c,
     bodyDto,
     user,
@@ -59,7 +55,7 @@ export const postSendPasswordlessCode = async (c: Context<typeConfig.Context>) =
     c,
     bodyDto.code,
     bodyDto.locale || locales[0],
-    isPasswordlessCode
+    isPasswordlessCode,
   )
   if (!emailRes || (!emailRes.result && emailRes.reason === localeConfig.Error.WrongAuthCode)) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
@@ -84,9 +80,7 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
   )
   if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
 
-  const {
-    AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,
-  } = env(c)
+  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
   const isValid = await kvService.stampPasswordlessCode(
     c.env.KV,
@@ -99,7 +93,7 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
 
   return c.json(await identityService.processPostAuthorize(
     c,
-    identityService.AuthorizeStep.Passwordless,
+    identityService.AuthorizeStep.PasswordlessVerify,
     bodyDto.code,
     authCodeStore,
   ))

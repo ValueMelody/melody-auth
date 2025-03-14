@@ -12,7 +12,7 @@ import {
   adapterConfig, localeConfig, routeConfig,
 } from 'configs'
 import {
-  getApp, getAuthorizeParams, getSignInRequest, insertUsers, postSignInRequest,
+  getApp, getAuthorizeParams, getSignInRequest, insertUsers, postAuthorizeBody, postSignInRequest,
   prepareFollowUpBody,
 } from 'tests/identity'
 import { oauthDto } from 'dtos'
@@ -1038,7 +1038,6 @@ describe(
         await enrollOtpMfa(db)
         const tokenRes = await exchangeWithAuthToken()
         expect(tokenRes.status).toBe(401)
-        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 
@@ -1060,7 +1059,65 @@ describe(
         await enrollEmailMfa(db)
         const tokenRes = await exchangeWithAuthToken()
         expect(tokenRes.status).toBe(401)
-        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail if passwordless verify is required',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        await insertUsers(db)
+
+        const appRecord = await getApp(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              email: 'test@email.com',
+            }),
+          },
+          mock(db),
+        )
+
+        const json = await res.json() as { code: string }
+
+        await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: json.code,
+              locale: 'en',
+            }),
+          },
+          mock(db),
+        )
+
+        const body = {
+          grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+          code: json.code,
+          code_verifier: 'abc',
+        }
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+
+        expect(tokenRes.status).toBe(401)
+        expect(await tokenRes.text()).toBe(localeConfig.Error.PasswordlessNotVerified)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
   },

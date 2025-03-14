@@ -165,7 +165,7 @@ const useSignInForm = ({
     },
     handleChange,
     handleSubmit,
-    handlePasswordlessSignIn
+    handlePasswordlessSignIn,
   }
 }
 

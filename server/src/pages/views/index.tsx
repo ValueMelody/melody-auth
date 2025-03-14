@@ -21,5 +21,5 @@ import VerifyEmail from './VerifyEmail'
 export {
   SignIn, SignUp, Layout, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
   PasskeyEnroll, ResetPassword, UpdateInfo, ChangePassword, ResetMfa, ManagePasskey,
-  ChangeEmail, AuthCodeExpired, VerifyEmail, PasswordlessVerify
+  ChangeEmail, AuthCodeExpired, VerifyEmail, PasswordlessVerify,
 }

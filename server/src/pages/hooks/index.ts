@@ -11,6 +11,7 @@ import useMfaEnrollForm from './useMfaEnrollForm'
 import useOtpMfaForm from './useOtpMfaForm'
 import useSmsMfaForm from './useSmsMfaForm'
 import useEmailMfaForm from './useEmailMfaForm'
+import usePasswordlessVerifyForm from './usePasswordlessVerifyForm'
 import usePasskeyEnrollForm from './usePasskeyEnrollForm'
 import usePasskeyVerifyForm from './usePasskeyVerifyForm'
 import useResetPasswordForm from './useResetPasswordForm'
@@ -45,4 +46,5 @@ export {
   useManagePasskeyForm,
   useChangeEmailForm,
   useVerifyEmailForm,
+  usePasswordlessVerifyForm,
 }

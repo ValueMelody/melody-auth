@@ -48,6 +48,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** true
 - **Description:** Enables password-based sign-in. To restrict sign-ins to social providers only, set both `ENABLE_SIGN_UP`, `ENABLE_PASSWORD_SIGN_IN`, and `ENABLE_PASSWORD_RESET` to false.
 
+### ENABLE_PASSWORDLESS_SIGN_IN
+- **Default:** false
+- **Description:** Enables passwordless sign-in. Setting this option to true will automatically override the following settings to false: ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT. Note that having both passwordless sign-in and Email MFA enabled at the same time may not be practical.
+
 ### ENABLE_PASSWORD_RESET
 - **Default:** true
 - **Description:** Enables password reset functionality. If `false`, the "Forgot Password" option is hidden.

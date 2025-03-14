@@ -36,6 +36,7 @@ const Page = () => {
         'NAMES_IS_REQUIRED',
         'ENABLE_SIGN_UP',
         'ENABLE_PASSWORD_SIGN_IN',
+        'ENABLE_PASSWORDLESS_SIGN_IN',
         'ENABLE_EMAIL_VERIFICATION',
         'ENABLE_PASSWORD_RESET',
         'ENABLE_USER_APP_CONSENT',

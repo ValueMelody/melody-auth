@@ -1,5 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { genRandomString } from 'shared'
 import {
   routeConfig, typeConfig,
 } from 'configs'
@@ -8,7 +9,6 @@ import {
 } from 'services'
 import { userModel } from 'models'
 import { oauthDto } from 'dtos'
-import { genRandomString } from 'shared'
 
 export enum AuthorizeStep {
   Account = 0,
@@ -29,7 +29,7 @@ export enum AuthorizeStep {
 }
 
 const getNextPageForPolicy = (
-  c: Context<typeConfig.Context>, authCodeBody: AuthCodeBody, isSocialLogin: boolean,
+  c: Context<typeConfig.Context>, authCodeBody: typeConfig.AuthCodeBody, isSocialLogin: boolean,
 ) => {
   let nextPage
   if (!isSocialLogin) {

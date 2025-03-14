@@ -178,7 +178,7 @@ export const getPasswordlessUserOrCreate = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostAuthorizeWithPasswordlessDto,
 ): Promise<userModel.Record> => {
-  const user = await userModel.getPasswordlessUserByEmail(
+  const user = await userModel.getNormalUserByEmail(
     c.env.DB,
     bodyDto.email,
   )
@@ -240,7 +240,7 @@ export const verifyPasswordSignIn = async (
     throw new errorConfig.Forbidden(localeConfig.Error.AccountLocked)
   }
 
-  const user = await userModel.getPasswordUserByEmail(
+  const user = await userModel.getNormalUserByEmail(
     c.env.DB,
     bodyDto.email,
   )
@@ -275,7 +275,7 @@ export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
   bodyDto: PostAuthorizeWithNamesDto,
 ): Promise<userModel.Record> => {
-  const user = await userModel.getPasswordUserByEmail(
+  const user = await userModel.getNormalUserByEmail(
     c.env.DB,
     bodyDto.email,
   )
@@ -445,7 +445,7 @@ export const sendPasswordReset = async (
   email: string,
   locale: typeConfig.Locale,
 ): Promise<true> => {
-  const user = await userModel.getPasswordUserByEmail(
+  const user = await userModel.getNormalUserByEmail(
     c.env.DB,
     email,
   )
@@ -472,7 +472,7 @@ export const resetUserPassword = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostResetPasswordDto,
 ): Promise<true> => {
-  const user = await userModel.getPasswordUserByEmail(
+  const user = await userModel.getNormalUserByEmail(
     c.env.DB,
     bodyDto.email,
   )

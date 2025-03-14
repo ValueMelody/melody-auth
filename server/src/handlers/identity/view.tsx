@@ -123,7 +123,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     GITHUB_AUTH_CLIENT_ID: githubAuthId,
     GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
     GITHUB_AUTH_APP_NAME: githubAppName,
-    ALLOW_PASSKEY_ENROLLMENT: allowPasskey,
+    ALLOW_PASSKEY_ENROLLMENT: allowPasskeyEnroll,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
@@ -135,6 +135,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
   const enablePasswordSignIn = isBasePolicy
     ? allowPasswordSignIn && !enablePasswordlessSignIn
     : !enablePasswordlessSignIn
+  const allowPasskey = allowPasskeyEnroll && !enablePasswordlessSignIn
   const googleClientId = isBasePolicy ? googleAuthId : ''
   const facebookClientId = isBasePolicy && facebookClientSecret ? facebookAuthId : ''
   const githubClientId = isBasePolicy && githubClientSecret && githubAppName ? githubAuthId : ''

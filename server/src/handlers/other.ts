@@ -54,6 +54,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ENABLE_SMS_LOG: environment.ENABLE_SMS_LOG,
     ENABLE_SIGN_IN_LOG: environment.ENABLE_SIGN_IN_LOG,
     ENABLE_PASSWORD_SIGN_IN: environment.ENABLE_PASSWORD_SIGN_IN,
+    ENABLE_PASSWORDLESS_SIGN_IN: environment.ENABLE_PASSWORDLESS_SIGN_IN,
     ENABLE_ORG: environment.ENABLE_ORG,
   }
 
