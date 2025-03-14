@@ -1,33 +1,35 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { genRandomString } from 'shared'
 import {
   routeConfig, typeConfig,
 } from 'configs'
 import {
-  consentService, passkeyService, sessionService,
+  consentService, passkeyService, sessionService, appService, userService, kvService,
 } from 'services'
-import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
-import { Policy } from 'dtos/oauth'
+import { oauthDto } from 'dtos'
 
 export enum AuthorizeStep {
   Account = 0,
   Password = 0,
+  Passwordless = 0,
   Social = 0,
   PasskeyVerify = 0,
-  Consent = 1,
-  MfaEnroll = 2,
-  OtpMfa = 3,
-  SmsMfa = 4,
-  EmailMfa = 5,
-  PasskeyEnroll = 6,
-  ChangePassword = 7,
-  ChangeEmail = 7,
-  UpdateInfo = 7,
+  PasswordlessVerify = 1,
+  Consent = 2,
+  MfaEnroll = 3,
+  OtpMfa = 4,
+  SmsMfa = 5,
+  EmailMfa = 6,
+  PasskeyEnroll = 7,
+  ChangePassword = 8,
+  ChangeEmail = 8,
+  UpdateInfo = 8,
 }
 
 const getNextPageForPolicy = (
-  c: Context<typeConfig.Context>, authCodeBody: AuthCodeBody, isSocialLogin: boolean,
+  c: Context<typeConfig.Context>, authCodeBody: typeConfig.AuthCodeBody, isSocialLogin: boolean,
 ) => {
   let nextPage
   if (!isSocialLogin) {
@@ -38,23 +40,23 @@ const getNextPageForPolicy = (
     } = env(c)
 
     switch (authCodeBody.request.policy) {
-    case Policy.ChangePassword: {
+    case oauthDto.Policy.ChangePassword: {
       if (enablePasswordReset) nextPage = routeConfig.View.ChangePassword
       break
     }
-    case Policy.ChangeEmail: {
+    case oauthDto.Policy.ChangeEmail: {
       if (enableEmailVerification) nextPage = routeConfig.View.ChangeEmail
       break
     }
-    case Policy.ResetMfa: {
+    case oauthDto.Policy.ResetMfa: {
       nextPage = routeConfig.View.ResetMfa
       break
     }
-    case Policy.ManagePasskey: {
+    case oauthDto.Policy.ManagePasskey: {
       if (enablePasskeyEnrollment) nextPage = routeConfig.View.ManagePasskey
       break
     }
-    case Policy.UpdateInfo: {
+    case oauthDto.Policy.UpdateInfo: {
       nextPage = routeConfig.View.UpdateInfo
       break
     }
@@ -68,7 +70,7 @@ export const processPostAuthorize = async (
   c: Context<typeConfig.Context>,
   step: AuthorizeStep,
   authCode: string,
-  authCodeBody: AuthCodeBody,
+  authCodeBody: typeConfig.AuthCodeBody,
 ) => {
   const basicInfo = {
     code: authCode,
@@ -77,7 +79,29 @@ export const processPostAuthorize = async (
     scopes: authCodeBody.request.scopes,
   }
 
-  const requireConsent = step < 1 && await consentService.shouldCollectConsent(
+  const {
+    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+    OTP_MFA_IS_REQUIRED: enableOtpMfa,
+    SMS_MFA_IS_REQUIRED: enableSmsMfa,
+    ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
+    ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
+  } = env(c)
+
+  const isSocialLogin = !!authCodeBody.user.socialAccountId
+
+  const requirePasswordlessVerify =
+    step < 1 &&
+    enablePasswordlessSignIn &&
+    !isSocialLogin &&
+    !authCodeBody.isFullyAuthorized
+  if (requirePasswordlessVerify) {
+    return {
+      ...basicInfo, nextPage: routeConfig.View.PasswordlessVerify,
+    }
+  }
+
+  const requireConsent = step < 2 && await consentService.shouldCollectConsent(
     c,
     authCodeBody.user.id,
     authCodeBody.appId,
@@ -96,8 +120,6 @@ export const processPostAuthorize = async (
     nextPage: undefined,
   }
 
-  const isSocialLogin = !!authCodeBody.user.socialAccountId
-
   if (authCodeBody.isFullyAuthorized) {
     const nextPage = getNextPageForPolicy(
       c,
@@ -109,16 +131,8 @@ export const processPostAuthorize = async (
     }
   }
 
-  const {
-    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
-    OTP_MFA_IS_REQUIRED: enableOtpMfa,
-    SMS_MFA_IS_REQUIRED: enableSmsMfa,
-    ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
-    ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
-  } = env(c)
-
   const requireMfaEnroll =
-    step < 2 &&
+    step < 3 &&
     !isSocialLogin &&
     !!enforceMfa?.length &&
     !enableEmailMfa &&
@@ -132,7 +146,7 @@ export const processPostAuthorize = async (
   }
 
   const requireOtpMfa =
-    step < 3 &&
+    step < 4 &&
     !isSocialLogin &&
     (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
@@ -148,7 +162,7 @@ export const processPostAuthorize = async (
   }
 
   const requireSmsMfa =
-    step < 4 &&
+    step < 5 &&
     !isSocialLogin &&
     (enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms))
   if (requireSmsMfa) {
@@ -158,7 +172,7 @@ export const processPostAuthorize = async (
   }
 
   const requireEmailMfa =
-    step < 5 &&
+    step < 6 &&
     !isSocialLogin &&
     (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
   if (requireEmailMfa) {
@@ -168,7 +182,7 @@ export const processPostAuthorize = async (
   }
 
   const requirePasskeyEnroll =
-    step < 6 &&
+    step < 7 &&
     !isSocialLogin &&
     enablePasskeyEnrollment
   if (requirePasskeyEnroll && !authCodeBody.user.skipPasskeyEnroll) {
@@ -183,7 +197,7 @@ export const processPostAuthorize = async (
     }
   }
 
-  if (step < 7) {
+  if (step < 8) {
     const nextPage = getNextPageForPolicy(
       c,
       authCodeBody,
@@ -202,4 +216,49 @@ export const processPostAuthorize = async (
   )
 
   return authorizedResult
+}
+
+export const processSignIn = async (
+  c: Context<typeConfig.Context>,
+  bodyDto: oauthDto.GetAuthorizeDto,
+  user: userModel.Record,
+) => {
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    OTP_MFA_IS_REQUIRED: enableOtpMfa,
+  } = env(c)
+
+  const requireMfa = enableOtpMfa || user.mfaTypes.includes(userModel.MfaType.Otp)
+  const updatedUser = requireMfa && !user.otpSecret
+    ? await userService.genUserOtp(
+      c,
+      user.id,
+    )
+    : user
+
+  const request = new oauthDto.GetAuthorizeDto(bodyDto)
+  const authCode = genRandomString(128)
+  const authCodeBody = {
+    appId: app.id,
+    appName: app.name,
+    user: updatedUser,
+    request,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    authCodeBody,
+    codeExpiresIn,
+  )
+
+  return {
+    authCode,
+    authCodeBody,
+  }
 }

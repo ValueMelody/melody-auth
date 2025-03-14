@@ -45,6 +45,7 @@ describe(
         expect(html).toContain(`enablePasswordReset: ${process.env.ENABLE_PASSWORD_RESET}`)
         expect(html).toContain(`enableSignUp: ${process.env.ENABLE_SIGN_UP}`)
         expect(html).toContain(`enablePasswordSignIn: ${process.env.ENABLE_PASSWORD_SIGN_IN}`)
+        expect(html).toContain(`enablePasswordlessSignIn: ${process.env.ENABLE_PASSWORDLESS_SIGN_IN}`)
         expect(html).toContain(`googleClientId: "${process.env.GOOGLE_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`facebookClientId: "${process.env.FACEBOOK_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`githubClientId: "${process.env.GITHUB_AUTH_CLIENT_ID}"`)
@@ -116,6 +117,32 @@ describe(
         expect(html).toContain(`privacyPolicyLink: "${process.env.PRIVACY_POLICY_LINK}"`)
         expect(html).toContain(`allowPasskey: ${process.env.ALLOW_PASSKEY_ENROLLMENT}`)
         expect(html).toContain(`<link rel="icon" type="image/x-icon" href="${process.env.COMPANY_LOGO_URL}"/>`)
+      },
+    )
+
+    test(
+      'set passwordless sign in to true should override other features',
+      async () => {
+        global.process.env.ENABLE_PASSWORD_RESET = true as unknown as string
+        global.process.env.ENABLE_SIGN_UP = true as unknown as string
+        global.process.env.ENABLE_PASSWORD_SIGN_IN = true as unknown as string
+        global.process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        global.process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.IdentityRoute.AuthorizeView,
+          appRecord,
+        )
+
+        const html = await res.text()
+
+        expect(html).toContain('enablePasswordReset: false')
+        expect(html).toContain('enableSignUp: false')
+        expect(html).toContain('enablePasswordSignIn: false')
+        expect(html).toContain('allowPasskey: false')
+        expect(html).toContain('enablePasswordlessSignIn: true')
       },
     )
 

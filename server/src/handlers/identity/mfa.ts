@@ -31,15 +31,17 @@ const allowOtpSwitchToEmailMfa = (
   return allowFallback && notEnrolledEmail && enrolledOtp
 }
 
-const handleSendEmailMfa = async (
+export const handleSendEmailMfa = async (
   c: Context<typeConfig.Context>,
   authCode: string,
   locale: typeConfig.Locale,
+  isPasswordlessCode: boolean = false,
 ) => {
   const {
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
     EMAIL_MFA_EMAIL_THRESHOLD: threshold,
+    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
 
   const authCodeBody = await kvService.getAuthCodeBody(
@@ -63,7 +65,9 @@ const handleSendEmailMfa = async (
     authCodeBody,
   )
 
-  if (!requireEmailMfa && !couldFallbackAsOtp && !couldFallbackAsSms) throw new errorConfig.Forbidden()
+  if (!requireEmailMfa && !couldFallbackAsOtp && !couldFallbackAsSms && !enablePasswordlessSignIn) {
+    throw new errorConfig.Forbidden(localeConfig.ConfigError.NotSupposeToSendEmailMfa)
+  }
 
   const ip = requestUtil.getRequestIP(c)
   const attempts = await kvService.getEmailMfaEmailAttemptsByIP(
@@ -94,12 +98,21 @@ const handleSendEmailMfa = async (
     locale,
   )
   if (mfaCode) {
-    await kvService.storeEmailMfaCode(
-      c.env.KV,
-      authCode,
-      mfaCode,
-      codeExpiresIn,
-    )
+    if (isPasswordlessCode) {
+      await kvService.storePasswordlessCode(
+        c.env.KV,
+        authCode,
+        mfaCode,
+        codeExpiresIn,
+      )
+    } else {
+      await kvService.storeEmailMfaCode(
+        c.env.KV,
+        authCode,
+        mfaCode,
+        codeExpiresIn,
+      )
+    }
   }
 
   return { result: true }
@@ -241,10 +254,12 @@ export const postSendEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
+  const isPasswordlessCode = false
   const emailRes = await handleSendEmailMfa(
     c,
     bodyDto.code,
     bodyDto.locale || locales[0],
+    isPasswordlessCode,
   )
   if (!emailRes || (!emailRes.result && emailRes.reason === localeConfig.Error.WrongAuthCode)) {
     throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
@@ -263,8 +278,6 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeMfaDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
-
   const authCodeStore = await kvService.getAuthCodeBody(
     c.env.KV,
     bodyDto.code,
@@ -280,6 +293,8 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
     c,
     authCodeStore,
   )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
   const isValid = await kvService.stampEmailMfaCode(
     c.env.KV,

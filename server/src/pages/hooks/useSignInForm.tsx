@@ -113,6 +113,50 @@ const useSignInForm = ({
     [params, locale, onSubmitError, onSwitchView, email, password, errors],
   )
 
+  const handlePasswordlessSignIn = useCallback(
+    (e: Event) => {
+      e.preventDefault()
+      setTouched({
+        email: true,
+        password: false,
+      })
+
+      if (errors.email !== undefined) {
+        return
+      }
+
+      fetch(
+        routeConfig.IdentityRoute.AuthorizePasswordless,
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            ...parseAuthorizeBaseValues(
+              params,
+              locale,
+            ),
+          }),
+        },
+      )
+        .then(parseResponse)
+        .then((response) => {
+          handleAuthorizeStep(
+            response,
+            locale,
+            onSwitchView,
+          )
+        })
+        .catch((error) => {
+          onSubmitError(error)
+        })
+    },
+    [params, locale, onSubmitError, onSwitchView, email, errors],
+  )
+
   return {
     values,
     errors: {
@@ -121,6 +165,7 @@ const useSignInForm = ({
     },
     handleChange,
     handleSubmit,
+    handlePasswordlessSignIn,
   }
 }
 

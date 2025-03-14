@@ -39,6 +39,10 @@ export enum IdentityRoute {
   ProcessSmsMfa = `${InternalRoute.Identity}/process-sms-mfa`,
   OtpMfaSetup = `${InternalRoute.Identity}/otp-mfa-setup`,
   ProcessOtpMfa = `${InternalRoute.Identity}/process-otp-mfa`,
+  // Passwordless Sign-in
+  AuthorizePasswordless = `${InternalRoute.Identity}/authorize-passwordless`,
+  SendPasswordlessCode = `${InternalRoute.Identity}/send-passwordless-code`,
+  ProcessPasswordlessCode = `${InternalRoute.Identity}/process-passwordless-code`,
   // Process Passkey
   ProcessPasskeyEnroll = `${InternalRoute.Identity}/process-passkey-enroll`,
   ProcessPasskeyEnrollDecline = `${InternalRoute.Identity}/process-passkey-enroll-decline`,
@@ -60,6 +64,7 @@ export enum IdentityRoute {
 
 export enum View {
   SignIn = 'sign_in',
+  PasswordlessVerify = 'passwordless_verify',
   Consent = 'consent',
   MfaEnroll = 'mfa_enroll',
   EmailMfa = 'email_mfa',

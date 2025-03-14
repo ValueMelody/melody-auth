@@ -70,6 +70,21 @@ describe(
     )
 
     test(
+      'should be blocked if passwordless sign in is enabled',
+      async () => {
+        global.process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        expect(res.status).toBe(400)
+        global.process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if user not found',
       async () => {
         const appRecord = await getApp(db)

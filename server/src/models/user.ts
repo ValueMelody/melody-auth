@@ -233,7 +233,7 @@ export const getByAuthId = async (
   return user ? convertToRecord(user) : null
 }
 
-export const getPasswordUserByEmail = async (
+export const getNormalUserByEmail = async (
   db: D1Database, email: string,
 ): Promise<Record | null> => {
   const query = `SELECT * FROM ${TableName} WHERE email = $1 AND "socialAccountId" IS NULL AND "deletedAt" IS NULL`

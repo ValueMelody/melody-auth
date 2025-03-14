@@ -98,6 +98,40 @@ describe(
     )
 
     test(
+      'should throw error if passwordless sign in is enabled',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
+          'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
+        )
+
+        const body = await prepareFollowUpBody(db)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if use wrong code',
       async () => {
         const { res } = await sendCorrectGetEnrollPasskeyReq({ code: 'abc' })

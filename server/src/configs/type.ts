@@ -45,6 +45,7 @@ export type Bindings = {
   ENABLE_PASSWORD_SIGN_IN: boolean;
   ENABLE_PASSWORD_RESET: boolean;
   PASSWORD_RESET_EMAIL_THRESHOLD: number;
+  ENABLE_PASSWORDLESS_SIGN_IN: boolean;
   ENABLE_NAMES: boolean;
   NAMES_IS_REQUIRED: boolean;
   ENABLE_USER_APP_CONSENT: boolean;

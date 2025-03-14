@@ -87,6 +87,28 @@ identityRoutes.get(
 )
 
 /**
+ * Passwordless Sign-in
+ */
+identityRoutes.post(
+  routeConfig.IdentityRoute.AuthorizePasswordless,
+  setupMiddleware.validOrigin,
+  configMiddleware.enablePasswordlessSignIn,
+  identityHandler.postAuthorizePasswordless,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.SendPasswordlessCode,
+  setupMiddleware.validOrigin,
+  identityHandler.postSendPasswordlessCode,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessPasswordlessCode,
+  setupMiddleware.validOrigin,
+  identityHandler.postProcessPasswordlessCode,
+)
+
+/**
  * Process MFA
  * - ProcessMfaEnroll
  * - ProcessEmailMfa

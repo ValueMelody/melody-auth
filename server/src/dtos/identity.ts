@@ -27,6 +27,16 @@ export class PostAuthorizeWithPasswordDto extends oauthDto.GetAuthorizeDto {
   }
 }
 
+export class PostAuthorizeWithPasswordlessDto extends oauthDto.GetAuthorizeDto {
+  @IsEmail()
+    email: string
+
+  constructor (dto: PostAuthorizeWithPasswordlessDto) {
+    super(dto)
+    this.email = dto.email.toLowerCase()
+  }
+}
+
 export class PostAuthorizeWithNamesDto extends PostAuthorizeWithPasswordDto {
   @IsString()
   @Length(

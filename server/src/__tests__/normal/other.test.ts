@@ -77,6 +77,7 @@ describe(
           ENABLE_SMS_LOG: false,
           ENABLE_SIGN_IN_LOG: false,
           ENABLE_PASSWORD_SIGN_IN: true,
+          ENABLE_PASSWORDLESS_SIGN_IN: false,
           ENABLE_ORG: false,
           BLOCKED_POLICIES: [],
         })

@@ -143,6 +143,17 @@ describe(
         global.process.env.ENABLE_PASSWORD_RESET = true as unknown as string
       },
     )
+
+    test(
+      'should throw error if passwordless sign in is enabled',
+      async () => {
+        global.process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        await insertUsers(db)
+        const { res } = await sendCorrectResetPasswordCodeReq()
+        expect(res.status).toBe(400)
+        global.process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
   },
 )
 

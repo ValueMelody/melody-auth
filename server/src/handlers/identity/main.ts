@@ -4,7 +4,8 @@ import {
 import { env } from 'hono/adapter'
 import { genRandomString } from 'shared'
 import {
-  typeConfig, routeConfig,
+  typeConfig,
+  routeConfig,
   errorConfig,
   localeConfig,
 } from 'configs'
@@ -12,14 +13,13 @@ import {
   identityDto, oauthDto,
 } from 'dtos'
 import {
-  appService, consentService, emailService, identityService, kvService, scopeService, userService,
+  appService, consentService, emailService,
+  identityService, kvService, scopeService, userService,
 } from 'services'
 import {
   requestUtil, validateUtil,
 } from 'utils'
-import {
-  scopeModel, userModel,
-} from 'models'
+import { scopeModel } from 'models'
 
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
@@ -35,38 +35,12 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     bodyDto,
   )
 
-  const app = await appService.verifySPAClientRequest(
-    c,
-    bodyDto.clientId,
-    bodyDto.redirectUri,
-  )
-
   const {
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    OTP_MFA_IS_REQUIRED: enableOtpMfa,
-  } = env(c)
-
-  const requireMfa = enableOtpMfa || user.mfaTypes.includes(userModel.MfaType.Otp)
-  const updatedUser = requireMfa && !user.otpSecret
-    ? await userService.genUserOtp(
-      c,
-      user.id,
-    )
-    : user
-
-  const request = new oauthDto.GetAuthorizeDto(bodyDto)
-  const authCode = genRandomString(128)
-  const authCodeBody = {
-    appId: app.id,
-    appName: app.name,
-    user: updatedUser,
-    request,
-  }
-  await kvService.storeAuthCode(
-    c.env.KV,
-    authCode,
-    authCodeBody,
-    codeExpiresIn,
+    authCode, authCodeBody,
+  } = await identityService.processSignIn(
+    c,
+    bodyDto,
+    user,
   )
 
   return c.json(await identityService.processPostAuthorize(

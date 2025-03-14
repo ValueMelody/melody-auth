@@ -1,3 +1,24 @@
+export enum ConfigError {
+  NotSupposeToSendEmailMfa = 'Not suppose to send email mfa',
+  SignUpNotEnabled = 'Sign up is not enabled',
+  PasswordSignInNotEnabled = 'Password sign in is not enabled',
+  PasswordResetNotEnabled = 'Password reset is not enabled',
+  PasswordlessSignInNotEnabled = 'Passwordless sign in is not enabled',
+  OrgNotEnabled = 'Organization is not enabled',
+  PasskeyEnrollmentNotEnabled = 'Passkey enrollment is not enabled',
+  GoogleSignInNotEnabled = 'Google sign in is not enabled',
+  FacebookSignInNotEnabled = 'Facebook sign in is not enabled',
+  GithubSignInNotEnabled = 'Github sign in is not enabled',
+  EmailVerificationNotEnabled = 'Email verification is not enabled',
+  MfaEnrollNotEnabled = 'MFA enroll is not enabled',
+  NamesNotEnabled = 'Names is not enabled',
+  ChangePasswordPolicyNotEnabled = 'Change password policy is not enabled',
+  ChangeEmailPolicyNotEnabled = 'Change email policy is not enabled',
+  ResetMfaPolicyNotEnabled = 'Reset MFA policy is not enabled',
+  ManagePasskeyPolicyNotEnabled = 'Manage passkey policy is not enabled',
+  UpdateInfoPolicyNotEnabled = 'Update info policy is not enabled',
+}
+
 export enum Error {
   NoApp = 'No app found',
   WrongClientType = 'Wrong client type',
@@ -24,10 +45,12 @@ export enum Error {
   WrongAuthCode = 'Invalid auth code',
   WrongCode = 'Invalid code',
   WrongMfaCode = 'Invalid MFA code',
+  WrongPasswordlessCode = 'Invalid passwordless code',
   InvalidRequest = 'Invalid request',
   RequireDifferentPassword = 'New password same as old password',
   RequireDifferentEmail = 'New email address same as old email address',
   MfaNotVerified = 'MFA code not verified',
+  PasswordlessNotVerified = 'Passwordless code not verified',
   WrongCodeVerifier = 'Invalid code_verifier',
   WrongGrantType = 'Invalid grant_type',
   WrongRefreshToken = 'Invalid refresh_token',
@@ -340,6 +363,29 @@ export const authorizeSmsMfa = Object.freeze({
 })
 
 export const authorizeEmailMfa = Object.freeze({
+  title: {
+    en: 'A verification code has been sent to your email.',
+    fr: 'Un code de vérification a été envoyé à votre adresse e-mail.',
+  },
+  verify: {
+    en: 'Verify',
+    fr: 'Vérifier',
+  },
+  code: {
+    en: 'Enter your verification code here',
+    fr: 'Entrez votre code de vérification ici',
+  },
+  resend: {
+    en: 'Resend a new code',
+    fr: 'Renvoyer un nouveau code',
+  },
+  resent: {
+    en: 'New code sent.',
+    fr: 'Nouveau code envoyé.',
+  },
+})
+
+export const authorizePasswordlessCode = Object.freeze({
   title: {
     en: 'A verification code has been sent to your email.',
     fr: 'Un code de vérification a été envoyé à votre adresse e-mail.',
