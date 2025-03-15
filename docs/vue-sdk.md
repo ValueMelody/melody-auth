@@ -68,7 +68,7 @@ const { isAuthenticated } = useAuth()
 </template>
 ```
 
-### loginRedirect
+## loginRedirect
 
 Triggers a new authentication flow by redirecting to the auth server.
 
@@ -96,7 +96,7 @@ function handleLogin() {
 </template>
 ```
 
-### loginPopup
+## loginPopup
 
 Triggers a new authentication flow in a popup.
 
@@ -123,7 +123,7 @@ function handleLogin() {
 </template>
 ```
 
-### logoutRedirect
+## logoutRedirect
 
 Triggers the logout flow.
 
@@ -148,7 +148,7 @@ function handleLogout() {
 </template>
 ```
 
-### acquireToken
+## acquireToken
 
 Gets the user's access token, or refreshes it if expired.
 
@@ -175,7 +175,7 @@ async function fetchUserInfo() {
 </template>
 ```
 
-### acquireUserInfo
+## acquireUserInfo
 
 Gets the user's public info from the auth server.
 
@@ -197,7 +197,20 @@ async function fetchPublicInfo() {
 </template>
 ```
 
-### isAuthenticating
+## userInfo
+
+The current user's details. Be sure to invoke acquireUserInfo before accessing userInfo.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { userInfo } = useAuth()
+
+  <div>{JSON.stringify(userInfo)}</div>
+}
+```
+
+## isAuthenticating
 
 Indicates whether the SDK is initializing and attempting to obtain the user's authentication state.
 
@@ -214,7 +227,7 @@ const { isAuthenticating } = useAuth()
 </template>
 ```
 
-### isLoadingToken
+## isLoadingToken
 
 Indicates whether the SDK is acquiring the token.
 
@@ -231,7 +244,7 @@ const { isLoadingToken } = useAuth()
 </template>
 ```
 
-### isLoadingUserInfo
+## isLoadingUserInfo
 
 Indicates whether the SDK is acquiring the user's information.
 
@@ -248,7 +261,7 @@ const { isLoadingUserInfo } = useAuth()
 </template>
 ```
 
-### authenticationError
+## authenticationError
 
 Indicates whether there is an error during authentication.
 
@@ -265,7 +278,7 @@ const { authenticationError } = useAuth()
 </template>
 ```
 
-### acquireTokenError
+## acquireTokenError
 
 Indicates whether there is an error during token acquisition.
 
@@ -282,7 +295,7 @@ const { acquireTokenError } = useAuth()
 </template>
 ```
 
-### acquireUserInfoError
+## acquireUserInfoError
 
 Indicates whether there is an error while acquiring user information.
 
@@ -299,7 +312,7 @@ const { acquireUserInfoError } = useAuth()
 </template>
 ```
 
-### account
+## account
 
 Decoded account information from the id_token.
 
@@ -316,7 +329,7 @@ const { account } = useAuth()
 </template>
 ```
 
-### loginError
+## loginError
 
 Indicates whether there is a login process related error.
 
@@ -333,7 +346,7 @@ const { loginError } = useAuth()
 </template>
 ```
 
-### logoutError
+## logoutError
 
 Indicates whether there is a logout process related error.
 

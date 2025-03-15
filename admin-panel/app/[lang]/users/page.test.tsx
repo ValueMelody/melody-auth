@@ -14,15 +14,25 @@ vi.mock(
   () => ({ useGetApiV1UsersQuery: vi.fn() }),
 )
 
+// Mock useAuth hook
+vi.mock(
+  '@melody-auth/react',
+  () => ({
+    useAuth: () => ({
+      userInfo: { authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865' },
+      accessTokenStorage: { accessToken: 'test-token' },
+      refreshTokenStorage: { refreshToken: 'test-refresh-token' },
+      isAuthenticated: true,
+      isAuthenticating: false,
+    }),
+  }),
+)
+
 vi.mock(
   'signals',
   () => ({
     configSignal: {
       value: { ENABLE_NAMES: true },
-      subscribe: () => () => {},
-    },
-    userInfoSignal: {
-      value: { authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865' },
       subscribe: () => () => {},
     },
   }),

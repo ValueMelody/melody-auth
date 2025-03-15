@@ -15,7 +15,6 @@ import {
   usePathname,
   useRouter,
 } from 'next/navigation'
-import { GetUserInfoRes } from 'shared/dist/serverInterface'
 import Setup from './Setup'
 import {
   configSignal,
@@ -88,6 +87,12 @@ describe(
         acquireToken: mockAcquireToken,
         loginRedirect: mockLoginRedirect,
         logoutRedirect: mockLogoutRedirect,
+        userInfo: {
+          authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+          roles: [typeTool.Role.SuperAdmin],
+        },
+        accessTokenStorage: { accessToken: 'test-token' },
+        refreshTokenStorage: { refreshToken: 'test-refresh-token' },
       } as any)
 
       vi.mocked(useRouter).mockReturnValue({ push: mockPush } as any)
@@ -96,7 +101,18 @@ describe(
     it(
       'renders loading spinner when authenticating',
       () => {
-        vi.mocked(useAuth).mockReturnValue({ isAuthenticating: true } as any)
+        vi.mocked(useAuth).mockReturnValue({
+          isAuthenticating: true,
+          isAuthenticated: false,
+          isLoadingUserInfo: false,
+          acquireUserInfo: mockAcquireUserInfo,
+          acquireToken: mockAcquireToken,
+          loginRedirect: mockLoginRedirect,
+          logoutRedirect: mockLogoutRedirect,
+          userInfo: null,
+          accessTokenStorage: { accessToken: 'test-token' },
+          refreshTokenStorage: { refreshToken: 'test-refresh-token' },
+        } as any)
 
         render(<Setup>Test</Setup>)
         expect(screen.getByRole('status')).toBeInTheDocument()
@@ -106,6 +122,22 @@ describe(
     it(
       'shows error for non-admin users',
       async () => {
+        vi.mocked(useAuth).mockReturnValue({
+          isAuthenticating: false,
+          isAuthenticated: true,
+          isLoadingUserInfo: false,
+          acquireUserInfo: mockAcquireUserInfo,
+          acquireToken: mockAcquireToken,
+          loginRedirect: mockLoginRedirect,
+          logoutRedirect: mockLogoutRedirect,
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: ['user'], // Not an admin role
+          },
+          accessTokenStorage: { accessToken: 'test-token' },
+          refreshTokenStorage: { refreshToken: 'test-refresh-token' },
+        } as any)
+
         render(<Setup>Test</Setup>)
         expect(screen.getByText('layout.blocked')).toBeInTheDocument()
       },
@@ -115,6 +147,21 @@ describe(
       'renders navbar for authenticated admin users',
       () => {
         configSignal.value = { ENABLE_SIGN_IN_LOG: true } as any
+        vi.mocked(useAuth).mockReturnValue({
+          isAuthenticating: false,
+          isAuthenticated: true,
+          isLoadingUserInfo: false,
+          acquireUserInfo: mockAcquireUserInfo,
+          acquireToken: mockAcquireToken,
+          loginRedirect: mockLoginRedirect,
+          logoutRedirect: mockLogoutRedirect,
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [typeTool.Role.SuperAdmin],
+          },
+          accessTokenStorage: { accessToken: 'test-token' },
+          refreshTokenStorage: { refreshToken: 'test-refresh-token' },
+        } as any)
 
         render(<Setup>Test</Setup>)
         expect(screen.getByText('layout.brand')).toBeInTheDocument()
@@ -126,6 +173,21 @@ describe(
       'handles logout click',
       () => {
         configSignal.value = {} as any
+        vi.mocked(useAuth).mockReturnValue({
+          isAuthenticating: false,
+          isAuthenticated: true,
+          isLoadingUserInfo: false,
+          acquireUserInfo: mockAcquireUserInfo,
+          acquireToken: mockAcquireToken,
+          loginRedirect: mockLoginRedirect,
+          logoutRedirect: mockLogoutRedirect,
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [typeTool.Role.SuperAdmin],
+          },
+          accessTokenStorage: { accessToken: 'test-token' },
+          refreshTokenStorage: { refreshToken: 'test-refresh-token' },
+        } as any)
 
         render(<Setup>Test</Setup>)
 
@@ -143,6 +205,21 @@ describe(
           ENABLE_ORG: true,
           ENABLE_SIGN_IN_LOG: true,
         } as any
+        vi.mocked(useAuth).mockReturnValue({
+          isAuthenticating: false,
+          isAuthenticated: true,
+          isLoadingUserInfo: false,
+          acquireUserInfo: mockAcquireUserInfo,
+          acquireToken: mockAcquireToken,
+          loginRedirect: mockLoginRedirect,
+          logoutRedirect: mockLogoutRedirect,
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [typeTool.Role.SuperAdmin],
+          },
+          accessTokenStorage: { accessToken: 'test-token' },
+          refreshTokenStorage: { refreshToken: 'test-refresh-token' },
+        } as any)
 
         render(<Setup>Test</Setup>)
 
@@ -157,6 +234,21 @@ describe(
         errorSignal.value = 'Some error'
         const pathname = '/test'
         vi.mocked(usePathname).mockReturnValue(pathname)
+        vi.mocked(useAuth).mockReturnValue({
+          isAuthenticating: false,
+          isAuthenticated: true,
+          isLoadingUserInfo: false,
+          acquireUserInfo: mockAcquireUserInfo,
+          acquireToken: mockAcquireToken,
+          loginRedirect: mockLoginRedirect,
+          logoutRedirect: mockLogoutRedirect,
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [typeTool.Role.SuperAdmin],
+          },
+          accessTokenStorage: { accessToken: 'test-token' },
+          refreshTokenStorage: { refreshToken: 'test-refresh-token' },
+        } as any)
 
         render(<Setup>Test</Setup>)
 

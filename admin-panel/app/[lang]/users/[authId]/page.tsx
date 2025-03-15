@@ -17,9 +17,7 @@ import UserEmailVerified from 'components/UserEmailVerified'
 import { routeTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import useSignalValue from 'app/useSignalValue'
-import {
-  configSignal,
-} from 'signals'
+import { configSignal } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
 import SubmitError from 'components/SubmitError'
