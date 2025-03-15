@@ -215,6 +215,7 @@ export const useAuth = () => {
     acquireToken,
     isAuthenticating,
     account: state.account,
+    userInfo: state.userInfo,
     isLoadingToken: state.isLoadingToken,
     isLoadingUserInfo: state.isLoadingUserInfo,
     authenticationError: state.authenticationError,

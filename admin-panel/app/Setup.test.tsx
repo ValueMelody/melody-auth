@@ -19,7 +19,6 @@ import { GetUserInfoRes } from 'shared/dist/serverInterface'
 import Setup from './Setup'
 import {
   configSignal,
-  userInfoSignal,
   errorSignal,
 } from 'signals'
 import { typeTool } from 'tools'
@@ -80,7 +79,6 @@ describe(
       vi.clearAllMocks()
       errorSignal.value = ''
       configSignal.value = null
-      userInfoSignal.value = null
 
       vi.mocked(useAuth).mockReturnValue({
         isAuthenticating: false,
@@ -108,8 +106,6 @@ describe(
     it(
       'shows error for non-admin users',
       async () => {
-        userInfoSignal.value = { roles: ['User'] } as GetUserInfoRes
-
         render(<Setup>Test</Setup>)
         expect(screen.getByText('layout.blocked')).toBeInTheDocument()
       },
@@ -118,7 +114,6 @@ describe(
     it(
       'renders navbar for authenticated admin users',
       () => {
-        userInfoSignal.value = { roles: [typeTool.Role.SuperAdmin] } as GetUserInfoRes
         configSignal.value = { ENABLE_SIGN_IN_LOG: true } as any
 
         render(<Setup>Test</Setup>)
@@ -130,7 +125,6 @@ describe(
     it(
       'handles logout click',
       () => {
-        userInfoSignal.value = { roles: [typeTool.Role.SuperAdmin] } as GetUserInfoRes
         configSignal.value = {} as any
 
         render(<Setup>Test</Setup>)
@@ -145,7 +139,6 @@ describe(
     it(
       'shows optional nav items based on config',
       () => {
-        userInfoSignal.value = { roles: [typeTool.Role.SuperAdmin] } as GetUserInfoRes
         configSignal.value = {
           ENABLE_ORG: true,
           ENABLE_SIGN_IN_LOG: true,

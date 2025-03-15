@@ -30,7 +30,7 @@ import {
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
 import {
-  userInfoSignal, configSignal,
+  configSignal,
 } from 'signals'
 
 const mockNav = {
@@ -854,9 +854,6 @@ describe(
     it(
       'toggle active status',
       async () => {
-        const originalUserInfo = vi.mocked(userInfoSignal).value
-        vi.mocked(userInfoSignal).value = { authId: 'different-user-id' } as GetUserInfoRes
-
         render(<Page />)
 
         await waitFor(() => {
@@ -874,8 +871,6 @@ describe(
             putUserReq: { isActive: false },
           })
         })
-
-        vi.mocked(userInfoSignal).value = originalUserInfo
       },
     )
 

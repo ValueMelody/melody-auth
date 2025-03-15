@@ -12,12 +12,13 @@ import {
   useEffect, useMemo, useState,
 } from 'react'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/16/solid'
+import { useAuth } from '@melody-auth/react'
 import UserEmailVerified from 'components/UserEmailVerified'
 import { routeTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import useSignalValue from 'app/useSignalValue'
 import {
-  userInfoSignal, configSignal,
+  configSignal,
 } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
@@ -53,6 +54,8 @@ const Page = () => {
   const { authId } = useParams()
   const configs = useSignalValue(configSignal)
 
+  const { userInfo } = useAuth()
+
   const t = useTranslations()
   const router = useLocaleRouter()
 
@@ -69,7 +72,6 @@ const Page = () => {
   const [isResettingEmailMfa, setIsResettingEmailMfa] = useState(false)
   const [isRemovingPasskey, setIsRemovingPasskey] = useState(false)
 
-  const userInfo = useSignalValue(userInfoSignal)
   const enableConsent = !!configs.ENABLE_USER_APP_CONSENT
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
   const enablePasskeyEnrollment = !!configs.ALLOW_PASSKEY_ENROLLMENT
@@ -131,7 +133,7 @@ const Page = () => {
   )
 
   const isSelf = useMemo(
-    () => userInfo.authId === user?.authId,
+    () => userInfo?.authId === user?.authId,
     [user, userInfo],
   )
 

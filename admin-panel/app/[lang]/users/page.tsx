@@ -8,13 +8,12 @@ import { useTranslations } from 'next-intl'
 import {
   useMemo, useState,
 } from 'react'
+import { useAuth } from '@melody-auth/react'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
 import useSignalValue from 'app/useSignalValue'
-import {
-  userInfoSignal, configSignal,
-} from 'signals'
+import { configSignal } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
 import PageTitle from 'components/PageTitle'
 import useDebounce from 'hooks/useDebounce'
@@ -26,7 +25,8 @@ const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const userInfo = useSignalValue(userInfoSignal)
+  const { userInfo } = useAuth()
+
   const configs = useSignalValue(configSignal)
   const [pageNumber, setPageNumber] = useState(1)
   const [search, setSearch] = useState('')
@@ -85,7 +85,7 @@ const Page = () => {
                 <section className='flex items-center justify-between'>
                   <section className='flex flex-col gap-2'>
                     {user.authId}
-                    {user.authId === userInfo.authId && <div className='flex'><IsSelfLabel /></div>}
+                    {user.authId === userInfo?.authId && <div className='flex'><IsSelfLabel /></div>}
                     {user.email}
                     <EntityStatusLabel isEnabled={user.isActive} />
                     {configs.ENABLE_NAMES && (
@@ -110,7 +110,7 @@ const Page = () => {
               <Table.Cell>
                 <div className='flex items-center gap-2'>
                   {user.authId}
-                  {user.authId === userInfo.authId && <IsSelfLabel />}
+                  {user.authId === userInfo?.authId && <IsSelfLabel />}
                 </div>
               </Table.Cell>
               <Table.Cell>{user.email}</Table.Cell>
