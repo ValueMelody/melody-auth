@@ -1,7 +1,8 @@
 import { Context } from 'hono'
 import { ClientType } from 'shared'
 import {
-  errorConfig, localeConfig,
+  errorConfig,
+  messageConfig,
   typeConfig,
 } from 'configs'
 import {
@@ -23,14 +24,14 @@ export const verifySPAClientRequest = async (
     clientId,
   )
 
-  if (!app) throw new errorConfig.NotFound(localeConfig.Error.NoApp)
-  if (!app.isActive) throw new errorConfig.Forbidden(localeConfig.Error.AppDisabled)
+  if (!app) throw new errorConfig.NotFound(messageConfig.RequestError.NoApp)
+  if (!app.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.AppDisabled)
 
   if (app.type !== ClientType.SPA) {
-    throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongClientType)
   }
   if (!app.redirectUris.includes(requestUtil.stripEndingSlash(redirectUri))) {
-    throw new errorConfig.UnAuthorized(localeConfig.Error.WrongRedirectUri)
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongRedirectUri)
   }
   return app
 }
@@ -44,14 +45,14 @@ export const verifyS2SClientRequest = async (
     c.env.DB,
     clientId,
   )
-  if (!app) throw new errorConfig.NotFound(localeConfig.Error.NoApp)
-  if (!app.isActive) throw new errorConfig.Forbidden(localeConfig.Error.AppDisabled)
+  if (!app) throw new errorConfig.NotFound(messageConfig.RequestError.NoApp)
+  if (!app.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.AppDisabled)
 
   if (app.type !== ClientType.S2S) {
-    throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientType)
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongClientType)
   }
   if (app.secret !== clientSecret) {
-    throw new errorConfig.UnAuthorized(localeConfig.Error.WrongClientSecret)
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongClientSecret)
   }
   return app
 }

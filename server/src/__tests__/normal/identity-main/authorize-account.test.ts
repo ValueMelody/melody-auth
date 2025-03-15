@@ -10,7 +10,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, localeConfig, messageConfig, routeConfig,
 } from 'configs'
 import { AuthCodeBody } from 'configs/type'
 import {
@@ -164,7 +164,7 @@ describe(
         expect(res.status).toBe(200)
         const res1 = await postAuthorizeAccount()
         expect(res1.status).toBe(400)
-        expect(await res1.text()).toBe(localeConfig.Error.EmailTaken)
+        expect(await res1.text()).toBe(messageConfig.RequestError.EmailTaken)
       },
     )
 

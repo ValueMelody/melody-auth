@@ -5,12 +5,11 @@ import { toCanvas } from 'qrcode'
 import {
   useSubmitError, View, useOtpMfaForm,
 } from 'pages/hooks'
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   SubmitError, CodeInput, PrimaryButton, ViewTitle,
 } from 'pages/components'
+import { otpMfa } from 'pages/tools/locale'
 
 export interface OtpSetupProps {
   locale: typeConfig.Locale;
@@ -68,13 +67,13 @@ const OtpSetup = ({
       {otpUri && (
         <>
           <ViewTitle
-            title={localeConfig.authorizeOtpMfa.setup[locale]}
+            title={otpMfa.setup[locale]}
           />
           <canvas ref={qrCodeEl} />
         </>
       )}
       <CodeInput
-        label={localeConfig.authorizeOtpMfa.code[locale]}
+        label={otpMfa.code[locale]}
         required={true}
         code={values.mfaCode}
         setCode={(code) => {
@@ -89,7 +88,7 @@ const OtpSetup = ({
       <PrimaryButton
         className='w-(--text-width)'
         type='button'
-        title={localeConfig.authorizeOtpMfa.verify[locale]}
+        title={otpMfa.verify[locale]}
         onClick={handleMfa}
       />
     </>

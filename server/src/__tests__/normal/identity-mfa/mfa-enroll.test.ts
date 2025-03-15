@@ -8,7 +8,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  localeConfig, routeConfig,
+  messageConfig, routeConfig,
 } from 'configs'
 import { userModel } from 'models'
 import {
@@ -100,7 +100,7 @@ describe(
       async () => {
         const { res } = await sendCorrectGetEnrollRequest({ code: 'abc' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
 
@@ -153,7 +153,7 @@ describe(
           type: userModel.MfaType.Email, code: 'abc',
         })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
 
@@ -168,7 +168,7 @@ describe(
 
         const { res } = await sendCorrectPostEnrollRequest({ type: userModel.MfaType.Email })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.MfaEnrolled)
+        expect(await res.text()).toBe(messageConfig.RequestError.MfaEnrolled)
       },
     )
 

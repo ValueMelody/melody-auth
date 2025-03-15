@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import {
-  errorConfig, localeConfig, routeConfig, typeConfig,
+  errorConfig, messageConfig, routeConfig, typeConfig,
 } from 'configs'
 import { oauthDto } from 'dtos'
 import { authMiddleware } from 'middlewares'
@@ -33,7 +33,7 @@ oauthRoutes.post(
       return oauthHandler.postTokenClientCredentials(c)
     }
 
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongGrantType)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongGrantType)
   },
 )
 

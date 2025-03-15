@@ -9,11 +9,10 @@ import {
 import { InitialProps } from './useInitialProps'
 import { View } from './useCurrentView'
 import useSignUpForm from 'pages/hooks/useSignUpForm'
-import {
-  localeConfig, routeConfig,
-} from 'configs'
+import { routeConfig } from 'configs'
 import * as requestModule from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
+import { validateError } from 'pages/tools/locale'
 
 // Mock hooks from hono/jsx.
 vi.mock(
@@ -163,8 +162,8 @@ test(
     expect(fakeEvent.preventDefault).toHaveBeenCalled()
     expect(fetchSpy).not.toHaveBeenCalled()
     // Check that errors for firstName and lastName are set as expected.
-    expect(result.current.errors.firstName).toEqual(localeConfig.validateError.firstNameIsEmpty.en)
-    expect(result.current.errors.lastName).toEqual(localeConfig.validateError.lastNameIsEmpty.en)
+    expect(result.current.errors.firstName).toEqual(validateError.firstNameIsEmpty.en)
+    expect(result.current.errors.lastName).toEqual(validateError.lastNameIsEmpty.en)
 
     fetchSpy.mockRestore()
   },

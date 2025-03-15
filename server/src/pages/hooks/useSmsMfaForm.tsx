@@ -10,13 +10,14 @@ import {
   codeField, validate,
 } from 'pages/tools/form'
 import {
-  routeConfig, typeConfig, localeConfig,
+  routeConfig, typeConfig,
 } from 'configs'
 import { GetProcessSmsMfaRes } from 'handlers/identity/mfa'
 import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
   parseResponse,
 } from 'pages/tools/request'
+import { validateError } from 'pages/tools/locale'
 
 export interface UseSmsMfaFormProps {
   locale: typeConfig.Locale;
@@ -57,7 +58,7 @@ const useSmsMfaForm = ({
       ? string()
         .test(
           'is-valid-phone',
-          localeConfig.validateError.wrongPhoneFormat[locale],
+          validateError.wrongPhoneFormat[locale],
           function (value) {
             if (!value) return false
             const fullNumber = countryCode + value.trim()

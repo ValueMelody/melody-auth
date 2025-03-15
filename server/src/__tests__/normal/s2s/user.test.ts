@@ -5,7 +5,7 @@ import {
   vi,
 } from 'vitest'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, localeConfig, messageConfig, routeConfig,
 } from 'configs'
 import app from 'index'
 import {
@@ -548,7 +548,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
 
@@ -811,7 +811,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.NoEmailSender)
+        expect(await res.text()).toBe(messageConfig.ConfigError.NoEmailSender)
 
         const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
         expect(code).toBeFalsy()
@@ -836,7 +836,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.EmailAlreadyVerified)
+        expect(await res.text()).toBe(messageConfig.RequestError.EmailAlreadyVerified)
       },
     )
   },
@@ -883,7 +883,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
   },
@@ -921,7 +921,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
   },
@@ -1043,7 +1043,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
 
@@ -1062,7 +1062,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
       },
     )
   },
@@ -1125,7 +1125,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
 
@@ -1145,7 +1145,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
       },
     )
   },
@@ -1403,7 +1403,7 @@ describe(
           mock(db),
         )
         expect(res1.status).toBe(400)
-        expect(await res1.text()).toBe(localeConfig.Error.UserAlreadyLinked)
+        expect(await res1.text()).toBe(messageConfig.RequestError.UserAlreadyLinked)
 
         const res2 = await app.request(
           `${BaseRoute}/1-1-1-3/account-linking/1-1-1-1`,
@@ -1414,7 +1414,7 @@ describe(
           mock(db),
         )
         expect(res2.status).toBe(400)
-        expect(await res2.text()).toBe(localeConfig.Error.TargetUserAlreadyLinked)
+        expect(await res2.text()).toBe(messageConfig.RequestError.TargetUserAlreadyLinked)
       },
     )
   },
@@ -1521,7 +1521,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
   },

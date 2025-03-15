@@ -18,7 +18,7 @@ import {
 } from 'models'
 import {
   errorConfig,
-  localeConfig, typeConfig,
+  localeConfig, messageConfig, typeConfig,
 } from 'configs'
 
 const checkEmailSetup = (c: Context<typeConfig.Context>) => {
@@ -39,7 +39,7 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
     (!sendgridApiKey || !sendgridSender) &&
     (!resendApiKey || !resendSender)
   ) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoEmailSender)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.NoEmailSender)
   }
 }
 

@@ -7,9 +7,8 @@ import {
 } from '@testing-library/react'
 
 import useChangePasswordForm from 'pages/hooks/useChangePasswordForm'
-import {
-  localeConfig, routeConfig,
-} from 'configs'
+import { routeConfig } from 'configs'
+import { validateError } from 'pages/tools/locale'
 
 // Mock hooks from hono/jsx
 vi.mock(
@@ -250,8 +249,8 @@ test(
 
     // Since passwords do not match, validation should block submission.
     expect(result.current.success).toBe(false)
-    // The error message comes from confirmPasswordField using localeConfig.validateError.passwordNotMatch[locale]
-    expect(result.current.errors.confirmPassword).toEqual(localeConfig.validateError.passwordNotMatch.en)
+    // The error message comes from confirmPasswordField using validateError.passwordNotMatch[locale]
+    expect(result.current.errors.confirmPassword).toEqual(validateError.passwordNotMatch.en)
   },
 )
 
@@ -283,6 +282,6 @@ test(
     })
 
     expect(result.current.success).toBe(false)
-    expect(result.current.errors.password).toEqual(localeConfig.validateError.passwordFormat.en)
+    expect(result.current.errors.password).toEqual(validateError.passwordFormat.en)
   },
 )

@@ -1,13 +1,12 @@
 import { useEffect } from 'hono/jsx'
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   SecondaryButton, CodeInput, ViewTitle, SubmitError, PrimaryButton,
 } from 'pages/components'
 import {
   useEmailMfaForm, useSubmitError, View,
 } from 'pages/hooks'
+import { emailMfa } from 'pages/tools/locale'
 
 export interface EmailMfaProps {
   locale: typeConfig.Locale;
@@ -43,7 +42,7 @@ const EmailMfa = ({
   return (
     <>
       <ViewTitle
-        title={localeConfig.authorizeEmailMfa.title[locale]}
+        title={emailMfa.title[locale]}
       />
       <form
         autoComplete='on'
@@ -52,14 +51,14 @@ const EmailMfa = ({
         <section className='flex flex-col gap-4 justify-center'>
           <SecondaryButton
             title={resent
-              ? localeConfig.authorizeEmailMfa.resent[locale]
-              : localeConfig.authorizeEmailMfa.resend[locale]
+              ? emailMfa.resent[locale]
+              : emailMfa.resend[locale]
             }
             disabled={resent}
             onClick={() => sendEmailMfa(true)}
           />
           <CodeInput
-            label={localeConfig.authorizeEmailMfa.code[locale]}
+            label={emailMfa.code[locale]}
             required
             code={values.mfaCode ?? []}
             error={errors.mfaCode}
@@ -70,7 +69,7 @@ const EmailMfa = ({
           />
           <SubmitError error={submitError} />
           <PrimaryButton
-            title={localeConfig.authorizeEmailMfa.verify[locale]}
+            title={emailMfa.verify[locale]}
             type='submit'
           />
         </section>

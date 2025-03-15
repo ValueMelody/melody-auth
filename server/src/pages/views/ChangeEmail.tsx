@@ -1,6 +1,4 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   CodeInput, Field, PrimaryButton, SecondaryButton, SubmitError, SuccessMessage, ViewTitle,
 } from 'pages/components'
@@ -8,6 +6,7 @@ import {
   useChangeEmailForm, useSubmitError,
 } from 'pages/hooks'
 import { View } from 'pages/hooks/useCurrentView'
+import { changeEmail } from 'pages/tools/locale'
 
 interface ChangeEmailProps {
   locale: typeConfig.Locale;
@@ -45,27 +44,27 @@ const ChangeEmail = ({
         <section className='flex flex-col gap-4'>
           <section className='flex justify-center w-full'>
             <SuccessMessage
-              message={localeConfig.changeEmail.success[locale]}
+              message={changeEmail.success[locale]}
             />
           </section>
           <a
             className='mt-6'
             href={redirectUri}
           >
-            {localeConfig.changePassword.redirect[locale]}
+            {changeEmail.redirect[locale]}
           </a>
         </section>
       )}
       {!success && (
         <>
-          <ViewTitle title={localeConfig.changeEmail.title[locale]} />
+          <ViewTitle title={changeEmail.title[locale]} />
           <form
             autoComplete='on'
             onSubmit={handleSubmit}
           >
             <section className='flex flex-col gap-2'>
               <Field
-                label={localeConfig.changeEmail.email[locale]}
+                label={changeEmail.email[locale]}
                 type='email'
                 required
                 value={values.email}
@@ -81,14 +80,14 @@ const ChangeEmail = ({
                 <>
                   <SecondaryButton
                     title={resent
-                      ? localeConfig.changeEmail.resent[locale]
-                      : localeConfig.changeEmail.resend[locale]
+                      ? changeEmail.resent[locale]
+                      : changeEmail.resend[locale]
                     }
                     onClick={handleResend}
                     disabled={resent}
                   />
                   <CodeInput
-                    label={localeConfig.changeEmail.code[locale]}
+                    label={changeEmail.code[locale]}
                     required
                     code={values.mfaCode ?? []}
                     setCode={(code) => handleChange(
@@ -105,8 +104,8 @@ const ChangeEmail = ({
                 type='submit'
                 title={
                   values.mfaCode !== null
-                    ? localeConfig.changeEmail.confirm[locale]
-                    : localeConfig.changeEmail.sendCode[locale]
+                    ? changeEmail.confirm[locale]
+                    : changeEmail.sendCode[locale]
                 }
               />
             </section>

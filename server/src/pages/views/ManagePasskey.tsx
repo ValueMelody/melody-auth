@@ -1,13 +1,12 @@
 import { useEffect } from 'hono/jsx'
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   PrimaryButton, SubmitError, SuccessMessage, ViewTitle,
 } from 'pages/components'
 import {
   useManagePasskeyForm, useSubmitError, View,
 } from 'pages/hooks'
+import { managePasskey } from 'pages/tools/locale'
 
 export interface ManagePasskeyProps {
   locale: typeConfig.Locale;
@@ -49,24 +48,24 @@ const ManagePasskey = ({
           />
         </section>
       )}
-      <ViewTitle title={localeConfig.managePasskey.title[locale]} />
+      <ViewTitle title={managePasskey.title[locale]} />
       {
         passkey && (
           <div
             className='flex flex-col gap-4'
           >
             <div className='border rounded-md p-4 w-(--text-width) flex-col gap-2'>
-              <p><b>{localeConfig.managePasskey.active[locale]}:</b></p>
+              <p><b>{managePasskey.active[locale]}:</b></p>
               <p
                 id='passkey-credential-id'
                 style={{ overflowWrap: 'break-word' }}>{passkey?.credentialId}
               </p>
-              <p><b>{localeConfig.managePasskey.loginCount[locale]}:</b> <span id='passkey-counter'>{passkey?.counter}</span></p>
+              <p><b>{managePasskey.loginCount[locale]}:</b> <span id='passkey-counter'>{passkey?.counter}</span></p>
             </div>
             <SubmitError error={submitError} />
             <PrimaryButton
               type='button'
-              title={localeConfig.managePasskey.remove[locale]}
+              title={managePasskey.remove[locale]}
               onClick={handleRemove}
             />
           </div>
@@ -76,11 +75,11 @@ const ManagePasskey = ({
         <div
           className='flex flex-col gap-4'
         >
-          <p>{localeConfig.managePasskey.noPasskey[locale]}</p>
+          <p>{managePasskey.noPasskey[locale]}</p>
           <SubmitError error={submitError} />
           <PrimaryButton
             type='button'
-            title={localeConfig.managePasskey.enroll[locale]}
+            title={managePasskey.enroll[locale]}
             onClick={handleEnroll}
           />
         </div>
@@ -89,7 +88,7 @@ const ManagePasskey = ({
         className='mt-6'
         href={redirectUri}
       >
-        {localeConfig.managePasskey.redirect[locale]}
+        {managePasskey.redirect[locale]}
       </a>
     </>
   )

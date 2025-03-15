@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import {
   adapterConfig,
-  localeConfig,
+  messageConfig,
   routeConfig,
 } from 'configs'
 import app from 'index'
@@ -453,7 +453,7 @@ describe(
         await insertUsers(db)
         const { res } = await sendCorrectResetPasswordCodeReq()
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.NoEmailSender)
+        expect(await res.text()).toBe(messageConfig.ConfigError.NoEmailSender)
         global.process.env.SENDGRID_API_KEY = 'abc'
       },
     )

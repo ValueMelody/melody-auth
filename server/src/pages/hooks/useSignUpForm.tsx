@@ -5,7 +5,6 @@ import {
   object, string,
 } from 'yup'
 import {
-  localeConfig,
   routeConfig, typeConfig,
 } from 'configs'
 import {
@@ -20,6 +19,7 @@ import {
   parseResponse,
 } from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
+import { validateError } from 'pages/tools/locale'
 
 export interface UseSignUpFormProps {
   locale: typeConfig.Locale;
@@ -66,10 +66,10 @@ const useSignUpForm = ({
     password: passwordField(locale),
     confirmPassword: confirmPasswordField(locale),
     firstName: initialProps.namesIsRequired
-      ? string().required(localeConfig.validateError.firstNameIsEmpty[locale])
+      ? string().required(validateError.firstNameIsEmpty[locale])
       : string(),
     lastName: initialProps.namesIsRequired
-      ? string().required(localeConfig.validateError.lastNameIsEmpty[locale])
+      ? string().required(validateError.lastNameIsEmpty[locale])
       : string(),
   })
 

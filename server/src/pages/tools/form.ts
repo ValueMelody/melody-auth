@@ -3,52 +3,51 @@ import {
   array,
   ref,
 } from 'yup'
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
+import { validateError } from 'pages/tools/locale'
 
 export const emailField = (locale: typeConfig.Locale) => {
   return string()
-    .required(localeConfig.validateError.emailIsRequired[locale])
-    .email(localeConfig.validateError.wrongEmailFormat[locale])
+    .required(validateError.emailIsRequired[locale])
+    .email(validateError.wrongEmailFormat[locale])
 }
 
 export const passwordField = (locale: typeConfig.Locale) => {
   return string()
-    .required(localeConfig.validateError.passwordIsRequired[locale])
+    .required(validateError.passwordIsRequired[locale])
     .matches(
       /[A-Z]/,
-      localeConfig.validateError.passwordFormat[locale],
+      validateError.passwordFormat[locale],
     )
     .matches(
       /[a-z]/,
-      localeConfig.validateError.passwordFormat[locale],
+      validateError.passwordFormat[locale],
     )
     .matches(
       /[0-9]/,
-      localeConfig.validateError.passwordFormat[locale],
+      validateError.passwordFormat[locale],
     )
     .matches(
       /[@$!%*?&#^()_\-+={}[\]<>|~`]/,
-      localeConfig.validateError.passwordFormat[locale],
+      validateError.passwordFormat[locale],
     )
     .min(
       8,
-      localeConfig.validateError.passwordFormat[locale],
+      validateError.passwordFormat[locale],
     )
 }
 
 export const confirmPasswordField = (locale: typeConfig.Locale) => {
   return string().oneOf(
     [ref('password')],
-    localeConfig.validateError.passwordNotMatch[locale],
+    validateError.passwordNotMatch[locale],
   )
 }
 export const codeField = (locale: typeConfig.Locale) => {
   return array()
     .test(
       'is-valid-mfa-code',
-      localeConfig.validateError.verificationCodeLengthIssue[locale],
+      validateError.verificationCodeLengthIssue[locale],
       function (
         _, context,
       ) {

@@ -3,8 +3,11 @@ import {
 } from 'hono/jsx'
 import { View } from '.'
 import {
-  localeConfig, typeConfig, routeConfig,
+  messageConfig, typeConfig, routeConfig,
 } from 'configs'
+import {
+  requestError, validateError,
+} from 'pages/tools/locale'
 
 const useSubmitError = ({
   onSwitchView,
@@ -24,35 +27,35 @@ const useSubmitError = ({
 
       const errorString = String(error)
 
-      let msg = localeConfig.requestError.authFailed[locale]
+      let msg = requestError.authFailed[locale]
 
-      if (errorString.indexOf('isEmail') !== -1 || errorString === localeConfig.validateError.isNotEmail[locale]) {
-        msg = localeConfig.validateError.isNotEmail[locale]
+      if (errorString.indexOf('isEmail') !== -1 || errorString === validateError.isNotEmail[locale]) {
+        msg = validateError.isNotEmail[locale]
       } else if (errorString.indexOf('isStrongPassword') !== -1) {
-        msg = localeConfig.validateError.isWeakPassword[locale]
-      } else if (errorString.indexOf(localeConfig.Error.NoUser) !== -1) {
-        msg = localeConfig.requestError.noUser[locale]
-      } else if (errorString.indexOf(localeConfig.Error.UserDisabled) !== -1) {
-        msg = localeConfig.requestError.disabledUser[locale]
-      } else if (errorString.indexOf(localeConfig.Error.AccountLocked) !== -1) {
-        msg = localeConfig.requestError.accountLocked[locale]
-      } else if (errorString.indexOf(localeConfig.Error.OtpMfaLocked) !== -1) {
-        msg = localeConfig.requestError.optMfaLocked[locale]
-      } else if (errorString.indexOf(localeConfig.Error.SmsMfaLocked) !== -1) {
-        msg = localeConfig.requestError.smsMfaLocked[locale]
-      } else if (errorString.indexOf(localeConfig.Error.EmailMfaLocked) !== -1) {
-        msg = localeConfig.requestError.emailMfaLocked[locale]
-      } else if (errorString.indexOf(localeConfig.Error.PasswordResetLocked) !== -1) {
-        msg = localeConfig.requestError.passwordResetLocked[locale]
-      } else if (errorString.indexOf(localeConfig.Error.EmailTaken) !== -1) {
-        msg = localeConfig.requestError.emailTaken[locale]
-      } else if (errorString.indexOf(localeConfig.Error.WrongCode) !== -1) {
-        msg = localeConfig.requestError.wrongCode[locale]
-      } else if (errorString.indexOf(localeConfig.Error.RequireDifferentPassword) !== -1) {
-        msg = localeConfig.requestError.requireNewPassword[locale]
-      } else if (errorString.indexOf(localeConfig.Error.WrongMfaCode) !== -1) {
-        msg = localeConfig.requestError.wrongCode[locale]
-      } else if (errorString.indexOf(localeConfig.Error.WrongAuthCode) !== -1) {
+        msg = validateError.isWeakPassword[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.NoUser) !== -1) {
+        msg = requestError.noUser[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.UserDisabled) !== -1) {
+        msg = requestError.disabledUser[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.AccountLocked) !== -1) {
+        msg = requestError.accountLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.OtpMfaLocked) !== -1) {
+        msg = requestError.optMfaLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.SmsMfaLocked) !== -1) {
+        msg = requestError.smsMfaLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.EmailMfaLocked) !== -1) {
+        msg = requestError.emailMfaLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.PasswordResetLocked) !== -1) {
+        msg = requestError.passwordResetLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.EmailTaken) !== -1) {
+        msg = requestError.emailTaken[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.WrongCode) !== -1) {
+        msg = requestError.wrongCode[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.RequireDifferentPassword) !== -1) {
+        msg = requestError.requireNewPassword[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.WrongMfaCode) !== -1) {
+        msg = requestError.wrongCode[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.WrongAuthCode) !== -1) {
         const currentUrl = new URL(window.location.href)
         const newUrl = new URL(`${window.location.origin}${routeConfig.IdentityRoute.AuthCodeExpiredView}`)
         newUrl.searchParams.set(

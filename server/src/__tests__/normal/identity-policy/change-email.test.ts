@@ -11,7 +11,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
   typeConfig,
 } from 'configs'
 import {
@@ -232,7 +232,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.SocialAccountNotSupported)
+        expect(await res.text()).toBe(messageConfig.RequestError.SocialAccountNotSupported)
         global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )
@@ -273,7 +273,7 @@ describe(
         await sendCorrectChangeEmailCodeReq()
         const { res } = await sendCorrectChangeEmailReq({ code: 'abc' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
 
@@ -285,7 +285,7 @@ describe(
           code: correctBody.code, verificationCode: '123456',
         })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
       },
     )
 

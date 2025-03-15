@@ -5,7 +5,7 @@ import {
 } from 'vitest'
 import {
   adapterConfig,
-  localeConfig,
+  messageConfig,
   routeConfig,
 } from 'configs'
 import app from 'index'
@@ -200,7 +200,7 @@ describe(
         await sendCorrectResetPasswordCodeReq()
         const { res } = await sendCorrectResetPasswordReq({ code: 'abcdef' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
       },
     )
 
@@ -213,7 +213,7 @@ describe(
 
         const { res } = await sendCorrectResetPasswordReq({ password: 'Password1!' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.RequireDifferentPassword)
+        expect(await res.text()).toBe(messageConfig.RequestError.RequireDifferentPassword)
       },
     )
 
@@ -228,7 +228,7 @@ describe(
 
         const { res } = await sendCorrectResetPasswordReq()
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
       },
     )
 
@@ -241,7 +241,7 @@ describe(
 
         const { res } = await sendCorrectResetPasswordReq({ email: 'test1@email.com' })
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
 

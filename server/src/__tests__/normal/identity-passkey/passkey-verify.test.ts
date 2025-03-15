@@ -10,7 +10,7 @@ import {
   passkeyVerifyMock,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   postAuthorizeBody,
@@ -227,7 +227,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.InvalidRequest)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidRequest)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },

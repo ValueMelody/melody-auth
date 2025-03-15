@@ -1,6 +1,4 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   CodeInput, Field, PasswordField, PrimaryButton, SecondaryButton, SubmitError, ViewTitle,
 } from 'pages/components'
@@ -9,6 +7,7 @@ import {
   useResetPasswordForm, useSubmitError,
 } from 'pages/hooks'
 import { View } from 'pages/hooks/useCurrentView'
+import { resetPassword } from 'pages/tools/locale'
 
 export interface ResetPasswordProps {
   locale: typeConfig.Locale;
@@ -46,20 +45,20 @@ const ResetPassword = ({
           class='flex flex-col gap-4 mt-8'
         >
           <SuccessMessage
-            message={localeConfig.authorizeReset.success[locale]}
+            message={resetPassword.success[locale]}
           />
           <PrimaryButton
             type='button'
-            title={localeConfig.authorizeReset.signIn[locale]}
+            title={resetPassword.signIn[locale]}
             onClick={() => onSwitchView(View.SignIn)}
           />
         </section>
       )}
       {!success && (
         <>
-          <ViewTitle title={localeConfig.authorizeReset.title[locale]} />
+          <ViewTitle title={resetPassword.title[locale]} />
           <p class='mb-4 text-center w-(--text-width)'>
-            {localeConfig.authorizeReset.desc[locale]}
+            {resetPassword.desc[locale]}
           </p>
           <form
             autoComplete='on'
@@ -67,7 +66,7 @@ const ResetPassword = ({
           >
             <section className='flex flex-col gap-2'>
               <Field
-                label={localeConfig.authorizeReset.email[locale]}
+                label={resetPassword.email[locale]}
                 type='email'
                 required
                 value={values.email}
@@ -83,14 +82,14 @@ const ResetPassword = ({
                 <>
                   <SecondaryButton
                     title={resent
-                      ? localeConfig.authorizeReset.resent[locale]
-                      : localeConfig.authorizeReset.resend[locale]
+                      ? resetPassword.resent[locale]
+                      : resetPassword.resend[locale]
                     }
                     onClick={handleResend}
                     disabled={resent}
                   />
                   <CodeInput
-                    label={localeConfig.authorizeReset.code[locale]}
+                    label={resetPassword.code[locale]}
                     required
                     code={values.mfaCode ?? []}
                     setCode={(code) => handleChange(
@@ -100,7 +99,7 @@ const ResetPassword = ({
                     error={errors.mfaCode}
                   />
                   <PasswordField
-                    label={localeConfig.authorizeReset.password[locale]}
+                    label={resetPassword.password[locale]}
                     required
                     name='password'
                     value={values.password}
@@ -112,7 +111,7 @@ const ResetPassword = ({
                     )}
                   />
                   <PasswordField
-                    label={localeConfig.authorizeReset.confirmPassword[locale]}
+                    label={resetPassword.confirmPassword[locale]}
                     required
                     name='confirmPassword'
                     value={values.confirmPassword}
@@ -131,14 +130,14 @@ const ResetPassword = ({
                 type='submit'
                 title={
                   values.mfaCode !== null
-                    ? localeConfig.authorizeReset.reset[locale]
-                    : localeConfig.authorizeReset.send[locale]
+                    ? resetPassword.reset[locale]
+                    : resetPassword.send[locale]
                 }
               />
             </section>
           </form>
           <SecondaryButton
-            title={localeConfig.authorizeReset.backSignIn[locale]}
+            title={resetPassword.backSignIn[locale]}
             onClick={() => onSwitchView(View.SignIn)}
           />
         </>

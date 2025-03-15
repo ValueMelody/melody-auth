@@ -7,7 +7,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import { disableUser } from 'tests/util'
 import {
@@ -95,7 +95,7 @@ describe(
           { email: 'test1@email.com' },
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
 
@@ -110,7 +110,7 @@ describe(
           appRecord,
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
       },
     )
 

@@ -5,13 +5,14 @@ import {
   object, string,
 } from 'yup'
 import {
-  localeConfig, routeConfig, typeConfig,
+  routeConfig, typeConfig,
 } from 'configs'
 import { validate } from 'pages/tools/form'
 import { getFollowUpParams } from 'pages/tools/param'
 import {
   parseAuthorizeFollowUpValues, parseResponse,
 } from 'pages/tools/request'
+import { validateError } from 'pages/tools/locale'
 
 export interface UseUpdateInfoFormProps {
   locale: typeConfig.Locale;
@@ -44,8 +45,8 @@ const useUpdateInfoForm = ({
   )
 
   const updateInfoSchema = object({
-    firstName: string().required(localeConfig.validateError.firstNameIsEmpty[locale]),
-    lastName: string().required(localeConfig.validateError.lastNameIsEmpty[locale]),
+    firstName: string().required(validateError.firstNameIsEmpty[locale]),
+    lastName: string().required(validateError.lastNameIsEmpty[locale]),
   })
 
   const errors = validate(

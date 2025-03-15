@@ -1,6 +1,4 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   PasswordField,
   PrimaryButton,
@@ -12,6 +10,7 @@ import {
   useChangePasswordForm, View,
   useSubmitError,
 } from 'pages/hooks'
+import { changePassword } from 'pages/tools/locale'
 
 export interface ChangePasswordProps {
   locale: typeConfig.Locale;
@@ -46,18 +45,18 @@ const ChangePassword = ({
       {success && (
         <section className='flex justify-center w-full'>
           <SuccessMessage
-            message={localeConfig.changePassword.success[locale]}
+            message={changePassword.success[locale]}
           />
         </section>
       )}
-      <ViewTitle title={localeConfig.changePassword.title[locale]} />
+      <ViewTitle title={changePassword.title[locale]} />
       <form
         autoComplete='on'
         onSubmit={handleSubmit}
       >
         <section className='flex flex-col gap-2'>
           <PasswordField
-            label={localeConfig.changePassword.newPassword[locale]}
+            label={changePassword.newPassword[locale]}
             required
             name='password'
             value={values.password}
@@ -69,7 +68,7 @@ const ChangePassword = ({
             )}
           />
           <PasswordField
-            label={localeConfig.changePassword.confirmNewPassword[locale]}
+            label={changePassword.confirmNewPassword[locale]}
             required
             name='confirmPassword'
             value={values.confirmPassword}
@@ -84,7 +83,7 @@ const ChangePassword = ({
           <PrimaryButton
             className='mt-4'
             type='submit'
-            title={localeConfig.changePassword.confirm[locale]}
+            title={changePassword.confirm[locale]}
           />
         </section>
       </form>
@@ -92,7 +91,7 @@ const ChangePassword = ({
         className='mt-6'
         href={redirectUri}
       >
-        {localeConfig.changePassword.redirect[locale]}
+        {changePassword.redirect[locale]}
       </a>
     </>
   )

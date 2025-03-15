@@ -7,7 +7,7 @@ import {
 } from '@testing-library/react'
 
 import useVerifyEmailForm from 'pages/hooks/useVerifyEmailForm'
-import { localeConfig } from 'configs'
+import { validateError } from 'pages/tools/locale'
 
 vi.mock(
   'hono/jsx',
@@ -194,7 +194,7 @@ test(
     // - errors.mfaCode should be a non-empty error message.
     expect(result.current).toStrictEqual({
       success: false,
-      errors: { mfaCode: localeConfig.validateError.verificationCodeLengthIssue.en },
+      errors: { mfaCode: validateError.verificationCodeLengthIssue.en },
       values: { mfaCode: ['1', '2', '3'] },
       handleChange: expect.any(Function),
       handleSubmit: expect.any(Function),

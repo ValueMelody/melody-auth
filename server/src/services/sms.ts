@@ -2,8 +2,7 @@ import { Buffer } from 'buffer'
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
-  errorConfig,
-  localeConfig, typeConfig,
+  errorConfig, localeConfig, messageConfig, typeConfig,
 } from 'configs'
 import { cryptoUtil } from 'utils'
 import { smsLogModel } from 'models'
@@ -17,7 +16,7 @@ const checkSmsSetup = (c: Context<typeConfig.Context>) => {
   if (
     !twilioAccountId || !twilioAuthToken || !twilioSenderNumber
   ) {
-    throw new errorConfig.Forbidden(localeConfig.Error.NoSmsSender)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.NoSmsSender)
   }
 }
 

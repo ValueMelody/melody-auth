@@ -1,13 +1,12 @@
 import { useEffect } from 'hono/jsx'
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   CodeInput, PhoneField, PrimaryButton, SecondaryButton, SubmitError, ViewTitle,
 } from 'pages/components'
 import {
   useSubmitError, useSmsMfaForm, View,
 } from 'pages/hooks'
+import { smsMfa } from 'pages/tools/locale'
 
 export interface SmsMfaProps {
   locale: typeConfig.Locale;
@@ -52,7 +51,7 @@ const SmsMfa = ({
   return (
     <>
       <ViewTitle
-        title={localeConfig.authorizeSmsMfa.title[locale]}
+        title={smsMfa.title[locale]}
       />
       <form
         autoComplete='on'
@@ -61,7 +60,7 @@ const SmsMfa = ({
         <section className='flex flex-col gap-4 justify-center'>
           <PhoneField
             countryCode={countryCode}
-            label={localeConfig.authorizeSmsMfa.phoneNumber[locale]}
+            label={smsMfa.phoneNumber[locale]}
             required={!currentNumber}
             name='phoneNumber'
             value={currentNumber ?? values.phoneNumber}
@@ -76,14 +75,14 @@ const SmsMfa = ({
             <>
               <SecondaryButton
                 title={resent
-                  ? localeConfig.authorizeSmsMfa.resent[locale]
-                  : localeConfig.authorizeSmsMfa.resend[locale]
+                  ? smsMfa.resent[locale]
+                  : smsMfa.resend[locale]
                 }
                 onClick={handleResend}
                 disabled={resent}
               />
               <CodeInput
-                label={localeConfig.authorizeSmsMfa.code[locale]}
+                label={smsMfa.code[locale]}
                 required
                 code={values.mfaCode ?? []}
                 error={errors.mfaCode}
@@ -96,14 +95,14 @@ const SmsMfa = ({
           )}
           <SubmitError error={submitError} />
           <PrimaryButton
-            title={localeConfig.authorizeSmsMfa.verify[locale]}
+            title={smsMfa.verify[locale]}
             type='submit'
           />
         </section>
       </form>
       {currentNumber && allowFallbackToEmailMfa && (
         <SecondaryButton
-          title={localeConfig.authorizeSmsMfa.switchToEmail[locale]}
+          title={smsMfa.switchToEmail[locale]}
           onClick={() => onSwitchView(View.EmailMfa)}
         />
       )}

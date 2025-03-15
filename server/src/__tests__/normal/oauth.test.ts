@@ -9,7 +9,7 @@ import {
   session,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   getApp, getAuthorizeParams, getSignInRequest, insertUsers, postAuthorizeBody, postSignInRequest,
@@ -184,7 +184,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.WrongClientType)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongClientType)
       },
     )
 
@@ -199,7 +199,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoApp)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoApp)
       },
     )
 
@@ -216,7 +216,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.AppDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.AppDisabled)
       },
     )
 
@@ -235,7 +235,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.WrongRedirectUri)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongRedirectUri)
       },
     )
 
@@ -711,7 +711,7 @@ describe(
           mock(db),
         )
         expect(tokenRes.status).toBe(400)
-        expect(await tokenRes.text()).toBe(localeConfig.Error.WrongCode)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.WrongCode)
 
         const tokenRes1 = await app.request(
           routeConfig.OauthRoute.Token,
@@ -727,7 +727,7 @@ describe(
           mock(db),
         )
         expect(tokenRes1.status).toBe(400)
-        expect(await tokenRes1.text()).toBe(localeConfig.Error.WrongCodeVerifier)
+        expect(await tokenRes1.text()).toBe(messageConfig.RequestError.WrongCodeVerifier)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
@@ -791,7 +791,7 @@ describe(
           mock(db),
         )
         expect(refreshTokenRes.status).toBe(400)
-        expect(await refreshTokenRes.text()).toBe(localeConfig.Error.WrongRefreshToken)
+        expect(await refreshTokenRes.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
 
         const refreshTokenRes1 = await app.request(
           routeConfig.OauthRoute.Token,
@@ -806,7 +806,7 @@ describe(
           mock(db),
         )
         expect(refreshTokenRes1.status).toBe(400)
-        expect(await refreshTokenRes1.text()).toBe(localeConfig.Error.WrongGrantType)
+        expect(await refreshTokenRes1.text()).toBe(messageConfig.RequestError.WrongGrantType)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
@@ -887,7 +887,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.WrongClientSecret)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongClientSecret)
       },
     )
 
@@ -911,7 +911,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoApp)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoApp)
       },
     )
 
@@ -937,7 +937,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.AppDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.AppDisabled)
       },
     )
 
@@ -986,7 +986,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.WrongClientType)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongClientType)
       },
     )
   },
@@ -1114,7 +1114,7 @@ describe(
         )
 
         expect(tokenRes.status).toBe(401)
-        expect(await tokenRes.text()).toBe(localeConfig.Error.PasswordlessNotVerified)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.PasswordlessNotVerified)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -1292,7 +1292,7 @@ describe(
           mock(db),
         )
         expect(userInfoRes.status).toBe(404)
-        expect(await userInfoRes.text()).toBe(localeConfig.Error.NoUser)
+        expect(await userInfoRes.text()).toBe(messageConfig.RequestError.NoUser)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
@@ -1311,7 +1311,7 @@ describe(
           mock(db),
         )
         expect(userInfoRes.status).toBe(400)
-        expect(await userInfoRes.text()).toBe(localeConfig.Error.UserDisabled)
+        expect(await userInfoRes.text()).toBe(messageConfig.RequestError.UserDisabled)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
@@ -1443,7 +1443,7 @@ describe(
           mock(db),
         )
         expect(revokeRes.status).toBe(400)
-        expect(await revokeRes.text()).toBe(localeConfig.Error.WrongRefreshToken)
+        expect(await revokeRes.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
 
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeTruthy()
 

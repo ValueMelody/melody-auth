@@ -2,13 +2,12 @@ import { useEffect } from 'hono/jsx'
 import {
   useSubmitError, View,
 } from 'pages/hooks'
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import useMfaEnrollForm from 'pages/hooks/useMfaEnrollForm'
 import {
   SecondaryButton, SubmitError, ViewTitle,
 } from 'pages/components'
+import { mfaEnroll } from 'pages/tools/locale'
 
 export interface MfaEnrollProps {
   locale: typeConfig.Locale;
@@ -45,12 +44,12 @@ const MfaEnroll = ({
 
   return (
     <>
-      <ViewTitle title={localeConfig.authorizeMfaEnroll.title[locale]} />
+      <ViewTitle title={mfaEnroll.title[locale]} />
       <section class='flex flex-col justify-around w-full gap-4 mt-4'>
         {mfaEnrollInfo?.mfaTypes.map((mfaType) => (
           <SecondaryButton
             key={mfaType}
-            title={localeConfig.authorizeMfaEnroll[mfaType][locale]}
+            title={mfaEnroll[mfaType][locale]}
             onClick={() => handleEnroll(mfaType)}
           />
         ))}

@@ -1,6 +1,7 @@
 import {
-  errorConfig, adapterConfig, localeConfig,
+  errorConfig, adapterConfig,
   typeConfig,
+  messageConfig,
 } from 'configs'
 import { cryptoUtil } from 'utils'
 
@@ -89,11 +90,11 @@ export const getRefreshTokenBody = async (
     refreshToken,
   ))
   if (!tokenInKv) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
   const tokenBody = JSON.parse(tokenInKv)
   if (!tokenBody) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
   return tokenBody
 }

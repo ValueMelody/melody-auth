@@ -2,12 +2,11 @@ import { useEffect } from 'hono/jsx'
 import {
   useSubmitError, View, useOtpMfaForm,
 } from 'pages/hooks'
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   SubmitError, CodeInput, PrimaryButton, ViewTitle, SecondaryButton,
 } from 'pages/components'
+import { otpMfa } from 'pages/tools/locale'
 
 export interface OtpMfaProps {
   locale: typeConfig.Locale;
@@ -48,7 +47,7 @@ const OtpMfa = ({
   return (
     <>
       <ViewTitle
-        title={localeConfig.authorizeOtpMfa.code[locale]}
+        title={otpMfa.code[locale]}
       />
       <CodeInput
         required
@@ -65,12 +64,12 @@ const OtpMfa = ({
       <PrimaryButton
         className='w-(--text-width)'
         type='button'
-        title={localeConfig.authorizeOtpMfa.verify[locale]}
+        title={otpMfa.verify[locale]}
         onClick={handleMfa}
       />
       {allowFallbackToEmailMfa && (
         <SecondaryButton
-          title={localeConfig.authorizeOtpMfa.switchToEmail[locale]}
+          title={otpMfa.switchToEmail[locale]}
           onClick={() => onSwitchView(View.EmailMfa)}
         />
       )}

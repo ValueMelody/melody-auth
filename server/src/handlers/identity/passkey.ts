@@ -3,7 +3,7 @@ import {
 } from 'hono'
 import { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/server'
 import {
-  errorConfig, localeConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
@@ -34,7 +34,7 @@ export const getProcessPasskeyEnroll = async (c: Context<typeConfig.Context>)
     c.env.KV,
     queryDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
 
   const enrollOptions = await passkeyService.genPasskeyEnrollOptions(
     c,
@@ -54,7 +54,7 @@ export const postProcessPasskeyEnroll = async (c: Context<typeConfig.Context>) =
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
 
   const {
     passkeyId, passkeyPublickey, passkeyCounter,
@@ -90,7 +90,7 @@ export const postProcessPasskeyEnrollDecline = async (c: Context<typeConfig.Cont
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
 
   if (bodyDto.remember) {
     await userService.skipUserPasskeyEnroll(

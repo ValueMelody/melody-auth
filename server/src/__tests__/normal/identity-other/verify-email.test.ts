@@ -6,7 +6,7 @@ import {
 import {
   adapterConfig,
   brandingConfig,
-  localeConfig,
+  messageConfig,
   routeConfig,
 } from 'configs'
 import app from 'index'
@@ -213,7 +213,7 @@ describe(
 
         const { res } = await sendCorrectVerifyEmailReq({ code: 'abcdef' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
       },
     )
 
@@ -228,7 +228,7 @@ describe(
         expect(res.status).toBe(200)
         const { res: res1 } = await sendCorrectVerifyEmailReq({ code: correctCode })
         expect(res1.status).toBe(400)
-        expect(await res1.text()).toBe(localeConfig.Error.WrongCode)
+        expect(await res1.text()).toBe(messageConfig.RequestError.WrongCode)
       },
     )
 
@@ -241,7 +241,7 @@ describe(
 
         const { res } = await sendCorrectVerifyEmailReq()
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
       },
     )
   },

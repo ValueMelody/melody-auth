@@ -1,8 +1,7 @@
-import {
-  localeConfig,
-  typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import { getAuthCodeExpiredParams } from 'pages/tools/param'
+import { authCodeExpired } from 'pages/tools/locale'
+
 const AuthCodeExpired = ({ locale }: {
   locale: typeConfig.Locale;
 }) => {
@@ -11,14 +10,14 @@ const AuthCodeExpired = ({ locale }: {
   return (
     <>
       <p class='w-(--text-width) text-criticalIndicatorColor'>
-        {localeConfig.authCodeExpired.msg[locale]}
+        {authCodeExpired.msg[locale]}
       </p>
       {authCodeExpiredParams.redirectUri && (
         <a
           className='mt-6'
           href={authCodeExpiredParams.redirectUri}
         >
-          {localeConfig.authCodeExpired.redirect[locale]}
+          {authCodeExpired.redirect[locale]}
         </a>
       )}
     </>

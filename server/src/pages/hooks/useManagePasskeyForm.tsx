@@ -2,7 +2,7 @@ import {
   useCallback, useMemo, useState,
 } from 'hono/jsx'
 import {
-  localeConfig, routeConfig, typeConfig,
+  routeConfig, typeConfig,
 } from 'configs'
 import { GetManagePasskeyRes } from 'handlers/identity'
 import { userPasskeyModel } from 'models'
@@ -12,6 +12,7 @@ import {
   parseAuthorizeFollowUpValues, parseResponse,
 } from 'pages/tools/request'
 import { passkeyService } from 'services'
+import { managePasskey } from 'pages/tools/locale'
 
 export interface UseManagePasskeyFormProps {
   locale: typeConfig.Locale;
@@ -76,7 +77,7 @@ const useManagePasskeyForm = ({
       )
         .then(parseResponse)
         .then(() => {
-          setSuccessMessage(localeConfig.managePasskey.removeSuccess[locale])
+          setSuccessMessage(managePasskey.removeSuccess[locale])
           setPasskey(null)
         })
         .catch((error) => {
@@ -108,7 +109,7 @@ const useManagePasskeyForm = ({
         .then(parseResponse)
         .then((data) => {
           setPasskey((data as GetManagePasskeyRes).passkey)
-          setSuccessMessage(localeConfig.managePasskey.enrollSuccess[locale])
+          setSuccessMessage(managePasskey.enrollSuccess[locale])
         })
         .catch((error) => {
           onSubmitError(error)

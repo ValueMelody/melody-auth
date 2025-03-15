@@ -1,13 +1,12 @@
 import { useEffect } from 'hono/jsx'
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   SecondaryButton, CodeInput, ViewTitle, SubmitError, PrimaryButton,
 } from 'pages/components'
 import {
   usePasswordlessVerifyForm, useSubmitError, View,
 } from 'pages/hooks'
+import { passwordlessCode } from 'pages/tools/locale'
 
 export interface PasswordlessVerifyProps {
   locale: typeConfig.Locale;
@@ -43,7 +42,7 @@ const PasswordlessVerify = ({
   return (
     <>
       <ViewTitle
-        title={localeConfig.authorizePasswordlessCode.title[locale]}
+        title={passwordlessCode.title[locale]}
       />
       <form
         autoComplete='on'
@@ -52,14 +51,14 @@ const PasswordlessVerify = ({
         <section className='flex flex-col gap-4 justify-center'>
           <SecondaryButton
             title={resent
-              ? localeConfig.authorizePasswordlessCode.resent[locale]
-              : localeConfig.authorizePasswordlessCode.resend[locale]
+              ? passwordlessCode.resent[locale]
+              : passwordlessCode.resend[locale]
             }
             disabled={resent}
             onClick={() => sendPasswordlessCode(true)}
           />
           <CodeInput
-            label={localeConfig.authorizePasswordlessCode.code[locale]}
+            label={passwordlessCode.code[locale]}
             required
             code={values.mfaCode ?? []}
             error={errors.mfaCode}
@@ -70,7 +69,7 @@ const PasswordlessVerify = ({
           />
           <SubmitError error={submitError} />
           <PrimaryButton
-            title={localeConfig.authorizePasswordlessCode.verify[locale]}
+            title={passwordlessCode.verify[locale]}
             type='submit'
           />
         </section>

@@ -1,6 +1,4 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   PrimaryButton, SubmitError, PasswordField, Field, SecondaryButton,
 } from 'pages/components'
@@ -9,6 +7,7 @@ import {
   useSubmitError, View, useSignUpForm,
   useInitialProps,
 } from 'pages/hooks'
+import { signUp } from 'pages/tools/locale'
 import { getAuthorizeParams } from 'pages/tools/param'
 
 export interface SignUpProps {
@@ -41,14 +40,14 @@ const SignUp = ({
 
   return (
     <>
-      <ViewTitle title={localeConfig.authorizeAccount.title[locale]} />
+      <ViewTitle title={signUp.title[locale]} />
       <form
         autoComplete='on'
         onSubmit={handleSubmit}
       >
         <section className='flex flex-col gap-2'>
           <Field
-            label={localeConfig.authorizeAccount.email[locale]}
+            label={signUp.email[locale]}
             type='email'
             required
             value={values.email}
@@ -61,7 +60,7 @@ const SignUp = ({
             )}
           />
           <PasswordField
-            label={localeConfig.authorizeAccount.password[locale]}
+            label={signUp.password[locale]}
             required
             name='password'
             value={values.password}
@@ -73,7 +72,7 @@ const SignUp = ({
             )}
           />
           <PasswordField
-            label={localeConfig.authorizeAccount.confirmPassword[locale]}
+            label={signUp.confirmPassword[locale]}
             required
             name='confirmPassword'
             value={values.confirmPassword}
@@ -87,7 +86,7 @@ const SignUp = ({
           {initialProps.enableNames && (
             <>
               <Field
-                label={localeConfig.authorizeAccount.firstName[locale]}
+                label={signUp.firstName[locale]}
                 type='text'
                 required={initialProps.namesIsRequired}
                 value={values.firstName}
@@ -99,7 +98,7 @@ const SignUp = ({
                 )}
               />
               <Field
-                label={localeConfig.authorizeAccount.lastName[locale]}
+                label={signUp.lastName[locale]}
                 type='text'
                 required={initialProps.namesIsRequired}
                 value={values.lastName}
@@ -115,13 +114,13 @@ const SignUp = ({
           <SubmitError error={submitError} />
           <PrimaryButton
             className='mt-4'
-            title={localeConfig.authorizeAccount.signUp[locale]}
+            title={signUp.signUp[locale]}
             type='submit'
           />
           {(initialProps.termsLink || initialProps.privacyPolicyLink) && (
             <div class='text-center text-gray'>
               <p class='flex flex-row items-center justify-start flex-wrap w-(--text-width)'>
-                {localeConfig.authorizeAccount.bySignUp[locale]}&nbsp;
+                {signUp.bySignUp[locale]}&nbsp;
                 {initialProps.termsLink && (
                   <a
                     target='_blank'
@@ -129,12 +128,12 @@ const SignUp = ({
                     rel='noreferrer'
                     className='text-blue-500'
                   >
-                    {localeConfig.authorizeAccount.terms[locale]}
+                    {signUp.terms[locale]}
                   </a>
                 )}
                 {initialProps.termsLink && initialProps.privacyPolicyLink && (
                   <>
-                    &nbsp;{localeConfig.authorizeAccount.linkConnect[locale]}&nbsp;
+                    &nbsp;{signUp.linkConnect[locale]}&nbsp;
                   </>
                 )}
                 {initialProps.privacyPolicyLink && (
@@ -144,7 +143,7 @@ const SignUp = ({
                     rel='noreferrer'
                     className='text-blue-500'
                   >
-                    {localeConfig.authorizeAccount.privacyPolicy[locale]}
+                    {signUp.privacyPolicy[locale]}
                   </a>
                 )}
               </p>
@@ -153,7 +152,7 @@ const SignUp = ({
         </section>
       </form>
       <SecondaryButton
-        title={localeConfig.authorizeAccount.signIn[locale]}
+        title={signUp.signIn[locale]}
         onClick={() => onSwitchView(View.SignIn)}
       />
     </>

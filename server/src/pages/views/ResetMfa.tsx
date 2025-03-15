@@ -1,6 +1,4 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   PrimaryButton,
   SubmitError,
@@ -12,6 +10,7 @@ import {
   useSubmitError,
   useResetMfaForm,
 } from 'pages/hooks'
+import { resetMfa } from 'pages/tools/locale'
 
 export interface ResetMfaProps {
   locale: typeConfig.Locale;
@@ -43,23 +42,23 @@ const ResetMfa = ({
       {success && (
         <section className='flex justify-center w-full'>
           <SuccessMessage
-            message={localeConfig.resetMfa.success[locale]}
+            message={resetMfa.success[locale]}
           />
         </section>
       )}
       {!success && (
         <>
-          <ViewTitle title={localeConfig.resetMfa.title[locale]} />
+          <ViewTitle title={resetMfa.title[locale]} />
           <form
             onSubmit={handleSubmit}
           >
             <section className='flex flex-col gap-2'>
-              <p className='w-(--text-width)'>{localeConfig.resetMfa.desc[locale]}</p>
+              <p className='w-(--text-width)'>{resetMfa.desc[locale]}</p>
               <SubmitError error={submitError} />
               <PrimaryButton
                 className='mt-4'
                 type='submit'
-                title={localeConfig.resetMfa.confirm[locale]}
+                title={resetMfa.confirm[locale]}
               />
             </section>
           </form>
@@ -69,7 +68,7 @@ const ResetMfa = ({
         class='button-secondary mt-6'
         href={redirectUri}
       >
-        {localeConfig.resetMfa.redirect[locale]}
+        {resetMfa.redirect[locale]}
       </a>
     </>
   )

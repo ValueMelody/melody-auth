@@ -3,7 +3,7 @@ import {
 } from 'hono'
 import { env } from 'hono/adapter'
 import {
-  errorConfig, localeConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import { Policy } from 'dtos/oauth'
 
@@ -16,7 +16,7 @@ export const enableSignUp = async (
   } = env(c)
 
   if (!enableSignUp || enablePasswordlessSignIn) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.SignUpNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.SignUpNotEnabled)
   }
 
   await next()
@@ -31,7 +31,7 @@ export const enablePasswordSignIn = async (
   } = env(c)
 
   if (!enableSignIn || enablePasswordlessSignIn) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.PasswordSignInNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.PasswordSignInNotEnabled)
   }
 
   await next()
@@ -46,7 +46,7 @@ export const enablePasswordReset = async (
   } = env(c)
 
   if (!enabledReset || enablePasswordlessSignIn) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.PasswordResetNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.PasswordResetNotEnabled)
   }
 
   await next()
@@ -58,7 +58,7 @@ export const enablePasswordlessSignIn = async (
   const { ENABLE_PASSWORDLESS_SIGN_IN: enabledPasswordless } = env(c)
 
   if (!enabledPasswordless) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.PasswordlessSignInNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.PasswordlessSignInNotEnabled)
   }
 
   await next()
@@ -69,7 +69,7 @@ export const enableOrg = async (
 ) => {
   const { ENABLE_ORG: enabledOrg } = env(c)
 
-  if (!enabledOrg) throw new errorConfig.Forbidden(localeConfig.ConfigError.OrgNotEnabled)
+  if (!enabledOrg) throw new errorConfig.Forbidden(messageConfig.ConfigError.OrgNotEnabled)
 
   await next()
 }
@@ -82,7 +82,7 @@ export const enablePasskeyEnrollment = async (
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
   if (!enabledPasskeyEnrollment || enablePasswordlessSignIn) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.PasskeyEnrollmentNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.PasskeyEnrollmentNotEnabled)
   }
   await next()
 }
@@ -91,7 +91,7 @@ export const enableGoogleSignIn = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
   const { GOOGLE_AUTH_CLIENT_ID: googleId } = env(c)
-  if (!googleId) throw new errorConfig.Forbidden(localeConfig.ConfigError.GoogleSignInNotEnabled)
+  if (!googleId) throw new errorConfig.Forbidden(messageConfig.ConfigError.GoogleSignInNotEnabled)
   await next()
 }
 
@@ -102,7 +102,7 @@ export const enableFacebookSignIn = async (
     FACEBOOK_AUTH_CLIENT_ID: facebookId, FACEBOOK_AUTH_CLIENT_SECRET: facebookSecret,
   } = env(c)
   if (!facebookId || !facebookSecret) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.FacebookSignInNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.FacebookSignInNotEnabled)
   }
   await next()
 }
@@ -116,7 +116,7 @@ export const enableGithubSignIn = async (
     GITHUB_AUTH_APP_NAME: githubAppName,
   } = env(c)
   if (!githubId || !githubSecret || !githubAppName) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.GithubSignInNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.GithubSignInNotEnabled)
   }
   await next()
 }
@@ -127,7 +127,7 @@ export const enableEmailVerification = async (
   const { ENABLE_EMAIL_VERIFICATION: enableEmailVerification } = env(c)
 
   if (!enableEmailVerification) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.EmailVerificationNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.EmailVerificationNotEnabled)
   }
 
   await next()
@@ -144,7 +144,7 @@ export const enableMfaEnroll = async (
   } = env(c)
 
   if (!enforceMfa?.length || requireEmailMfa || requireOtpMfa || requireSmsMfa) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.MfaEnrollNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.MfaEnrollNotEnabled)
   }
 
   await next()
@@ -155,7 +155,7 @@ export const enableNames = async (
 ) => {
   const { ENABLE_NAMES: enableNames } = env(c)
   if (!enableNames) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.NamesNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.NamesNotEnabled)
   }
 
   await next()
@@ -168,7 +168,7 @@ export const enableChangePasswordPolicy = async (
     BLOCKED_POLICIES: blockedPolicies, ENABLE_PASSWORD_RESET: enablePasswordReset,
   } = env(c)
   if (!enablePasswordReset || blockedPolicies.includes(Policy.ChangePassword)) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.ChangePasswordPolicyNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.ChangePasswordPolicyNotEnabled)
   }
   await next()
 }
@@ -180,7 +180,7 @@ export const enableChangeEmailPolicy = async (
     BLOCKED_POLICIES: blockedPolicies, ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
   } = env(c)
   if (!enableEmailVerification || blockedPolicies.includes(Policy.ChangeEmail)) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.ChangeEmailPolicyNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.ChangeEmailPolicyNotEnabled)
   }
   await next()
 }
@@ -190,7 +190,7 @@ export const enableResetMfaPolicy = async (
 ) => {
   const { BLOCKED_POLICIES: blockedPolicies } = env(c)
   if (blockedPolicies.includes(Policy.ResetMfa)) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.ResetMfaPolicyNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.ResetMfaPolicyNotEnabled)
   }
   await next()
 }
@@ -202,7 +202,7 @@ export const enableManagePasskeyPolicy = async (
     BLOCKED_POLICIES: blockedPolicies, ALLOW_PASSKEY_ENROLLMENT: allowPasskeyEnrollment,
   } = env(c)
   if (!allowPasskeyEnrollment || blockedPolicies.includes(Policy.ManagePasskey)) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.ManagePasskeyPolicyNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.ManagePasskeyPolicyNotEnabled)
   }
   await next()
 }
@@ -214,7 +214,7 @@ export const enableUpdateInfoPolicy = async (
     BLOCKED_POLICIES: blockedPolicies, ENABLE_NAMES: enableNames,
   } = env(c)
   if (!enableNames || blockedPolicies.includes(Policy.UpdateInfo)) {
-    throw new errorConfig.Forbidden(localeConfig.ConfigError.UpdateInfoPolicyNotEnabled)
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.UpdateInfoPolicyNotEnabled)
   }
   await next()
 }
