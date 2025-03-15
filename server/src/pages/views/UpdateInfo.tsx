@@ -1,6 +1,4 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   Field,
   PrimaryButton,
@@ -12,6 +10,7 @@ import {
   useUpdateInfoForm, View,
   useSubmitError,
 } from 'pages/hooks'
+import { updateInfo } from 'pages/tools/locale'
 
 export interface UpdateInfoProps {
   locale: typeConfig.Locale;
@@ -46,18 +45,18 @@ const UpdateInfo = ({
       {success && (
         <section className='flex justify-center w-full'>
           <SuccessMessage
-            message={localeConfig.updateInfo.success[locale]}
+            message={updateInfo.success[locale]}
           />
         </section>
       )}
-      <ViewTitle title={localeConfig.updateInfo.title[locale]} />
+      <ViewTitle title={updateInfo.title[locale]} />
       <form
         autoComplete='on'
         onSubmit={handleSubmit}
       >
         <section className='flex flex-col gap-2'>
           <Field
-            label={localeConfig.updateInfo.firstName[locale]}
+            label={updateInfo.firstName[locale]}
             type='text'
             required
             value={values.firstName}
@@ -69,7 +68,7 @@ const UpdateInfo = ({
             )}
           />
           <Field
-            label={localeConfig.updateInfo.lastName[locale]}
+            label={updateInfo.lastName[locale]}
             type='text'
             required
             value={values.lastName}
@@ -84,7 +83,7 @@ const UpdateInfo = ({
           <PrimaryButton
             className='mt-4'
             type='submit'
-            title={localeConfig.updateInfo.confirm[locale]}
+            title={updateInfo.confirm[locale]}
           />
         </section>
       </form>
@@ -92,7 +91,7 @@ const UpdateInfo = ({
         class='button-secondary mt-6'
         href={redirectUri}
       >
-        {localeConfig.updateInfo.redirect[locale]}
+        {updateInfo.redirect[locale]}
       </a>
     </>
   )

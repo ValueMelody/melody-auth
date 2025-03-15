@@ -2,7 +2,7 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { genRandomString } from 'shared'
 import {
-  errorConfig, localeConfig, routeConfig, typeConfig,
+  errorConfig, messageConfig, routeConfig, typeConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
@@ -58,7 +58,7 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
   )
 
   const googleUser = await jwtService.verifyGoogleCredential(bodyDto.credential)
-  if (!googleUser) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  if (!googleUser) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
 
   const user = await userService.processGoogleAccount(
     c,
@@ -108,7 +108,7 @@ export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
     facebookClientSecret,
     bodyDto.credential,
   )
-  if (!facebookUser) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  if (!facebookUser) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
 
   const user = await userService.processFacebookAccount(
     c,
@@ -139,7 +139,7 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
   const state = c.req.query('state') ?? ''
   const originRequest = JSON.parse(state)
 
-  if (!code || !state) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  if (!code || !state) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
     credential: code,
@@ -164,7 +164,7 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
     githubAppName,
     bodyDto.credential,
   )
-  if (!githubUser) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  if (!githubUser) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
 
   const user = await userService.processGithubAccount(
     c,

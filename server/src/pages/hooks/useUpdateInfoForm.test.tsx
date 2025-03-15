@@ -7,9 +7,8 @@ import {
 } from '@testing-library/react'
 
 import useUpdateInfoForm from 'pages/hooks/useUpdateInfoForm'
-import {
-  localeConfig, routeConfig,
-} from 'configs'
+import { routeConfig } from 'configs'
+import { validateError } from 'pages/tools/locale'
 
 // Mock hooks from hono/jsx
 vi.mock(
@@ -176,7 +175,7 @@ test(
     expect(fetchSpy).not.toHaveBeenCalled()
     expect(result.current.success).toBe(false)
     // Verify that the error for firstName is set.
-    expect(result.current.errors.firstName).toBe(localeConfig.validateError.firstNameIsEmpty.en)
+    expect(result.current.errors.firstName).toBe(validateError.firstNameIsEmpty.en)
     // lastName is valid so there should be no error.
     expect(result.current.errors.lastName).toBeUndefined()
 

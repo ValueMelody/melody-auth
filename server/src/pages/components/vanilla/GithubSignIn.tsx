@@ -1,10 +1,9 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   useSocialSignIn, View,
 } from 'pages/hooks'
 import { AuthorizeParams } from 'pages/tools/param'
+import { signIn } from 'pages/tools/locale'
 
 export interface GithubSignInProps {
   githubClientId: string;
@@ -56,7 +55,7 @@ const GithubSignIn = ({
           }}
           src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
           alt='GitHub logo' />
-        {localeConfig.authorizePassword.githubSignIn[locale]}
+        {signIn.githubSignIn[locale]}
       </a>
     </div>
   )

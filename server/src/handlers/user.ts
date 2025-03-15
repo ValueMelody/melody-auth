@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import {
-  errorConfig, localeConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
   consentService,
@@ -221,7 +221,7 @@ export const verifyEmail = async (c: Context<typeConfig.Context>) => {
     authId,
   )
 
-  if (user.emailVerified) throw new errorConfig.Forbidden(localeConfig.Error.EmailAlreadyVerified)
+  if (user.emailVerified) throw new errorConfig.Forbidden(messageConfig.RequestError.EmailAlreadyVerified)
 
   const verificationCode = await emailService.sendEmailVerification(
     c,
@@ -276,7 +276,7 @@ export const linkAccount = async (c: Context<typeConfig.Context>) => {
   )
 
   if (user.linkedAuthId) {
-    throw new errorConfig.Forbidden(localeConfig.Error.UserAlreadyLinked)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserAlreadyLinked)
   }
 
   const targetUser = await userService.getUserByAuthId(
@@ -285,7 +285,7 @@ export const linkAccount = async (c: Context<typeConfig.Context>) => {
   )
 
   if (targetUser.linkedAuthId) {
-    throw new errorConfig.Forbidden(localeConfig.Error.TargetUserAlreadyLinked)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.TargetUserAlreadyLinked)
   }
 
   await userService.updateUserLinking(

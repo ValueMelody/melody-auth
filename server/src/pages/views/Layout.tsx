@@ -1,7 +1,6 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import { LocaleSelector } from 'pages/components'
+import { layout } from 'pages/tools/locale'
 
 const Layout = ({
   children, locale, locales, logoUrl,
@@ -37,7 +36,7 @@ const Layout = ({
           href='https://github.com/ValueMelody/melody-auth'
           className='text-sm mt-2'
         >
-          {localeConfig.common.poweredByAuth[locale]}
+          {layout.poweredByAuth[locale]}
         </a>
       </section>
     </section>

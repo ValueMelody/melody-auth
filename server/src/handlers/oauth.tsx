@@ -5,7 +5,7 @@ import {
 } from 'shared'
 import { env } from 'hono/adapter'
 import {
-  errorConfig, localeConfig, routeConfig, typeConfig,
+  errorConfig, messageConfig, routeConfig, typeConfig,
 } from 'configs'
 import { oauthDto } from 'dtos'
 import {
@@ -168,7 +168,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
 
   const isValidChallenge = await cryptoUtil.isValidCodeChallenge(
     bodyDto.codeVerifier,
@@ -176,7 +176,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     authInfo.request.codeChallengeMethod,
   )
   if (!isValidChallenge) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongCodeVerifier)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCodeVerifier)
   }
 
   const isSocialLogin = !!authInfo.user.socialAccountId
@@ -192,7 +192,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
 
   if (!isSocialLogin) {
     if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
-      if (!authInfo.user.mfaTypes.length) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+      if (!authInfo.user.mfaTypes.length) throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
     }
 
     if (requireOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
@@ -200,7 +200,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         c.env.KV,
         bodyDto.code,
       )
-      if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+      if (!isVerified) throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
     }
 
     if (requireSmsMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Sms)) {
@@ -208,7 +208,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         c.env.KV,
         bodyDto.code,
       )
-      if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+      if (!isVerified) throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
     }
 
     if (requireEmailMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Email)) {
@@ -216,7 +216,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         c.env.KV,
         bodyDto.code,
       )
-      if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.MfaNotVerified)
+      if (!isVerified) throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
     }
 
     if (enablePasswordlessSignIn) {
@@ -224,7 +224,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         c.env.KV,
         bodyDto.code,
       )
-      if (!isVerified) throw new errorConfig.UnAuthorized(localeConfig.Error.PasswordlessNotVerified)
+      if (!isVerified) throw new errorConfig.UnAuthorized(messageConfig.RequestError.PasswordlessNotVerified)
     }
   }
 
@@ -233,7 +233,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     authInfo.user.id,
     authInfo.appId,
   )
-  if (requireConsent) throw new errorConfig.UnAuthorized(localeConfig.Error.NoConsent)
+  if (requireConsent) throw new errorConfig.UnAuthorized(messageConfig.RequestError.NoConsent)
 
   const userRoles = await roleService.getUserRoles(
     c,
@@ -453,11 +453,11 @@ export const revokeToken = async (c: Context<typeConfig.Context>) => {
   const tokenTypeHint = String(reqBody.token_type_hint)
 
   if (!token) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
 
   if (tokenTypeHint !== 'refresh_token') {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongTokenType)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongTokenType)
   }
 
   const { username: clientId } = c.get('basic_auth_body')!
@@ -468,7 +468,7 @@ export const revokeToken = async (c: Context<typeConfig.Context>) => {
   )
 
   if (!refreshTokenBody || clientId !== refreshTokenBody.clientId) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongRefreshToken)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
 
   await kvService.invalidRefreshToken(

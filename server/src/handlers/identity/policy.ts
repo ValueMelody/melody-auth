@@ -4,7 +4,7 @@ import {
 import { env } from 'hono/adapter'
 import {
   errorConfig,
-  localeConfig,
+  messageConfig,
   typeConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
@@ -21,7 +21,7 @@ import {
 
 const checkAccount = (user: userModel.Record) => {
   if (!user.email || user.socialAccountId) {
-    throw new errorConfig.Forbidden(localeConfig.Error.SocialAccountNotSupported)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.SocialAccountNotSupported)
   }
 }
 
@@ -35,7 +35,7 @@ export const postChangePassword = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   checkAccount(authInfo.user)
 
   await userService.changeUserPassword(
@@ -57,7 +57,7 @@ export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   checkAccount(authInfo.user)
 
   const { CHANGE_EMAIL_EMAIL_THRESHOLD: emailThreshold } = env(c)
@@ -68,7 +68,7 @@ export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
       authInfo.user.email ?? '',
     )
 
-    if (emailAttempts >= emailThreshold) throw new errorConfig.Forbidden(localeConfig.Error.ChangeEmailLocked)
+    if (emailAttempts >= emailThreshold) throw new errorConfig.Forbidden(messageConfig.RequestError.ChangeEmailLocked)
 
     await kvService.setChangeEmailAttempts(
       c.env.KV,
@@ -105,7 +105,7 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   checkAccount(authInfo.user)
 
   const isCorrectCode = await kvService.verifyChangeEmailCode(
@@ -115,7 +115,7 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
     bodyDto.verificationCode,
   )
 
-  if (!isCorrectCode) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  if (!isCorrectCode) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
 
   await userService.changeUserEmail(
     c,
@@ -136,7 +136,7 @@ export const postResetMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeBody) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authCodeBody) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
 
   await userService.resetUserMfa(
     c,
@@ -158,7 +158,7 @@ export const getManagePasskey = async (c: Context<typeConfig.Context>)
     c.env.KV,
     queryDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   checkAccount(authInfo.user)
 
   const passkey = await passkeyService.getPasskeyByUser(
@@ -187,7 +187,7 @@ export const postManagePasskey = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   checkAccount(authInfo.user)
 
   const {
@@ -225,7 +225,7 @@ export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   checkAccount(authInfo.user)
 
   const passkey = await passkeyService.getPasskeyByUser(
@@ -233,7 +233,7 @@ export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {
     authInfo.user.id,
   )
 
-  if (!passkey) throw new errorConfig.Forbidden(localeConfig.Error.InvalidRequest)
+  if (!passkey) throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidRequest)
 
   await passkeyService.deletePasskey(
     c,
@@ -254,7 +254,7 @@ export const postUpdateInfo = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   checkAccount(authInfo.user)
 
   await userService.updateUser(

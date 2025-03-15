@@ -7,7 +7,7 @@ import {
   typeConfig,
   routeConfig,
   errorConfig,
-  localeConfig,
+  messageConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
@@ -135,7 +135,7 @@ Promise<TypedResponse<GetAppConsentRes>> => {
     c.env.KV,
     queryDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
 
   const app = await appService.verifySPAClientRequest(
     c,
@@ -164,7 +164,7 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeBody) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authCodeBody) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
 
   await consentService.createUserAppConsent(
     c,

@@ -10,7 +10,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  localeConfig, routeConfig,
+  messageConfig, routeConfig,
 } from 'configs'
 import { userModel } from 'models'
 import { oauthDto } from 'dtos'
@@ -179,7 +179,7 @@ describe(
         const credential = 'aab'
         const res = await prepareRequest(credential)
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(localeConfig.Error.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
         global.process.env.GITHUB_AUTH_CLIENT_ID = ''
         global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
         global.process.env.GITHUB_AUTH_APP_NAME = ''
@@ -218,7 +218,7 @@ describe(
         await disableUser(db)
         const res = await prepareRequest()
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
         global.process.env.GITHUB_AUTH_CLIENT_ID = ''
         global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
         global.process.env.GITHUB_AUTH_APP_NAME = ''

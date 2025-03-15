@@ -4,7 +4,7 @@ import { handleSendEmailMfa } from './mfa'
 import {
   typeConfig,
   errorConfig,
-  localeConfig,
+  messageConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
@@ -57,12 +57,12 @@ export const postSendPasswordlessCode = async (c: Context<typeConfig.Context>) =
     bodyDto.locale || locales[0],
     isPasswordlessCode,
   )
-  if (!emailRes || (!emailRes.result && emailRes.reason === localeConfig.Error.WrongAuthCode)) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!emailRes || (!emailRes.result && emailRes.reason === messageConfig.RequestError.WrongAuthCode)) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
-  if (!emailRes.result && emailRes.reason === localeConfig.Error.EmailMfaLocked) {
-    throw new errorConfig.Forbidden(localeConfig.Error.EmailMfaLocked)
+  if (!emailRes.result && emailRes.reason === messageConfig.RequestError.EmailMfaLocked) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.EmailMfaLocked)
   }
 
   return c.json({ success: true })
@@ -78,7 +78,7 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(localeConfig.Error.WrongAuthCode)
+  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
@@ -89,7 +89,7 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
     expiresIn,
   )
 
-  if (!isValid) throw new errorConfig.UnAuthorized(localeConfig.Error.WrongPasswordlessCode)
+  if (!isValid) throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongPasswordlessCode)
 
   return c.json(await identityService.processPostAuthorize(
     c,

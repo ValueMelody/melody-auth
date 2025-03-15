@@ -2,7 +2,8 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { GetUserInfoRes } from 'shared'
 import {
-  errorConfig, localeConfig,
+  errorConfig,
+  messageConfig,
   typeConfig,
 } from 'configs'
 import { Forbidden } from 'configs/error'
@@ -31,10 +32,10 @@ export const getUserInfo = async (
     authId,
   )
   if (!user) {
-    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
   if (!user.isActive) {
-    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
   const roles = await roleService.getUserRoles(
@@ -134,7 +135,7 @@ export const getUserByAuthId = async (
     c.env.DB,
     authId,
   )
-  if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  if (!user) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   return user
 }
 
@@ -146,7 +147,7 @@ export const getUserDetailByAuthId = async (
     c.env.DB,
     authId,
   )
-  if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  if (!user) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
 
   const {
     ENABLE_NAMES: enableNames, ENABLE_ORG: enableOrg,
@@ -185,7 +186,7 @@ export const getPasswordlessUserOrCreate = async (
 
   if (user) {
     if (!user.isActive) {
-      throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+      throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
     } else {
       return user
     }
@@ -237,7 +238,7 @@ export const verifyPasswordSignIn = async (
     )
     : 0
   if (lockThreshold && (failedAttempts >= lockThreshold)) {
-    throw new errorConfig.Forbidden(localeConfig.Error.AccountLocked)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.AccountLocked)
   }
 
   const user = await userModel.getNormalUserByEmail(
@@ -246,7 +247,7 @@ export const verifyPasswordSignIn = async (
   )
 
   if (!user) {
-    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
   if (!user.password || !cryptoUtil.bcryptCompare(
@@ -262,11 +263,11 @@ export const verifyPasswordSignIn = async (
         lockExpiresIn,
       )
     }
-    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
   if (!user.isActive) {
-    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
   return user
 }
@@ -280,7 +281,7 @@ export const createAccountWithPassword = async (
     bodyDto.email,
   )
 
-  if (user) throw new Forbidden(localeConfig.Error.EmailTaken)
+  if (user) throw new Forbidden(messageConfig.RequestError.EmailTaken)
 
   const org = bodyDto.org
     ? await orgModel.getBySlug(
@@ -322,7 +323,7 @@ export const processGoogleAccount = async (
     c.env.DB,
     googleUser.id,
   )
-  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -359,7 +360,7 @@ export const processFacebookAccount = async (
     c.env.DB,
     facebookUser.id,
   )
-  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -389,7 +390,7 @@ export const processGithubAccount = async (
     c.env.DB,
     githubUser.id,
   )
-  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -418,10 +419,10 @@ export const verifyUserEmail = async (
     bodyDto.id,
   )
   if (!user || user.emailVerified) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
   }
   if (!user.isActive) {
-    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
   const isValid = await kvService.verifyEmailVerificationCode(
@@ -429,7 +430,7 @@ export const verifyUserEmail = async (
     user.id,
     bodyDto.code,
   )
-  if (!isValid) throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+  if (!isValid) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
 
   await userModel.update(
     c.env.DB,
@@ -477,10 +478,10 @@ export const resetUserPassword = async (
     bodyDto.email,
   )
   if (!user || !user.password) {
-    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
   if (!user.isActive) {
-    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
   const isValid = await kvService.verifyPasswordResetCode(
@@ -490,7 +491,7 @@ export const resetUserPassword = async (
   )
 
   if (!isValid) {
-    throw new errorConfig.Forbidden(localeConfig.Error.WrongCode)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
   }
 
   const isSame = cryptoUtil.bcryptCompare(
@@ -498,7 +499,7 @@ export const resetUserPassword = async (
     user.password,
   )
   if (isSame) {
-    throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentPassword)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.RequireDifferentPassword)
   }
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
@@ -523,7 +524,7 @@ export const changeUserPassword = async (
   bodyDto: identityDto.PostChangePasswordDto,
 ): Promise<true> => {
   if (!user.password) {
-    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
   const isSame = cryptoUtil.bcryptCompare(
@@ -531,7 +532,7 @@ export const changeUserPassword = async (
     user.password,
   )
   if (isSame) {
-    throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentPassword)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.RequireDifferentPassword)
   }
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
@@ -551,7 +552,7 @@ export const changeUserEmail = async (
 ): Promise<true> => {
   const isSame = user.email === bodyDto.email
   if (isSame) {
-    throw new errorConfig.Forbidden(localeConfig.Error.RequireDifferentEmail)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.RequireDifferentEmail)
   }
 
   await userModel.update(
@@ -590,11 +591,11 @@ export const enrollUserMfa = async (
     authId,
   )
   if (!user) {
-    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
   if (!user.isActive) {
-    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
   if (user.mfaTypes.includes(mfaType)) return user
@@ -636,11 +637,11 @@ export const resetUserMfa = async (
     authId,
   )
   if (!user) {
-    throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
   if (!user.isActive) {
-    throw new errorConfig.Forbidden(localeConfig.Error.UserDisabled)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
   if (mfaType === userModel.MfaType.Otp) {
@@ -756,7 +757,7 @@ export const updateUser = async (
     authId,
   )
 
-  if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  if (!user) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
 
   const updateObj: userModel.Update = {}
   if (dto.firstName !== undefined) updateObj.firstName = dto.firstName
@@ -833,7 +834,7 @@ export const deleteUser = async (
     c.env.DB,
     authId,
   )
-  if (!user) throw new errorConfig.NotFound(localeConfig.Error.NoUser)
+  if (!user) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   await userModel.remove(
     c.env.DB,
     user.id,

@@ -9,7 +9,7 @@ import {
   passkeyEnrollMock,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   prepareFollowUpBody,
@@ -162,7 +162,7 @@ describe(
 
         const { res } = await sendCorrectGetManagePasskeyReq({ code: 'abc' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
@@ -221,7 +221,7 @@ describe(
 
         const { res } = await sendCorrectEnrollPasskeyReq({ code: 'abc' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
@@ -274,7 +274,7 @@ describe(
 
         const { res } = await sendCorrectDeletePasskeyReq({ code: 'abc' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },

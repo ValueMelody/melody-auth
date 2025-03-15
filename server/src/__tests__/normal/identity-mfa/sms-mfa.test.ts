@@ -10,7 +10,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, localeConfig, messageConfig, routeConfig,
 } from 'configs'
 import { userModel } from 'models'
 import {
@@ -275,7 +275,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.NoSmsSender)
+        expect(await res.text()).toBe(messageConfig.ConfigError.NoSmsSender)
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -487,7 +487,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''
@@ -666,7 +666,7 @@ describe(
           mock(db),
         )
         expect(res3.status).toBe(400)
-        expect(await res3.text()).toBe(localeConfig.Error.SmsMfaLocked)
+        expect(await res3.text()).toBe(messageConfig.RequestError.SmsMfaLocked)
 
         process.env.SMS_MFA_MESSAGE_THRESHOLD = 0 as unknown as string
 
@@ -741,7 +741,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''
@@ -866,7 +866,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''
@@ -919,7 +919,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.WrongMfaCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''

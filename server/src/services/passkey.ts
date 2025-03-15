@@ -8,7 +8,7 @@ import {
 } from '@simplewebauthn/server'
 import { env } from 'hono/adapter'
 import {
-  errorConfig, localeConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
   userModel, userPasskeyModel,
@@ -162,7 +162,7 @@ export const processPasskeyEnroll = async (
     authCodeStore.user.id,
   )
 
-  if (!challenge) throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+  if (!challenge) throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
 
   const { AUTH_SERVER_URL: authServerUrl } = env(c)
 
@@ -175,7 +175,7 @@ export const processPasskeyEnroll = async (
       expectedRPID: cryptoUtil.getPasskeyRpId(c),
     })
   } catch (error) {
-    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
   }
 
   const passkeyId = verification.registrationInfo?.credential.id
@@ -183,7 +183,7 @@ export const processPasskeyEnroll = async (
   const passkeyCounter = verification.registrationInfo?.credential.counter || 0
 
   if (!verification.verified || !passkeyPublickey || !passkeyId) {
-    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
   }
 
   return {
@@ -202,13 +202,13 @@ export const processPasskeyVerify = async (
     c.env.KV,
     email,
   )
-  if (!challenge) throw new errorConfig.Forbidden(localeConfig.Error.InvalidRequest)
+  if (!challenge) throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidRequest)
 
   const userAndPasskey = await getUserAndPasskeyByEmail(
     c,
     email,
   )
-  if (!userAndPasskey) throw new errorConfig.Forbidden(localeConfig.Error.InvalidRequest)
+  if (!userAndPasskey) throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidRequest)
   const {
     user, passkey,
   } = userAndPasskey
@@ -229,11 +229,11 @@ export const processPasskeyVerify = async (
       },
     })
   } catch (error) {
-    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
   }
 
   if (!verification.verified) {
-    throw new errorConfig.UnAuthorized(localeConfig.Error.InvalidRequest)
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
   }
 
   return {

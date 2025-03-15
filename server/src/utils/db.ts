@@ -1,5 +1,5 @@
 import {
-  errorConfig, localeConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import { timeUtil } from 'utils'
 
@@ -9,7 +9,7 @@ export const d1Run = async (stmt: D1PreparedStatement) => {
     return res
   } catch (e) {
     console.error(e)
-    const msg = String(e).includes('UNIQUE constraint failed') ? localeConfig.Error.UniqueKey : undefined
+    const msg = String(e).includes('UNIQUE constraint failed') ? messageConfig.RequestError.UniqueKey : undefined
     throw new errorConfig.InternalServerError(msg)
   }
 }

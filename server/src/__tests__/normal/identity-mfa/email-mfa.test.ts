@@ -10,7 +10,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   prepareFollowUpBody, insertUsers,
@@ -94,7 +94,7 @@ describe(
 
         const res2 = await sendRequest()
         expect(res2.status).toBe(400)
-        expect(await res2.text()).toBe(localeConfig.Error.EmailMfaLocked)
+        expect(await res2.text()).toBe(messageConfig.RequestError.EmailMfaLocked)
 
         process.env.EMAIL_MFA_EMAIL_THRESHOLD = 0 as unknown as string
 
@@ -127,7 +127,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
   },
@@ -395,7 +395,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
 
@@ -461,7 +461,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.WrongMfaCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
       },
     )
   },

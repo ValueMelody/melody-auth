@@ -1,12 +1,11 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   CodeInput, PrimaryButton, SubmitError, SuccessMessage, ViewTitle,
 } from 'pages/components'
 import {
   useSubmitError, useVerifyEmailForm, View,
 } from 'pages/hooks'
+import { verifyEmail } from 'pages/tools/locale'
 
 export interface VerifyEmailProps {
   locale: typeConfig.Locale;
@@ -40,15 +39,15 @@ const VerifyEmail = ({
       {success && (
         <section className='flex justify-center w-full'>
           <SuccessMessage
-            message={localeConfig.verifyEmail.success[locale]}
+            message={verifyEmail.success[locale]}
           />
         </section>
       )}
       {!success && (
         <>
-          <ViewTitle title={localeConfig.verifyEmail.title[locale]} />
+          <ViewTitle title={verifyEmail.title[locale]} />
           <p class='mb-2 w-(--text-width) text-center'>
-            {localeConfig.verifyEmail.desc[locale]}
+            {verifyEmail.desc[locale]}
           </p>
           <form
             onSubmit={handleSubmit}
@@ -69,7 +68,7 @@ const VerifyEmail = ({
               <PrimaryButton
                 className='mt-4'
                 type='submit'
-                title={localeConfig.verifyEmail.verify[locale]}
+                title={verifyEmail.verify[locale]}
               />
             </section>
           </form>

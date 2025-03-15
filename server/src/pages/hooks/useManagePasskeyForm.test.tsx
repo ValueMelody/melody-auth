@@ -9,7 +9,7 @@ import {
 
 import useManagePasskeyForm from 'pages/hooks/useManagePasskeyForm'
 import { enroll } from 'pages/tools/passkey'
-import { localeConfig } from 'configs'
+import { managePasskey } from 'pages/tools/locale'
 
 // Mock hooks from hono/jsx.
 vi.mock(
@@ -184,7 +184,7 @@ describe(
             }),
           },
         )
-        expect(result.current.successMessage).toBe(localeConfig.managePasskey.removeSuccess[locale])
+        expect(result.current.successMessage).toBe(managePasskey.removeSuccess[locale])
         expect(result.current.passkey).toBeNull()
 
         fetchSpy.mockRestore()
@@ -304,7 +304,7 @@ describe(
           }),
         )
         expect(result.current.passkey).toEqual({ id: 'new-passkey' })
-        expect(result.current.successMessage).toBe(localeConfig.managePasskey.enrollSuccess[locale])
+        expect(result.current.successMessage).toBe(managePasskey.enrollSuccess[locale])
 
         fetchSpyPost.mockRestore()
       },

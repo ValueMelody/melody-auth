@@ -10,7 +10,7 @@ import {
   fetchMock,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import { disableUser } from 'tests/util'
 import {
@@ -162,7 +162,7 @@ describe(
         )
 
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.UserDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
       },
@@ -250,7 +250,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
       },
@@ -425,7 +425,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
       },
@@ -465,7 +465,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.WrongPasswordlessCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongPasswordlessCode)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
       },

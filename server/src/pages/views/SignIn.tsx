@@ -1,6 +1,4 @@
-import {
-  localeConfig, typeConfig,
-} from 'configs'
+import { typeConfig } from 'configs'
 import {
   Field, PrimaryButton, SecondaryButton, ViewTitle,
   PasswordField, GoogleSignIn, GithubSignIn, SubmitError, FacebookSignIn,
@@ -9,6 +7,7 @@ import {
   View, useSubmitError, useSignInForm,
   useInitialProps, usePasskeyVerifyForm,
 } from 'pages/hooks'
+import { signIn } from 'pages/tools/locale'
 import { getAuthorizeParams } from 'pages/tools/param'
 
 export interface PasswordViewProps {
@@ -54,7 +53,7 @@ const SignIn = ({
   return (
     <>
       {initialProps.allowPasskey && <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>}
-      <ViewTitle title={localeConfig.authorizePassword.title[locale]} />
+      <ViewTitle title={signIn.title[locale]} />
       <form
         autoComplete='on'
         onSubmit={handleSubmit}
@@ -63,7 +62,7 @@ const SignIn = ({
           {(initialProps.enablePasswordSignIn || initialProps.enablePasswordlessSignIn) && (
             <>
               <Field
-                label={localeConfig.authorizePassword.email[locale]}
+                label={signIn.email[locale]}
                 type='email'
                 required
                 value={values.email}
@@ -80,7 +79,7 @@ const SignIn = ({
                 <PrimaryButton
                   type='button'
                   className='mt-2 mb-4'
-                  title={localeConfig.authorizePassword.withPasskey[locale]}
+                  title={signIn.withPasskey[locale]}
                   onClick={handleVerifyPasskey}
                 />
               )}
@@ -88,7 +87,7 @@ const SignIn = ({
           )}
           {initialProps.enablePasswordSignIn && !shouldLoadPasskeyInfo && (
             <PasswordField
-              label={localeConfig.authorizePassword.password[locale]}
+              label={signIn.password[locale]}
               required
               name='password'
               value={values.password}
@@ -105,14 +104,14 @@ const SignIn = ({
             <PrimaryButton
               type='button'
               className='mt-4'
-              title={localeConfig.authorizePassword.continue[locale]}
+              title={signIn.continue[locale]}
               onClick={getPasskeyOption}
             />
           )}
           {initialProps.enablePasswordSignIn && !shouldLoadPasskeyInfo && (
             <PrimaryButton
               className='mt-4'
-              title={localeConfig.authorizePassword.submit[locale]}
+              title={signIn.submit[locale]}
               type='submit'
             />
           )}
@@ -120,7 +119,7 @@ const SignIn = ({
             <PrimaryButton
               type='button'
               className='mt-4'
-              title={localeConfig.authorizePassword.continue[locale]}
+              title={signIn.continue[locale]}
               onClick={handlePasswordlessSignIn}
             />
           )}
@@ -155,13 +154,13 @@ const SignIn = ({
         <section className='flex flex-col gap-2'>
           {initialProps.enableSignUp && (
             <SecondaryButton
-              title={localeConfig.authorizePassword.signUp[locale]}
+              title={signIn.signUp[locale]}
               onClick={() => onSwitchView(View.SignUp)}
             />
           )}
           {initialProps.enablePasswordReset && (
             <SecondaryButton
-              title={localeConfig.authorizePassword.passwordReset[locale]}
+              title={signIn.passwordReset[locale]}
               onClick={() => onSwitchView(View.ResetPassword)}
             />
           )}

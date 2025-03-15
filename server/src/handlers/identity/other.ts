@@ -2,7 +2,7 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
   errorConfig,
-  localeConfig,
+  messageConfig,
   typeConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
@@ -52,7 +52,7 @@ export const postResetPasswordCode = async (c: Context<typeConfig.Context>) => {
       email,
       ip,
     )
-    if (resetAttempts >= resetThreshold) throw new errorConfig.Forbidden(localeConfig.Error.PasswordResetLocked)
+    if (resetAttempts >= resetThreshold) throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordResetLocked)
 
     await kvService.setPasswordResetAttemptsByIP(
       c.env.KV,

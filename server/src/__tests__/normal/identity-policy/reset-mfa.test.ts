@@ -8,7 +8,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  localeConfig, routeConfig,
+  messageConfig, routeConfig,
 } from 'configs'
 import {
   prepareFollowUpBody, insertUsers, postSignInRequest, getApp,
@@ -161,7 +161,7 @@ describe(
         )
         const { res } = await sendCorrectResetMfaReq({ code: 'abc' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
 

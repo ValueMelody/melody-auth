@@ -9,7 +9,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, localeConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import { userModel } from 'models'
 import {
@@ -80,7 +80,7 @@ describe(
 
         const { res } = await sendCorrectGetOtpMfaSetupReq()
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.OtpAlreadySet)
+        expect(await res.text()).toBe(messageConfig.RequestError.OtpAlreadySet)
       },
     )
 
@@ -95,7 +95,7 @@ describe(
         await prepareFollowUpBody(db)
         const { res } = await sendCorrectGetOtpMfaSetupReq({ code: 'abc' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
   },
@@ -141,7 +141,7 @@ describe(
         await prepareFollowUpBody(db)
         const { res } = await sendCorrectGetProcessOtpMfaReq({ code: 'abc' })
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
   },
@@ -246,7 +246,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(localeConfig.Error.WrongAuthCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
 
@@ -298,27 +298,27 @@ describe(
         }
         const res = await sendRequest()
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(localeConfig.Error.WrongMfaCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
 
         const res1 = await sendRequest()
         expect(res1.status).toBe(401)
-        expect(await res1.text()).toBe(localeConfig.Error.WrongMfaCode)
+        expect(await res1.text()).toBe(messageConfig.RequestError.WrongMfaCode)
 
         const res2 = await sendRequest()
         expect(res2.status).toBe(401)
-        expect(await res2.text()).toBe(localeConfig.Error.WrongMfaCode)
+        expect(await res2.text()).toBe(messageConfig.RequestError.WrongMfaCode)
 
         const res3 = await sendRequest()
         expect(res3.status).toBe(401)
-        expect(await res3.text()).toBe(localeConfig.Error.WrongMfaCode)
+        expect(await res3.text()).toBe(messageConfig.RequestError.WrongMfaCode)
 
         const res4 = await sendRequest()
         expect(res4.status).toBe(401)
-        expect(await res4.text()).toBe(localeConfig.Error.WrongMfaCode)
+        expect(await res4.text()).toBe(messageConfig.RequestError.WrongMfaCode)
 
         const res5 = await sendRequest()
         expect(res5.status).toBe(400)
-        expect(await res5.text()).toBe(localeConfig.Error.OtpMfaLocked)
+        expect(await res5.text()).toBe(messageConfig.RequestError.OtpMfaLocked)
       },
     )
 
