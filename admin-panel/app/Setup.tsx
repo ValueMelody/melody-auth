@@ -20,7 +20,7 @@ import {
 } from 'react-redux'
 import useSignalValue from './useSignalValue'
 import {
-  configSignal, userInfoSignal,
+  configSignal,
   errorSignal,
 } from 'signals'
 import useCurrentLocale from 'hooks/useCurrentLocale'
@@ -41,11 +41,10 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   const dispatch = useDispatch()
 
   const {
-    isAuthenticating, isAuthenticated, acquireUserInfo, acquireToken,
+    isAuthenticating, isAuthenticated, acquireUserInfo, acquireToken, userInfo,
     loginRedirect, logoutRedirect, isLoadingUserInfo, acquireUserInfoError,
   } = useAuth()
 
-  const userInfo = useSignalValue(userInfoSignal)
   const configs = useSignalValue(configSignal)
 
   const handleLogout = () => {
@@ -61,11 +60,6 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
   useEffect(
     () => {
-      const getUserInfo = async () => {
-        const info = await acquireUserInfo()
-        if (info) userInfoSignal.value = info
-      }
-
       const getInfo = async () => {
         const token = await acquireToken()
         const data = await proxyTool.sendNextRequest({
@@ -78,7 +72,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
       if (isAuthenticated) {
         getInfo()
-        getUserInfo()
+        acquireUserInfo()
       }
     },
     [acquireUserInfo, isAuthenticated, acquireToken],

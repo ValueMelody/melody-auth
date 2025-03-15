@@ -4,7 +4,6 @@ import {
 import {
   describe, it, expect, vi, beforeEach, Mock,
 } from 'vitest'
-import { GetUserInfoRes } from 'shared/dist/serverInterface'
 import Page from 'app/[lang]/users/[authId]/page'
 import { render } from 'vitest.setup'
 import {
@@ -29,9 +28,16 @@ import {
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
-import {
-  userInfoSignal, configSignal,
-} from 'signals'
+import { configSignal } from 'signals'
+
+// Create a mock function for useAuth
+const mockUseAuth = vi.fn().mockReturnValue({ userInfo: { authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865' } })
+
+// Mock useAuth hook
+vi.mock(
+  '@melody-auth/react',
+  () => ({ useAuth: () => mockUseAuth() }),
+)
 
 const mockNav = {
   authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
@@ -83,10 +89,6 @@ vi.mock(
         ENABLE_ORG: true,
         ENABLE_EMAIL_VERIFICATION: true,
       },
-      subscribe: () => () => {},
-    },
-    userInfoSignal: {
-      value: { authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865' },
       subscribe: () => () => {},
     },
     errorSignal: {
@@ -854,8 +856,17 @@ describe(
     it(
       'toggle active status',
       async () => {
-        const originalUserInfo = vi.mocked(userInfoSignal).value
-        vi.mocked(userInfoSignal).value = { authId: 'different-user-id' } as GetUserInfoRes
+        // Mock the user data with a different authId
+        (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              authId: 'different-auth-id', // Different from userInfo.authId
+              socialAccountId: null,
+              isActive: true,
+            },
+          },
+        })
 
         render(<Page />)
 
@@ -874,8 +885,6 @@ describe(
             putUserReq: { isActive: false },
           })
         })
-
-        vi.mocked(userInfoSignal).value = originalUserInfo
       },
     )
 

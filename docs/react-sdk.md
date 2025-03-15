@@ -182,6 +182,19 @@ export default function Home () {
 }
 ```
 
+## userInfo
+
+The current user's details. Be sure to invoke acquireUserInfo before accessing userInfo.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { userInfo } = useAuth()
+
+  <div>{JSON.stringify(userInfo)}</div>
+}
+```
+
 ## isAuthenticating
 
 Indicates whether the SDK is initializing and attempting to obtain the user's authentication state.
