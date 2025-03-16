@@ -1,6 +1,5 @@
 import SignIn from './SignIn'
 import SignUp from './SignUp'
-import Layout from './Layout'
 import Consent from './Consent'
 import MfaEnroll from './MfaEnroll'
 import OtpSetup from './OtpSetup'
@@ -19,7 +18,7 @@ import AuthCodeExpired from './AuthCodeExpired'
 import VerifyEmail from './VerifyEmail'
 
 export {
-  SignIn, SignUp, Layout, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
+  SignIn, SignUp, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
   PasskeyEnroll, ResetPassword, UpdateInfo, ChangePassword, ResetMfa, ManagePasskey,
   ChangeEmail, AuthCodeExpired, VerifyEmail, PasswordlessVerify,
 }

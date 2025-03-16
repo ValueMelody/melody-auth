@@ -1,12 +1,9 @@
 import { useEffect } from 'hono/jsx'
 import { typeConfig } from 'configs'
 import {
-  SecondaryButton, CodeInput, ViewTitle, SubmitError, PrimaryButton,
-} from 'pages/components'
-import {
   usePasswordlessVerifyForm, useSubmitError, View,
 } from 'pages/hooks'
-import { passwordlessCode } from 'pages/tools/locale'
+import { PasswordlessVerify as PasswordlessVerifyBlock } from 'pages/blocks'
 
 export interface PasswordlessVerifyProps {
   locale: typeConfig.Locale;
@@ -40,41 +37,16 @@ const PasswordlessVerify = ({
   )
 
   return (
-    <>
-      <ViewTitle
-        title={passwordlessCode.title[locale]}
-      />
-      <form
-        autoComplete='on'
-        onSubmit={handleSubmit}
-      >
-        <section className='flex flex-col gap-4 justify-center'>
-          <SecondaryButton
-            title={resent
-              ? passwordlessCode.resent[locale]
-              : passwordlessCode.resend[locale]
-            }
-            disabled={resent}
-            onClick={() => sendPasswordlessCode(true)}
-          />
-          <CodeInput
-            label={passwordlessCode.code[locale]}
-            required
-            code={values.mfaCode ?? []}
-            error={errors.mfaCode}
-            setCode={(value) => handleChange(
-              'mfaCode',
-              value,
-            )}
-          />
-          <SubmitError error={submitError} />
-          <PrimaryButton
-            title={passwordlessCode.verify[locale]}
-            type='submit'
-          />
-        </section>
-      </form>
-    </>
+    <PasswordlessVerifyBlock
+      errors={errors}
+      locale={locale}
+      handleSubmit={handleSubmit}
+      handleChange={handleChange}
+      resent={resent}
+      values={values}
+      submitError={submitError}
+      sendPasswordlessCode={sendPasswordlessCode}
+    />
   )
 }
 

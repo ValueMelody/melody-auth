@@ -1,12 +1,9 @@
 import { typeConfig } from 'configs'
 import {
-  CodeInput, Field, PrimaryButton, SecondaryButton, SubmitError, SuccessMessage, ViewTitle,
-} from 'pages/components'
-import {
   useChangeEmailForm, useSubmitError,
 } from 'pages/hooks'
 import { View } from 'pages/hooks/useCurrentView'
-import { changeEmail } from 'pages/tools/locale'
+import { ChangeEmail as ChangeEmailBlock } from 'pages/blocks'
 
 interface ChangeEmailProps {
   locale: typeConfig.Locale;
@@ -39,80 +36,18 @@ const ChangeEmail = ({
   })
 
   return (
-    <>
-      {success && (
-        <section className='flex flex-col gap-4'>
-          <section className='flex justify-center w-full'>
-            <SuccessMessage
-              message={changeEmail.success[locale]}
-            />
-          </section>
-          <a
-            className='mt-6'
-            href={redirectUri}
-          >
-            {changeEmail.redirect[locale]}
-          </a>
-        </section>
-      )}
-      {!success && (
-        <>
-          <ViewTitle title={changeEmail.title[locale]} />
-          <form
-            autoComplete='on'
-            onSubmit={handleSubmit}
-          >
-            <section className='flex flex-col gap-2'>
-              <Field
-                label={changeEmail.email[locale]}
-                type='email'
-                required
-                value={values.email}
-                name='email'
-                autoComplete='email'
-                error={errors.email}
-                onChange={(value) => handleChange(
-                  'email',
-                  value,
-                )}
-              />
-              {values.mfaCode !== null && (
-                <>
-                  <SecondaryButton
-                    title={resent
-                      ? changeEmail.resent[locale]
-                      : changeEmail.resend[locale]
-                    }
-                    onClick={handleResend}
-                    disabled={resent}
-                  />
-                  <CodeInput
-                    label={changeEmail.code[locale]}
-                    required
-                    code={values.mfaCode ?? []}
-                    setCode={(code) => handleChange(
-                      'mfaCode',
-                      code,
-                    )}
-                    error={errors.mfaCode}
-                  />
-                </>
-              )}
-              <SubmitError error={submitError} />
-              <PrimaryButton
-                className='mt-4'
-                type='submit'
-                title={
-                  values.mfaCode !== null
-                    ? changeEmail.confirm[locale]
-                    : changeEmail.sendCode[locale]
-                }
-              />
-            </section>
-          </form>
-        </>
-      )}
-    </>
+    <ChangeEmailBlock
+      locale={locale}
+      success={success}
+      handleSubmit={handleSubmit}
+      handleChange={handleChange}
+      values={values}
+      errors={errors}
+      submitError={submitError}
+      redirectUri={redirectUri}
+      resent={resent}
+      handleResend={handleResend}
+    />
   )
 }
 

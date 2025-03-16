@@ -1,6 +1,6 @@
 import { typeConfig } from 'configs'
 import { getAuthCodeExpiredParams } from 'pages/tools/param'
-import { authCodeExpired } from 'pages/tools/locale'
+import { AuthCodeExpired as AuthCodeExpiredBlock } from 'pages/blocks'
 
 const AuthCodeExpired = ({ locale }: {
   locale: typeConfig.Locale;
@@ -8,19 +8,10 @@ const AuthCodeExpired = ({ locale }: {
   const authCodeExpiredParams = getAuthCodeExpiredParams()
 
   return (
-    <>
-      <p class='w-(--text-width) text-criticalIndicatorColor'>
-        {authCodeExpired.msg[locale]}
-      </p>
-      {authCodeExpiredParams.redirectUri && (
-        <a
-          className='mt-6'
-          href={authCodeExpiredParams.redirectUri}
-        >
-          {authCodeExpired.redirect[locale]}
-        </a>
-      )}
-    </>
+    <AuthCodeExpiredBlock
+      locale={locale}
+      authCodeExpiredParams={authCodeExpiredParams}
+    />
   )
 }
 

@@ -7,7 +7,6 @@ import {
 } from 'pages/hooks'
 import {
   SignIn,
-  Layout,
   SignUp,
   Consent,
   MfaEnroll,
@@ -26,6 +25,7 @@ import {
   VerifyEmail,
   PasswordlessVerify,
 } from 'pages/views'
+import { Layout } from 'pages/blocks'
 import { getLocaleFromParams } from 'pages/tools/param'
 import './client.css'
 

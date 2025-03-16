@@ -4,10 +4,7 @@ import {
 } from 'pages/hooks'
 import { typeConfig } from 'configs'
 import useMfaEnrollForm from 'pages/hooks/useMfaEnrollForm'
-import {
-  SecondaryButton, SubmitError, ViewTitle,
-} from 'pages/components'
-import { mfaEnroll } from 'pages/tools/locale'
+import { MfaEnroll as MfaEnrollBlock } from 'pages/blocks'
 
 export interface MfaEnrollProps {
   locale: typeConfig.Locale;
@@ -43,19 +40,12 @@ const MfaEnroll = ({
   )
 
   return (
-    <>
-      <ViewTitle title={mfaEnroll.title[locale]} />
-      <section class='flex flex-col justify-around w-full gap-4 mt-4'>
-        {mfaEnrollInfo?.mfaTypes.map((mfaType) => (
-          <SecondaryButton
-            key={mfaType}
-            title={mfaEnroll[mfaType][locale]}
-            onClick={() => handleEnroll(mfaType)}
-          />
-        ))}
-      </section>
-      <SubmitError error={submitError} />
-    </>
+    <MfaEnrollBlock
+      locale={locale}
+      mfaEnrollInfo={mfaEnrollInfo}
+      handleEnroll={handleEnroll}
+      submitError={submitError}
+    />
   )
 }
 

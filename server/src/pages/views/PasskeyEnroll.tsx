@@ -1,13 +1,9 @@
 import { useEffect } from 'hono/jsx'
 import { typeConfig } from 'configs'
 import {
-  SecondaryButton, ViewTitle, CheckboxInput,
-  SubmitError,
-} from 'pages/components'
-import {
   usePasskeyEnrollForm, useSubmitError, View,
 } from 'pages/hooks'
-import { passkeyEnroll } from 'pages/tools/locale'
+import { PasskeyEnroll as PasskeyEnrollBlock } from 'pages/blocks'
 
 export interface PasskeyEnrollProps {
   locale: typeConfig.Locale;
@@ -45,27 +41,14 @@ const PasskeyEnroll = ({
   )
 
   return (
-    <>
-      <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>
-      <ViewTitle title={passkeyEnroll.title[locale]} />
-      <section class='mt-4 flex items-center justify-center gap-8 w-full'>
-        <SecondaryButton
-          title={passkeyEnroll.skip[locale]}
-          onClick={handleDecline}
-        />
-        <SecondaryButton
-          title={passkeyEnroll.enroll[locale]}
-          onClick={handleEnroll}
-        />
-      </section>
-      <SubmitError error={submitError} />
-      <CheckboxInput
-        id='skipPasskeyEnroll'
-        label={passkeyEnroll.rememberSkip[locale]}
-        checked={rememberSkip}
-        onChange={handleRememberSkip}
-      />
-    </>
+    <PasskeyEnrollBlock
+      locale={locale}
+      handleDecline={handleDecline}
+      handleEnroll={handleEnroll}
+      submitError={submitError}
+      rememberSkip={rememberSkip}
+      handleRememberSkip={handleRememberSkip}
+    />
   )
 }
 
