@@ -4,7 +4,7 @@ import {
 import { resetMfa } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 
-interface ResetMfaProps {
+export interface ResetMfaProps {
   locale: typeConfig.Locale;
   success: boolean;
   handleSubmit: (e: Event) => void;

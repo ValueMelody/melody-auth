@@ -5,7 +5,7 @@ import { View } from 'pages/hooks'
 import { resetPassword } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 
-interface ResetPasswordProps {
+export interface ResetPasswordProps {
   locale: typeConfig.Locale;
   success: boolean;
   handleSubmit: (e: Event) => void;

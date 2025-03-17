@@ -1,15 +1,17 @@
 import { typeConfig } from 'configs'
 import { authCodeExpired } from 'pages/tools/locale'
 
-const AuthCodeExpired = ({
-  locale,
-  authCodeExpiredParams,
-}: {
+export interface AuthCodeExpiredProps {
   locale: typeConfig.Locale;
   authCodeExpiredParams: {
     redirectUri: string;
   };
-}) => {
+}
+
+const AuthCodeExpired = ({
+  locale,
+  authCodeExpiredParams,
+}: AuthCodeExpiredProps) => {
   return (
     <>
       <p className='w-(--text-width) text-criticalIndicatorColor'>

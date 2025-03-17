@@ -8,7 +8,7 @@ import {
 import { signUp } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 
-interface SignUpProps {
+export interface SignUpProps {
   locale: typeConfig.Locale;
   handleSubmit: (e: Event) => void;
   handleChange: (name: 'email' | 'password' | 'confirmPassword' | 'firstName' | 'lastName', value: string) => void;

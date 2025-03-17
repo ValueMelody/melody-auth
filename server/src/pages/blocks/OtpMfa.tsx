@@ -6,7 +6,7 @@ import { otpMfa } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 import { View } from 'pages/hooks'
 
-interface OtpMfaProps {
+export interface OtpMfaProps {
   locale: typeConfig.Locale;
   handleChange: (name: 'mfaCode', value: string[]) => void;
   handleMfa: (e: Event) => void;

@@ -4,7 +4,7 @@ import {
 import { passkeyEnroll } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 
-interface PasskeyEnrollProps {
+export interface PasskeyEnrollProps {
   locale: typeConfig.Locale;
   handleDecline: () => void;
   handleEnroll: () => void;

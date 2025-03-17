@@ -9,7 +9,7 @@ import {
 import { signIn } from 'pages/tools/locale'
 import { AuthorizeParams } from 'pages/tools/param'
 
-interface SignInProps {
+export interface SignInProps {
   locale: typeConfig.Locale;
   handleSubmit: (e: Event) => void;
   handleChange: (name: 'email' | 'password', value: string) => void;

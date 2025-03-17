@@ -5,7 +5,7 @@ import {
 import { otpMfa } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 
-interface OtpSetupProps {
+export interface OtpSetupProps {
   locale: typeConfig.Locale;
   otpUri: string;
   qrCodeEl: React.RefObject<HTMLCanvasElement>;
