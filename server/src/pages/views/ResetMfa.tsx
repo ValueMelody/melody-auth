@@ -1,16 +1,10 @@
 import { typeConfig } from 'configs'
 import {
-  PrimaryButton,
-  SubmitError,
-  SuccessMessage,
-  ViewTitle,
-} from 'pages/components'
-import {
   View,
   useSubmitError,
   useResetMfaForm,
 } from 'pages/hooks'
-import { resetMfa } from 'pages/tools/locale'
+import { ResetMfa as ResetMfaBlock } from 'pages/blocks'
 
 export interface ResetMfaProps {
   locale: typeConfig.Locale;
@@ -38,39 +32,13 @@ const ResetMfa = ({
   })
 
   return (
-    <>
-      {success && (
-        <section className='flex justify-center w-full'>
-          <SuccessMessage
-            message={resetMfa.success[locale]}
-          />
-        </section>
-      )}
-      {!success && (
-        <>
-          <ViewTitle title={resetMfa.title[locale]} />
-          <form
-            onSubmit={handleSubmit}
-          >
-            <section className='flex flex-col gap-2'>
-              <p className='w-(--text-width)'>{resetMfa.desc[locale]}</p>
-              <SubmitError error={submitError} />
-              <PrimaryButton
-                className='mt-4'
-                type='submit'
-                title={resetMfa.confirm[locale]}
-              />
-            </section>
-          </form>
-        </>
-      )}
-      <a
-        class='button-secondary mt-6'
-        href={redirectUri}
-      >
-        {resetMfa.redirect[locale]}
-      </a>
-    </>
+    <ResetMfaBlock
+      locale={locale}
+      success={success}
+      handleSubmit={handleSubmit}
+      submitError={submitError}
+      redirectUri={redirectUri}
+    />
   )
 }
 

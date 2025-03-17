@@ -6,10 +6,7 @@ import {
   useSubmitError, View, useOtpMfaForm,
 } from 'pages/hooks'
 import { typeConfig } from 'configs'
-import {
-  SubmitError, CodeInput, PrimaryButton, ViewTitle,
-} from 'pages/components'
-import { otpMfa } from 'pages/tools/locale'
+import { OtpSetup as OtpSetupBlock } from 'pages/blocks'
 
 export interface OtpSetupProps {
   locale: typeConfig.Locale;
@@ -62,36 +59,16 @@ const OtpSetup = ({
   )
 
   return (
-    <>
-      <script src='https://unpkg.com/qrcode@1.4.1/build/qrcode.js'></script>
-      {otpUri && (
-        <>
-          <ViewTitle
-            title={otpMfa.setup[locale]}
-          />
-          <canvas ref={qrCodeEl} />
-        </>
-      )}
-      <CodeInput
-        label={otpMfa.code[locale]}
-        required={true}
-        code={values.mfaCode}
-        setCode={(code) => {
-          handleChange(
-            'mfaCode',
-            code,
-          )
-        }}
-        error={errors.mfaCode}
-      />
-      <SubmitError error={submitError} />
-      <PrimaryButton
-        className='w-(--text-width)'
-        type='button'
-        title={otpMfa.verify[locale]}
-        onClick={handleMfa}
-      />
-    </>
+    <OtpSetupBlock
+      locale={locale}
+      otpUri={otpUri}
+      qrCodeEl={qrCodeEl}
+      handleChange={handleChange}
+      handleMfa={handleMfa}
+      submitError={submitError}
+      values={values}
+      errors={errors}
+    />
   )
 }
 

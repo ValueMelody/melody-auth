@@ -3,10 +3,7 @@ import {
   useSubmitError, View, useOtpMfaForm,
 } from 'pages/hooks'
 import { typeConfig } from 'configs'
-import {
-  SubmitError, CodeInput, PrimaryButton, ViewTitle, SecondaryButton,
-} from 'pages/components'
-import { otpMfa } from 'pages/tools/locale'
+import { OtpMfa as OtpMfaBlock } from 'pages/blocks'
 
 export interface OtpMfaProps {
   locale: typeConfig.Locale;
@@ -45,35 +42,16 @@ const OtpMfa = ({
   )
 
   return (
-    <>
-      <ViewTitle
-        title={otpMfa.code[locale]}
-      />
-      <CodeInput
-        required
-        code={values.mfaCode}
-        setCode={(code) => {
-          handleChange(
-            'mfaCode',
-            code,
-          )
-        }}
-        error={errors.mfaCode}
-      />
-      <SubmitError error={submitError} />
-      <PrimaryButton
-        className='w-(--text-width)'
-        type='button'
-        title={otpMfa.verify[locale]}
-        onClick={handleMfa}
-      />
-      {allowFallbackToEmailMfa && (
-        <SecondaryButton
-          title={otpMfa.switchToEmail[locale]}
-          onClick={() => onSwitchView(View.EmailMfa)}
-        />
-      )}
-    </>
+    <OtpMfaBlock
+      locale={locale}
+      handleChange={handleChange}
+      handleMfa={handleMfa}
+      submitError={submitError}
+      allowFallbackToEmailMfa={allowFallbackToEmailMfa}
+      onSwitchView={onSwitchView}
+      values={values}
+      errors={errors}
+    />
   )
 }
 
