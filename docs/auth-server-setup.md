@@ -95,6 +95,30 @@ npm run dev:migration:apply
 npm run dev:start
 ```
 
+## Cloudflare Multiple Remote Environments
+When managing several remote environments (e.g., dev, demo, QA, staging, production) on Cloudflare, you can follow these steps:
+1. Provision Resources:  
+  Create the Worker, D1, and KV resources for your new environment via the Cloudflare dashboard.
+2. Duplicate the Configuration File:  
+  Copy an existing toml file (such as server/wrangler.toml or server/demo.wrangler.toml) and rename it to something like [envName].wrangler.toml.
+3. Update Resource Identifiers:  
+  Edit your new [envName].wrangler.toml file to replace the resource names, KV ID, and D1 ID with those corresponding to your newly created resources.
+4. Generate Secrets:  
+  Run the secret generation script using your new configuration file:
+    ```
+    node ./src/scripts/generate-secret.cjs prod [envName].wrangler.toml
+    ```
+5. Apply D1 Migrations:  
+  Execute the D1 migration command for your new environment's D1 resource:
+    ```
+    wrangler d1 migrations apply [d1 name for your new environment] --remote
+    ```
+6. Deploy the Worker:  
+  Build and deploy your Worker with the new environment's name:
+    ```
+    npm run build && wrangler deploy --minify src/index.tsx --name [worker name for your new environment]
+    ```
+
 ## Node Environment Setup
 
 ### 1. Node, Postgres and Redis setup
