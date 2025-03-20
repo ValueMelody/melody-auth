@@ -17,7 +17,7 @@ import {
   emailLogModel, userModel,
 } from 'models'
 import {
-  errorConfig,
+  errorConfig, variableConfig,
   localeConfig, messageConfig, typeConfig,
 } from 'configs'
 
@@ -83,7 +83,7 @@ export const sendEmail = async (
   let success = false
   let response = null
 
-  const receiver = environment === 'prod' ? receiverEmail : devEmailReceiver
+  const receiver = environment === variableConfig.DefaultEnvironment.Production ? receiverEmail : devEmailReceiver
   const { ENABLE_EMAIL_LOG: enableEmailLog } = env(c)
 
   const mailer = buildMailer(c)

@@ -193,7 +193,11 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - Note: Also need to set `GITHUB_AUTH_CLIENT_SECRET` in your .dev.vars or in Cloudflare Worker environment variables.
 
 
-### Log Configs
+## Log Configs
+
+### LOG_LEVEL
+- **Default:** silent
+- **Description:** You can choose between silent or info for the log level. However, if you set environment to dev, the log level is automatically enforced as info regardless of your configuration.
 
 ### ENABLE_EMAIL_LOG
 - **Default:** false

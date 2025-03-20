@@ -1,7 +1,7 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
-  brandingConfig, typeConfig,
+  variableConfig, typeConfig,
 } from 'configs'
 import { orgModel } from 'models'
 
@@ -29,17 +29,17 @@ const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
     PRIVACY_POLICY_LINK: privacyPolicyLink,
   } = env(c)
   return {
-    fontFamily: brandingConfig.DefaultBranding.FontFamily,
-    fontUrl: brandingConfig.DefaultBranding.FontUrl,
-    layoutColor: brandingConfig.DefaultBranding.LayoutColor,
-    labelColor: brandingConfig.DefaultBranding.LabelColor,
-    primaryButtonColor: brandingConfig.DefaultBranding.PrimaryButtonColor,
-    primaryButtonLabelColor: brandingConfig.DefaultBranding.PrimaryButtonLabelColor,
-    primaryButtonBorderColor: brandingConfig.DefaultBranding.PrimaryButtonBorderColor,
-    secondaryButtonColor: brandingConfig.DefaultBranding.SecondaryButtonColor,
-    secondaryButtonLabelColor: brandingConfig.DefaultBranding.SecondaryButtonLabelColor,
-    secondaryButtonBorderColor: brandingConfig.DefaultBranding.SecondaryButtonBorderColor,
-    criticalIndicatorColor: brandingConfig.DefaultBranding.CriticalIndicatorColor,
+    fontFamily: variableConfig.DefaultBranding.FontFamily,
+    fontUrl: variableConfig.DefaultBranding.FontUrl,
+    layoutColor: variableConfig.DefaultBranding.LayoutColor,
+    labelColor: variableConfig.DefaultBranding.LabelColor,
+    primaryButtonColor: variableConfig.DefaultBranding.PrimaryButtonColor,
+    primaryButtonLabelColor: variableConfig.DefaultBranding.PrimaryButtonLabelColor,
+    primaryButtonBorderColor: variableConfig.DefaultBranding.PrimaryButtonBorderColor,
+    secondaryButtonColor: variableConfig.DefaultBranding.SecondaryButtonColor,
+    secondaryButtonLabelColor: variableConfig.DefaultBranding.SecondaryButtonLabelColor,
+    secondaryButtonBorderColor: variableConfig.DefaultBranding.SecondaryButtonBorderColor,
+    criticalIndicatorColor: variableConfig.DefaultBranding.CriticalIndicatorColor,
     termsLink,
     privacyPolicyLink,
     logoUrl,
