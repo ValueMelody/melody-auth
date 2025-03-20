@@ -11,3 +11,8 @@ export enum DefaultBranding {
   SecondaryButtonBorderColor = 'white',
   CriticalIndicatorColor = '#e00',
 }
+
+export enum DefaultEnvironment {
+  Development = 'dev',
+  Production = 'prod',
+}

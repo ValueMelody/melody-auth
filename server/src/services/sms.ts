@@ -2,7 +2,7 @@ import { Buffer } from 'buffer'
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
-  errorConfig, localeConfig, messageConfig, typeConfig,
+  errorConfig, localeConfig, messageConfig, typeConfig, variableConfig,
 } from 'configs'
 import { cryptoUtil } from 'utils'
 import { smsLogModel } from 'models'
@@ -34,7 +34,7 @@ export const sendSms = async (
     ENABLE_SMS_LOG: enableSmsLog,
   } = env(c)
 
-  const receiver = environment === 'prod' ? receiverPhoneNumber : devSmsReceiver
+  const receiver = environment === variableConfig.DefaultEnvironment.Production ? receiverPhoneNumber : devSmsReceiver
 
   let success = false
   let response = null

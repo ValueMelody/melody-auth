@@ -3,7 +3,7 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import {
-  brandingConfig, routeConfig,
+  variableConfig, routeConfig,
 } from 'configs'
 import {
   migrate,
@@ -55,20 +55,20 @@ describe(
         expect(html).toContain(`privacyPolicyLink: "${process.env.PRIVACY_POLICY_LINK}"`)
         expect(html).toContain(`allowPasskey: ${process.env.ALLOW_PASSKEY_ENROLLMENT}`)
         expect(html).toContain(`<link rel="icon" type="image/x-icon" href="${process.env.COMPANY_LOGO_URL}"/>`)
-        expect(html).toContain(`<link href="${brandingConfig.DefaultBranding.FontUrl?.replace(
+        expect(html).toContain(`<link href="${variableConfig.DefaultBranding.FontUrl?.replace(
           '&',
           '&amp;',
         )}" rel="stylesheet"/>`)
-        expect(html).toContain(`--layout-color:${brandingConfig.DefaultBranding.LayoutColor}`)
-        expect(html).toContain(`--label-color:${brandingConfig.DefaultBranding.LabelColor}`)
-        expect(html).toContain(`--font-default:${brandingConfig.DefaultBranding.FontFamily}`)
-        expect(html).toContain(`--primary-button-color:${brandingConfig.DefaultBranding.PrimaryButtonColor}`)
-        expect(html).toContain(`--primary-button-label-color:${brandingConfig.DefaultBranding.PrimaryButtonLabelColor}`)
-        expect(html).toContain(`--primary-button-border-color:${brandingConfig.DefaultBranding.PrimaryButtonBorderColor}`)
-        expect(html).toContain(`--secondary-button-color:${brandingConfig.DefaultBranding.SecondaryButtonColor}`)
-        expect(html).toContain(`--secondary-button-label-color:${brandingConfig.DefaultBranding.SecondaryButtonLabelColor}`)
-        expect(html).toContain(`--secondary-button-border-color:${brandingConfig.DefaultBranding.SecondaryButtonBorderColor}`)
-        expect(html).toContain(`--critical-indicator-color:${brandingConfig.DefaultBranding.CriticalIndicatorColor}`)
+        expect(html).toContain(`--layout-color:${variableConfig.DefaultBranding.LayoutColor}`)
+        expect(html).toContain(`--label-color:${variableConfig.DefaultBranding.LabelColor}`)
+        expect(html).toContain(`--font-default:${variableConfig.DefaultBranding.FontFamily}`)
+        expect(html).toContain(`--primary-button-color:${variableConfig.DefaultBranding.PrimaryButtonColor}`)
+        expect(html).toContain(`--primary-button-label-color:${variableConfig.DefaultBranding.PrimaryButtonLabelColor}`)
+        expect(html).toContain(`--primary-button-border-color:${variableConfig.DefaultBranding.PrimaryButtonBorderColor}`)
+        expect(html).toContain(`--secondary-button-color:${variableConfig.DefaultBranding.SecondaryButtonColor}`)
+        expect(html).toContain(`--secondary-button-label-color:${variableConfig.DefaultBranding.SecondaryButtonLabelColor}`)
+        expect(html).toContain(`--secondary-button-border-color:${variableConfig.DefaultBranding.SecondaryButtonBorderColor}`)
+        expect(html).toContain(`--critical-indicator-color:${variableConfig.DefaultBranding.CriticalIndicatorColor}`)
       },
     )
 
