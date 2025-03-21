@@ -6,12 +6,17 @@ import {
 } from '@testing-library/react'
 import { render } from '../../../vitest.setup'
 import Page from 'app/[lang]/users/page'
-import { useGetApiV1UsersQuery } from 'services/auth/api'
+import {
+  useGetApiV1OrgsByIdUsersQuery, useGetApiV1UsersQuery,
+} from 'services/auth/api'
 import { users } from 'tests/userMock'
 
 vi.mock(
   'services/auth/api',
-  () => ({ useGetApiV1UsersQuery: vi.fn() }),
+  () => ({
+    useGetApiV1UsersQuery: vi.fn(),
+    useGetApiV1OrgsByIdUsersQuery: vi.fn(),
+  }),
 )
 
 // Mock useAuth hook
@@ -47,7 +52,8 @@ describe(
           users,
           count: 30,
         },
-      })
+      });
+      (useGetApiV1OrgsByIdUsersQuery as Mock).mockReturnValue({ data: undefined })
     })
 
     it(
@@ -90,10 +96,13 @@ describe(
 
         await waitFor(() => {
         // Verify the API was called with page 2
-          expect(useGetApiV1UsersQuery).toHaveBeenCalledWith(expect.objectContaining({
-            pageNumber: 2,
-            pageSize: 20,
-          }))
+          expect(useGetApiV1UsersQuery).toHaveBeenCalledWith(
+            expect.objectContaining({
+              pageNumber: 2,
+              pageSize: 20,
+            }),
+            expect.objectContaining({ skip: false }),
+          )
         })
       },
     )

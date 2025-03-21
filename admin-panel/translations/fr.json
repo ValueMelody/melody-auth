@@ -109,7 +109,8 @@
     "noConsented": "Aucune application consentie pour l'instant.",
     "noIP": "Pas d'IP",
     "lockedIPs": "IPs verrouillées",
-    "unlock": "Déverrouiller tout"
+    "unlock": "Déverrouiller tout",
+    "noUsers": "Aucun utilisateur trouvé"
   },
   "roles": {
     "title": "Rôles",

@@ -1,5 +1,6 @@
 import {
   describe, it, expect, vi, beforeEach,
+  Mock,
 } from 'vitest'
 import {
   render, screen, fireEvent, waitFor,
@@ -7,7 +8,24 @@ import {
 import Page from 'app/[lang]/orgs/[id]/page'
 import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
+  useGetApiV1OrgsByIdUsersQuery,
+  useGetApiV1UsersQuery,
 } from 'services/auth/api'
+import { users } from 'tests/userMock'
+
+// Add useAuth mock before other mocks
+vi.mock(
+  '@melody-auth/react',
+  () => ({
+    useAuth: () => ({
+      userInfo: { authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865' },
+      accessTokenStorage: { accessToken: 'test-token' },
+      refreshTokenStorage: { refreshToken: 'test-refresh-token' },
+      isAuthenticated: true,
+      isAuthenticating: false,
+    }),
+  }),
+)
 
 // Mock the required hooks and modules
 vi.mock(
@@ -31,6 +49,22 @@ vi.mock(
     useGetApiV1OrgsByIdQuery: vi.fn(),
     usePutApiV1OrgsByIdMutation: vi.fn(),
     useDeleteApiV1OrgsByIdMutation: vi.fn(),
+    useGetApiV1OrgsByIdUsersQuery: vi.fn(),
+    useGetApiV1UsersQuery: vi.fn(),
+  }),
+)
+
+vi.mock(
+  'signals',
+  () => ({
+    configSignal: {
+      value: { ENABLE_NAMES: true },
+      subscribe: () => () => {},
+    },
+    errorSignal: {
+      value: '',
+      subscribe: () => () => {},
+    },
   }),
 )
 
@@ -78,6 +112,15 @@ describe(
         mockDeleteOrg,
         { isLoading: false },
       ] as any)
+
+      vi.mocked(useGetApiV1OrgsByIdUsersQuery).mockReturnValue({
+        data: {
+          users,
+          count: 30,
+        },
+      } as any)
+
+      vi.mocked(useGetApiV1UsersQuery).mockReturnValue({ data: users } as any)
     })
 
     it(
@@ -456,6 +499,57 @@ describe(
             termsLink: 'https://newterms.com',
             privacyPolicyLink: 'https://newprivacy.com',
           }),
+        })
+      },
+    )
+
+    it(
+      'renders users',
+      async () => {
+        render(<Page />)
+
+        const rows = screen.queryAllByTestId('userRow')
+        expect(rows.length).toBe(3)
+
+        rows.forEach((
+          row, index,
+        ) => {
+          expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(users[index].authId)
+          if (index === 0) {
+            expect(row.querySelectorAll('td')[0]?.innerHTML).toContain('users.you')
+          }
+
+          expect(row.querySelectorAll('td')[1]?.innerHTML).toContain(users[index].email)
+          expect(row.querySelectorAll('td')[2]?.innerHTML).toContain(users[index].isActive ? 'common.active' : 'common.disabled')
+          expect(row.querySelectorAll('td')[3]?.innerHTML).toContain(`${users[index].firstName} ${users[index].lastName}`)
+          const editLink = row.querySelectorAll('td')[4]?.getElementsByTagName('a')
+          expect(editLink[0].getAttribute('href')).toBe(`/en/users/${users[index].authId}`)
+        })
+      },
+    )
+
+    it(
+      'handles page changes correctly',
+      async () => {
+        render(<Page />)
+
+        ;(useGetApiV1OrgsByIdUsersQuery as Mock).mockClear()
+
+        await waitFor(() => {
+          const nextButton = screen.getByText('common.next')
+          expect(nextButton).toBeInTheDocument()
+          nextButton.click()
+        })
+
+        await waitFor(() => {
+        // Verify the API was called with page 2
+          expect(useGetApiV1OrgsByIdUsersQuery).toHaveBeenCalledWith(
+            expect.objectContaining({
+              pageNumber: 2,
+              pageSize: 20,
+            }),
+            expect.objectContaining({ skip: false }),
+          )
         })
       },
     )

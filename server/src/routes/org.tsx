@@ -161,3 +161,56 @@ orgRoutes.delete(
   authMiddleware.s2sWriteOrg,
   orgHandler.deleteOrg,
 )
+
+/**
+ * @swagger
+ * /api/v1/orgs/{id}/users:
+ *   get:
+ *     summary: Get a list of users for an org
+ *     description: Required scope - read_org
+ *     tags: [Orgs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the org
+ *       - in: query
+ *         name: page_size
+ *         schema:
+ *           type: integer
+ *         description: Number of users to return per page
+ *       - in: query
+ *         name: page_number
+ *         schema:
+ *           type: integer
+ *         description: Page number to return
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by name or email
+ *     responses:
+ *       200:
+ *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 count:
+ *                   type: integer
+ *                   description: Total number of users matching the query
+ */
+orgRoutes.get(
+  `${BaseRoute}/:id/users`,
+  configMiddleware.enableOrg,
+  authMiddleware.s2sReadOrg,
+  authMiddleware.s2sReadUser,
+  orgHandler.getOrgUsers,
+)
