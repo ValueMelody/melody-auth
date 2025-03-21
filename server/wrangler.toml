@@ -2,6 +2,10 @@ name = "melody-auth"
 compatibility_date = "2025-01-01"
 keep_vars = true
 
+# Cloudflare account id, required if your cloudflare account is sharing access with other cloudflare accounts
+
+# account_id = ""
+
 [vars]
 
 # Information

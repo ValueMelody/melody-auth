@@ -74,11 +74,14 @@ Steps to Deploy:
     NEXT_PUBLIC_SERVER_URI=[The host url of your auth server]
     NEXT_PUBLIC_CLIENT_ID=[Client ID for the Admin Panel (SPA) app]
     ```
-4. Build the project
+4. Navigate to "Workers & Pages" -> D1 -> Melody Auth database -> app table 
+    - Update the redirectUris values in Admin Panel (SPA)	entry with the cloudflare  (e.g., https://melody-auth-admin.[your-account-name].workers.dev)
+
+5. Build the project
     ```
     npm run cf:build
     ```
-5. Deploy
+6. Deploy
     ```
     npm run cf:deploy
     ```
