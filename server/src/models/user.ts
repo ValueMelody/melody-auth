@@ -207,7 +207,7 @@ export const count = async (
   },
 ): Promise<number> => {
   let num = 1
-  const matchCondition = option?.match ? `AND ${option.match.column} = $${num++}` : ''
+  const matchCondition = option?.match ? `AND "${option.match.column}" = $${num++}` : ''
   const searchCondition = option?.search ? `AND ${option.search.column} LIKE $${num++}` : ''
 
   const bind = []

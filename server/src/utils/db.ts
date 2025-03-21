@@ -33,7 +33,7 @@ export const d1SelectAllQuery = (
   let paginatedCondition = ''
 
   if (match) {
-    matchCondition = `AND ${match.column} = $${num++}`
+    matchCondition = `AND "${match.column}" = $${num++}`
     bind.push(match.value)
   }
 
