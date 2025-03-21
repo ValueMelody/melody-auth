@@ -186,6 +186,7 @@ export const getAll = async (
   db: D1Database,
   option?: {
     search?: typeConfig.Search;
+    match?: typeConfig.Match;
     pagination?: typeConfig.Pagination;
   },
 ): Promise<Record[]> => {
@@ -202,11 +203,22 @@ export const count = async (
   db: D1Database,
   option?: {
     search?: typeConfig.Search;
+    match?: typeConfig.Match;
   },
 ): Promise<number> => {
-  const condition = option?.search ? `AND ${option.search.column} LIKE $1` : ''
-  const bind = option?.search ? [option.search.value] : []
-  const query = `SELECT COUNT(*) as count FROM ${TableName} where "deletedAt" IS NULL ${condition}`
+  let num = 1
+  const matchCondition = option?.match ? `AND "${option.match.column}" = $${num++}` : ''
+  const searchCondition = option?.search ? `AND ${option.search.column} LIKE $${num++}` : ''
+
+  const bind = []
+  if (option?.match) {
+    bind.push(option.match.value)
+  }
+  if (option?.search) {
+    bind.push(option.search.value)
+  }
+
+  const query = `SELECT COUNT(*) as count FROM ${TableName} where "deletedAt" IS NULL ${matchCondition} ${searchCondition}`
   const stmt = bind.length ? db.prepare(query).bind(...bind) : db.prepare(query)
   const result = await stmt.first() as { count: number }
   return Number(result.count)
@@ -350,6 +362,18 @@ export const remove = async (
     id,
   )
 
+  await dbUtil.d1Run(stmt)
+  return true
+}
+
+export const updateOrgSlug = async (
+  db: D1Database, oldSlug: string, newSlug: string,
+): Promise<true> => {
+  const query = `UPDATE ${TableName} set "orgSlug" = $1 where "orgSlug" = $2`
+  const stmt = db.prepare(query).bind(
+    newSlug,
+    oldSlug,
+  )
   await dbUtil.d1Run(stmt)
   return true
 }

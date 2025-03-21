@@ -115,7 +115,8 @@
     "passkey": "Passkey",
     "passkeyEnrolled": "Passkey Enrolled",
     "removePasskey": "Remove",
-    "removePasskeyTitle": "Are you sure you want to remove this passkey?"
+    "removePasskeyTitle": "Are you sure you want to remove this passkey?",
+    "noUsers": "No users found"
   },
   "roles": {
     "title": "Roles",
