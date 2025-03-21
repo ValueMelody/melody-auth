@@ -47,6 +47,12 @@ const createNewOrg = async (
   mock(db),
 )
 
+const setOrgUsers = async () => {
+  await db.exec(`
+    update "user" set "orgSlug" = 'test slug'
+  `)
+}
+
 const newOrg = {
   id: 1,
   name: 'test name',
@@ -337,6 +343,141 @@ describe(
         global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
+
+    test(
+      'should update org with write_org scope',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+        await attachIndividualScopes(db)
+
+        const updateObj = {
+          name: 'test name 1', slug: 'test slug 1',
+        }
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteOrg,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          org: {
+            ...newOrg,
+            ...updateObj,
+          },
+        })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              name: 'test name 1', slug: 'test slug 1',
+            }),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadOrg,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+    test(
+      'should update user orgSlug when update org slug',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+        await insertUsers(db)
+
+        await db.exec(`
+          update "user" set "orgSlug" = 'test slug' where "id" = 1
+        `)
+
+        const updateObj = {
+          name: 'test name 1', slug: 'test slug 1',
+        }
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          org: {
+            ...newOrg,
+            ...updateObj,
+          },
+        })
+
+        const users = await db.prepare(`
+          select * from "user"
+        `).all() as userModel.Record[]
+
+        expect((users.find((user) => user.id === 1))?.orgSlug).toBe(updateObj.slug)
+
+        expect((users.find((user) => user.id === 2))?.orgSlug).toBe('')
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if org not found',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+
+        const res = await app.request(
+          `${BaseRoute}/2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              name: 'test name 1', slug: 'test slug 1',
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toStrictEqual(messageConfig.RequestError.NoOrg)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
   },
 )
 
@@ -369,18 +510,112 @@ describe(
         global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
+
+    test(
+      'should delete org with write_org scope',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteOrg,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadOrg,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if org not found',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+
+        const res = await app.request(
+          `${BaseRoute}/2`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toStrictEqual(messageConfig.RequestError.NoOrg)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if org has users',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+        await insertUsers(db)
+        await setOrgUsers()
+
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toStrictEqual(messageConfig.RequestError.OrgHasUsers)
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
   },
 )
 
 describe(
   'get all',
   () => {
-    const setOrgUsers = async () => {
-      await db.exec(`
-        update "user" set "orgSlug" = 'test slug'
-      `)
-    }
-
     test(
       'should return all users',
       async () => {

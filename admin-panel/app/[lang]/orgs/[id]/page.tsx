@@ -52,7 +52,12 @@ const Page = () => {
   }
 
   const handleDelete = async () => {
-    await deleteOrg({ id: Number(id) })
+    const res = await deleteOrg({ id: Number(id) })
+
+    if (res.error) {
+      setShowErrors(true)
+      return
+    }
 
     router.push(routeTool.Internal.Orgs)
   }

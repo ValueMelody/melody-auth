@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import {
-  errorConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import { orgModel } from 'models'
 import { orgDto } from 'dtos'
@@ -20,7 +20,7 @@ export const getOrgById = async (
     id,
   )
 
-  if (!org) throw new errorConfig.NotFound()
+  if (!org) throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
 
   return org
 }

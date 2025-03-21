@@ -41,6 +41,7 @@ export enum RequestError {
   AppDisabled = 'This app has been disabled',
   NoUser = 'No user found',
   NoOrg = 'No organization found',
+  OrgHasUsers = 'Can not delete organization with users',
   UserDisabled = 'This account has been disabled',
   EmailTaken = 'The email address is already in use',
   EmailAlreadyVerified = 'Email already verified',

@@ -1,5 +1,7 @@
 import { Context } from 'hono'
-import { typeConfig } from 'configs'
+import {
+  errorConfig, messageConfig, typeConfig,
+} from 'configs'
 import {
   orgService, userService,
 } from 'services'
@@ -40,20 +42,51 @@ export const putOrg = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const id = Number(c.req.param('id'))
 
+  const org = await orgService.getOrgById(
+    c,
+    id,
+  )
+
   const bodyDto = new orgDto.PutOrgDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const org = await orgService.updateOrg(
+  const updatedOrg = await orgService.updateOrg(
     c,
     id,
     bodyDto,
   )
 
-  return c.json({ org })
+  if (org.slug !== updatedOrg.slug) {
+    await userService.updateUserOrgSlug(
+      c,
+      org.slug,
+      updatedOrg.slug,
+    )
+  }
+
+  return c.json({ org: updatedOrg })
 }
 
 export const deleteOrg = async (c: Context<typeConfig.Context>) => {
   const id = Number(c.req.param('id'))
+
+  await orgService.getOrgById(
+    c,
+    id,
+  )
+
+  const orgUser = await userService.getUsers(
+    c,
+    undefined,
+    {
+      pageNumber: 1, pageSize: 1,
+    },
+    id,
+  )
+
+  if (orgUser.count > 0) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.OrgHasUsers)
+  }
 
   await orgService.deleteOrg(
     c,
