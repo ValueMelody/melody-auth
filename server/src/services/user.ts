@@ -869,3 +869,15 @@ export const deleteUser = async (
   )
   return true
 }
+
+export const updateUserOrgSlug = async (
+  c: Context<typeConfig.Context>,
+  oldSlug: string,
+  newSlug: string,
+) => {
+  await userModel.updateOrgSlug(
+    c.env.DB,
+    oldSlug,
+    newSlug,
+  )
+}

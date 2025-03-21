@@ -199,7 +199,14 @@ describe(
 
     it(
       'calls delete mutation when confirming deletion',
-      () => {
+      async () => {
+        // Mock successful deletion with unwrap method
+        const mockDeleteOrg = vi.fn().mockReturnValue({ unwrap: () => Promise.resolve({ data: {} }) })
+        vi.mocked(useDeleteApiV1OrgsByIdMutation).mockReturnValue([
+          mockDeleteOrg,
+          { isLoading: false },
+        ] as any)
+
         render(<Page />)
 
         const deleteButton = screen.getByRole(
@@ -214,7 +221,39 @@ describe(
         )
         fireEvent.click(confirmButton)
 
-        expect(mockDeleteOrg).toHaveBeenCalledWith({ id: 1 })
+        await waitFor(() => {
+          expect(mockDeleteOrg).toHaveBeenCalledWith({ id: 1 })
+        })
+      },
+    )
+
+    it(
+      'handles delete error correctly',
+      async () => {
+        // eslint-disable-next-line
+        const mockDeleteOrg = vi.fn().mockReturnValue({ unwrap: () => Promise.reject({ error: 'Delete failed' }) })
+        vi.mocked(useDeleteApiV1OrgsByIdMutation).mockReturnValue([
+          mockDeleteOrg,
+          { isLoading: false },
+        ] as any)
+
+        render(<Page />)
+
+        const deleteButton = screen.getByRole(
+          'button',
+          { name: /delete/i },
+        )
+        fireEvent.click(deleteButton)
+
+        const confirmButton = screen.getByRole(
+          'button',
+          { name: /confirm/i },
+        )
+        fireEvent.click(confirmButton)
+
+        await waitFor(() => {
+          expect(mockDeleteOrg).toHaveBeenCalledWith({ id: 1 })
+        })
       },
     )
 

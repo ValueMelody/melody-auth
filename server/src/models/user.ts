@@ -365,3 +365,15 @@ export const remove = async (
   await dbUtil.d1Run(stmt)
   return true
 }
+
+export const updateOrgSlug = async (
+  db: D1Database, oldSlug: string, newSlug: string,
+): Promise<true> => {
+  const query = `UPDATE ${TableName} set "orgSlug" = $1 where "orgSlug" = $2`
+  const stmt = db.prepare(query).bind(
+    newSlug,
+    oldSlug,
+  )
+  await dbUtil.d1Run(stmt)
+  return true
+}
