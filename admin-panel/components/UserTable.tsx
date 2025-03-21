@@ -46,7 +46,7 @@ const UserTable = ({ orgId }: {
 
   const { data: orgUsersData } = useGetApiV1OrgsByIdUsersQuery(
     {
-      id: orgId,
+      id: Number(orgId),
       pageSize: PageSize,
       pageNumber,
       search: debouncedSearch || undefined,
