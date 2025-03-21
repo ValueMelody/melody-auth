@@ -24,10 +24,12 @@ export const getUsers = async (c: Context<typeConfig.Context>) => {
     })
     : undefined
 
+  const orgId = undefined
   const result = await userService.getUsers(
     c,
     search || undefined,
     pagination,
+    orgId,
   )
   return c.json(result)
 }

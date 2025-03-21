@@ -128,3 +128,8 @@ export interface Search {
   column: string;
   value: string;
 }
+
+export interface Match {
+  column: string;
+  value: string;
+}

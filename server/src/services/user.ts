@@ -94,7 +94,17 @@ export const getUsers = async (
   c: Context<typeConfig.Context>,
   search: string | undefined,
   pagination: typeConfig.Pagination | undefined,
+  orgId: number | undefined,
 ): Promise<userModel.PaginatedApiRecords> => {
+  let org: orgModel.Record | null = null
+  if (orgId) {
+    org = await orgModel.getById(
+      c.env.DB,
+      orgId,
+    )
+    if (!org) throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
+  }
+
   const searchObj = search
     ? {
       column: "(COALESCE(\"firstName\", '') || ' ' || COALESCE(\"lastName\", '') || ' ' || COALESCE(\"email\", ''))",
@@ -106,13 +116,27 @@ export const getUsers = async (
     c.env.DB,
     {
       search: searchObj,
+      match: org
+        ? {
+          column: 'orgSlug',
+          value: org.slug,
+        }
+        : undefined,
       pagination,
     },
   )
   const count = pagination
     ? await userModel.count(
       c.env.DB,
-      { search: searchObj },
+      {
+        search: searchObj,
+        match: org
+          ? {
+            column: 'orgSlug',
+            value: org.slug,
+          }
+          : undefined,
+      },
     )
     : users.length
 

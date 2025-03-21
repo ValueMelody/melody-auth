@@ -143,6 +143,20 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Orgs'],
       }),
+      getApiV1OrgsByIdUsers: build.query<
+        GetApiV1OrgsByIdUsersApiResponse,
+        GetApiV1OrgsByIdUsersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/orgs/${queryArg.id}/users`,
+          params: {
+            page_size: queryArg.pageSize,
+            page_number: queryArg.pageNumber,
+            search: queryArg.search,
+          },
+        }),
+        providesTags: ['Orgs'],
+      }),
       getApiV1Apps: build.query<GetApiV1AppsApiResponse, GetApiV1AppsApiArg>({
         query: () => ({ url: '/api/v1/apps' }),
         providesTags: ['Apps'],
@@ -523,6 +537,22 @@ export type DeleteApiV1OrgsByIdApiArg = {
   /** The unique ID of the org */
   id: number;
 };
+export type GetApiV1OrgsByIdUsersApiResponse =
+  /** status 200 A list of users */ {
+    users?: User[];
+    /** Total number of users matching the query */
+    count?: number;
+  };
+export type GetApiV1OrgsByIdUsersApiArg = {
+  /** The unique ID of the org */
+  id: number;
+  /** Number of users to return per page */
+  pageSize?: number;
+  /** Page number to return */
+  pageNumber?: number;
+  /** Search by name or email */
+  search?: string;
+};
 export type GetApiV1AppsApiResponse = /** status 200 A list of apps */ {
   apps?: App[];
 };
@@ -849,6 +879,26 @@ export type PutOrgReq = {
   termsLink?: string;
   privacyPolicyLink?: string;
 };
+export type User = {
+  id: number;
+  authId: string;
+  email: string | null;
+  linkedAuthId?: string | null;
+  socialAccountId: string | null;
+  socialAccountType: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  locale: string;
+  loginCount: number;
+  mfaTypes: string[];
+  emailVerified: boolean;
+  otpVerified: boolean;
+  smsPhoneNumberVerified: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
 export type App = {
   id: number;
   clientId: string;
@@ -875,26 +925,6 @@ export type PutAppReq = {
   name?: string;
   isActive?: boolean;
   scopes?: string[];
-};
-export type User = {
-  id: number;
-  authId: string;
-  email: string | null;
-  linkedAuthId?: string | null;
-  socialAccountId: string | null;
-  socialAccountType: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  locale: string;
-  loginCount: number;
-  mfaTypes: string[];
-  emailVerified: boolean;
-  otpVerified: boolean;
-  smsPhoneNumberVerified: boolean;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
 };
 export type UserDetail = User & {
   roles: string[] | null;
@@ -971,6 +1001,8 @@ export const {
   useLazyGetApiV1OrgsByIdQuery,
   usePutApiV1OrgsByIdMutation,
   useDeleteApiV1OrgsByIdMutation,
+  useGetApiV1OrgsByIdUsersQuery,
+  useLazyGetApiV1OrgsByIdUsersQuery,
   useGetApiV1AppsQuery,
   useLazyGetApiV1AppsQuery,
   usePostApiV1AppsMutation,

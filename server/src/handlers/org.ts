@@ -1,8 +1,11 @@
 import { Context } from 'hono'
 import { typeConfig } from 'configs'
-import { orgService } from 'services'
+import {
+  orgService, userService,
+} from 'services'
 import { orgDto } from 'dtos'
 import { validateUtil } from 'utils'
+import { PaginationDto } from 'dtos/common'
 
 export const getOrgs = async (c: Context<typeConfig.Context>) => {
   const orgs = await orgService.getOrgs(c)
@@ -59,4 +62,28 @@ export const deleteOrg = async (c: Context<typeConfig.Context>) => {
 
   c.status(204)
   return c.body(null)
+}
+
+export const getOrgUsers = async (c: Context<typeConfig.Context>) => {
+  const orgId = Number(c.req.param('id'))
+
+  const {
+    page_size: pageSize,
+    page_number: pageNumber,
+    search,
+  } = c.req.query()
+  const pagination = pageSize && pageNumber
+    ? new PaginationDto({
+      pageSize: Number(pageSize),
+      pageNumber: Number(pageNumber),
+    })
+    : undefined
+
+  const result = await userService.getUsers(
+    c,
+    search || undefined,
+    pagination,
+    orgId,
+  )
+  return c.json(result)
 }

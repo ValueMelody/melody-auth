@@ -20,6 +20,7 @@ import {
 } from 'services/auth/api'
 import ColorInput from 'components/ColorInput'
 import LinkInput from 'components/LinkInput'
+import UserTable from 'components/UserTable'
 
 const Page = () => {
   const { id } = useParams()
@@ -305,6 +306,11 @@ const Page = () => {
             { item: values.name },
           )}
           onConfirmDelete={handleDelete}
+        />
+      </section>
+      <section className='mt-12'>
+        <UserTable
+          orgId={Number(id)}
         />
       </section>
     </section>
