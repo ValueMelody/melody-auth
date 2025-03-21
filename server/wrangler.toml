@@ -4,7 +4,7 @@ keep_vars = true
 
 # Cloudflare account id, required if your cloudflare account is sharing access with other cloudflare accounts
 
-account_id = ""
+# account_id = ""
 
 [vars]
 
