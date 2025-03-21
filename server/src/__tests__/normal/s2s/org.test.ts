@@ -442,13 +442,13 @@ describe(
           },
         })
 
-        const user = await db.prepare(`
+        const users = await db.prepare(`
           select * from "user"
         `).all() as userModel.Record[]
 
-        expect(user[0]?.orgSlug).toBe(updateObj.slug)
+        expect((users.find((user) => user.id === 1))?.orgSlug).toBe(updateObj.slug)
 
-        expect(user[1]?.orgSlug).toBe('')
+        expect((users.find((user) => user.id === 2))?.orgSlug).toBe('')
 
         global.process.env.ENABLE_ORG = false as unknown as string
       },
