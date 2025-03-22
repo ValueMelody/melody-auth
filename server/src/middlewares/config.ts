@@ -6,7 +6,7 @@ import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import { Policy } from 'dtos/oauth'
-
+import { loggerUtil } from 'utils'
 export const enableSignUp = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
@@ -16,6 +16,11 @@ export const enableSignUp = async (
   } = env(c)
 
   if (!enableSignUp || enablePasswordlessSignIn) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.SignUpNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.SignUpNotEnabled)
   }
 
@@ -31,6 +36,11 @@ export const enablePasswordSignIn = async (
   } = env(c)
 
   if (!enableSignIn || enablePasswordlessSignIn) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.PasswordSignInNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.PasswordSignInNotEnabled)
   }
 
@@ -46,6 +56,11 @@ export const enablePasswordReset = async (
   } = env(c)
 
   if (!enabledReset || enablePasswordlessSignIn) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.PasswordResetNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.PasswordResetNotEnabled)
   }
 
@@ -58,6 +73,11 @@ export const enablePasswordlessSignIn = async (
   const { ENABLE_PASSWORDLESS_SIGN_IN: enabledPasswordless } = env(c)
 
   if (!enabledPasswordless) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.PasswordlessSignInNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.PasswordlessSignInNotEnabled)
   }
 
@@ -69,7 +89,14 @@ export const enableOrg = async (
 ) => {
   const { ENABLE_ORG: enabledOrg } = env(c)
 
-  if (!enabledOrg) throw new errorConfig.Forbidden(messageConfig.ConfigError.OrgNotEnabled)
+  if (!enabledOrg) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.OrgNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.OrgNotEnabled)
+  }
 
   await next()
 }
@@ -82,6 +109,11 @@ export const enablePasskeyEnrollment = async (
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
   if (!enabledPasskeyEnrollment || enablePasswordlessSignIn) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.PasskeyEnrollmentNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.PasskeyEnrollmentNotEnabled)
   }
   await next()
@@ -91,7 +123,14 @@ export const enableGoogleSignIn = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
   const { GOOGLE_AUTH_CLIENT_ID: googleId } = env(c)
-  if (!googleId) throw new errorConfig.Forbidden(messageConfig.ConfigError.GoogleSignInNotEnabled)
+  if (!googleId) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.GoogleSignInNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.GoogleSignInNotEnabled)
+  }
   await next()
 }
 
@@ -102,6 +141,11 @@ export const enableFacebookSignIn = async (
     FACEBOOK_AUTH_CLIENT_ID: facebookId, FACEBOOK_AUTH_CLIENT_SECRET: facebookSecret,
   } = env(c)
   if (!facebookId || !facebookSecret) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.FacebookSignInNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.FacebookSignInNotEnabled)
   }
   await next()
@@ -116,6 +160,11 @@ export const enableGithubSignIn = async (
     GITHUB_AUTH_APP_NAME: githubAppName,
   } = env(c)
   if (!githubId || !githubSecret || !githubAppName) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.GithubSignInNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.GithubSignInNotEnabled)
   }
   await next()
@@ -127,6 +176,11 @@ export const enableEmailVerification = async (
   const { ENABLE_EMAIL_VERIFICATION: enableEmailVerification } = env(c)
 
   if (!enableEmailVerification) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.EmailVerificationNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.EmailVerificationNotEnabled)
   }
 
@@ -144,18 +198,12 @@ export const enableMfaEnroll = async (
   } = env(c)
 
   if (!enforceMfa?.length || requireEmailMfa || requireOtpMfa || requireSmsMfa) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.MfaEnrollNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.MfaEnrollNotEnabled)
-  }
-
-  await next()
-}
-
-export const enableNames = async (
-  c: Context<typeConfig.Context>, next: Next,
-) => {
-  const { ENABLE_NAMES: enableNames } = env(c)
-  if (!enableNames) {
-    throw new errorConfig.Forbidden(messageConfig.ConfigError.NamesNotEnabled)
   }
 
   await next()
@@ -168,6 +216,11 @@ export const enableChangePasswordPolicy = async (
     BLOCKED_POLICIES: blockedPolicies, ENABLE_PASSWORD_RESET: enablePasswordReset,
   } = env(c)
   if (!enablePasswordReset || blockedPolicies.includes(Policy.ChangePassword)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.ChangePasswordPolicyNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.ChangePasswordPolicyNotEnabled)
   }
   await next()
@@ -180,6 +233,11 @@ export const enableChangeEmailPolicy = async (
     BLOCKED_POLICIES: blockedPolicies, ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
   } = env(c)
   if (!enableEmailVerification || blockedPolicies.includes(Policy.ChangeEmail)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.ChangeEmailPolicyNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.ChangeEmailPolicyNotEnabled)
   }
   await next()
@@ -190,6 +248,11 @@ export const enableResetMfaPolicy = async (
 ) => {
   const { BLOCKED_POLICIES: blockedPolicies } = env(c)
   if (blockedPolicies.includes(Policy.ResetMfa)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.ResetMfaPolicyNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.ResetMfaPolicyNotEnabled)
   }
   await next()
@@ -202,6 +265,11 @@ export const enableManagePasskeyPolicy = async (
     BLOCKED_POLICIES: blockedPolicies, ALLOW_PASSKEY_ENROLLMENT: allowPasskeyEnrollment,
   } = env(c)
   if (!allowPasskeyEnrollment || blockedPolicies.includes(Policy.ManagePasskey)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.ManagePasskeyPolicyNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.ManagePasskeyPolicyNotEnabled)
   }
   await next()
@@ -214,6 +282,11 @@ export const enableUpdateInfoPolicy = async (
     BLOCKED_POLICIES: blockedPolicies, ENABLE_NAMES: enableNames,
   } = env(c)
   if (!enableNames || blockedPolicies.includes(Policy.UpdateInfo)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.UpdateInfoPolicyNotEnabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.UpdateInfoPolicyNotEnabled)
   }
   await next()

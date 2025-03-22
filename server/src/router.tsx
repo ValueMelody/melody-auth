@@ -11,6 +11,7 @@ import { setupMiddleware } from 'middlewares'
 import {
   typeConfig, variableConfig,
 } from 'configs'
+import { loggerUtil } from 'utils'
 
 export const loadRouters = (app: Hono<typeConfig.Context>) => {
   app.use(
@@ -21,8 +22,8 @@ export const loadRouters = (app: Hono<typeConfig.Context>) => {
       const {
         LOG_LEVEL: logLevel, ENVIRONMENT: environment,
       } = env(c)
-      if (logLevel === 'info' || environment === variableConfig.DefaultEnvironment.Development) {
-        const loggerMiddleware = logger()
+      if (logLevel === loggerUtil.LoggerLevel.Info || environment === variableConfig.DefaultEnvironment.Development) {
+        const loggerMiddleware = logger(loggerUtil.customLogger)
         return loggerMiddleware(
           c,
           next,

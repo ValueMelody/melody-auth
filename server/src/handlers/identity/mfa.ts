@@ -11,7 +11,7 @@ import {
   emailService, kvService, smsService, userService,
 } from 'services'
 import {
-  requestUtil, validateUtil,
+  requestUtil, validateUtil, loggerUtil,
 } from 'utils'
 import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
@@ -66,6 +66,11 @@ export const handleSendEmailMfa = async (
   )
 
   if (!requireEmailMfa && !couldFallbackAsOtp && !couldFallbackAsSms && !enablePasswordlessSignIn) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.NotSupposeToSendEmailMfa,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.NotSupposeToSendEmailMfa)
   }
 

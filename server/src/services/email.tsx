@@ -6,7 +6,9 @@ import { MailgunMailer } from './email/mailgun'
 import { ResendMailer } from './email/resend'
 import { SendgridMailer } from './email/sendgrid'
 import { SmtpMailer } from './email/smtp'
-import { cryptoUtil } from 'utils'
+import {
+  cryptoUtil, loggerUtil,
+} from 'utils'
 import {
   ChangeEmailVerificationTemplate,
   EmailMfaTemplate,
@@ -39,6 +41,11 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
     (!sendgridApiKey || !sendgridSender) &&
     (!resendApiKey || !resendSender)
   ) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.NoEmailSender,
+    )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.NoEmailSender)
   }
 }
