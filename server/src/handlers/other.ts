@@ -81,7 +81,7 @@ export const getOpenidConfig = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getJwks = async (c: Context<typeConfig.Context>) => {
-  const publicKey = await kvService.getJwtPublicSecret(c.env.KV)
+  const publicKey = await kvService.getJwtPublicSecret(c)
   const keys = []
   const jwk = await cryptoUtil.secretToJwk(publicKey)
   keys.push(jwk)

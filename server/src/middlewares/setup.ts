@@ -22,7 +22,7 @@ export const session = async (
     return
   }
 
-  const secret = await kvService.getSessionSecret(c.env.KV)
+  const secret = await kvService.getSessionSecret(c)
 
   const session = sessionMiddleware({
     store,

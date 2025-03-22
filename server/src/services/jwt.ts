@@ -52,8 +52,8 @@ export const pemToBinary = (pem: string): Uint8Array => {
 export const signWithKid = async (
   c: Context<typeConfig.Context>, payload: object,
 ) => {
-  const privateKey = await kvService.getJwtPrivateSecret(c.env.KV)
-  const publicKey = await kvService.getJwtPublicSecret(c.env.KV)
+  const privateKey = await kvService.getJwtPrivateSecret(c)
+  const publicKey = await kvService.getJwtPublicSecret(c)
   const jwk = await cryptoUtil.secretToJwk(publicKey)
 
   const key = await crypto.subtle.importKey(
@@ -103,7 +103,7 @@ export const getAccessTokenBody = async (
   const decoded = decode(accessToken)
   const header = decoded.header as unknown as { kid: string }
 
-  const publicSecret = await kvService.getJwtPublicSecret(context.env.KV)
+  const publicSecret = await kvService.getJwtPublicSecret(context)
   const publicJwk = await cryptoUtil.secretToJwk(publicSecret)
   let key = ''
   if (publicJwk.kid === header.kid) key = publicSecret

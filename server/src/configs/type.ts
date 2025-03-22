@@ -70,7 +70,7 @@ export type Bindings = {
   ENABLE_EMAIL_LOG: boolean;
   ENABLE_SMS_LOG: boolean;
   ENABLE_SIGN_IN_LOG: boolean;
-  LOG_LEVEL: 'silent' | 'info';
+  LOG_LEVEL: 'silent' | 'info' | 'warn' | 'error';
   FACEBOOK_AUTH_CLIENT_ID: string;
   FACEBOOK_AUTH_CLIENT_SECRET: string;
   GITHUB_AUTH_CLIENT_ID: string;

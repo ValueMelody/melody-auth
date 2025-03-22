@@ -1,25 +1,49 @@
+import { Context } from 'hono'
 import {
   errorConfig, adapterConfig,
   typeConfig,
   messageConfig,
 } from 'configs'
-import { cryptoUtil } from 'utils'
+import {
+  cryptoUtil, loggerUtil,
+} from 'utils'
 
-export const getSessionSecret = async (kv: KVNamespace): Promise<string> => {
-  const secretInKv = await kv.get(adapterConfig.BaseKVKey.SessionSecret)
-  if (!secretInKv) throw new errorConfig.Forbidden()
+export const getSessionSecret = async (c: Context<typeConfig.Context>): Promise<string> => {
+  const secretInKv = await c.env.KV.get(adapterConfig.BaseKVKey.SessionSecret)
+  if (!secretInKv) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.NoSessionSecret,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.NoSessionSecret)
+  }
   return secretInKv
 }
 
-export const getJwtPrivateSecret = async (kv: KVNamespace): Promise<string> => {
-  const secretInKv = await kv.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
-  if (!secretInKv) throw new errorConfig.Forbidden()
+export const getJwtPrivateSecret = async (c: Context<typeConfig.Context>): Promise<string> => {
+  const secretInKv = await c.env.KV.get(adapterConfig.BaseKVKey.JwtPrivateSecret)
+  if (!secretInKv) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.NoJwtPrivateSecret,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.NoJwtPrivateSecret)
+  }
   return secretInKv
 }
 
-export const getJwtPublicSecret = async (kv: KVNamespace): Promise<string> => {
-  const secretInKv = await kv.get(adapterConfig.BaseKVKey.JwtPublicSecret)
-  if (!secretInKv) throw new errorConfig.Forbidden()
+export const getJwtPublicSecret = async (c: Context<typeConfig.Context>): Promise<string> => {
+  const secretInKv = await c.env.KV.get(adapterConfig.BaseKVKey.JwtPublicSecret)
+  if (!secretInKv) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.NoJwtPublicSecret,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.NoJwtPublicSecret)
+  }
   return secretInKv
 }
 
