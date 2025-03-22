@@ -46,7 +46,7 @@
   - Email MFA
   - OTP MFA
   - SMS MFA
-  - MFA Enrollment
+  - MFA Self Enrollment
   - Passkey Enrollment
 - <b>Policy [How to trigger a different policy](https://auth.valuemelody.com/q_a.html#how-to-trigger-a-different-policy)</b>
   - sign_in_or_sign_up
@@ -76,6 +76,7 @@
   - Email MFA attempts
   - Change Email attempts
 - <b>Logging</b>:
+  - Logger Level
   - Email Logs
   - SMS Logs
   - Sign-in Logs
