@@ -47,12 +47,18 @@ const useSubmitError = ({
         msg = requestError.emailMfaLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.PasswordResetLocked) !== -1) {
         msg = requestError.passwordResetLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.ChangeEmailLocked) !== -1) {
+        msg = requestError.changeEmailLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.EmailTaken) !== -1) {
         msg = requestError.emailTaken[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.WrongCode) !== -1) {
         msg = requestError.wrongCode[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.RequireDifferentPassword) !== -1) {
         msg = requestError.requireNewPassword[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.EmailAlreadyVerified) !== -1) {
+        msg = requestError.emailAlreadyVerified[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.RequireDifferentEmail) !== -1) {
+        msg = requestError.requireNewEmail[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.WrongMfaCode) !== -1) {
         msg = requestError.wrongCode[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.WrongAuthCode) !== -1) {

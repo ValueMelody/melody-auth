@@ -6,7 +6,9 @@ import {
   orgService, userService,
 } from 'services'
 import { orgDto } from 'dtos'
-import { validateUtil } from 'utils'
+import {
+  loggerUtil, validateUtil,
+} from 'utils'
 import { PaginationDto } from 'dtos/common'
 
 export const getOrgs = async (c: Context<typeConfig.Context>) => {
@@ -85,6 +87,11 @@ export const deleteOrg = async (c: Context<typeConfig.Context>) => {
   )
 
   if (orgUser.count > 0) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.OrgHasUsers,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.OrgHasUsers)
   }
 

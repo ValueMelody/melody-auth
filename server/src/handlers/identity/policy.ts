@@ -13,14 +13,21 @@ import {
   kvService, passkeyService, userService,
 } from 'services'
 import {
-  cryptoUtil, validateUtil,
+  cryptoUtil, validateUtil, loggerUtil,
 } from 'utils'
 import {
   userModel, userPasskeyModel,
 } from 'models'
 
-const checkAccount = (user: userModel.Record) => {
+const checkAccount = (
+  c: Context<typeConfig.Context>, user: userModel.Record,
+) => {
   if (!user.email || user.socialAccountId) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.SocialAccountNotSupported,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.SocialAccountNotSupported)
   }
 }
@@ -35,8 +42,18 @@ export const postChangePassword = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  checkAccount(authInfo.user)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
+  checkAccount(
+    c,
+    authInfo.user,
+  )
 
   await userService.changeUserPassword(
     c,
@@ -57,8 +74,18 @@ export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  checkAccount(authInfo.user)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
+  checkAccount(
+    c,
+    authInfo.user,
+  )
 
   const { CHANGE_EMAIL_EMAIL_THRESHOLD: emailThreshold } = env(c)
 
@@ -68,7 +95,14 @@ export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
       authInfo.user.email ?? '',
     )
 
-    if (emailAttempts >= emailThreshold) throw new errorConfig.Forbidden(messageConfig.RequestError.ChangeEmailLocked)
+    if (emailAttempts >= emailThreshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.ChangeEmailLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.ChangeEmailLocked)
+    }
 
     await kvService.setChangeEmailAttempts(
       c.env.KV,
@@ -105,8 +139,18 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  checkAccount(authInfo.user)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
+  checkAccount(
+    c,
+    authInfo.user,
+  )
 
   const isCorrectCode = await kvService.verifyChangeEmailCode(
     c.env.KV,
@@ -115,7 +159,14 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
     bodyDto.verificationCode,
   )
 
-  if (!isCorrectCode) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  if (!isCorrectCode) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongChangeEmailCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  }
 
   await userService.changeUserEmail(
     c,
@@ -136,7 +187,14 @@ export const postResetMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeBody) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   await userService.resetUserMfa(
     c,
@@ -158,8 +216,18 @@ export const getManagePasskey = async (c: Context<typeConfig.Context>)
     c.env.KV,
     queryDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  checkAccount(authInfo.user)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
+  checkAccount(
+    c,
+    authInfo.user,
+  )
 
   const passkey = await passkeyService.getPasskeyByUser(
     c,
@@ -187,8 +255,18 @@ export const postManagePasskey = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  checkAccount(authInfo.user)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
+  checkAccount(
+    c,
+    authInfo.user,
+  )
 
   const {
     passkeyId, passkeyPublickey, passkeyCounter,
@@ -225,15 +303,32 @@ export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  checkAccount(authInfo.user)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
+  checkAccount(
+    c,
+    authInfo.user,
+  )
 
   const passkey = await passkeyService.getPasskeyByUser(
     c,
     authInfo.user.id,
   )
 
-  if (!passkey) throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidRequest)
+  if (!passkey) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.PasskeyNotFound,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.PasskeyNotFound)
+  }
 
   await passkeyService.deletePasskey(
     c,
@@ -254,8 +349,18 @@ export const postUpdateInfo = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  checkAccount(authInfo.user)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
+  checkAccount(
+    c,
+    authInfo.user,
+  )
 
   await userService.updateUser(
     c,

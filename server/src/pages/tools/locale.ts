@@ -513,6 +513,14 @@ export const requestError = Object.freeze({
     en: 'Your new password can not be same as old password.',
     fr: "Votre nouveau mot de passe ne peut pas être identique à l'ancien mot de passe.",
   },
+  requireNewEmail: {
+    en: 'Your new email can not be same as old email.',
+    fr: "Votre nouvelle adresse e-mail ne peut pas être identique à l'ancienne adresse e-mail.",
+  },
+  emailAlreadyVerified: {
+    en: 'The email address is already verified.',
+    fr: 'L\'adresse e-mail est déjà vérifiée.',
+  },
   optMfaLocked: {
     en: 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
     fr: 'Nombre trop élevé de tentatives échouées de vérification OTP. Veuillez réessayer dans 30 minutes.',
@@ -528,6 +536,10 @@ export const requestError = Object.freeze({
   passwordResetLocked: {
     en: 'Too many password reset requests. Please try again tomorrow.',
     fr: 'Trop de demandes de réinitialisation de mot de passe. Veuillez réessayer demain.',
+  },
+  changeEmailLocked: {
+    en: 'Too many password change email requests. Please try again after 30 minutes.',
+    fr: 'Trop de demandes de modification de mot de passe par e-mail. Veuillez réessayer dans 30 minutes.',
   },
   emailTaken: {
     en: 'The email address is already in use.',

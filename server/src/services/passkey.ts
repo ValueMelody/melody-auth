@@ -13,7 +13,9 @@ import {
 import {
   userModel, userPasskeyModel,
 } from 'models'
-import { cryptoUtil } from 'utils'
+import {
+  cryptoUtil, loggerUtil,
+} from 'utils'
 import { kvService } from 'services'
 import { AuthCodeBody } from 'configs/type'
 
@@ -162,7 +164,14 @@ export const processPasskeyEnroll = async (
     authCodeStore.user.id,
   )
 
-  if (!challenge) throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
+  if (!challenge) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPasskeyEnrollRequest,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
+  }
 
   const { AUTH_SERVER_URL: authServerUrl } = env(c)
 
@@ -175,7 +184,12 @@ export const processPasskeyEnroll = async (
       expectedRPID: cryptoUtil.getPasskeyRpId(c),
     })
   } catch (error) {
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPasskeyEnrollRequest,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
   }
 
   const passkeyId = verification.registrationInfo?.credential.id
@@ -183,7 +197,12 @@ export const processPasskeyEnroll = async (
   const passkeyCounter = verification.registrationInfo?.credential.counter || 0
 
   if (!verification.verified || !passkeyPublickey || !passkeyId) {
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPasskeyEnrollRequest,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
   }
 
   return {
@@ -202,13 +221,27 @@ export const processPasskeyVerify = async (
     c.env.KV,
     email,
   )
-  if (!challenge) throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidRequest)
+  if (!challenge) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPasskeyVerifyRequest,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
+  }
 
   const userAndPasskey = await getUserAndPasskeyByEmail(
     c,
     email,
   )
-  if (!userAndPasskey) throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidRequest)
+  if (!userAndPasskey) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPasskeyVerifyRequest,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
+  }
   const {
     user, passkey,
   } = userAndPasskey
@@ -229,11 +262,21 @@ export const processPasskeyVerify = async (
       },
     })
   } catch (error) {
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPasskeyVerifyRequest,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
   }
 
   if (!verification.verified) {
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidRequest)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPasskeyVerifyRequest,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
   }
 
   return {

@@ -165,7 +165,14 @@ const handleSendSmsMfa = async (
   )
 
   if (threshold) {
-    if (attempts >= threshold) throw new errorConfig.Forbidden(messageConfig.RequestError.SmsMfaLocked)
+    if (attempts >= threshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.SmsMfaLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.SmsMfaLocked)
+    }
 
     await kvService.setSmsMfaMessageAttempts(
       c.env.KV,
@@ -203,9 +210,23 @@ export const getProcessMfaEnroll = async (c: Context<typeConfig.Context>)
     c.env.KV,
     queryDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
-  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
+  if (authCodeStore.user.mfaTypes.length) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.MfaEnrolled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
+  }
 
   const { ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes } = env(c)
 
@@ -222,9 +243,23 @@ export const postProcessMfaEnroll = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
-  if (authCodeStore.user.mfaTypes.length) throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
+  if (authCodeStore.user.mfaTypes.length) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.MfaEnrolled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
+  }
 
   const user = await userService.enrollUserMfa(
     c,
@@ -267,10 +302,20 @@ export const postSendEmailMfa = async (c: Context<typeConfig.Context>) => {
     isPasswordlessCode,
   )
   if (!emailRes || (!emailRes.result && emailRes.reason === messageConfig.RequestError.WrongAuthCode)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
   if (!emailRes.result && emailRes.reason === messageConfig.RequestError.EmailMfaLocked) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.EmailMfaLocked,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.EmailMfaLocked)
   }
 
@@ -287,7 +332,14 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const isOtpFallback = allowOtpSwitchToEmailMfa(
     c,
@@ -310,7 +362,14 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
     isSmsFallback,
   )
 
-  if (!isValid) throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
+  if (!isValid) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongEmailMfaCode,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
+  }
 
   return c.json(await identityService.processPostAuthorize(
     c,
@@ -332,7 +391,14 @@ export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeBody) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) throw new errorConfig.Forbidden()
 
@@ -369,7 +435,14 @@ export const resendSmsMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeBody) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   if (!authCodeBody.user.smsPhoneNumber) throw new errorConfig.Forbidden()
 
@@ -399,7 +472,14 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
     c.env.KV,
     queryDto.code,
   )
-  if (!authCodeBody) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const {
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
@@ -447,7 +527,14 @@ export const postProcessSmsMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
@@ -459,6 +546,11 @@ export const postProcessSmsMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   if (!isValid) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongSmsMfaCode,
+    )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
   }
 
@@ -489,9 +581,23 @@ export const getOtpMfaSetup = async (c: Context<typeConfig.Context>)
     c.env.KV,
     queryDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
-  if (authCodeStore.user.otpVerified) throw new errorConfig.Forbidden(messageConfig.RequestError.OtpAlreadySet)
+  if (authCodeStore.user.otpVerified) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.OtpAlreadySet,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.OtpAlreadySet)
+  }
 
   const otpUri = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${authCodeStore.user.otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
 
@@ -509,7 +615,14 @@ export const getProcessOtpMfa = async (c: Context<typeConfig.Context>)
     c.env.KV,
     queryDto.code,
   )
-  if (!authCodeBody) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const allowFallbackToEmailMfa = allowOtpSwitchToEmailMfa(
     c,
@@ -529,7 +642,14 @@ export const postProcessOtpMfa = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
 
@@ -539,7 +659,14 @@ export const postProcessOtpMfa = async (c: Context<typeConfig.Context>) => {
     authCodeStore.user.id,
     ip,
   )
-  if (failedAttempts >= 5) throw new errorConfig.Forbidden(messageConfig.RequestError.OtpMfaLocked)
+  if (failedAttempts >= 5) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.OtpMfaLocked,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.OtpMfaLocked)
+  }
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
@@ -557,6 +684,11 @@ export const postProcessOtpMfa = async (c: Context<typeConfig.Context>) => {
       authCodeStore.user.id,
       ip,
       failedAttempts + 1,
+    )
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongOtpMfaCode,
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
   }

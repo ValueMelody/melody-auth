@@ -11,7 +11,7 @@ import {
   userService,
 } from 'services'
 import {
-  requestUtil, validateUtil,
+  requestUtil, validateUtil, loggerUtil,
 } from 'utils'
 
 export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
@@ -52,7 +52,14 @@ export const postResetPasswordCode = async (c: Context<typeConfig.Context>) => {
       email,
       ip,
     )
-    if (resetAttempts >= resetThreshold) throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordResetLocked)
+    if (resetAttempts >= resetThreshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.PasswordResetLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordResetLocked)
+    }
 
     await kvService.setPasswordResetAttemptsByIP(
       c.env.KV,

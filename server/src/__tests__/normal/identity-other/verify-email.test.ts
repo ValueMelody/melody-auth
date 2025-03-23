@@ -228,7 +228,7 @@ describe(
         expect(res.status).toBe(200)
         const { res: res1 } = await sendCorrectVerifyEmailReq({ code: correctCode })
         expect(res1.status).toBe(400)
-        expect(await res1.text()).toBe(messageConfig.RequestError.WrongCode)
+        expect(await res1.text()).toBe(messageConfig.RequestError.NoUser)
       },
     )
 

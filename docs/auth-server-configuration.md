@@ -199,8 +199,9 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** silent
 - **Description:** Controls the verbosity of logs. Valid values include:
   - silent: Suppresses all logs.
-  - info: Outputs informational and error-level logs.
-  - error: Only reports error-level logs.
+  - info: Outputs informational and error level logs
+  - warn: Outputs warning, and error level logs
+  - error: Only reports error level logs.
 - Note: If the environment is set to dev, the log level is automatically forced to info, regardless of your configuration.
 
 ### ENABLE_EMAIL_LOG

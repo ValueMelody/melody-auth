@@ -12,12 +12,11 @@ import {
   appService, consentService, jwtService, kvService, roleService, scopeService, sessionService, userService,
 } from 'services'
 import {
-  cryptoUtil, requestUtil, timeUtil, validateUtil,
+  cryptoUtil, loggerUtil, requestUtil, timeUtil, validateUtil,
 } from 'utils'
 import {
   signInLogModel, userModel,
 } from 'models'
-import { Policy } from 'dtos/oauth'
 import { PopupRedirect } from 'templates'
 
 export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeDto> => {
@@ -134,7 +133,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       },
     )
 
-    if (!queryDto.policy || queryDto.policy === Policy.SignInOrSignUp) {
+    if (!queryDto.policy || queryDto.policy === oauthDto.Policy.SignInOrSignUp) {
       if (queryDto.authorizeMethod === 'popup') {
         return c.html(<PopupRedirect
           code={authCode}
@@ -168,7 +167,14 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const isValidChallenge = await cryptoUtil.isValidCodeChallenge(
     bodyDto.codeVerifier,
@@ -176,6 +182,11 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     authInfo.request.codeChallengeMethod,
   )
   if (!isValidChallenge) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongCodeVerifier,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCodeVerifier)
   }
 
@@ -192,7 +203,14 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
 
   if (!isSocialLogin) {
     if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
-      if (!authInfo.user.mfaTypes.length) throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      if (!authInfo.user.mfaTypes.length) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.MfaNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      }
     }
 
     if (requireOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
@@ -200,7 +218,14 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         c.env.KV,
         bodyDto.code,
       )
-      if (!isVerified) throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      if (!isVerified) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.MfaNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      }
     }
 
     if (requireSmsMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Sms)) {
@@ -208,7 +233,14 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         c.env.KV,
         bodyDto.code,
       )
-      if (!isVerified) throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      if (!isVerified) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.MfaNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      }
     }
 
     if (requireEmailMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Email)) {
@@ -216,7 +248,14 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         c.env.KV,
         bodyDto.code,
       )
-      if (!isVerified) throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      if (!isVerified) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.MfaNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      }
     }
 
     if (enablePasswordlessSignIn) {
@@ -224,7 +263,14 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
         c.env.KV,
         bodyDto.code,
       )
-      if (!isVerified) throw new errorConfig.UnAuthorized(messageConfig.RequestError.PasswordlessNotVerified)
+      if (!isVerified) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.PasswordlessNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.PasswordlessNotVerified)
+      }
     }
   }
 
@@ -233,7 +279,14 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     authInfo.user.id,
     authInfo.appId,
   )
-  if (requireConsent) throw new errorConfig.UnAuthorized(messageConfig.RequestError.NoConsent)
+  if (requireConsent) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoConsent,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.NoConsent)
+  }
 
   const userRoles = await roleService.getUserRoles(
     c,
@@ -346,7 +399,7 @@ export const postTokenRefreshToken = async (c: Context<typeConfig.Context>) => {
   await validateUtil.dto(bodyDto)
 
   const refreshTokenBody = await kvService.getRefreshTokenBody(
-    c.env.KV,
+    c,
     bodyDto.refreshToken,
   )
 
@@ -453,21 +506,36 @@ export const revokeToken = async (c: Context<typeConfig.Context>) => {
   const tokenTypeHint = String(reqBody.token_type_hint)
 
   if (!token) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongRefreshToken,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
 
   if (tokenTypeHint !== 'refresh_token') {
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongTokenType)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongTokenTypeHint,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongTokenTypeHint)
   }
 
   const { username: clientId } = c.get('basic_auth_body')!
 
   const refreshTokenBody = await kvService.getRefreshTokenBody(
-    c.env.KV,
+    c,
     token,
   )
 
   if (!refreshTokenBody || clientId !== refreshTokenBody.clientId) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongRefreshToken,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
 

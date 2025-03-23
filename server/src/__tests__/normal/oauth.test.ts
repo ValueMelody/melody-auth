@@ -184,7 +184,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(messageConfig.RequestError.WrongClientType)
+        expect(await res.text()).toBe(messageConfig.RequestError.NotSpaTypeApp)
       },
     )
 
@@ -199,7 +199,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(messageConfig.RequestError.NoApp)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoSpaAppFound)
       },
     )
 
@@ -216,7 +216,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(messageConfig.RequestError.AppDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.SpaAppDisabled)
       },
     )
 
@@ -711,7 +711,7 @@ describe(
           mock(db),
         )
         expect(tokenRes.status).toBe(400)
-        expect(await tokenRes.text()).toBe(messageConfig.RequestError.WrongCode)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         const tokenRes1 = await app.request(
           routeConfig.OauthRoute.Token,
@@ -887,7 +887,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(messageConfig.RequestError.WrongClientSecret)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongS2sClientSecret)
       },
     )
 
@@ -911,7 +911,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(messageConfig.RequestError.NoApp)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoS2sAppFound)
       },
     )
 
@@ -937,7 +937,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
-        expect(await res.text()).toBe(messageConfig.RequestError.AppDisabled)
+        expect(await res.text()).toBe(messageConfig.RequestError.S2sAppDisabled)
       },
     )
 
@@ -986,7 +986,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(messageConfig.RequestError.WrongClientType)
+        expect(await res.text()).toBe(messageConfig.RequestError.NotS2sTypeApp)
       },
     )
   },

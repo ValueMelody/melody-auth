@@ -4,6 +4,7 @@ import {
 } from 'configs'
 import { orgModel } from 'models'
 import { orgDto } from 'dtos'
+import { loggerUtil } from 'utils'
 
 export const getOrgs = async (c: Context<typeConfig.Context>): Promise<orgModel.Record[]> => {
   const orgs = await orgModel.getAll(c.env.DB)
@@ -20,7 +21,14 @@ export const getOrgById = async (
     id,
   )
 
-  if (!org) throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
+  if (!org) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoOrg,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
+  }
 
   return org
 }

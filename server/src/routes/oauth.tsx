@@ -5,6 +5,7 @@ import {
 import { oauthDto } from 'dtos'
 import { authMiddleware } from 'middlewares'
 import { oauthHandler } from 'handlers'
+import { loggerUtil } from 'utils'
 
 const oauthRoutes = new Hono<typeConfig.Context>()
 export default oauthRoutes
@@ -33,6 +34,11 @@ oauthRoutes.post(
       return oauthHandler.postTokenClientCredentials(c)
     }
 
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongGrantType,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongGrantType)
   },
 )
