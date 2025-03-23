@@ -19,6 +19,7 @@ import {
 import {
   cryptoUtil,
   validateUtil,
+  loggerUtil,
 } from 'utils'
 import { oauthHandler } from 'handlers'
 
@@ -34,7 +35,14 @@ export const getProcessPasskeyEnroll = async (c: Context<typeConfig.Context>)
     c.env.KV,
     queryDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const enrollOptions = await passkeyService.genPasskeyEnrollOptions(
     c,
@@ -54,7 +62,14 @@ export const postProcessPasskeyEnroll = async (c: Context<typeConfig.Context>) =
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const {
     passkeyId, passkeyPublickey, passkeyCounter,
@@ -90,7 +105,14 @@ export const postProcessPasskeyEnrollDecline = async (c: Context<typeConfig.Cont
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   if (bodyDto.remember) {
     await userService.skipUserPasskeyEnroll(

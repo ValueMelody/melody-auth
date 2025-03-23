@@ -107,17 +107,27 @@ export const invalidRefreshToken = async (
 }
 
 export const getRefreshTokenBody = async (
-  kv: KVNamespace, refreshToken: string,
+  c: Context<typeConfig.Context>, refreshToken: string,
 ): Promise<typeConfig.RefreshTokenBody> => {
-  const tokenInKv = await kv.get(adapterConfig.getKVKey(
+  const tokenInKv = await c.env.KV.get(adapterConfig.getKVKey(
     adapterConfig.BaseKVKey.RefreshToken,
     refreshToken,
   ))
   if (!tokenInKv) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongRefreshToken,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
   const tokenBody = JSON.parse(tokenInKv)
   if (!tokenBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongRefreshToken,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
   return tokenBody

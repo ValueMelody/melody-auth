@@ -62,7 +62,7 @@
   - Mailgun
   - Brevo
   - Resend
-  - STMP (Node.js environment only)
+  - SMTP (Node.js environment only)
 - <b>SMS Option</b> [SMS Provider Setup Doc](https://auth.valuemelody.com/sms-provider-setup.html)
   - Twilio
 - <b>JWT Authentication</b>

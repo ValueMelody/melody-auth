@@ -17,7 +17,7 @@ import {
   identityService, kvService, scopeService, userService,
 } from 'services'
 import {
-  requestUtil, validateUtil,
+  requestUtil, validateUtil, loggerUtil,
 } from 'utils'
 import { scopeModel } from 'models'
 
@@ -135,7 +135,14 @@ Promise<TypedResponse<GetAppConsentRes>> => {
     c.env.KV,
     queryDto.code,
   )
-  if (!authInfo) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const app = await appService.verifySPAClientRequest(
     c,
@@ -164,7 +171,14 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeBody) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   await consentService.createUserAppConsent(
     c,
@@ -193,7 +207,7 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
 
   const accessTokenBody = c.get('access_token_body')!
   const refreshTokenBody = await kvService.getRefreshTokenBody(
-    c.env.KV,
+    c,
     bodyDto.refreshToken,
   )
 

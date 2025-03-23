@@ -6,7 +6,6 @@ import {
   messageConfig,
   typeConfig,
 } from 'configs'
-import { Forbidden } from 'configs/error'
 import {
   identityDto, userDto,
 } from 'dtos'
@@ -21,7 +20,7 @@ import {
   emailService, jwtService, kvService, roleService,
 } from 'services'
 import {
-  cryptoUtil, requestUtil, timeUtil,
+  cryptoUtil, loggerUtil, requestUtil, timeUtil,
 } from 'utils'
 
 export const getUserInfo = async (
@@ -32,9 +31,19 @@ export const getUserInfo = async (
     authId,
   )
   if (!user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
   if (!user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
@@ -102,7 +111,14 @@ export const getUsers = async (
       c.env.DB,
       orgId,
     )
-    if (!org) throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
+    if (!org) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.NoOrg,
+      )
+      throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
+    }
   }
 
   const searchObj = search
@@ -159,7 +175,14 @@ export const getUserByAuthId = async (
     c.env.DB,
     authId,
   )
-  if (!user) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  if (!user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  }
   return user
 }
 
@@ -171,7 +194,14 @@ export const getUserDetailByAuthId = async (
     c.env.DB,
     authId,
   )
-  if (!user) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  if (!user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  }
 
   const {
     ENABLE_NAMES: enableNames, ENABLE_ORG: enableOrg,
@@ -210,6 +240,11 @@ export const getPasswordlessUserOrCreate = async (
 
   if (user) {
     if (!user.isActive) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.UserDisabled,
+      )
       throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
     } else {
       return user
@@ -262,6 +297,11 @@ export const verifyPasswordSignIn = async (
     )
     : 0
   if (lockThreshold && (failedAttempts >= lockThreshold)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.AccountLocked,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.AccountLocked)
   }
 
@@ -271,6 +311,11 @@ export const verifyPasswordSignIn = async (
   )
 
   if (!user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
@@ -287,10 +332,20 @@ export const verifyPasswordSignIn = async (
         lockExpiresIn,
       )
     }
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
   if (!user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
   return user
@@ -305,7 +360,14 @@ export const createAccountWithPassword = async (
     bodyDto.email,
   )
 
-  if (user) throw new Forbidden(messageConfig.RequestError.EmailTaken)
+  if (user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.EmailTaken,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.EmailTaken)
+  }
 
   const org = bodyDto.org
     ? await orgModel.getBySlug(
@@ -347,7 +409,14 @@ export const processGoogleAccount = async (
     c.env.DB,
     googleUser.id,
   )
-  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  if (currentUser && !currentUser.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -384,7 +453,14 @@ export const processFacebookAccount = async (
     c.env.DB,
     facebookUser.id,
   )
-  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  if (currentUser && !currentUser.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -414,7 +490,14 @@ export const processGithubAccount = async (
     c.env.DB,
     githubUser.id,
   )
-  if (currentUser && !currentUser.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  if (currentUser && !currentUser.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -443,9 +526,19 @@ export const verifyUserEmail = async (
     bodyDto.id,
   )
   if (!user || user.emailVerified) {
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.NoUser)
   }
   if (!user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
@@ -454,7 +547,14 @@ export const verifyUserEmail = async (
     user.id,
     bodyDto.code,
   )
-  if (!isValid) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  if (!isValid) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongEmailVerificationCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  }
 
   await userModel.update(
     c.env.DB,
@@ -502,9 +602,19 @@ export const resetUserPassword = async (
     bodyDto.email,
   )
   if (!user || !user.password) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
   if (!user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
@@ -515,6 +625,11 @@ export const resetUserPassword = async (
   )
 
   if (!isValid) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongPasswordResetCode,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
   }
 
@@ -523,6 +638,11 @@ export const resetUserPassword = async (
     user.password,
   )
   if (isSame) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.RequireDifferentPassword,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.RequireDifferentPassword)
   }
 
@@ -548,6 +668,11 @@ export const changeUserPassword = async (
   bodyDto: identityDto.PostChangePasswordDto,
 ): Promise<true> => {
   if (!user.password) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
@@ -556,6 +681,11 @@ export const changeUserPassword = async (
     user.password,
   )
   if (isSame) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.RequireDifferentPassword,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.RequireDifferentPassword)
   }
 
@@ -576,6 +706,11 @@ export const changeUserEmail = async (
 ): Promise<true> => {
   const isSame = user.email === bodyDto.email
   if (isSame) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.RequireDifferentEmail,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.RequireDifferentEmail)
   }
 
@@ -615,10 +750,20 @@ export const enrollUserMfa = async (
     authId,
   )
   if (!user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
   if (!user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
@@ -661,10 +806,20 @@ export const resetUserMfa = async (
     authId,
   )
   if (!user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
   if (!user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
@@ -781,7 +936,14 @@ export const updateUser = async (
     authId,
   )
 
-  if (!user) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  if (!user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  }
 
   const updateObj: userModel.Update = {}
   if (dto.firstName !== undefined) updateObj.firstName = dto.firstName
@@ -858,7 +1020,14 @@ export const deleteUser = async (
     c.env.DB,
     authId,
   )
-  if (!user) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  if (!user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  }
   await userModel.remove(
     c.env.DB,
     user.id,

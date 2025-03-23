@@ -7,7 +7,9 @@ import {
   emailService, kvService, passkeyService, userService,
 } from 'services'
 import { userDto } from 'dtos'
-import { validateUtil } from 'utils'
+import {
+  loggerUtil, validateUtil,
+} from 'utils'
 import { PaginationDto } from 'dtos/common'
 import { userModel } from 'models'
 
@@ -223,7 +225,14 @@ export const verifyEmail = async (c: Context<typeConfig.Context>) => {
     authId,
   )
 
-  if (user.emailVerified) throw new errorConfig.Forbidden(messageConfig.RequestError.EmailAlreadyVerified)
+  if (user.emailVerified) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.EmailAlreadyVerified,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.EmailAlreadyVerified)
+  }
 
   const verificationCode = await emailService.sendEmailVerification(
     c,
@@ -278,6 +287,11 @@ export const linkAccount = async (c: Context<typeConfig.Context>) => {
   )
 
   if (user.linkedAuthId) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserAlreadyLinked,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserAlreadyLinked)
   }
 
@@ -287,6 +301,11 @@ export const linkAccount = async (c: Context<typeConfig.Context>) => {
   )
 
   if (targetUser.linkedAuthId) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.TargetUserAlreadyLinked,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.TargetUserAlreadyLinked)
   }
 

@@ -9,7 +9,7 @@ import {
   appModel, appScopeModel, scopeModel,
 } from 'models'
 import {
-  requestUtil, timeUtil,
+  requestUtil, timeUtil, loggerUtil,
 } from 'utils'
 import { scopeService } from 'services'
 import { appDto } from 'dtos'
@@ -24,13 +24,37 @@ export const verifySPAClientRequest = async (
     clientId,
   )
 
-  if (!app) throw new errorConfig.NotFound(messageConfig.RequestError.NoApp)
-  if (!app.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.AppDisabled)
+  if (!app) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoSpaAppFound,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoSpaAppFound)
+  }
+  if (!app.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.SpaAppDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.SpaAppDisabled)
+  }
 
   if (app.type !== ClientType.SPA) {
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongClientType)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NotSpaTypeApp,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.NotSpaTypeApp)
   }
   if (!app.redirectUris.includes(requestUtil.stripEndingSlash(redirectUri))) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongRedirectUri,
+    )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongRedirectUri)
   }
   return app
@@ -45,14 +69,38 @@ export const verifyS2SClientRequest = async (
     c.env.DB,
     clientId,
   )
-  if (!app) throw new errorConfig.NotFound(messageConfig.RequestError.NoApp)
-  if (!app.isActive) throw new errorConfig.Forbidden(messageConfig.RequestError.AppDisabled)
+  if (!app) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoS2sAppFound,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoS2sAppFound)
+  }
+  if (!app.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.S2sAppDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.S2sAppDisabled)
+  }
 
   if (app.type !== ClientType.S2S) {
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongClientType)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NotS2sTypeApp,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.NotS2sTypeApp)
   }
   if (app.secret !== clientSecret) {
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongClientSecret)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongS2sClientSecret,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongS2sClientSecret)
   }
   return app
 }

@@ -10,7 +10,9 @@ import { identityDto } from 'dtos'
 import {
   identityService, kvService, userService,
 } from 'services'
-import { validateUtil } from 'utils'
+import {
+  validateUtil, loggerUtil,
+} from 'utils'
 
 export const postAuthorizePasswordless = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
@@ -58,10 +60,20 @@ export const postSendPasswordlessCode = async (c: Context<typeConfig.Context>) =
     isPasswordlessCode,
   )
   if (!emailRes || (!emailRes.result && emailRes.reason === messageConfig.RequestError.WrongAuthCode)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
   if (!emailRes.result && emailRes.reason === messageConfig.RequestError.EmailMfaLocked) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.EmailMfaLocked,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.EmailMfaLocked)
   }
 
@@ -78,7 +90,14 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
     c.env.KV,
     bodyDto.code,
   )
-  if (!authCodeStore) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  if (!authCodeStore) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
@@ -89,7 +108,14 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
     expiresIn,
   )
 
-  if (!isValid) throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongPasswordlessCode)
+  if (!isValid) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongPasswordlessCode,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongCode)
+  }
 
   return c.json(await identityService.processPostAuthorize(
     c,

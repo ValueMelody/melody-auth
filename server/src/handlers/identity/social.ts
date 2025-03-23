@@ -10,7 +10,9 @@ import {
 import {
   appService, jwtService, kvService, userService, identityService,
 } from 'services'
-import { validateUtil } from 'utils'
+import {
+  validateUtil, loggerUtil,
+} from 'utils'
 import {
   appModel, userModel,
 } from 'models'
@@ -58,7 +60,14 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
   )
 
   const googleUser = await jwtService.verifyGoogleCredential(bodyDto.credential)
-  if (!googleUser) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  if (!googleUser) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoGoogleUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  }
 
   const user = await userService.processGoogleAccount(
     c,
@@ -108,7 +117,14 @@ export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
     facebookClientSecret,
     bodyDto.credential,
   )
-  if (!facebookUser) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  if (!facebookUser) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoFacebookUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  }
 
   const user = await userService.processFacebookAccount(
     c,
@@ -139,7 +155,14 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
   const state = c.req.query('state') ?? ''
   const originRequest = JSON.parse(state)
 
-  if (!code || !state) throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  if (!code || !state) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidGithubAuthorizeRequest,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidGithubAuthorizeRequest)
+  }
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
     credential: code,
@@ -164,7 +187,14 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
     githubAppName,
     bodyDto.credential,
   )
-  if (!githubUser) throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  if (!githubUser) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoGithubUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  }
 
   const user = await userService.processGithubAccount(
     c,

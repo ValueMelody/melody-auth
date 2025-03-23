@@ -465,7 +465,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(messageConfig.RequestError.WrongPasswordlessCode)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
       },

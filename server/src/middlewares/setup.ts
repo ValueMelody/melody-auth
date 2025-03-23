@@ -8,7 +8,9 @@ import {
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
-import { requestUtil } from 'utils'
+import {
+  loggerUtil, requestUtil,
+} from 'utils'
 import { kvService } from 'services'
 
 const store = new CookieStore()
@@ -47,6 +49,11 @@ export const validOrigin = async (
   const { AUTH_SERVER_URL: serverUrl } = env(c)
 
   if (requestUtil.stripEndingSlash(serverUrl) !== origin) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongOrigin,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongOrigin)
   }
 
