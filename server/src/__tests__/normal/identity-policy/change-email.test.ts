@@ -113,6 +113,22 @@ describe(
     )
 
     test(
+      'pass through if failed send email',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: false })
+        })
+        global.fetch = mockFetch as Mock
+
+        const { res } = await sendCorrectChangeEmailCodeReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
       'should stop after reach threshold',
       async () => {
         global.process.env.CHANGE_EMAIL_EMAIL_THRESHOLD = 2 as unknown as string
@@ -160,6 +176,32 @@ describe(
         expect(json3).toStrictEqual({ success: true })
 
         global.process.env.CHANGE_EMAIL_EMAIL_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if wrong auth code used',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangeEmailCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              email: 'test_new@email.com',
+              code: 'abc',
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
 
@@ -264,6 +306,52 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
           nextPage: routeConfig.View.Consent,
         })
+      },
+    )
+
+    test(
+      'throw error if change to same email',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+        const correctBody = {
+          ...body,
+          email: 'test@email.com',
+          code: body.code,
+        }
+
+        await app.request(
+          routeConfig.IdentityRoute.ChangeEmailCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              email: 'test@email.com',
+              code: body.code,
+            }),
+          },
+          mock(db),
+        )
+        const correctVerificationCode = await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailCode}-1-test@email.com`)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangeEmail,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: correctBody.code,
+              email: 'test@email.com',
+              locale: 'en',
+              verificationCode: correctVerificationCode,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.RequireDifferentEmail)
       },
     )
 

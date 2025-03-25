@@ -140,6 +140,73 @@ describe(
     )
 
     test(
+      'should create a new user for an org',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
+        const appRecord = await getApp(db)
+
+        await db.prepare('INSERT INTO "org" (name, slug) VALUES (?, ?)').run(
+          'test',
+          'test',
+        )
+
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          org: 'test',
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const user = await db.prepare('SELECT * FROM "user" WHERE email = ?').get('test@email.com') as userModel.Raw
+        expect(user).toBeDefined()
+        expect(user?.email).toBe('test@email.com')
+        expect(user?.password).toBeNull()
+        expect(user?.orgSlug).toBe('test')
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if scope is not provided',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          scope: '',
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        const json = await res.json() as { constraints: { arrayMinSize: string } }[]
+        expect(json[0].constraints).toStrictEqual({ arrayMinSize: 'scopes must contain at least 1 elements' })
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if user is disabled',
       async () => {
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
@@ -253,6 +320,43 @@ describe(
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if email mfa is locked',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 1 as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const body = await prepareFollowUpBody(db)
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.EmailMfaEmailAttempts}-1`,
+          '1',
+        )
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: body.code,
+              locale: 'en',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.EmailMfaLocked)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.EMAIL_MFA_EMAIL_THRESHOLD = 10 as unknown as string
       },
     )
 
@@ -413,7 +517,7 @@ describe(
         )
 
         const res = await app.request(
-          routeConfig.IdentityRoute.ProcessEmailMfa,
+          routeConfig.IdentityRoute.ProcessPasswordlessCode,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -432,7 +536,7 @@ describe(
     )
 
     test(
-      'should throw error if auth code is wrong',
+      'should throw error if mfa code is wrong',
       async () => {
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
 

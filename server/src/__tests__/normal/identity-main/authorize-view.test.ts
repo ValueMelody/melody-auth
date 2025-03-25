@@ -69,6 +69,30 @@ describe(
         expect(html).toContain(`--secondary-button-label-color:${variableConfig.DefaultBranding.SecondaryButtonLabelColor}`)
         expect(html).toContain(`--secondary-button-border-color:${variableConfig.DefaultBranding.SecondaryButtonBorderColor}`)
         expect(html).toContain(`--critical-indicator-color:${variableConfig.DefaultBranding.CriticalIndicatorColor}`)
+
+        expect(html).toContain('<link rel="stylesheet" href="/client.css"/>')
+        expect(html).toContain('<script type="module" src="/client.js">')
+      },
+    )
+
+    test(
+      'should load different source under dev environment',
+      async () => {
+        global.process.env.ENVIRONMENT = 'dev'
+
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.IdentityRoute.AuthorizeView,
+          appRecord,
+        )
+
+        const html = await res.text()
+
+        expect(html).toContain('<link rel="stylesheet" href="/src/pages/client.css"/>')
+        expect(html).toContain('<script type="module" src="/src/pages/client.tsx">')
+
+        global.process.env.ENVIRONMENT = undefined
       },
     )
 
@@ -134,6 +158,33 @@ describe(
           db,
           routeConfig.IdentityRoute.AuthorizeView,
           appRecord,
+        )
+
+        const html = await res.text()
+
+        expect(html).toContain('enablePasswordReset: false')
+        expect(html).toContain('enableSignUp: false')
+        expect(html).toContain('enablePasswordSignIn: false')
+        expect(html).toContain('allowPasskey: false')
+        expect(html).toContain('enablePasswordlessSignIn: true')
+      },
+    )
+
+    test(
+      'set passwordless sign in to true should override password signin for policies',
+      async () => {
+        global.process.env.ENABLE_PASSWORD_RESET = true as unknown as string
+        global.process.env.ENABLE_SIGN_UP = true as unknown as string
+        global.process.env.ENABLE_PASSWORD_SIGN_IN = true as unknown as string
+        global.process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        global.process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.IdentityRoute.AuthorizeView,
+          appRecord,
+          '&policy=change_password',
         )
 
         const html = await res.text()

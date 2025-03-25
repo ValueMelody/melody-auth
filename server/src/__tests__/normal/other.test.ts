@@ -6,8 +6,11 @@ import { Scope } from 'shared'
 import app from 'index'
 import {
   migrate, mock,
+  mockedKV,
 } from 'tests/mock'
-import { routeConfig } from 'configs'
+import {
+  messageConfig, routeConfig,
+} from 'configs'
 import { oauthDto } from 'dtos'
 
 let db: Database
@@ -141,6 +144,24 @@ describe(
           use: 'sig',
           kid: expect.any(String),
         })
+      },
+    )
+
+    test(
+      'should throw error if no jwt public secret',
+      async () => {
+        const kvGet = mockedKV.get
+        mockedKV.get = () => Promise.resolve(null)
+
+        const res = await app.request(
+          `${BaseRoute}/.well-known/jwks.json`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.NoJwtPublicSecret)
+
+        mockedKV.get = kvGet
       },
     )
   },

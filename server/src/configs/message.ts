@@ -1,5 +1,6 @@
 export enum ConfigError {
   NotSupposeToSendEmailMfa = 'An email mfa request triggered but the system is not supposed to send email mfa based on current setup',
+  NotSupposeToSendSmsMfa = 'An sms mfa request triggered but the system is not supposed to send sms mfa based on current setup',
   SignUpNotEnabled = 'Sign up is not enabled or passwordless sign in is enabled',
   PasswordSignInNotEnabled = 'Password sign in is not enabled or passwordless sign in is enabled',
   PasswordResetNotEnabled = 'Password reset is not enabled or passwordless sign in is enabled',
@@ -33,6 +34,7 @@ export enum RequestError {
   WrongCodeVerifier = 'Invalid code_verifier provided',
   WrongRefreshToken = 'Invalid refresh_token provided',
   WrongTokenTypeHint = 'Invalid token_type_hint provided',
+  WrongAccessToken = 'Invalid access_token provided',
   WrongAuthCode = 'Invalid auth code provided',
   WrongCode = 'Invalid code provided',
   WrongChangeEmailCode = 'Invalid change email code provided',
@@ -57,6 +59,7 @@ export enum RequestError {
   NoOrg = 'No organization found',
   OrgHasUsers = 'Can not delete organization with users',
   UserDisabled = 'Try to access a disabled account',
+  SmsMfaNotSetup = 'SMS MFA is not setup',
   EmailTaken = 'The email address is already in use',
   EmailAlreadyVerified = 'Email already verified',
   PasskeyNotFound = 'No passkey found',
@@ -77,4 +80,5 @@ export enum RequestError {
   PasswordResetLocked = 'Too many password reset email requests. Please try again tomorrow.',
   ChangeEmailLocked = 'Too many password change email requests. Please try again after 30 minutes.',
   UniqueKey = 'Unique key constraint failed',
+  UnknownScope = 'Unknown scope',
 }

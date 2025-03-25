@@ -158,6 +158,7 @@ describe(
           false,
         )
         await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
         const body = await prepareFollowUpBody(db)
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         const token = authenticator.generate(currentUser.otpSecret)
@@ -194,6 +195,7 @@ describe(
         )
 
         const body = await prepareFollowUpBody(db)
+        await sendCorrectGetOtpMfaSetupReq({ code: body.code })
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         const token = authenticator.generate(currentUser.otpSecret)
 
@@ -282,6 +284,8 @@ describe(
         )
         await enrollOtpMfa(db)
         const body = await prepareFollowUpBody(db)
+
+        await sendCorrectGetOtpMfaSetupReq({ code: body.code })
 
         const sendRequest = async () => {
           return app.request(

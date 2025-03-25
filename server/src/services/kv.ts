@@ -121,8 +121,10 @@ export const getRefreshTokenBody = async (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
-  const tokenBody = JSON.parse(tokenInKv)
-  if (!tokenBody) {
+  try {
+    const tokenBody = JSON.parse(tokenInKv)
+    return tokenBody
+  } catch (e) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -130,7 +132,6 @@ export const getRefreshTokenBody = async (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
   }
-  return tokenBody
 }
 
 export const emailMfaCodeVerified = async (
@@ -578,7 +579,7 @@ export const getEmailMfaEmailAttemptsByIP = async (
   ip?: string,
 ) => {
   const key = adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.SmsMfaMessageAttempts,
+    adapterConfig.BaseKVKey.EmailMfaEmailAttempts,
     String(userId),
     ip,
   )
@@ -593,7 +594,7 @@ export const setEmailMfaEmailAttempts = async (
   count: number,
 ) => {
   const key = adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.SmsMfaMessageAttempts,
+    adapterConfig.BaseKVKey.EmailMfaEmailAttempts,
     String(userId),
     ip,
   )

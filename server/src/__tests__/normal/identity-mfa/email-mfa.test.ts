@@ -10,7 +10,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, messageConfig, routeConfig,
+  adapterConfig, localeConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   prepareFollowUpBody, insertUsers,
@@ -37,6 +37,11 @@ describe(
     test(
       'should send email mfa code',
       async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
         await insertUsers(
           db,
           false,
@@ -58,7 +63,62 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`) ?? '').length).toBe(6)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(emailBody).toContain(mfaCode)
+        expect(emailBody).toContain(localeConfig.emailMfaEmail.title.en)
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'could default to supported locale',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: body.code,
+              locale: '',
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(emailBody).toContain(mfaCode)
+        expect(emailBody).toContain(localeConfig.emailMfaEmail.title.en)
+
+        global.fetch = fetchMock
       },
     )
 
@@ -168,6 +228,7 @@ describe(
         const body = (callArgs[1] as unknown as { body: string }).body
         expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
         expect(body).toContain(mfaCode)
+        expect(body).toContain(localeConfig.emailMfaEmail.title.en)
 
         global.fetch = fetchMock
 
@@ -378,6 +439,7 @@ describe(
         const callArgs = mockFetch.mock.calls[0] as any[]
         const body = (callArgs[1] as unknown as { body: string }).body
         expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(localeConfig.emailMfaEmail.title.en)
         expect(body).toContain(mfaCode)
 
         global.fetch = fetchMock

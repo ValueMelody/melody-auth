@@ -24,7 +24,7 @@ const convertQuery = (
   return prepareQuery
 }
 
-const kv: { [key: string]: string } = {}
+export const kv: { [key: string]: string } = {}
 
 export const sessionStore: { [key: string]: string } = {}
 export const session = {

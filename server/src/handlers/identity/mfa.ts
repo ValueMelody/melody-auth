@@ -65,7 +65,10 @@ export const handleSendEmailMfa = async (
     authCodeBody,
   )
 
-  if (!requireEmailMfa && !couldFallbackAsOtp && !couldFallbackAsSms && !enablePasswordlessSignIn) {
+  if (
+    !authCodeBody.user.email ||
+    (!requireEmailMfa && !couldFallbackAsOtp && !couldFallbackAsSms && !enablePasswordlessSignIn)
+  ) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Error,
@@ -99,7 +102,8 @@ export const handleSendEmailMfa = async (
 
   const mfaCode = await emailService.sendEmailMfa(
     c,
-    authCodeBody.user,
+    authCodeBody.user.email,
+    authCodeBody.user.orgSlug,
     locale,
   )
   if (mfaCode) {
@@ -146,7 +150,7 @@ const handleSendSmsMfa = async (
   authCode: string,
   authCodeBody: typeConfig.AuthCodeBody,
   locale: typeConfig.Locale,
-) => {
+): Promise<true> => {
   const {
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
@@ -155,7 +159,14 @@ const handleSendSmsMfa = async (
 
   const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
 
-  if (!requireSmsMfa) throw new errorConfig.Forbidden()
+  if (!requireSmsMfa) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.NotSupposeToSendSmsMfa,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.NotSupposeToSendSmsMfa)
+  }
 
   const ip = requestUtil.getRequestIP(c)
   const attempts = await kvService.getSmsMfaMessageAttemptsByIP(
@@ -289,8 +300,6 @@ export const postProcessMfaEnroll = async (c: Context<typeConfig.Context>) => {
 export const postSendEmailMfa = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const { SUPPORTED_LOCALES: locales } = env(c)
-
   const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
@@ -298,7 +307,7 @@ export const postSendEmailMfa = async (c: Context<typeConfig.Context>) => {
   const emailRes = await handleSendEmailMfa(
     c,
     bodyDto.code,
-    bodyDto.locale || locales[0],
+    bodyDto.locale,
     isPasswordlessCode,
   )
   if (!emailRes || (!emailRes.result && emailRes.reason === messageConfig.RequestError.WrongAuthCode)) {
@@ -382,8 +391,6 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
 export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const { SUPPORTED_LOCALES: locales } = env(c)
-
   const bodyDto = new identityDto.PostSetupSmsMfaDto(reqBody)
   await validateUtil.dto(bodyDto)
 
@@ -400,16 +407,17 @@ export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
-  if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) throw new errorConfig.Forbidden()
+  if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
+  }
 
-  const smsRes = await handleSendSmsMfa(
+  await handleSendSmsMfa(
     c,
     bodyDto.phoneNumber,
     bodyDto.code,
     authCodeBody,
-    bodyDto.locale || locales[0],
+    bodyDto.locale,
   )
-  if (!smsRes) throw new errorConfig.Forbidden()
 
   await userModel.update(
     c.env.DB,
@@ -425,8 +433,6 @@ export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
 
 export const resendSmsMfa = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
-
-  const { SUPPORTED_LOCALES: locales } = env(c)
 
   const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
@@ -444,16 +450,22 @@ export const resendSmsMfa = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
-  if (!authCodeBody.user.smsPhoneNumber) throw new errorConfig.Forbidden()
+  if (!authCodeBody.user.smsPhoneNumber) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.SmsMfaNotSetup,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.SmsMfaNotSetup)
+  }
 
-  const smsRes = await handleSendSmsMfa(
+  await handleSendSmsMfa(
     c,
     authCodeBody.user.smsPhoneNumber,
     bodyDto.code,
     authCodeBody,
-    bodyDto.locale || locales[0],
+    bodyDto.locale,
   )
-  if (!smsRes) throw new errorConfig.Forbidden()
 
   return c.json({ success: true })
 }
@@ -484,7 +496,6 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
   const {
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
     SMS_MFA_COUNTRY_CODE: countryCode,
-    SUPPORTED_LOCALES: locales,
   } = env(c)
 
   const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
@@ -496,7 +507,7 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
       authCodeBody.user.smsPhoneNumber,
       queryDto.code,
       authCodeBody,
-      queryDto.locale || locales[0],
+      queryDto.locale,
     )
   }
 
@@ -599,7 +610,29 @@ export const getOtpMfaSetup = async (c: Context<typeConfig.Context>)
     throw new errorConfig.Forbidden(messageConfig.RequestError.OtpAlreadySet)
   }
 
-  const otpUri = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${authCodeStore.user.otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
+  let otpSecret = authCodeStore.user.otpSecret
+  if (!otpSecret) {
+    const user = await userService.genUserOtp(
+      c,
+      authCodeStore.user.id,
+    )
+
+    const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+    const newAuthCodeStore = {
+      ...authCodeStore,
+      user,
+    }
+    await kvService.storeAuthCode(
+      c.env.KV,
+      queryDto.code,
+      newAuthCodeStore,
+      codeExpiresIn,
+    )
+
+    otpSecret = user.otpSecret
+  }
+
+  const otpUri = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
 
   return c.json({ otpUri })
 }

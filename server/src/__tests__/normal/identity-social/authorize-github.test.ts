@@ -108,6 +108,55 @@ describe(
     )
 
     test(
+      'should throw error if no code provided',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+
+        const appRecord = await getApp(db)
+        const requestBody = await postAuthorizeBody(appRecord)
+        const state = JSON.stringify(new oauthDto.GetAuthorizeDto({
+          ...requestBody,
+          scopes: requestBody.scope.split(' ') ?? [],
+          locale: 'en',
+        }))
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeGitHub}?state=${encodeURIComponent(state)}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidGithubAuthorizeRequest)
+
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+      },
+    )
+
+    test(
+      'should throw error if no state provided',
+      async () => {
+        global.process.env.GITHUB_AUTH_CLIENT_ID = '123'
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'abc'
+        global.process.env.GITHUB_AUTH_APP_NAME = 'app'
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeGitHub}?code=aaa`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidGithubAuthorizeRequest)
+
+        global.process.env.GITHUB_AUTH_CLIENT_ID = ''
+        global.process.env.GITHUB_AUTH_CLIENT_SECRET = ''
+        global.process.env.GITHUB_AUTH_APP_NAME = ''
+      },
+    )
+
+    test(
       'should redirect back to app with a new GitHub account when consent not need',
       async () => {
         global.process.env.GITHUB_AUTH_CLIENT_ID = '123'

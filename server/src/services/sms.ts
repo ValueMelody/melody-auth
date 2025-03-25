@@ -101,8 +101,11 @@ export const sendSmsMfa = async (
 ) => {
   checkSmsSetup(c)
 
+  const { SUPPORTED_LOCALES: locales } = env(c)
+  const displayLocale = locales.includes(locale) ? locale : locales[0]
+
   const mfaCode = cryptoUtil.genRandom6DigitString()
-  const content = `${localeConfig.smsMfaMsg.body[locale]}: ${mfaCode}`
+  const content = `${localeConfig.smsMfaMsg.body[displayLocale]}: ${mfaCode}`
 
   const res = await sendSms(
     c,

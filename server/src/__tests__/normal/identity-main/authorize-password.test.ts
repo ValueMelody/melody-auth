@@ -55,6 +55,83 @@ describe(
     )
 
     test(
+      'redirect to passkey enroll if required',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.PasskeyEnroll,
+        })
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'redirect to otp mfa if required',
+      async () => {
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        db.prepare('update "user" set "otpVerified" = 1 where id = 1').run()
+
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.OtpMfa,
+        })
+
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'request with no scopes',
+      async () => {
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+          { scopes: '' },
+        )
+        expect(res.status).toBe(400)
+        const json = await res.json() as {
+          constraints: {
+            arrayMinSize: string;
+          };
+        }[]
+        expect(json[0].constraints).toStrictEqual({ arrayMinSize: 'scopes must contain at least 1 elements' })
+      },
+    )
+
+    test(
       'should be blocked if not allowed by config',
       async () => {
         global.process.env.ENABLE_PASSWORD_SIGN_IN = false as unknown as string

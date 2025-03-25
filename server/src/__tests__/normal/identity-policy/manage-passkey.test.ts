@@ -281,6 +281,36 @@ describe(
     )
 
     test(
+      'should throw error if user has no passkey',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'DELETE',
+            body: JSON.stringify({
+              ...body,
+              code: body.code,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.PasskeyNotFound)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if feature not enabled',
       async () => {
         const { res } = await sendCorrectDeletePasskeyReq()

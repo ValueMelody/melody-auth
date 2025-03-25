@@ -533,6 +533,93 @@ describe(
     )
 
     test(
+      'should update user and get org info',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+        await db.prepare('insert into role (name) values (?)').run('test')
+
+        await db.prepare('insert into "org" (name, slug) values (?, ?)').run(
+          'test',
+          'test',
+        )
+        await db.prepare('update "user" set "orgSlug" = ?').run('test')
+
+        const updateObj = {
+          locale: 'fr',
+          isActive: false,
+          firstName: 'First',
+          lastName: 'Last',
+          roles: ['test'],
+        }
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          user: {
+            ...user2,
+            ...updateObj,
+            org: {
+              name: 'test',
+              slug: 'test',
+              id: 1,
+            },
+          },
+        })
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'return null if can not find user org by slug',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+        await insertUsers(db)
+        await db.prepare('insert into role (name) values (?)').run('test')
+
+        await db.prepare('update "user" set "orgSlug" = ?').run('test')
+
+        const updateObj = {
+          locale: 'fr',
+          isActive: false,
+          firstName: 'First',
+          lastName: 'Last',
+          roles: ['test'],
+        }
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          user: {
+            ...user2,
+            ...updateObj,
+            org: null,
+          },
+        })
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if no user found',
       async () => {
         await insertUsers(db)
@@ -818,6 +905,25 @@ describe(
         global.fetch = fetchMock
         process.env.SENDGRID_API_KEY = 'abc'
         process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+      },
+    )
+
+    test(
+      'should throw error if user has no email',
+      async () => {
+        await insertUsers(db)
+        await db.prepare('update "user" set "email" = ?').run(null)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/verify-email`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.SocialAccountNotSupported)
       },
     )
 

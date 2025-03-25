@@ -5,7 +5,7 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import {
-  consentService, passkeyService, sessionService, appService, userService, kvService,
+  consentService, passkeyService, sessionService, appService, kvService,
 } from 'services'
 import { userModel } from 'models'
 import { oauthDto } from 'dtos'
@@ -23,9 +23,6 @@ export enum AuthorizeStep {
   SmsMfa = 5,
   EmailMfa = 6,
   PasskeyEnroll = 7,
-  ChangePassword = 8,
-  ChangeEmail = 8,
-  UpdateInfo = 8,
 }
 
 const getNextPageForPolicy = (
@@ -229,25 +226,14 @@ export const processSignIn = async (
     bodyDto.redirectUri,
   )
 
-  const {
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    OTP_MFA_IS_REQUIRED: enableOtpMfa,
-  } = env(c)
-
-  const requireMfa = enableOtpMfa || user.mfaTypes.includes(userModel.MfaType.Otp)
-  const updatedUser = requireMfa && !user.otpSecret
-    ? await userService.genUserOtp(
-      c,
-      user.id,
-    )
-    : user
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
 
   const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCode = genRandomString(128)
   const authCodeBody = {
     appId: app.id,
     appName: app.name,
-    user: updatedUser,
+    user,
     request,
   }
   await kvService.storeAuthCode(

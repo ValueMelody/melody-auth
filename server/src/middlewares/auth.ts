@@ -51,7 +51,7 @@ export const spaProfile = bearerAuth({
     )
     if (!accessTokenBody) return false
 
-    const scopes = accessTokenBody.scope?.split(' ') ?? []
+    const scopes = accessTokenBody.scope ? accessTokenBody.scope.split(' ') : []
     if (!scopes.includes(Scope.Profile)) return false
 
     c.set(
@@ -95,7 +95,7 @@ const s2sScopeGuard = async (
   )
   if (!accessTokenBody) return false
 
-  const scopes = accessTokenBody.scope?.split(' ') ?? []
+  const scopes = accessTokenBody.scope ? accessTokenBody.scope.split(' ') : []
 
   if (!scopes.includes(scope) && !scopes.includes(Scope.Root)) return false
 

@@ -16,6 +16,7 @@ export default defineConfig({
         'src/tests',
         'src/scripts',
         'src/configs/type.ts',
+        'src/pages/views',
         'src/**/__tests__',
         'src/adapters',
         'src/node.tsx',
