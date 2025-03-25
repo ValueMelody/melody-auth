@@ -9,10 +9,12 @@ import {
 } from 'shared'
 import { SignatureKey } from 'hono/utils/jwt/jws'
 import {
-  errorConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import { kvService } from 'services'
-import { cryptoUtil } from 'utils'
+import {
+  cryptoUtil, loggerUtil,
+} from 'utils'
 
 export const base64UrlEncode = (data: string) => btoa(data)
   .replace(
@@ -124,7 +126,12 @@ export const getAccessTokenBody = async (
       'RS256',
     ) as unknown as typeConfig.AccessTokenBody
   } catch (e) {
-    throw new errorConfig.UnAuthorized()
+    loggerUtil.triggerLogger(
+      context,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAccessToken,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongAccessToken)
   }
 
   return accessTokenBody

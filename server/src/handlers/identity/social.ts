@@ -49,7 +49,7 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
 
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...reqBody,
-    scopes: reqBody.scope?.split(' ') ?? [],
+    scopes: reqBody.scope ? reqBody.scope.split(' ') : [],
   })
   await validateUtil.dto(bodyDto)
 
@@ -98,7 +98,7 @@ export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
 
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...reqBody,
-    scopes: reqBody.scope?.split(' ') ?? [],
+    scopes: reqBody.scope ? reqBody.scope.split(' ') : [],
   })
   await validateUtil.dto(bodyDto)
 
@@ -153,7 +153,6 @@ export const postAuthorizeFacebook = async (c: Context<typeConfig.Context>) => {
 export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
   const code = c.req.query('code')
   const state = c.req.query('state') ?? ''
-  const originRequest = JSON.parse(state)
 
   if (!code || !state) {
     loggerUtil.triggerLogger(
@@ -163,6 +162,9 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidGithubAuthorizeRequest)
   }
+
+  const originRequest = JSON.parse(state)
+
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
     credential: code,

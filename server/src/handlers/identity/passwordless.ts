@@ -47,8 +47,6 @@ export const postAuthorizePasswordless = async (c: Context<typeConfig.Context>) 
 export const postSendPasswordlessCode = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
-  const { SUPPORTED_LOCALES: locales } = env(c)
-
   const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
@@ -56,10 +54,10 @@ export const postSendPasswordlessCode = async (c: Context<typeConfig.Context>) =
   const emailRes = await handleSendEmailMfa(
     c,
     bodyDto.code,
-    bodyDto.locale || locales[0],
+    bodyDto.locale,
     isPasswordlessCode,
   )
-  if (!emailRes || (!emailRes.result && emailRes.reason === messageConfig.RequestError.WrongAuthCode)) {
+  if (!emailRes.result && emailRes.reason === messageConfig.RequestError.WrongAuthCode) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

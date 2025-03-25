@@ -201,7 +201,14 @@ export const updateApp = async (
     const scopeNamesToCreate = dto.scopes.filter((scope) => appScopes.every((appScope) => appScope.scopeName !== scope))
     const scopesToCreate = scopeNamesToCreate.map((name) => {
       const matched = allScopes.find((scope) => scope.name === name)
-      if (!matched) throw new errorConfig.InternalServerError()
+      if (!matched) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.UnknownScope,
+        )
+        throw new errorConfig.Forbidden(messageConfig.RequestError.UnknownScope)
+      }
       return matched
     })
 

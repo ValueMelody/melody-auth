@@ -78,6 +78,71 @@ describe(
     )
 
     test(
+      'should throw error if use same password',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              code: body.code,
+              password: 'Password1!',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.RequireDifferentPassword)
+      },
+    )
+
+    test(
+      'should throw error if user does not have password',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const body = await prepareFollowUpBody(db)
+
+        const authStore = await mockedKV.get(`AC-${body.code}`)
+        await mockedKV.put(
+          `AC-${body.code}`,
+          JSON.stringify({
+            ...JSON.parse(authStore ?? ''),
+            user: {
+              ...JSON.parse(authStore ?? '').user,
+              password: null,
+            },
+          }),
+        )
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              code: body.code,
+              password: 'Password1!',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
+      },
+    )
+
+    test(
       'should throw 400 if use wrong auth code',
       async () => {
         const { res } = await sendCorrectChangePasswordReq({ code: 'abc' })

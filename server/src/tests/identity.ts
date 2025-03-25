@@ -74,12 +74,16 @@ export const postSignInRequest = async (
   option?: {
     email?: string;
     password?: string;
+    scopes?: string;
+    policy?: string;
   },
 ) => {
   const body = {
     ...(await postAuthorizeBody(appRecord)),
     email: option?.email ?? 'test@email.com',
     password: option?.password ?? 'Password1!',
+    scope: option?.scopes ?? 'profile openid offline_access',
+    policy: option?.policy,
   }
 
   const res = await app.request(

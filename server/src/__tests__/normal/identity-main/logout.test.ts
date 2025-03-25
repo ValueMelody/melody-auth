@@ -8,7 +8,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  adapterConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import { oauthDto } from 'dtos'
 import {
@@ -94,6 +94,39 @@ describe(
         })
 
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if can not parse refresh token body',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const tokenJson = await prepareLogout()
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`,
+          'invalid-body',
+        )
+
+        const logoutRes = await app.request(
+          routeConfig.IdentityRoute.Logout,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              refresh_token: tokenJson.refresh_token,
+              post_logout_redirect_uri: '/',
+            }).toString(),
+            headers: {
+              Authorization: `Bearer ${tokenJson.access_token}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          mock(db),
+        )
+        expect(logoutRes.status).toBe(400)
+        expect(await logoutRes.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },

@@ -134,8 +134,13 @@ describe(
     test(
       'should throw error if use wrong code',
       async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
         const { res } = await sendCorrectGetEnrollPasskeyReq({ code: 'abc' })
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
     )
   },
@@ -160,6 +165,35 @@ describe(
 
         const passkey = db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "credentialId" = ?').get(passkeyEnrollMock.rawId)
         expect(passkey).toBeTruthy()
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if can not find challenge',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
@@ -214,6 +248,43 @@ describe(
 
         const res = await sendCorrectEnrollPasskeyReq({ code: 'abc' })
         expect(res.status).toBe(400)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if can not verify passkey',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
+          'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
+        )
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              enrollInfo: {
+                ...passkeyEnrollMock,
+                rawId: '123',
+              },
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },

@@ -105,6 +105,27 @@ describe(
     )
 
     test(
+      'should throw error if user already enrolled',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await sendCorrectPostEnrollRequest({ type: userModel.MfaType.Email })
+
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ProcessMfaEnroll}?code=${body.code}`,
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.MfaEnrolled)
+      },
+    )
+
+    test(
       'should throw error if feature is not enabled',
       async () => {
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

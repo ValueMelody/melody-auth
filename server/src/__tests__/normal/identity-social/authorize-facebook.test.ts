@@ -168,6 +168,34 @@ describe(
     )
 
     test(
+      'could throw error if no scope added',
+      async () => {
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
+
+        const appRecord = await getApp(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeFacebook,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              credential: 'aaa',
+              scope: '',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        const json = await res.json() as { constraints: { arrayMinSize: string } }[]
+        expect(json[0].constraints).toStrictEqual({ arrayMinSize: 'scopes must contain at least 1 elements' })
+
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = ''
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
+      },
+    )
+
+    test(
       'should sign in with an existing facebook account',
       async () => {
         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'

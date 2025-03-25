@@ -225,6 +225,15 @@ export const verifyEmail = async (c: Context<typeConfig.Context>) => {
     authId,
   )
 
+  if (!user.email) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.SocialAccountNotSupported,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.SocialAccountNotSupported)
+  }
+
   if (user.emailVerified) {
     loggerUtil.triggerLogger(
       c,
@@ -236,6 +245,7 @@ export const verifyEmail = async (c: Context<typeConfig.Context>) => {
 
   const verificationCode = await emailService.sendEmailVerification(
     c,
+    user.email,
     user,
     user.locale,
   )

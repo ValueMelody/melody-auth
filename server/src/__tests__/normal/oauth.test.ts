@@ -2,8 +2,12 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import {
+  decode, sign,
+} from 'hono/jwt'
 import app from 'index'
 import {
+  kv,
   migrate, mock,
   mockedKV,
   session,
@@ -19,6 +23,7 @@ import { oauthDto } from 'dtos'
 import { appModel } from 'models'
 import {
   dbTime, disableUser, enrollEmailMfa, enrollOtpMfa,
+  enrollSmsMfa,
 } from 'tests/util'
 
 let db: Database
@@ -72,6 +77,7 @@ describe(
       'could redirect to sign in for update info',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         const appRecord = await getApp(db)
         await insertUsers(db)
 
@@ -87,7 +93,23 @@ describe(
         expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
         expect(path).toContain('&policy=update_info')
 
+        const res1 = await postSignInRequest(
+          db,
+          appRecord,
+          { policy: 'update_info' },
+        )
+        expect(res1.status).toBe(200)
+        const json = await res1.json()
+        expect(json).toStrictEqual({
+          nextPage: routeConfig.View.UpdateInfo,
+          code: expect.any(String),
+          state: '123',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
@@ -95,6 +117,7 @@ describe(
       'could redirect to sign in for change password',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         const appRecord = await getApp(db)
         await insertUsers(db)
 
@@ -110,14 +133,32 @@ describe(
         expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
         expect(path).toContain('&policy=change_password')
 
+        const res1 = await postSignInRequest(
+          db,
+          appRecord,
+          { policy: 'change_password' },
+        )
+        expect(res1.status).toBe(200)
+        const json = await res1.json()
+        expect(json).toStrictEqual({
+          nextPage: routeConfig.View.ChangePassword,
+          code: expect.any(String),
+          state: '123',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
     test(
       'could redirect to sign in for change email',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
         const appRecord = await getApp(db)
         await insertUsers(db)
 
@@ -133,16 +174,42 @@ describe(
         expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
         expect(path).toContain('&policy=change_email')
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        const res1 = await postSignInRequest(
+          db,
+          appRecord,
+          { policy: 'change_email' },
+        )
+        expect(res1.status).toBe(200)
+        const json = await res1.json()
+        expect(json).toStrictEqual({
+          nextPage: routeConfig.View.ChangeEmail,
+          code: expect.any(String),
+          state: '123',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
     test(
       'could redirect to sign in for manage passkey',
       async () => {
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
         const appRecord = await getApp(db)
         await insertUsers(db)
+
+        db.prepare('insert into user_passkey ("userId", "credentialId", "publicKey", "counter") values (?, ?, ?, ?)').run(
+          1,
+          '1',
+          '1',
+          1,
+        )
 
         const url = routeConfig.OauthRoute.Authorize
         const res = await getSignInRequest(
@@ -156,7 +223,99 @@ describe(
         expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
         expect(path).toContain('&policy=manage_passkey')
 
-        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        const res1 = await postSignInRequest(
+          db,
+          appRecord,
+          { policy: 'manage_passkey' },
+        )
+        expect(res1.status).toBe(200)
+        const json = await res1.json()
+        expect(json).toStrictEqual({
+          nextPage: routeConfig.View.ManagePasskey,
+          code: expect.any(String),
+          state: '123',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'could redirect to sign in for reset mfa',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        enrollEmailMfa(db)
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=manage_passkey',
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
+        expect(path).toContain('&policy=manage_passkey')
+
+        const res1 = await postSignInRequest(
+          db,
+          appRecord,
+          { policy: 'reset_mfa' },
+        )
+        expect(res1.status).toBe(200)
+        const json = await res1.json() as { code: string }
+        expect(json).toStrictEqual({
+          nextPage: routeConfig.View.EmailMfa,
+          code: expect.any(String),
+          state: '123',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...await prepareFollowUpBody(db),
+              code: json.code,
+            }),
+          },
+          mock(db),
+        )
+
+        const res2 = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: json.code,
+              locale: 'en',
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`),
+            }),
+          },
+          mock(db),
+        )
+        expect(res2.status).toBe(200)
+        const json2 = await res2.json()
+        expect(json2).toStrictEqual({
+          nextPage: routeConfig.View.ResetMfa,
+          code: expect.any(String),
+          state: '123',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
       },
     )
 
@@ -424,6 +583,7 @@ describe(
       async () => {
         global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
         global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+        global.process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
         const appRecord = await getApp(db)
         insertUsers(db)
         await postSignInRequest(
@@ -490,6 +650,95 @@ describe(
         expect(tokenRes.status).toBe(200)
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
         global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+        global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'could login through session and bypass passwordless',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+        }
+
+        const passwordlessRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        const passwordlessJson = await passwordlessRes.json() as { code: string }
+
+        const requestBody = {
+          code: passwordlessJson.code,
+          locale: 'en',
+        }
+
+        await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`),
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${json.code}`)).toBe('1')
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res1 = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+        )
+        expect(res1.status).toBe(302)
+        const path = res1.headers.get('Location')
+        expect(path).toContain('http://localhost:3000/en/dashboard?code')
+        const code = path!.split('?')[1].split('&')[0].split('=')[1]
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
       },
     )
 
@@ -615,6 +864,27 @@ describe(
         const logs = await db.prepare('select * from sign_in_log').all()
         expect(logs.length).toBe(0)
 
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if no jwt private secret',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const kvGet = mockedKV.get
+        mockedKV.get = (key: string) => {
+          if (key === adapterConfig.BaseKVKey.JwtPrivateSecret) {
+            return Promise.resolve(null)
+          }
+          return Promise.resolve(kv[key])
+        }
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(400)
+        expect(await tokenRes.text()).toBe(messageConfig.ConfigError.NoJwtPrivateSecret)
+
+        mockedKV.get = kvGet
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
@@ -1063,6 +1333,27 @@ describe(
     )
 
     test(
+      'should fail if sms mfa is required',
+      async () => {
+        global.process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        await insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(401)
+        global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail if enrolled with sms mfa',
+      async () => {
+        await insertUsers(db)
+        await enrollSmsMfa(db)
+        const tokenRes = await exchangeWithAuthToken()
+        expect(tokenRes.status).toBe(401)
+      },
+    )
+
+    test(
       'should fail if passwordless verify is required',
       async () => {
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
@@ -1225,6 +1516,82 @@ describe(
           firstName: null,
           lastName: null,
         })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if can not verify access token',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        const tokenJson = await prepareUserInfoRequest()
+
+        const decoded = decode(tokenJson.access_token)
+        const wrongToken = await sign(
+          { ...decoded.payload },
+          'wrongSecret',
+        )
+
+        const userInfoRes = await app.request(
+          routeConfig.OauthRoute.Userinfo,
+          { headers: { Authorization: `Bearer ${wrongToken}` } },
+          mock(db),
+        )
+        expect(userInfoRes.status).toBe(401)
+        expect(await userInfoRes.text()).toBe(messageConfig.RequestError.WrongAccessToken)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if not signin with profile scope',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              email: 'test@email.com',
+              password: 'Password1!',
+              scope: 'openid offline_access',
+            }),
+          },
+          mock(db),
+        )
+
+        const json = await res.json() as { code: string }
+
+        const body = {
+          grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+          code: json.code,
+          code_verifier: 'abc',
+        }
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
+
+        const userInfoRes = await app.request(
+          routeConfig.OauthRoute.Userinfo,
+          { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
+          mock(db),
+        )
+        expect(userInfoRes.status).toBe(401)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
@@ -1414,6 +1781,68 @@ describe(
         )
         expect(revokeRes.status).toBe(401)
 
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeTruthy()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if token is not provided',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        const tokenJson = await prepareRevoke()
+        const basicAuth = btoa(`${appRecord.clientId}:`)
+
+        const revokeRes = await app.request(
+          routeConfig.OauthRoute.Revoke,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              token: '',
+              token_type_hint: 'refresh_token',
+            }).toString(),
+            headers: {
+              Authorization: `Basic ${basicAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          mock(db),
+        )
+        expect(revokeRes.status).toBe(400)
+        expect(await revokeRes.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeTruthy()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if token_type_hint is not supported',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        const tokenJson = await prepareRevoke()
+        const basicAuth = btoa(`${appRecord.clientId}:`)
+
+        const revokeRes = await app.request(
+          routeConfig.OauthRoute.Revoke,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              token: tokenJson.refresh_token,
+              token_type_hint: 'access_token',
+            }).toString(),
+            headers: {
+              Authorization: `Basic ${basicAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+          mock(db),
+        )
+        expect(revokeRes.status).toBe(400)
+        expect(await revokeRes.text()).toBe(messageConfig.RequestError.WrongTokenTypeHint)
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeTruthy()
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string

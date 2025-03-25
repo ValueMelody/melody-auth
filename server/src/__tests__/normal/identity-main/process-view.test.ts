@@ -79,5 +79,27 @@ describe(
         expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthCodeExpiredView}?locale=en`)
       },
     )
+
+    test(
+      'should redirect when code not provided',
+      async () => {
+        await insertUsers(db)
+
+        await prepareFollowUpParams(db)
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ProcessView}`,
+          {},
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        const json = await res.json() as {
+          constraints: {
+            isNotEmpty: string;
+          };
+        }[]
+        expect(json[0].constraints).toStrictEqual({ isNotEmpty: 'code should not be empty' })
+      },
+    )
   },
 )

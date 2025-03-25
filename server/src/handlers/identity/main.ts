@@ -87,6 +87,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   if (enableEmailVerification) {
     const verificationCode = await emailService.sendEmailVerification(
       c,
+      bodyDto.email,
       user,
       bodyDto.locale,
     )

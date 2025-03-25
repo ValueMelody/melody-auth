@@ -165,6 +165,45 @@ describe(
     )
 
     test(
+      'could throw error if no scope added',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
+        const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
+        const credential = await sign(
+          {
+            iss: 'https://accounts.google.com',
+            email: 'test@gmail.com',
+            sub: 'gid123',
+            email_verified: true,
+            given_name: 'first',
+            family_name: 'last',
+          },
+          privateSecret,
+          'RS256',
+        )
+
+        const appRecord = await getApp(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeGoogle,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              credential: `${credential}`,
+              scope: '',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        const json = await res.json() as { constraints: { arrayMinSize: string } }[]
+        expect(json[0].constraints).toStrictEqual({ arrayMinSize: 'scopes must contain at least 1 elements' })
+
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
+      },
+    )
+
+    test(
       'should sign in with an existing google account',
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'

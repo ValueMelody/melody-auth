@@ -258,8 +258,6 @@ export const getPasswordlessUserOrCreate = async (
     )
     : null
 
-  const { OTP_MFA_IS_REQUIRED: enableOtp } = env(c)
-  const otpSecret = enableOtp ? cryptoUtil.genOtpSecret() : undefined
   const newUser = await userModel.create(
     c.env.DB,
     {
@@ -270,7 +268,7 @@ export const getPasswordlessUserOrCreate = async (
       socialAccountType: null,
       password: null,
       locale: bodyDto.locale,
-      otpSecret,
+      otpSecret: cryptoUtil.genOtpSecret(),
       firstName: null,
       lastName: null,
     },
@@ -378,8 +376,6 @@ export const createAccountWithPassword = async (
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
-  const { OTP_MFA_IS_REQUIRED: enableOtp } = env(c)
-  const otpSecret = enableOtp ? cryptoUtil.genOtpSecret() : undefined
   const newUser = await userModel.create(
     c.env.DB,
     {
@@ -390,7 +386,7 @@ export const createAccountWithPassword = async (
       socialAccountType: null,
       password,
       locale: bodyDto.locale,
-      otpSecret,
+      otpSecret: cryptoUtil.genOtpSecret(),
       firstName: bodyDto.firstName,
       lastName: bodyDto.lastName,
     },
@@ -578,7 +574,8 @@ export const sendPasswordReset = async (
 
   const resetCode = await emailService.sendPasswordReset(
     c,
-    user,
+    email,
+    user.orgSlug,
     locale,
   )
 
@@ -776,7 +773,6 @@ export const enrollUserMfa = async (
       {
         mfaTypes: [...user.mfaTypes, mfaType].join(','),
         otpVerified: 0,
-        otpSecret: cryptoUtil.genOtpSecret(),
       },
     )
   } else if (mfaType === userModel.MfaType.Email && !emailMfaRequired) {

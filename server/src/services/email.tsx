@@ -50,7 +50,7 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
   }
 }
 
-const buildMailer = (context: Context<typeConfig.Context>): IMailer | null => {
+const buildMailer = (context: Context<typeConfig.Context>): IMailer => {
   const vars = env(context)
   if (context.env.SMTP) {
     return new SmtpMailer({ context })
@@ -68,11 +68,8 @@ const buildMailer = (context: Context<typeConfig.Context>): IMailer | null => {
     return new BrevoMailer({ context })
   }
 
-  if (vars.RESEND_API_KEY && vars.RESEND_SENDER_ADDRESS) {
-    return new ResendMailer({ context })
-  }
-
-  return null
+  // checkEmailSetup should have been called before this
+  return new ResendMailer({ context })
 }
 
 export const sendEmail = async (
@@ -95,24 +92,22 @@ export const sendEmail = async (
 
   const mailer = buildMailer(c)
 
-  if (mailer) {
-    const res = await mailer.sendEmail({
-      senderName, content: emailBody, email: receiver, subject,
-    })
+  const res = await mailer.sendEmail({
+    senderName, content: emailBody, email: receiver, subject,
+  })
 
-    if (mailer instanceof SmtpMailer) {
-      success = res?.accepted[0] === receiver
-      response = res
-    } else {
-      success = res.ok
+  if (mailer instanceof SmtpMailer) {
+    success = res?.accepted[0] === receiver
+    response = res
+  } else {
+    success = res.ok
 
-      if (enableEmailLog) {
-        response = {
-          status: res.status,
-          statusText: res.statusText,
-          url: res.url,
-          body: await res.text(),
-        }
+    if (enableEmailLog) {
+      response = {
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url,
+        body: await res.text(),
       }
     }
   }
@@ -134,12 +129,12 @@ export const sendEmail = async (
 
 export const sendEmailVerification = async (
   c: Context<typeConfig.Context>,
+  email: string,
   user: userModel.Record,
   locale: typeConfig.Locale,
 ) => {
   const { AUTH_SERVER_URL: serverUrl } = env(c)
 
-  if (!user.email) return null
   checkEmailSetup(c)
 
   const verificationCode = cryptoUtil.genRandom6DigitString()
@@ -147,7 +142,7 @@ export const sendEmailVerification = async (
     serverUrl={serverUrl}
     authId={user.authId}
     verificationCode={verificationCode}
-    org={user.orgSlug ?? ''}
+    org={user.orgSlug}
     branding={await brandingService.getBranding(
       c,
       user.orgSlug,
@@ -156,7 +151,7 @@ export const sendEmailVerification = async (
 
   const res = await sendEmail(
     c,
-    user.email,
+    email,
     localeConfig.emailVerificationEmail.subject[locale],
     content,
   )
@@ -166,10 +161,10 @@ export const sendEmailVerification = async (
 
 export const sendPasswordReset = async (
   c: Context<typeConfig.Context>,
-  user: userModel.Record,
+  email: string,
+  orgSlug: string,
   locale: typeConfig.Locale,
 ) => {
-  if (!user.email) return null
   checkEmailSetup(c)
 
   const resetCode = cryptoUtil.genRandom6DigitString()
@@ -177,14 +172,14 @@ export const sendPasswordReset = async (
     resetCode={resetCode}
     branding={await brandingService.getBranding(
       c,
-      user.orgSlug,
+      orgSlug,
     )}
     locale={locale}
   />).toString()
 
   const res = await sendEmail(
     c,
-    user.email,
+    email,
     localeConfig.passwordResetEmail.subject[locale],
     content,
   )
@@ -198,7 +193,6 @@ export const sendChangeEmailVerificationCode = async (
   locale: typeConfig.Locale,
   org?: string,
 ) => {
-  if (!email) return null
   checkEmailSetup(c)
 
   const verificationCode = cryptoUtil.genRandom6DigitString()
@@ -223,25 +217,28 @@ export const sendChangeEmailVerificationCode = async (
 
 export const sendEmailMfa = async (
   c: Context<typeConfig.Context>,
-  user: userModel.Record,
+  email: string,
+  orgSlug: string,
   locale: typeConfig.Locale,
 ) => {
-  if (!user.email) return null
   checkEmailSetup(c)
+  const { SUPPORTED_LOCALES: locales } = env(c)
+
+  const displayLocale = locale || locales[0]
 
   const mfaCode = cryptoUtil.genRandom6DigitString()
   const content = (<EmailMfaTemplate
     mfaCode={mfaCode}
     branding={await brandingService.getBranding(
       c,
-      user.orgSlug,
+      orgSlug,
     )}
-    locale={locale} />).toString()
+    locale={displayLocale} />).toString()
 
   const res = await sendEmail(
     c,
-    user.email,
-    localeConfig.emailMfaEmail.subject[locale],
+    email,
+    localeConfig.emailMfaEmail.subject[displayLocale],
     content,
   )
 

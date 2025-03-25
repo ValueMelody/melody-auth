@@ -21,7 +21,7 @@ import {
 
 const checkAccount = (
   c: Context<typeConfig.Context>, user: userModel.Record,
-) => {
+): string => {
   if (!user.email || user.socialAccountId) {
     loggerUtil.triggerLogger(
       c,
@@ -30,6 +30,8 @@ const checkAccount = (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.SocialAccountNotSupported)
   }
+
+  return user.email
 }
 
 export const postChangePassword = async (c: Context<typeConfig.Context>) => {
@@ -82,7 +84,7 @@ export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
-  checkAccount(
+  const userEmail = checkAccount(
     c,
     authInfo.user,
   )
@@ -92,7 +94,7 @@ export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
   if (emailThreshold) {
     const emailAttempts = await kvService.getChangeEmailAttempts(
       c.env.KV,
-      authInfo.user.email ?? '',
+      userEmail,
     )
 
     if (emailAttempts >= emailThreshold) {
@@ -106,7 +108,7 @@ export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
 
     await kvService.setChangeEmailAttempts(
       c.env.KV,
-      authInfo.user.email ?? '',
+      userEmail,
       emailAttempts + 1,
     )
   }

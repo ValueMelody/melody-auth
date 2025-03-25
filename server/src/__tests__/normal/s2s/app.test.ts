@@ -4,7 +4,9 @@ import {
 import { Database } from 'better-sqlite3'
 import { Scope } from 'shared'
 import app from 'index'
-import { routeConfig } from 'configs'
+import {
+  messageConfig, routeConfig,
+} from 'configs'
 import {
   migrate, mock,
 } from 'tests/mock'
@@ -410,6 +412,28 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(404)
+      },
+    )
+
+    test(
+      'should throw error if try to add unknown scope',
+      async () => {
+        await createNewApp()
+        const updateObj = {
+          name: 'test name 1',
+          scopes: ['openid', 'offline_access', 'unknown'],
+        }
+        const res = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.UnknownScope)
       },
     )
 
