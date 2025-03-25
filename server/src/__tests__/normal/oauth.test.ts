@@ -25,6 +25,7 @@ import {
   dbTime, disableUser, enrollEmailMfa, enrollOtpMfa,
   enrollSmsMfa,
 } from 'tests/util'
+import { getConnection } from 'adapters/redis'
 
 let db: Database
 
@@ -878,6 +879,13 @@ describe(
           if (key === adapterConfig.BaseKVKey.JwtPrivateSecret) {
             return Promise.resolve(null)
           }
+
+          const isTestingNode = process.env.TEST_MODE === 'node'
+          if (isTestingNode) {
+            const cache = getConnection()
+            return cache.get(key)
+          }
+
           return Promise.resolve(kv[key])
         }
         const tokenRes = await exchangeWithAuthToken()

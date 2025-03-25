@@ -9,7 +9,7 @@ export const initConnection = () => {
   _cache = new Redis(process.env.REDIS_CONNECTION_STRING ?? 'redis://127.0.0.1:6379')
 }
 
-const getConnection = (): Redis => {
+export const getConnection = (): Redis => {
   if (!_cache) initConnection()
   return _cache!
 }
