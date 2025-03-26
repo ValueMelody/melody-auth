@@ -310,3 +310,197 @@ test(
     fetchSpy.mockRestore()
   },
 )
+
+test(
+  'allows submission without names when namesIsRequired is false',
+  async () => {
+    const onSubmitError = vi.fn()
+    const onSwitchView = vi.fn()
+
+    // Create initialProps with namesIsRequired set to false
+    const initialProps = {
+      ...dummyInitialProps,
+      namesIsRequired: false,
+      enableNames: true, // Keep names enabled but not required
+    } as InitialProps
+
+    // Mock successful response
+    const fakeResponse = {
+      ok: true,
+      json: async () => ({ status: 'ok' }),
+    }
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    ).mockResolvedValue(fakeResponse as Response)
+
+    // Spy on handleAuthorizeStep
+    const handleAuthorizeSpy = vi.spyOn(
+      requestModule,
+      'handleAuthorizeStep',
+    ).mockImplementation((
+      response, locale, onSwitchView,
+    ) => {
+      onSwitchView(View.Consent)
+    })
+
+    const { result } = renderHook(() =>
+      useSignUpForm({
+        locale: 'en',
+        initialProps,
+        params: dummyParams,
+        onSubmitError,
+        onSwitchView,
+      }))
+
+    // Only provide email and password, skip names
+    act(() => {
+      result.current.handleChange(
+        'email',
+        'test@example.com',
+      )
+      result.current.handleChange(
+        'password',
+        'Password1!',
+      )
+      result.current.handleChange(
+        'confirmPassword',
+        'Password1!',
+      )
+      // Deliberately leave firstName and lastName empty
+    })
+
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+
+    await act(async () => {
+      result.current.handleSubmit(fakeEvent)
+      await Promise.resolve()
+    })
+
+    // Verify form submission was allowed
+    expect(fakeEvent.preventDefault).toHaveBeenCalled()
+    expect(fetchSpy).toHaveBeenCalledWith(
+      routeConfig.IdentityRoute.AuthorizeAccount,
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: expect.stringContaining('"email":"test@example.com"'),
+      }),
+    )
+
+    // Verify no validation errors for firstName and lastName
+    expect(result.current.errors.firstName).toBeUndefined()
+    expect(result.current.errors.lastName).toBeUndefined()
+
+    // Verify the view was switched
+    expect(onSwitchView).toHaveBeenCalledWith(View.Consent)
+
+    // Cleanup
+    fetchSpy.mockRestore()
+    handleAuthorizeSpy.mockRestore()
+  },
+)
+
+test(
+  'excludes names from submission when enableNames is false',
+  async () => {
+    const onSubmitError = vi.fn()
+    const onSwitchView = vi.fn()
+
+    // Create initialProps with both name options false
+    const initialProps = {
+      ...dummyInitialProps,
+      namesIsRequired: false,
+      enableNames: false, // Names feature completely disabled
+    } as InitialProps
+
+    // Mock successful response
+    const fakeResponse = {
+      ok: true,
+      json: async () => ({ status: 'ok' }),
+    }
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    ).mockResolvedValue(fakeResponse as Response)
+
+    // Spy on handleAuthorizeStep
+    const handleAuthorizeSpy = vi.spyOn(
+      requestModule,
+      'handleAuthorizeStep',
+    ).mockImplementation((
+      response,
+      locale,
+      onSwitchViewFn,
+    ) => {
+      onSwitchViewFn(View.Consent)
+    })
+
+    const { result } = renderHook(() =>
+      useSignUpForm({
+        locale: 'en',
+        initialProps,
+        params: dummyParams,
+        onSubmitError,
+        onSwitchView,
+      }))
+
+    // Only provide required fields
+    act(() => {
+      result.current.handleChange(
+        'email',
+        'test@example.com',
+      )
+      result.current.handleChange(
+        'password',
+        'Password1!',
+      )
+      result.current.handleChange(
+        'confirmPassword',
+        'Password1!',
+      )
+    })
+
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+
+    await act(async () => {
+      result.current.handleSubmit(fakeEvent)
+      await Promise.resolve()
+    })
+
+    // Verify form submission was made
+    expect(fakeEvent.preventDefault).toHaveBeenCalled()
+
+    // Get the actual request body from the fetch call
+    const fetchCall = fetchSpy.mock.calls[0]
+    const requestBody = JSON.parse((fetchCall[1] as RequestInit).body as string)
+
+    // Verify that firstName and lastName are not included in the request
+    expect(requestBody).not.toHaveProperty('firstName')
+    expect(requestBody).not.toHaveProperty('lastName')
+
+    // Verify the essential fields are present
+    expect(requestBody).toHaveProperty(
+      'email',
+      'test@example.com',
+    )
+    expect(requestBody).toHaveProperty(
+      'password',
+      'Password1!',
+    )
+
+    // Verify no validation errors for firstName and lastName
+    expect(result.current.errors.firstName).toBeUndefined()
+    expect(result.current.errors.lastName).toBeUndefined()
+
+    // Verify the view was switched
+    expect(onSwitchView).toHaveBeenCalledWith(View.Consent)
+
+    // Cleanup
+    fetchSpy.mockRestore()
+    handleAuthorizeSpy.mockRestore()
+  },
+)

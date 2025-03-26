@@ -241,5 +241,170 @@ describe(
         fetchSpy.mockRestore()
       },
     )
+
+    test(
+      'handlePasswordlessSignIn submits email successfully and calls handleAuthorizeStep',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+        const params = { extra: 'data' } as any
+        const { result } = renderHook(() =>
+          useSignInForm({
+            locale: 'en',
+            params,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Set valid email
+        act(() => {
+          result.current.handleChange(
+            'email',
+            'test@example.com',
+          )
+        })
+
+        // Mock successful response
+        const fakeResponse = {
+          ok: true,
+          json: async () => ({ status: 'success' }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
+
+        // Spy on handleAuthorizeStep
+        const handleAuthorizeSpy = vi.spyOn(
+          requestModule,
+          'handleAuthorizeStep',
+        ).mockImplementation((
+          response,
+          locale,
+          onSwitchViewFn,
+        ) => {
+          onSwitchViewFn(View.Consent)
+        })
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+        await act(async () => {
+          result.current.handlePasswordlessSignIn(fakeEvent)
+          await Promise.resolve()
+        })
+
+        // Verify the request
+        expect(fakeEvent.preventDefault).toHaveBeenCalled()
+        expect(fetchSpy).toHaveBeenCalledWith(
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          expect.objectContaining({
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: expect.stringContaining('"email":"test@example.com"'),
+          }),
+        )
+        expect(onSwitchView).toHaveBeenCalledWith(View.Consent)
+
+        fetchSpy.mockRestore()
+        handleAuthorizeSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handlePasswordlessSignIn calls onSubmitError when fetch fails',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+        const { result } = renderHook(() =>
+          useSignInForm({
+            locale: 'en',
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Set valid email
+        act(() => {
+          result.current.handleChange(
+            'email',
+            'test@example.com',
+          )
+        })
+
+        // Clear onSubmitError calls from handleChange
+        onSubmitError.mockClear()
+
+        // Mock fetch failure
+        const error = new Error('Network error')
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValue(error)
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+        await act(async () => {
+          result.current.handlePasswordlessSignIn(fakeEvent)
+          await Promise.resolve()
+        })
+
+        expect(fakeEvent.preventDefault).toHaveBeenCalled()
+        expect(onSubmitError).toHaveBeenCalledWith(error)
+
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handlePasswordlessSignIn stops execution when email validation error exists',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+        const { result } = renderHook(() =>
+          useSignInForm({
+            locale: 'en',
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Set invalid email
+        act(() => {
+          result.current.handleChange(
+            'email',
+            'invalid-email',
+          )
+        })
+
+        // Clear onSubmitError calls from handleChange
+        onSubmitError.mockClear()
+
+        // Spy on fetch to ensure it's not called
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        )
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+        await act(async () => {
+          result.current.handlePasswordlessSignIn(fakeEvent)
+          await Promise.resolve()
+        })
+
+        // Verify that:
+        expect(fakeEvent.preventDefault).toHaveBeenCalled()
+        // Email error should be visible (touched)
+        expect(result.current.errors.email).toBeDefined()
+        // Password should remain untouched
+        expect(result.current.errors.password).toBeUndefined()
+        // Fetch should not be called due to validation error
+        expect(fetchSpy).not.toHaveBeenCalled()
+        // onSubmitError should not be called
+        expect(onSubmitError).not.toHaveBeenCalled()
+
+        fetchSpy.mockRestore()
+      },
+    )
   },
 )

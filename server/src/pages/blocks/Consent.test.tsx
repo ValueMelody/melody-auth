@@ -186,5 +186,43 @@ describe(
         expect(defaultProps.handleAccept).toHaveBeenCalledTimes(1)
       },
     )
+
+    it(
+      'renders scope name when no translation is available for current locale',
+      () => {
+        const propsWithMissingTranslation: ConsentProps = {
+          ...defaultProps,
+          consentInfo: {
+            appName: 'Test App',
+            scopes: [
+              {
+                id: '1',
+                name: 'profile',
+                locales: [
+                  // Only providing translation for a different locale
+                  {
+                    locale: 'fr', value: 'Profil',
+                  },
+                ],
+                note: 'Profile note',
+                type: 'profile',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                deletedAt: null,
+              },
+            ],
+          } as unknown as GetAppConsentRes,
+        }
+        const container = setup(propsWithMissingTranslation)
+
+        // Should fallback to using the scope name since no 'en' translation exists
+        const scopeElement = getByText(
+          container,
+          'profile',
+        )
+        expect(scopeElement).toBeDefined()
+        expect(scopeElement.tagName.toLowerCase()).toBe('li')
+      },
+    )
   },
 )

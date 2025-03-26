@@ -1,5 +1,5 @@
 import {
-  getByText, fireEvent,
+  getByText, fireEvent, waitFor,
 } from '@testing-library/dom'
 import { render } from 'hono/jsx/dom'
 import {
@@ -229,6 +229,134 @@ describe(
         expect(termsLink).toBeDefined()
         const privacyLink = container.querySelector('a[href="https://privacy.example.com"]')
         expect(privacyLink).toBeDefined()
+        expect(container.textContent).toContain(signUp.linkConnect.en)
+      },
+    )
+
+    it(
+      'does not render terms and privacy section when both links are missing',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            termsLink: '',
+            privacyPolicyLink: '',
+          },
+        }
+        const container = setup(props)
+
+        const termsLink = container.querySelector('a[href*="terms"]')
+        expect(termsLink).toBeNull()
+        const privacyLink = container.querySelector('a[href*="privacy"]')
+        expect(privacyLink).toBeNull()
+
+        expect(container.textContent).not.toContain(signUp.bySignUp.en)
+        expect(container.textContent).not.toContain(signUp.linkConnect.en)
+      },
+    )
+
+    it(
+      'renders only terms link when privacy policy link is missing',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            termsLink: 'https://terms.example.com',
+            privacyPolicyLink: '',
+          },
+        }
+        const container = setup(props)
+
+        const termsLink = container.querySelector('a[href="https://terms.example.com"]')
+        expect(termsLink).toBeDefined()
+        expect(termsLink?.textContent).toBe(signUp.terms.en)
+
+        const privacyLink = container.querySelector('a[href*="privacy"]')
+        expect(privacyLink).toBeNull()
+
+        expect(container.textContent).not.toContain(signUp.linkConnect.en)
+      },
+    )
+
+    it(
+      'renders only privacy policy link when terms link is missing',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            termsLink: '',
+            privacyPolicyLink: 'https://privacy.example.com',
+          },
+        }
+        const container = setup(props)
+
+        const privacyLink = container.querySelector('a[href="https://privacy.example.com"]')
+        expect(privacyLink).toBeDefined()
+        expect(privacyLink?.textContent).toBe(signUp.privacyPolicy.en)
+
+        const termsLink = container.querySelector('a[href*="terms"]')
+        expect(termsLink).toBeNull()
+
+        expect(container.textContent).not.toContain(signUp.linkConnect.en)
+      },
+    )
+
+    it(
+      'displays email error message when errors.email is provided',
+      () => {
+        const errorMessage = 'Invalid email address'
+        const props = {
+          ...defaultProps,
+          errors: {
+            ...defaultProps.errors,
+            email: errorMessage as unknown as undefined,
+          },
+        }
+        const container = setup(props)
+        expect(container.textContent).toContain(errorMessage)
+      },
+    )
+
+    it(
+      'toggles password visibility when eye icon is clicked',
+      async () => {
+        const container = setup()
+        // Get the password field section; PasswordField sets its section id to `${name}-row`
+        const passwordRow = container.querySelector('#password-row') as HTMLElement
+        expect(passwordRow).toBeDefined()
+
+        // Get the password input element by its name attribute
+        const passwordInput = container.querySelector('input[name="password"]') as HTMLInputElement
+        expect(passwordInput).toBeDefined()
+
+        // Initially, the password should be hidden (type "password")
+        expect(passwordInput.type).toBe('password')
+
+        // Initially, the toggle button (EyeSlashIconButton) is rendered with aria-label "Show password"
+        const toggleButton = passwordRow.querySelector('button[aria-label="Show password"]') as HTMLButtonElement
+        expect(toggleButton).toBeDefined()
+
+        // Click the toggle button to show the password
+        fireEvent.click(toggleButton)
+
+        // Wait for the state update and DOM re-render
+        await waitFor(() => {
+          expect(passwordInput.type).toBe('text')
+        })
+
+        // Now, the toggle button should change to one with aria-label "Hide password"
+        const toggleButtonAfter = passwordRow.querySelector('button[aria-label="Hide password"]') as HTMLButtonElement
+        expect(toggleButtonAfter).toBeDefined()
+
+        // Click the button again to hide the password
+        fireEvent.click(toggleButtonAfter)
+
+        await waitFor(() => {
+          expect(passwordInput.type).toBe('password')
+        })
       },
     )
   },

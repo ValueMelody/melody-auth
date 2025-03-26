@@ -207,6 +207,29 @@ describe(
     )
 
     it(
+      'displays resent text and disables button when resent is true',
+      () => {
+        const props = {
+          ...defaultProps,
+          success: false,
+          values: {
+            ...defaultProps.values,
+            mfaCode: [''],
+          },
+          resent: true,
+        }
+        const container = setup(props)
+
+        const resentButton = getByText(
+          container,
+          resetPassword.resent.en,
+        )
+        expect(resentButton).toBeDefined()
+        expect((resentButton as HTMLButtonElement).disabled).toBe(true)
+      },
+    )
+
+    it(
       'calls onSwitchView with View.SignIn when back sign in button is clicked',
       () => {
         const container = setup()
@@ -258,6 +281,58 @@ describe(
         expect(defaultProps.handleChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1'],
+        )
+      },
+    )
+
+    it(
+      'calls handleChange when confirmPassword field value changes',
+      () => {
+        const props = {
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: [''],
+          },
+        }
+        const container = setup(props)
+        const confirmPasswordInput = container.querySelector('input[name="confirmPassword"]') as HTMLInputElement
+        expect(confirmPasswordInput).toBeDefined()
+
+        fireEvent.input(
+          confirmPasswordInput,
+          { target: { value: 'newPassword123' } },
+        )
+
+        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          'confirmPassword',
+          'newPassword123',
+        )
+      },
+    )
+
+    it(
+      'calls handleChange when password field value changes',
+      () => {
+        const props = {
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: [''],
+          },
+        }
+        const container = setup(props)
+        const passwordInput = container.querySelector('input[name="password"]') as HTMLInputElement
+        expect(passwordInput).toBeDefined()
+
+        fireEvent.input(
+          passwordInput,
+          { target: { value: 'myNewPassword123' } },
+        )
+
+        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          'password',
+          'myNewPassword123',
         )
       },
     )

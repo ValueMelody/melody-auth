@@ -309,5 +309,67 @@ describe(
         fetchSpyPost.mockRestore()
       },
     )
+
+    test(
+      'handleEnroll calls onSubmitError when submitEnroll fails',
+      async () => {
+        // First set enrollOptions via getManagePasskeyInfo
+        const fakeManageResponse = {
+          passkey: { id: 'passkey-old' },
+          enrollOptions: { option: 'enroll-option' },
+        }
+        const fetchSpyGet = vi
+          .spyOn(
+            global,
+            'fetch',
+          )
+          .mockResolvedValueOnce({
+            ok: true,
+            json: async () => fakeManageResponse,
+          } as Response)
+
+        const { result } = renderHook(() =>
+          useManagePasskeyForm({
+            locale,
+            onSubmitError,
+          }))
+
+        act(() => {
+          result.current.getManagePasskeyInfo()
+        })
+        await act(async () => {
+          await Promise.resolve()
+        })
+        expect(result.current.enrollOptions).toEqual(fakeManageResponse.enrollOptions)
+        fetchSpyGet.mockRestore()
+
+        // Mock successful enroll returning credential
+        const fakeEnrollInfo = { id: 'credential-123' } as Credential
+        ;(enroll as Mock).mockResolvedValueOnce(fakeEnrollInfo)
+
+        // Mock POST request to fail
+        const error = new Error('Submit enroll failed')
+        const fetchSpyPost = vi
+          .spyOn(
+            global,
+            'fetch',
+          )
+          .mockRejectedValueOnce(error)
+
+        act(() => {
+          result.current.handleEnroll()
+        })
+        await act(async () => {
+          await Promise.resolve()
+        })
+
+        // Verify error handling
+        expect(onSubmitError).toHaveBeenCalledWith(error)
+        expect(result.current.successMessage).toBeNull()
+        expect(result.current.passkey).toEqual(fakeManageResponse.passkey) // passkey should remain unchanged
+
+        fetchSpyPost.mockRestore()
+      },
+    )
   },
 )

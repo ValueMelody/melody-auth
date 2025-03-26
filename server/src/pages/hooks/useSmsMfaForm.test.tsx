@@ -432,5 +432,215 @@ describe(
         processFetchSpy.mockRestore()
       },
     )
+
+    test(
+      'requestSetupMfa calls onSubmitError on fetch failure',
+      async () => {
+        const { result } = renderHook(() =>
+          useSmsMfaForm({
+            locale: dummyLocale,
+            onSubmitError,
+            onSwitchView,
+          }))
+        // Set a valid phoneNumber to pass validation.
+        act(() => {
+          result.current.handleChange(
+            'phoneNumber',
+            '+11234567890',
+          )
+        })
+        expect(result.current.currentNumber).toBeNull()
+
+        const error = new Error('Setup MFA failed')
+        const setupFetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValue(error)
+
+        await act(async () => {
+          result.current.handleResend()
+          await Promise.resolve()
+        })
+
+        // Test through handleResend path
+        await act(async () => {
+          result.current.handleResend()
+          await Promise.resolve()
+        })
+
+        expect(setupFetchSpy).toHaveBeenCalledWith(
+          routeConfig.IdentityRoute.SetupSmsMfa,
+          {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              code: 'test-code',
+              locale: 'en',
+              org: 'test-org',
+              phoneNumber: '+11234567890',
+            }),
+          },
+        )
+        setupFetchSpy.mockRestore()
+
+        // Verify error handling for handleResend path
+        expect(onSubmitError).toHaveBeenCalledWith(error)
+        expect(result.current.values.mfaCode).toBeNull()
+      },
+    )
+
+    test(
+      'handleResend calls onSubmitError when ResendSmsMfa fails',
+      async () => {
+        const { result } = renderHook(() =>
+          useSmsMfaForm({
+            locale: dummyLocale,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // First, set up currentNumber via getSmsMfaInfo
+        const fakeGetResponse = {
+          ok: true,
+          json: async () => ({
+            phoneNumber: '+19876543210',
+            allowFallbackToEmailMfa: false,
+            countryCode: '+1',
+          }),
+        }
+        const getInfoFetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValueOnce(fakeGetResponse as Response)
+
+        await act(async () => {
+          result.current.getSmsMfaInfo()
+          await Promise.resolve()
+        })
+        expect(result.current.currentNumber).toBe('+19876543210')
+        getInfoFetchSpy.mockRestore()
+
+        // Mock ResendSmsMfa to fail
+        const error = new Error('Resend SMS failed')
+        const resendFetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValue(error)
+
+        await act(async () => {
+          result.current.handleResend()
+          await Promise.resolve()
+        })
+
+        // Verify error handling
+        expect(onSubmitError).toHaveBeenCalledWith(error)
+        expect(result.current.resent).toBe(false)
+
+        resendFetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handleSubmit stops execution when there are validation errors',
+      async () => {
+        const { result } = renderHook(() =>
+          useSmsMfaForm({
+            locale: dummyLocale,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Set an invalid phone number (empty)
+        act(() => {
+          result.current.handleChange(
+            'phoneNumber',
+            '',
+          )
+        })
+
+        // Clear the onSubmitError mock AFTER handleChange
+        onSubmitError.mockClear()
+
+        // Spy on fetch to ensure it's not called
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        )
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+        await act(async () => {
+          result.current.handleSubmit(fakeEvent)
+          await Promise.resolve()
+        })
+
+        // Verify that:
+        // 1. preventDefault was called
+        expect(fakeEvent.preventDefault).toHaveBeenCalled()
+        // 2. The touched state was updated (errors should now be visible)
+        expect(result.current.errors.phoneNumber).toBeDefined()
+        // 3. fetch was not called (execution stopped due to validation error)
+        expect(fetchSpy).not.toHaveBeenCalled()
+        // 4. onSubmitError was not called after handleSubmit
+        expect(onSubmitError).not.toHaveBeenCalled()
+
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handleResend stops execution when there is a phoneNumber validation error',
+      async () => {
+        const { result } = renderHook(() =>
+          useSmsMfaForm({
+            locale: dummyLocale,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Set an invalid phone number
+        act(() => {
+          result.current.handleChange(
+            'phoneNumber',
+            '', // empty phone number will cause validation error
+          )
+        })
+
+        // Clear the onSubmitError mock after handleChange
+        onSubmitError.mockClear()
+
+        // Spy on fetch to ensure it's not called
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        )
+
+        // Set touched to true to make error visible
+        act(() => {
+          result.current.handleSubmit({ preventDefault: vi.fn() } as unknown as Event)
+        })
+
+        // Verify error exists
+        expect(result.current.errors.phoneNumber).toBeDefined()
+
+        // Try to resend
+        await act(async () => {
+          result.current.handleResend()
+          await Promise.resolve()
+        })
+
+        // Verify that:
+        // 1. fetch was not called (execution stopped due to validation error)
+        expect(fetchSpy).not.toHaveBeenCalled()
+        // 2. onSubmitError was not called
+        expect(onSubmitError).not.toHaveBeenCalled()
+        // 3. resent state remains false
+        expect(result.current.resent).toBe(false)
+
+        fetchSpy.mockRestore()
+      },
+    )
   },
 )

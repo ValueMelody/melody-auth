@@ -12,7 +12,7 @@ const EyeIconButton = ({ onClick }: {
   <button
     type='button'
     className={buttonClass}
-    aria-label='Show password'
+    aria-label='Hide password'
     onClick={onClick}
   >
     <svg
@@ -41,7 +41,7 @@ const EyeSlashIconButton = ({ onClick }: {
   <button
     type='button'
     className={buttonClass}
-    aria-label='Hide password'
+    aria-label='Show password'
     onClick={onClick}
   >
     <svg

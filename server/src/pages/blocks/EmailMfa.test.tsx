@@ -1,5 +1,5 @@
 import {
-  getByText, getByLabelText, fireEvent,
+  getByText, getByLabelText, fireEvent, createEvent,
 } from '@testing-library/dom'
 import {
   expect, describe, it, beforeEach, vi, beforeAll,
@@ -172,6 +172,221 @@ describe(
           emailMfa.verify.en,
         )
         expect(primaryButton).toBeDefined()
+      },
+    )
+
+    it(
+      'renders error message for mfaCode if provided',
+      () => {
+        const errorMessage = 'Invalid MFA code'
+        const props: EmailMfaProps = {
+          ...defaultProps,
+          errors: { mfaCode: errorMessage },
+        }
+        const container = setup(props)
+        expect(container.textContent).toContain(errorMessage)
+      },
+    )
+
+    // Added test: Trigger paste event on CodeInput and verify code update
+    it(
+      'updates code when paste event is triggered',
+      () => {
+        const initialCode = ['', '', '', '', '', '']
+        const props: EmailMfaProps = {
+          ...defaultProps,
+          // Provide initial value as six empty strings for the CodeInput
+          values: { mfaCode: initialCode },
+        }
+        const container = setup(props)
+        // Get the first input element rendered by CodeInput using its aria-label
+        const firstInput = getByLabelText(
+          container,
+          'Code input 1',
+        ) as HTMLInputElement
+        const pasteValue = '321'
+        fireEvent.paste(
+          firstInput,
+          { clipboardData: { getData: () => pasteValue } },
+        )
+        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          'mfaCode',
+          ['3', '2', '1', '', '', ''],
+        )
+      },
+    )
+
+    // Added test: Trigger keyDown event on CodeInput to cover onKeyDown functionality for Backspace
+    it(
+      'calls focus on previous input when Backspace is pressed on an empty input',
+      () => {
+        const initialCode = ['', '', '', '', '', '']
+        const props: EmailMfaProps = {
+          ...defaultProps,
+          values: { mfaCode: initialCode },
+        }
+        const container = setup(props)
+        const secondInput = getByLabelText(
+          container,
+          'Code input 2',
+        ) as HTMLInputElement
+        const firstInput = getByLabelText(
+          container,
+          'Code input 1',
+        ) as HTMLInputElement
+
+        const focusSpy = vi.spyOn(
+          firstInput,
+          'focus',
+        )
+        fireEvent.keyDown(
+          secondInput,
+          { key: 'Backspace' },
+        )
+        expect(focusSpy).toHaveBeenCalled()
+        focusSpy.mockRestore()
+      },
+    )
+
+    // Added test: Cover onKeyDown for ArrowLeft to shift focus to previous input
+    it(
+      'calls focus on previous input when ArrowLeft is pressed on an input',
+      () => {
+        const initialCode = ['', '', '', '', '', '']
+        const props: EmailMfaProps = {
+          ...defaultProps, values: { mfaCode: initialCode },
+        }
+        const container = setup(props)
+        const secondInput = getByLabelText(
+          container,
+          'Code input 2',
+        ) as HTMLInputElement
+        const firstInput = getByLabelText(
+          container,
+          'Code input 1',
+        ) as HTMLInputElement
+
+        const focusSpy = vi.spyOn(
+          firstInput,
+          'focus',
+        )
+        fireEvent.keyDown(
+          secondInput,
+          { key: 'ArrowLeft' },
+        )
+        expect(focusSpy).toHaveBeenCalled()
+        focusSpy.mockRestore()
+      },
+    )
+
+    // Added test: Cover onKeyDown for ArrowRight to shift focus to next input
+    it(
+      'calls focus on next input when ArrowRight is pressed on an input',
+      () => {
+        const initialCode = ['', '', '', '', '', '']
+        const props: EmailMfaProps = {
+          ...defaultProps, values: { mfaCode: initialCode },
+        }
+        const container = setup(props)
+        const firstInput = getByLabelText(
+          container,
+          'Code input 1',
+        ) as HTMLInputElement
+        const secondInput = getByLabelText(
+          container,
+          'Code input 2',
+        ) as HTMLInputElement
+
+        const focusSpy = vi.spyOn(
+          secondInput,
+          'focus',
+        )
+        fireEvent.keyDown(
+          firstInput,
+          { key: 'ArrowRight' },
+        )
+        expect(focusSpy).toHaveBeenCalled()
+        focusSpy.mockRestore()
+      },
+    )
+
+    // Added test: Cover onChange event when input value becomes empty (no value)
+    it(
+      'calls handleChange with empty value when input is cleared',
+      () => {
+        const initialCode = ['1', '', '', '', '', '']
+        const props: EmailMfaProps = {
+          ...defaultProps,
+          values: { mfaCode: initialCode },
+        }
+        const container = setup(props)
+        const firstInput = getByLabelText(
+          container,
+          'Code input 1',
+        ) as HTMLInputElement
+        fireEvent.input(
+          firstInput,
+          { target: { value: '' } },
+        )
+        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          'mfaCode',
+          ['', '', '', '', '', ''],
+        )
+      },
+    )
+
+    // Added test: Cover onChange event when input value contains multiple digits
+    it(
+      'calls handleChange with multiple digits when input value contains multiple digits',
+      () => {
+        const initialCode = ['', '', '', '', '', '']
+        const props: EmailMfaProps = {
+          ...defaultProps,
+          values: { mfaCode: initialCode },
+        }
+        const container = setup(props)
+        // Get the first input element rendered by CodeInput using its aria-label
+        const firstInput = getByLabelText(
+          container,
+          'Code input 1',
+        ) as HTMLInputElement
+        fireEvent.input(
+          firstInput,
+          { target: { value: '78' } },
+        )
+        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          'mfaCode',
+          ['7', '8', '', '', '', ''],
+        )
+      },
+    )
+
+    // Added test: Cover onKeyDown for not allowed keys
+    it(
+      'prevents default behavior when disallowed key is pressed',
+      () => {
+        const initialCode = ['', '', '', '', '', '']
+        const props: EmailMfaProps = {
+          ...defaultProps, values: { mfaCode: initialCode },
+        }
+        const container = setup(props)
+        const firstInput = getByLabelText(
+          container,
+          'Code input 1',
+        ) as HTMLInputElement
+        const event = createEvent.keyDown(
+          firstInput,
+          { key: 'a' },
+        )
+        const preventDefaultSpy = vi.spyOn(
+          event,
+          'preventDefault',
+        )
+        fireEvent(
+          firstInput,
+          event,
+        )
+        expect(preventDefaultSpy).toHaveBeenCalled()
       },
     )
   },

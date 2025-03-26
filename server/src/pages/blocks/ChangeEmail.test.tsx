@@ -205,6 +205,28 @@ describe(
     )
 
     it(
+      'displays resent text when resent prop is true',
+      () => {
+        const mfaCode = ['']
+        const props = {
+          ...defaultProps,
+          values: {
+            ...defaultProps.values, mfaCode,
+          },
+          resent: true,
+        }
+        const container = setup(props)
+
+        const resentButton = getByText(
+          container,
+          changeEmail.resent.en,
+        )
+        expect(resentButton).toBeDefined()
+        expect((resentButton as HTMLButtonElement).disabled).toBe(true)
+      },
+    )
+
+    it(
       'displays submit error message when submitError is provided',
       () => {
         const errorMessage = 'Error occurred'
@@ -213,6 +235,57 @@ describe(
         }
         const container = setup(props)
         expect(container.textContent).toContain(errorMessage)
+      },
+    )
+
+    it(
+      'calls handleChange when code input changes',
+      () => {
+        const props = {
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: ['', '', '', '', '', ''],
+          },
+        }
+        const container = setup(props)
+
+        const firstCodeInput = container.querySelector('input[aria-label="Code input 1"]')
+        expect(firstCodeInput).toBeDefined()
+
+        fireEvent.input(
+firstCodeInput as HTMLInputElement,
+{ target: { value: '1' } },
+        )
+
+        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          'mfaCode',
+          ['1', '', '', '', '', ''],
+        )
+      },
+    )
+
+    it(
+      'handles null mfaCode by using empty array in CodeInput',
+      () => {
+        const props = {
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: ['1', '2', '3', '', '', ''],
+          },
+        }
+        const container = setup(props)
+
+        // Now CodeInput should be rendered with empty inputs
+        const newCodeInputs = container.querySelectorAll('input[aria-label^="Code input"]') as NodeListOf<HTMLInputElement>
+        expect(newCodeInputs.length).toBe(6)
+        expect(newCodeInputs[0].value).toBe('1')
+        expect(newCodeInputs[1].value).toBe('2')
+        expect(newCodeInputs[2].value).toBe('3')
+        expect(newCodeInputs[3].value).toBe('')
+        expect(newCodeInputs[4].value).toBe('')
+        expect(newCodeInputs[5].value).toBe('')
       },
     )
   },

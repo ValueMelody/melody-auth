@@ -114,8 +114,6 @@ const CodeInput = ({
         focusInput(index + 1)
       }
       break
-    default:
-      break
     }
   }
 
