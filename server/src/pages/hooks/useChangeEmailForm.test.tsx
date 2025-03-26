@@ -324,3 +324,37 @@ test(
     fetchSpy.mockRestore()
   },
 )
+
+test(
+  'calls onSubmitError when resend code fails',
+  async () => {
+    const onSubmitError = vi.fn()
+    const errorMessage = 'Resend failed'
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    ).mockRejectedValue(new Error(errorMessage))
+
+    const { result } = renderHook(() =>
+      useChangeEmailForm({
+        locale: 'en',
+        onSubmitError,
+      }))
+
+    act(() => {
+      result.current.handleChange(
+        'email',
+        'user@example.com',
+      )
+    })
+
+    await act(async () => {
+      result.current.handleResend()
+      await Promise.resolve()
+    })
+
+    expect(onSubmitError).toHaveBeenCalledWith(expect.any(Error))
+
+    fetchSpy.mockRestore()
+  },
+)

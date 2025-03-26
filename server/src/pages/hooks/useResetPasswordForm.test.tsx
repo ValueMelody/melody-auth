@@ -302,3 +302,90 @@ test(
     fetchSpy.mockRestore()
   },
 )
+
+test(
+  'handleSubmit calls onSubmitError when sending reset code fails (mfaCode === null)',
+  async () => {
+    const onSubmitError = vi.fn()
+    const { result } = renderHook(() =>
+      useResetPasswordForm({
+        locale: 'en',
+        onSubmitError,
+      }))
+
+    // Set valid email, leave mfaCode as null
+    act(() => {
+      result.current.handleChange(
+        'email',
+        'user@example.com',
+      )
+    })
+    expect(result.current.values.mfaCode).toBeNull()
+
+    // Mock fetch to fail
+    const error = new Error('Send code failed')
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    ).mockRejectedValue(error)
+
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+    await act(async () => {
+      result.current.handleSubmit(fakeEvent)
+      await Promise.resolve()
+    })
+
+    expect(onSubmitError).toHaveBeenCalledWith(error)
+    expect(result.current.values.mfaCode).toBeNull() // mfaCode should remain null
+    fetchSpy.mockRestore()
+  },
+)
+
+test(
+  'handleSubmit calls onSubmitError when resetting password fails (mfaCode provided)',
+  async () => {
+    const onSubmitError = vi.fn()
+    const { result } = renderHook(() =>
+      useResetPasswordForm({
+        locale: 'en',
+        onSubmitError,
+      }))
+
+    // Set all required fields
+    act(() => {
+      result.current.handleChange(
+        'email',
+        'user@example.com',
+      )
+      result.current.handleChange(
+        'mfaCode',
+        ['1', '2', '3', '4', '5', '6'],
+      )
+      result.current.handleChange(
+        'password',
+        'Password1!',
+      )
+      result.current.handleChange(
+        'confirmPassword',
+        'Password1!',
+      )
+    })
+
+    // Mock fetch to fail
+    const error = new Error('Reset password failed')
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    ).mockRejectedValue(error)
+
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+    await act(async () => {
+      result.current.handleSubmit(fakeEvent)
+      await Promise.resolve()
+    })
+
+    expect(onSubmitError).toHaveBeenCalledWith(error)
+    expect(result.current.success).toBe(false) // success should remain false
+    fetchSpy.mockRestore()
+  },
+)

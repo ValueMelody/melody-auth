@@ -70,7 +70,7 @@ const SmsMfa = ({
               <CodeInput
                 label={smsMfa.code[locale]}
                 required
-                code={values.mfaCode ?? []}
+                code={values.mfaCode}
                 error={errors.mfaCode}
                 setCode={(value) => handleChange(
                   'mfaCode',

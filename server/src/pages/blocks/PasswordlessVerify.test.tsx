@@ -151,5 +151,34 @@ describe(
         expect(primaryButton).toBeDefined()
       },
     )
+
+    it(
+      'handles undefined or null mfaCode by using empty array',
+      () => {
+        // Test with undefined mfaCode
+        const propsWithUndefinedCode: PasswordlessVerifyProps = {
+          ...defaultProps,
+          values: { mfaCode: undefined as any },
+        }
+        const containerUndefined = setup(propsWithUndefinedCode)
+        const codeInputsUndefined = containerUndefined.querySelectorAll('input[aria-label^="Code input"]')
+        expect(codeInputsUndefined.length).toBe(6)
+        codeInputsUndefined.forEach((input) => {
+          expect((input as HTMLInputElement).value).toBe('')
+        })
+
+        // Test with null mfaCode
+        const propsWithNullCode: PasswordlessVerifyProps = {
+          ...defaultProps,
+          values: { mfaCode: null as any },
+        }
+        const containerNull = setup(propsWithNullCode)
+        const codeInputsNull = containerNull.querySelectorAll('input[aria-label^="Code input"]')
+        expect(codeInputsNull.length).toBe(6)
+        codeInputsNull.forEach((input) => {
+          expect((input as HTMLInputElement).value).toBe('')
+        })
+      },
+    )
   },
 )

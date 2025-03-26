@@ -376,5 +376,65 @@ describe(
         fetchSpy.mockRestore()
       },
     )
+
+    test(
+      'handleEnroll calls onSubmitError when submitEnroll fails',
+      async () => {
+        // First set enrollOptions via getEnrollOptions
+        const fakeEnrollOptions = { option: 'value' }
+        const fakeGetEnrollResponse = {
+          ok: true,
+          json: async () => ({ enrollOptions: fakeEnrollOptions }),
+        }
+        const fetchSpyGet = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeGetEnrollResponse as unknown as Response)
+
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+        const { result } = renderHook(() =>
+          usePasskeyEnrollForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        await act(async () => {
+          await result.current.getEnrollOptions()
+          await Promise.resolve()
+        })
+        expect(result.current.enrollOptions).toEqual(fakeEnrollOptions)
+        fetchSpyGet.mockRestore()
+
+        // Mock successful enroll returning credential
+        const fakeEnrollInfo = { credential: 'passkey-credential' }
+        const enrollModule = await import('pages/tools/passkey')
+        const enrollMock = vi.spyOn(
+          enrollModule,
+          'enroll',
+        ).mockResolvedValue(fakeEnrollInfo as unknown as Credential)
+
+        // Mock POST request to fail
+        const error = new Error('Submit enroll failed')
+        const fetchSpyPost = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValue(error)
+
+        await act(async () => {
+          await result.current.handleEnroll()
+          await Promise.resolve()
+        })
+
+        // Verify error handling
+        expect(onSubmitError).toHaveBeenCalledWith(error)
+        expect(onSwitchView).not.toHaveBeenCalled()
+
+        // Cleanup
+        enrollMock.mockRestore()
+        fetchSpyPost.mockRestore()
+      },
+    )
   },
 )

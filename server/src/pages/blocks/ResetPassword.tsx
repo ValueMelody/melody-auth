@@ -93,7 +93,7 @@ const ResetPassword = ({
                   <CodeInput
                     label={resetPassword.code[locale]}
                     required
-                    code={values.mfaCode ?? []}
+                    code={values.mfaCode}
                     setCode={(code) => handleChange(
                       'mfaCode',
                       code,

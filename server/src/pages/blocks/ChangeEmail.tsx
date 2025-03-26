@@ -80,7 +80,7 @@ const ChangeEmail = ({
                   <CodeInput
                     label={changeEmail.code[locale]}
                     required
-                    code={values.mfaCode ?? []}
+                    code={values.mfaCode}
                     setCode={(code) => handleChange(
                       'mfaCode',
                       code,

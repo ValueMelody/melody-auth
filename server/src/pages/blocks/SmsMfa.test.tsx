@@ -154,6 +154,27 @@ describe(
     )
 
     it(
+      'displays resent text and disables button when resent is true',
+      () => {
+        const container = setup({
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: [''],
+          },
+          resent: true,
+        })
+
+        const resentButton = getByText(
+          container,
+          smsMfa.resent.en,
+        )
+        expect(resentButton).toBeDefined()
+        expect((resentButton as HTMLButtonElement).disabled).toBe(true)
+      },
+    )
+
+    it(
       'calls onSwitchView with View.EmailMfa when fallback button is clicked',
       () => {
         const container = setup({

@@ -83,5 +83,28 @@ describe(
         })
       },
     )
+
+    test(
+      'returns default values for missing logoUrl and locales when window.__initialProps exists',
+      () => {
+        // Set window.__initialProps with minimal props, explicitly omitting logoUrl and locales
+        (window as any).__initialProps = {
+          googleClientId: 'google-id-123',
+          enableSignUp: true,
+          // other props but no logoUrl or locales
+        }
+
+        const { result } = renderHook(() => useInitialProps())
+        const initialProps = result.current.initialProps
+
+        // Verify that missing properties get default values
+        expect(initialProps.logoUrl).toBe('')
+        expect(initialProps.locales).toEqual([])
+
+        // Verify that provided properties are still there
+        expect(initialProps.googleClientId).toBe('google-id-123')
+        expect(initialProps.enableSignUp).toBe(true)
+      },
+    )
   },
 )
