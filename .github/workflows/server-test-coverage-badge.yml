@@ -26,7 +26,7 @@ jobs:
         run: cd ./server && npm run node:secret:generate
 
       - name: Run tests
-        run: cd server && npx vitest run --coverage ./src --exclude ./src/__tests__/key-rotate --reporter=json
+        run: cd server && npm run test:coverage
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
