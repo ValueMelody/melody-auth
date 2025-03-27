@@ -4,6 +4,8 @@
 - Deploy to **Cloudflare** using **Workers, D1, and KV** in just minutes — minimizing infrastructure and DevOps overhead.
 - **Self-Host** with **Node.js, Redis, and PostgreSQL** — giving you full control over your data and infrastructure.
 
+[![codecov](https://codecov.io/gh/ValueMelody/melody-auth/graph/badge.svg?token=AB3C1DCJJM)](https://codecov.io/gh/ValueMelody/melody-auth)
+
 ## What's included?
 - Complete **OAuth & Authentication Server**
   - [Auth Server Setup Doc](https://auth.valuemelody.com/auth-server-setup.html)

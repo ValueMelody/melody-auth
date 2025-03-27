@@ -1,7 +1,7 @@
 name: server-test-coverage-badge CI
 
-on: 
-  push
+on:
+  workflow_dispatch:
 
 jobs:
   test:
