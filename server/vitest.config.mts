@@ -10,7 +10,7 @@ export default defineConfig({
       ['src/pages/**', 'jsdom'],
     ],
     coverage: {
-      reporter: ['text'],
+      reporter: ['json', 'text'],
       include: ['src'],
       exclude: [
         'src/tests',
