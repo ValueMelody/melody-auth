@@ -1,7 +1,9 @@
 'use client'
 
-import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
   routeTool, typeTool,
@@ -42,20 +44,24 @@ const Page = () => {
         />
       </div>
       <Table>
-        <Table.Head className='md:hidden'>
-          <Table.HeadCell>{t('roles.role')}</Table.HeadCell>
-        </Table.Head>
-        <Table.Head className='max-md:hidden'>
-          <Table.HeadCell>{t('roles.name')}</Table.HeadCell>
-          <Table.HeadCell>{t('common.note')}</Table.HeadCell>
-          <Table.HeadCell />
-        </Table.Head>
-        <Table.Body className='divide-y md:hidden'>
+        <TableHeader className='md:hidden'>
+          <TableRow>
+            <TableHead>{t('roles.role')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableHeader className='max-md:hidden'>
+          <TableRow>
+            <TableHead>{t('roles.name')}</TableHead>
+            <TableHead>{t('common.note')}</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody className='divide-y md:hidden'>
           {roles.map((role) => (
-            <Table.Row
+            <TableRow
               key={role.id}
               data-testid='roleRow'>
-              <Table.Cell>
+              <TableCell>
                 <section className='flex justify-between items-center'>
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-2'>
@@ -68,28 +74,30 @@ const Page = () => {
                     {renderEditButton(role)}
                   </div>
                 </section>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
-        <Table.Body className='divide-y max-md:hidden'>
+        </TableBody>
+        <TableBody className='divide-y max-md:hidden'>
           {roles.map((role) => (
-            <Table.Row key={role.id}>
-              <Table.Cell>
+            <TableRow
+              key={role.id}
+              data-testid='roleRow'>
+              <TableCell>
                 <div className='flex items-center gap-2'>
                   {role.name}
                   {isSystem(role.name) && <SystemLabel />}
                 </div>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 {role.note}
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 {renderEditButton(role)}
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
+        </TableBody>
       </Table>
     </section>
   )

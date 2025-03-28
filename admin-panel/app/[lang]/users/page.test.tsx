@@ -62,9 +62,12 @@ describe(
         render(<Page />)
 
         const rows = screen.queryAllByTestId('userRow')
-        expect(rows.length).toBe(3)
+        expect(rows.length).toBe(6)
 
-        rows.forEach((
+        rows.slice(
+          3,
+          6,
+        ).forEach((
           row, index,
         ) => {
           expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(users[index].authId)
@@ -142,10 +145,10 @@ describe(
         render(<Page />)
 
         const rows = screen.queryAllByTestId('userRow')
-        expect(rows.length).toBe(1)
+        expect(rows.length).toBe(2)
 
         // Verify that the name cell contains empty strings
-        const nameCell = rows[0].querySelectorAll('td')[3]
+        const nameCell = rows[1].querySelectorAll('td')[3]
         expect(nameCell?.innerHTML).toContain(' ') // Should contain a space between empty strings
       },
     )

@@ -1,10 +1,9 @@
 import {
   PlusIcon, TrashIcon,
 } from '@heroicons/react/16/solid'
-import {
-  Button, TextInput,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import { Input } from 'components/ui/input'
+import { Button } from 'components/ui/button'
 
 const RedirectUriEditor = ({
   redirectUris,
@@ -51,7 +50,7 @@ const RedirectUriEditor = ({
               className='flex flex-col'
             >
               <section className='flex items-center gap-2 w-full'>
-                <TextInput
+                <Input
                   data-testid='redirectUriInput'
                   onChange={(e) => handleUpdateUri(
                     index,
@@ -61,9 +60,9 @@ const RedirectUriEditor = ({
                   className='w-full'
                 />
                 <Button
-                  color='gray'
+                  variant='outline'
                   onClick={() => handleRemoveUri(index)}
-                  size='xs'
+                  size='sm'
                   data-testid='redirectUriRemoveButton'
                 >
                   <TrashIcon className='w-4 h-4' />
@@ -77,7 +76,7 @@ const RedirectUriEditor = ({
       <Button
         onClick={handleAddMoreUri}
         className='mt-4'
-        size='xs'
+        size='sm'
         data-testid='redirectUriAddButton'
       >
         <PlusIcon className='w-4 h-4' />

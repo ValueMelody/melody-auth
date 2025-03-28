@@ -25,7 +25,7 @@ describe(
         render(<Page />)
 
         const rows = screen.queryAllByTestId('roleRow')
-        expect(rows.length).toBe(2)
+        expect(rows.length).toBe(4)
         expect(rows[0].querySelector('td')?.innerHTML).toContain(roles[0].name)
         const editLinks = rows[0].querySelector('td')?.getElementsByTagName('a')
         expect(editLinks?.length).toBe(0)

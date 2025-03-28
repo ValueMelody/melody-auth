@@ -1,7 +1,9 @@
 'use client'
 
-import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
   dataTool,
@@ -30,19 +32,23 @@ const Page = () => {
         />
       </div>
       <Table>
-        <Table.Head className='md:hidden'>
-          <Table.HeadCell>{t('scopes.scope')}</Table.HeadCell>
-        </Table.Head>
-        <Table.Head className='max-md:hidden'>
-          <Table.HeadCell>{t('scopes.name')}</Table.HeadCell>
-          <Table.HeadCell>{t('common.note')}</Table.HeadCell>
-          <Table.HeadCell>{t('scopes.type')}</Table.HeadCell>
-          <Table.HeadCell />
-        </Table.Head>
-        <Table.Body className='divide-y md:hidden'>
+        <TableHeader className='md:hidden'>
+          <TableRow>
+            <TableHead>{t('scopes.scope')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableHeader className='max-md:hidden'>
+          <TableRow>
+            <TableHead>{t('scopes.name')}</TableHead>
+            <TableHead>{t('common.note')}</TableHead>
+            <TableHead>{t('scopes.type')}</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody className='divide-y md:hidden'>
           {scopes.map((scope) => (
-            <Table.Row key={scope.id}>
-              <Table.Cell>
+            <TableRow key={scope.id}>
+              <TableCell>
                 <div className='flex items-center justify-between'>
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-2'>
@@ -56,35 +62,35 @@ const Page = () => {
                     href={`/${locale}/scopes/${scope.id}`}
                   />
                 </div>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
-        <Table.Body className='divide-y max-md:hidden'>
+        </TableBody>
+        <TableBody className='divide-y max-md:hidden'>
           {scopes.map((scope) => (
-            <Table.Row
+            <TableRow
               data-testid='scopeRow'
               key={scope.id}>
-              <Table.Cell>
+              <TableCell>
                 <div className='flex items-center gap-2'>
                   {scope.name}
                   {dataTool.isSystem(scope.name) && <SystemLabel />}
                 </div>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 {scope.note}
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <ClientTypeLabel type={scope.type} />
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <EditLink
                   href={`/${locale}/scopes/${scope.id}`}
                 />
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
+        </TableBody>
       </Table>
     </section>
   )

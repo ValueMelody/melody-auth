@@ -1,11 +1,11 @@
 'use client'
 
 import { useAuth } from '@melody-auth/react'
-import { Button } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
+import { Button } from 'components/ui/button'
 
 const Page = () => {
   const t = useTranslations()

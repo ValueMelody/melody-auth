@@ -1,5 +1,5 @@
-import { Badge } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import { Badge } from 'components/ui/badge'
 
 const EntityStatusLabel = ({ isEnabled }: {
   isEnabled: boolean;
@@ -10,8 +10,8 @@ const EntityStatusLabel = ({ isEnabled }: {
     <div className='items-center flex'>
       {
         isEnabled
-          ? <Badge color='success'>{t('common.active')}</Badge>
-          : <Badge color='failure'>{t('common.disabled')}</Badge>
+          ? <Badge>{t('common.active')}</Badge>
+          : <Badge variant='destructive'>{t('common.disabled')}</Badge>
       }
     </div>
   )

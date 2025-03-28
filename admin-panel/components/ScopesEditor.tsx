@@ -1,6 +1,5 @@
-import {
-  Checkbox, Label,
-} from 'flowbite-react'
+import { Checkbox } from 'components/ui/checkbox'
+import { Label } from 'components/ui/label'
 import { Scope } from 'services/auth/api'
 
 const ScopesEditor = ({
@@ -21,13 +20,14 @@ const ScopesEditor = ({
           <Checkbox
             data-testid='scopeInput'
             id={`scope-${scope.id}`}
-            onChange={() => onToggleScope(scope.name)}
+            onClick={() => onToggleScope(scope.name)}
             checked={value?.includes(scope.name)}
           />
           <Label
             data-testid='scopeLabel'
             htmlFor={`scope-${scope.id}`}
-            className='flex'>
+            className='flex'
+          >
             {scope.name}
           </Label>
         </div>

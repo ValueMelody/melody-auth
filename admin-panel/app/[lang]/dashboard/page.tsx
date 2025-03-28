@@ -1,14 +1,18 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import {
-  Spinner, Table,
-} from 'flowbite-react'
 import { useMemo } from 'react'
+import { Spinner } from 'components/ui/spinner'
+
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 import PageTitle from 'components/PageTitle'
 import { configSignal } from 'signals'
 import useSignalValue from 'app/useSignalValue'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
+
+const configNameClass = 'w-96 max-md:w-60'
 
 const Page = () => {
   const t = useTranslations()
@@ -109,14 +113,16 @@ const Page = () => {
             title={t('dashboard.links')}
           />
           <Table className='break-all'>
-            <Table.Head>
-              <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
-              <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>
-            </Table.Head>
-            <Table.Body className='divide-y'>
-              <Table.Row>
-                <Table.Cell>OPENID CONFIGURATION</Table.Cell>
-                <Table.Cell>
+            <TableHeader>
+              <TableRow>
+                <TableHead className={configNameClass}>{t('dashboard.configName')}</TableHead>
+                <TableHead>{t('dashboard.configValue')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>OPENID CONFIGURATION</TableCell>
+                <TableCell>
                   <a
                     target='_blank'
                     href={links.openidConfig}
@@ -124,11 +130,11 @@ const Page = () => {
                   >
                     {links.openidConfig}
                   </a>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>JWKS</Table.Cell>
-                <Table.Cell>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>JWKS</TableCell>
+                <TableCell>
                   <a
                     target='_blank'
                     href={links.jwks}
@@ -136,11 +142,11 @@ const Page = () => {
                   >
                     {links.jwks}
                   </a>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>{t('dashboard.apiSwagger')}</Table.Cell>
-                <Table.Cell>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>{t('dashboard.apiSwagger')}</TableCell>
+                <TableCell>
                   <a
                     target='_blank'
                     href={links.apiSwagger}
@@ -148,11 +154,11 @@ const Page = () => {
                   >
                     {links.apiSwagger}
                   </a>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>{t('dashboard.systemInfo')}</Table.Cell>
-                <Table.Cell>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>{t('dashboard.systemInfo')}</TableCell>
+                <TableCell>
                   <a
                     target='_blank'
                     href={links.systemInfo}
@@ -160,9 +166,9 @@ const Page = () => {
                   >
                     {links.systemInfo}
                   </a>
-                </Table.Cell>
-              </Table.Row>
-            </Table.Body>
+                </TableCell>
+              </TableRow>
+            </TableBody>
           </Table>
         </>
       )}
@@ -175,22 +181,24 @@ const Page = () => {
             title={configType.name}
           />
           <Table className='break-all'>
-            <Table.Head>
-              <Table.HeadCell>{t('dashboard.configName')}</Table.HeadCell>
-              <Table.HeadCell>{t('dashboard.configValue')}</Table.HeadCell>
-            </Table.Head>
-            <Table.Body className='divide-y'>
+            <TableHeader>
+              <TableRow>
+                <TableHead className={configNameClass}>{t('dashboard.configName')}</TableHead>
+                <TableHead>{t('dashboard.configValue')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {configType.value.map((configName) => (
-                <Table.Row key={configName}>
-                  <Table.Cell>{configName}</Table.Cell>
-                  <Table.Cell>
+                <TableRow key={configName}>
+                  <TableCell>{configName}</TableCell>
+                  <TableCell>
                     {typeof configs[configName] === 'boolean' && <ConfigBooleanValue config={configs[configName]} />}
                     {Array.isArray(configs[configName]) && configs[configName].join(', ')}
                     {typeof configs[configName] !== 'boolean' && !Array.isArray(configs[configName]) && configs[configName]}
-                  </Table.Cell>
-                </Table.Row>
+                  </TableCell>
+                </TableRow>
               ))}
-            </Table.Body>
+            </TableBody>
           </Table>
         </section>
       ))}

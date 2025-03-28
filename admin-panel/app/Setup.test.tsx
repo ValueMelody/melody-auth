@@ -115,7 +115,7 @@ describe(
         } as any)
 
         render(<Setup>Test</Setup>)
-        expect(screen.getByRole('status')).toBeInTheDocument()
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
       },
     )
 

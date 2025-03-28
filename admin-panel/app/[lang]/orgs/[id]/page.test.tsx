@@ -548,9 +548,12 @@ describe(
         render(<Page />)
 
         const rows = screen.queryAllByTestId('userRow')
-        expect(rows.length).toBe(3)
+        expect(rows.length).toBe(6)
 
-        rows.forEach((
+        rows.slice(
+          3,
+          6,
+        ).forEach((
           row, index,
         ) => {
           expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(users[index].authId)

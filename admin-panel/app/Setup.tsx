@@ -6,9 +6,6 @@ import {
 import {
   AuthProvider, useAuth,
 } from '@melody-auth/react'
-import {
-  Alert, Button, Navbar, Spinner,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
@@ -18,7 +15,14 @@ import {
 import {
   Provider, useDispatch, useSelector,
 } from 'react-redux'
+import { twMerge } from 'tailwind-merge'
 import useSignalValue from './useSignalValue'
+import {
+  NavigationMenu, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle, NavigationMenuList,
+} from 'components/ui/navigation-menu'
+import { Alert } from 'components/ui/alert'
+import { Button } from 'components/ui/button'
+import { Spinner } from 'components/ui/spinner'
 import {
   configSignal,
   errorSignal,
@@ -92,7 +96,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   if (isAuthenticating || isLoadingUserInfo || !state.acquireAuthToken) {
     return (
       <section className='flex flex-col justify-center items-center w-full h-screen'>
-        <Spinner size='lg' />
+        <Spinner />
       </section>
     )
   }
@@ -104,12 +108,14 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   if (!userInfo?.roles?.includes(typeTool.Role.SuperAdmin)) {
     return (
       <div className='w-full h-screen flex flex-col gap-8 items-center justify-center'>
-        <Alert color='failure'>
+        <Alert variant='destructive'>
           {acquireUserInfoError || t('layout.blocked')}
         </Alert>
         <Button
-          color='gray'
-          onClick={handleLogout}>{t('layout.logout')}
+          variant='ghost'
+          onClick={handleLogout}
+        >
+          {t('layout.logout')}
         </Button>
       </div>
     )
@@ -145,96 +151,124 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
 
   return (
     <>
-      <Navbar
-        fluid
-        rounded>
-        <Navbar.Brand
-          as={Link}
-          href={`/${locale}${routeTool.Internal.Dashboard}`}>
-          <img
-            src='https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
-            className='mr-3 h-6 sm:h-9' />
-          <span className='self-center whitespace-nowrap text-xl font-semibold dark:text-white'>
-            {t('layout.brand')}
-          </span>
-        </Navbar.Brand>
-        <Navbar.Toggle />
-        <Navbar.Collapse>
-          <Navbar.Link
-            as={Link}
-            href={`/${locale}${routeTool.Internal.Dashboard}`}
-            className='flex items-center h-6'
-          >
-            {t('layout.dashboard')}
-          </Navbar.Link>
-          <Navbar.Link
-            as={Link}
-            className='flex items-center h-6'
-            href={`/${locale}${routeTool.Internal.Users}`}
-          >
-            {t('layout.users')}
-          </Navbar.Link>
-          <Navbar.Link
-            as={Link}
-            className='flex items-center h-6'
-            href={`/${locale}${routeTool.Internal.Roles}`}
-          >
-            {t('layout.roles')}
-          </Navbar.Link>
-          <Navbar.Link
-            as={Link}
-            className='flex items-center h-6'
-            href={`/${locale}${routeTool.Internal.Apps}`}
-          >
-            {t('layout.apps')}
-          </Navbar.Link>
-          <Navbar.Link
-            as={Link}
-            className='flex items-center h-6'
-            href={`/${locale}${routeTool.Internal.Scopes}`}
-          >
-            {t('layout.scopes')}
-          </Navbar.Link>
-          {showOrg && (
-            <Navbar.Link
-              as={Link}
-              className='flex items-center h-6'
-              href={`/${locale}${routeTool.Internal.Orgs}`}
+      <NavigationMenu className='w-full max-h-20 max-md:max-h-40 py-4'>
+        <NavigationMenuList className='flex-wrap justify-start'>
+          <NavigationMenuItem>
+            <Link
+              href={`/${locale}${routeTool.Internal.Dashboard}`}
             >
-              {t('layout.orgs')}
-            </Navbar.Link>
+              <NavigationMenuLink
+                className={twMerge(
+                  navigationMenuTriggerStyle(),
+                  'flex items-center',
+                )}>
+                <img
+                  src='https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+                  className='mr-3 h-6 sm:h-9'
+                />
+                <span className='self-center whitespace-nowrap text-medium font-semibold dark:text-white'>
+                  {t('layout.brand')}
+                </span>
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href={`/${locale}${routeTool.Internal.Dashboard}`}
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                {t('layout.dashboard')}
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href={`/${locale}${routeTool.Internal.Users}`}
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                {t('layout.users')}
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href={`/${locale}${routeTool.Internal.Roles}`}
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                {t('layout.roles')}
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href={`/${locale}${routeTool.Internal.Apps}`}
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                {t('layout.apps')}
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href={`/${locale}${routeTool.Internal.Scopes}`}
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                {t('layout.scopes')}
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          {!!showOrg && (
+            <NavigationMenuItem>
+              <Link
+                className='flex items-center h-6'
+                href={`/${locale}${routeTool.Internal.Orgs}`}
+              >
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  {t('layout.orgs')}
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
           )}
           {!!showLogs && (
-            <Navbar.Link
-              as={Link}
-              className='flex items-center h-6'
-              href={`/${locale}${routeTool.Internal.Logs}`}
-            >
-              {t('layout.logs')}
-            </Navbar.Link>
+            <NavigationMenuItem>
+              <Link
+                href={`/${locale}${routeTool.Internal.Logs}`}
+              >
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  {t('layout.logs')}
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
           )}
-          <Navbar.Link
-            as={Link}
-            className='flex items-center h-6'
-            href={`/${locale}${routeTool.Internal.Account}`}
-          >
-            {t('layout.account')}
-          </Navbar.Link>
-          <Navbar.Link
-            as={Link}
-            className='flex items-center h-6'
-            href={`/${locale === 'en' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`}
-          >
-            {locale === 'en' ? 'FR' : 'EN'}
-          </Navbar.Link>
-          <Navbar.Link
-            onClick={handleLogout}
-            href='#'
-            className='flex items-center gap-2'>
-            <ArrowRightEndOnRectangleIcon className='w-6 h-6' /> {t('layout.logout')}
-          </Navbar.Link>
-        </Navbar.Collapse>
-      </Navbar>
+          <NavigationMenuItem>
+            <Link
+              href={`/${locale}${routeTool.Internal.Account}`}
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                {t('layout.account')}
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href={`/${locale === 'en' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`}
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                {locale === 'en' ? 'FR' : 'EN'}
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Button
+              variant='link'
+              onClick={handleLogout}
+              className='flex items-center gap-2'
+            >
+              <ArrowRightEndOnRectangleIcon className='w-6 h-6' /> {t('layout.logout')}
+            </Button>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
       <section className='p-6'>
         {children}
       </section>

@@ -1,7 +1,6 @@
-import {
-  Button, Spinner,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import { Spinner } from 'components/ui/spinner'
+import { Button } from 'components/ui/button'
 
 const SaveButton = ({
   onClick,

@@ -1,6 +1,6 @@
 import { PencilSquareIcon } from '@heroicons/react/16/solid'
-import { Button } from 'flowbite-react'
 import Link from 'next/link'
+import { Button } from 'components/ui/button'
 
 const EditLink = ({ href }: {
   href: string;
@@ -8,13 +8,13 @@ const EditLink = ({ href }: {
   return (
     <Button
       className='w-10'
-      as={Link}
-      href={href}
-      color='gray'
-      size='sm'
+      asChild
+      variant='outline'
       data-testid='editLink'
     >
-      <PencilSquareIcon className='w-4 h-4' />
+      <Link href={href}>
+        <PencilSquareIcon className='w-4 h-4' />
+      </Link>
     </Button>
   )
 }

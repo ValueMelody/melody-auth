@@ -1,20 +1,22 @@
 import { EyeIcon } from '@heroicons/react/16/solid'
-import { Button } from 'flowbite-react'
 import Link from 'next/link'
+import { Button } from 'components/ui/button'
 
-const EditLink = ({ href }: {
+const ViewLink = ({ href }: {
   href: string;
 }) => {
   return (
     <Button
       className='w-10'
-      as={Link}
-      href={href}
-      color='gray'
-      size='sm'>
-      <EyeIcon className='w-4 h-4' />
+      asChild
+      variant='outline'
+      size='sm'
+    >
+      <Link href={href}>
+        <EyeIcon className='w-4 h-4' />
+      </Link>
     </Button>
   )
 }
 
-export default EditLink
+export default ViewLink

@@ -1,7 +1,8 @@
-import {
-  Button, Modal,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogFooter,
+  AlertDialogTitle, AlertDialogHeader, AlertDialogContent,
+} from 'components/ui/alert-dialog'
 
 const ConfirmModal = ({
   show,
@@ -19,19 +20,21 @@ const ConfirmModal = ({
   const t = useTranslations()
 
   return (
-    <Modal
-      show={show}
-      onClose={onClose}>
-      <Modal.Header>{title}</Modal.Header>
-      <Modal.Footer>
-        <Button
-          data-testid='confirmButton'
-          color='failure'
-          onClick={onConfirm}>
-          {confirmButtonText || t('common.deleteConfirmBtn')}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+    <AlertDialog open={show}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>{t('common.cancel')}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onConfirm}
+            data-testid='confirmButton'>
+            {confirmButtonText || t('common.deleteConfirmBtn')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 

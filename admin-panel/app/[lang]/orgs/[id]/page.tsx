@@ -1,12 +1,17 @@
 'use client'
 
-import {
-  Table,
-  TextInput,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from 'components/ui/table'
+import { Input } from 'components/ui/input'
 import useEditOrg from 'app/[lang]/orgs/useEditOrg'
 import { routeTool } from 'tools'
 import SaveButton from 'components/SaveButton'
@@ -72,40 +77,44 @@ const Page = () => {
       />
       <section>
         <Table>
-          <Table.Head>
-            <Table.HeadCell className='max-md:w-24 md:w-48'>{t('common.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className='divide-y'>
-            <Table.Row>
-              <Table.Cell>{t('orgs.name')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+          <TableHeader>
+            <TableRow>
+              <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
+              <TableHead>{t('common.value')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-y'>
+            <TableRow>
+              <TableCell>{t('orgs.name')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
                     e.target.value,
                   )}
-                  value={values.name} />
+                  value={values.name}
+                />
                 {showErrors && <FieldError error={errors.name} />}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.slug')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.slug')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='slugInput'
                   onChange={(e) => onChange(
                     'slug',
                     e.target.value,
                   )}
-                  value={values.slug} />
+                  value={values.slug}
+                />
                 {showErrors && <FieldError error={errors.slug} />}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.companyLogoUrl')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.companyLogoUrl')}</TableCell>
+              <TableCell>
                 <LinkInput
                   data-testid='companyLogoUrlInput'
                   onChange={(value) => onChange(
@@ -114,12 +123,12 @@ const Page = () => {
                   )}
                   value={values.companyLogoUrl}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.fontFamily')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.fontFamily')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='fontFamilyInput'
                   onChange={(e) => onChange(
                     'fontFamily',
@@ -127,11 +136,11 @@ const Page = () => {
                   )}
                   value={values.fontFamily}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.fontUrl')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.fontUrl')}</TableCell>
+              <TableCell>
                 <LinkInput
                   data-testid='fontUrlInput'
                   onChange={(value) => onChange(
@@ -140,11 +149,11 @@ const Page = () => {
                   )}
                   value={values.fontUrl}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.layoutColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.layoutColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='layoutColorInput'
                   onChange={(value) => onChange(
@@ -153,11 +162,11 @@ const Page = () => {
                   )}
                   value={values.layoutColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.labelColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.labelColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='labelColorInput'
                   onChange={(value) => onChange(
@@ -166,11 +175,11 @@ const Page = () => {
                   )}
                   value={values.labelColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.primaryButtonColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.primaryButtonColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='primaryButtonColorInput'
                   onChange={(value) => onChange(
@@ -179,11 +188,11 @@ const Page = () => {
                   )}
                   value={values.primaryButtonColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.primaryButtonLabelColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.primaryButtonLabelColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='primaryButtonLabelColorInput'
                   onChange={(value) => onChange(
@@ -192,11 +201,11 @@ const Page = () => {
                   )}
                   value={values.primaryButtonLabelColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.primaryButtonBorderColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.primaryButtonBorderColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='primaryButtonBorderColorInput'
                   onChange={(value) => onChange(
@@ -205,11 +214,11 @@ const Page = () => {
                   )}
                   value={values.primaryButtonBorderColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.secondaryButtonColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.secondaryButtonColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='secondaryButtonColorInput'
                   onChange={(value) => onChange(
@@ -218,11 +227,11 @@ const Page = () => {
                   )}
                   value={values.secondaryButtonColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.secondaryButtonLabelColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.secondaryButtonLabelColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='secondaryButtonLabelColorInput'
                   onChange={(value) => onChange(
@@ -231,11 +240,11 @@ const Page = () => {
                   )}
                   value={values.secondaryButtonLabelColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.secondaryButtonBorderColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.secondaryButtonBorderColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='secondaryButtonBorderColorInput'
                   onChange={(value) => onChange(
@@ -244,11 +253,11 @@ const Page = () => {
                   )}
                   value={values.secondaryButtonBorderColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.criticalIndicatorColor')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.criticalIndicatorColor')}</TableCell>
+              <TableCell>
                 <ColorInput
                   data-testid='criticalIndicatorColorInput'
                   onChange={(value) => onChange(
@@ -257,11 +266,11 @@ const Page = () => {
                   )}
                   value={values.criticalIndicatorColor}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.termsLink')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.termsLink')}</TableCell>
+              <TableCell>
                 <LinkInput
                   data-testid='termsLinkInput'
                   onChange={(value) => onChange(
@@ -270,11 +279,11 @@ const Page = () => {
                   )}
                   value={values.termsLink}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.privacyPolicyLink')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.privacyPolicyLink')}</TableCell>
+              <TableCell>
                 <LinkInput
                   data-testid='privacyPolicyLinkInput'
                   onChange={(value) => onChange(
@@ -283,17 +292,17 @@ const Page = () => {
                   )}
                   value={values.privacyPolicyLink}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.createdAt')}</Table.Cell>
-              <Table.Cell>{org.createdAt} UTC</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.updatedAt')}</Table.Cell>
-              <Table.Cell>{org.updatedAt} UTC</Table.Cell>
-            </Table.Row>
-          </Table.Body>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.createdAt')}</TableCell>
+              <TableCell>{org.createdAt} UTC</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.updatedAt')}</TableCell>
+              <TableCell>{org.updatedAt} UTC</TableCell>
+            </TableRow>
+          </TableBody>
         </Table>
       </section>
       <SubmitError />

@@ -1,8 +1,10 @@
 'use client'
 
-import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
 import PageTitle from 'components/PageTitle'
 import { useGetApiV1LogsSignInByIdQuery } from 'services/auth/api'
 
@@ -23,38 +25,40 @@ const Page = () => {
       />
       <section>
         <Table>
-          <Table.Head>
-            <Table.HeadCell className='max-md:w-24 md:w-48'>{t('common.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className='divide-y'>
-            <Table.Row>
-              <Table.Cell>{t('logs.userId')}</Table.Cell>
-              <Table.Cell>
+          <TableHeader>
+            <TableRow>
+              <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
+              <TableHead>{t('common.value')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-y'>
+            <TableRow>
+              <TableCell>{t('logs.userId')}</TableCell>
+              <TableCell>
                 {log.userId}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('logs.ip')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('logs.ip')}</TableCell>
+              <TableCell>
                 {log.ip}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('logs.detail')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('logs.detail')}</TableCell>
+              <TableCell>
                 {log.detail}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.createdAt')}</Table.Cell>
-              <Table.Cell>{log.createdAt} UTC</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.updatedAt')}</Table.Cell>
-              <Table.Cell>{log.updatedAt} UTC</Table.Cell>
-            </Table.Row>
-          </Table.Body>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.createdAt')}</TableCell>
+              <TableCell>{log.createdAt} UTC</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.updatedAt')}</TableCell>
+              <TableCell>{log.updatedAt} UTC</TableCell>
+            </TableRow>
+          </TableBody>
         </Table>
       </section>
     </section>

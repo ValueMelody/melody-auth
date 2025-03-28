@@ -99,8 +99,8 @@ describe(
 
         // Verify both scopes are initially selected
         const scopeInputs = screen.getAllByTestId('scopeInput') as HTMLInputElement[]
-        expect(scopeInputs[0].checked).toBe(true)
-        expect(scopeInputs[1].checked).toBe(true)
+        expect(scopeInputs[0].getAttribute('aria-checked')).toBe('true')
+        expect(scopeInputs[1].getAttribute('aria-checked')).toBe('true')
 
         // Click to remove one scope
         fireEvent.click(scopeInputs[0])
@@ -170,10 +170,10 @@ describe(
         render(<Page />)
 
         const deleteBtn = screen.queryByTestId('deleteButton') as HTMLButtonElement
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
 
         fireEvent.click(deleteBtn)
-        expect(screen.queryByRole('dialog')).toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
 
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 
@@ -393,10 +393,10 @@ describe(
         render(<Page />)
 
         const deleteBtn = screen.queryByTestId('deleteButton') as HTMLButtonElement
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
 
         fireEvent.click(deleteBtn)
-        expect(screen.queryByRole('dialog')).toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
 
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 

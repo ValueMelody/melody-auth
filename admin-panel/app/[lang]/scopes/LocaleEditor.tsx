@@ -1,5 +1,5 @@
-import { TextInput } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import { Input } from 'components/ui/input'
 
 export type LocaleValues = { locale: string; value: string }[]
 
@@ -39,7 +39,7 @@ const LocaleEditor = ({
           key={locale}
           className='flex items-center gap-4'>
           <p>{locale.toUpperCase()}</p>
-          <TextInput
+          <Input
             data-testid='localeInput'
             className='w-full'
             onChange={(e) => handleSetLocale(

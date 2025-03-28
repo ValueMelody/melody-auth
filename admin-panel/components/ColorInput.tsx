@@ -1,9 +1,7 @@
-import {
-  TextInput, TextInputProps,
-} from 'flowbite-react'
 import { ChangeEvent } from 'react'
+import { Input } from 'components/ui/input'
 
-interface ColorInputProps extends Omit<TextInputProps, 'type' | 'onChange'> {
+interface ColorInputProps extends Omit<React.ComponentProps<'input'>, 'type' | 'onChange'> {
   onChange: (value: string) => void;
 }
 
@@ -18,9 +16,9 @@ const ColorInput = ({
 
   return (
     <div className='flex items-center gap-2'>
-      <TextInput
+      <Input
         type='color'
-        className='[&>:first-child>:first-child]:p-0 w-6'
+        className='p-1 w-8'
         value={value}
         onChange={handleChange}
         {...props}

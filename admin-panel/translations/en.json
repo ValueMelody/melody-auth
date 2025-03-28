@@ -39,7 +39,8 @@
     "status": "Status",
     "fieldIsRequired": "This field is required.",
     "deleteConfirm": "Are you sure want to delete {item}",
-    "deleteConfirmBtn": "Delete"
+    "deleteConfirmBtn": "Delete",
+    "cancel": "Cancel"
   },
   "dashboard": {
     "informationConfigs": "Information Configs",

@@ -1,7 +1,14 @@
 'use client'
 
-import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from 'components/ui/table'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import { routeTool } from 'tools'
 import EditLink from 'components/EditLink'
@@ -35,21 +42,25 @@ const Page = () => {
         />
       </div>
       <Table>
-        <Table.Head className='md:hidden'>
-          <Table.HeadCell>{t('orgs.org')}</Table.HeadCell>
-        </Table.Head>
-        <Table.Head className='max-md:hidden'>
-          <Table.HeadCell>{t('orgs.name')}</Table.HeadCell>
-          <Table.HeadCell>{t('orgs.slug')}</Table.HeadCell>
-          <Table.HeadCell />
-        </Table.Head>
-        <Table.Body className='divide-y md:hidden'>
+        <TableHeader className='md:hidden'>
+          <TableRow>
+            <TableHead>{t('orgs.org')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableHeader className='max-md:hidden'>
+          <TableRow>
+            <TableHead>{t('orgs.name')}</TableHead>
+            <TableHead>{t('orgs.slug')}</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody className='divide-y md:hidden'>
           {orgs.map((org) => (
-            <Table.Row
+            <TableRow
               key={org.id}
               data-testid={`roleRow-${org.id}`}
             >
-              <Table.Cell>
+              <TableCell>
                 <section className='flex justify-between items-center'>
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-2'>
@@ -63,25 +74,25 @@ const Page = () => {
                     </div>
                   </div>
                 </section>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
-        <Table.Body className='divide-y max-md:hidden'>
+        </TableBody>
+        <TableBody className='divide-y max-md:hidden'>
           {orgs.map((org) => (
-            <Table.Row key={org.id}>
-              <Table.Cell>
+            <TableRow key={org.id}>
+              <TableCell>
                 {org.name}
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 {org.slug}
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 {renderEditButton(org)}
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
+        </TableBody>
       </Table>
     </section>
   )

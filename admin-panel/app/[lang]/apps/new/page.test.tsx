@@ -42,10 +42,10 @@ describe(
         render(<Page />)
 
         const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
-        const typeSelect = screen.queryByTestId('typeSelect') as HTMLSelectElement
+        const typeSelect = screen.queryByTestId('typeSelectValue') as HTMLSelectElement
         const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
         expect(nameInput?.value).toBe('')
-        expect(typeSelect?.value).toBe('')
+        expect(typeSelect?.innerHTML).toBe('')
         expect(saveBtn).toBeInTheDocument()
       },
     )
@@ -63,10 +63,10 @@ describe(
           nameInput,
           { target: { value: 'new name' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 's2s' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const s2sOption = screen.queryByTestId('typeSelect-s2sOption') as HTMLSelectElement
+        fireEvent.click(s2sOption)
 
         const scopeInputs = screen.queryAllByTestId('scopeInput')
         expect(scopeInputs.length).toBe(2)
@@ -103,10 +103,10 @@ describe(
           nameInput,
           { target: { value: 'new name' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         const scopeInputs = screen.queryAllByTestId('scopeInput')
         expect(scopeInputs.length).toBe(2)
@@ -149,10 +149,10 @@ describe(
         )
 
         const typeSelect = screen.queryByTestId('typeSelect') as HTMLSelectElement
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 's2s' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const s2sOption = screen.queryByTestId('typeSelect-s2sOption') as HTMLSelectElement
+        fireEvent.click(s2sOption)
 
         await waitFor(() => {
           const scopeInputs = screen.queryAllByTestId('scopeInput')
@@ -200,10 +200,10 @@ describe(
         )
 
         const typeSelect = screen.queryByTestId('typeSelect') as HTMLSelectElement
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 's2s' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const s2sOption = screen.queryByTestId('typeSelect-s2sOption') as HTMLSelectElement
+        fireEvent.click(s2sOption)
 
         await waitFor(() => {
           const scopeInputs = screen.queryAllByTestId('scopeInput')
@@ -213,10 +213,10 @@ describe(
         const s2sScopeInputs = screen.queryAllByTestId('scopeInput')
         fireEvent.click(s2sScopeInputs[0])
 
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         await waitFor(() => {
           const scopeInputs = screen.queryAllByTestId('scopeInput')
@@ -293,10 +293,10 @@ describe(
           nameInput,
           { target: { value: 'test app' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 's2s' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const s2sOption = screen.queryByTestId('typeSelect-s2sOption') as HTMLSelectElement
+        fireEvent.click(s2sOption)
 
         // Initial state should have no error messages
         expect(screen.queryAllByTestId('fieldError')).toHaveLength(0)
@@ -324,10 +324,10 @@ describe(
 
         // Set up SPA app type to show redirect URI editor
         const typeSelect = screen.queryByTestId('typeSelect') as HTMLSelectElement
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         // Initially should have one empty redirect URI input
         let redirectUriInputs = screen.queryAllByTestId('redirectUriInput')
@@ -379,10 +379,10 @@ describe(
 
         // Set up SPA app type to show redirect URI editor
         const typeSelect = screen.queryByTestId('typeSelect') as HTMLSelectElement
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         // Add another redirect URI
         const addButton = screen.queryByTestId('redirectUriAddButton') as HTMLButtonElement

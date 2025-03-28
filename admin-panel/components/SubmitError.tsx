@@ -1,4 +1,4 @@
-import { Alert } from 'flowbite-react'
+import { Alert } from 'components/ui/alert'
 import useSignalValue from 'app/useSignalValue'
 import { errorSignal } from 'signals'
 
@@ -9,8 +9,9 @@ const SubmitError = () => {
 
   return (
     <Alert
-      color='failure'
-      className='mt-6'>
+      variant='destructive'
+      className='mt-6'
+    >
       {error}
     </Alert>
   )

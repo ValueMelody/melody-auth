@@ -1,9 +1,8 @@
-import {
-  Button, Spinner,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import ConfirmModal from './ConfirmModal'
+import { Spinner } from 'components/ui/spinner'
+import { Button } from 'components/ui/button'
 
 const DeleteButton = ({
   className,
@@ -14,7 +13,7 @@ const DeleteButton = ({
   buttonText,
   size,
 }: {
-  size?: 'sm' | 'xs';
+  size?: 'sm' | 'default';
   className?: string;
   buttonText?: string;
   confirmDeleteTitle: string;
@@ -48,10 +47,10 @@ const DeleteButton = ({
         className={className}
         onClick={handleClick}
         size={size}
-        color='light'
+        variant='outline'
       >
         {buttonText || t('common.delete')}
-        {isLoading && <Spinner className='ml-2' />}
+        {isLoading && <Spinner />}
       </Button>
     </>
   )

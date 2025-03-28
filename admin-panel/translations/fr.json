@@ -37,7 +37,8 @@
     "status": "Statut",
     "fieldIsRequired": "Ce champ est requis.",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer {item} ?",
-    "deleteConfirmBtn": "Supprimer"
+    "deleteConfirmBtn": "Supprimer",
+    "cancel": "Annuler"
   },
   "dashboard": {
     "informationConfigs": "Configurations d'information",
