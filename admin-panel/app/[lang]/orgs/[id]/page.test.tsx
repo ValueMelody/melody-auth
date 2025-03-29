@@ -578,7 +578,7 @@ describe(
         ;(useGetApiV1OrgsByIdUsersQuery as Mock).mockClear()
 
         await waitFor(() => {
-          const nextButton = screen.getByText('common.next')
+          const nextButton = screen.getByTitle('common.next')
           expect(nextButton).toBeInTheDocument()
           nextButton.click()
         })

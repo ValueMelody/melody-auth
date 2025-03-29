@@ -246,7 +246,7 @@ describe(
 
         render(<Page />)
 
-        const nextButtons = screen.getAllByText('common.next')
+        const nextButtons = screen.getAllByTitle('common.next')
 
         await act(async () => {
           nextButtons.forEach((button) => button?.click())
