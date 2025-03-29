@@ -2,12 +2,18 @@
 
 import { useTranslations } from 'next-intl'
 import {
-  Pagination,
-  Spinner, Table,
-} from 'flowbite-react'
-import {
   useMemo, useState,
 } from 'react'
+import Pagination from 'components/Pagination'
+import { Spinner } from 'components/ui/spinner'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from 'components/ui/table'
 import PageTitle from 'components/PageTitle'
 import { configSignal } from 'signals'
 import useSignalValue from 'app/useSignalValue'
@@ -77,7 +83,7 @@ const Page = () => {
     setSignInLogPageNumber(page)
   }
 
-  if (!configs) return <Spinner data-testid='flowbite-spinner' />
+  if (!configs) return <Spinner />
 
   return (
     <section>
@@ -88,39 +94,39 @@ const Page = () => {
             title={t('logs.emailLogs')}
           />
           <Table className='break-all'>
-            <Table.Head>
-              <Table.HeadCell>{t('logs.receiver')}</Table.HeadCell>
-              <Table.HeadCell>{t('logs.success')}</Table.HeadCell>
-              <Table.HeadCell>{t('logs.time')}</Table.HeadCell>
-              <Table.HeadCell />
-            </Table.Head>
-            <Table.Body className='divide-y'>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('logs.receiver')}</TableHead>
+                <TableHead>{t('logs.success')}</TableHead>
+                <TableHead>{t('logs.time')}</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody className='divide-y'>
               {emailLogs.map((log) => (
-                <Table.Row
+                <TableRow
                   data-testid='emailLogRow'
                   key={log.id}>
-                  <Table.Cell>{log.receiver}</Table.Cell>
-                  <Table.Cell><ConfigBooleanValue config={log.success}/></Table.Cell>
-                  <Table.Cell>{log.createdAt}</Table.Cell>
-                  <Table.Cell>
+                  <TableCell>{log.receiver}</TableCell>
+                  <TableCell><ConfigBooleanValue config={log.success}/></TableCell>
+                  <TableCell>{log.createdAt}</TableCell>
+                  <TableCell>
                     <ViewLink
                       href={`/${locale}/logs/email/${log.id}`}
                     />
-                  </Table.Cell>
-                </Table.Row>
+                  </TableCell>
+                </TableRow>
               ))}
-            </Table.Body>
+            </TableBody>
           </Table>
           {emailLogTotalPages > 1 && (
             <Pagination
               className='mt-8'
-              layout='pagination'
               currentPage={emailLogPageNumber}
               totalPages={emailLogTotalPages}
               onPageChange={handleEmailLogPageChange}
               previousLabel={t('common.previous')}
               nextLabel={t('common.next')}
-              showIcons
             />
           )}
         </>
@@ -132,39 +138,39 @@ const Page = () => {
             title={t('logs.smsLogs')}
           />
           <Table className='break-all'>
-            <Table.Head>
-              <Table.HeadCell>{t('logs.receiver')}</Table.HeadCell>
-              <Table.HeadCell>{t('logs.success')}</Table.HeadCell>
-              <Table.HeadCell>{t('logs.time')}</Table.HeadCell>
-              <Table.HeadCell />
-            </Table.Head>
-            <Table.Body className='divide-y'>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('logs.receiver')}</TableHead>
+                <TableHead>{t('logs.success')}</TableHead>
+                <TableHead>{t('logs.time')}</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody className='divide-y'>
               {smsLogs.map((log) => (
-                <Table.Row
+                <TableRow
                   data-testid='smsLogRow'
                   key={log.id}>
-                  <Table.Cell>{log.receiver}</Table.Cell>
-                  <Table.Cell><ConfigBooleanValue config={log.success}/></Table.Cell>
-                  <Table.Cell>{log.createdAt}</Table.Cell>
-                  <Table.Cell>
+                  <TableCell>{log.receiver}</TableCell>
+                  <TableCell><ConfigBooleanValue config={log.success}/></TableCell>
+                  <TableCell>{log.createdAt}</TableCell>
+                  <TableCell>
                     <ViewLink
                       href={`/${locale}/logs/sms/${log.id}`}
                     />
-                  </Table.Cell>
-                </Table.Row>
+                  </TableCell>
+                </TableRow>
               ))}
-            </Table.Body>
+            </TableBody>
           </Table>
           {smsLogTotalPages > 1 && (
             <Pagination
               className='mt-8'
-              layout='pagination'
               currentPage={smsLogPageNumber}
               totalPages={smsLogTotalPages}
               onPageChange={handleSmsLogPageChange}
               previousLabel={t('common.previous')}
               nextLabel={t('common.next')}
-              showIcons
             />
           )}
         </>
@@ -176,37 +182,37 @@ const Page = () => {
             title={t('logs.signInLogs')}
           />
           <Table className='break-all'>
-            <Table.Head>
-              <Table.HeadCell>{t('logs.userId')}</Table.HeadCell>
-              <Table.HeadCell>{t('logs.time')}</Table.HeadCell>
-              <Table.HeadCell />
-            </Table.Head>
-            <Table.Body className='divide-y'>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('logs.userId')}</TableHead>
+                <TableHead>{t('logs.time')}</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody className='divide-y'>
               {signInLogs.map((log) => (
-                <Table.Row
+                <TableRow
                   data-testid='signInRow'
                   key={log.id}>
-                  <Table.Cell>{log.userId}</Table.Cell>
-                  <Table.Cell>{log.createdAt}</Table.Cell>
-                  <Table.Cell>
+                  <TableCell>{log.userId}</TableCell>
+                  <TableCell>{log.createdAt}</TableCell>
+                  <TableCell>
                     <ViewLink
                       href={`/${locale}/logs/sign-in/${log.id}`}
                     />
-                  </Table.Cell>
-                </Table.Row>
+                  </TableCell>
+                </TableRow>
               ))}
-            </Table.Body>
+            </TableBody>
           </Table>
           {signInLogTotalPages > 1 && (
             <Pagination
               className='mt-8'
-              layout='pagination'
               currentPage={signInLogPageNumber}
               totalPages={signInLogTotalPages}
               onPageChange={handleSignInLogPageChange}
               previousLabel={t('common.previous')}
               nextLabel={t('common.next')}
-              showIcons
             />
           )}
         </>

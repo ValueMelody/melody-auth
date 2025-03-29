@@ -1,7 +1,9 @@
 'use client'
 
-import { Table } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import { routeTool } from 'tools'
@@ -27,20 +29,24 @@ const Page = () => {
         />
       </div>
       <Table className='break-all'>
-        <Table.Head className='md:hidden'>
-          <Table.HeadCell>{t('apps.app')}</Table.HeadCell>
-        </Table.Head>
-        <Table.Head className='max-md:hidden'>
-          <Table.HeadCell>{t('apps.name')}</Table.HeadCell>
-          <Table.HeadCell>{t('apps.clientId')}</Table.HeadCell>
-          <Table.HeadCell>{t('apps.status')}</Table.HeadCell>
-          <Table.HeadCell>{t('apps.type')}</Table.HeadCell>
-          <Table.HeadCell />
-        </Table.Head>
-        <Table.Body className='divide-y md:hidden'>
+        <TableHeader className='md:hidden'>
+          <TableRow>
+            <TableHead>{t('apps.app')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableHeader className='max-md:hidden'>
+          <TableRow>
+            <TableHead>{t('apps.name')}</TableHead>
+            <TableHead>{t('apps.clientId')}</TableHead>
+            <TableHead>{t('apps.status')}</TableHead>
+            <TableHead>{t('apps.type')}</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody className='divide-y md:hidden'>
           {apps.map((app) => (
-            <Table.Row key={app.id}>
-              <Table.Cell>
+            <TableRow key={app.id}>
+              <TableCell>
                 <div className='flex items-center justify-between'>
                   <div className='flex flex-col gap-2'>
                     {app.name}
@@ -54,31 +60,31 @@ const Page = () => {
                     href={`/${locale}/apps/${app.id}`}
                   />
                 </div>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
-        <Table.Body className='divide-y max-md:hidden'>
+        </TableBody>
+        <TableBody className='divide-y max-md:hidden'>
           {apps.map((app) => (
-            <Table.Row
+            <TableRow
               key={app.id}
               data-testid='appRow'>
-              <Table.Cell>{app.name}</Table.Cell>
-              <Table.Cell>{app.clientId}</Table.Cell>
-              <Table.Cell>
+              <TableCell>{app.name}</TableCell>
+              <TableCell>{app.clientId}</TableCell>
+              <TableCell>
                 <EntityStatusLabel isEnabled={app.isActive} />
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <ClientTypeLabel type={app.type} />
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <EditLink
                   href={`/${locale}/apps/${app.id}`}
                 />
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
+        </TableBody>
       </Table>
     </section>
   )

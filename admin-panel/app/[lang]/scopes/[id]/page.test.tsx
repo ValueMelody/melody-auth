@@ -285,10 +285,10 @@ describe(
         render(<Page />)
 
         const deleteBtn = screen.queryByTestId('deleteButton') as HTMLButtonElement
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
 
         fireEvent.click(deleteBtn)
-        expect(screen.queryByRole('dialog')).toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
 
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 
@@ -640,10 +640,10 @@ describe(
         render(<Page />)
 
         const deleteBtn = screen.queryByTestId('deleteButton') as HTMLButtonElement
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
 
         fireEvent.click(deleteBtn)
-        expect(screen.queryByRole('dialog')).toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
 
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 

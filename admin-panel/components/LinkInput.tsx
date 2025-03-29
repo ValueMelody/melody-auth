@@ -1,9 +1,7 @@
-import {
-  TextInput, TextInputProps,
-} from 'flowbite-react'
 import { ChangeEvent } from 'react'
+import { Input } from 'components/ui/input'
 
-interface LinkInputProps extends Omit<TextInputProps, 'type' | 'onChange'> {
+interface LinkInputProps extends Omit<React.ComponentProps<'input'>, 'type' | 'onChange'> {
   onChange: (value: string) => void;
 }
 
@@ -15,7 +13,7 @@ const LinkInput = ({
   }
 
   return (
-    <TextInput
+    <Input
       type='url'
       value={value || ''}
       onChange={handleChange}

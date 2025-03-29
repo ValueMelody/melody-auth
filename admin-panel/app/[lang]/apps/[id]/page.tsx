@@ -1,11 +1,5 @@
 'use client'
 
-import {
-  Button,
-  Table,
-  TextInput,
-  ToggleSwitch,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
@@ -16,6 +10,12 @@ import {
 } from '@heroicons/react/16/solid'
 import RedirectUriEditor from '../RedirectUriEditor'
 import useEditApp from '../useEditApp'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
+import { Button } from 'components/ui/button'
+import { Input } from 'components/ui/input'
+import { Switch } from 'components/ui/switch'
 import {
   routeTool, typeTool,
 } from 'tools'
@@ -112,15 +112,17 @@ const Page = () => {
       />
       <section>
         <Table>
-          <Table.Head>
-            <Table.HeadCell className='max-md:w-24 md:w-48'>{t('common.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className='divide-y break-all'>
-            <Table.Row>
-              <Table.Cell>{t('apps.name')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+          <TableHeader>
+            <TableRow>
+              <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
+              <TableHead>{t('common.value')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-y break-all'>
+            <TableRow>
+              <TableCell>{t('apps.name')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
@@ -129,59 +131,59 @@ const Page = () => {
                   value={values.name}
                 />
                 <FieldError error={errors.name} />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('apps.clientId')}</Table.Cell>
-              <Table.Cell>{app.clientId}</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('apps.clientSecret')}</Table.Cell>
-              <Table.Cell className='break-all'>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('apps.clientId')}</TableCell>
+              <TableCell>{app.clientId}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('apps.clientSecret')}</TableCell>
+              <TableCell className='break-all'>
                 <div className='flex items-center gap-4'>
                   {showSecret ? app.secret : '*****'}
                   <Button
-                    size='xs'
-                    color='light'
+                    size='sm'
+                    variant='outline'
                     onClick={toggleSecret}>
                     {showSecret ? <EyeSlashIcon className='w-4 h-4' /> : <EyeIcon className='w-4 h-4' />}
                   </Button>
                 </div>
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('apps.status')}</Table.Cell>
-              <Table.Cell>
-                <ToggleSwitch
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('apps.status')}</TableCell>
+              <TableCell>
+                <Switch
                   data-testid='statusInput'
                   checked={values.isActive}
-                  onChange={() => onChange(
+                  onClick={() => onChange(
                     'isActive',
                     !values.isActive,
                   )}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('apps.type')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('apps.type')}</TableCell>
+              <TableCell>
                 <ClientTypeLabel type={app.type} />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('apps.scopes')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('apps.scopes')}</TableCell>
+              <TableCell>
                 <ScopesEditor
                   scopes={availableScopes}
                   value={values.scopes}
                   onToggleScope={handleToggleAppScope}
                 />
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
             {app.type === typeTool.ClientType.SPA && (
-              <Table.Row>
-                <Table.Cell>{t('apps.redirectUris')}</Table.Cell>
-                <Table.Cell>
+              <TableRow>
+                <TableCell>{t('apps.redirectUris')}</TableCell>
+                <TableCell>
                   <RedirectUriEditor
                     redirectUris={values.redirectUris}
                     onChange={(uris) => onChange(
@@ -189,18 +191,18 @@ const Page = () => {
                       uris,
                     )}
                   />
-                </Table.Cell>
-              </Table.Row>
+                </TableCell>
+              </TableRow>
             )}
-            <Table.Row>
-              <Table.Cell>{t('common.createdAt')}</Table.Cell>
-              <Table.Cell>{app.createdAt} UTC</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.updatedAt')}</Table.Cell>
-              <Table.Cell>{app.updatedAt} UTC</Table.Cell>
-            </Table.Row>
-          </Table.Body>
+            <TableRow>
+              <TableCell>{t('common.createdAt')}</TableCell>
+              <TableCell>{app.createdAt} UTC</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.updatedAt')}</TableCell>
+              <TableCell>{app.updatedAt} UTC</TableCell>
+            </TableRow>
+          </TableBody>
         </Table>
       </section>
       <SubmitError />

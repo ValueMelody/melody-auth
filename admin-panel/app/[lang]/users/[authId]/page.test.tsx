@@ -159,8 +159,13 @@ describe(
       async () => {
         render(<Page />)
 
-        const localeOptions = screen.queryAllByTestId('localeOption')
-        expect(localeOptions.length).toBe(2)
+        const localeSelect = screen.queryByTestId('localeSelect') as HTMLSelectElement
+        fireEvent.click(localeSelect)
+
+        const enLocales = screen.queryAllByTestId('localeOption-en')
+        const frLocales = screen.queryAllByTestId('localeOption-fr')
+        expect(enLocales.length).toBe(1)
+        expect(frLocales.length).toBe(1)
 
         const lockedIpBadges = screen.queryAllByTestId('lockedIpBadge')
         expect(lockedIpBadges.length).toBe(1)
@@ -168,8 +173,8 @@ describe(
 
         const roleInputs = screen.queryAllByTestId('roleInput') as HTMLInputElement[]
         expect(roleInputs.length).toBe(2)
-        expect(roleInputs[0]?.checked).toBeFalsy()
-        expect(roleInputs[1]?.checked).toBeFalsy()
+        expect(roleInputs[0].getAttribute('aria-checked')).toBe('false')
+        expect(roleInputs[1].getAttribute('aria-checked')).toBe('false')
 
         const firstNameInput = screen.queryByTestId('firstNameInput') as HTMLInputElement
         expect(firstNameInput?.value).toBe(users[0].firstName)
@@ -185,10 +190,10 @@ describe(
         render(<Page />)
 
         const localeSelect = screen.queryByTestId('localeSelect') as HTMLSelectElement
-        fireEvent.change(
-          localeSelect,
-          { target: { value: 'fr' } },
-        )
+        fireEvent.click(localeSelect)
+
+        const frOption = screen.queryByTestId('localeOption-fr') as HTMLSelectElement
+        fireEvent.click(frOption)
 
         const roleInputs = screen.queryAllByTestId('roleInput') as HTMLInputElement[]
         fireEvent.click(roleInputs[0])
@@ -227,10 +232,10 @@ describe(
         render(<Page />)
 
         const deleteBtn = screen.queryAllByTestId('deleteButton') as HTMLButtonElement[]
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
 
         fireEvent.click(deleteBtn[0])
-        expect(screen.queryByRole('dialog')).toBeInTheDocument()
+        expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
 
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 
@@ -250,7 +255,7 @@ describe(
         })
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBeInTheDocument()
+          expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
         })
 
         await waitFor(() => {
@@ -279,7 +284,7 @@ describe(
         })
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBeInTheDocument()
+          expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
         })
 
         await waitFor(() => {
@@ -356,7 +361,7 @@ describe(
         })
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBeInTheDocument()
+          expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
         })
 
         await waitFor(() => {
@@ -740,7 +745,7 @@ describe(
         })
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBeInTheDocument()
+          expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
         })
 
         await waitFor(() => {
@@ -776,7 +781,7 @@ describe(
         })
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBeInTheDocument()
+          expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
         })
 
         await waitFor(() => {
@@ -812,7 +817,7 @@ describe(
         })
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBeInTheDocument()
+          expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
         })
 
         await waitFor(() => {

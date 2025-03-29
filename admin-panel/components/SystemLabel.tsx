@@ -1,11 +1,11 @@
-import { Badge } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import { Badge } from 'components/ui/badge'
 
 const SystemLabel = () => {
   const t = useTranslations()
 
   return (
-    <Badge color='gray'>{t('common.system')}</Badge>
+    <Badge variant='secondary'>{t('common.system')}</Badge>
   )
 }
 

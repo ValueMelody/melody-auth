@@ -1,13 +1,13 @@
 'use client'
 
-import {
-  Table,
-  TextInput,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import useEditScope from '../useEditScope'
 import LocaleEditor from '../LocaleEditor'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
+import { Input } from 'components/ui/input'
 import { routeTool } from 'tools'
 import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
@@ -68,15 +68,17 @@ const Page = () => {
       />
       <section>
         <Table>
-          <Table.Head>
-            <Table.HeadCell className='max-md:w-24 md:w-48'>{t('common.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className='divide-y'>
-            <Table.Row>
-              <Table.Cell>{t('scopes.name')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+          <TableHeader>
+            <TableRow>
+              <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
+              <TableHead>{t('common.value')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-y'>
+            <TableRow>
+              <TableCell>{t('scopes.name')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
@@ -85,12 +87,12 @@ const Page = () => {
                   value={values.name}
                 />
                 {showErrors && <FieldError error={errors.name} />}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.note')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.note')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='noteInput'
                   onChange={(e) => onChange(
                     'note',
@@ -98,22 +100,22 @@ const Page = () => {
                   )}
                   value={values.note}
                 />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('scopes.type')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('scopes.type')}</TableCell>
+              <TableCell>
                 <ClientTypeSelector
                   value={values.type}
                   onChange={handleUpdateType}
                 />
                 {showErrors && <FieldError error={errors.type} />}
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
             {configs.ENABLE_USER_APP_CONSENT && values.type === 'spa' && (
-              <Table.Row>
-                <Table.Cell>{t('scopes.locales')}</Table.Cell>
-                <Table.Cell>
+              <TableRow>
+                <TableCell>{t('scopes.locales')}</TableCell>
+                <TableCell>
                   <LocaleEditor
                     supportedLocales={configs.SUPPORTED_LOCALES}
                     values={values.locales ?? []}
@@ -122,10 +124,10 @@ const Page = () => {
                       locales,
                     )}
                   />
-                </Table.Cell>
-              </Table.Row>
+                </TableCell>
+              </TableRow>
             )}
-          </Table.Body>
+          </TableBody>
         </Table>
       </section>
       <SubmitError />

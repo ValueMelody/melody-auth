@@ -1,5 +1,7 @@
-import { Select } from 'flowbite-react'
 import { typeTool } from 'tools'
+import {
+  Select, SelectItem, SelectValue, SelectTrigger, SelectGroup, SelectContent,
+} from 'components/ui/select'
 
 export const ClientTypeSelector = ({
   value,
@@ -10,19 +12,24 @@ export const ClientTypeSelector = ({
 }) => {
   return (
     <Select
-      data-testid='typeSelect'
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onValueChange={(val) => onChange(val)}
     >
-      <option disabled></option>
-      <option
-        data-testid='typeSelect-spaOption'
-        value={typeTool.ClientType.SPA}>SPA
-      </option>
-      <option
-        data-testid='typeSelect-s2sOption'
-        value={typeTool.ClientType.S2S}>S2S
-      </option>
+      <SelectTrigger data-testid='typeSelect'>
+        <SelectValue data-testid='typeSelectValue' />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectItem
+            data-testid='typeSelect-spaOption'
+            value={typeTool.ClientType.SPA}>SPA
+          </SelectItem>
+          <SelectItem
+            data-testid='typeSelect-s2sOption'
+            value={typeTool.ClientType.S2S}>S2S
+          </SelectItem>
+        </SelectGroup>
+      </SelectContent>
     </Select>
   )
 }

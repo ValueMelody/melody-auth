@@ -1,4 +1,4 @@
-import { Badge } from 'flowbite-react'
+import { Badge } from 'components/ui/badge'
 
 const ClientTypeLabel = ({ type }: {
   type: string;

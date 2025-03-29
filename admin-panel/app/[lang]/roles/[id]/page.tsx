@@ -1,13 +1,13 @@
 'use client'
 
-import {
-  Table,
-  TextInput,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import useEditRole from '../useEditRole'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
+import { Input } from 'components/ui/input'
 import { routeTool } from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
@@ -64,45 +64,49 @@ const Page = () => {
       />
       <section>
         <Table>
-          <Table.Head>
-            <Table.HeadCell className='max-md:w-24 md:w-48'>{t('common.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className='divide-y'>
-            <Table.Row>
-              <Table.Cell>{t('roles.name')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+          <TableHeader>
+            <TableRow>
+              <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
+              <TableHead>{t('common.value')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-y'>
+            <TableRow>
+              <TableCell>{t('roles.name')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
                     e.target.value,
                   )}
-                  value={values.name} />
+                  value={values.name}
+                />
                 {showErrors && <FieldError error={errors.name} />}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.note')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.note')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='noteInput'
                   onChange={(e) => onChange(
                     'note',
                     e.target.value,
                   )}
-                  value={values.note} />
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.createdAt')}</Table.Cell>
-              <Table.Cell>{role.createdAt} UTC</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.updatedAt')}</Table.Cell>
-              <Table.Cell>{role.updatedAt} UTC</Table.Cell>
-            </Table.Row>
-          </Table.Body>
+                  value={values.note}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.createdAt')}</TableCell>
+              <TableCell>{role.createdAt} UTC</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.updatedAt')}</TableCell>
+              <TableCell>{role.updatedAt} UTC</TableCell>
+            </TableRow>
+          </TableBody>
         </Table>
       </section>
       <SubmitError />

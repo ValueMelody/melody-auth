@@ -1,13 +1,13 @@
 'use client'
 
-import {
-  Table,
-  TextInput,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import useEditApp from '../useEditApp'
 import RedirectUriEditor from '../RedirectUriEditor'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
+import { Input } from 'components/ui/input'
 import {
   routeTool, typeTool,
 } from 'tools'
@@ -87,15 +87,17 @@ const Page = () => {
           title={t('apps.new')}
         />
         <Table>
-          <Table.Head>
-            <Table.HeadCell className='max-md:w-24 md:w-48'>{t('common.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className='divide-y'>
-            <Table.Row>
-              <Table.Cell>{t('apps.name')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+          <TableHeader>
+            <TableRow>
+              <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
+              <TableHead>{t('common.value')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-y'>
+            <TableRow>
+              <TableCell>{t('apps.name')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
@@ -104,35 +106,35 @@ const Page = () => {
                   value={values.name}
                 />
                 {showErrors && <FieldError error={errors.name} />}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('apps.type')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('apps.type')}</TableCell>
+              <TableCell>
                 <ClientTypeSelector
                   value={values.type}
                   onChange={handleUpdateType}
                 />
                 {showErrors && <FieldError error={errors.type} />}
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
             {!!availableScopes.length && (
-              <Table.Row>
-                <Table.Cell>{t('apps.scopes')}</Table.Cell>
-                <Table.Cell>
+              <TableRow>
+                <TableCell>{t('apps.scopes')}</TableCell>
+                <TableCell>
                   <ScopesEditor
                     scopes={availableScopes}
                     value={values.scopes}
                     onToggleScope={handleToggleAppScope}
                   />
                   {showErrors && <FieldError error={errors.scopes} />}
-                </Table.Cell>
-              </Table.Row>
+                </TableCell>
+              </TableRow>
             )}
             {values.type === typeTool.ClientType.SPA && (
-              <Table.Row>
-                <Table.Cell>{t('apps.redirectUris')}</Table.Cell>
-                <Table.Cell>
+              <TableRow>
+                <TableCell>{t('apps.redirectUris')}</TableCell>
+                <TableCell>
                   <RedirectUriEditor
                     redirectUris={values.redirectUris}
                     onChange={(uris) => onChange(
@@ -140,10 +142,10 @@ const Page = () => {
                       uris,
                     )}
                   />
-                </Table.Cell>
-              </Table.Row>
+                </TableCell>
+              </TableRow>
             )}
-          </Table.Body>
+          </TableBody>
         </Table>
       </section>
       <SubmitError />

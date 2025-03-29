@@ -1,11 +1,11 @@
 'use client'
 
-import {
-  Table,
-  TextInput,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
+import { Input } from 'components/ui/input'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
 import useEditOrg from 'app/[lang]/orgs/useEditOrg'
 import { routeTool } from 'tools'
 import PageTitle from 'components/PageTitle'
@@ -46,15 +46,17 @@ const Page = () => {
       />
       <section>
         <Table>
-          <Table.Head>
-            <Table.HeadCell className='max-md:w-24 md:w-48 '>{t('common.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-          </Table.Head>
-          <Table.Body className='divide-y'>
-            <Table.Row>
-              <Table.Cell>{t('orgs.name')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+          <TableHeader>
+            <TableRow>
+              <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
+              <TableHead>{t('common.value')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-y'>
+            <TableRow>
+              <TableCell>{t('orgs.name')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
@@ -63,12 +65,12 @@ const Page = () => {
                   value={values.name}
                 />
                 {showErrors && <FieldError error={errors.name} />}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('orgs.slug')}</Table.Cell>
-              <Table.Cell>
-                <TextInput
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.slug')}</TableCell>
+              <TableCell>
+                <Input
                   data-testid='slugInput'
                   onChange={(e) => onChange(
                     'slug',
@@ -77,9 +79,9 @@ const Page = () => {
                   value={values.slug}
                 />
                 {showErrors && <FieldError error={errors.slug} />}
-              </Table.Cell>
-            </Table.Row>
-          </Table.Body>
+              </TableCell>
+            </TableRow>
+          </TableBody>
         </Table>
       </section>
       <SubmitError />

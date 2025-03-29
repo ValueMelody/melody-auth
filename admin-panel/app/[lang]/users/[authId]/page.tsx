@@ -1,11 +1,5 @@
 'use client'
 
-import {
-  Badge, Button, Card, Checkbox, Label, Select, Table,
-  TableCell,
-  TextInput,
-  ToggleSwitch,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
@@ -13,6 +7,21 @@ import {
 } from 'react'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/16/solid'
 import { useAuth } from '@melody-auth/react'
+import {
+  Card, CardHeader, CardTitle, CardContent,
+} from 'components/ui/card'
+import { Switch } from 'components/ui/switch'
+import {
+  Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,
+} from 'components/ui/select'
+import { Checkbox } from 'components/ui/checkbox'
+import { Input } from 'components/ui/input'
+import { Button } from 'components/ui/button'
+import { Label } from 'components/ui/label'
+import { Badge } from 'components/ui/badge'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
 import UserEmailVerified from 'components/UserEmailVerified'
 import { routeTool } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
@@ -252,7 +261,7 @@ const Page = () => {
       <div className='flex items-center gap-4 max-md:gap-2 max-md:flex-col max-md:items-start'>
         {user.isActive && !isEmailEnrolled && (
           <Button
-            size='xs'
+            size='sm'
             data-testid='enrollEmailButton'
             onClick={handleEnrollEmailMfa}>
             {t('users.enrollMfa')}
@@ -260,7 +269,7 @@ const Page = () => {
         )}
         {user.isActive && isEmailEnrolled && !configs.EMAIL_MFA_IS_REQUIRED && (
           <Button
-            size='xs'
+            size='sm'
             data-testid='resetEmailButton'
             onClick={handleClickResetEmailMfa}>
             {t('users.resetMfa')}
@@ -268,7 +277,7 @@ const Page = () => {
         )}
         {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && !emailResent && (
           <Button
-            size='xs'
+            size='sm'
             onClick={handleResendVerifyEmail}
             data-testid='resendEmailButton'>
             {t('users.resend')}
@@ -276,7 +285,9 @@ const Page = () => {
         )}
         {configs.ENABLE_EMAIL_VERIFICATION && user.isActive && !user.emailVerified && emailResent && (
           <div className='flex'>
-            <Badge data-testid='emailSentBadge'>{t('users.sent')}</Badge>
+            <Badge
+              data-testid='emailSentBadge'
+              variant='secondary'>{t('users.sent')}</Badge>
           </div>
         )}
       </div>
@@ -288,7 +299,7 @@ const Page = () => {
       <>
         {user.mfaTypes.includes('otp') && user.isActive && (
           <Button
-            size='xs'
+            size='sm'
             data-testid='resetOtpButton'
             onClick={handleClickResetOtpMfa}
           >
@@ -297,7 +308,7 @@ const Page = () => {
         )}
         {user.isActive && !isOtpEnrolled && (
           <Button
-            size='xs'
+            size='sm'
             data-testid='enrollOtpButton'
             onClick={handleEnrollOtpMfa}>
             {t('users.enrollMfa')}
@@ -312,7 +323,7 @@ const Page = () => {
       <>
         {user.mfaTypes.includes('sms') && user.isActive && (
           <Button
-            size='xs'
+            size='sm'
             data-testid='resetSmsButton'
             onClick={handleClickResetSmsMfa}
           >
@@ -321,7 +332,7 @@ const Page = () => {
         )}
         {user.isActive && !isSmsEnrolled && (
           <Button
-            size='xs'
+            size='sm'
             data-testid='enrollSmsButton'
             onClick={handleEnrollSmsMfa}>
             {t('users.enrollMfa')}
@@ -335,7 +346,7 @@ const Page = () => {
     if (!lockedIPs.length) return null
     return (
       <Button
-        size='xs'
+        size='sm'
         data-testid='unlockIpButton'
         onClick={handleUnlock}
       >
@@ -347,7 +358,7 @@ const Page = () => {
   const renderUnlinkAccountButtons = () => {
     return (
       <Button
-        size='xs'
+        size='sm'
         onClick={handleClickUnlink}
       >
         {t('users.unlink')}
@@ -358,7 +369,7 @@ const Page = () => {
   const renderRemovePasskeyButton = () => {
     return (
       <Button
-        size='xs'
+        size='sm'
         onClick={handleClickRemovePasskey}
       >
         {t('users.removePasskey')}
@@ -376,27 +387,29 @@ const Page = () => {
       />
       <section>
         <Table>
-          <Table.Head>
-            <Table.HeadCell className='w-48'>{t('common.property')}</Table.HeadCell>
-            <Table.HeadCell>{t('common.value')}</Table.HeadCell>
-            <Table.HeadCell className='w-96 max-md:hidden' />
-          </Table.Head>
-          <Table.Body className='divide-y'>
-            <Table.Row>
-              <Table.Cell>{t('users.authId')}</Table.Cell>
-              <Table.Cell>
+          <TableHeader>
+            <TableRow>
+              <TableHead className='w-48'>{t('common.property')}</TableHead>
+              <TableHead>{t('common.value')}</TableHead>
+              <TableHead className='w-96 max-md:hidden' />
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-y'>
+            <TableRow>
+              <TableCell>{t('users.authId')}</TableCell>
+              <TableCell>
                 <div className='flex items-center gap-2 max-md:flex-col max-md:items-start'>
                   {user.authId}
                   {isSelf && (
                     <IsSelfLabel />
                   )}
                 </div>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
             {user.email && (
-              <Table.Row>
-                <Table.Cell>{t('users.email')}</Table.Cell>
-                <Table.Cell>
+              <TableRow>
+                <TableCell>{t('users.email')}</TableCell>
+                <TableCell>
                   <ConfirmModal
                     title={t('users.resetEmailMfaTitle')}
                     show={isResettingEmailMfa}
@@ -411,27 +424,27 @@ const Page = () => {
                         <UserEmailVerified user={user} />
                       )}
                       {isEmailEnrolled && (
-                        <Badge color='gray'>{t('users.emailMfaEnrolled')}</Badge>
+                        <Badge variant='secondary'>{t('users.emailMfaEnrolled')}</Badge>
                       )}
                       <div className='md:hidden'>
                         {renderEmailButtons(user)}
                       </div>
                     </div>
                   </div>
-                </Table.Cell>
-                <Table.Cell className='max-md:hidden'>
+                </TableCell>
+                <TableCell className='max-md:hidden'>
                   {renderEmailButtons(user)}
-                </Table.Cell>
-              </Table.Row>
+                </TableCell>
+              </TableRow>
             )}
             {user.socialAccountId && (
-              <Table.Row>
-                <Table.Cell>{t('users.social')}</Table.Cell>
-                <Table.Cell>{user.socialAccountType}: {user.socialAccountId}</Table.Cell>
-              </Table.Row>
+              <TableRow>
+                <TableCell>{t('users.social')}</TableCell>
+                <TableCell>{user.socialAccountType}: {user.socialAccountId}</TableCell>
+              </TableRow>
             )}
             {!user.socialAccountId && (
-              <Table.Row>
+              <>
                 <ConfirmModal
                   title={t('users.resetOtpMfaTitle')}
                   show={isResettingOtpMfa}
@@ -439,31 +452,33 @@ const Page = () => {
                   onClose={handleCancelResetOtpMfa}
                   confirmButtonText={t('users.resetMfa')}
                 />
-                <Table.Cell>{t('users.otpMfa')}</Table.Cell>
-                <TableCell>
-                  <div className='flex max-md:flex-col gap-2'>
-                    {isOtpEnrolled && !user.otpVerified && (
-                      <div className='flex'>
-                        <Badge color='gray'>{t('users.otpMfaEnrolled')}</Badge>
+                <TableRow>
+                  <TableCell>{t('users.otpMfa')}</TableCell>
+                  <TableCell>
+                    <div className='flex max-md:flex-col gap-2'>
+                      {isOtpEnrolled && !user.otpVerified && (
+                        <div className='flex'>
+                          <Badge variant='secondary'>{t('users.otpMfaEnrolled')}</Badge>
+                        </div>
+                      )}
+                      {isOtpEnrolled && user.otpVerified && (
+                        <div className='flex'>
+                          <Badge>{t('users.otpMfaVerified')}</Badge>
+                        </div>
+                      )}
+                      <div className='md:hidden'>
+                        {renderOtpButtons(user)}
                       </div>
-                    )}
-                    {isOtpEnrolled && user.otpVerified && (
-                      <div className='flex'>
-                        <Badge color='success'>{t('users.otpMfaVerified')}</Badge>
-                      </div>
-                    )}
-                    <div className='md:hidden'>
-                      {renderOtpButtons(user)}
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className='max-md:hidden'>
-                  {renderOtpButtons(user)}
-                </TableCell>
-              </Table.Row>
+                  </TableCell>
+                  <TableCell className='max-md:hidden'>
+                    {renderOtpButtons(user)}
+                  </TableCell>
+                </TableRow>
+              </>
             )}
             {!user.socialAccountId && (
-              <Table.Row>
+              <>
                 <ConfirmModal
                   title={t('users.resetSmsMfaTitle')}
                   show={isResettingSmsMfa}
@@ -471,31 +486,33 @@ const Page = () => {
                   onClose={handleCancelResetSmsMfa}
                   confirmButtonText={t('users.resetMfa')}
                 />
-                <Table.Cell>{t('users.smsMfa')}</Table.Cell>
-                <TableCell>
-                  <div className='flex max-md:flex-col gap-2'>
-                    {isSmsEnrolled && !user.smsPhoneNumberVerified && (
-                      <div className='flex'>
-                        <Badge color='gray'>{t('users.smsMfaEnrolled')}</Badge>
+                <TableRow>
+                  <TableCell>{t('users.smsMfa')}</TableCell>
+                  <TableCell>
+                    <div className='flex max-md:flex-col gap-2'>
+                      {isSmsEnrolled && !user.smsPhoneNumberVerified && (
+                        <div className='flex'>
+                          <Badge variant='secondary'>{t('users.smsMfaEnrolled')}</Badge>
+                        </div>
+                      )}
+                      {isSmsEnrolled && user.smsPhoneNumberVerified && (
+                        <div className='flex'>
+                          <Badge>{t('users.smsMfaVerified')}</Badge>
+                        </div>
+                      )}
+                      <div className='md:hidden'>
+                        {renderSmsButtons(user)}
                       </div>
-                    )}
-                    {isSmsEnrolled && user.smsPhoneNumberVerified && (
-                      <div className='flex'>
-                        <Badge color='success'>{t('users.smsMfaVerified')}</Badge>
-                      </div>
-                    )}
-                    <div className='md:hidden'>
-                      {renderSmsButtons(user)}
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className='max-md:hidden'>
-                  {renderSmsButtons(user)}
-                </TableCell>
-              </Table.Row>
+                  </TableCell>
+                  <TableCell className='max-md:hidden'>
+                    {renderSmsButtons(user)}
+                  </TableCell>
+                </TableRow>
+              </>
             )}
             {!user.socialAccountId && enablePasskeyEnrollment && (
-              <Table.Row>
+              <>
                 <ConfirmModal
                   title={t('users.removePasskeyTitle')}
                   show={isRemovingPasskey}
@@ -503,26 +520,28 @@ const Page = () => {
                   onClose={handleCancelRemovePasskey}
                   confirmButtonText={t('users.removePasskey')}
                 />
-                <Table.Cell>{t('users.passkey')}</Table.Cell>
-                <TableCell>
-                  {!!passkeys.length && (
-                    <div className='flex max-md:flex-col gap-2'>
-                      <Badge color='gray'>{t('users.passkeyEnrolled')}</Badge>
-                      <div className='md:hidden'>
-                        {renderRemovePasskeyButton()}
+                <TableRow>
+                  <TableCell>{t('users.passkey')}</TableCell>
+                  <TableCell>
+                    {!!passkeys.length && (
+                      <div className='flex max-md:flex-col gap-2'>
+                        <Badge variant='secondary'>{t('users.passkeyEnrolled')}</Badge>
+                        <div className='md:hidden'>
+                          {renderRemovePasskeyButton()}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </TableCell>
-                {!!passkeys.length && (
-                  <TableCell className='max-md:hidden'>
-                    {renderRemovePasskeyButton()}
+                    )}
                   </TableCell>
-                )}
-              </Table.Row>
+                  {!!passkeys.length && (
+                    <TableCell className='max-md:hidden'>
+                      {renderRemovePasskeyButton()}
+                    </TableCell>
+                  )}
+                </TableRow>
+              </>
             )}
             {user.linkedAuthId && (
-              <Table.Row>
+              <>
                 <ConfirmModal
                   title={t('users.unlinkTitle')}
                   show={isUnlinking}
@@ -530,74 +549,85 @@ const Page = () => {
                   onClose={handleCancelUnlink}
                   confirmButtonText={t('users.unlink')}
                 />
-                <Table.Cell>{t('users.linkedWith')}</Table.Cell>
-                <Table.Cell>
-                  <div className='flex max-md:flex-col gap-2'>
-                    <a
-                      className='text-cyan-600 cursor-pointer flex items-center gap-1'
-                      onClick={handleClickLinkedAccount}
-                    >
-                      {user.linkedAuthId}
-                      <ArrowTopRightOnSquareIcon className='w-4 h-4' />
-                    </a>
-                    <div className='md:hidden'>
-                      {renderUnlinkAccountButtons()}
+                <TableRow>
+                  <TableCell>{t('users.linkedWith')}</TableCell>
+                  <TableCell>
+                    <div className='flex max-md:flex-col gap-2'>
+                      <a
+                        className='text-cyan-600 cursor-pointer flex items-center gap-1'
+                        onClick={handleClickLinkedAccount}
+                      >
+                        {user.linkedAuthId}
+                        <ArrowTopRightOnSquareIcon className='w-4 h-4' />
+                      </a>
+                      <div className='md:hidden'>
+                        {renderUnlinkAccountButtons()}
+                      </div>
                     </div>
-                  </div>
-                </Table.Cell>
-                <TableCell className='max-md:hidden'>
-                  {renderUnlinkAccountButtons()}
-                </TableCell>
-              </Table.Row>
+                  </TableCell>
+                  <TableCell className='max-md:hidden'>
+                    {renderUnlinkAccountButtons()}
+                  </TableCell>
+                </TableRow>
+              </>
             )}
-            <Table.Row>
-              <Table.Cell>{t('users.locale')}</Table.Cell>
-              <Table.Cell>
+            <TableRow>
+              <TableCell>{t('users.locale')}</TableCell>
+              <TableCell>
                 {configs.SUPPORTED_LOCALES.length > 1 && (
                   <Select
-                    data-testid='localeSelect'
                     value={locale}
-                    onChange={(e) => setLocale(e.target.value)}
+                    onValueChange={(val) => setLocale(val)}
                   >
-                    <option disabled></option>
-                    {configs.SUPPORTED_LOCALES.map((locale: string) => (
-                      <option
-                        key={locale}
-                        data-testid='localeOption'
-                        value={locale}>{locale.toUpperCase()}
-                      </option>
-                    ))}
+                    <SelectTrigger
+                      data-testid='localeSelect'
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {configs.SUPPORTED_LOCALES.map((locale: string) => (
+                          <SelectItem
+                            key={locale}
+                            data-testid={`localeOption-${locale}`}
+                            value={locale}
+                          >
+                            {locale.toUpperCase()}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
                   </Select>
                 )}
                 {configs.SUPPORTED_LOCALES.length <= 1 && user.locale}
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('users.loginCount')}</Table.Cell>
-              <Table.Cell>{user.loginCount}</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('users.status')}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('users.loginCount')}</TableCell>
+              <TableCell>{user.loginCount}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('users.status')}</TableCell>
+              <TableCell>
                 {isSelf && <EntityStatusLabel isEnabled={user.isActive} />}
                 {!isSelf && (
-                  <ToggleSwitch
+                  <Switch
                     checked={isActive}
-                    onChange={() => setIsActive(!isActive)}
+                    onClick={() => setIsActive(!isActive)}
                   />
                 )}
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
             {!user.socialAccountId && enableAccountLock && (
-              <Table.Row>
-                <Table.Cell>{t('users.lockedIPs')}</Table.Cell>
-                <Table.Cell>
+              <TableRow>
+                <TableCell>{t('users.lockedIPs')}</TableCell>
+                <TableCell>
                   <div className='flex max-md:flex-col gap-2'>
                     <div className='flex items-center gap-6'>
                       {lockedIPs?.map((ip) => (
                         <Badge
                           data-testid='lockedIpBadge'
-                          color='gray'
+                          variant='secondary'
                           key={ip}>{ip || t('users.noIP')}
                         </Badge>
                       ))}
@@ -606,15 +636,15 @@ const Page = () => {
                       {renderIpButtons(lockedIPs)}
                     </div>
                   </div>
-                </Table.Cell>
-                <Table.Cell className='max-md:hidden'>
+                </TableCell>
+                <TableCell className='max-md:hidden'>
                   {renderIpButtons(lockedIPs)}
-                </Table.Cell>
-              </Table.Row>
+                </TableCell>
+              </TableRow>
             )}
-            <Table.Row>
-              <Table.Cell>{t('users.roles')}</Table.Cell>
-              <Table.Cell>
+            <TableRow>
+              <TableCell>{t('users.roles')}</TableCell>
+              <TableCell>
                 <div className='flex items-center flex-wrap gap-6 max-md:flex-col max-md:items-start'>
                   {roles?.map((role) => (
                     <div
@@ -623,60 +653,61 @@ const Page = () => {
                       <Checkbox
                         id={`role-${role.id}`}
                         data-testid='roleInput'
-                        onChange={() => handleToggleUserRole(role.name)}
+                        onClick={() => handleToggleUserRole(role.name)}
                         checked={userRoles?.includes(role.name) ?? false}
                       />
                       <Label
                         htmlFor={`role-${role.id}`}
-                        className='flex'>
+                        className='flex'
+                      >
                         {role.name}
                       </Label>
                     </div>
                   ))}
                 </div>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
             {configs.ENABLE_ORG && (
-              <Table.Row>
-                <Table.Cell>{t('users.org')}</Table.Cell>
-                <Table.Cell>
+              <TableRow>
+                <TableCell>{t('users.org')}</TableCell>
+                <TableCell>
                   {user.org?.name ?? ''}
-                </Table.Cell>
-              </Table.Row>
+                </TableCell>
+              </TableRow>
             )}
             {configs.ENABLE_NAMES && (
               <>
-                <Table.Row>
-                  <Table.Cell>{t('users.firstName')}</Table.Cell>
-                  <Table.Cell>
-                    <TextInput
+                <TableRow>
+                  <TableCell>{t('users.firstName')}</TableCell>
+                  <TableCell>
+                    <Input
                       data-testid='firstNameInput'
                       onChange={(e) => setFirstName(e.target.value)}
                       value={firstName ?? ''}
                     />
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>{t('users.lastName')}</Table.Cell>
-                  <Table.Cell>
-                    <TextInput
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('users.lastName')}</TableCell>
+                  <TableCell>
+                    <Input
                       data-testid='lastNameInput'
                       onChange={(e) => setLastName(e.target.value)}
                       value={lastName ?? ''}
                     />
-                  </Table.Cell>
-                </Table.Row>
+                  </TableCell>
+                </TableRow>
               </>
             )}
-            <Table.Row>
-              <Table.Cell>{t('common.createdAt')}</Table.Cell>
-              <Table.Cell>{user.createdAt} UTC</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>{t('common.updatedAt')}</Table.Cell>
-              <Table.Cell>{user.updatedAt} UTC</Table.Cell>
-            </Table.Row>
-          </Table.Body>
+            <TableRow>
+              <TableCell>{t('common.createdAt')}</TableCell>
+              <TableCell>{user.createdAt} UTC</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('common.updatedAt')}</TableCell>
+              <TableCell>{user.updatedAt} UTC</TableCell>
+            </TableRow>
+          </TableBody>
         </Table>
       </section>
       <SubmitError />
@@ -702,16 +733,20 @@ const Page = () => {
           <section className='flex items-center gap-4 mt-4'>
             {consentedApps.map((consented) => (
               <Card key={consented.appId}>
-                {consented.appName}
-                <DeleteButton
-                  onConfirmDelete={() => handleDeleteConsent(consented.appId)}
-                  size='xs'
-                  buttonText={t('users.revokeConsent')}
-                  confirmDeleteTitle={t(
-                    'users.confirmRevoke',
-                    { item: consented.appName },
-                  )}
-                />
+                <CardHeader>
+                  <CardTitle>{consented.appName}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DeleteButton
+                    onConfirmDelete={() => handleDeleteConsent(consented.appId)}
+                    size='sm'
+                    buttonText={t('users.revokeConsent')}
+                    confirmDeleteTitle={t(
+                      'users.confirmRevoke',
+                      { item: consented.appName },
+                    )}
+                  />
+                </CardContent>
               </Card>
             ))}
             {!consentedApps.length && (

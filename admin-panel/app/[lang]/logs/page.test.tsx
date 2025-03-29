@@ -246,7 +246,7 @@ describe(
 
         render(<Page />)
 
-        const nextButtons = screen.getAllByText('common.next')
+        const nextButtons = screen.getAllByTitle('common.next')
 
         await act(async () => {
           nextButtons.forEach((button) => button?.click())
@@ -301,7 +301,7 @@ describe(
         render(<Page />)
 
         // Should show spinner
-        const spinner = screen.getByTestId('flowbite-spinner')
+        const spinner = screen.getByTestId('spinner')
         expect(spinner).toBeInTheDocument()
 
         // Should not render any tables

@@ -1,5 +1,5 @@
-import { Badge } from 'flowbite-react'
 import { useTranslations } from 'next-intl'
+import { Badge } from 'components/ui/badge'
 
 const IsSelfLabel = () => {
   const t = useTranslations()

@@ -548,9 +548,12 @@ describe(
         render(<Page />)
 
         const rows = screen.queryAllByTestId('userRow')
-        expect(rows.length).toBe(3)
+        expect(rows.length).toBe(6)
 
-        rows.forEach((
+        rows.slice(
+          3,
+          6,
+        ).forEach((
           row, index,
         ) => {
           expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(users[index].authId)
@@ -575,7 +578,7 @@ describe(
         ;(useGetApiV1OrgsByIdUsersQuery as Mock).mockClear()
 
         await waitFor(() => {
-          const nextButton = screen.getByText('common.next')
+          const nextButton = screen.getByTitle('common.next')
           expect(nextButton).toBeInTheDocument()
           nextButton.click()
         })

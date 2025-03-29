@@ -87,10 +87,10 @@ describe(
           noteInput,
           { target: { value: 'new note' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 's2s' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const s2sOption = screen.queryByTestId('typeSelect-s2sOption') as HTMLSelectElement
+        fireEvent.click(s2sOption)
 
         expect(screen.queryAllByTestId('localeInput').length).toBe(0)
 
@@ -124,10 +124,10 @@ describe(
           noteInput,
           { target: { value: 'new note' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         const localeInputs = screen.queryAllByTestId('localeInput')
         expect(localeInputs.length).toBe(2)
@@ -185,10 +185,10 @@ describe(
           noteInput,
           { target: { value: 'new note' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         const localeInputs = screen.queryAllByTestId('localeInput')
         expect(localeInputs.length).toBe(0)
@@ -219,10 +219,10 @@ describe(
           nameInput,
           { target: { value: 'new name' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         await waitFor(() => {
           const localeInputs = screen.queryAllByTestId('localeInput')
@@ -280,10 +280,10 @@ describe(
           nameInput,
           { target: { value: 'new name' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         // Setup form
         await waitFor(() => {
@@ -340,10 +340,10 @@ describe(
           nameInput,
           { target: { value: 'new name' } },
         )
-        fireEvent.change(
-          typeSelect,
-          { target: { value: 'spa' } },
-        )
+        fireEvent.click(typeSelect)
+
+        const spaOption = screen.queryByTestId('typeSelect-spaOption') as HTMLSelectElement
+        fireEvent.click(spaOption)
 
         mockCreate.mockClear()
 

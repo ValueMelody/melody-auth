@@ -1,13 +1,14 @@
-import {
-  Alert,
-  Pagination, Table,
-  TextInput,
-} from 'flowbite-react'
 import { useTranslations } from 'next-intl'
 import {
   useMemo, useState,
 } from 'react'
 import { useAuth } from '@melody-auth/react'
+import Pagination from 'components/Pagination'
+import { Input } from 'components/ui/input'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from 'components/ui/table'
+import { Alert } from 'components/ui/alert'
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
@@ -70,7 +71,7 @@ const UserTable = ({ orgId }: {
 
   if (data && data.count === 0) {
     return (
-      <Alert color='gray'>
+      <Alert>
         {t('users.noUsers')}
       </Alert>
     )
@@ -82,7 +83,7 @@ const UserTable = ({ orgId }: {
         <PageTitle
           title={t('users.title')}
         />
-        <TextInput
+        <Input
           className='w-60'
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -90,25 +91,30 @@ const UserTable = ({ orgId }: {
         />
       </header>
       <Table>
-        <Table.Head className='md:hidden'>
-          <Table.HeadCell>{t('users.user')}</Table.HeadCell>
-        </Table.Head>
-        <Table.Head className='max-md:hidden'>
-          <Table.HeadCell>{t('users.authId')}</Table.HeadCell>
-          <Table.HeadCell>
-            {t('users.email')}
-          </Table.HeadCell>
-          <Table.HeadCell>{t('users.status')}</Table.HeadCell>
-          {configs.ENABLE_NAMES && (
-            <Table.HeadCell>{t('users.name')}</Table.HeadCell>
-          )}
-          <Table.HeadCell />
-        </Table.Head>
-        <Table.Body className='divide-y md:hidden'>
+        <TableHeader className='md:hidden'>
+          <TableRow>
+            <TableHead>{t('users.user')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableHeader className='max-md:hidden'>
+          <TableRow>
+            <TableHead>{t('users.authId')}</TableHead>
+            <TableHead>
+              {t('users.email')}
+            </TableHead>
+            <TableHead>{t('users.status')}</TableHead>
+            {configs.ENABLE_NAMES && (
+              <TableHead>{t('users.name')}</TableHead>
+            )}
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody className='divide-y md:hidden'>
           {users.map((user) => (
-            <Table.Row
-              key={user.id}>
-              <Table.Cell>
+            <TableRow
+              key={user.id}
+              data-testid='userRow'>
+              <TableCell>
                 <section className='flex items-center justify-between'>
                   <section className='flex flex-col gap-2'>
                     {user.authId}
@@ -125,49 +131,47 @@ const UserTable = ({ orgId }: {
                     href={`/${locale}/users/${user.authId}`}
                   />
                 </section>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
-        <Table.Body className='divide-y max-md:hidden'>
+        </TableBody>
+        <TableBody className='divide-y max-md:hidden'>
           {users.map((user) => (
-            <Table.Row
+            <TableRow
               key={user.id}
               data-testid='userRow'>
-              <Table.Cell>
+              <TableCell>
                 <div className='flex items-center gap-2'>
                   {user.authId}
                   {user.authId === userInfo?.authId && <IsSelfLabel />}
                 </div>
-              </Table.Cell>
-              <Table.Cell>{user.email}</Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>
                 <EntityStatusLabel isEnabled={user.isActive} />
-              </Table.Cell>
+              </TableCell>
               {configs.ENABLE_NAMES && (
-                <Table.Cell>
+                <TableCell>
                   {`${user.firstName ?? ''} ${user.lastName ?? ''}`}
-                </Table.Cell>
+                </TableCell>
               )}
-              <Table.Cell>
+              <TableCell>
                 <EditLink
                   href={`/${locale}/users/${user.authId}`}
                 />
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
+        </TableBody>
       </Table>
       {totalPages > 1 && (
         <Pagination
           className='mt-8'
-          layout='pagination'
           currentPage={pageNumber}
           totalPages={totalPages}
           onPageChange={handlePageChange}
           previousLabel={t('common.previous')}
           nextLabel={t('common.next')}
-          showIcons
         />
       )}
     </section>
