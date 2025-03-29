@@ -8,12 +8,12 @@ import {
 } from 'components/ui/table'
 import useEditOrg from 'app/[lang]/orgs/useEditOrg'
 import { routeTool } from 'tools'
-import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import { usePostApiV1OrgsMutation } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
 
 const Page = () => {
   const t = useTranslations()
@@ -40,9 +40,13 @@ const Page = () => {
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('orgs.new')}
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('orgs.new') }}
+        parent={{
+          href: routeTool.Internal.Orgs,
+          label: t('orgs.title'),
+        }}
       />
       <section>
         <Table>

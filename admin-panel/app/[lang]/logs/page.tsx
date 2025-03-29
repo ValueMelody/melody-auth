@@ -5,7 +5,6 @@ import {
   useMemo, useState,
 } from 'react'
 import Pagination from 'components/Pagination'
-import { Spinner } from 'components/ui/spinner'
 import {
   Table,
   TableBody,
@@ -23,6 +22,8 @@ import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
   useGetApiV1LogsEmailQuery, useGetApiV1LogsSignInQuery, useGetApiV1LogsSmsQuery,
 } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const PageSize = 10
 
@@ -33,7 +34,9 @@ const Page = () => {
   const configs = useSignalValue(configSignal)
 
   const [emailLogPageNumber, setEmailLogPageNumber] = useState(1)
-  const { data: emailData } = useGetApiV1LogsEmailQuery({
+  const {
+    data: emailData, isLoading: isEmailLoading,
+  } = useGetApiV1LogsEmailQuery({
     pageNumber: emailLogPageNumber,
     pageSize: PageSize,
   })
@@ -41,7 +44,9 @@ const Page = () => {
   const emailLogCount = emailData?.count ?? 0
 
   const [smsLogPageNumber, setSmsLogPageNumber] = useState(1)
-  const { data: smsData } = useGetApiV1LogsSmsQuery({
+  const {
+    data: smsData, isLoading: isSmsLoading,
+  } = useGetApiV1LogsSmsQuery({
     pageNumber: smsLogPageNumber,
     pageSize: PageSize,
   })
@@ -49,7 +54,9 @@ const Page = () => {
   const smsLogCount = smsData?.count ?? 0
 
   const [signInLogPageNumber, setSignInLogPageNumber] = useState(1)
-  const { data: signInData } = useGetApiV1LogsSignInQuery({
+  const {
+    data: signInData, isLoading: isSignInLoading,
+  } = useGetApiV1LogsSignInQuery({
     pageNumber: signInLogPageNumber,
     pageSize: PageSize,
   })
@@ -83,14 +90,20 @@ const Page = () => {
     setSignInLogPageNumber(page)
   }
 
-  if (!configs) return <Spinner />
+  if (!configs) return <LoadingPage />
+
+  if (isEmailLoading || isSmsLoading || isSignInLoading) return <LoadingPage />
 
   return (
     <section>
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('logs.title') }}
+      />
       {configs.ENABLE_EMAIL_LOG && (
         <>
           <PageTitle
-            className='mt-8 mb-6'
+            className='mb-6'
             title={t('logs.emailLogs')}
           />
           <Table className='break-all'>

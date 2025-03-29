@@ -94,7 +94,9 @@ const ShadcnPagination: React.FC<ShadcnPaginationProps> = ({
   const pages = generatePages()
 
   return (
-    <Pagination className={className}>
+    <Pagination
+      role='pagination'
+      className={className}>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious

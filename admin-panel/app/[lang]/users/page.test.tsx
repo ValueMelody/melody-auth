@@ -19,6 +19,11 @@ vi.mock(
   }),
 )
 
+vi.mock(
+  'next/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+)
+
 // Mock useAuth hook
 vi.mock(
   '@melody-auth/react',

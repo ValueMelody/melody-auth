@@ -15,7 +15,10 @@ vi.mock(
 
 vi.mock(
   'next/navigation',
-  () => ({ useParams: vi.fn(() => ({ id: '1' })) }),
+  () => ({
+    useParams: vi.fn(() => ({ id: '1' })),
+    useRouter: vi.fn(() => ({ push: vi.fn() })),
+  }),
 )
 
 vi.mock(

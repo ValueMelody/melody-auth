@@ -12,12 +12,13 @@ import { routeTool } from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
-import PageTitle from 'components/PageTitle'
 import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import {
   useDeleteApiV1RolesByIdMutation, useGetApiV1RolesByIdQuery, usePutApiV1RolesByIdMutation,
 } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const { id } = useParams()
@@ -25,7 +26,9 @@ const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const { data } = useGetApiV1RolesByIdQuery({ id: Number(id) })
+  const {
+    data, isLoading,
+  } = useGetApiV1RolesByIdQuery({ id: Number(id) })
   const [updateRole, { isLoading: isUpdating }] = usePutApiV1RolesByIdMutation()
   const [deleteRole, { isLoading: isDeleting }] = useDeleteApiV1RolesByIdMutation()
 
@@ -54,13 +57,19 @@ const Page = () => {
     router.push(routeTool.Internal.Roles)
   }
 
+  if (isLoading) return <LoadingPage />
+
   if (!role) return null
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('roles.role')}
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('roles.role') }}
+        parent={{
+          href: routeTool.Internal.Roles,
+          label: t('roles.title'),
+        }}
       />
       <section>
         <Table>

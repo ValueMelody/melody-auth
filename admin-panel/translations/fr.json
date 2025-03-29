@@ -132,7 +132,8 @@
   },
   "orgs": {
     "title": "Organisations",
-    "role": "Organisation",
+    "org": "Organisation",
+    "users": "Utilisateurs dans cette organisation",
     "name": "Nom",
     "status": "Statut",
     "new": "Créer une organisation",
@@ -152,12 +153,16 @@
     "privacyPolicyLink": "Lien de la politique de confidentialité"
   },
   "logs": {
+    "title": "Journaux",
     "receiver": "Destinataire",
     "success": "Succès",
     "time": "Heure",
     "emailLogs": "Journaux des emails",
     "smsLogs": "Journaux des SMS",
     "signInLogs": "Journaux de connexion",
+    "emailLog": "Journal de l'e-mail",
+    "smsLog": "Journal du SMS",
+    "signInLog": "Journal de connexion",
     "userId": "ID utilisateur",
     "response": "Réponse",
     "content": "Contenu",

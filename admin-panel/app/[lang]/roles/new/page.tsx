@@ -8,12 +8,12 @@ import {
 } from 'components/ui/table'
 import { Input } from 'components/ui/input'
 import { routeTool } from 'tools'
-import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import { usePostApiV1RolesMutation } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
 
 const Page = () => {
   const t = useTranslations()
@@ -40,9 +40,13 @@ const Page = () => {
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('roles.new')}
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('roles.new') }}
+        parent={{
+          label: t('roles.title'),
+          href: routeTool.Internal.Roles,
+        }}
       />
       <section>
         <Table>

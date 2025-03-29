@@ -17,7 +17,6 @@ import { routeTool } from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
-import PageTitle from 'components/PageTitle'
 import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import {
@@ -26,6 +25,9 @@ import {
 import ColorInput from 'components/ColorInput'
 import LinkInput from 'components/LinkInput'
 import UserTable from 'components/UserTable'
+import Breadcrumb from 'components/Breadcrumb'
+import PageTitle from 'components/PageTitle'
+import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const { id } = useParams()
@@ -33,7 +35,9 @@ const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const { data } = useGetApiV1OrgsByIdQuery({ id: Number(id) })
+  const {
+    data, isLoading,
+  } = useGetApiV1OrgsByIdQuery({ id: Number(id) })
   const [updateOrg, { isLoading: isUpdating }] = usePutApiV1OrgsByIdMutation()
   const [deleteOrg, { isLoading: isDeleting }] = useDeleteApiV1OrgsByIdMutation()
 
@@ -67,13 +71,19 @@ const Page = () => {
     router.push(routeTool.Internal.Orgs)
   }
 
+  if (isLoading) return <LoadingPage />
+
   if (!org) return null
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('orgs.org')}
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('orgs.org') }}
+        parent={{
+          href: routeTool.Internal.Orgs,
+          label: t('orgs.title'),
+        }}
       />
       <section>
         <Table>
@@ -323,6 +333,10 @@ const Page = () => {
         />
       </section>
       <section className='mt-12'>
+        <PageTitle
+          className='mb-6'
+          title={t('orgs.users')}
+        />
         <UserTable
           orgId={Number(id)}
         />

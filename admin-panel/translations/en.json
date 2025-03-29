@@ -139,6 +139,7 @@
   "orgs": {
     "title": "Orgs",
     "org": "Org",
+    "users": "Users in this org",
     "name": "Name",
     "slug": "Slug",
     "status": "Status",
@@ -159,12 +160,16 @@
     "privacyPolicyLink": "Privacy Policy Link"
   },
   "logs": {
+    "title": "Logs",
     "receiver": "Receiver",
     "success": "Success",
     "time": "Time",
     "emailLogs": "Email Logs",
     "smsLogs": "SMS Logs",
     "signInLogs": "Sign-in Logs",
+    "emailLog": "Email Log",
+    "smsLog": "SMS Log",
+    "signInLog": "Sign-in Log",
     "userId": "User ID",
     "response": "Response",
     "content": "Content",

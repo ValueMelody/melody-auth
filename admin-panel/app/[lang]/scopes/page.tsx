@@ -11,22 +11,29 @@ import {
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
-import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
 import ClientTypeLabel from 'components/ClientTypeLabel'
 import { useGetApiV1ScopesQuery } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const { data } = useGetApiV1ScopesQuery()
+  const {
+    data, isLoading,
+  } = useGetApiV1ScopesQuery()
   const scopes = data?.scopes ?? []
+
+  if (isLoading) return <LoadingPage />
 
   return (
     <section>
-      <div className='mb-6 flex items-center gap-4'>
-        <PageTitle title={t('scopes.title')} />
+      <div className='mb-8 flex items-center gap-8'>
+        <Breadcrumb
+          page={{ label: t('scopes.title') }}
+        />
         <CreateButton
           href={`/${locale}${routeTool.Internal.Scopes}/new`}
         />

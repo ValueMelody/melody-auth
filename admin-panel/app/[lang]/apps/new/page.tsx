@@ -11,7 +11,6 @@ import { Input } from 'components/ui/input'
 import {
   routeTool, typeTool,
 } from 'tools'
-import PageTitle from 'components/PageTitle'
 import SaveButton from 'components/SaveButton'
 import SubmitError from 'components/SubmitError'
 import FieldError from 'components/FieldError'
@@ -21,6 +20,7 @@ import ScopesEditor from 'components/ScopesEditor'
 import {
   useGetApiV1ScopesQuery, usePostApiV1AppsMutation,
 } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
 
 const Page = () => {
   const t = useTranslations()
@@ -81,73 +81,75 @@ const Page = () => {
 
   return (
     <section>
-      <section>
-        <PageTitle
-          className='mb-6'
-          title={t('apps.new')}
-        />
-        <Table>
-          <TableHeader>
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('apps.new') }}
+        parent={{
+          href: routeTool.Internal.Apps,
+          label: t('apps.title'),
+        }}
+      />
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
+            <TableHead>{t('common.value')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody className='divide-y'>
+          <TableRow>
+            <TableCell>{t('apps.name')}</TableCell>
+            <TableCell>
+              <Input
+                data-testid='nameInput'
+                onChange={(e) => onChange(
+                  'name',
+                  e.target.value,
+                )}
+                value={values.name}
+              />
+              {showErrors && <FieldError error={errors.name} />}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>{t('apps.type')}</TableCell>
+            <TableCell>
+              <ClientTypeSelector
+                value={values.type}
+                onChange={handleUpdateType}
+              />
+              {showErrors && <FieldError error={errors.type} />}
+            </TableCell>
+          </TableRow>
+          {!!availableScopes.length && (
             <TableRow>
-              <TableHead className='max-md:w-24 md:w-48'>{t('common.property')}</TableHead>
-              <TableHead>{t('common.value')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className='divide-y'>
-            <TableRow>
-              <TableCell>{t('apps.name')}</TableCell>
+              <TableCell>{t('apps.scopes')}</TableCell>
               <TableCell>
-                <Input
-                  data-testid='nameInput'
-                  onChange={(e) => onChange(
-                    'name',
-                    e.target.value,
+                <ScopesEditor
+                  scopes={availableScopes}
+                  value={values.scopes}
+                  onToggleScope={handleToggleAppScope}
+                />
+                {showErrors && <FieldError error={errors.scopes} />}
+              </TableCell>
+            </TableRow>
+          )}
+          {values.type === typeTool.ClientType.SPA && (
+            <TableRow>
+              <TableCell>{t('apps.redirectUris')}</TableCell>
+              <TableCell>
+                <RedirectUriEditor
+                  redirectUris={values.redirectUris}
+                  onChange={(uris) => onChange(
+                    'redirectUris',
+                    uris,
                   )}
-                  value={values.name}
                 />
-                {showErrors && <FieldError error={errors.name} />}
               </TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell>{t('apps.type')}</TableCell>
-              <TableCell>
-                <ClientTypeSelector
-                  value={values.type}
-                  onChange={handleUpdateType}
-                />
-                {showErrors && <FieldError error={errors.type} />}
-              </TableCell>
-            </TableRow>
-            {!!availableScopes.length && (
-              <TableRow>
-                <TableCell>{t('apps.scopes')}</TableCell>
-                <TableCell>
-                  <ScopesEditor
-                    scopes={availableScopes}
-                    value={values.scopes}
-                    onToggleScope={handleToggleAppScope}
-                  />
-                  {showErrors && <FieldError error={errors.scopes} />}
-                </TableCell>
-              </TableRow>
-            )}
-            {values.type === typeTool.ClientType.SPA && (
-              <TableRow>
-                <TableCell>{t('apps.redirectUris')}</TableCell>
-                <TableCell>
-                  <RedirectUriEditor
-                    redirectUris={values.redirectUris}
-                    onChange={(uris) => onChange(
-                      'redirectUris',
-                      uris,
-                    )}
-                  />
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </section>
+          )}
+        </TableBody>
+      </Table>
       <SubmitError />
       <SaveButton
         className='mt-8'
