@@ -5,7 +5,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "cf:build": "opennextjs-cloudflare",
+    "cf:build": "opennextjs-cloudflare build",
     "cf:dev": "wrangler dev --port 3000",
     "cf:deploy": "wrangler deploy",
     "test:check": "vitest run .",
