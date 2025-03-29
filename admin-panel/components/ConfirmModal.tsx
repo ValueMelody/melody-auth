@@ -1,7 +1,9 @@
 import { useTranslations } from 'next-intl'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogFooter,
   AlertDialogTitle, AlertDialogHeader, AlertDialogContent,
+  AlertDialogDescription,
 } from 'components/ui/alert-dialog'
 
 const ConfirmModal = ({
@@ -25,6 +27,11 @@ const ConfirmModal = ({
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
         </AlertDialogHeader>
+        <VisuallyHidden>
+          <AlertDialogDescription>
+            {title}
+          </AlertDialogDescription>
+        </VisuallyHidden>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>{t('common.cancel')}</AlertDialogCancel>
           <AlertDialogAction

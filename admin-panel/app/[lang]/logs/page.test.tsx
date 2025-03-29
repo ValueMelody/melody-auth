@@ -40,6 +40,11 @@ vi.mock(
   }),
 )
 
+vi.mock(
+  'next/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+)
+
 describe(
   'Page Component',
   () => {
@@ -189,7 +194,7 @@ describe(
         render(<Page />)
 
         // Should find 2 paginations (email and SMS) since they have multiple pages
-        const paginations = screen.getAllByRole('navigation')
+        const paginations = screen.getAllByRole('pagination')
         expect(paginations).toHaveLength(2)
       },
     )
@@ -213,7 +218,7 @@ describe(
         render(<Page />)
 
         // Should not find any pagination components
-        const paginations = screen.queryAllByRole('navigation')
+        const paginations = screen.queryAllByRole('pagination')
         expect(paginations).toHaveLength(0)
       },
     )
@@ -359,7 +364,7 @@ describe(
         expect(signInRows).toHaveLength(0)
 
         // Should not show pagination
-        const paginations = screen.queryAllByRole('navigation')
+        const paginations = screen.queryAllByRole('pagination')
         expect(paginations).toHaveLength(0)
       },
     )

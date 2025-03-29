@@ -12,6 +12,11 @@ vi.mock(
   () => ({ useGetApiV1AppsQuery: vi.fn() }),
 )
 
+vi.mock(
+  'next/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+)
+
 describe(
   'Page Component',
   () => {

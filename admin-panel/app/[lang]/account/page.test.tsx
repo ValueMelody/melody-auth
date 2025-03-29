@@ -19,6 +19,11 @@ vi.mock('next-intl')
 vi.mock('hooks/useCurrentLocale')
 vi.mock('app/useSignalValue')
 
+vi.mock(
+  'next/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+)
+
 describe(
   'Account Page',
   () => {

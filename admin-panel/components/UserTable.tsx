@@ -15,11 +15,11 @@ import EditLink from 'components/EditLink'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
-import PageTitle from 'components/PageTitle'
 import useDebounce from 'hooks/useDebounce'
 import {
   useGetApiV1OrgsByIdUsersQuery, useGetApiV1UsersQuery,
 } from 'services/auth/api'
+import LoadingPage from 'components/LoadingPage'
 
 const PageSize = 20
 
@@ -36,7 +36,9 @@ const UserTable = ({ orgId }: {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search)
 
-  const { data: usersData } = useGetApiV1UsersQuery(
+  const {
+    data: usersData, isLoading: isUsersLoading,
+  } = useGetApiV1UsersQuery(
     {
       pageSize: PageSize,
       pageNumber,
@@ -45,7 +47,9 @@ const UserTable = ({ orgId }: {
     { skip: !!orgId },
   )
 
-  const { data: orgUsersData } = useGetApiV1OrgsByIdUsersQuery(
+  const {
+    data: orgUsersData, isLoading: isOrgUsersLoading,
+  } = useGetApiV1OrgsByIdUsersQuery(
     {
       id: Number(orgId),
       pageSize: PageSize,
@@ -69,6 +73,10 @@ const UserTable = ({ orgId }: {
     setPageNumber(page)
   }
 
+  if (isUsersLoading || isOrgUsersLoading) {
+    return <LoadingPage />
+  }
+
   if (data && data.count === 0) {
     return (
       <Alert>
@@ -80,9 +88,6 @@ const UserTable = ({ orgId }: {
   return (
     <section>
       <header className='mb-6 flex items-center gap-4'>
-        <PageTitle
-          title={t('users.title')}
-        />
         <Input
           className='w-60'
           value={search}

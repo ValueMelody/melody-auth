@@ -5,23 +5,33 @@ import { useParams } from 'next/navigation'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
-import PageTitle from 'components/PageTitle'
 import { useGetApiV1LogsEmailByIdQuery } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
+import { routeTool } from 'tools'
+import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const { id } = useParams()
 
   const t = useTranslations()
-  const { data } = useGetApiV1LogsEmailByIdQuery({ id: Number(id) })
+  const {
+    data, isLoading,
+  } = useGetApiV1LogsEmailByIdQuery({ id: Number(id) })
   const log = data?.log
+
+  if (isLoading) return <LoadingPage />
 
   if (!log) return null
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('logs.emailLogs')}
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('logs.emailLog') }}
+        parent={{
+          href: routeTool.Internal.Logs,
+          label: t('logs.title'),
+        }}
       />
       <section>
         <Table>

@@ -19,7 +19,6 @@ import { Switch } from 'components/ui/switch'
 import {
   routeTool, typeTool,
 } from 'tools'
-import PageTitle from 'components/PageTitle'
 import ClientTypeLabel from 'components/ClientTypeLabel'
 import SubmitError from 'components/SubmitError'
 import FieldError from 'components/FieldError'
@@ -30,6 +29,8 @@ import useLocaleRouter from 'hooks/useLocaleRoute'
 import {
   useDeleteApiV1AppsByIdMutation, useGetApiV1AppsByIdQuery, useGetApiV1ScopesQuery, usePutApiV1AppsByIdMutation,
 } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const { id } = useParams()
@@ -37,7 +38,9 @@ const Page = () => {
 
   const t = useTranslations()
 
-  const { data: appData } = useGetApiV1AppsByIdQuery({ id: Number(id) })
+  const {
+    data: appData, isLoading: isAppLoading,
+  } = useGetApiV1AppsByIdQuery({ id: Number(id) })
   const app = appData?.app
 
   const { data: scopesData } = useGetApiV1ScopesQuery()
@@ -102,13 +105,19 @@ const Page = () => {
     )
   }
 
+  if (isAppLoading) return <LoadingPage />
+
   if (!app) return null
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('apps.app')}
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('apps.app') }}
+        parent={{
+          href: routeTool.Internal.Apps,
+          label: t('apps.title'),
+        }}
       />
       <section>
         <Table>

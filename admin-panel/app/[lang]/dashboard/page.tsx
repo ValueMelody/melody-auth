@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
-import { Spinner } from 'components/ui/spinner'
 
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 import PageTitle from 'components/PageTitle'
@@ -11,6 +10,8 @@ import useSignalValue from 'app/useSignalValue'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const configNameClass = 'w-96 max-md:w-60'
 
@@ -102,10 +103,13 @@ const Page = () => {
     [configs],
   )
 
-  if (!configs) return <Spinner data-testid='spinner' />
+  if (!configs) return <LoadingPage />
 
   return (
     <section>
+      <Breadcrumb
+        className='mb-8'
+      />
       {links && (
         <>
           <PageTitle

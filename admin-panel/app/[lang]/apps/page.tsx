@@ -8,22 +8,29 @@ import useCurrentLocale from 'hooks/useCurrentLocale'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import { routeTool } from 'tools'
 import EditLink from 'components/EditLink'
-import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
 import ClientTypeLabel from 'components/ClientTypeLabel'
 import { useGetApiV1AppsQuery } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const { data } = useGetApiV1AppsQuery()
+  const {
+    data, isLoading,
+  } = useGetApiV1AppsQuery()
   const apps = data?.apps ?? []
+
+  if (isLoading) return <LoadingPage />
 
   return (
     <section>
-      <div className='mb-6 flex items-center gap-4'>
-        <PageTitle title={t('apps.title')} />
+      <div className='mb-8 flex items-center gap-8'>
+        <Breadcrumb
+          page={{ label: t('apps.title') }}
+        />
         <CreateButton
           href={`/${locale}${routeTool.Internal.Apps}/new`}
         />

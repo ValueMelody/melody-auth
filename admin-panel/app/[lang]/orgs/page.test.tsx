@@ -23,6 +23,11 @@ vi.mock(
   () => ({ useGetApiV1OrgsQuery: vi.fn() }),
 )
 
+vi.mock(
+  'next/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+)
+
 describe(
   'Orgs Page',
   () => {

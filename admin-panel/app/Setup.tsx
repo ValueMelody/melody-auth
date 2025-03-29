@@ -36,6 +36,7 @@ import {
   RootState, store,
 } from 'stores'
 import { appSlice } from 'stores/app'
+import LoadingPage from 'components/LoadingPage'
 
 const locale = typeof localStorage !== 'undefined' && localStorage.getItem('Locale')
 
@@ -48,8 +49,6 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     isAuthenticating, isAuthenticated, acquireUserInfo, acquireToken, userInfo,
     loginRedirect, logoutRedirect, isLoadingUserInfo, acquireUserInfoError,
   } = useAuth()
-
-  const configs = useSignalValue(configSignal)
 
   const handleLogout = () => {
     logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
@@ -121,8 +120,6 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     )
   }
 
-  if (!configs) return <Spinner />
-
   return children
 }
 
@@ -151,7 +148,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
 
   return (
     <>
-      <NavigationMenu className='w-full max-h-20 max-md:max-h-40 py-4'>
+      <NavigationMenu className='w-full max-h-20 min-h-20 max-md:min-h-40 max-md:max-h-40 py-4'>
         <NavigationMenuList className='flex-wrap justify-start'>
           <NavigationMenuItem>
             <Link
@@ -269,9 +266,17 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <section className='p-6'>
-        {children}
-      </section>
+      {
+        configs
+          ? (
+            <section className='p-6'>
+              {children}
+            </section>
+          )
+          : (
+            <LoadingPage />
+          )
+      }
     </>
   )
 }

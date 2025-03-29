@@ -27,6 +27,7 @@ vi.mock(
       useParams: vi.fn(() => (
         { id: '1' }
       )),
+      useRouter: vi.fn(() => ({ push: vi.fn() })),
     }
   ),
 )

@@ -10,11 +10,12 @@ import {
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
-import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
 import {
   Role, useGetApiV1RolesQuery,
 } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const isSystem = (name: string) => name === typeTool.Role.SuperAdmin
 
@@ -22,7 +23,9 @@ const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const { data } = useGetApiV1RolesQuery()
+  const {
+    data, isLoading,
+  } = useGetApiV1RolesQuery()
   const roles = data?.roles ?? []
 
   const renderEditButton = (role: Role) => {
@@ -35,10 +38,14 @@ const Page = () => {
       )
   }
 
+  if (isLoading) return <LoadingPage />
+
   return (
     <section>
-      <div className='mb-6 flex items-center gap-4'>
-        <PageTitle title={t('roles.title')} />
+      <div className='mb-8 flex items-center gap-8'>
+        <Breadcrumb
+          page={{ label: t('roles.title') }}
+        />
         <CreateButton
           href={`/${locale}${routeTool.Internal.Roles}/new`}
         />

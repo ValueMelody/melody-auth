@@ -12,17 +12,19 @@ import {
 import useCurrentLocale from 'hooks/useCurrentLocale'
 import { routeTool } from 'tools'
 import EditLink from 'components/EditLink'
-import PageTitle from 'components/PageTitle'
 import CreateButton from 'components/CreateButton'
 import {
   useGetApiV1OrgsQuery, Org,
 } from 'services/auth/api'
-
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 const Page = () => {
   const t = useTranslations()
   const locale = useCurrentLocale()
 
-  const { data } = useGetApiV1OrgsQuery()
+  const {
+    data, isLoading,
+  } = useGetApiV1OrgsQuery()
   const orgs = data?.orgs ?? []
 
   const renderEditButton = (org: Org) => {
@@ -33,10 +35,14 @@ const Page = () => {
     )
   }
 
+  if (isLoading) return <LoadingPage />
+
   return (
     <section>
-      <div className='mb-6 flex items-center gap-4'>
-        <PageTitle title={t('orgs.title')} />
+      <div className='mb-8 flex items-center gap-8'>
+        <Breadcrumb
+          page={{ label: t('orgs.title') }}
+        />
         <CreateButton
           href={`/${locale}${routeTool.Internal.Orgs}/new`}
         />

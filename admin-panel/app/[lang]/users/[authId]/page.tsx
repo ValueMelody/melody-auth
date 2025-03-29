@@ -28,7 +28,6 @@ import EntityStatusLabel from 'components/EntityStatusLabel'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
 import IsSelfLabel from 'components/IsSelfLabel'
-import PageTitle from 'components/PageTitle'
 import SubmitError from 'components/SubmitError'
 import SaveButton from 'components/SaveButton'
 import DeleteButton from 'components/DeleteButton'
@@ -56,6 +55,8 @@ import {
   UserDetail,
 } from 'services/auth/api'
 import ConfirmModal from 'components/ConfirmModal'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const { authId } = useParams()
@@ -83,7 +84,9 @@ const Page = () => {
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
   const enablePasskeyEnrollment = !!configs.ALLOW_PASSKEY_ENROLLMENT
 
-  const { data: userData } = useGetApiV1UsersByAuthIdQuery({ authId: String(authId) })
+  const {
+    data: userData, isLoading: isUserLoading,
+  } = useGetApiV1UsersByAuthIdQuery({ authId: String(authId) })
   const user = userData?.user
 
   const { data: rolesData } = useGetApiV1RolesQuery()
@@ -377,13 +380,19 @@ const Page = () => {
     )
   }
 
+  if (isUserLoading) return <LoadingPage />
+
   if (!user) return null
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('users.user')}
+      <Breadcrumb
+        page={{ label: t('users.user') }}
+        parent={{
+          label: t('users.title'),
+          href: routeTool.Internal.Users,
+        }}
+        className='mb-8'
       />
       <section>
         <Table>

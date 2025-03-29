@@ -18,6 +18,11 @@ vi.mock(
   () => ({ useTranslations: vi.fn(() => (key: string) => key) }),
 )
 
+vi.mock(
+  'next/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+)
+
 describe(
   'Dashboard Page',
   () => {

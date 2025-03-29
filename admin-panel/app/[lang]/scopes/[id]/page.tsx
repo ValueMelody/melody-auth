@@ -19,7 +19,6 @@ import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import ClientTypeLabel from 'components/ClientTypeLabel'
-import PageTitle from 'components/PageTitle'
 import DeleteButton from 'components/DeleteButton'
 import useLocaleRouter from 'hooks/useLocaleRoute'
 import useSignalValue from 'app/useSignalValue'
@@ -27,6 +26,8 @@ import { configSignal } from 'signals'
 import {
   useDeleteApiV1ScopesByIdMutation, useGetApiV1ScopesByIdQuery, usePutApiV1ScopesByIdMutation,
 } from 'services/auth/api'
+import Breadcrumb from 'components/Breadcrumb'
+import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const { id } = useParams()
@@ -34,7 +35,9 @@ const Page = () => {
   const t = useTranslations()
   const router = useLocaleRouter()
 
-  const { data } = useGetApiV1ScopesByIdQuery({ id: Number(id) })
+  const {
+    data, isLoading,
+  } = useGetApiV1ScopesByIdQuery({ id: Number(id) })
   const scope = data?.scope
   const [updateScope, { isLoading: isUpdating }] = usePutApiV1ScopesByIdMutation()
   const [deleteScope, { isLoading: isDeleting }] = useDeleteApiV1ScopesByIdMutation()
@@ -103,13 +106,19 @@ const Page = () => {
     router.push(routeTool.Internal.Scopes)
   }
 
+  if (isLoading) return <LoadingPage />
+
   if (!scope) return null
 
   return (
     <section>
-      <PageTitle
-        className='mb-6'
-        title={t('scopes.scope')}
+      <Breadcrumb
+        className='mb-8'
+        page={{ label: t('scopes.scope') }}
+        parent={{
+          href: routeTool.Internal.Scopes,
+          label: t('scopes.title'),
+        }}
       />
       <section>
         <Table>
