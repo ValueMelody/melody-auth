@@ -5,7 +5,7 @@ const config: OpenNextConfig = {
     override: {
       wrapper: 'cloudflare-node',
       converter: 'edge',
-      // Unused implementation
+      proxyExternalRequest: 'fetch',
       incrementalCache: 'dummy',
       tagCache: 'dummy',
       queue: 'dummy',
