@@ -14,7 +14,7 @@ import {
 import { scopes } from 'tests/scopeMock'
 
 vi.mock(
-  'next/navigation',
+  'i18n/navigation',
   () => ({ useRouter: vi.fn().mockReturnValue({ push: () => {} }) }),
 )
 

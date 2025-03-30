@@ -8,7 +8,7 @@ import { render } from '@testing-library/react'
 import { useAuth } from '@melody-auth/react'
 import Page from 'app/[lang]/page'
 import { routeTool } from 'tools'
-import useLocaleRouter from 'hooks/useLocaleRoute'
+import { useRouter } from 'i18n/navigation'
 
 // Mock the required hooks and modules
 vi.mock(
@@ -29,6 +29,11 @@ vi.mock(
   ),
 )
 
+vi.mock(
+  'i18n/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+)
+
 describe(
   'Home Page',
   () => {
@@ -37,7 +42,7 @@ describe(
       () => {
         const mockPush = vi.fn()
         vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any)
-        vi.mocked(useLocaleRouter).mockReturnValue({ push: mockPush } as any)
+        vi.mocked(useRouter).mockReturnValue({ push: mockPush } as any)
 
         render(<Page />)
 
@@ -50,7 +55,6 @@ describe(
       () => {
         const mockPush = vi.fn()
         vi.mocked(useAuth).mockReturnValue({ isAuthenticated: false } as any)
-        vi.mocked(useLocaleRouter).mockReturnValue({ push: mockPush } as any)
 
         render(<Page />)
 

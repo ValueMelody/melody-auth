@@ -22,10 +22,12 @@ let mockNav = {
 
 vi.mock(
   'next/navigation',
-  () => ({
-    useParams: vi.fn(() => ({ id: mockNav.id })),
-    useRouter: vi.fn(() => ({ push: mockNav.push })),
-  }),
+  () => ({ useParams: vi.fn(() => ({ id: mockNav.id })) }),
+)
+
+vi.mock(
+  'i18n/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: mockNav.push })) }),
 )
 
 vi.mock(
@@ -243,7 +245,7 @@ describe(
 
         // Verify delete was called and redirect happened
         expect(mockDelete).toHaveBeenCalledWith({ id: 1 })
-        expect(mockNav.push).toHaveBeenCalledWith('/en/apps')
+        expect(mockNav.push).toHaveBeenCalledWith('/apps')
       },
     )
 

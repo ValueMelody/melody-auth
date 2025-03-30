@@ -8,19 +8,27 @@ import '@testing-library/jest-dom'
 
 // Import the modules to mock
 import { useAuth } from '@melody-auth/react'
-import { useTranslations } from 'next-intl'
+import {
+  useTranslations, useLocale,
+} from 'next-intl'
 import Page from 'app/[lang]/account/page'
-import useCurrentLocale from 'hooks/useCurrentLocale'
 import useSignalValue from 'app/useSignalValue'
 
 // Mock the hooks
 vi.mock('@melody-auth/react')
-vi.mock('next-intl')
-vi.mock('hooks/useCurrentLocale')
+
 vi.mock('app/useSignalValue')
 
 vi.mock(
-  'next/navigation',
+  'next-intl',
+  () => ({
+    useTranslations: vi.fn((key: string) => key),
+    useLocale: vi.fn(() => 'en'),
+  }),
+)
+
+vi.mock(
+  'i18n/navigation',
   () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
 )
 
@@ -29,8 +37,6 @@ describe(
   () => {
   // Setup mock implementations
     const mockLoginRedirect = vi.fn()
-    const mockTranslate = vi.fn((key: string) => key) as any
-    const mockLocale = 'en'
 
     beforeEach(() => {
     // Reset all mocks before each test
@@ -38,9 +44,9 @@ describe(
 
       // Setup default mock implementations
       vi.mocked(useAuth).mockReturnValue({ loginRedirect: mockLoginRedirect } as any)
-      vi.mocked(useTranslations).mockReturnValue(mockTranslate)
-      vi.mocked(useCurrentLocale).mockReturnValue(mockLocale)
       vi.mocked(useSignalValue).mockReturnValue({ ALLOW_PASSKEY_ENROLLMENT: true })
+      vi.mocked(useTranslations).mockReturnValue(vi.fn((key: string) => key) as any)
+      vi.mocked(useLocale).mockReturnValue('en')
     })
 
     it(
@@ -71,7 +77,7 @@ describe(
       'when locale is undefined',
       () => {
         beforeEach(() => {
-          vi.mocked(useCurrentLocale).mockReturnValue(undefined as any)
+          vi.mocked(useLocale).mockReturnValue(undefined as any)
         })
 
         it(

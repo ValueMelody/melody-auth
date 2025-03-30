@@ -9,7 +9,7 @@ import {
 import { Input } from 'components/ui/input'
 import { routeTool } from 'tools'
 import SaveButton from 'components/SaveButton'
-import useLocaleRouter from 'hooks/useLocaleRoute'
+import { useRouter } from 'i18n/navigation'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import { usePostApiV1RolesMutation } from 'services/auth/api'
@@ -17,7 +17,7 @@ import Breadcrumb from 'components/Breadcrumb'
 
 const Page = () => {
   const t = useTranslations()
-  const router = useLocaleRouter()
+  const router = useRouter()
 
   const {
     values, errors, onChange,

@@ -31,7 +31,7 @@ import IsSelfLabel from 'components/IsSelfLabel'
 import SubmitError from 'components/SubmitError'
 import SaveButton from 'components/SaveButton'
 import DeleteButton from 'components/DeleteButton'
-import useLocaleRouter from 'hooks/useLocaleRoute'
+import { useRouter } from 'i18n/navigation'
 import {
   PutUserReq,
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
@@ -65,7 +65,7 @@ const Page = () => {
   const { userInfo } = useAuth()
 
   const t = useTranslations()
-  const router = useLocaleRouter()
+  const router = useRouter()
 
   const [firstName, setFirstName] = useState<string | null>(null)
   const [lastName, setLastName] = useState<string | null>(null)

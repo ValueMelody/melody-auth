@@ -15,7 +15,7 @@ import SaveButton from 'components/SaveButton'
 import SubmitError from 'components/SubmitError'
 import FieldError from 'components/FieldError'
 import ClientTypeSelector from 'components/ClientTypeSelector'
-import useLocaleRouter from 'hooks/useLocaleRoute'
+import { useRouter } from 'i18n/navigation'
 import ScopesEditor from 'components/ScopesEditor'
 import {
   useGetApiV1ScopesQuery, usePostApiV1AppsMutation,
@@ -24,7 +24,7 @@ import Breadcrumb from 'components/Breadcrumb'
 
 const Page = () => {
   const t = useTranslations()
-  const router = useLocaleRouter()
+  const router = useRouter()
 
   const {
     values, errors, onChange,

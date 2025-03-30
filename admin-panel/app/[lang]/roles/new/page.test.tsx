@@ -9,7 +9,7 @@ import { render } from 'vitest.setup'
 import { usePostApiV1RolesMutation } from 'services/auth/api'
 
 vi.mock(
-  'next/navigation',
+  'i18n/navigation',
   () => ({ useRouter: vi.fn().mockReturnValue({ push: () => {} }) }),
 )
 

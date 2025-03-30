@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
-import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
   routeTool, typeTool,
 } from 'tools'
@@ -21,7 +20,6 @@ const isSystem = (name: string) => name === typeTool.Role.SuperAdmin
 
 const Page = () => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
 
   const {
     data, isLoading,
@@ -33,7 +31,7 @@ const Page = () => {
       ? null
       : (
         <EditLink
-          href={`/${locale}/roles/${role.id}`}
+          href={`${routeTool.Internal.Roles}/${role.id}`}
         />
       )
   }
@@ -47,7 +45,7 @@ const Page = () => {
           page={{ label: t('roles.title') }}
         />
         <CreateButton
-          href={`/${locale}${routeTool.Internal.Roles}/new`}
+          href={`${routeTool.Internal.Roles}/new`}
         />
       </div>
       <Table>

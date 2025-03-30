@@ -18,7 +18,7 @@ import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import DeleteButton from 'components/DeleteButton'
-import useLocaleRouter from 'hooks/useLocaleRoute'
+import { useRouter } from 'i18n/navigation'
 import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
 } from 'services/auth/api'
@@ -33,7 +33,7 @@ const Page = () => {
   const { id } = useParams()
 
   const t = useTranslations()
-  const router = useLocaleRouter()
+  const router = useRouter()
 
   const {
     data, isLoading,

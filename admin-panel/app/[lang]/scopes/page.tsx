@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
-import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
   dataTool,
   routeTool,
@@ -19,7 +18,6 @@ import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
 
   const {
     data, isLoading,
@@ -35,7 +33,7 @@ const Page = () => {
           page={{ label: t('scopes.title') }}
         />
         <CreateButton
-          href={`/${locale}${routeTool.Internal.Scopes}/new`}
+          href={`${routeTool.Internal.Scopes}/new`}
         />
       </div>
       <Table>
@@ -66,7 +64,7 @@ const Page = () => {
                     {scope.note}
                   </div>
                   <EditLink
-                    href={`/${locale}/scopes/${scope.id}`}
+                    href={`${routeTool.Internal.Scopes}/${scope.id}`}
                   />
                 </div>
               </TableCell>
@@ -92,7 +90,7 @@ const Page = () => {
               </TableCell>
               <TableCell>
                 <EditLink
-                  href={`/${locale}/scopes/${scope.id}`}
+                  href={`${routeTool.Internal.Scopes}/${scope.id}`}
                 />
               </TableCell>
             </TableRow>

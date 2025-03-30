@@ -15,6 +15,10 @@ import {
   usePathname,
   useRouter,
 } from 'next/navigation'
+import {
+  NextIntlClientProvider,
+  useLocale, useTranslations,
+} from 'next-intl'
 import Setup from './Setup'
 import {
   configSignal,
@@ -34,21 +38,23 @@ vi.mock(
 )
 
 vi.mock(
+  'next-intl',
+  async (importOriginal) => {
+    const actual = await importOriginal<typeof import('next-intl')>()
+    return {
+      ...actual,
+      useTranslations: vi.fn((key: string) => key),
+      useLocale: vi.fn(() => 'en'),
+    }
+  },
+)
+
+vi.mock(
   'next/navigation',
   () => ({
     useRouter: vi.fn(() => ({ push: vi.fn() })),
     usePathname: vi.fn(),
   }),
-)
-
-vi.mock(
-  'next-intl',
-  () => ({ useTranslations: vi.fn(() => (key: string) => key) }),
-)
-
-vi.mock(
-  'hooks/useCurrentLocale',
-  () => ({ default: vi.fn(() => 'en') }),
 )
 
 vi.mock(
@@ -78,6 +84,9 @@ describe(
       vi.clearAllMocks()
       errorSignal.value = ''
       configSignal.value = null
+
+      vi.mocked(useTranslations).mockReturnValue(vi.fn((key: string) => key) as any)
+      vi.mocked(useLocale).mockReturnValue('en')
 
       vi.mocked(useAuth).mockReturnValue({
         isAuthenticating: false,
@@ -163,7 +172,9 @@ describe(
           refreshTokenStorage: { refreshToken: 'test-refresh-token' },
         } as any)
 
-        render(<Setup>Test</Setup>)
+        render(<NextIntlClientProvider
+          locale='en'
+          messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
         expect(screen.getByText('layout.brand')).toBeInTheDocument()
         expect(screen.getByText('layout.dashboard')).toBeInTheDocument()
       },
@@ -189,7 +200,9 @@ describe(
           refreshTokenStorage: { refreshToken: 'test-refresh-token' },
         } as any)
 
-        render(<Setup>Test</Setup>)
+        render(<NextIntlClientProvider
+          locale='en'
+          messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
 
         const logoutButton = screen.getByText('layout.logout')
         fireEvent.click(logoutButton)
@@ -221,7 +234,9 @@ describe(
           refreshTokenStorage: { refreshToken: 'test-refresh-token' },
         } as any)
 
-        render(<Setup>Test</Setup>)
+        render(<NextIntlClientProvider
+          locale='en'
+          messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
 
         expect(screen.getByText('layout.orgs')).toBeInTheDocument()
         expect(screen.getByText('layout.logs')).toBeInTheDocument()
@@ -250,7 +265,9 @@ describe(
           refreshTokenStorage: { refreshToken: 'test-refresh-token' },
         } as any)
 
-        render(<Setup>Test</Setup>)
+        render(<NextIntlClientProvider
+          locale='en'
+          messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
 
         expect(errorSignal.value).toBe('')
       },

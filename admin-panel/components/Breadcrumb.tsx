@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from 'components/ui/breadcrumb'
 import { routeTool } from 'tools'
-import useLocaleRouter from 'hooks/useLocaleRoute'
+import { useRouter } from 'i18n/navigation'
 
 const ShadcnBreadcrumb = ({
   parent,
@@ -25,7 +25,7 @@ const ShadcnBreadcrumb = ({
   className?: string;
 }) => {
   const t = useTranslations()
-  const router = useLocaleRouter()
+  const router = useRouter()
   return (
     <Breadcrumb className={className}>
       <BreadcrumbList>

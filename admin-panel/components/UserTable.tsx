@@ -9,7 +9,6 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
 import { Alert } from 'components/ui/alert'
-import useCurrentLocale from 'hooks/useCurrentLocale'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
 import useSignalValue from 'app/useSignalValue'
@@ -20,6 +19,7 @@ import {
   useGetApiV1OrgsByIdUsersQuery, useGetApiV1UsersQuery,
 } from 'services/auth/api'
 import LoadingPage from 'components/LoadingPage'
+import { routeTool } from '@/tools'
 
 const PageSize = 20
 
@@ -27,7 +27,6 @@ const UserTable = ({ orgId }: {
   orgId: number | null;
 }) => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
 
   const { userInfo } = useAuth()
 
@@ -133,7 +132,7 @@ const UserTable = ({ orgId }: {
                     )}
                   </section>
                   <EditLink
-                    href={`/${locale}/users/${user.authId}`}
+                    href={`${routeTool.Internal.Users}/${user.authId}`}
                   />
                 </section>
               </TableCell>
@@ -162,7 +161,7 @@ const UserTable = ({ orgId }: {
               )}
               <TableCell>
                 <EditLink
-                  href={`/${locale}/users/${user.authId}`}
+                  href={`${routeTool.Internal.Users}/${user.authId}`}
                 />
               </TableCell>
             </TableRow>

@@ -1,5 +1,5 @@
 import { PencilSquareIcon } from '@heroicons/react/16/solid'
-import Link from 'next/link'
+import { Link } from 'i18n/navigation'
 import { Button } from 'components/ui/button'
 
 const EditLink = ({ href }: {

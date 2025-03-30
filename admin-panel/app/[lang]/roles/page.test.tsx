@@ -13,8 +13,15 @@ vi.mock(
 )
 
 vi.mock(
-  'next/navigation',
-  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+  'i18n/navigation',
+  () => ({
+    useRouter: vi.fn(() => ({ push: vi.fn() })),
+    Link: vi.fn(({
+      href, 'data-testid': dataTestId,
+    }: { href: string; 'data-testid': string }) => <a
+      href={href}
+      data-testid={dataTestId}>Link</a>),
+  }),
 )
 
 describe(
@@ -38,10 +45,10 @@ describe(
         expect(rows[1].querySelector('td')?.innerHTML).toContain(roles[1].name)
         const editLinks1 = rows[1].querySelector('td')?.getElementsByTagName('a')
         expect(editLinks1?.length).toBe(1)
-        expect(editLinks1?.[0].getAttribute('href')).toBe('/en/roles/2')
+        expect(editLinks1?.[0].getAttribute('href')).toBe('/roles/2')
 
         const createButton = screen.getByTestId('createButton')
-        expect(createButton.getAttribute('href')).toBe('/en/roles/new')
+        expect(createButton.getAttribute('href')).toBe('/roles/new')
       },
     )
 

@@ -7,25 +7,21 @@ import {
 import Page from 'app/[lang]/orgs/page'
 import { useGetApiV1OrgsQuery } from 'services/auth/api'
 
-// Mock the required hooks and modules
-vi.mock(
-  'next-intl',
-  () => ({ useTranslations: vi.fn(() => (key: string) => key) }),
-)
-
-vi.mock(
-  'hooks/useCurrentLocale',
-  () => ({ default: vi.fn(() => 'en') }),
-)
-
 vi.mock(
   'services/auth/api',
   () => ({ useGetApiV1OrgsQuery: vi.fn() }),
 )
 
 vi.mock(
-  'next/navigation',
-  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+  'i18n/navigation',
+  () => ({
+    useRouter: vi.fn(() => ({ push: vi.fn() })),
+    Link: vi.fn(({
+      href, 'data-testid': dataTestId,
+    }: { href: string; 'data-testid': string }) => <a
+      data-testid={dataTestId}
+      href={href}>Link</a>),
+  }),
 )
 
 describe(
@@ -61,13 +57,10 @@ describe(
       'renders create button with correct href',
       () => {
         render(<Page />)
-        const createButton = screen.getByRole(
-          'link',
-          { name: /create/i },
-        )
+        const createButton = screen.getByTestId('createButton')
         expect(createButton).toHaveAttribute(
           'href',
-          '/en/orgs/new',
+          '/orgs/new',
         )
       },
     )
@@ -97,7 +90,7 @@ describe(
           expect(editLinks).toHaveLength(1)
           expect(editLinks[0]).toHaveAttribute(
             'href',
-            `/en/orgs/${org.id}`,
+            `/orgs/${org.id}`,
           )
         })
       },

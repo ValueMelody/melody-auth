@@ -1,8 +1,9 @@
 'use client'
 
 import { useAuth } from '@melody-auth/react'
-import { useTranslations } from 'next-intl'
-import useCurrentLocale from 'hooks/useCurrentLocale'
+import {
+  useTranslations, useLocale,
+} from 'next-intl'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
 import { Button } from 'components/ui/button'
@@ -10,7 +11,7 @@ import Breadcrumb from 'components/Breadcrumb'
 
 const Page = () => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
+  const locale = useLocale()
 
   const configs = useSignalValue(configSignal)
 

@@ -20,8 +20,11 @@ vi.mock(
 )
 
 vi.mock(
-  'next/navigation',
-  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+  'i18n/navigation',
+  () => ({
+    useRouter: vi.fn(() => ({ push: vi.fn() })),
+    Link: vi.fn(({ href }: { href: string }) => <a href={href}>Link</a>),
+  }),
 )
 
 // Mock useAuth hook
@@ -84,7 +87,7 @@ describe(
           expect(row.querySelectorAll('td')[2]?.innerHTML).toContain(users[index].isActive ? 'common.active' : 'common.disabled')
           expect(row.querySelectorAll('td')[3]?.innerHTML).toContain(`${users[index].firstName} ${users[index].lastName}`)
           const editLink = row.querySelectorAll('td')[4]?.getElementsByTagName('a')
-          expect(editLink[0].getAttribute('href')).toBe(`/en/users/${users[index].authId}`)
+          expect(editLink[0].getAttribute('href')).toBe(`/users/${users[index].authId}`)
         })
       },
     )
