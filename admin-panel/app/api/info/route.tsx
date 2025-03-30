@@ -4,5 +4,6 @@ export async function GET () {
   return sendS2SRequest({
     method: 'GET',
     uri: '/info',
+    requiredAccess: null,
   })
 }

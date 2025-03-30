@@ -7,10 +7,12 @@ const LocaleEditor = ({
   supportedLocales,
   values,
   onChange,
+  disabled,
 }: {
   onChange: (newLocales: LocaleValues) => void;
   values: LocaleValues;
   supportedLocales: string[];
+  disabled?: boolean;
 }) => {
   const t = useTranslations()
 
@@ -42,6 +44,7 @@ const LocaleEditor = ({
           <Input
             data-testid='localeInput'
             className='w-full'
+            disabled={disabled}
             onChange={(e) => handleSetLocale(
               locale,
               e.target.value,

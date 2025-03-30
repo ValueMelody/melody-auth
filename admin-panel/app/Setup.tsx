@@ -32,7 +32,8 @@ import {
 } from 'signals'
 import {
   proxyTool,
-  routeTool, typeTool,
+  routeTool,
+  accessTool,
 } from 'tools'
 import {
   RootState, store,
@@ -106,7 +107,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
     return
   }
 
-  if (!userInfo?.roles?.includes(typeTool.Role.SuperAdmin)) {
+  if (!accessTool.getAllowedRoles(userInfo?.roles ?? []).length) {
     return (
       <div className='w-full h-screen flex flex-col gap-8 items-center justify-center'>
         <Alert variant='destructive'>
@@ -128,11 +129,21 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 const LayoutSetup = ({ children } : PropsWithChildren) => {
   const t = useTranslations()
   const locale = useLocale()
-  const { logoutRedirect } = useAuth()
+  const {
+    logoutRedirect, userInfo,
+  } = useAuth()
 
   const configs = useSignalValue(configSignal)
-  const showLogs = configs?.ENABLE_SIGN_IN_LOG || configs?.ENABLE_SMS_LOG || configs?.ENABLE_EMAIL_LOG
-  const showOrg = configs?.ENABLE_ORG
+  const showLogs = (
+    configs?.ENABLE_SIGN_IN_LOG || configs?.ENABLE_SMS_LOG || configs?.ENABLE_EMAIL_LOG
+  ) && accessTool.isAllowedAccess(
+    accessTool.Access.ReadLog,
+    userInfo?.roles,
+  )
+  const showOrg = configs?.ENABLE_ORG && accessTool.isAllowedAccess(
+    accessTool.Access.ReadOrg,
+    userInfo?.roles,
+  )
 
   useEffect(
     () => {
@@ -177,38 +188,58 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
               {t('layout.dashboard')}
             </Link>
           </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link
-              href={routeTool.Internal.Users}
-              className={navigationMenuTriggerStyle()}
-            >
-              {t('layout.users')}
-            </Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link
-              href={routeTool.Internal.Roles}
-              className={navigationMenuTriggerStyle()}
-            >
-              {t('layout.roles')}
-            </Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link
-              href={routeTool.Internal.Apps}
-              className={navigationMenuTriggerStyle()}
-            >
-              {t('layout.apps')}
-            </Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link
-              href={routeTool.Internal.Scopes}
-              className={navigationMenuTriggerStyle()}
-            >
-              {t('layout.scopes')}
-            </Link>
-          </NavigationMenuItem>
+          {accessTool.isAllowedAccess(
+            accessTool.Access.ReadUser,
+            userInfo?.roles,
+          ) && (
+            <NavigationMenuItem>
+              <Link
+                href={routeTool.Internal.Users}
+                className={navigationMenuTriggerStyle()}
+              >
+                {t('layout.users')}
+              </Link>
+            </NavigationMenuItem>
+          )}
+          {accessTool.isAllowedAccess(
+            accessTool.Access.ReadRole,
+            userInfo?.roles,
+          ) && (
+            <NavigationMenuItem>
+              <Link
+                href={routeTool.Internal.Roles}
+                className={navigationMenuTriggerStyle()}
+              >
+                {t('layout.roles')}
+              </Link>
+            </NavigationMenuItem>
+          )}
+          {accessTool.isAllowedAccess(
+            accessTool.Access.ReadApp,
+            userInfo?.roles,
+          ) && (
+            <NavigationMenuItem>
+              <Link
+                href={routeTool.Internal.Apps}
+                className={navigationMenuTriggerStyle()}
+              >
+                {t('layout.apps')}
+              </Link>
+            </NavigationMenuItem>
+          )}
+          {accessTool.isAllowedAccess(
+            accessTool.Access.ReadScope,
+            userInfo?.roles,
+          ) && (
+            <NavigationMenuItem>
+              <Link
+                href={routeTool.Internal.Scopes}
+                className={navigationMenuTriggerStyle()}
+              >
+                {t('layout.scopes')}
+              </Link>
+            </NavigationMenuItem>
+          )}
           {!!showOrg && (
             <NavigationMenuItem>
               <Link

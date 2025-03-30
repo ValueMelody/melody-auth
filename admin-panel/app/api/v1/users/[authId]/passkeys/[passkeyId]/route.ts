@@ -1,4 +1,5 @@
 import { sendS2SRequest } from 'app/api/request'
+import { accessTool } from 'tools'
 
 type Params = {
   authId: string;
@@ -14,5 +15,6 @@ export async function DELETE (
   return sendS2SRequest({
     method: 'DELETE',
     uri: `/api/v1/users/${authId}/passkeys/${passkeyId}`,
+    requiredAccess: accessTool.Access.WriteUser,
   })
 }

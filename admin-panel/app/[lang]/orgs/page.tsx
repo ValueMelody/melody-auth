@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { useAuth } from '@melody-auth/react'
 import {
   Table,
   TableBody,
@@ -9,7 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from 'components/ui/table'
-import { routeTool } from 'tools'
+import {
+  accessTool, routeTool,
+} from 'tools'
 import EditLink from 'components/EditLink'
 import CreateButton from 'components/CreateButton'
 import {
@@ -17,6 +20,7 @@ import {
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
+
 const Page = () => {
   const t = useTranslations()
 
@@ -24,6 +28,12 @@ const Page = () => {
     data, isLoading,
   } = useGetApiV1OrgsQuery()
   const orgs = data?.orgs ?? []
+
+  const { userInfo } = useAuth()
+  const canWriteOrg = accessTool.isAllowedAccess(
+    accessTool.Access.WriteOrg,
+    userInfo?.roles,
+  )
 
   const renderEditButton = (org: Org) => {
     return (
@@ -41,9 +51,11 @@ const Page = () => {
         <Breadcrumb
           page={{ label: t('orgs.title') }}
         />
-        <CreateButton
-          href={`${routeTool.Internal.Orgs}/new`}
-        />
+        {canWriteOrg && (
+          <CreateButton
+            href={`${routeTool.Internal.Orgs}/new`}
+          />
+        )}
       </div>
       <Table>
         <TableHeader className='md:hidden'>

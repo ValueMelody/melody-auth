@@ -1,3 +1,4 @@
+import { accessTool } from 'tools'
 import { sendS2SRequest } from 'app/api/request'
 
 type Params = {
@@ -12,6 +13,7 @@ export async function POST (
   return sendS2SRequest({
     method: 'POST',
     uri: `/api/v1/users/${authId}/email-mfa`,
+    requiredAccess: accessTool.Access.WriteUser,
   })
 }
 
@@ -23,5 +25,6 @@ export async function DELETE (
   return sendS2SRequest({
     method: 'DELETE',
     uri: `/api/v1/users/${authId}/email-mfa`,
+    requiredAccess: accessTool.Access.WriteUser,
   })
 }

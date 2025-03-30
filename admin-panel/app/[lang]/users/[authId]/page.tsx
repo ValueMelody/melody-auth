@@ -23,7 +23,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
 import UserEmailVerified from 'components/UserEmailVerified'
-import { routeTool } from 'tools'
+import {
+  routeTool, accessTool,
+} from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
@@ -147,6 +149,11 @@ const Page = () => {
     [user, userInfo],
   )
 
+  const canWriteUser = accessTool.isAllowedAccess(
+    accessTool.Access.WriteUser,
+    userInfo?.roles,
+  )
+
   const handleDelete = async () => {
     await deleteUser({ authId: String(authId) })
     router.push(routeTool.Internal.Users)
@@ -259,7 +266,7 @@ const Page = () => {
   }
 
   const renderEmailButtons = (user: UserDetail) => {
-    if (user.socialAccountId) return null
+    if (user.socialAccountId || !canWriteUser) return null
     return (
       <div className='flex items-center gap-4 max-md:gap-2 max-md:flex-col max-md:items-start'>
         {user.isActive && !isEmailEnrolled && (
@@ -298,6 +305,7 @@ const Page = () => {
   }
 
   const renderOtpButtons = (user: UserDetail) => {
+    if (!canWriteUser) return null
     return (
       <>
         {user.mfaTypes.includes('otp') && user.isActive && (
@@ -322,6 +330,7 @@ const Page = () => {
   }
 
   const renderSmsButtons = (user: UserDetail) => {
+    if (!canWriteUser) return null
     return (
       <>
         {user.mfaTypes.includes('sms') && user.isActive && (
@@ -346,7 +355,7 @@ const Page = () => {
   }
 
   const renderIpButtons = (lockedIPs: string[]) => {
-    if (!lockedIPs.length) return null
+    if (!lockedIPs.length || !canWriteUser) return null
     return (
       <Button
         size='sm'
@@ -359,6 +368,7 @@ const Page = () => {
   }
 
   const renderUnlinkAccountButtons = () => {
+    if (!canWriteUser) return null
     return (
       <Button
         size='sm'
@@ -370,6 +380,7 @@ const Page = () => {
   }
 
   const renderRemovePasskeyButton = () => {
+    if (!canWriteUser) return null
     return (
       <Button
         size='sm'
@@ -598,6 +609,7 @@ const Page = () => {
                         {configs.SUPPORTED_LOCALES.map((locale: string) => (
                           <SelectItem
                             key={locale}
+                            disabled={!canWriteUser}
                             data-testid={`localeOption-${locale}`}
                             value={locale}
                           >
@@ -622,6 +634,7 @@ const Page = () => {
                 {!isSelf && (
                   <Switch
                     checked={isActive}
+                    disabled={!canWriteUser}
                     onClick={() => setIsActive(!isActive)}
                   />
                 )}
@@ -661,6 +674,7 @@ const Page = () => {
                       className='flex items-center gap-2'>
                       <Checkbox
                         id={`role-${role.id}`}
+                        disabled={!canWriteUser}
                         data-testid='roleInput'
                         onClick={() => handleToggleUserRole(role.name)}
                         checked={userRoles?.includes(role.name) ?? false}
@@ -690,6 +704,7 @@ const Page = () => {
                   <TableCell>{t('users.firstName')}</TableCell>
                   <TableCell>
                     <Input
+                      disabled={!canWriteUser}
                       data-testid='firstNameInput'
                       onChange={(e) => setFirstName(e.target.value)}
                       value={firstName ?? ''}
@@ -700,6 +715,7 @@ const Page = () => {
                   <TableCell>{t('users.lastName')}</TableCell>
                   <TableCell>
                     <Input
+                      disabled={!canWriteUser}
                       data-testid='lastNameInput'
                       onChange={(e) => setLastName(e.target.value)}
                       value={lastName ?? ''}
@@ -720,22 +736,24 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <section className='flex items-center gap-4 mt-8'>
-        <SaveButton
-          isLoading={isUpdating}
-          disabled={!Object.keys(updateObj).length || isDeleting}
-          onClick={handleSave}
-        />
-        <DeleteButton
-          isLoading={isDeleting}
-          disabled={isUpdating}
-          confirmDeleteTitle={t(
-            'common.deleteConfirm',
-            { item: user.email },
-          )}
-          onConfirmDelete={handleDelete}
-        />
-      </section>
+      {canWriteUser && (
+        <section className='flex items-center gap-4 mt-8'>
+          <SaveButton
+            isLoading={isUpdating}
+            disabled={!Object.keys(updateObj).length || isDeleting}
+            onClick={handleSave}
+          />
+          <DeleteButton
+            isLoading={isDeleting}
+            disabled={isUpdating}
+            confirmDeleteTitle={t(
+              'common.deleteConfirm',
+              { item: user.email },
+            )}
+            onConfirmDelete={handleDelete}
+          />
+        </section>
+      )}
       {enableConsent && (
         <>
           <h2 className='font-semibold mt-8'>{t('users.consented')}</h2>
@@ -745,17 +763,19 @@ const Page = () => {
                 <CardHeader>
                   <CardTitle>{consented.appName}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <DeleteButton
-                    onConfirmDelete={() => handleDeleteConsent(consented.appId)}
-                    size='sm'
-                    buttonText={t('users.revokeConsent')}
-                    confirmDeleteTitle={t(
-                      'users.confirmRevoke',
-                      { item: consented.appName },
-                    )}
-                  />
-                </CardContent>
+                {canWriteUser && (
+                  <CardContent>
+                    <DeleteButton
+                      onConfirmDelete={() => handleDeleteConsent(consented.appId)}
+                      size='sm'
+                      buttonText={t('users.revokeConsent')}
+                      confirmDeleteTitle={t(
+                        'users.confirmRevoke',
+                        { item: consented.appName },
+                      )}
+                    />
+                  </CardContent>
+                )}
               </Card>
             ))}
             {!consentedApps.length && (

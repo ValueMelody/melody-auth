@@ -8,9 +8,11 @@ import { Button } from 'components/ui/button'
 const RedirectUriEditor = ({
   redirectUris,
   onChange,
+  disabled,
 }: {
   redirectUris: string[];
   onChange: (uris: string[]) => void;
+  disabled?: boolean;
 }) => {
   const t = useTranslations()
 
@@ -58,29 +60,34 @@ const RedirectUriEditor = ({
                   )}
                   value={uri}
                   className='w-full'
+                  disabled={disabled}
                 />
-                <Button
-                  variant='outline'
-                  onClick={() => handleRemoveUri(index)}
-                  size='sm'
-                  data-testid='redirectUriRemoveButton'
-                >
-                  <TrashIcon className='w-4 h-4' />
-                </Button>
+                {!disabled && (
+                  <Button
+                    variant='outline'
+                    onClick={() => handleRemoveUri(index)}
+                    size='sm'
+                    data-testid='redirectUriRemoveButton'
+                  >
+                    <TrashIcon className='w-4 h-4' />
+                  </Button>
+                )}
               </section>
               <p className='mt-2'>{t('apps.urlFormat')}</p>
             </section>
           ))
         }
       </section>
-      <Button
-        onClick={handleAddMoreUri}
-        className='mt-4'
-        size='sm'
-        data-testid='redirectUriAddButton'
-      >
-        <PlusIcon className='w-4 h-4' />
-      </Button>
+      {!disabled && (
+        <Button
+          onClick={handleAddMoreUri}
+          className='mt-4'
+          size='sm'
+          data-testid='redirectUriAddButton'
+        >
+          <PlusIcon className='w-4 h-4' />
+        </Button>
+      )}
     </>
   )
 }

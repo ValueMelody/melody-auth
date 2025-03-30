@@ -2,6 +2,7 @@ import {
   sendS2SRequest,
   throwForbiddenError,
 } from 'app/api/request'
+import { accessTool } from 'tools'
 
 type Params = {
   id: string;
@@ -15,6 +16,7 @@ export async function GET (
   return sendS2SRequest({
     method: 'GET',
     uri: `/api/v1/orgs/${id}`,
+    requiredAccess: accessTool.Access.ReadOrg,
   })
 }
 
@@ -30,6 +32,7 @@ export async function PUT (
     method: 'PUT',
     uri: `/api/v1/orgs/${id}`,
     body: JSON.stringify(reqBody),
+    requiredAccess: accessTool.Access.WriteOrg,
   })
 }
 
@@ -41,5 +44,6 @@ export async function DELETE (
   return sendS2SRequest({
     method: 'DELETE',
     uri: `/api/v1/orgs/${id}`,
+    requiredAccess: accessTool.Access.WriteOrg,
   })
 }

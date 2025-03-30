@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { sendS2SRequest } from 'app/api/request'
+import { accessTool } from 'tools'
 
 export async function GET (request: NextRequest) {
   const pageSize = request.nextUrl.searchParams.get('page_size')
@@ -10,5 +11,6 @@ export async function GET (request: NextRequest) {
   return sendS2SRequest({
     method: 'GET',
     uri: search ? `${url}&search=${search}` : url,
+    requiredAccess: accessTool.Access.ReadUser,
   })
 }

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import { useAuth } from '@melody-auth/react'
 import {
   Table,
   TableBody,
@@ -13,7 +14,9 @@ import {
 } from 'components/ui/table'
 import { Input } from 'components/ui/input'
 import useEditOrg from 'app/[lang]/orgs/useEditOrg'
-import { routeTool } from 'tools'
+import {
+  accessTool, routeTool,
+} from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
@@ -42,6 +45,16 @@ const Page = () => {
   const [deleteOrg, { isLoading: isDeleting }] = useDeleteApiV1OrgsByIdMutation()
 
   const org = data?.org
+
+  const { userInfo } = useAuth()
+  const canWriteOrg = accessTool.isAllowedAccess(
+    accessTool.Access.WriteOrg,
+    userInfo?.roles,
+  )
+  const canReadUser = accessTool.isAllowedAccess(
+    accessTool.Access.ReadUser,
+    userInfo?.roles,
+  )
 
   const {
     values, errors, onChange,
@@ -99,6 +112,7 @@ const Page = () => {
               <TableCell>
                 <Input
                   data-testid='nameInput'
+                  disabled={!canWriteOrg}
                   onChange={(e) => onChange(
                     'name',
                     e.target.value,
@@ -113,6 +127,7 @@ const Page = () => {
               <TableCell>
                 <Input
                   data-testid='slugInput'
+                  disabled={!canWriteOrg}
                   onChange={(e) => onChange(
                     'slug',
                     e.target.value,
@@ -127,6 +142,7 @@ const Page = () => {
               <TableCell>
                 <LinkInput
                   data-testid='companyLogoUrlInput'
+                  disabled={!canWriteOrg}
                   onChange={(value) => onChange(
                     'companyLogoUrl',
                     value,
@@ -139,6 +155,7 @@ const Page = () => {
               <TableCell>{t('orgs.fontFamily')}</TableCell>
               <TableCell>
                 <Input
+                  disabled={!canWriteOrg}
                   data-testid='fontFamilyInput'
                   onChange={(e) => onChange(
                     'fontFamily',
@@ -152,6 +169,7 @@ const Page = () => {
               <TableCell>{t('orgs.fontUrl')}</TableCell>
               <TableCell>
                 <LinkInput
+                  disabled={!canWriteOrg}
                   data-testid='fontUrlInput'
                   onChange={(value) => onChange(
                     'fontUrl',
@@ -165,6 +183,7 @@ const Page = () => {
               <TableCell>{t('orgs.layoutColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='layoutColorInput'
                   onChange={(value) => onChange(
                     'layoutColor',
@@ -178,6 +197,7 @@ const Page = () => {
               <TableCell>{t('orgs.labelColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='labelColorInput'
                   onChange={(value) => onChange(
                     'labelColor',
@@ -191,6 +211,7 @@ const Page = () => {
               <TableCell>{t('orgs.primaryButtonColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='primaryButtonColorInput'
                   onChange={(value) => onChange(
                     'primaryButtonColor',
@@ -204,6 +225,7 @@ const Page = () => {
               <TableCell>{t('orgs.primaryButtonLabelColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='primaryButtonLabelColorInput'
                   onChange={(value) => onChange(
                     'primaryButtonLabelColor',
@@ -217,6 +239,7 @@ const Page = () => {
               <TableCell>{t('orgs.primaryButtonBorderColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='primaryButtonBorderColorInput'
                   onChange={(value) => onChange(
                     'primaryButtonBorderColor',
@@ -230,6 +253,7 @@ const Page = () => {
               <TableCell>{t('orgs.secondaryButtonColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='secondaryButtonColorInput'
                   onChange={(value) => onChange(
                     'secondaryButtonColor',
@@ -243,6 +267,7 @@ const Page = () => {
               <TableCell>{t('orgs.secondaryButtonLabelColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='secondaryButtonLabelColorInput'
                   onChange={(value) => onChange(
                     'secondaryButtonLabelColor',
@@ -256,6 +281,7 @@ const Page = () => {
               <TableCell>{t('orgs.secondaryButtonBorderColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='secondaryButtonBorderColorInput'
                   onChange={(value) => onChange(
                     'secondaryButtonBorderColor',
@@ -269,6 +295,7 @@ const Page = () => {
               <TableCell>{t('orgs.criticalIndicatorColor')}</TableCell>
               <TableCell>
                 <ColorInput
+                  disabled={!canWriteOrg}
                   data-testid='criticalIndicatorColorInput'
                   onChange={(value) => onChange(
                     'criticalIndicatorColor',
@@ -283,6 +310,7 @@ const Page = () => {
               <TableCell>
                 <LinkInput
                   data-testid='termsLinkInput'
+                  disabled={!canWriteOrg}
                   onChange={(value) => onChange(
                     'termsLink',
                     value,
@@ -296,6 +324,7 @@ const Page = () => {
               <TableCell>
                 <LinkInput
                   data-testid='privacyPolicyLinkInput'
+                  disabled={!canWriteOrg}
                   onChange={(value) => onChange(
                     'privacyPolicyLink',
                     value,
@@ -316,31 +345,35 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <section className='flex items-center gap-4 mt-8'>
-        <SaveButton
-          isLoading={isUpdating}
-          disabled={!values.name}
-          onClick={handleSave}
-        />
-        <DeleteButton
-          isLoading={isDeleting}
-          disabled={isUpdating}
-          confirmDeleteTitle={t(
-            'common.deleteConfirm',
-            { item: values.name },
-          )}
-          onConfirmDelete={handleDelete}
-        />
-      </section>
-      <section className='mt-12'>
-        <PageTitle
-          className='mb-6'
-          title={t('orgs.users')}
-        />
-        <UserTable
-          orgId={Number(id)}
-        />
-      </section>
+      {canWriteOrg && (
+        <section className='flex items-center gap-4 mt-8'>
+          <SaveButton
+            isLoading={isUpdating}
+            disabled={!values.name}
+            onClick={handleSave}
+          />
+          <DeleteButton
+            isLoading={isDeleting}
+            disabled={isUpdating}
+            confirmDeleteTitle={t(
+              'common.deleteConfirm',
+              { item: values.name },
+            )}
+            onConfirmDelete={handleDelete}
+          />
+        </section>
+      )}
+      {canReadUser && (
+        <section className='mt-12'>
+          <PageTitle
+            className='mb-6'
+            title={t('orgs.users')}
+          />
+          <UserTable
+            orgId={Number(id)}
+          />
+        </section>
+      )}
     </section>
   )
 }
