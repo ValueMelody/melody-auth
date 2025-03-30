@@ -25,7 +25,7 @@ import FieldError from 'components/FieldError'
 import ScopesEditor from 'components/ScopesEditor'
 import SaveButton from 'components/SaveButton'
 import DeleteButton from 'components/DeleteButton'
-import useLocaleRouter from 'hooks/useLocaleRoute'
+import { useRouter } from 'i18n/navigation'
 import {
   useDeleteApiV1AppsByIdMutation, useGetApiV1AppsByIdQuery, useGetApiV1ScopesQuery, usePutApiV1AppsByIdMutation,
 } from 'services/auth/api'
@@ -34,7 +34,7 @@ import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const { id } = useParams()
-  const router = useLocaleRouter()
+  const router = useRouter()
 
   const t = useTranslations()
 

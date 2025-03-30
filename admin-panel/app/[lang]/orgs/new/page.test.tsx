@@ -20,8 +20,8 @@ vi.mock(
 )
 
 vi.mock(
-  'hooks/useLocaleRoute',
-  () => ({ default: vi.fn(() => ({ push: vi.fn() })) }),
+  'i18n/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: () => {} })) }),
 )
 
 vi.mock(

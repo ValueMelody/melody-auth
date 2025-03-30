@@ -13,8 +13,11 @@ vi.mock(
 )
 
 vi.mock(
-  'next/navigation',
-  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+  'i18n/navigation',
+  () => ({
+    useRouter: vi.fn(() => ({ push: vi.fn() })),
+    Link: vi.fn(({ href }: { href: string }) => <a href={href}>Link</a>),
+  }),
 )
 
 describe(
@@ -39,7 +42,7 @@ describe(
           expect(row.querySelectorAll('td')[1]?.innerHTML).toContain(scopes[index].note)
           expect(row.querySelectorAll('td')[2]?.innerHTML).toContain(scopes[index].type.toUpperCase())
           const editLink = row.querySelectorAll('td')[3]?.getElementsByTagName('a')
-          expect(editLink[0].getAttribute('href')).toBe(`/en/scopes/${scopes[index].id}`)
+          expect(editLink[0].getAttribute('href')).toBe(`/scopes/${scopes[index].id}`)
         })
       },
     )

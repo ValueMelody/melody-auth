@@ -12,7 +12,7 @@ import { usePostApiV1ScopesMutation } from 'services/auth/api'
 import { configSignal } from 'signals'
 
 vi.mock(
-  'next/navigation',
+  'i18n/navigation',
   () => ({ useRouter: vi.fn().mockReturnValue({ push: () => {} }) }),
 )
 

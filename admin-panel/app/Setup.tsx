@@ -6,8 +6,11 @@ import {
 import {
   AuthProvider, useAuth,
 } from '@melody-auth/react'
-import { useTranslations } from 'next-intl'
-import Link from 'next/link'
+import {
+  useLocale, useTranslations,
+  NextIntlClientProvider,
+} from 'next-intl'
+import NextLink from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
 import {
   usePathname, useRouter,
@@ -17,8 +20,9 @@ import {
 } from 'react-redux'
 import { twMerge } from 'tailwind-merge'
 import useSignalValue from './useSignalValue'
+import { Link } from 'i18n/navigation'
 import {
-  NavigationMenu, NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle, NavigationMenuList,
+  NavigationMenu, NavigationMenuItem, navigationMenuTriggerStyle, NavigationMenuList,
 } from 'components/ui/navigation-menu'
 import { Alert } from 'components/ui/alert'
 import { Button } from 'components/ui/button'
@@ -27,7 +31,6 @@ import {
   configSignal,
   errorSignal,
 } from 'signals'
-import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
   proxyTool,
   routeTool, typeTool,
@@ -125,7 +128,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
 
 const LayoutSetup = ({ children } : PropsWithChildren) => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
+  const locale = useLocale()
   const { logoutRedirect } = useAuth()
 
   const configs = useSignalValue(configSignal)
@@ -152,108 +155,96 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
         <NavigationMenuList className='flex-wrap justify-start'>
           <NavigationMenuItem>
             <Link
-              href={`/${locale}${routeTool.Internal.Dashboard}`}
+              href={routeTool.Internal.Dashboard}
+              className={twMerge(
+                navigationMenuTriggerStyle(),
+                'flex items-center',
+              )}
             >
-              <NavigationMenuLink
-                className={twMerge(
-                  navigationMenuTriggerStyle(),
-                  'flex items-center',
-                )}>
-                <img
-                  src='https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
-                  className='mr-3 h-6 sm:h-9'
-                />
-                <span className='self-center whitespace-nowrap text-medium font-semibold dark:text-white'>
-                  {t('layout.brand')}
-                </span>
-              </NavigationMenuLink>
+              <img
+                src='https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+                className='mr-3 h-6 sm:h-9'
+              />
+              <span className='self-center whitespace-nowrap text-medium font-semibold dark:text-white'>
+                {t('layout.brand')}
+              </span>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link
-              href={`/${locale}${routeTool.Internal.Dashboard}`}
+              href={routeTool.Internal.Dashboard}
+              className={navigationMenuTriggerStyle()}
             >
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('layout.dashboard')}
-              </NavigationMenuLink>
+              {t('layout.dashboard')}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link
-              href={`/${locale}${routeTool.Internal.Users}`}
+              href={routeTool.Internal.Users}
+              className={navigationMenuTriggerStyle()}
             >
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('layout.users')}
-              </NavigationMenuLink>
+              {t('layout.users')}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link
-              href={`/${locale}${routeTool.Internal.Roles}`}
+              href={routeTool.Internal.Roles}
+              className={navigationMenuTriggerStyle()}
             >
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('layout.roles')}
-              </NavigationMenuLink>
+              {t('layout.roles')}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link
-              href={`/${locale}${routeTool.Internal.Apps}`}
+              href={routeTool.Internal.Apps}
+              className={navigationMenuTriggerStyle()}
             >
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('layout.apps')}
-              </NavigationMenuLink>
+              {t('layout.apps')}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link
-              href={`/${locale}${routeTool.Internal.Scopes}`}
+              href={routeTool.Internal.Scopes}
+              className={navigationMenuTriggerStyle()}
             >
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('layout.scopes')}
-              </NavigationMenuLink>
+              {t('layout.scopes')}
             </Link>
           </NavigationMenuItem>
           {!!showOrg && (
             <NavigationMenuItem>
               <Link
-                className='flex items-center h-6'
-                href={`/${locale}${routeTool.Internal.Orgs}`}
+                href={routeTool.Internal.Orgs}
+                className={navigationMenuTriggerStyle()}
               >
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {t('layout.orgs')}
-                </NavigationMenuLink>
+                {t('layout.orgs')}
               </Link>
             </NavigationMenuItem>
           )}
           {!!showLogs && (
             <NavigationMenuItem>
               <Link
-                href={`/${locale}${routeTool.Internal.Logs}`}
+                href={routeTool.Internal.Logs}
+                className={navigationMenuTriggerStyle()}
               >
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {t('layout.logs')}
-                </NavigationMenuLink>
+                {t('layout.logs')}
               </Link>
             </NavigationMenuItem>
           )}
           <NavigationMenuItem>
             <Link
-              href={`/${locale}${routeTool.Internal.Account}`}
+              href={routeTool.Internal.Account}
+              className={navigationMenuTriggerStyle()}
             >
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {t('layout.account')}
-              </NavigationMenuLink>
+              {t('layout.account')}
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link
+            <NextLink
               href={`/${locale === 'en' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`}
+              className={navigationMenuTriggerStyle()}
             >
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                {locale === 'en' ? 'FR' : 'EN'}
-              </NavigationMenuLink>
-            </Link>
+              {locale === 'en' ? 'FR' : 'EN'}
+            </NextLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Button
@@ -292,24 +283,29 @@ const Setup = ({ children } : PropsWithChildren) => {
     [pathname],
   )
 
+  // Get the current locale (or default to 'en')
+  const currentLocale = locale || 'en'
+
   return (
     <Provider store={store}>
-      <AuthProvider
-        clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
-        redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/${locale || 'en'}/dashboard`}
-        serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
-        onLoginSuccess={(attr) => {
-          if (attr.locale !== locale) {
-            router.push(`/${attr.locale === 'fr' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`)
-          }
-        }}
-      >
-        <AuthSetup>
-          <LayoutSetup>
-            {children}
-          </LayoutSetup>
-        </AuthSetup>
-      </AuthProvider>
+      <NextIntlClientProvider locale={currentLocale}>
+        <AuthProvider
+          clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
+          redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/${currentLocale}/dashboard`}
+          serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
+          onLoginSuccess={(attr) => {
+            if (attr.locale !== locale) {
+              router.push(`/${attr.locale === 'fr' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`)
+            }
+          }}
+        >
+          <AuthSetup>
+            <LayoutSetup>
+              {children}
+            </LayoutSetup>
+          </AuthSetup>
+        </AuthProvider>
+      </NextIntlClientProvider>
     </Provider>
   )
 }

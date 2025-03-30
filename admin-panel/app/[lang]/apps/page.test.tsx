@@ -13,8 +13,15 @@ vi.mock(
 )
 
 vi.mock(
-  'next/navigation',
-  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+  'i18n/navigation',
+  () => ({
+    useRouter: vi.fn(() => ({ push: vi.fn() })),
+    Link: vi.fn(({
+      href, 'data-testid': dataTestId,
+    }: { href: string; 'data-testid': string }) => <a
+      data-testid={dataTestId}
+      href={href}>Link</a>),
+  }),
 )
 
 describe(
@@ -50,11 +57,11 @@ describe(
           expect(row.querySelectorAll('td')[2]?.innerHTML).toContain(apps[index].isActive ? 'common.active' : 'common.disabled')
           expect(row.querySelectorAll('td')[3]?.innerHTML).toContain(apps[index].type.toUpperCase())
           const editLink = row.querySelectorAll('td')[4]?.getElementsByTagName('a')
-          expect(editLink[0].getAttribute('href')).toBe(`/en/apps/${apps[index].id}`)
+          expect(editLink[0].getAttribute('href')).toBe(`/apps/${apps[index].id}`)
         })
 
         const createButton = screen.getByTestId('createButton')
-        expect(createButton.getAttribute('href')).toBe('/en/apps/new')
+        expect(createButton.getAttribute('href')).toBe('/apps/new')
       },
     )
   },

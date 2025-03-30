@@ -41,8 +41,11 @@ vi.mock(
 )
 
 vi.mock(
-  'next/navigation',
-  () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
+  'i18n/navigation',
+  () => ({
+    useRouter: vi.fn(() => ({ push: vi.fn() })),
+    Link: vi.fn(({ href }: { href: string }) => <a href={href}>Link</a>),
+  }),
 )
 
 describe(
@@ -66,7 +69,7 @@ describe(
         ) => {
           expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(emailLogs[index].receiver)
           const editLink = row.querySelectorAll('td')[3]?.getElementsByTagName('a')
-          expect(editLink[0].getAttribute('href')).toBe(`/en/logs/email/${emailLogs[index].id}`)
+          expect(editLink[0].getAttribute('href')).toBe(`/logs/email/${emailLogs[index].id}`)
         })
 
         const smsRows = screen.queryAllByTestId('smsLogRow')
@@ -76,7 +79,7 @@ describe(
         ) => {
           expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(smsLogs[index].receiver)
           const editLink = row.querySelectorAll('td')[3]?.getElementsByTagName('a')
-          expect(editLink[0].getAttribute('href')).toBe(`/en/logs/sms/${smsLogs[index].id}`)
+          expect(editLink[0].getAttribute('href')).toBe(`/logs/sms/${smsLogs[index].id}`)
         })
 
         const signInRows = screen.queryAllByTestId('signInRow')
@@ -86,7 +89,7 @@ describe(
         ) => {
           expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(signInLogs[index].userId)
           const editLink = row.querySelectorAll('td')[2]?.getElementsByTagName('a')
-          expect(editLink[0].getAttribute('href')).toBe(`/en/logs/sign-in/${signInLogs[index].userId}`)
+          expect(editLink[0].getAttribute('href')).toBe(`/logs/sign-in/${signInLogs[index].userId}`)
         })
       },
     )

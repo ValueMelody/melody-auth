@@ -18,18 +18,17 @@ import { configSignal } from 'signals'
 import useSignalValue from 'app/useSignalValue'
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 import ViewLink from 'components/ViewLink'
-import useCurrentLocale from 'hooks/useCurrentLocale'
 import {
   useGetApiV1LogsEmailQuery, useGetApiV1LogsSignInQuery, useGetApiV1LogsSmsQuery,
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
+import { routeTool } from 'tools'
 
 const PageSize = 10
 
 const Page = () => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
 
   const configs = useSignalValue(configSignal)
 
@@ -125,7 +124,7 @@ const Page = () => {
                   <TableCell>{log.createdAt}</TableCell>
                   <TableCell>
                     <ViewLink
-                      href={`/${locale}/logs/email/${log.id}`}
+                      href={`${routeTool.Internal.Logs}/email/${log.id}`}
                     />
                   </TableCell>
                 </TableRow>
@@ -169,7 +168,7 @@ const Page = () => {
                   <TableCell>{log.createdAt}</TableCell>
                   <TableCell>
                     <ViewLink
-                      href={`/${locale}/logs/sms/${log.id}`}
+                      href={`${routeTool.Internal.Logs}/sms/${log.id}`}
                     />
                   </TableCell>
                 </TableRow>
@@ -211,7 +210,7 @@ const Page = () => {
                   <TableCell>{log.createdAt}</TableCell>
                   <TableCell>
                     <ViewLink
-                      href={`/${locale}/logs/sign-in/${log.id}`}
+                      href={`${routeTool.Internal.Logs}/sign-in/${log.id}`}
                     />
                   </TableCell>
                 </TableRow>

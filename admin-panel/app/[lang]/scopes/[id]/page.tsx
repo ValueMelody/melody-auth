@@ -20,7 +20,7 @@ import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import ClientTypeLabel from 'components/ClientTypeLabel'
 import DeleteButton from 'components/DeleteButton'
-import useLocaleRouter from 'hooks/useLocaleRoute'
+import { useRouter } from 'i18n/navigation'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
 import {
@@ -33,7 +33,7 @@ const Page = () => {
   const { id } = useParams()
 
   const t = useTranslations()
-  const router = useLocaleRouter()
+  const router = useRouter()
 
   const {
     data, isLoading,

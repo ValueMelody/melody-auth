@@ -9,15 +9,11 @@ const customRender = (ui: React.ReactElement) => {
 global.URL = vi.fn().mockImplementation((url) => ({ href: url })) as any
 
 vi.mock(
-  'hooks/useCurrentLocale',
-  () => ({ default: vi.fn(() => 'en') }),
-)
-
-vi.mock(
   'next-intl',
   () => ({
     ...vi.importActual('next-intl'),
     useTranslations: () => (key: string) => key,
+    useLocale: () => 'en',
   }),
 )
 

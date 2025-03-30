@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
-import useCurrentLocale from 'hooks/useCurrentLocale'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import { routeTool } from 'tools'
 import EditLink from 'components/EditLink'
@@ -16,7 +15,6 @@ import LoadingPage from 'components/LoadingPage'
 
 const Page = () => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
 
   const {
     data, isLoading,
@@ -32,7 +30,7 @@ const Page = () => {
           page={{ label: t('apps.title') }}
         />
         <CreateButton
-          href={`/${locale}${routeTool.Internal.Apps}/new`}
+          href={`${routeTool.Internal.Apps}/new`}
         />
       </div>
       <Table className='break-all'>
@@ -64,7 +62,7 @@ const Page = () => {
                     </div>
                   </div>
                   <EditLink
-                    href={`/${locale}/apps/${app.id}`}
+                    href={`${routeTool.Internal.Apps}/${app.id}`}
                   />
                 </div>
               </TableCell>
@@ -86,7 +84,7 @@ const Page = () => {
               </TableCell>
               <TableCell>
                 <EditLink
-                  href={`/${locale}/apps/${app.id}`}
+                  href={`${routeTool.Internal.Apps}/${app.id}`}
                 />
               </TableCell>
             </TableRow>

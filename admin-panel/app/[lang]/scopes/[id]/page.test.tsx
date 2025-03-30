@@ -22,10 +22,12 @@ let mockNav = {
 
 vi.mock(
   'next/navigation',
-  () => ({
-    useParams: vi.fn(() => ({ id: mockNav.id })),
-    useRouter: vi.fn(() => ({ push: mockNav.push })),
-  }),
+  () => ({ useParams: vi.fn(() => ({ id: mockNav.id })) }),
+)
+
+vi.mock(
+  'i18n/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: () => {} })) }),
 )
 
 vi.mock(

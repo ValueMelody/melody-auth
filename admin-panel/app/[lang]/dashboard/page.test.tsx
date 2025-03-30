@@ -19,7 +19,7 @@ vi.mock(
 )
 
 vi.mock(
-  'next/navigation',
+  'i18n/navigation',
   () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }),
 )
 

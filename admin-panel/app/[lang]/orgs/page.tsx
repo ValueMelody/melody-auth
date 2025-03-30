@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from 'components/ui/table'
-import useCurrentLocale from 'hooks/useCurrentLocale'
 import { routeTool } from 'tools'
 import EditLink from 'components/EditLink'
 import CreateButton from 'components/CreateButton'
@@ -20,7 +19,6 @@ import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
 const Page = () => {
   const t = useTranslations()
-  const locale = useCurrentLocale()
 
   const {
     data, isLoading,
@@ -30,7 +28,7 @@ const Page = () => {
   const renderEditButton = (org: Org) => {
     return (
       <EditLink
-        href={`/${locale}/orgs/${org.id}`}
+        href={`${routeTool.Internal.Orgs}/${org.id}`}
       />
     )
   }
@@ -44,7 +42,7 @@ const Page = () => {
           page={{ label: t('orgs.title') }}
         />
         <CreateButton
-          href={`/${locale}${routeTool.Internal.Orgs}/new`}
+          href={`${routeTool.Internal.Orgs}/new`}
         />
       </div>
       <Table>

@@ -53,6 +53,11 @@ vi.mock(
 )
 
 vi.mock(
+  'i18n/navigation',
+  () => ({ useRouter: vi.fn(() => ({ push: mockNav.push })) }),
+)
+
+vi.mock(
   'services/auth/api',
   () => ({
     useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation: vi.fn(),
@@ -599,7 +604,7 @@ describe(
         })
 
         await waitFor(() => {
-          expect(mockNav.push).toHaveBeenCalledWith('/en/users/linked-user-123')
+          expect(mockNav.push).toHaveBeenCalledWith('/users/linked-user-123')
         })
       },
     )
