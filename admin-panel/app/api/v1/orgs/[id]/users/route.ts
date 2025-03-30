@@ -1,4 +1,5 @@
 import { sendS2SRequest } from 'app/api/request'
+import { accessTool } from 'tools'
 
 type Params = {
   id: string;
@@ -12,5 +13,6 @@ export async function GET (
   return sendS2SRequest({
     method: 'GET',
     uri: `/api/v1/orgs/${id}/users`,
+    requiredAccess: accessTool.Access.ReadOrg,
   })
 }

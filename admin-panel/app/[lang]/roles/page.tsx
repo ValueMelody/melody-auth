@@ -1,11 +1,12 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { useAuth } from '@melody-auth/react'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
 import {
-  routeTool, typeTool,
+  routeTool, typeTool, accessTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
@@ -20,6 +21,12 @@ const isSystem = (name: string) => name === typeTool.Role.SuperAdmin
 
 const Page = () => {
   const t = useTranslations()
+
+  const { userInfo } = useAuth()
+  const canWriteRole = accessTool.isAllowedAccess(
+    accessTool.Access.WriteRole,
+    userInfo?.roles,
+  )
 
   const {
     data, isLoading,
@@ -44,9 +51,11 @@ const Page = () => {
         <Breadcrumb
           page={{ label: t('roles.title') }}
         />
-        <CreateButton
-          href={`${routeTool.Internal.Roles}/new`}
-        />
+        {canWriteRole && (
+          <CreateButton
+            href={`${routeTool.Internal.Roles}/new`}
+          />
+        )}
       </div>
       <Table>
         <TableHeader className='md:hidden'>

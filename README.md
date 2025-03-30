@@ -93,6 +93,7 @@
 - Manage Roles
 - Manage Organizations
 - View Logs
+- Access Control
 
 ## Demo & Examples
 - [Vite React Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/vite-react-demo)

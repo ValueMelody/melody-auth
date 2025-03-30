@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import {
   useMemo, useState,
 } from 'react'
+import { useAuth } from '@melody-auth/react'
 import useEditScope from '../useEditScope'
 import LocaleEditor from '../LocaleEditor'
 import {
@@ -14,6 +15,7 @@ import { Input } from 'components/ui/input'
 import {
   dataTool,
   routeTool,
+  accessTool,
 } from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
@@ -47,6 +49,12 @@ const Page = () => {
   const isSystem = useMemo(
     () => scope && dataTool.isSystem(scope.name),
     [scope],
+  )
+
+  const { userInfo } = useAuth()
+  const canWriteScope = accessTool.isAllowedAccess(
+    accessTool.Access.WriteScope,
+    userInfo?.roles,
   )
 
   const {
@@ -136,6 +144,7 @@ const Page = () => {
                   ? values.name
                   : (
                     <Input
+                      disabled={!canWriteScope}
                       data-testid='nameInput'
                       onChange={(e) => onChange(
                         'name',
@@ -152,6 +161,7 @@ const Page = () => {
               <TableCell>
                 <Input
                   data-testid='noteInput'
+                  disabled={!canWriteScope}
                   onChange={(e) => onChange(
                     'note',
                     e.target.value,
@@ -173,6 +183,7 @@ const Page = () => {
                   <LocaleEditor
                     supportedLocales={configs.SUPPORTED_LOCALES}
                     values={values.locales ?? []}
+                    disabled={!canWriteScope}
                     onChange={(locales) => onChange(
                       'locales',
                       locales,
@@ -193,24 +204,26 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <section className='flex items-center gap-4 mt-8'>
-        <SaveButton
-          isLoading={isUpdating}
-          disabled={!canUpdate || isDeleting}
-          onClick={handleSave}
-        />
-        {!isSystem && (
-          <DeleteButton
-            isLoading={isDeleting}
-            disabled={isUpdating}
-            confirmDeleteTitle={t(
-              'common.deleteConfirm',
-              { item: values.name },
-            )}
-            onConfirmDelete={handleDelete}
+      {canWriteScope && (
+        <section className='flex items-center gap-4 mt-8'>
+          <SaveButton
+            isLoading={isUpdating}
+            disabled={!canUpdate || isDeleting}
+            onClick={handleSave}
           />
-        )}
-      </section>
+          {!isSystem && (
+            <DeleteButton
+              isLoading={isDeleting}
+              disabled={isUpdating}
+              confirmDeleteTitle={t(
+                'common.deleteConfirm',
+                { item: values.name },
+              )}
+              onConfirmDelete={handleDelete}
+            />
+          )}
+        </section>
+      )}
     </section>
   )
 }

@@ -167,7 +167,7 @@ orgRoutes.delete(
  * /api/v1/orgs/{id}/users:
  *   get:
  *     summary: Get a list of users for an org
- *     description: Required scope - read_org
+ *     description: Required scopes - read_org, read_user
  *     tags: [Orgs]
  *     parameters:
  *       - in: path

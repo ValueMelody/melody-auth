@@ -1,11 +1,14 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { useAuth } from '@melody-auth/react'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
 import EntityStatusLabel from 'components/EntityStatusLabel'
-import { routeTool } from 'tools'
+import {
+  routeTool, accessTool,
+} from 'tools'
 import EditLink from 'components/EditLink'
 import CreateButton from 'components/CreateButton'
 import ClientTypeLabel from 'components/ClientTypeLabel'
@@ -19,6 +22,13 @@ const Page = () => {
   const {
     data, isLoading,
   } = useGetApiV1AppsQuery()
+
+  const { userInfo } = useAuth()
+  const canWriteApp = accessTool.isAllowedAccess(
+    accessTool.Access.WriteApp,
+    userInfo?.roles,
+  )
+
   const apps = data?.apps ?? []
 
   if (isLoading) return <LoadingPage />
@@ -29,9 +39,11 @@ const Page = () => {
         <Breadcrumb
           page={{ label: t('apps.title') }}
         />
-        <CreateButton
-          href={`${routeTool.Internal.Apps}/new`}
-        />
+        {canWriteApp && (
+          <CreateButton
+            href={`${routeTool.Internal.Apps}/new`}
+          />
+        )}
       </div>
       <Table className='break-all'>
         <TableHeader className='md:hidden'>

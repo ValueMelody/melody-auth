@@ -6,10 +6,12 @@ const ScopesEditor = ({
   scopes,
   value,
   onToggleScope,
+  disabled,
 }: {
   scopes: Scope[];
   value: string[];
   onToggleScope: (scope: string) => void;
+  disabled?: boolean;
 }) => {
   return (
     <section className='flex max-md:flex-col gap-6 max-md:gap-2 flex-wrap'>
@@ -22,6 +24,7 @@ const ScopesEditor = ({
             id={`scope-${scope.id}`}
             onClick={() => onToggleScope(scope.name)}
             checked={value?.includes(scope.name)}
+            disabled={disabled}
           />
           <Label
             data-testid='scopeLabel'

@@ -24,6 +24,19 @@ vi.mock(
   }),
 )
 
+const mockUseAuth = vi.fn().mockReturnValue({
+  userInfo: {
+    authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+    roles: ['super_admin'],
+  },
+})
+
+// Mock useAuth hook
+vi.mock(
+  '@melody-auth/react',
+  () => ({ useAuth: () => mockUseAuth() }),
+)
+
 describe(
   'Page Component',
   () => {

@@ -8,6 +8,7 @@ import {
 import {
   EyeIcon, EyeSlashIcon,
 } from '@heroicons/react/16/solid'
+import { useAuth } from '@melody-auth/react'
 import RedirectUriEditor from '../RedirectUriEditor'
 import useEditApp from '../useEditApp'
 import {
@@ -17,7 +18,7 @@ import { Button } from 'components/ui/button'
 import { Input } from 'components/ui/input'
 import { Switch } from 'components/ui/switch'
 import {
-  routeTool, typeTool,
+  routeTool, typeTool, accessTool,
 } from 'tools'
 import ClientTypeLabel from 'components/ClientTypeLabel'
 import SubmitError from 'components/SubmitError'
@@ -51,6 +52,12 @@ const Page = () => {
 
   const [updateApp, { isLoading: isUpdating }] = usePutApiV1AppsByIdMutation()
   const [deleteApp, { isLoading: isDeleting }] = useDeleteApiV1AppsByIdMutation()
+
+  const { userInfo } = useAuth()
+  const canWriteApp = accessTool.isAllowedAccess(
+    accessTool.Access.WriteApp,
+    userInfo?.roles,
+  )
 
   const {
     values, errors, onChange,
@@ -132,6 +139,7 @@ const Page = () => {
               <TableCell>{t('apps.name')}</TableCell>
               <TableCell>
                 <Input
+                  disabled={!canWriteApp}
                   data-testid='nameInput'
                   onChange={(e) => onChange(
                     'name',
@@ -166,6 +174,7 @@ const Page = () => {
                 <Switch
                   data-testid='statusInput'
                   checked={values.isActive}
+                  disabled={!canWriteApp}
                   onClick={() => onChange(
                     'isActive',
                     !values.isActive,
@@ -183,6 +192,7 @@ const Page = () => {
               <TableCell>{t('apps.scopes')}</TableCell>
               <TableCell>
                 <ScopesEditor
+                  disabled={!canWriteApp}
                   scopes={availableScopes}
                   value={values.scopes}
                   onToggleScope={handleToggleAppScope}
@@ -194,6 +204,7 @@ const Page = () => {
                 <TableCell>{t('apps.redirectUris')}</TableCell>
                 <TableCell>
                   <RedirectUriEditor
+                    disabled={!canWriteApp}
                     redirectUris={values.redirectUris}
                     onChange={(uris) => onChange(
                       'redirectUris',
@@ -215,22 +226,24 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <section className='flex items-center gap-4 mt-8'>
-        <SaveButton
-          isLoading={isUpdating}
-          disabled={!Object.keys(updateObj).length || isDeleting}
-          onClick={handleSave}
-        />
-        <DeleteButton
-          isLoading={isDeleting}
-          disabled={isUpdating}
-          confirmDeleteTitle={t(
-            'common.deleteConfirm',
-            { item: app.name },
-          )}
-          onConfirmDelete={handleDelete}
-        />
-      </section>
+      {canWriteApp && (
+        <section className='flex items-center gap-4 mt-8'>
+          <SaveButton
+            isLoading={isUpdating}
+            disabled={!Object.keys(updateObj).length || isDeleting}
+            onClick={handleSave}
+          />
+          <DeleteButton
+            isLoading={isDeleting}
+            disabled={isUpdating}
+            confirmDeleteTitle={t(
+              'common.deleteConfirm',
+              { item: app.name },
+            )}
+            onConfirmDelete={handleDelete}
+          />
+        </section>
+      )}
     </section>
   )
 }

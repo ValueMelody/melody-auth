@@ -3,12 +3,15 @@
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import { useAuth } from '@melody-auth/react'
 import useEditRole from '../useEditRole'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
 import { Input } from 'components/ui/input'
-import { routeTool } from 'tools'
+import {
+  routeTool, accessTool,
+} from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
@@ -19,7 +22,6 @@ import {
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
-
 const Page = () => {
   const { id } = useParams()
 
@@ -31,6 +33,12 @@ const Page = () => {
   } = useGetApiV1RolesByIdQuery({ id: Number(id) })
   const [updateRole, { isLoading: isUpdating }] = usePutApiV1RolesByIdMutation()
   const [deleteRole, { isLoading: isDeleting }] = useDeleteApiV1RolesByIdMutation()
+
+  const { userInfo } = useAuth()
+  const canWriteRole = accessTool.isAllowedAccess(
+    accessTool.Access.WriteRole,
+    userInfo?.roles,
+  )
 
   const role = data?.role
 
@@ -85,6 +93,7 @@ const Page = () => {
               <TableCell>
                 <Input
                   data-testid='nameInput'
+                  disabled={!canWriteRole}
                   onChange={(e) => onChange(
                     'name',
                     e.target.value,
@@ -99,6 +108,7 @@ const Page = () => {
               <TableCell>
                 <Input
                   data-testid='noteInput'
+                  disabled={!canWriteRole}
                   onChange={(e) => onChange(
                     'note',
                     e.target.value,
@@ -119,22 +129,24 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      <section className='flex items-center gap-4 mt-8'>
-        <SaveButton
-          isLoading={isUpdating}
-          disabled={!values.name || (values.name === role.name && values.note === role.note)}
-          onClick={handleSave}
-        />
-        <DeleteButton
-          isLoading={isDeleting}
-          disabled={isUpdating}
-          confirmDeleteTitle={t(
-            'common.deleteConfirm',
-            { item: values.name },
-          )}
-          onConfirmDelete={handleDelete}
-        />
-      </section>
+      {canWriteRole && (
+        <section className='flex items-center gap-4 mt-8'>
+          <SaveButton
+            isLoading={isUpdating}
+            disabled={!values.name || (values.name === role.name && values.note === role.note)}
+            onClick={handleSave}
+          />
+          <DeleteButton
+            isLoading={isDeleting}
+            disabled={isUpdating}
+            confirmDeleteTitle={t(
+              'common.deleteConfirm',
+              { item: values.name },
+            )}
+            onConfirmDelete={handleDelete}
+          />
+        </section>
+      )}
     </section>
   )
 }

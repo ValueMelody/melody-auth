@@ -1,12 +1,14 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { useAuth } from '@melody-auth/react'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
 import {
   dataTool,
   routeTool,
+  accessTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
@@ -24,6 +26,12 @@ const Page = () => {
   } = useGetApiV1ScopesQuery()
   const scopes = data?.scopes ?? []
 
+  const { userInfo } = useAuth()
+  const canWriteScope = accessTool.isAllowedAccess(
+    accessTool.Access.WriteScope,
+    userInfo?.roles,
+  )
+
   if (isLoading) return <LoadingPage />
 
   return (
@@ -32,9 +40,11 @@ const Page = () => {
         <Breadcrumb
           page={{ label: t('scopes.title') }}
         />
-        <CreateButton
-          href={`${routeTool.Internal.Scopes}/new`}
-        />
+        {canWriteScope && (
+          <CreateButton
+            href={`${routeTool.Internal.Scopes}/new`}
+          />
+        )}
       </div>
       <Table>
         <TableHeader className='md:hidden'>

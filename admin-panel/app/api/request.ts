@@ -2,7 +2,9 @@ import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { verify } from 'hono/jwt'
 import { SignatureKey } from 'hono/utils/jwt/jws'
-import { typeTool } from 'tools'
+import {
+  accessTool, typeTool,
+} from 'tools'
 
 let accessToken: string | null = null
 let accessTokenExpiresOn: number | null = null
@@ -45,20 +47,20 @@ const verifyJwtToken = async (token: string) => {
   return result
 }
 
-export const verifyAccessToken = async () => {
+export const getAllowedRoles = async () => {
   const headersList = headers()
   const authHeader = headersList.get('authorization')
   const accessToken = authHeader?.split(' ')[1]
 
-  if (!accessToken) return false
+  if (!accessToken) return []
 
   const tokenBody = await verifyJwtToken(accessToken) as {}
 
-  if (!tokenBody) return false
+  if (!tokenBody) return []
 
-  if (!('roles' in tokenBody) || !tokenBody.roles || !Array.isArray(tokenBody.roles) || !tokenBody.roles.includes(typeTool.Role.SuperAdmin)) return false
+  if (!('roles' in tokenBody) || !tokenBody.roles || !Array.isArray(tokenBody.roles)) return []
 
-  return true
+  return accessTool.getAllowedRoles(tokenBody.roles)
 }
 
 export const obtainS2SAccessToken = async () => {
@@ -98,16 +100,24 @@ export const sendS2SRequest = async ({
   method,
   uri,
   body,
+  requiredAccess,
 }: {
   uri: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: string;
+  requiredAccess: accessTool.Access | null;
 }) => {
-  const isValid = await verifyAccessToken()
-  if (!isValid) return throwForbiddenError()
+  const roles = await getAllowedRoles()
+  if (!roles.length) return throwForbiddenError()
 
   const token = await obtainS2SAccessToken()
   if (!token) return throwForbiddenError()
+
+  const isAllowed = !requiredAccess || accessTool.isAllowedAccess(
+    requiredAccess,
+    roles,
+  )
+  if (!isAllowed) return throwForbiddenError()
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URI}${uri}`,

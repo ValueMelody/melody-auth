@@ -1,3 +1,4 @@
+import { accessTool } from 'tools'
 import { sendS2SRequest } from 'app/api/request'
 
 type Params = {
@@ -12,6 +13,7 @@ export async function GET (
   return sendS2SRequest({
     method: 'GET',
     uri: `/api/v1/users/${authId}/locked-ips`,
+    requiredAccess: accessTool.Access.ReadUser,
   })
 }
 
@@ -23,5 +25,6 @@ export async function DELETE (
   return sendS2SRequest({
     method: 'DELETE',
     uri: `/api/v1/users/${authId}/locked-ips`,
+    requiredAccess: accessTool.Access.WriteUser,
   })
 }
