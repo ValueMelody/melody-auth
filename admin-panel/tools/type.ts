@@ -13,7 +13,6 @@ export enum Scope {
   WriteScope = 'write_scope',
   ReadOrg = 'read_org',
   WriteOrg = 'write_org',
-  Public = '',
 }
 
 export enum Role {
