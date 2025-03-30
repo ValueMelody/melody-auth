@@ -16,6 +16,7 @@ import {
   useRouter,
 } from 'next/navigation'
 import {
+  NextIntlClientProvider,
   useLocale, useTranslations,
 } from 'next-intl'
 import Setup from './Setup'
@@ -171,7 +172,9 @@ describe(
           refreshTokenStorage: { refreshToken: 'test-refresh-token' },
         } as any)
 
-        render(<Setup>Test</Setup>)
+        render(<NextIntlClientProvider
+          locale='en'
+          messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
         expect(screen.getByText('layout.brand')).toBeInTheDocument()
         expect(screen.getByText('layout.dashboard')).toBeInTheDocument()
       },
@@ -197,7 +200,9 @@ describe(
           refreshTokenStorage: { refreshToken: 'test-refresh-token' },
         } as any)
 
-        render(<Setup>Test</Setup>)
+        render(<NextIntlClientProvider
+          locale='en'
+          messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
 
         const logoutButton = screen.getByText('layout.logout')
         fireEvent.click(logoutButton)
@@ -229,7 +234,9 @@ describe(
           refreshTokenStorage: { refreshToken: 'test-refresh-token' },
         } as any)
 
-        render(<Setup>Test</Setup>)
+        render(<NextIntlClientProvider
+          locale='en'
+          messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
 
         expect(screen.getByText('layout.orgs')).toBeInTheDocument()
         expect(screen.getByText('layout.logs')).toBeInTheDocument()
@@ -258,7 +265,9 @@ describe(
           refreshTokenStorage: { refreshToken: 'test-refresh-token' },
         } as any)
 
-        render(<Setup>Test</Setup>)
+        render(<NextIntlClientProvider
+          locale='en'
+          messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
 
         expect(errorSignal.value).toBe('')
       },

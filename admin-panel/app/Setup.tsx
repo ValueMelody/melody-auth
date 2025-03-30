@@ -8,7 +8,6 @@ import {
 } from '@melody-auth/react'
 import {
   useLocale, useTranslations,
-  NextIntlClientProvider,
 } from 'next-intl'
 import NextLink from 'next/link'
 import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/16/solid'
@@ -288,24 +287,22 @@ const Setup = ({ children } : PropsWithChildren) => {
 
   return (
     <Provider store={store}>
-      <NextIntlClientProvider locale={currentLocale}>
-        <AuthProvider
-          clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
-          redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/${currentLocale}/dashboard`}
-          serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
-          onLoginSuccess={(attr) => {
-            if (attr.locale !== locale) {
-              router.push(`/${attr.locale === 'fr' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`)
-            }
-          }}
-        >
-          <AuthSetup>
-            <LayoutSetup>
-              {children}
-            </LayoutSetup>
-          </AuthSetup>
-        </AuthProvider>
-      </NextIntlClientProvider>
+      <AuthProvider
+        clientId={process.env.NEXT_PUBLIC_CLIENT_ID ?? ''}
+        redirectUri={`${process.env.NEXT_PUBLIC_CLIENT_URI}/${currentLocale}/dashboard`}
+        serverUri={process.env.NEXT_PUBLIC_SERVER_URI ?? ''}
+        onLoginSuccess={(attr) => {
+          if (attr.locale !== locale) {
+            router.push(`/${attr.locale === 'fr' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`)
+          }
+        }}
+      >
+        <AuthSetup>
+          <LayoutSetup>
+            {children}
+          </LayoutSetup>
+        </AuthSetup>
+      </AuthProvider>
     </Provider>
   )
 }
