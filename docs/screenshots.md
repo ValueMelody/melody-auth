@@ -16,6 +16,9 @@ These screenshots showcase various pages and emails related to identity system a
 ### App Consent
 ![App Consent](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/app_consent.jpeg)
 
+### Passkey Enroll
+![Passkey Enroll](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/passkey_enroll.jpeg)
+
 ### MFA Enroll
 ![OTP MFA](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/mfa_enroll.jpeg)
 
@@ -51,6 +54,12 @@ These screenshots showcase various pages and emails related to identity system a
 ### Reset MFA Policy
 ![Reset MFA Policy](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/reset_mfa_policy.jpeg)
 
+### Update Info Policy
+![Update Info Policy](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/update_info_policy.jpeg)
+
+### Manage Passkey Policy
+![Manage Passkey Policy](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/manage_passkey_policy.jpeg)
+
 ## Admin Panel Pages
 
 ### Dashboard
@@ -81,3 +90,22 @@ These screenshots showcase various pages and emails related to identity system a
 ![Scope](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-scope.jpeg)
 
 ![Create Scope](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-scope-create.jpeg)
+
+### Orgs
+![Orgs](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-orgs.jpeg)
+
+![Org](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-org.jpeg)
+
+![Create Org](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-org-create.jpeg)
+
+### Logs
+![Logs](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-logs.jpeg)
+
+![Email Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-email-log.jpeg)
+
+![Sms Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-sms-log.jpeg)
+
+![Sign-in Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-sign-in-log.jpeg)
+
+### Account
+![Account](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-account.jpeg)
