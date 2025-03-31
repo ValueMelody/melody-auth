@@ -57,6 +57,9 @@ These screenshots showcase various pages and emails related to identity system a
 ### Update Info Policy
 ![Update Info Policy](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/update_info_policy.jpeg)
 
+### Manage Passkey Policy
+![Manage Passkey Policy](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/manage_passkey_policy.jpeg)
+
 ## Admin Panel Pages
 
 ### Dashboard
