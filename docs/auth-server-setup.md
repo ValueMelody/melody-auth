@@ -116,7 +116,7 @@ When managing several remote environments (e.g., dev, demo, QA, staging, product
 6. Deploy the Worker:  
   Build and deploy your Worker with the new environment's name:
     ```
-    npm run build && wrangler deploy --minify src/index.tsx --name [worker name for your new environment]
+    npm run build && wrangler deploy --minify src/index.tsx --config [envName].wrangler.toml
     ```
 
 ## Node Environment Setup
