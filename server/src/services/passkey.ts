@@ -182,6 +182,7 @@ export const processPasskeyEnroll = async (
       expectedChallenge: challenge,
       expectedOrigin: authServerUrl,
       expectedRPID: cryptoUtil.getPasskeyRpId(c),
+      requireUserVerification: false,
     })
   } catch (error) {
     loggerUtil.triggerLogger(
@@ -260,6 +261,7 @@ export const processPasskeyVerify = async (
         publicKey: cryptoUtil.base64ToUint8Array(passkey.publicKey),
         counter: passkey.counter,
       },
+      requireUserVerification: false,
     })
   } catch (error) {
     loggerUtil.triggerLogger(
