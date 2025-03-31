@@ -25,7 +25,7 @@ ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
 ENABLE_EMAIL_VERIFICATION=true # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html
-ENABLE_ORG=true
+ENABLE_ORG=false
 BLOCKED_POLICIES=[] # A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info), preventing end users from triggering them
 ENABLE_PASSWORDLESS_SIGN_IN=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. Setting this option to true will automatically override ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT to false. Also, make sure to disable email MFA in order to use this feature.
 
@@ -44,7 +44,7 @@ SMS_MFA_IS_REQUIRED=false # Please set up your sms provider first https://auth.v
 SMS_MFA_COUNTRY_CODE="+1" # Prefix of the phone number to be used for SMS MFA. For example, if you are based in the United States, you should set this to "+1".
 ENFORCE_ONE_MFA_ENROLLMENT=['otp', 'email'] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 ALLOW_EMAIL_MFA_AS_BACKUP=true
-ALLOW_PASSKEY_ENROLLMENT=true
+ALLOW_PASSKEY_ENROLLMENT=false
 
 # Brute-force
 UNLOCK_ACCOUNT_VIA_PASSWORD_RESET=true
@@ -63,9 +63,9 @@ GITHUB_AUTH_APP_NAME="" # GitHub Sign-in In will be suppressed if it is empty. W
 
 # Log
 LOG_LEVEL="silent" # Set the log level to silent, info, warn, or error. If environment is set to dev, the log level always defaults to info, regardless of this value.
-ENABLE_EMAIL_LOG=true # Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
-ENABLE_SMS_LOG=true # Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler
-ENABLE_SIGN_IN_LOG=true # Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.
+ENABLE_EMAIL_LOG=false # Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
+ENABLE_SMS_LOG=false # Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler
+ENABLE_SIGN_IN_LOG=false # Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.
 
 [[kv_namespaces]]
 binding = "KV"
