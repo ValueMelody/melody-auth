@@ -85,3 +85,8 @@ Steps to Deploy:
     ```
     npm run cf:deploy
     ```
+
+## Custom Role Access for the Admin Panel
+By default, the admin panel only accepts logins from the super_admin role. To enable login using a custom role with limited permissions, follow these steps:
+1. Add your custom role to the **AllowedRoles** array in /admin-panel/tools/access.
+2. Define the access permissions for your custom role within **RoleAccesses** in /admin-panel/tools/access.
