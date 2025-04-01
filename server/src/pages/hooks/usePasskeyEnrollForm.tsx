@@ -1,6 +1,9 @@
 import {
   useCallback, useMemo, useState,
 } from 'hono/jsx'
+import {
+  startRegistration, PublicKeyCredentialCreationOptionsJSON,
+} from '@simplewebauthn/browser'
 import { View } from './useCurrentView'
 import {
   routeConfig, typeConfig,
@@ -10,9 +13,7 @@ import {
   handleAuthorizeStep, parseAuthorizeFollowUpValues,
   parseResponse,
 } from 'pages/tools/request'
-import { passkeyService } from 'services'
 import { GetProcessPasskeyEnrollRes } from 'handlers/identity'
-import { enroll } from 'pages/tools/passkey'
 
 export interface UsePasskeyEnrollFormProps {
   locale: typeConfig.Locale;
@@ -31,7 +32,7 @@ const usePasskeyEnrollForm = ({
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
-  const [enrollOptions, setEnrollOptions] = useState<passkeyService.EnrollOptions | null>(null)
+  const [enrollOptions, setEnrollOptions] = useState<PublicKeyCredentialCreationOptionsJSON | null>(null)
   const [rememberSkip, setRememberSkip] = useState(false)
 
   const handleRememberSkip = (checked: boolean) => {
@@ -49,7 +50,8 @@ const usePasskeyEnrollForm = ({
       )
         .then(parseResponse)
         .then((response) => {
-          setEnrollOptions((response as GetProcessPasskeyEnrollRes).enrollOptions)
+          setEnrollOptions((response as GetProcessPasskeyEnrollRes)
+            .enrollOptions as PublicKeyCredentialCreationOptionsJSON)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -95,7 +97,7 @@ const usePasskeyEnrollForm = ({
   const handleEnroll = useCallback(
     () => {
       if (!enrollOptions) return
-      enroll(enrollOptions)
+      startRegistration({ optionsJSON: enrollOptions })
         .then((enrollInfo) => {
           if (enrollInfo) submitEnroll(enrollInfo)
         })

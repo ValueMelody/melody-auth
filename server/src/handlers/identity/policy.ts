@@ -208,7 +208,7 @@ export const postResetMfa = async (c: Context<typeConfig.Context>) => {
 
 export interface GetManagePasskeyRes {
   passkey: userPasskeyModel.Record | null;
-  enrollOptions: passkeyService.EnrollOptions;
+  enrollOptions: PublicKeyCredentialCreationOptionsJSON;
 }
 export const getManagePasskey = async (c: Context<typeConfig.Context>)
 : Promise<TypedResponse<GetManagePasskeyRes>> => {

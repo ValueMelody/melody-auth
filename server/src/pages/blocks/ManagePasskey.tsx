@@ -26,7 +26,6 @@ const ManagePasskey = ({
 }: ManagePasskeyProps) => {
   return (
     <>
-      <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>
       {successMessage && (
         <section className='flex justify-center w-full'>
           <SuccessMessage

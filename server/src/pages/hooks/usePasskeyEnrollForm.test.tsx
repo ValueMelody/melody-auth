@@ -7,6 +7,7 @@ import {
 } from '@testing-library/react'
 
 // Import the hook and external dependencies.
+import { RegistrationResponseJSON } from '@simplewebauthn/server'
 import { View } from './useCurrentView'
 import usePasskeyEnrollForm from 'pages/hooks/usePasskeyEnrollForm'
 import { routeConfig } from 'configs'
@@ -33,10 +34,9 @@ vi.mock(
   }),
 )
 
-// Mock the enroll function from pages/tools/passkey.
 vi.mock(
-  'pages/tools/passkey',
-  () => ({ enroll: vi.fn() }),
+  '@simplewebauthn/browser',
+  () => ({ startRegistration: vi.fn() }),
 )
 
 describe(
@@ -142,10 +142,10 @@ describe(
     test(
       'handleEnroll does nothing if enrollOptions is null',
       async () => {
-        const enrollModule = await import('pages/tools/passkey')
+        const enrollModule = await import('@simplewebauthn/browser')
         const enrollMock = vi.spyOn(
           enrollModule,
-          'enroll',
+          'startRegistration',
         )
 
         const onSubmitError = vi.fn()
@@ -193,11 +193,11 @@ describe(
 
         // Now, simulate the enroll function to return an enrollment info.
         const fakeEnrollInfo = { credential: 'passkey-credential' }
-        const enrollModule = await import('pages/tools/passkey')
+        const enrollModule = await import('@simplewebauthn/browser')
         const enrollMock = vi.spyOn(
           enrollModule,
-          'enroll',
-        ).mockResolvedValue(fakeEnrollInfo as unknown as Credential)
+          'startRegistration',
+        ).mockResolvedValue(fakeEnrollInfo as unknown as RegistrationResponseJSON)
 
         // Stub the POST call in submitEnroll:
         const fakeSubmitResponse = {
@@ -225,7 +225,7 @@ describe(
         })
 
         // Ensure enroll was called with the previously set enrollOptions.
-        expect(enrollMock).toHaveBeenCalledWith(fakeEnrollOptions)
+        expect(enrollMock).toHaveBeenCalledWith({ optionsJSON: fakeEnrollOptions })
         // Expect that fetch was called to submit enrollment information.
         expect(fetchSpyPost).toHaveBeenCalledWith(
           routeConfig.IdentityRoute.ProcessPasskeyEnroll,
@@ -274,11 +274,11 @@ describe(
         expect(result.current.enrollOptions).toEqual(fakeEnrollOptions)
         fetchSpyGet.mockRestore()
 
-        const enrollModule = await import('pages/tools/passkey')
+        const enrollModule = await import('@simplewebauthn/browser')
         const enrollMock = vi.spyOn(
           enrollModule,
-          'enroll',
-        ).mockResolvedValue(null)
+          'startRegistration',
+        ).mockResolvedValue(null as unknown as RegistrationResponseJSON)
         const fetchSpyPost = vi.spyOn(
           global,
           'fetch',
@@ -288,7 +288,7 @@ describe(
           await result.current.handleEnroll()
           await Promise.resolve()
         })
-        expect(enrollMock).toHaveBeenCalledWith(fakeEnrollOptions)
+        expect(enrollMock).toHaveBeenCalledWith({ optionsJSON: fakeEnrollOptions })
         expect(fetchSpyPost).not.toHaveBeenCalled()
 
         enrollMock.mockRestore()
@@ -409,11 +409,11 @@ describe(
 
         // Mock successful enroll returning credential
         const fakeEnrollInfo = { credential: 'passkey-credential' }
-        const enrollModule = await import('pages/tools/passkey')
+        const enrollModule = await import('@simplewebauthn/browser')
         const enrollMock = vi.spyOn(
           enrollModule,
-          'enroll',
-        ).mockResolvedValue(fakeEnrollInfo as unknown as Credential)
+          'startRegistration',
+        ).mockResolvedValue(fakeEnrollInfo as unknown as RegistrationResponseJSON)
 
         // Mock POST request to fail
         const error = new Error('Submit enroll failed')

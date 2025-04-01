@@ -2,16 +2,17 @@ import {
   useCallback, useMemo, useState,
 } from 'hono/jsx'
 import {
+  startRegistration, PublicKeyCredentialCreationOptionsJSON,
+} from '@simplewebauthn/browser'
+import {
   routeConfig, typeConfig,
 } from 'configs'
 import { GetManagePasskeyRes } from 'handlers/identity'
 import { userPasskeyModel } from 'models'
 import { getFollowUpParams } from 'pages/tools/param'
-import { enroll } from 'pages/tools/passkey'
 import {
   parseAuthorizeFollowUpValues, parseResponse,
 } from 'pages/tools/request'
-import { passkeyService } from 'services'
 import { managePasskey } from 'pages/tools/locale'
 
 export interface UseManagePasskeyFormProps {
@@ -31,7 +32,7 @@ const useManagePasskeyForm = ({
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [passkey, setPasskey] = useState<userPasskeyModel.Record | null>(null)
-  const [enrollOptions, setEnrollOptions] = useState<passkeyService.EnrollOptions | null>(null)
+  const [enrollOptions, setEnrollOptions] = useState<PublicKeyCredentialCreationOptionsJSON | null>(null)
 
   const getManagePasskeyInfo = useCallback(
     () => {
@@ -48,7 +49,7 @@ const useManagePasskeyForm = ({
         .then(parseResponse)
         .then((response) => {
           setPasskey((response as GetManagePasskeyRes).passkey)
-          setEnrollOptions((response as GetManagePasskeyRes).enrollOptions)
+          setEnrollOptions((response as GetManagePasskeyRes).enrollOptions as PublicKeyCredentialCreationOptionsJSON)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -121,7 +122,7 @@ const useManagePasskeyForm = ({
   const handleEnroll = useCallback(
     () => {
       if (!enrollOptions) return
-      enroll(enrollOptions)
+      startRegistration({ optionsJSON: enrollOptions })
         .then((enrollInfo) => {
           if (enrollInfo) submitEnroll(enrollInfo)
         })

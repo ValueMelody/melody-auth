@@ -6,6 +6,9 @@ import {
   renderHook, act,
 } from '@testing-library/react'
 
+import {
+  AuthenticationResponseJSON, startAuthentication,
+} from '@simplewebauthn/browser'
 import { View } from './useCurrentView'
 import usePasskeyVerifyForm from 'pages/hooks/usePasskeyVerifyForm'
 import { typeConfig } from 'configs'
@@ -18,6 +21,11 @@ vi.mock(
     useCallback: React.useCallback,
     useState: React.useState,
   }),
+)
+
+vi.mock(
+  '@simplewebauthn/browser',
+  () => ({ startAuthentication: vi.fn() }),
 )
 
 // A dummy params object for testing.
@@ -180,15 +188,11 @@ test(
     // Ensure passkeyOption is still null.
     expect(result.current.passkeyOption).toBeNull()
 
-    // Override navigator.credentials.get to track calls.
-    const credentialsGetSpy = vi.fn()
-  ;(navigator as any).credentials = { get: credentialsGetSpy }
-
     act(() => {
       result.current.handleVerifyPasskey()
     })
 
-    expect(credentialsGetSpy).not.toHaveBeenCalled()
+    expect(startAuthentication).not.toHaveBeenCalled()
   },
 )
 
@@ -232,12 +236,11 @@ test(
 
     // Override navigator.credentials.get to resolve with a fake Credential.
     const fakeCredential = { id: 'fake-credential' }
-    const navigatorSpy = vi
-      .spyOn(
-        navigator.credentials,
-        'get',
-      )
-      .mockResolvedValue(fakeCredential as Credential)
+    const verifyModule = await import('@simplewebauthn/browser')
+    const verifyMock = vi.spyOn(
+      verifyModule,
+      'startAuthentication',
+    ).mockResolvedValue(fakeCredential as unknown as AuthenticationResponseJSON)
 
     // Simulate the POST fetch inside submitPasskey.
     const fakePostResponse = {
@@ -264,12 +267,10 @@ test(
     })
 
     // Check that navigator.credentials.get was called with proper parameters.
-    expect(navigatorSpy).toHaveBeenCalledWith({
-      publicKey: {
+    expect(verifyMock).toHaveBeenCalledWith({
+      optionsJSON: {
         challenge: fakePasskeyOption.challenge,
-        allowCredentials: [{
-          id: fakePasskeyOption.allowCredentials[0].id, type: 'public-key',
-        }],
+        allowCredentials: [{ id: fakePasskeyOption.allowCredentials[0].id }],
       },
     })
 
@@ -278,7 +279,7 @@ test(
     expect(handleAuthorizeSpy).toHaveBeenCalled()
     expect(onSwitchView).toHaveBeenCalledWith(View.Consent)
 
-    navigatorSpy.mockRestore()
+    verifyMock.mockRestore()
     fetchSpy.mockRestore()
     handleAuthorizeSpy.mockRestore()
   },
@@ -318,12 +319,11 @@ test(
     expect(result.current.passkeyOption).toEqual(fakePasskeyOption)
 
     const error = new Error('Credential error')
-    const navigatorSpy = vi
-      .spyOn(
-        navigator.credentials,
-        'get',
-      )
-      .mockRejectedValue(error)
+    const verifyModule = await import('@simplewebauthn/browser')
+    const verifyMock = vi.spyOn(
+      verifyModule,
+      'startAuthentication',
+    ).mockRejectedValue(error)
 
     await act(async () => {
       result.current.handleVerifyPasskey()
@@ -331,7 +331,7 @@ test(
     })
 
     expect(onSubmitError).toHaveBeenCalledWith(error)
-    navigatorSpy.mockRestore()
+    verifyMock.mockRestore()
     fetchSpy.mockRestore()
   },
 )
@@ -372,12 +372,11 @@ test(
 
     // Override navigator.credentials.get to resolve successfully.
     const fakeCredential = { id: 'fake-credential' }
-    const navigatorSpy = vi
-      .spyOn(
-        navigator.credentials,
-        'get',
-      )
-      .mockResolvedValue(fakeCredential as Credential)
+    const verifyModule = await import('@simplewebauthn/browser')
+    const verifyMock = vi.spyOn(
+      verifyModule,
+      'startAuthentication',
+    ).mockResolvedValue(fakeCredential as unknown as AuthenticationResponseJSON)
 
     const postError = new Error('POST fetch error')
     // Simulate POST fetch failure.
@@ -389,7 +388,7 @@ test(
     })
 
     expect(onSubmitError).toHaveBeenCalledWith(postError)
-    navigatorSpy.mockRestore()
+    verifyMock.mockRestore()
     fetchSpy.mockRestore()
   },
 )

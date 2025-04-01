@@ -24,7 +24,7 @@ import {
 import { oauthHandler } from 'handlers'
 
 export interface GetProcessPasskeyEnrollRes {
-  enrollOptions: passkeyService.EnrollOptions;
+  enrollOptions: PublicKeyCredentialCreationOptionsJSON;
 }
 export const getProcessPasskeyEnroll = async (c: Context<typeConfig.Context>)
 : Promise<TypedResponse<GetProcessPasskeyEnrollRes>> => {
