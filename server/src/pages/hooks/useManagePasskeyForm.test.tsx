@@ -7,8 +7,8 @@ import {
   renderHook, act,
 } from '@testing-library/react'
 
+import { startRegistration } from '@simplewebauthn/browser'
 import useManagePasskeyForm from 'pages/hooks/useManagePasskeyForm'
-import { enroll } from 'pages/tools/passkey'
 import { managePasskey } from 'pages/tools/locale'
 
 // Mock hooks from hono/jsx.
@@ -33,10 +33,9 @@ vi.mock(
   }),
 )
 
-// Mock the enroll function from pages/tools/passkey.
 vi.mock(
-  'pages/tools/passkey',
-  () => ({ enroll: vi.fn() }),
+  '@simplewebauthn/browser',
+  () => ({ startRegistration: vi.fn() }),
 )
 
 describe(
@@ -233,7 +232,7 @@ describe(
         })
 
         // When enrollOptions is null, enroll should not be called.
-        expect(enroll).not.toHaveBeenCalled()
+        expect(startRegistration).not.toHaveBeenCalled()
       },
     )
 
@@ -270,7 +269,7 @@ describe(
 
         // Now, simulate enroll returning a fake credential.
         const fakeEnrollInfo = { id: 'credential-123' } as Credential
-    ;(enroll as Mock).mockResolvedValueOnce(fakeEnrollInfo)
+    ;(startRegistration as Mock).mockResolvedValueOnce(fakeEnrollInfo)
 
         // Simulate a successful POST in submitEnroll.
         const fakePostResponse = {
@@ -291,7 +290,7 @@ describe(
           await Promise.resolve()
         })
 
-        expect(enroll).toHaveBeenCalledWith(fakeManageResponse.enrollOptions)
+        expect(startRegistration).toHaveBeenCalledWith({ optionsJSON: fakeManageResponse.enrollOptions })
         expect(fetchSpyPost).toHaveBeenCalledWith(
           '/identity/v1/manage-passkey',
           expect.objectContaining({
@@ -345,7 +344,7 @@ describe(
 
         // Mock successful enroll returning credential
         const fakeEnrollInfo = { id: 'credential-123' } as Credential
-        ;(enroll as Mock).mockResolvedValueOnce(fakeEnrollInfo)
+        ;(startRegistration as Mock).mockResolvedValueOnce(fakeEnrollInfo)
 
         // Mock POST request to fail
         const error = new Error('Submit enroll failed')

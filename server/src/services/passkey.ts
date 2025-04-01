@@ -1,6 +1,7 @@
 import { Context } from 'hono'
 import {
-  verifyRegistrationResponse, generateRegistrationOptions,
+  verifyRegistrationResponse,
+  generateRegistrationOptions,
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
   RegistrationResponseJSON,
@@ -99,22 +100,17 @@ export const deletePasskey = async (
   )
 }
 
-export interface EnrollOptions {
-  rpId: string;
-  userId: number;
-  userEmail: string;
-  userDisplayName: string;
-  challenge: string;
-}
-
 export const genPasskeyEnrollOptions = async (
   c: Context<typeConfig.Context>,
   authCodeStore: AuthCodeBody,
 ) => {
   const registrationOptions = await generateRegistrationOptions({
     rpName: '',
-    rpID: '',
-    userName: '',
+    rpID: cryptoUtil.getPasskeyRpId(c),
+    attestationType: 'none',
+    userID: new TextEncoder().encode(String(authCodeStore.user.id)),
+    userName: authCodeStore.user.email ?? '',
+    userDisplayName: `${authCodeStore.user.firstName ?? ''} ${authCodeStore.user.lastName ?? ''}`,
   })
 
   const challenge = registrationOptions.challenge
@@ -124,15 +120,7 @@ export const genPasskeyEnrollOptions = async (
     challenge,
   )
 
-  const enrollOptions: EnrollOptions = {
-    rpId: cryptoUtil.getPasskeyRpId(c),
-    userId: authCodeStore.user.id,
-    userEmail: authCodeStore.user.email ?? '',
-    userDisplayName: `${authCodeStore.user.firstName ?? ''} ${authCodeStore.user.lastName ?? ''}`,
-    challenge,
-  }
-
-  return enrollOptions
+  return registrationOptions
 }
 
 export const genPasskeyVerifyOptions = async (

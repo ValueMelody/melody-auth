@@ -2,6 +2,7 @@ import {
   useCallback, useState,
 } from 'hono/jsx'
 import { object } from 'yup'
+import { startAuthentication } from '@simplewebauthn/browser'
 import { View } from './useCurrentView'
 import {
   routeConfig, typeConfig,
@@ -103,15 +104,7 @@ const usePasskeyVerifyForm = ({
         return
       }
 
-      navigator.credentials.get({
-        publicKey: {
-          challenge: (window as any).SimpleWebAuthnBrowser.base64URLStringToBuffer(passkeyOption.challenge),
-          allowCredentials: passkeyOption.allowCredentials?.map((credential) => ({
-            id: (window as any).SimpleWebAuthnBrowser.base64URLStringToBuffer(credential.id),
-            type: 'public-key',
-          })),
-        },
-      })
+      startAuthentication({ optionsJSON: passkeyOption })
         .then((res) => {
           if (res) {
             submitPasskey(res)

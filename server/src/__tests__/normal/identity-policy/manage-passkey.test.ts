@@ -105,11 +105,40 @@ describe(
         expect(json).toStrictEqual({
           passkey: null,
           enrollOptions: {
+            attestation: 'none',
+            authenticatorSelection: {
+              requireResidentKey: false,
+              userVerification: 'preferred',
+              residentKey: 'preferred',
+            },
             challenge: expect.any(String),
-            rpId: 'localhost',
-            userDisplayName: ' ',
-            userEmail: 'test@email.com',
-            userId: 1,
+            extensions: { credProps: true },
+            excludeCredentials: [],
+            hints: [],
+            pubKeyCredParams: [
+              {
+                alg: -8,
+                type: 'public-key',
+              },
+              {
+                alg: -7,
+                type: 'public-key',
+              },
+              {
+                alg: -257,
+                type: 'public-key',
+              },
+            ],
+            rp: {
+              id: 'localhost',
+              name: '',
+            },
+            timeout: 60000,
+            user: {
+              displayName: ' ',
+              id: expect.any(String),
+              name: 'test@email.com',
+            },
           },
         })
 
@@ -133,11 +162,40 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({
           enrollOptions: {
+            attestation: 'none',
+            authenticatorSelection: {
+              requireResidentKey: false,
+              userVerification: 'preferred',
+              residentKey: 'preferred',
+            },
             challenge: expect.any(String),
-            rpId: 'localhost',
-            userDisplayName: ' ',
-            userEmail: 'test@email.com',
-            userId: 1,
+            extensions: { credProps: true },
+            excludeCredentials: [],
+            hints: [],
+            pubKeyCredParams: [
+              {
+                alg: -8,
+                type: 'public-key',
+              },
+              {
+                alg: -7,
+                type: 'public-key',
+              },
+              {
+                alg: -257,
+                type: 'public-key',
+              },
+            ],
+            rp: {
+              id: 'localhost',
+              name: '',
+            },
+            timeout: 60000,
+            user: {
+              displayName: ' ',
+              id: expect.any(String),
+              name: 'test@email.com',
+            },
           },
           passkey: {
             counter: 0,

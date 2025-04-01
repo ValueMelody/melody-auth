@@ -52,7 +52,6 @@ const SignIn = ({
 }: SignInProps) => {
   return (
     <>
-      {initialProps.allowPasskey && <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>}
       <ViewTitle title={signIn.title[locale]} />
       <form
         autoComplete='on'

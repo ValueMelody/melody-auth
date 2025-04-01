@@ -23,7 +23,6 @@ const PasskeyEnroll = ({
 }: PasskeyEnrollProps) => {
   return (
     <>
-      <script src='https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js'></script>
       <ViewTitle title={passkeyEnroll.title[locale]} />
       <section class='mt-4 flex items-center justify-center gap-8 w-full'>
         <SecondaryButton
