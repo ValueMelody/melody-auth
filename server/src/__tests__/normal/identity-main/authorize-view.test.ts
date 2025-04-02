@@ -12,7 +12,6 @@ import {
 import {
   getApp, getSignInRequest,
 } from 'tests/identity'
-import { g } from 'vitest/dist/chunks/suite.B2jumIFP.js'
 
 let db: Database
 
