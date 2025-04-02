@@ -350,6 +350,10 @@ export const signIn = Object.freeze({
     en: 'Log in with GitHub',
     fr: 'Se connecter avec GitHub',
   },
+  discordSignIn: {
+    en: 'Log in with Discord',
+    fr: 'Se connecter avec Discord',
+  },
   continue: {
     en: 'Continue',
     fr: 'Continuer',

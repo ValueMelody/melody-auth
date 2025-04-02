@@ -56,10 +56,11 @@ ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual 
 SMS_MFA_MESSAGE_THRESHOLD=5 # Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 
 # Social Sign-in
-GOOGLE_AUTH_CLIENT_ID="" # Google Sign-in will be suppressed if it is empty
-FACEBOOK_AUTH_CLIENT_ID="" # Facebook Sign-in In will be suppressed if it is empty. When enable, you also need to set FACEBOOK_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
-GITHUB_AUTH_CLIENT_ID="" # GitHub Sign-in In will be suppressed if it is empty. When enable, you also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
-GITHUB_AUTH_APP_NAME="" # GitHub Sign-in In will be suppressed if it is empty. When enable, you also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
+# GOOGLE_AUTH_CLIENT_ID="" # Google Sign-in will be suppressed if it is empty
+# FACEBOOK_AUTH_CLIENT_ID="" # Facebook Sign-in In will be suppressed if it is empty. When enable, you also need to set FACEBOOK_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
+# GITHUB_AUTH_CLIENT_ID="" # GitHub Sign-in In will be suppressed if it is empty. When enable, you also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
+# GITHUB_AUTH_APP_NAME="" # GitHub Sign-in In will be suppressed if it is empty. When enable, you also need to set GITHUB_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
+# DISCORD_AUTH_CLIENT_ID="" # Discord Sign-in In will be suppressed if it is empty. When enable, you also need to set DISCORD_AUTH_CLIENT_SECRET in .dev.vars for Cloudflare development and Node environments, and in workers config for Cloudflare production environments.
 
 # Log
 LOG_LEVEL="silent" # Set the log level to silent, info, warn, or error. If environment is set to dev, the log level always defaults to info, regardless of this value.

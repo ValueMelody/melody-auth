@@ -18,6 +18,7 @@ export interface InitialProps {
   googleClientId: string;
   facebookClientId: string;
   githubClientId: string;
+  discordClientId: string;
 }
 
 const useInitialProps = () => {
@@ -42,6 +43,7 @@ const useInitialProps = () => {
         googleClientId: 'googleClientId' in intialProps ? String(intialProps.googleClientId) : '',
         facebookClientId: 'facebookClientId' in intialProps ? String(intialProps.facebookClientId) : '',
         githubClientId: 'githubClientId' in intialProps ? String(intialProps.githubClientId) : '',
+        discordClientId: 'discordClientId' in intialProps ? String(intialProps.discordClientId) : '',
         enableLocaleSelector: 'enableLocaleSelector' in intialProps ? Boolean(intialProps.enableLocaleSelector) : false,
         enableSignUp: 'enableSignUp' in intialProps ? Boolean(intialProps.enableSignUp) : false,
         enablePasswordReset: 'enablePasswordReset' in intialProps ? Boolean(intialProps.enablePasswordReset) : false,

@@ -179,18 +179,23 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 ## Social Sign-in Configs
 
 ### GOOGLE_AUTH_CLIENT_ID
-- **Default:** ""
+- **Default:** undefined
 - **Description:** Google Client ID (from Google Developer Console). If empty, Google Sign-In is hidden.
 
 ### FACEBOOK_AUTH_CLIENT_ID
-- **Default:** ""
+- **Default:** undefined
 - **Description:**  Facebook Client ID (from Facebook Developer Console). If empty, Facebook Sign-In is hidden.
 - Note: Also need to set `FACEBOOK_AUTH_CLIENT_SECRET` in your .dev.vars or in Cloudflare Worker environment variables.
 
 ### GITHUB_AUTH_CLIENT_ID & GITHUB_AUTH_APP_NAME
-- **Default:** ""
+- **Default:** undefined
 - **Description:** GitHub Client ID and App Name (from GitHub Developer Console). If empty, GitHub Sign-In is hidden. <b>In your GitHub App settings, set the callback URL to [your auth server doamin]/identity/v1/authorize-github, e.g., http://localhost:8787/identity/v1/authorize-github</b>
 - Note: Also need to set `GITHUB_AUTH_CLIENT_SECRET` in your .dev.vars or in Cloudflare Worker environment variables.
+
+### DISCORD_AUTH_CLIENT_ID
+- **Default:** undefined
+- **Description:** Discord Client ID (from Discord Developer Console). If empty, Discord Sign-In is hidden. <b>In your Discord App settings, set the redirect URI to [your auth server domain]/identity/v1/authorize-discord, e.g., http://localhost:8787/identity/v1/authorize-discord</b>
+- Note: Also need to set `DISCORD_AUTH_CLIENT_SECRET` in your .dev.vars or in Cloudflare Worker environment variables.
 
 
 ## Log Configs

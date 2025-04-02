@@ -1,6 +1,6 @@
 import {
   ViewTitle, Field, PasswordField, PrimaryButton, SubmitError, SecondaryButton,
-  GoogleSignIn, FacebookSignIn, GithubSignIn,
+  GoogleSignIn, FacebookSignIn, GithubSignIn, DiscordSignIn,
 } from 'pages/components'
 import { typeConfig } from 'configs'
 import {
@@ -123,7 +123,12 @@ const SignIn = ({
             />
           )}
         </section>
-        {(initialProps.googleClientId || initialProps.facebookClientId || initialProps.githubClientId) && (
+        {(
+          initialProps.googleClientId ||
+          initialProps.facebookClientId ||
+          initialProps.githubClientId ||
+          initialProps.discordClientId
+        ) && (
           <section className='flex flex-col gap-4 mt-4'>
             <GoogleSignIn
               googleClientId={initialProps.googleClientId}
@@ -141,6 +146,13 @@ const SignIn = ({
             />
             <GithubSignIn
               githubClientId={initialProps.githubClientId}
+              locale={locale}
+              params={params}
+              handleSubmitError={handleSubmitError}
+              onSwitchView={onSwitchView}
+            />
+            <DiscordSignIn
+              discordClientId={initialProps.discordClientId}
               locale={locale}
               params={params}
               handleSubmitError={handleSubmitError}

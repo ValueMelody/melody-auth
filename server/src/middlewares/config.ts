@@ -170,6 +170,24 @@ export const enableGithubSignIn = async (
   await next()
 }
 
+export const enableDiscordSignIn = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    DISCORD_AUTH_CLIENT_ID: discordId,
+    DISCORD_AUTH_CLIENT_SECRET: discordSecret,
+  } = env(c)
+  if (!discordId || !discordSecret) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.DiscordSignInNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.DiscordSignInNotEnabled)
+  }
+  await next()
+}
+
 export const enableEmailVerification = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
