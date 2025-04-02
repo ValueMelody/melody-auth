@@ -138,10 +138,10 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     ? allowPasswordSignIn && !enablePasswordlessSignIn
     : !enablePasswordlessSignIn
   const allowPasskey = allowPasskeyEnroll && !enablePasswordlessSignIn
-  const googleClientId = isBasePolicy ? googleAuthId : ''
-  const facebookClientId = isBasePolicy && facebookClientSecret ? facebookAuthId : ''
-  const githubClientId = isBasePolicy && githubClientSecret && githubAppName ? githubAuthId : ''
-  const discordClientId = isBasePolicy && discordClientSecret ? discordAuthId : ''
+  const googleClientId = isBasePolicy ? (googleAuthId ?? '') : ''
+  const facebookClientId = isBasePolicy && facebookClientSecret ? (facebookAuthId ?? '') : ''
+  const githubClientId = isBasePolicy && githubClientSecret && githubAppName ? (githubAuthId ?? '') : ''
+  const discordClientId = isBasePolicy && discordClientSecret ? (discordAuthId ?? '') : ''
   const branding = await brandingService.getBranding(
     c,
     queryDto.org,
