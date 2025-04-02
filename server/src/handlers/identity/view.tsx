@@ -123,6 +123,8 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     GITHUB_AUTH_CLIENT_ID: githubAuthId,
     GITHUB_AUTH_CLIENT_SECRET: githubClientSecret,
     GITHUB_AUTH_APP_NAME: githubAppName,
+    DISCORD_AUTH_CLIENT_ID: discordAuthId,
+    DISCORD_AUTH_CLIENT_SECRET: discordClientSecret,
     ALLOW_PASSKEY_ENROLLMENT: allowPasskeyEnroll,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
@@ -139,7 +141,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
   const googleClientId = isBasePolicy ? googleAuthId : ''
   const facebookClientId = isBasePolicy && facebookClientSecret ? facebookAuthId : ''
   const githubClientId = isBasePolicy && githubClientSecret && githubAppName ? githubAuthId : ''
-
+  const discordClientId = isBasePolicy && discordClientSecret ? discordAuthId : ''
   const branding = await brandingService.getBranding(
     c,
     queryDto.org,
@@ -158,6 +160,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         googleClientId: "${googleClientId}",
         facebookClientId: "${facebookClientId}",
         githubClientId: "${githubClientId}",
+        discordClientId: "${discordClientId}",
         enableNames: ${enableNames.toString()},
         namesIsRequired: ${namesIsRequired.toString()},
         termsLink: "${branding.termsLink}",

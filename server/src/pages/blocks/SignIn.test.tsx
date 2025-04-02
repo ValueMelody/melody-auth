@@ -44,6 +44,7 @@ describe(
         googleClientId: 'google-client-id',
         facebookClientId: 'facebook-client-id',
         githubClientId: 'github-client-id',
+        discordClientId: 'discord-client-id',
         enableSignUp: true,
         enablePasswordReset: true,
       } as unknown as InitialProps,
@@ -186,9 +187,11 @@ describe(
         const facebookSignIn = container.querySelector('#facebook-login-btn')
         const githubSignIn = container.querySelector('#github-login-btn')
         const googleSignIn = container.querySelector('#g_id_onload')
+        const discordSignIn = container.querySelector('#discord-login-btn')
         expect(facebookSignIn).toBeDefined()
         expect(githubSignIn).toBeDefined()
         expect(googleSignIn).toBeDefined()
+        expect(discordSignIn).toBeDefined()
       },
     )
 
@@ -202,6 +205,7 @@ describe(
             googleClientId: '',
             facebookClientId: '',
             githubClientId: '',
+            discordClientId: '',
           },
         }
         const container = setup(props)
@@ -209,10 +213,11 @@ describe(
         const facebookSignIn = container.querySelector('#facebook-login-btn')
         const githubSignIn = container.querySelector('#github-login-btn')
         const googleSignIn = container.querySelector('#g_id_onload')
-
+        const discordSignIn = container.querySelector('#discord-login-btn')
         expect(facebookSignIn).toBeNull()
         expect(githubSignIn).toBeNull()
         expect(googleSignIn).toBeNull()
+        expect(discordSignIn).toBeNull()
       },
     )
 
@@ -226,6 +231,7 @@ describe(
             googleClientId: 'google-id',
             facebookClientId: '',
             githubClientId: '',
+            discordClientId: '',
           },
         }
         const container = setup(props)
@@ -234,11 +240,13 @@ describe(
         const googleSignIn = container.querySelector('#g_id_onload')
         expect(googleSignIn).toBeDefined()
 
-        // Facebook and Github should not be present
+        // Facebook Github and Discord should not be present
         const facebookSignIn = container.querySelector('#facebook-login-btn')
         const githubSignIn = container.querySelector('#github-login-btn')
+        const discordSignIn = container.querySelector('#discord-login-btn')
         expect(facebookSignIn).toBeNull()
         expect(githubSignIn).toBeNull()
+        expect(discordSignIn).toBeNull()
       },
     )
 
@@ -251,6 +259,7 @@ describe(
             ...defaultProps.initialProps,
             googleClientId: '',
             githubClientId: '',
+            discordClientId: '',
           },
         }
         const container = setup(props)
@@ -266,6 +275,10 @@ describe(
         // Github should not be present
         const githubSignIn = container.querySelector('#github-login-btn')
         expect(githubSignIn).toBeNull()
+
+        // Discord should not be present
+        const discordSignIn = container.querySelector('#discord-login-btn')
+        expect(discordSignIn).toBeNull()
       },
     )
 
@@ -278,6 +291,7 @@ describe(
             ...defaultProps.initialProps,
             googleClientId: '',
             facebookClientId: '',
+            discordClientId: '',
           },
         }
         const container = setup(props)
@@ -293,6 +307,43 @@ describe(
         // Github should be present
         const githubSignIn = container.querySelector('#github-login-btn')
         expect(githubSignIn).toBeDefined()
+
+        // Discord should not be present
+        const discordSignIn = container.querySelector('#discord-login-btn')
+        expect(discordSignIn).toBeNull()
+      },
+    )
+
+    it(
+      'renders only discord sign in button',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            googleClientId: '',
+            facebookClientId: '',
+            githubClientId: '',
+            discordClientId: 'discord-client-id',
+          },
+        }
+        const container = setup(props)
+
+        // Google should not be present
+        const googleSignIn = container.querySelector('#g_id_onload')
+        expect(googleSignIn).toBeNull()
+
+        // Facebook should not be present
+        const facebookSignIn = container.querySelector('#facebook-login-btn')
+        expect(facebookSignIn).toBeNull()
+
+        // Github should not be present
+        const githubSignIn = container.querySelector('#github-login-btn')
+        expect(githubSignIn).toBeNull()
+
+        // Discord should be present
+        const discordSignIn = container.querySelector('#discord-login-btn')
+        expect(discordSignIn).toBeDefined()
       },
     )
 

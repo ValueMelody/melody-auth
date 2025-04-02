@@ -110,9 +110,11 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   if (!accessTool.getAllowedRoles(userInfo?.roles ?? []).length) {
     return (
       <div className='w-full h-screen flex flex-col gap-8 items-center justify-center'>
-        <Alert variant='destructive'>
-          {acquireUserInfoError || t('layout.blocked')}
-        </Alert>
+        <div>
+          <Alert variant='destructive'>
+            {acquireUserInfoError || t('layout.blocked')}
+          </Alert>
+        </div>
         <Button
           variant='ghost'
           onClick={handleLogout}

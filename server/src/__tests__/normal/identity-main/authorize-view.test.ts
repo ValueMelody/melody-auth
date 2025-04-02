@@ -46,9 +46,10 @@ describe(
         expect(html).toContain(`enableSignUp: ${process.env.ENABLE_SIGN_UP}`)
         expect(html).toContain(`enablePasswordSignIn: ${process.env.ENABLE_PASSWORD_SIGN_IN}`)
         expect(html).toContain(`enablePasswordlessSignIn: ${process.env.ENABLE_PASSWORDLESS_SIGN_IN}`)
-        expect(html).toContain(`googleClientId: "${process.env.GOOGLE_AUTH_CLIENT_ID}"`)
-        expect(html).toContain(`facebookClientId: "${process.env.FACEBOOK_AUTH_CLIENT_ID}"`)
-        expect(html).toContain(`githubClientId: "${process.env.GITHUB_AUTH_CLIENT_ID}"`)
+        expect(html).toContain('googleClientId: ""')
+        expect(html).toContain('facebookClientId: ""')
+        expect(html).toContain('githubClientId: ""')
+        expect(html).toContain('discordClientId: ""')
         expect(html).toContain(`enableNames: ${process.env.ENABLE_NAMES}`)
         expect(html).toContain(`namesIsRequired: ${process.env.NAMES_IS_REQUIRED}`)
         expect(html).toContain(`termsLink: "${process.env.TERMS_LINK}"`)
@@ -114,6 +115,8 @@ describe(
         global.process.env.GITHUB_AUTH_CLIENT_ID = 'github-client-id'
         global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'github-client-secret'
         global.process.env.GITHUB_AUTH_APP_NAME = 'github-app-name'
+        global.process.env.DISCORD_AUTH_CLIENT_ID = 'discord-client-id'
+        global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'discord-client-secret'
         global.process.env.ENABLE_NAMES = false as unknown as string
         global.process.env.NAMES_IS_REQUIRED = false as unknown as string
 
@@ -135,6 +138,7 @@ describe(
         expect(html).toContain(`googleClientId: "${process.env.GOOGLE_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`facebookClientId: "${process.env.FACEBOOK_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`githubClientId: "${process.env.GITHUB_AUTH_CLIENT_ID}"`)
+        expect(html).toContain(`discordClientId: "${process.env.DISCORD_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`enableNames: ${process.env.ENABLE_NAMES}`)
         expect(html).toContain(`namesIsRequired: ${process.env.NAMES_IS_REQUIRED}`)
         expect(html).toContain(`termsLink: "${process.env.TERMS_LINK}"`)

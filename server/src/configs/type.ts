@@ -76,6 +76,8 @@ export type Bindings = {
   GITHUB_AUTH_CLIENT_ID: string;
   GITHUB_AUTH_CLIENT_SECRET: string;
   GITHUB_AUTH_APP_NAME: string;
+  DISCORD_AUTH_CLIENT_ID: string;
+  DISCORD_AUTH_CLIENT_SECRET: string;
 };
 
 export type Context = {

@@ -30,6 +30,7 @@ export enum IdentityRoute {
   AuthorizeGoogle = `${InternalRoute.Identity}/authorize-google`,
   AuthorizeFacebook = `${InternalRoute.Identity}/authorize-facebook`,
   AuthorizeGitHub = `${InternalRoute.Identity}/authorize-github`,
+  AuthorizeDiscord = `${InternalRoute.Identity}/authorize-discord`,
   // Process MFA
   ProcessMfaEnroll = `${InternalRoute.Identity}/process-mfa-enroll`,
   SendEmailMfa = `${InternalRoute.Identity}/send-email-mfa`,

@@ -65,6 +65,7 @@ identityRoutes.post(
  * - AuthorizeGoogle
  * - AuthorizeFacebook
  * - AuthorizeGitHub
+ * - AuthorizeDiscord
  */
 identityRoutes.post(
   routeConfig.IdentityRoute.AuthorizeGoogle,
@@ -84,6 +85,12 @@ identityRoutes.get(
   routeConfig.IdentityRoute.AuthorizeGitHub,
   configMiddleware.enableGithubSignIn,
   identityHandler.getAuthorizeGithub,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizeDiscord,
+  configMiddleware.enableDiscordSignIn,
+  identityHandler.getAuthorizeDiscord,
 )
 
 /**

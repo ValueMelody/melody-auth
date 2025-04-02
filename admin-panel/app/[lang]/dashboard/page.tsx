@@ -83,7 +83,7 @@ const Page = () => {
     },
     {
       name: t('dashboard.ssoConfigs'),
-      value: ['GOOGLE_AUTH_CLIENT_ID', 'FACEBOOK_AUTH_CLIENT_ID', 'GITHUB_AUTH_CLIENT_ID', 'GITHUB_AUTH_APP_NAME'],
+      value: ['GOOGLE_AUTH_CLIENT_ID', 'FACEBOOK_AUTH_CLIENT_ID', 'GITHUB_AUTH_CLIENT_ID', 'GITHUB_AUTH_APP_NAME', 'DISCORD_AUTH_CLIENT_ID'],
     },
     {
       name: t('dashboard.logConfigs'),

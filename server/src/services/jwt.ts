@@ -336,3 +336,74 @@ export const verifyGithubCredential = async (
   }
   return undefined
 }
+
+export interface DiscordUser {
+  firstName: string;
+  lastName: string;
+  id: string;
+}
+
+export const verifyDiscordCredential = async (
+  clientId: string,
+  clientSecret: string,
+  redirectUri: string,
+  credential: string,
+) => {
+  const params = new URLSearchParams()
+  params.append(
+    'grant_type',
+    'authorization_code',
+  )
+  params.append(
+    'code',
+    credential,
+  )
+  params.append(
+    'redirect_uri',
+    redirectUri,
+  )
+
+  const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+
+  const tokenRes = await fetch(
+    'https://discord.com/api/v10/oauth2/token',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${basicAuth}`,
+      },
+      body: params,
+    },
+  )
+  if (tokenRes.ok) {
+    const tokenBody = await tokenRes.json() as object
+    if ('access_token' in tokenBody) {
+      const userRes = await fetch(
+        'https://discord.com/api/v10/oauth2/@me',
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${tokenBody.access_token}`,
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+        },
+      )
+      if (userRes.ok) {
+        const userBody = await userRes.json() as { user: {
+          username: string;
+          id: string;
+        }; }
+        const names = userBody.user.username.split(' ')
+        const user = {
+          firstName: names.length === 2 ? names[0] : '',
+          lastName: names.length === 2 ? names[1] : '',
+          id: userBody.user.id,
+        } as DiscordUser
+        return user
+      }
+    }
+  }
+  return undefined
+}

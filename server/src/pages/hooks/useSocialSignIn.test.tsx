@@ -42,7 +42,7 @@ describe(
   'useSocialSignIn',
   () => {
     test(
-      'should return correct githubSignInState',
+      'should return correct socialSignInState',
       () => {
         const { result } = renderHook(() =>
           useSocialSignIn({
@@ -52,7 +52,7 @@ describe(
             onSwitchView: vi.fn(),
           }))
 
-        expect(result.current.githubSignInState).toEqual({
+        expect(result.current.socialSignInState).toEqual({
           clientId: dummyParams.clientId,
           redirectUri: dummyParams.redirectUri,
           responseType: dummyParams.responseType,

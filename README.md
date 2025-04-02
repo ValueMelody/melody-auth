@@ -46,6 +46,7 @@
   - Google Sign-In
   - Facebook Sign-In
   - GitHub Sign-In
+  - Discord Sign-In
 - <b>Multi-Factor Authentication</b> [How to setup MFA](https://auth.valuemelody.com/q_a.html#how-to-setup-mfa)
   - Email MFA
   - OTP MFA

@@ -95,7 +95,7 @@ const useSocialSignIn = ({
     [params, locale, handleSubmitError, onSwitchView],
   )
 
-  const githubSignInState = useMemo(
+  const socialSignInState = useMemo(
     () => {
       return {
         clientId: params.clientId,
@@ -116,7 +116,7 @@ const useSocialSignIn = ({
   return {
     handleGoogleSignIn,
     handeFacebookSignIn,
-    githubSignInState,
+    socialSignInState,
   }
 }
 
