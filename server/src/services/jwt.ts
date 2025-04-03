@@ -407,3 +407,60 @@ export const verifyDiscordCredential = async (
   }
   return undefined
 }
+
+export interface OidcUser {
+  id: string;
+}
+
+/**
+ * According to the OIDC provider, the implementation of this function might need to be adjusted.
+ */
+export const verifyOidcCredential = async (
+  clientId: string,
+  tokenEndpoint: string,
+  redirectUri: string,
+  credential: string,
+  codeVerifier: string,
+) => {
+  const payload = new URLSearchParams()
+  payload.append(
+    'grant_type',
+    'authorization_code',
+  )
+  payload.append(
+    'client_id',
+    clientId,
+  )
+  payload.append(
+    'code',
+    credential,
+  )
+  payload.append(
+    'code_verifier',
+    codeVerifier,
+  )
+  payload.append(
+    'redirect_uri',
+    redirectUri,
+  )
+
+  const tokenRes = await fetch(
+    tokenEndpoint,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: payload.toString(),
+    },
+  )
+
+  if (tokenRes.ok) {
+    const tokenBody = await tokenRes.json() as object
+    if ('id_token' in tokenBody) {
+      const decoded = decode(String(tokenBody.id_token))
+      const user = { id: decoded.payload.sub } as OidcUser
+      return user
+    }
+  }
+
+  return undefined
+}

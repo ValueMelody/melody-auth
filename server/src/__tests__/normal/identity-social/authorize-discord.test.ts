@@ -172,6 +172,7 @@ describe(
       async () => {
         const res = await prepareRequest()
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.DiscordSignInNotEnabled)
       },
     )
 
@@ -181,6 +182,7 @@ describe(
         global.process.env.DISCORD_AUTH_CLIENT_ID = '123'
         const res = await prepareRequest()
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.DiscordSignInNotEnabled)
         global.process.env.DISCORD_AUTH_CLIENT_ID = ''
       },
     )
@@ -191,6 +193,7 @@ describe(
         global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'abc'
         const res = await prepareRequest()
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.DiscordSignInNotEnabled)
         global.process.env.DISCORD_AUTH_CLIENT_SECRET = ''
       },
     )
@@ -204,7 +207,7 @@ describe(
         const credential = 'aab'
         const res = await prepareRequest(credential)
         expect(res.status).toBe(404)
-        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoDiscordUser)
         global.process.env.DISCORD_AUTH_CLIENT_ID = ''
         global.process.env.DISCORD_AUTH_CLIENT_SECRET = ''
       },

@@ -29,7 +29,7 @@ const FacebookSignIn = ({
   handleSubmitError,
   onSwitchView,
 }: FacebookSignInProps) => {
-  const { handeFacebookSignIn } = useSocialSignIn({
+  const { handleFacebookSignIn } = useSocialSignIn({
     params,
     handleSubmitError,
     locale,
@@ -39,13 +39,13 @@ const FacebookSignIn = ({
   useEffect(
     () => {
       if (facebookClientId) {
-        (window as any).handleFacebookSignIn = handeFacebookSignIn
+        (window as any).handleFacebookSignIn = handleFacebookSignIn
         return () => {
           (window as any).handleFacebookSignIn = undefined
         }
       }
     },
-    [facebookClientId, handeFacebookSignIn],
+    [facebookClientId, handleFacebookSignIn],
   )
 
   if (!facebookClientId) {

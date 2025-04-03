@@ -177,7 +177,7 @@ describe(
     )
 
     test(
-      'handeFacebookSignIn returns false if invalid response provided',
+      'handleFacebookSignIn returns false if invalid response provided',
       () => {
         const { result } = renderHook(() =>
           useSocialSignIn({
@@ -187,15 +187,15 @@ describe(
             onSwitchView: vi.fn(),
           }))
 
-        expect(result.current.handeFacebookSignIn(null)).toBe(false)
-        expect(result.current.handeFacebookSignIn({})).toBe(false)
-        expect(result.current.handeFacebookSignIn({ authResponse: {} })).toBe(false)
-        expect(result.current.handeFacebookSignIn({ authResponse: { accessToken: '' } })).toBe(false)
+        expect(result.current.handleFacebookSignIn(null)).toBe(false)
+        expect(result.current.handleFacebookSignIn({})).toBe(false)
+        expect(result.current.handleFacebookSignIn({ authResponse: {} })).toBe(false)
+        expect(result.current.handleFacebookSignIn({ authResponse: { accessToken: '' } })).toBe(false)
       },
     )
 
     test(
-      'handeFacebookSignIn successfully processes valid response',
+      'handleFacebookSignIn successfully processes valid response',
       async () => {
         const handleSubmitError = vi.fn()
         const onSwitchView = vi.fn()
@@ -227,7 +227,7 @@ describe(
         })
 
         await act(async () => {
-          result.current.handeFacebookSignIn(facebookResponse)
+          result.current.handleFacebookSignIn(facebookResponse)
           await Promise.resolve()
         })
 
@@ -254,7 +254,7 @@ describe(
     )
 
     test(
-      'handeFacebookSignIn calls handleSubmitError on fetch failure',
+      'handleFacebookSignIn calls handleSubmitError on fetch failure',
       async () => {
         const handleSubmitError = vi.fn()
         const onSwitchView = vi.fn()
@@ -273,12 +273,134 @@ describe(
         ).mockRejectedValue(new Error('Facebook fetch error'))
 
         await act(async () => {
-          result.current.handeFacebookSignIn(facebookResponse)
+          result.current.handleFacebookSignIn(facebookResponse)
           await Promise.resolve()
         })
 
         expect(handleSubmitError).toHaveBeenCalledWith(expect.any(Error))
         fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handleGetOidcConfigs successfully fetches OIDC configurations',
+      async () => {
+        const { result } = renderHook(() =>
+          useSocialSignIn({
+            params: dummyParams,
+            handleSubmitError: vi.fn(),
+            locale: dummyLocale,
+            onSwitchView: vi.fn(),
+          }))
+
+        const mockOidcConfigs = {
+          configs: [
+            { name: 'Provider 1' },
+          ]
+        }
+        
+        const fakeFetchResponse = {
+          ok: true,
+          json: async () => mockOidcConfigs,
+        }
+        
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeFetchResponse as Response)
+
+        await act(async () => {
+          const response = await result.current.handleGetOidcConfigs()
+          expect(response).toEqual(mockOidcConfigs)
+        })
+
+        expect(fetchSpy).toHaveBeenCalledWith(
+          routeConfig.IdentityRoute.AuthorizeOidcConfigs,
+          expect.objectContaining({
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }),
+        )
+
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handleGetOidcConfigs handles fetch failure correctly',
+      async () => {
+        const { result } = renderHook(() =>
+          useSocialSignIn({
+            params: dummyParams,
+            handleSubmitError: vi.fn(),
+            locale: dummyLocale,
+            onSwitchView: vi.fn(),
+          }))
+
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValue(new Error('Failed to fetch OIDC configs'))
+
+        await act(async () => {
+          await expect(result.current.handleGetOidcConfigs()).rejects.toThrow('Failed to fetch OIDC configs')
+        })
+
+        expect(fetchSpy).toHaveBeenCalledWith(
+          routeConfig.IdentityRoute.AuthorizeOidcConfigs,
+          expect.objectContaining({
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }),
+        )
+
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handleGetOidcConfigs handles non-ok response',
+      async () => {
+        const { result } = renderHook(() =>
+          useSocialSignIn({
+            params: dummyParams,
+            handleSubmitError: vi.fn(),
+            locale: dummyLocale,
+            onSwitchView: vi.fn(),
+          }))
+
+        const fakeFetchResponse = {
+          ok: false,
+          status: 404,
+          statusText: 'Not Found',
+          json: async () => ({ error: 'Not found' }),
+        }
+        
+        const parseResponseSpy = vi.spyOn(requestModule, 'parseResponse')
+          .mockRejectedValue(new Error('HTTP Error: 404 Not Found'))
+        
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeFetchResponse as Response)
+
+        await act(async () => {
+          await expect(result.current.handleGetOidcConfigs()).rejects.toThrow('HTTP Error: 404 Not Found')
+        })
+
+        expect(fetchSpy).toHaveBeenCalledWith(
+          routeConfig.IdentityRoute.AuthorizeOidcConfigs,
+          expect.any(Object),
+        )
+
+        fetchSpy.mockRestore()
+        parseResponseSpy.mockRestore()
       },
     )
   },

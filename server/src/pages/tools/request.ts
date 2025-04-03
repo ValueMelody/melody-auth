@@ -7,6 +7,7 @@ import {
 } from 'configs'
 
 export const parseResponse = (response: Response) => {
+  console.log('response', response)
   if (!response.ok) {
     return response.text().then((text) => {
       throw new Error(text)

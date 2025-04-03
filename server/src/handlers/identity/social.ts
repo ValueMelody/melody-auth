@@ -1,8 +1,11 @@
-import { Context } from 'hono'
+import {
+  Context, TypedResponse,
+} from 'hono'
 import { env } from 'hono/adapter'
 import { genRandomString } from 'shared'
 import {
   errorConfig, messageConfig, routeConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
@@ -276,12 +279,131 @@ export const getAuthorizeDiscord = async (c: Context<typeConfig.Context>) => {
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.NoDiscordUser,
     )
-    throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoDiscordUser)
   }
 
   const user = await userService.processDiscordAccount(
     c,
     discordUser,
+    bodyDto.locale,
+    bodyDto.org,
+  )
+
+  const {
+    authCode, authCodeBody,
+  } = await prepareSocialAuthCode(
+    c,
+    bodyDto,
+    app,
+    user,
+  )
+
+  const detail = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.Social,
+    authCode,
+    authCodeBody,
+  )
+
+  const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
+  const url = detail.nextPage === routeConfig.View.Consent
+    ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
+    : `${detail.redirectUri}${qs}`
+  return c.redirect(url)
+}
+
+export interface OidcProviderConfig {
+  name: string;
+  config: {
+    clientId: string;
+    authorizeEndpoint: string;
+    tokenEndpoint: string;
+  };
+}
+export const getAuthorizeOidcConfigs = async (c: Context<typeConfig.Context>):
+Promise<TypedResponse<{ configs: OidcProviderConfig[]}>> => {
+  const { OIDC_AUTH_PROVIDERS: oidcProviders } = env(c)
+
+  const configs = oidcProviders?.map((provider) => {
+    return {
+      name: provider,
+      config: variableConfig.OIDCProviderConfigs[provider],
+    }
+  }).filter((provider) => {
+    return provider.name &&
+      provider.config &&
+      provider.config.clientId &&
+      provider.config.authorizeEndpoint &&
+      provider.config.tokenEndpoint
+  }) ?? []
+  return c.json({ configs })
+}
+
+export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
+  const code = c.req.query('code')
+  const state = c.req.query('state') ?? ''
+
+  if (!code || !state) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidOidcAuthorizeRequest,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
+  }
+
+  const {
+    OIDC_AUTH_PROVIDERS: oidcProviders,
+    AUTH_SERVER_URL: serverUrl,
+  } = env(c)
+
+  const provider = c.req.param('provider')
+
+  const providerConfig = variableConfig.OIDCProviderConfigs[provider]
+  if (!oidcProviders || !oidcProviders.includes(provider) || !providerConfig) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidOidcAuthorizeRequest,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
+  }
+
+  const originRequest = JSON.parse(state)
+
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
+    ...originRequest,
+    credential: code,
+  })
+  await validateUtil.dto(bodyDto)
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
+  const oidcUser = await jwtService.verifyOidcCredential(
+    providerConfig.clientId,
+    providerConfig.tokenEndpoint,
+    `${serverUrl}${routeConfig.IdentityRoute.AuthorizeOidc}/${provider}`,
+    bodyDto.credential,
+    bodyDto.codeVerifier ?? '',
+  )
+
+  if (!oidcUser) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoOidcUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoOidcUser)
+  }
+
+  const user = await userService.processOidcAccount(
+    c,
+    oidcUser,
+    provider,
     bodyDto.locale,
     bodyDto.org,
   )

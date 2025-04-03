@@ -188,6 +188,21 @@ export const enableDiscordSignIn = async (
   await next()
 }
 
+export const enableOidcSignIn = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { OIDC_AUTH_PROVIDERS: oidcProviders } = env(c)
+  if (!oidcProviders || !oidcProviders.length) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.OidcProviderNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.OidcProviderNotEnabled)
+  }
+  await next()
+}
+
 export const enableEmailVerification = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

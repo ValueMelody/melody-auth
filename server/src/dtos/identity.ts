@@ -213,9 +213,14 @@ export class PostAuthorizeSocialSignInDto extends oauthDto.GetAuthorizeDto {
   @IsNotEmpty()
     credential: string
 
+  @IsString()
+  @IsOptional()
+    codeVerifier: string | undefined
+
   constructor (dto: PostAuthorizeSocialSignInDto) {
     super(dto)
     this.credential = dto.credential
+    this.codeVerifier = dto.codeVerifier
   }
 }
 

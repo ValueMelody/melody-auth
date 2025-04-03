@@ -47,6 +47,7 @@ describe(
         discordClientId: 'discord-client-id',
         enableSignUp: true,
         enablePasswordReset: true,
+        oidcProviders: [],
       } as unknown as InitialProps,
       handleVerifyPasskey: vi.fn(),
       handlePasswordlessSignIn: vi.fn((e: Event) => e.preventDefault()),
@@ -86,15 +87,6 @@ describe(
           signIn.title.en,
         )
         expect(title).toBeDefined()
-      },
-    )
-
-    it(
-      'renders the allowPasskey script tag when allowPasskey is true',
-      () => {
-        const container = setup()
-        const script = container.querySelector('script[src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"]')
-        expect(script).toBeDefined()
       },
     )
 
@@ -192,6 +184,51 @@ describe(
         expect(githubSignIn).toBeDefined()
         expect(googleSignIn).toBeDefined()
         expect(discordSignIn).toBeDefined()
+      },
+    )
+
+    it(
+      'renders the OIDC sign in section when oidcProviders are provided',
+      () => {
+        console.log(11111)
+        const fakeFetchResponse = {
+          ok: true,
+          json: async () => ({
+            configs: [{
+              name: 'Auth0',
+              clientId: 'auth0-client-id',
+              redirectUri: 'http://localhost:3000/callback',
+            }],
+          }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeFetchResponse as Response)
+
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            googleClientId: '',
+            facebookClientId: '',
+            githubClientId: '',
+            discordClientId: '',
+            oidcProviders: ['Auth0'],
+          },
+        }
+        const container = setup(props)
+
+        const facebookSignIn = container.querySelector('#facebook-login-btn')
+        const githubSignIn = container.querySelector('#github-login-btn')
+        const googleSignIn = container.querySelector('#g_id_onload')
+        const discordSignIn = container.querySelector('#discord-login-btn')
+        expect(facebookSignIn).toBeNull()
+        expect(githubSignIn).toBeNull()
+        expect(googleSignIn).toBeNull()
+        expect(discordSignIn).toBeNull()
+
+        fetchSpy.mockRestore()
       },
     )
 

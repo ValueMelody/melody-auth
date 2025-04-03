@@ -37,6 +37,7 @@ vi.mock(
           facebookClientId: '',
           githubClientId: '',
           appName: 'Test App',
+          oidcProviders: [],
         },
       }),
       useLocale: vi.fn().mockReturnValue({
@@ -99,6 +100,7 @@ describe(
       facebookClientId: '',
       githubClientId: '',
       appName: 'Test App',
+      oidcProviders: [],
     }
 
     beforeEach(() => {
