@@ -10,7 +10,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig, variableConfig
+  messageConfig, routeConfig, variableConfig,
 } from 'configs'
 import { userModel } from 'models'
 import { oauthDto } from 'dtos'
@@ -60,7 +60,6 @@ describe(
   },
 )
 
-
 describe(
   'get /authorize-oidc',
   () => {
@@ -76,7 +75,9 @@ describe(
       return Promise.resolve({ ok: false })
     })
 
-    const prepareRequest = async (provider: string, cred?: string) => {
+    const prepareRequest = async (
+      provider: string, cred?: string,
+    ) => {
       global.fetch = mockOidcFetch as Mock
       const credential = cred ?? 'aaa'
 
@@ -207,7 +208,10 @@ describe(
         global.process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
 
         const credential = 'aab'
-        const res = await prepareRequest('Auth0', credential)
+        const res = await prepareRequest(
+          'Auth0',
+          credential,
+        )
         expect(res.status).toBe(404)
         expect(await res.text()).toBe(messageConfig.RequestError.NoOidcUser)
 

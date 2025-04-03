@@ -1,5 +1,6 @@
 import {
-  useCallback, useMemo,
+  useCallback, useEffect, useMemo,
+  useState,
 } from 'hono/jsx'
 import { View } from './useCurrentView'
 import {
@@ -17,6 +18,7 @@ export interface UseSocialSignInProps {
   handleSubmitError: (error: string) => void;
   locale: typeConfig.Locale;
   onSwitchView: (view: View) => void;
+  oidcProviders?: string[];
 }
 
 const useSocialSignIn = ({
@@ -24,7 +26,10 @@ const useSocialSignIn = ({
   handleSubmitError,
   locale,
   onSwitchView,
+  oidcProviders,
 }: UseSocialSignInProps) => {
+  const [oidcConfigs, setOidcConfigs] = useState<OidcProviderConfig[]>([])
+
   const handleGoogleSignIn = useCallback(
     (response: any) => {
       if (!response.credential) return false
@@ -134,11 +139,24 @@ const useSocialSignIn = ({
     [],
   )
 
+  useEffect(
+    () => {
+      if (oidcProviders && oidcProviders.length > 0) {
+        handleGetOidcConfigs()
+          .then(async (configs) => {
+            setOidcConfigs(configs.configs)
+          })
+      }
+    },
+    [handleGetOidcConfigs, oidcProviders],
+  )
+
   return {
     handleGoogleSignIn,
     handleFacebookSignIn,
     handleGetOidcConfigs,
     socialSignInState,
+    oidcConfigs,
   }
 }
 

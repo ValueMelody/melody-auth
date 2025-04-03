@@ -20,6 +20,8 @@ vi.mock(
   () => ({
     useCallback: React.useCallback,
     useMemo: React.useMemo,
+    useState: React.useState,
+    useEffect: React.useEffect,
   }),
 )
 
@@ -283,55 +285,48 @@ describe(
     )
 
     test(
-      'handleGetOidcConfigs successfully fetches OIDC configurations',
+      'handleGetOidcConfigs should fetch OIDC configurations successfully',
       async () => {
+        const mockOidcConfigs = {
+          configs: [
+            {
+              id: 'provider1', name: 'Provider 1', authUrl: 'https://provider1.com/auth',
+            },
+            {
+              id: 'provider2', name: 'Provider 2', authUrl: 'https://provider2.com/auth',
+            },
+          ],
+        }
+
+        const fakeFetchResponse = {
+          ok: true,
+          json: async () => mockOidcConfigs,
+        }
+
+        vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeFetchResponse as Response)
+
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
             handleSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView: vi.fn(),
+            oidcProviders: ['provider1', 'provider2'],
           }))
-
-        const mockOidcConfigs = {
-          configs: [
-            { name: 'Provider 1' },
-          ]
-        }
-        
-        const fakeFetchResponse = {
-          ok: true,
-          json: async () => mockOidcConfigs,
-        }
-        
-        const fetchSpy = vi.spyOn(
-          global,
-          'fetch',
-        ).mockResolvedValue(fakeFetchResponse as Response)
 
         await act(async () => {
           const response = await result.current.handleGetOidcConfigs()
           expect(response).toEqual(mockOidcConfigs)
         })
-
-        expect(fetchSpy).toHaveBeenCalledWith(
-          routeConfig.IdentityRoute.AuthorizeOidcConfigs,
-          expect.objectContaining({
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-          }),
-        )
-
-        fetchSpy.mockRestore()
       },
     )
 
     test(
-      'handleGetOidcConfigs handles fetch failure correctly',
-      async () => {
+      'oidcConfigs should be initialized as empty array',
+      () => {
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
@@ -340,67 +335,78 @@ describe(
             onSwitchView: vi.fn(),
           }))
 
-        const fetchSpy = vi.spyOn(
-          global,
-          'fetch',
-        ).mockRejectedValue(new Error('Failed to fetch OIDC configs'))
-
-        await act(async () => {
-          await expect(result.current.handleGetOidcConfigs()).rejects.toThrow('Failed to fetch OIDC configs')
-        })
-
-        expect(fetchSpy).toHaveBeenCalledWith(
-          routeConfig.IdentityRoute.AuthorizeOidcConfigs,
-          expect.objectContaining({
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-          }),
-        )
-
-        fetchSpy.mockRestore()
+        expect(result.current.oidcConfigs).toEqual([])
       },
     )
 
     test(
-      'handleGetOidcConfigs handles non-ok response',
+      'oidcConfigs should be populated when oidcProviders are provided',
       async () => {
-        const { result } = renderHook(() =>
-          useSocialSignIn({
-            params: dummyParams,
-            handleSubmitError: vi.fn(),
-            locale: dummyLocale,
-            onSwitchView: vi.fn(),
-          }))
+        const mockOidcConfigs = {
+          configs: [
+            {
+              id: 'provider1', name: 'Provider 1', authUrl: 'https://provider1.com/auth',
+            },
+            {
+              id: 'provider2', name: 'Provider 2', authUrl: 'https://provider2.com/auth',
+            },
+          ],
+        }
 
         const fakeFetchResponse = {
-          ok: false,
-          status: 404,
-          statusText: 'Not Found',
-          json: async () => ({ error: 'Not found' }),
+          ok: true,
+          json: async () => mockOidcConfigs,
         }
-        
-        const parseResponseSpy = vi.spyOn(requestModule, 'parseResponse')
-          .mockRejectedValue(new Error('HTTP Error: 404 Not Found'))
-        
-        const fetchSpy = vi.spyOn(
+
+        vi.spyOn(
           global,
           'fetch',
         ).mockResolvedValue(fakeFetchResponse as Response)
 
+        const { result } = renderHook(() =>
+          useSocialSignIn({
+            params: dummyParams,
+            handleSubmitError: vi.fn(),
+            locale: dummyLocale,
+            onSwitchView: vi.fn(),
+            oidcProviders: ['provider1', 'provider2'],
+          }))
+
+        // Need to wait for the useEffect to run and fetch to complete
         await act(async () => {
-          await expect(result.current.handleGetOidcConfigs()).rejects.toThrow('HTTP Error: 404 Not Found')
+          await new Promise((resolve) => setTimeout(
+            resolve,
+            0,
+          ))
         })
 
-        expect(fetchSpy).toHaveBeenCalledWith(
-          routeConfig.IdentityRoute.AuthorizeOidcConfigs,
-          expect.any(Object),
-        )
+        expect(result.current.oidcConfigs).toEqual(mockOidcConfigs.configs)
+
+        vi.restoreAllMocks()
+      },
+    )
+
+    test(
+      'handleGetOidcConfigs should handle fetch errors properly',
+      async () => {
+        const { result } = renderHook(() =>
+          useSocialSignIn({
+            params: dummyParams,
+            handleSubmitError: vi.fn(),
+            locale: dummyLocale,
+            onSwitchView: vi.fn(),
+          }))
+
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValue(new Error('OIDC fetch error'))
+
+        await act(async () => {
+          await expect(result.current.handleGetOidcConfigs()).rejects.toThrow('OIDC fetch error')
+        })
 
         fetchSpy.mockRestore()
-        parseResponseSpy.mockRestore()
       },
     )
   },

@@ -12,7 +12,6 @@ import {
   typeConfig, routeConfig,
 } from 'configs'
 import { signIn } from 'pages/tools/locale'
-import { OidcProviderConfig } from 'handlers/identity/social'
 
 export interface OidcSignInProps {
   locale: typeConfig.Locale;
@@ -29,33 +28,28 @@ const OidcSignIn = ({
   handleSubmitError,
   onSwitchView,
 }: OidcSignInProps) => {
-  const [codeVerifier, setCodeVerifier] = useState<string>('')
+  const [codeVerifier] = useState<string>(genRandomString(128))
   const [codeChallenge, setCodeChallenge] = useState<string>('')
-  const [oidcConfigs, setOidcConfigs] = useState<OidcProviderConfig[]>([])
 
   const {
-    handleGetOidcConfigs, socialSignInState,
+    oidcConfigs, socialSignInState,
   } = useSocialSignIn({
     params,
     locale,
     handleSubmitError,
     onSwitchView,
+    oidcProviders,
   })
 
   useEffect(
     () => {
-      if (oidcProviders.length > 0) {
-        handleGetOidcConfigs()
-          .then(async (configs) => {
-            const codeVerifier = genRandomString(128)
-            const codeChallenge = await genCodeChallenge(codeVerifier)
-            setCodeVerifier(codeVerifier)
-            setCodeChallenge(codeChallenge)
-            setOidcConfigs(configs.configs)
-          })
+      const initCodeChallenge = async () => {
+        const challenge = await genCodeChallenge(codeVerifier)
+        setCodeChallenge(challenge)
       }
+      initCodeChallenge()
     },
-    [handleGetOidcConfigs, oidcProviders.length],
+    [codeVerifier],
   )
 
   return (
@@ -65,9 +59,10 @@ const OidcSignIn = ({
           return (
             <div
               key={oidcConfig.name}
-              className='flex flex-row justify-center'>
+              className='flex flex-row justify-center'
+            >
               <a
-                id='github-login-btn'
+                id={`oidc-${oidcConfig.name}`}
                 className='cursor-pointer w-[240px] h-[40px] text-center p-2 bg-primaryButtonColor text-primaryButtonLabelColor border border-primaryButtonBorderColor rounded-lg font-medium text-base'
                 href={`${oidcConfig.config.authorizeEndpoint}?client_id=${oidcConfig.config.clientId}&state=${JSON.stringify({
                   ...socialSignInState,
