@@ -1,5 +1,6 @@
 import {
-  useCallback, useMemo,
+  useCallback, useEffect, useMemo,
+  useState,
 } from 'hono/jsx'
 import { View } from './useCurrentView'
 import {
@@ -10,12 +11,14 @@ import {
   parseAuthorizeBaseValues, parseResponse,
 } from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
+import { OidcProviderConfig } from 'handlers/identity/social'
 
 export interface UseSocialSignInProps {
   params: AuthorizeParams;
   handleSubmitError: (error: string) => void;
   locale: typeConfig.Locale;
   onSwitchView: (view: View) => void;
+  oidcProviders?: string[];
 }
 
 const useSocialSignIn = ({
@@ -23,7 +26,10 @@ const useSocialSignIn = ({
   handleSubmitError,
   locale,
   onSwitchView,
+  oidcProviders,
 }: UseSocialSignInProps) => {
+  const [oidcConfigs, setOidcConfigs] = useState<OidcProviderConfig[]>([])
+
   const handleGoogleSignIn = useCallback(
     (response: any) => {
       if (!response.credential) return false
@@ -60,7 +66,7 @@ const useSocialSignIn = ({
     [params, locale, handleSubmitError, onSwitchView],
   )
 
-  const handeFacebookSignIn = useCallback(
+  const handleFacebookSignIn = useCallback(
     (response: any) => {
       if (!response || !response.authResponse || !response.authResponse.accessToken) return false
       fetch(
@@ -113,10 +119,44 @@ const useSocialSignIn = ({
     [params, locale],
   )
 
+  const handleGetOidcConfigs = useCallback(
+    async () => {
+      return fetch(
+        routeConfig.IdentityRoute.AuthorizeOidcConfigs,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+        .then(parseResponse)
+        .then((response) => {
+          return response as { configs: OidcProviderConfig[] }
+        })
+    },
+    [],
+  )
+
+  useEffect(
+    () => {
+      if (oidcProviders && oidcProviders.length > 0) {
+        handleGetOidcConfigs()
+          .then(async (configs) => {
+            setOidcConfigs(configs.configs)
+          })
+      }
+    },
+    [handleGetOidcConfigs, oidcProviders],
+  )
+
   return {
     handleGoogleSignIn,
-    handeFacebookSignIn,
+    handleFacebookSignIn,
+    handleGetOidcConfigs,
     socialSignInState,
+    oidcConfigs,
   }
 }
 

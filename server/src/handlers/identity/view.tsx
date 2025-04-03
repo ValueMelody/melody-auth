@@ -14,10 +14,12 @@ import {
   brandingService, kvService,
 } from 'services'
 import { oauthHandler } from 'handlers'
-import { Policy } from 'dtos/oauth'
-import { identityDto } from 'dtos'
 import {
-  requestUtil, validateUtil,
+  identityDto, oauthDto,
+} from 'dtos'
+import {
+  requestUtil,
+  validateUtil,
 } from 'utils'
 
 const viewRender = async (
@@ -129,9 +131,10 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+    OIDC_AUTH_PROVIDERS: oidcAuthProviders,
   } = env(c)
 
-  const isBasePolicy = !queryDto.policy || queryDto.policy === Policy.SignInOrSignUp
+  const isBasePolicy = !queryDto.policy || queryDto.policy === oauthDto.Policy.SignInOrSignUp
   const enablePasswordReset = isBasePolicy ? allowPasswordReset && !enablePasswordlessSignIn : false
   const enableSignUp = isBasePolicy ? allowSignUp && !enablePasswordlessSignIn : false
   const enablePasswordSignIn = isBasePolicy
@@ -142,6 +145,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
   const facebookClientId = isBasePolicy && facebookClientSecret ? (facebookAuthId ?? '') : ''
   const githubClientId = isBasePolicy && githubClientSecret && githubAppName ? (githubAuthId ?? '') : ''
   const discordClientId = isBasePolicy && discordClientSecret ? (discordAuthId ?? '') : ''
+  const oidcProviders = isBasePolicy && oidcAuthProviders ? oidcAuthProviders : []
   const branding = await brandingService.getBranding(
     c,
     queryDto.org,
@@ -161,6 +165,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         facebookClientId: "${facebookClientId}",
         githubClientId: "${githubClientId}",
         discordClientId: "${discordClientId}",
+        oidcProviders: "${oidcProviders.join(',')}",
         enableNames: ${enableNames.toString()},
         namesIsRequired: ${namesIsRequired.toString()},
         termsLink: "${branding.termsLink}",

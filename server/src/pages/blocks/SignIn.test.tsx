@@ -10,6 +10,8 @@ import { signIn } from 'pages/tools/locale'
 import {
   InitialProps, View,
 } from 'pages/hooks'
+import * as hooks from 'pages/hooks'
+import { Policy } from 'dtos/oauth'
 
 beforeAll(() => {
   window.addEventListener(
@@ -47,6 +49,7 @@ describe(
         discordClientId: 'discord-client-id',
         enableSignUp: true,
         enablePasswordReset: true,
+        oidcProviders: [],
       } as unknown as InitialProps,
       handleVerifyPasskey: vi.fn(),
       handlePasswordlessSignIn: vi.fn((e: Event) => e.preventDefault()),
@@ -75,6 +78,7 @@ describe(
       defaultProps.handlePasswordlessSignIn.mockReset()
       defaultProps.getPasskeyOption.mockReset()
       defaultProps.handleSubmitError.mockReset()
+      vi.resetAllMocks()
     })
 
     it(
@@ -86,15 +90,6 @@ describe(
           signIn.title.en,
         )
         expect(title).toBeDefined()
-      },
-    )
-
-    it(
-      'renders the allowPasskey script tag when allowPasskey is true',
-      () => {
-        const container = setup()
-        const script = container.querySelector('script[src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"]')
-        expect(script).toBeDefined()
       },
     )
 
@@ -514,6 +509,85 @@ describe(
 
         const resetPasswordButton = container.querySelector('button[title="Reset Password"]')
         expect(resetPasswordButton).toBeNull()
+      },
+    )
+
+    it(
+      'renders OIDC sign in buttons when oidcProviders are provided',
+      () => {
+        // Mock the useSocialSignIn hook result
+        const mockOidcConfigs = [
+          {
+            name: 'provider1',
+            config: {
+              authorizeEndpoint: 'https://provider1.com/auth',
+              tokenEndpoint: 'https://provider1.com/token',
+              clientId: 'client-id-1',
+            },
+          },
+          {
+            name: 'provider2',
+            config: {
+              authorizeEndpoint: 'https://provider2.com/auth',
+              tokenEndpoint: 'https://provider2.com/token',
+              clientId: 'client-id-2',
+            },
+          },
+        ]
+
+        // Mock the useSocialSignIn hook
+        vi.spyOn(
+          hooks,
+          'useSocialSignIn',
+        ).mockImplementation(() => ({
+          oidcConfigs: mockOidcConfigs,
+          socialSignInState: {
+            state: 'test-state',
+            clientId: 'client-id-1',
+            redirectUri: 'http://localhost:3000/identity/v1/authorize-oidc/provider1',
+            responseType: 'code',
+            codeChallenge: 'test-code-challenge',
+            codeChallengeMethod: 'S256',
+            locale: 'en',
+            policy: Policy.SignInOrSignUp,
+            org: 'test-org',
+            scopes: ['openid', 'email', 'profile'],
+          },
+          handleGoogleSignIn: vi.fn(),
+          handleFacebookSignIn: vi.fn(),
+          handleGetOidcConfigs: vi.fn(),
+        }))
+
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            googleClientId: '',
+            facebookClientId: '',
+            githubClientId: '',
+            discordClientId: '',
+            oidcProviders: ['provider1', 'provider2'],
+          },
+        }
+        const container = setup(props)
+
+        // OIDC providers should be present
+        const oidcProvider1 = container.querySelector('#oidc-provider1')
+        const oidcProvider2 = container.querySelector('#oidc-provider2')
+        expect(oidcProvider1).not.toBeNull()
+        expect(oidcProvider1?.getAttribute('href')).toContain('redirect_uri=http://localhost:3000/identity/v1/authorize-oidc/provider1')
+        expect(oidcProvider2).not.toBeNull()
+        expect(oidcProvider2?.getAttribute('href')).toContain('redirect_uri=http://localhost:3000/identity/v1/authorize-oidc/provider2')
+
+        // Other social sign-in buttons should not be present
+        const googleSignIn = container.querySelector('#g_id_onload')
+        const facebookSignIn = container.querySelector('#facebook-login-btn')
+        const githubSignIn = container.querySelector('#github-login-btn')
+        const discordSignIn = container.querySelector('#discord-login-btn')
+        expect(googleSignIn).toBeNull()
+        expect(facebookSignIn).toBeNull()
+        expect(githubSignIn).toBeNull()
+        expect(discordSignIn).toBeNull()
       },
     )
   },

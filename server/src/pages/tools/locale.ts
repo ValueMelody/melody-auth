@@ -354,6 +354,10 @@ export const signIn = Object.freeze({
     en: 'Log in with Discord',
     fr: 'Se connecter avec Discord',
   },
+  oidcSignIn: {
+    en: 'Log in with ',
+    fr: 'Se connecter avec ',
+  },
   continue: {
     en: 'Continue',
     fr: 'Continuer',

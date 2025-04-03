@@ -50,6 +50,7 @@ describe(
         expect(html).toContain('facebookClientId: ""')
         expect(html).toContain('githubClientId: ""')
         expect(html).toContain('discordClientId: ""')
+        expect(html).toContain('oidcProviders: ""')
         expect(html).toContain(`enableNames: ${process.env.ENABLE_NAMES}`)
         expect(html).toContain(`namesIsRequired: ${process.env.NAMES_IS_REQUIRED}`)
         expect(html).toContain(`termsLink: "${process.env.TERMS_LINK}"`)
@@ -119,6 +120,7 @@ describe(
         global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'discord-client-secret'
         global.process.env.ENABLE_NAMES = false as unknown as string
         global.process.env.NAMES_IS_REQUIRED = false as unknown as string
+        global.process.env.OIDC_AUTH_PROVIDERS = ['oidc-provider-1', 'oidc-provider-2'] as unknown as string
 
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
@@ -139,6 +141,7 @@ describe(
         expect(html).toContain(`facebookClientId: "${process.env.FACEBOOK_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`githubClientId: "${process.env.GITHUB_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`discordClientId: "${process.env.DISCORD_AUTH_CLIENT_ID}"`)
+        expect(html).toContain('oidcProviders: "oidc-provider-1,oidc-provider-2"')
         expect(html).toContain(`enableNames: ${process.env.ENABLE_NAMES}`)
         expect(html).toContain(`namesIsRequired: ${process.env.NAMES_IS_REQUIRED}`)
         expect(html).toContain(`termsLink: "${process.env.TERMS_LINK}"`)
@@ -160,6 +163,7 @@ describe(
         global.process.env.GOOGLE_AUTH_CLIENT_SECRET = 'google-client-secret'
         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'facebook-client-secret'
         global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'discord-client-secret'
+        global.process.env.OIDC_AUTH_PROVIDERS = undefined
 
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
@@ -174,6 +178,7 @@ describe(
         expect(html).toContain('facebookClientId: ""')
         expect(html).toContain('githubClientId: ""')
         expect(html).toContain('discordClientId: ""')
+        expect(html).toContain('oidcProviders: ""')
       },
     )
 

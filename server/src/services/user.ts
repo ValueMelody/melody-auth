@@ -550,6 +550,45 @@ export const processDiscordAccount = async (
   return user
 }
 
+export const processOidcAccount = async (
+  c: Context<typeConfig.Context>,
+  oidcUser: jwtService.OidcUser,
+  provider: string,
+  locale: typeConfig.Locale,
+  org?: string,
+) => {
+  const currentUser = await userModel.getOidcUserById(
+    c.env.DB,
+    oidcUser.id,
+    provider,
+  )
+  if (currentUser && !currentUser.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
+
+  const user = currentUser ?? await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      orgSlug: org ?? '',
+      email: null,
+      socialAccountId: oidcUser.id,
+      socialAccountType: provider as userModel.SocialAccountType,
+      password: null,
+      locale,
+      emailVerified: 0,
+      firstName: null,
+      lastName: null,
+    },
+  )
+  return user
+}
+
 export const verifyUserEmail = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostVerifyEmailDto,

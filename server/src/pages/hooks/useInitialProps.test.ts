@@ -35,6 +35,7 @@ describe(
           privacyPolicyLink: '',
           appName: '',
           allowPasskey: false,
+          oidcProviders: [],
         })
       },
     )
@@ -83,6 +84,7 @@ describe(
           privacyPolicyLink: 'http://example.com/privacy',
           appName: 'TestApp',
           allowPasskey: true,
+          oidcProviders: [],
         })
       },
     )
@@ -94,6 +96,7 @@ describe(
         (window as any).__initialProps = {
           googleClientId: 'google-id-123',
           enableSignUp: true,
+          oidcProviders: [],
           // other props but no logoUrl or locales
         }
 
