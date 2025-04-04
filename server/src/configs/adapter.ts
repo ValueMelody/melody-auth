@@ -37,6 +37,7 @@ export enum BaseKVKey {
   PasswordResetAttempts = 'PRA',
   ChangeEmailCode = 'CEC',
   ChangeEmailAttempts = 'CEA',
+  OidcCodeVerifier = 'OVC',
 }
 
 export const getKVKey = (
