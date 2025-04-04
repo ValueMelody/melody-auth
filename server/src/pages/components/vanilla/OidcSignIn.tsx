@@ -1,9 +1,7 @@
 import {
   useEffect, useState,
 } from 'hono/jsx'
-import {
-  genCodeChallenge,
-} from 'shared'
+import { genCodeChallenge } from 'shared'
 import {
   useSocialSignIn, View,
 } from 'pages/hooks'
