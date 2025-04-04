@@ -21,6 +21,7 @@ interface OIDCProviderConfig {
   clientId: string; // The client id for your OIDC Auth provider
   authorizeEndpoint: string; // The authorize endpoint for your OIDC Auth provider
   tokenEndpoint: string; // The token endpoint for your OIDC Auth provider
+  jwksEndpoint: string; // The jwks endpoint for your OIDC Auth provider
 }
 
 /**
@@ -32,5 +33,6 @@ export const OIDCProviderConfigs: Record<string, OIDCProviderConfig> = Object.fr
     clientId: 'example',
     authorizeEndpoint: 'https://dummy.us.auth0.com/authorize',
     tokenEndpoint: 'https://dummy.us.auth0.com/oauth/token',
+    jwksEndpoint: 'https://dummy.us.auth0.com/.well-known/jwks.json',
   },
 })

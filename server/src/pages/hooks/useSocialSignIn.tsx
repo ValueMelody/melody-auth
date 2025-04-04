@@ -11,7 +11,9 @@ import {
   parseAuthorizeBaseValues, parseResponse,
 } from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
-import { OidcProviderConfig } from 'handlers/identity/social'
+import {
+  GetAuthorizeOidcConfigsRes, OidcProviderConfig,
+} from 'handlers/identity/social'
 
 export interface UseSocialSignInProps {
   params: AuthorizeParams;
@@ -29,6 +31,7 @@ const useSocialSignIn = ({
   oidcProviders,
 }: UseSocialSignInProps) => {
   const [oidcConfigs, setOidcConfigs] = useState<OidcProviderConfig[]>([])
+  const [oidcCodeVerifier, setOidcCodeVerifier] = useState<string>('')
 
   const handleGoogleSignIn = useCallback(
     (response: any) => {
@@ -133,7 +136,7 @@ const useSocialSignIn = ({
       )
         .then(parseResponse)
         .then((response) => {
-          return response as { configs: OidcProviderConfig[] }
+          return response as GetAuthorizeOidcConfigsRes
         })
     },
     [],
@@ -145,6 +148,7 @@ const useSocialSignIn = ({
         handleGetOidcConfigs()
           .then(async (configs) => {
             setOidcConfigs(configs.configs)
+            setOidcCodeVerifier(configs.codeVerifier)
           })
       }
     },
@@ -157,6 +161,7 @@ const useSocialSignIn = ({
     handleGetOidcConfigs,
     socialSignInState,
     oidcConfigs,
+    oidcCodeVerifier,
   }
 }
 

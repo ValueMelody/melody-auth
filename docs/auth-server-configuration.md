@@ -199,7 +199,7 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 
 ### OIDC_AUTH_PROVIDERS
 - **Default:** undefined
-- **Description:** List of OIDC authentication providers for users to sign in with. Once a provider's name is set, it should remain unchanged. The provider must supports standard OAuth 2.0 IdToken exchange with PKCE. Example: ['Auth0', 'Azure']. You must set the configurations for each of your OIDC_AUTH_PROVIDERS in src/configs/variable.ts file accordingly.
+- **Description:** List of OIDC authentication providers for users to sign in with. Once a provider's name is set, it should remain unchanged. The provider must supports standard OAuth 2.0 IdToken exchange with PKCE and JWKS endpoint. Example: ['Auth0', 'Azure']. You must set the configurations for each of your OIDC_AUTH_PROVIDERS in src/configs/variable.ts file accordingly.
 
 ## Log Configs
 

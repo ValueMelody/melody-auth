@@ -522,6 +522,7 @@ describe(
             config: {
               authorizeEndpoint: 'https://provider1.com/auth',
               tokenEndpoint: 'https://provider1.com/token',
+              jwksEndpoint: 'https://provider1.com/jwks',
               clientId: 'client-id-1',
             },
           },
@@ -530,6 +531,7 @@ describe(
             config: {
               authorizeEndpoint: 'https://provider2.com/auth',
               tokenEndpoint: 'https://provider2.com/token',
+              jwksEndpoint: 'https://provider2.com/jwks',
               clientId: 'client-id-2',
             },
           },
@@ -541,6 +543,7 @@ describe(
           'useSocialSignIn',
         ).mockImplementation(() => ({
           oidcConfigs: mockOidcConfigs,
+          oidcCodeVerifier: 'test-code-verifier',
           socialSignInState: {
             state: 'test-state',
             clientId: 'client-id-1',
@@ -576,8 +579,10 @@ describe(
         const oidcProvider2 = container.querySelector('#oidc-provider2')
         expect(oidcProvider1).not.toBeNull()
         expect(oidcProvider1?.getAttribute('href')).toContain('redirect_uri=http://localhost:3000/identity/v1/authorize-oidc/provider1')
+        expect(oidcProvider1?.getAttribute('href')).toContain('"codeVerifier":"test-code-verifier"')
         expect(oidcProvider2).not.toBeNull()
         expect(oidcProvider2?.getAttribute('href')).toContain('redirect_uri=http://localhost:3000/identity/v1/authorize-oidc/provider2')
+        expect(oidcProvider2?.getAttribute('href')).toContain('"codeVerifier":"test-code-verifier"')
 
         // Other social sign-in buttons should not be present
         const googleSignIn = container.querySelector('#g_id_onload')
