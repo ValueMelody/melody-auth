@@ -398,10 +398,17 @@ export interface OidcProviderConfig {
     clientId: string;
     authorizeEndpoint: string;
     tokenEndpoint: string;
+    jwksEndpoint: string;
   };
 }
+
+export interface GetAuthorizeOidcConfigsRes {
+  configs: OidcProviderConfig[];
+  codeVerifier: string;
+}
+
 export const getAuthorizeOidcConfigs = async (c: Context<typeConfig.Context>):
-Promise<TypedResponse<{ configs: OidcProviderConfig[]}>> => {
+Promise<TypedResponse<GetAuthorizeOidcConfigsRes>> => {
   const { OIDC_AUTH_PROVIDERS: oidcProviders } = env(c)
 
   const configs = oidcProviders?.map((provider) => {
@@ -414,9 +421,20 @@ Promise<TypedResponse<{ configs: OidcProviderConfig[]}>> => {
       provider.config &&
       provider.config.clientId &&
       provider.config.authorizeEndpoint &&
-      provider.config.tokenEndpoint
+      provider.config.tokenEndpoint &&
+      provider.config.jwksEndpoint
   }) ?? []
-  return c.json({ configs })
+
+  const codeVerifier = genRandomString(128)
+
+  await kvService.storeOidcCodeVerifier(
+    c.env.KV,
+    codeVerifier,
+  )
+
+  return c.json({
+    configs, codeVerifier,
+  })
 }
 
 export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
@@ -457,6 +475,19 @@ export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
   })
   await validateUtil.dto(bodyDto)
 
+  const isValidCodeVerifier = await kvService.verifyOidcCodeVerifier(
+    c.env.KV,
+    bodyDto.codeVerifier ?? '',
+  )
+  if (!bodyDto.codeVerifier || !isValidCodeVerifier) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidOidcAuthorizeRequest,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
+  }
+
   const app = await appService.verifySPAClientRequest(
     c,
     bodyDto.clientId,
@@ -466,9 +497,10 @@ export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
   const oidcUser = await jwtService.verifyOidcCredential(
     providerConfig.clientId,
     providerConfig.tokenEndpoint,
+    providerConfig.jwksEndpoint,
     `${serverUrl}${routeConfig.IdentityRoute.AuthorizeOidc}/${provider}`,
     bodyDto.credential,
-    bodyDto.codeVerifier ?? '',
+    bodyDto.codeVerifier,
   )
 
   if (!oidcUser) {

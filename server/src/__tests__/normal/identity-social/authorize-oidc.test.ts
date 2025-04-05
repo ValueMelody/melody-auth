@@ -3,21 +3,28 @@ import {
   vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { Context } from 'hono'
 import app from 'index'
 import {
   fetchMock,
-  migrate, mock,
+  migrate,
+  mock,
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig, variableConfig,
+  messageConfig, routeConfig, variableConfig, adapterConfig, typeConfig,
 } from 'configs'
 import { userModel } from 'models'
-import { oauthDto } from 'dtos'
+import {
+  identityDto, oauthDto,
+} from 'dtos'
 import { disableUser } from 'tests/util'
 import {
   getApp, postAuthorizeBody,
 } from 'tests/identity'
+import { GetAuthorizeOidcConfigsRes } from 'handlers/identity/social'
+import { cryptoUtil } from 'utils'
+import { jwtService } from 'services'
 
 let db: Database
 
@@ -37,14 +44,21 @@ describe(
       'could get provider configs',
       async () => {
         process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
-        const res = await app.request(`${routeConfig.IdentityRoute.AuthorizeOidcConfigs}`)
-        const json = await res.json()
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeOidcConfigs}`,
+          {},
+          mock(db),
+        )
+        const json = await res.json() as GetAuthorizeOidcConfigsRes
         expect(json).toStrictEqual({
           configs: [{
             name: 'Auth0',
             config: variableConfig.OIDCProviderConfigs.Auth0,
           }],
+          codeVerifier: expect.any(String),
         })
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OidcCodeVerifier}-${json.codeVerifier}`)).toBe('1')
         process.env.OIDC_AUTH_PROVIDERS = undefined as unknown as string
       },
     )
@@ -63,28 +77,60 @@ describe(
 describe(
   'get /authorize-oidc',
   () => {
-    const mockOidcFetch = vi.fn(async (
-      url, params,
-    ) => {
-      if (url === variableConfig.OIDCProviderConfigs.Auth0.tokenEndpoint && params.body.includes('code=aaa')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => ({ id_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c' }),
-        })
-      }
-      return Promise.resolve({ ok: false })
-    })
+    const prepareRequest = async ({
+      cred,
+      setCodeVerifierAsUndefined = false,
+      clearCodeVerifier = false,
+    }: {
+      cred?: string;
+      setCodeVerifierAsUndefined?: boolean;
+      clearCodeVerifier?: boolean;
+    } = {}) => {
+      const publicKey = await mockedKV.get(adapterConfig.BaseKVKey.JwtPublicSecret)
+      const jwk = await cryptoUtil.secretToJwk(publicKey ?? '')
+      const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
+      const idToken = await jwtService.signWithKid(
+        c,
+        {
+          sub: '1234567890',
+          kid: jwk.kid,
+        },
+      )
 
-    const prepareRequest = async (
-      provider: string, cred?: string,
-    ) => {
+      const mockOidcFetch = vi.fn(async (
+        url, params,
+      ) => {
+        if (url === variableConfig.OIDCProviderConfigs.Auth0.tokenEndpoint && params.body.includes('code=aaa')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => ({ id_token: idToken }),
+          })
+        } else if (url === variableConfig.OIDCProviderConfigs.Auth0.jwksEndpoint) {
+          return Promise.resolve({
+            ok: true,
+            json: () => ({ keys: [jwk] }),
+          })
+        }
+        return Promise.resolve({ ok: false })
+      })
+
       global.fetch = mockOidcFetch as Mock
       const credential = cred ?? 'aaa'
 
       const appRecord = await getApp(db)
       const requestBody = await postAuthorizeBody(appRecord)
-      const state = JSON.stringify(new oauthDto.GetAuthorizeDto({
+
+      if (!clearCodeVerifier) {
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.OidcCodeVerifier}-abcd`,
+          '1',
+        )
+      }
+
+      const state = JSON.stringify(new identityDto.PostAuthorizeSocialSignInDto({
         ...requestBody,
+        codeVerifier: setCodeVerifierAsUndefined ? undefined : 'abcd',
+        credential: '',
         scopes: requestBody.scope.split(' ') ?? [],
         locale: 'en',
       }))
@@ -98,7 +144,7 @@ describe(
     }
 
     const getOidcRequest = async (provider: string) => {
-      const res = await prepareRequest(provider)
+      const res = await prepareRequest()
       expect(res.status).toBe(302)
 
       const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
@@ -185,7 +231,7 @@ describe(
     test(
       'should be blocked if not enable in config',
       async () => {
-        const res = await prepareRequest('Auth0')
+        const res = await prepareRequest()
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.ConfigError.OidcProviderNotEnabled)
       },
@@ -195,7 +241,7 @@ describe(
       'should be blocked if no secret provided in config',
       async () => {
         global.process.env.OIDC_AUTH_PROVIDERS = ['azure'] as unknown as string
-        const res = await prepareRequest('azure')
+        const res = await prepareRequest()
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
         global.process.env.OIDC_AUTH_PROVIDERS = undefined as unknown as string
@@ -208,12 +254,35 @@ describe(
         global.process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
 
         const credential = 'aab'
-        const res = await prepareRequest(
-          'Auth0',
-          credential,
-        )
+        const res = await prepareRequest({ cred: credential })
         expect(res.status).toBe(404)
         expect(await res.text()).toBe(messageConfig.RequestError.NoOidcUser)
+
+        global.process.env.OIDC_AUTH_PROVIDERS = undefined as unknown as string
+      },
+    )
+
+    test(
+      'could throw error if no code_verifier exists in kv',
+      async () => {
+        global.process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
+
+        const res = await prepareRequest({ clearCodeVerifier: true })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
+
+        global.process.env.OIDC_AUTH_PROVIDERS = undefined as unknown as string
+      },
+    )
+
+    test(
+      'could throw error if no code_verifier provided',
+      async () => {
+        global.process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
+
+        const res = await prepareRequest({ setCodeVerifierAsUndefined: true })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
 
         global.process.env.OIDC_AUTH_PROVIDERS = undefined as unknown as string
       },
@@ -243,7 +312,7 @@ describe(
         global.process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
         await getOidcRequest('Auth0')
         await disableUser(db)
-        const res = await prepareRequest('Auth0')
+        const res = await prepareRequest()
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
         global.process.env.OIDC_AUTH_PROVIDERS = undefined as unknown as string

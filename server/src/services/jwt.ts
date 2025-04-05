@@ -474,6 +474,7 @@ export interface OidcUser {
 export const verifyOidcCredential = async (
   clientId: string,
   tokenEndpoint: string,
+  jwksEndpoint: string,
   redirectUri: string,
   credential: string,
   codeVerifier: string,
@@ -513,8 +514,19 @@ export const verifyOidcCredential = async (
     const tokenBody = await tokenRes.json() as object
     if ('id_token' in tokenBody) {
       const decoded = decode(String(tokenBody.id_token))
-      const user = { id: decoded.payload.sub } as OidcUser
-      return user
+      const jwks = await fetch(jwksEndpoint)
+      const certs = await jwks.json() as { keys: { kid: string }[] }
+      const publicKey = certs.keys.find((key) => key.kid === decoded.header.kid)
+      const result = await verify(
+        String(tokenBody.id_token),
+        publicKey as unknown as SignatureKey,
+        'RS256',
+      )
+
+      if (result && result.sub) {
+        const user = { id: result.sub } as OidcUser
+        return user
+      }
     }
   }
 

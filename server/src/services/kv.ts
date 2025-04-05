@@ -737,6 +737,34 @@ export const getPasskeyVerifyChallenge = async (
   return await kv.get(key)
 }
 
+export const storeOidcCodeVerifier = async (
+  kv: KVNamespace,
+  codeVerifier: string,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.OidcCodeVerifier,
+      codeVerifier,
+    ),
+    '1',
+    { expirationTtl: 300 },
+  )
+}
+
+export const verifyOidcCodeVerifier = async (
+  kv: KVNamespace,
+  codeVerifier: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.OidcCodeVerifier,
+    codeVerifier,
+  )
+  const storedCode = await kv.get(key)
+  const isValid = storedCode && storedCode === '1'
+  if (isValid) await kv.delete(key)
+  return isValid
+}
+
 export const storeChangeEmailCode = async (
   kv: KVNamespace,
   userId: number,
