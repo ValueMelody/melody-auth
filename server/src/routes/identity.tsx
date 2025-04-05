@@ -94,6 +94,12 @@ identityRoutes.get(
   identityHandler.getAuthorizeDiscord,
 )
 
+identityRoutes.post(
+  routeConfig.IdentityRoute.AuthorizeApple,
+  configMiddleware.enableAppleSignIn,
+  identityHandler.postAuthorizeApple,
+)
+
 identityRoutes.get(
   `${routeConfig.IdentityRoute.AuthorizeOidc}/:provider`,
   configMiddleware.enableOidcSignIn,

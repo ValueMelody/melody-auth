@@ -408,6 +408,62 @@ export const verifyDiscordCredential = async (
   return undefined
 }
 
+export interface AppleUser {
+  email: string;
+  id: string;
+}
+
+export const verifyAppleCredential = async (
+  clientId: string,
+  clientSecret: string,
+  redirectUri: string,
+  credential: string,
+) => {
+  const params = new URLSearchParams()
+  params.append(
+    'grant_type',
+    'authorization_code',
+  )
+  params.append(
+    'code',
+    credential,
+  )
+  params.append(
+    'client_id',
+    clientId,
+  )
+  params.append(
+    'client_secret',
+    clientSecret,
+  )
+  params.append(
+    'redirect_uri',
+    redirectUri,
+  )
+
+  const tokenRes = await fetch(
+    'https://appleid.apple.com/auth/token',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params,
+    },
+  )
+
+  if (tokenRes.ok) {
+    const tokenBody = await tokenRes.json() as object
+    if ('id_token' in tokenBody) {
+      const decoded = decode(String(tokenBody.id_token))
+      const user = {
+        id: decoded.payload.sub,
+        email: decoded.payload.email,
+      } as AppleUser
+      return user
+    }
+  }
+  return undefined
+}
+
 export interface OidcUser {
   id: string;
 }

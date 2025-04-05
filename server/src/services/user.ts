@@ -550,6 +550,43 @@ export const processDiscordAccount = async (
   return user
 }
 
+export const processAppleAccount = async (
+  c: Context<typeConfig.Context>,
+  appleUser: jwtService.AppleUser,
+  locale: typeConfig.Locale,
+  org?: string,
+) => {
+  const currentUser = await userModel.getAppleUserByAppleId(
+    c.env.DB,
+    appleUser.id,
+  )
+  if (currentUser && !currentUser.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
+
+  const user = currentUser ?? await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      orgSlug: org ?? '',
+      email: appleUser.email,
+      socialAccountId: appleUser.id,
+      socialAccountType: userModel.SocialAccountType.Apple,
+      password: null,
+      locale,
+      emailVerified: 0,
+      firstName: null,
+      lastName: null,
+    },
+  )
+  return user
+}
+
 export const processOidcAccount = async (
   c: Context<typeConfig.Context>,
   oidcUser: jwtService.OidcUser,

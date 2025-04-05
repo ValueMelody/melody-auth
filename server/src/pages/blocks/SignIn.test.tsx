@@ -46,6 +46,7 @@ describe(
         googleClientId: 'google-client-id',
         facebookClientId: 'facebook-client-id',
         githubClientId: 'github-client-id',
+        appleClientId: 'apple-client-id',
         discordClientId: 'discord-client-id',
         enableSignUp: true,
         enablePasswordReset: true,
@@ -183,10 +184,12 @@ describe(
         const githubSignIn = container.querySelector('#github-login-btn')
         const googleSignIn = container.querySelector('#g_id_onload')
         const discordSignIn = container.querySelector('#discord-login-btn')
-        expect(facebookSignIn).toBeDefined()
-        expect(githubSignIn).toBeDefined()
-        expect(googleSignIn).toBeDefined()
-        expect(discordSignIn).toBeDefined()
+        const appleSignIn = container.querySelector('#apple-login-btn')
+        expect(facebookSignIn).not.toBeNull()
+        expect(githubSignIn).not.toBeNull()
+        expect(googleSignIn).not.toBeNull()
+        expect(discordSignIn).not.toBeNull()
+        expect(appleSignIn).not.toBeNull()
       },
     )
 
@@ -201,6 +204,7 @@ describe(
             facebookClientId: '',
             githubClientId: '',
             discordClientId: '',
+            appleClientId: '',
           },
         }
         const container = setup(props)
@@ -209,10 +213,12 @@ describe(
         const githubSignIn = container.querySelector('#github-login-btn')
         const googleSignIn = container.querySelector('#g_id_onload')
         const discordSignIn = container.querySelector('#discord-login-btn')
+        const appleSignIn = container.querySelector('#apple-login-btn')
         expect(facebookSignIn).toBeNull()
         expect(githubSignIn).toBeNull()
         expect(googleSignIn).toBeNull()
         expect(discordSignIn).toBeNull()
+        expect(appleSignIn).toBeNull()
       },
     )
 
@@ -227,21 +233,24 @@ describe(
             facebookClientId: '',
             githubClientId: '',
             discordClientId: '',
+            appleClientId: '',
           },
         }
         const container = setup(props)
 
         // Google should be present
         const googleSignIn = container.querySelector('#g_id_onload')
-        expect(googleSignIn).toBeDefined()
+        expect(googleSignIn).not.toBeNull()
 
         // Facebook Github and Discord should not be present
         const facebookSignIn = container.querySelector('#facebook-login-btn')
         const githubSignIn = container.querySelector('#github-login-btn')
         const discordSignIn = container.querySelector('#discord-login-btn')
+        const appleSignIn = container.querySelector('#apple-login-btn')
         expect(facebookSignIn).toBeNull()
         expect(githubSignIn).toBeNull()
         expect(discordSignIn).toBeNull()
+        expect(appleSignIn).toBeNull()
       },
     )
 
@@ -255,6 +264,7 @@ describe(
             googleClientId: '',
             githubClientId: '',
             discordClientId: '',
+            appleClientId: '',
           },
         }
         const container = setup(props)
@@ -265,7 +275,7 @@ describe(
 
         // Facebook should be present
         const facebookSignIn = container.querySelector('#facebook-login-btn')
-        expect(facebookSignIn).toBeDefined()
+        expect(facebookSignIn).not.toBeNull()
 
         // Github should not be present
         const githubSignIn = container.querySelector('#github-login-btn')
@@ -274,6 +284,10 @@ describe(
         // Discord should not be present
         const discordSignIn = container.querySelector('#discord-login-btn')
         expect(discordSignIn).toBeNull()
+
+        // Apple should not be present
+        const appleSignIn = container.querySelector('#apple-login-btn')
+        expect(appleSignIn).toBeNull()
       },
     )
 
@@ -287,6 +301,7 @@ describe(
             googleClientId: '',
             facebookClientId: '',
             discordClientId: '',
+            appleClientId: '',
           },
         }
         const container = setup(props)
@@ -301,11 +316,15 @@ describe(
 
         // Github should be present
         const githubSignIn = container.querySelector('#github-login-btn')
-        expect(githubSignIn).toBeDefined()
+        expect(githubSignIn).not.toBeNull()
 
         // Discord should not be present
         const discordSignIn = container.querySelector('#discord-login-btn')
         expect(discordSignIn).toBeNull()
+
+        // Apple should not be present
+        const appleSignIn = container.querySelector('#apple-login-btn')
+        expect(appleSignIn).toBeNull()
       },
     )
 
@@ -319,6 +338,7 @@ describe(
             googleClientId: '',
             facebookClientId: '',
             githubClientId: '',
+            appleClientId: '',
             discordClientId: 'discord-client-id',
           },
         }
@@ -338,7 +358,49 @@ describe(
 
         // Discord should be present
         const discordSignIn = container.querySelector('#discord-login-btn')
-        expect(discordSignIn).toBeDefined()
+        expect(discordSignIn).not.toBeNull()
+
+        // Apple should not be present
+        const appleSignIn = container.querySelector('#apple-login-btn')
+        expect(appleSignIn).toBeNull()
+      },
+    )
+
+    it(
+      'renders only apple sign in button',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            googleClientId: '',
+            facebookClientId: '',
+            githubClientId: '',
+            discordClientId: '',
+            appleClientId: 'apple-client-id',
+          },
+        }
+        const container = setup(props)
+
+        // Google should not be present
+        const googleSignIn = container.querySelector('#g_id_onload')
+        expect(googleSignIn).toBeNull()
+
+        // Facebook should not be present
+        const facebookSignIn = container.querySelector('#facebook-login-btn')
+        expect(facebookSignIn).toBeNull()
+
+        // Github should not be present
+        const githubSignIn = container.querySelector('#github-login-btn')
+        expect(githubSignIn).toBeNull()
+
+        // Discord should be present
+        const discordSignIn = container.querySelector('#discord-login-btn')
+        expect(discordSignIn).toBeNull()
+
+        // Apple should be present
+        const appleSignIn = container.querySelector('#apple-login-btn')
+        expect(appleSignIn).not.toBeNull()
       },
     )
 

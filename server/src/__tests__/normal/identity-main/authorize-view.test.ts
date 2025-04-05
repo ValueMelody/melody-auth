@@ -48,6 +48,7 @@ describe(
         expect(html).toContain(`enablePasswordlessSignIn: ${process.env.ENABLE_PASSWORDLESS_SIGN_IN}`)
         expect(html).toContain('googleClientId: ""')
         expect(html).toContain('facebookClientId: ""')
+        expect(html).toContain('appleClientId: ""')
         expect(html).toContain('githubClientId: ""')
         expect(html).toContain('discordClientId: ""')
         expect(html).toContain('oidcProviders: ""')
@@ -118,6 +119,8 @@ describe(
         global.process.env.GITHUB_AUTH_APP_NAME = 'github-app-name'
         global.process.env.DISCORD_AUTH_CLIENT_ID = 'discord-client-id'
         global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'discord-client-secret'
+        global.process.env.APPLE_AUTH_CLIENT_ID = 'apple-client-id'
+        global.process.env.APPLE_AUTH_CLIENT_SECRET = 'apple-client-secret'
         global.process.env.ENABLE_NAMES = false as unknown as string
         global.process.env.NAMES_IS_REQUIRED = false as unknown as string
         global.process.env.OIDC_AUTH_PROVIDERS = ['oidc-provider-1', 'oidc-provider-2'] as unknown as string
@@ -140,6 +143,7 @@ describe(
         expect(html).toContain(`googleClientId: "${process.env.GOOGLE_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`facebookClientId: "${process.env.FACEBOOK_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`githubClientId: "${process.env.GITHUB_AUTH_CLIENT_ID}"`)
+        expect(html).toContain(`appleClientId: "${process.env.APPLE_AUTH_CLIENT_ID}"`)
         expect(html).toContain(`discordClientId: "${process.env.DISCORD_AUTH_CLIENT_ID}"`)
         expect(html).toContain('oidcProviders: "oidc-provider-1,oidc-provider-2"')
         expect(html).toContain(`enableNames: ${process.env.ENABLE_NAMES}`)
@@ -158,10 +162,12 @@ describe(
         global.process.env.FACEBOOK_AUTH_CLIENT_ID = undefined
         global.process.env.GITHUB_AUTH_CLIENT_ID = undefined
         global.process.env.DISCORD_AUTH_CLIENT_ID = undefined
+        global.process.env.APPLE_AUTH_CLIENT_ID = undefined
         global.process.env.GITHUB_AUTH_CLIENT_SECRET = 'github-client-secret'
         global.process.env.GITHUB_AUTH_APP_NAME = 'github-app-name'
         global.process.env.GOOGLE_AUTH_CLIENT_SECRET = 'google-client-secret'
         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'facebook-client-secret'
+        global.process.env.APPLE_AUTH_CLIENT_SECRET = 'apple-client-secret'
         global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'discord-client-secret'
         global.process.env.OIDC_AUTH_PROVIDERS = undefined
 
@@ -176,6 +182,7 @@ describe(
 
         expect(html).toContain('googleClientId: ""')
         expect(html).toContain('facebookClientId: ""')
+        expect(html).toContain('appleClientId: ""')
         expect(html).toContain('githubClientId: ""')
         expect(html).toContain('discordClientId: ""')
         expect(html).toContain('oidcProviders: ""')

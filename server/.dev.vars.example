@@ -26,6 +26,8 @@ DEV_SMS_RECEIVER= # When the ENVIRONMENT is not set to 'prod', all SMS messages 
 # Config following env vars to work with social sign-in providers
 #FACEBOOK_AUTH_CLIENT_SECRET= # To work with FACEBOOK_AUTH_CLIENT_ID
 #GITHUB_AUTH_CLIENT_SECRET= # To work with GITHUB_AUTH_CLIENT_ID and GITHUB_AUTH_APP_NAME
+#DISCORD_AUTH_CLIENT_SECRET= # To work with DISCORD_AUTH_CLIENT_ID
+#APPLE_AUTH_CLIENT_SECRET= # To work with APPLE_AUTH_CLIENT_ID
 
 
 # Config following env vars to run this project using node, Postgres and Redis

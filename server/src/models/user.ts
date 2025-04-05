@@ -16,6 +16,7 @@ export enum SocialAccountType {
   Facebook = 'Facebook',
   GitHub = 'GitHub',
   Discord = 'Discord',
+  Apple = 'Apple',
 }
 
 export interface Common {
@@ -303,6 +304,19 @@ export const getDiscordUserByDiscordId = async (
     .bind(
       discordId,
       SocialAccountType.Discord,
+    )
+  const user = await stmt.first() as Raw | null
+  return user ? convertToRecord(user) : null
+}
+
+export const getAppleUserByAppleId = async (
+  db: D1Database, appleId: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "socialAccountId" = $1 AND "socialAccountType" = $2  AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(
+      appleId,
+      SocialAccountType.Apple,
     )
   const user = await stmt.first() as Raw | null
   return user ? convertToRecord(user) : null

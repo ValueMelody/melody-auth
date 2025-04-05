@@ -188,6 +188,24 @@ export const enableDiscordSignIn = async (
   await next()
 }
 
+export const enableAppleSignIn = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    APPLE_AUTH_CLIENT_ID: appleId,
+    APPLE_AUTH_CLIENT_SECRET: appleSecret,
+  } = env(c)
+  if (!appleId || !appleSecret) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.AppleSignInNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.AppleSignInNotEnabled)
+  }
+  await next()
+}
+
 export const enableOidcSignIn = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
