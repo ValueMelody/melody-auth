@@ -241,7 +241,7 @@ describe(
     )
 
     test(
-      'should sign in with an existing discord account',
+      'should sign in with an existing apple account',
       async () => {
         global.process.env.APPLE_AUTH_CLIENT_ID = '123'
         global.process.env.APPLE_AUTH_CLIENT_SECRET = 'abc'
