@@ -14,8 +14,8 @@ const Layout = ({
   children, locale, locales, logoUrl, onSwitchLocale,
 }: LayoutProps) => (
   <main className='flex flex-col items-center justify-center w-full h-screen bg-layoutColor text-labelColor'>
-    <section className='flex flex-col justify-center items-center p-8 bg-white box-shadow rounded-lg'>
-      <section className='flex flex-col items-center gap-4 max-h-[80vh] overflow-y-auto overflow-x-hidden'>
+    <section className='flex flex-col justify-center items-center bg-white box-shadow rounded-lg'>
+      <section className='flex flex-col items-center gap-4 max-h-[80vh] p-8 overflow-y-auto overflow-x-hidden'>
         <header className='relative flex w-full justify-center items-center'>
           <img
             className='w-10'

@@ -8,6 +8,7 @@ import GoogleSignIn from 'pages/components/vanilla/GoogleSignIn'
 import FacebookSignIn from 'pages/components/vanilla/FacebookSignIn'
 import GithubSignIn from 'pages/components/vanilla/GithubSignIn'
 import DiscordSignIn from 'pages/components/vanilla/DiscordSignIn'
+import AppleSignIn from 'pages/components/vanilla/AppleSignIn'
 import OidcSignIn from 'pages/components/vanilla/OidcSignIn'
 import SubmitError from 'pages/components/vanilla/SubmitError'
 import CodeInput from 'pages/components/vanilla/CodeInput'
@@ -17,6 +18,6 @@ import SuccessMessage from 'pages/components/vanilla/SuccessMessage'
 
 export {
   LocaleSelector, PrimaryButton, SecondaryButton, ViewTitle, Field, PasswordField,
-  GoogleSignIn, FacebookSignIn, GithubSignIn, DiscordSignIn, OidcSignIn, SubmitError, CodeInput, PhoneField,
-  CheckboxInput, SuccessMessage,
+  GoogleSignIn, FacebookSignIn, GithubSignIn, DiscordSignIn, AppleSignIn, OidcSignIn,
+  SubmitError, CodeInput, PhoneField, CheckboxInput, SuccessMessage,
 }

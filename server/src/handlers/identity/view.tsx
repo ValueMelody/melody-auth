@@ -127,6 +127,8 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     GITHUB_AUTH_APP_NAME: githubAppName,
     DISCORD_AUTH_CLIENT_ID: discordAuthId,
     DISCORD_AUTH_CLIENT_SECRET: discordClientSecret,
+    APPLE_AUTH_CLIENT_ID: appleAuthId,
+    APPLE_AUTH_CLIENT_SECRET: appleClientSecret,
     ALLOW_PASSKEY_ENROLLMENT: allowPasskeyEnroll,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
@@ -145,6 +147,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
   const facebookClientId = isBasePolicy && facebookClientSecret ? (facebookAuthId ?? '') : ''
   const githubClientId = isBasePolicy && githubClientSecret && githubAppName ? (githubAuthId ?? '') : ''
   const discordClientId = isBasePolicy && discordClientSecret ? (discordAuthId ?? '') : ''
+  const appleClientId = isBasePolicy && appleClientSecret ? (appleAuthId ?? '') : ''
   const oidcProviders = isBasePolicy && oidcAuthProviders ? oidcAuthProviders : []
   const branding = await brandingService.getBranding(
     c,
@@ -164,6 +167,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         googleClientId: "${googleClientId}",
         facebookClientId: "${facebookClientId}",
         githubClientId: "${githubClientId}",
+        appleClientId: "${appleClientId}",
         discordClientId: "${discordClientId}",
         oidcProviders: "${oidcProviders.join(',')}",
         enableNames: ${enableNames.toString()},

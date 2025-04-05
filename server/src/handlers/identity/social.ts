@@ -312,6 +312,86 @@ export const getAuthorizeDiscord = async (c: Context<typeConfig.Context>) => {
   return c.redirect(url)
 }
 
+export const postAuthorizeApple = async (c: Context<typeConfig.Context>) => {
+  const body = await c.req.parseBody()
+  const state = body.state
+  const code = body.code
+
+  if (!code || !state) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidAppleAuthorizeRequest,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidAppleAuthorizeRequest)
+  }
+
+  const originRequest = JSON.parse(state as string)
+
+  const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
+    ...originRequest,
+    credential: code,
+  })
+  await validateUtil.dto(bodyDto)
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
+  const {
+    APPLE_AUTH_CLIENT_ID: appleClientId,
+    APPLE_AUTH_CLIENT_SECRET: appleClientSecret,
+    AUTH_SERVER_URL: serverUrl,
+  } = env(c)
+
+  const appleUser = await jwtService.verifyAppleCredential(
+    appleClientId,
+    appleClientSecret,
+    `${serverUrl}${routeConfig.IdentityRoute.AuthorizeApple}`,
+    bodyDto.credential,
+  )
+
+  if (!appleUser) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoAppleUser,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoAppleUser)
+  }
+
+  const user = await userService.processAppleAccount(
+    c,
+    appleUser,
+    bodyDto.locale,
+    bodyDto.org,
+  )
+
+  const {
+    authCode, authCodeBody,
+  } = await prepareSocialAuthCode(
+    c,
+    bodyDto,
+    app,
+    user,
+  )
+
+  const detail = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.Social,
+    authCode,
+    authCodeBody,
+  )
+
+  const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
+  const url = detail.nextPage === routeConfig.View.Consent
+    ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
+    : `${detail.redirectUri}${qs}`
+  return c.redirect(url)
+}
+
 export interface OidcProviderConfig {
   name: string;
   config: {

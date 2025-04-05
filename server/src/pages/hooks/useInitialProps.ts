@@ -19,6 +19,7 @@ export interface InitialProps {
   facebookClientId: string;
   githubClientId: string;
   discordClientId: string;
+  appleClientId: string;
   oidcProviders: string[];
 }
 
@@ -45,6 +46,7 @@ const useInitialProps = () => {
         facebookClientId: 'facebookClientId' in intialProps ? String(intialProps.facebookClientId) : '',
         githubClientId: 'githubClientId' in intialProps ? String(intialProps.githubClientId) : '',
         discordClientId: 'discordClientId' in intialProps ? String(intialProps.discordClientId) : '',
+        appleClientId: 'appleClientId' in intialProps ? String(intialProps.appleClientId) : '',
         oidcProviders: 'oidcProviders' in intialProps && intialProps.oidcProviders ? String(intialProps.oidcProviders).split(',') : [],
         enableLocaleSelector: 'enableLocaleSelector' in intialProps ? Boolean(intialProps.enableLocaleSelector) : false,
         enableSignUp: 'enableSignUp' in intialProps ? Boolean(intialProps.enableSignUp) : false,

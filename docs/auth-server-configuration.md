@@ -197,6 +197,11 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Description:** Discord Client ID (from Discord Developer Console). If empty, Discord Sign-In is hidden. <b>In your Discord App settings, set the redirect URI to [your auth server domain]/identity/v1/authorize-discord, e.g., http://localhost:8787/identity/v1/authorize-discord</b>
 - Note: Also need to set `DISCORD_AUTH_CLIENT_SECRET` in your .dev.vars or in Cloudflare Worker environment variables.
 
+### APPLE_AUTH_CLIENT_ID
+- **Default:** undefined
+- **Description:** Apple Client ID (from Apple Developer Console). If empty, Apple Sign-In is hidden. <b>In your Apple App settings, set the redirect URI to [your auth server domain]/identity/v1/authorize-apple, e.g., http://localhost:8787/identity/v1/authorize-apple</b>
+- Note: Also need to set `APPLE_AUTH_CLIENT_SECRET` in your .dev.vars or in Cloudflare Worker environment variables. This client secret has a limited lifespan and needs to be periodically updated.
+
 ### OIDC_AUTH_PROVIDERS
 - **Default:** undefined
 - **Description:** List of OIDC authentication providers for users to sign in with. Once a provider's name is set, it should remain unchanged. The provider must supports standard OAuth 2.0 IdToken exchange with PKCE and JWKS endpoint. Example: ['Auth0', 'Azure']. You must set the configurations for each of your OIDC_AUTH_PROVIDERS in src/configs/variable.ts file accordingly.

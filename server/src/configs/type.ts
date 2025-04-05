@@ -78,6 +78,8 @@ export type Bindings = {
   GITHUB_AUTH_APP_NAME: string;
   DISCORD_AUTH_CLIENT_ID: string;
   DISCORD_AUTH_CLIENT_SECRET: string;
+  APPLE_AUTH_CLIENT_ID: string;
+  APPLE_AUTH_CLIENT_SECRET: string;
   OIDC_AUTH_PROVIDERS: string[] | undefined;
 };
 
