@@ -159,7 +159,6 @@ describe(
         expect(users[0].lastName).toBe('last')
         expect(users[0].emailVerified).toBe(1)
 
-
         expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.ProcessView}?state=123&code=`)
         expect(res.headers.get('Location')).toContain('&step=consent')
         expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
