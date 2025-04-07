@@ -20,7 +20,6 @@ Melody Auth supports the following social identity providers out of the box:
 1. Set `DISCORD_AUTH_CLIENT_ID` in `server/wrangler.toml` vars section.
 2. Set `DISCORD_AUTH_CLIENT_SECRET` in `server/.dev.vars` section or in Cloudflare Worker environment variables.
 3. In your Discord App settings, set the redirect URI to [your auth server domain]/identity/v1/authorize-discord, e.g., http://localhost:8787/identity/v1/authorize-discord
-4. If you want to get user's email, you need to set the value of `SocialSignInConfig.DiscordScope` to `identify+email` in `server/src/configs/variable.ts`
 
 ## Apple Sign-In
 1. Set `APPLE_AUTH_CLIENT_ID` in `server/wrangler.toml` vars section.

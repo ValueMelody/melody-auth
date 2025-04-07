@@ -1,5 +1,7 @@
 import { useEffect } from 'hono/jsx'
-import { typeConfig } from 'configs'
+import {
+  typeConfig, variableConfig,
+} from 'configs'
 import {
   useSocialSignIn, View,
 } from 'pages/hooks'
@@ -58,7 +60,7 @@ const FacebookSignIn = ({
       className='flex flex-row justify-center'
     >
       <fb:login-button
-        scope='public_profile'
+        scope={variableConfig.SocialSignInConfig.FacebookScope}
         data-size='Large'
         data-width='220'
         data-use-continue-as='false'

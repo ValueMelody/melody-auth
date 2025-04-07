@@ -2,7 +2,7 @@ import {
   useEffect, useState,
 } from 'hono/jsx'
 import {
-  typeConfig, routeConfig,
+  typeConfig, routeConfig, variableConfig,
 } from 'configs'
 import {
   useSocialSignIn, View,
@@ -38,7 +38,7 @@ const AppleSignIn = ({
       if (appleClientId && scriptLoaded && 'AppleID' in window) {
         (window.AppleID as any).auth.init({
           clientId: appleClientId,
-          scope: 'name email',
+          scope: variableConfig.SocialSignInConfig.AppleScope,
           redirectURI: `${window.location.origin}${routeConfig.IdentityRoute.AuthorizeApple}`,
           state: JSON.stringify(socialSignInState),
           usePopup: false,
