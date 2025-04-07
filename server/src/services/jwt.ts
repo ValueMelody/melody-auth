@@ -8,6 +8,7 @@ import {
   ClientType, IdTokenBody,
 } from 'shared'
 import { SignatureKey } from 'hono/utils/jwt/jws'
+import { encodeBase64Url } from 'hono/utils/encode'
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
@@ -16,19 +17,29 @@ import {
   cryptoUtil, loggerUtil,
 } from 'utils'
 
-export const base64UrlEncode = (data: string) => btoa(data)
-  .replace(
-    /\+/g,
-    '-',
-  )
-  .replace(
-    /\//g,
-    '_',
-  )
-  .replace(
-    /=+$/,
+export const base64UrlEncode = (data: string) => {
+  return btoa(data)
+    .replace(
+      /\+/g,
+      '-',
+    )
+    .replace(
+      /\//g,
+      '_',
+    )
+    .replace(
+      /=+$/,
+      '',
+    )
+}
+
+const encodeJwtPart = (part: unknown): string => {
+  const utf8Encoder: TextEncoder = new TextEncoder()
+  return encodeBase64Url(utf8Encoder.encode(JSON.stringify(part)).buffer).replace(
+    /=/g,
     '',
   )
+}
 
 export const decodeBase64 = (str: string): Uint8Array => {
   const binary = atob(str)
@@ -76,7 +87,7 @@ export const signWithKid = async (
   }
 
   const encodedHeader = base64UrlEncode(JSON.stringify(header))
-  const encodedPayload = base64UrlEncode(JSON.stringify(payload))
+  const encodedPayload = encodeJwtPart(payload)
   const signingInput = `${encodedHeader}.${encodedPayload}`
 
   const encoder = new TextEncoder()
