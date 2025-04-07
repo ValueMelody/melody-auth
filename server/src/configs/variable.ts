@@ -37,4 +37,4 @@ export const OIDCProviderConfigs: Record<string, OIDCProviderConfig> = Object.fr
   },
 })
 
-export const SocialSignInConfig = { DiscordScope: 'identify' } // Change to 'identity+email' if you want to get user's email
+export const SocialSignInConfig = { DiscordScope: 'identity+email' }
