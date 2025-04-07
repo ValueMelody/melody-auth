@@ -41,14 +41,12 @@ describe(
           ok: true,
           json: () => ({ access_token: 'token123' }),
         })
-      } else if (url === 'https://discord.com/api/v10/oauth2/@me') {
+      } else if (url === 'https://discord.com/api/v10/users/@me') {
         return Promise.resolve({
           ok: true,
           json: () => ({
-            user: {
-              username: 'first last',
-              id: 'discord001',
-            },
+            username: 'first last',
+            id: 'discord001',
           }),
         })
       }
@@ -97,6 +95,70 @@ describe(
         global.process.env.DISCORD_AUTH_CLIENT_ID = '123'
         global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'abc'
         const res = await getDiscordRequest()
+        expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.ProcessView}?state=123&code=`)
+        expect(res.headers.get('Location')).toContain('&step=consent')
+        expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')
+
+        global.process.env.DISCORD_AUTH_CLIENT_ID = ''
+        global.process.env.DISCORD_AUTH_CLIENT_SECRET = ''
+      },
+    )
+
+    test(
+      'could load user email if exists',
+      async () => {
+        global.process.env.DISCORD_AUTH_CLIENT_ID = '123'
+        global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'abc'
+
+        const mockDiscordFetchWithEmail = vi.fn(async (
+          url, params,
+        ) => {
+          if (url === 'https://discord.com/api/v10/oauth2/token' && params.body.get('code') === 'aaa') {
+            return Promise.resolve({
+              ok: true,
+              json: () => ({ access_token: 'token123' }),
+            })
+          } else if (url === 'https://discord.com/api/v10/users/@me') {
+            return Promise.resolve({
+              ok: true,
+              json: () => ({
+                username: 'first last',
+                id: 'discord001',
+                email: 'test@test.com',
+                verified: true,
+              }),
+            })
+          }
+          return Promise.resolve({ ok: false })
+        })
+
+        global.fetch = mockDiscordFetchWithEmail as Mock
+
+        const appRecord = await getApp(db)
+        const requestBody = await postAuthorizeBody(appRecord)
+        const state = JSON.stringify(new oauthDto.GetAuthorizeDto({
+          ...requestBody,
+          scopes: requestBody.scope.split(' ') ?? [],
+          locale: 'en',
+        }))
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeDiscord}?code=aaa&state=${encodeURIComponent(state)}`,
+          {},
+          mock(db),
+        )
+        global.fetch = fetchMock
+
+        expect(res.status).toBe(302)
+
+        const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
+        expect(users.length).toBe(1)
+        expect(users[0].socialAccountId).toBe('discord001')
+        expect(users[0].socialAccountType).toBe(userModel.SocialAccountType.Discord)
+        expect(users[0].email).toBe('test@test.com')
+        expect(users[0].firstName).toBe('first')
+        expect(users[0].lastName).toBe('last')
+        expect(users[0].emailVerified).toBe(1)
+
         expect(res.headers.get('Location')).toContain(`${routeConfig.IdentityRoute.ProcessView}?state=123&code=`)
         expect(res.headers.get('Location')).toContain('&step=consent')
         expect(res.headers.get('Location')).toContain('&locale=en&redirect_uri=http://localhost:3000/en/dashboard')

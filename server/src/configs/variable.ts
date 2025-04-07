@@ -36,3 +36,5 @@ export const OIDCProviderConfigs: Record<string, OIDCProviderConfig> = Object.fr
     jwksEndpoint: 'https://dummy.us.auth0.com/.well-known/jwks.json',
   },
 })
+
+export const SocialSignInConfig = { DiscordScope: 'identify' } // Change to 'identity+email' if you want to get user's email
