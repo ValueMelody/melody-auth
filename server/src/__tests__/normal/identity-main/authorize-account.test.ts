@@ -283,6 +283,68 @@ describe(
     )
 
     test(
+      'should success if name provided when required',
+      async () => {
+        global.process.env.NAMES_IS_REQUIRED = true as unknown as string
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          firstName: 'John',
+          lastName: 'Doe',
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.firstName).toBe('John')
+        expect(currentUser.lastName).toBe('Doe')
+
+        global.process.env.NAMES_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'could sign up with names using non binary strings',
+      async () => {
+        global.process.env.NAMES_IS_REQUIRED = true as unknown as string
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          firstName: '名',
+          lastName: '姓',
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.firstName).toBe('名')
+        expect(currentUser.lastName).toBe('姓')
+
+        global.process.env.NAMES_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if not enable sign up',
       async () => {
         global.process.env.ENABLE_SIGN_UP = false as unknown as string
