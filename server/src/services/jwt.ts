@@ -352,6 +352,8 @@ export interface DiscordUser {
   firstName: string;
   lastName: string;
   id: string;
+  email: string;
+  emailVerified: boolean;
 }
 
 export const verifyDiscordCredential = async (
@@ -391,7 +393,7 @@ export const verifyDiscordCredential = async (
     const tokenBody = await tokenRes.json() as object
     if ('access_token' in tokenBody) {
       const userRes = await fetch(
-        'https://discord.com/api/v10/oauth2/@me',
+        'https://discord.com/api/v10/users/@me',
         {
           method: 'GET',
           headers: {
@@ -402,15 +404,19 @@ export const verifyDiscordCredential = async (
         },
       )
       if (userRes.ok) {
-        const userBody = await userRes.json() as { user: {
+        const userBody = await userRes.json() as {
           username: string;
           id: string;
-        }; }
-        const names = userBody.user.username.split(' ')
+          email: string;
+          verified: boolean;
+        }
+        const names = userBody.username.split(' ')
         const user = {
           firstName: names.length === 2 ? names[0] : '',
           lastName: names.length === 2 ? names[1] : '',
-          id: userBody.user.id,
+          email: userBody.email ?? null,
+          emailVerified: userBody.verified ?? false,
+          id: userBody.id,
         } as DiscordUser
         return user
       }

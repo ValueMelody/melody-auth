@@ -1,5 +1,5 @@
 import {
-  routeConfig, typeConfig,
+  routeConfig, typeConfig, variableConfig,
 } from 'configs'
 import {
   useSocialSignIn, View,
@@ -36,7 +36,7 @@ const DiscordSignIn = ({
       <a
         id='discord-login-btn'
         className='flex flex-row items-center justify-center cursor-pointer w-[240px] h-[40px] bg-[#5865f2] p-[0 8px] gap-2 text-white text-medium font-bold rounded-md'
-        href={`https://discord.com/oauth2/authorize?client_id=${discordClientId}&response_type=code&redirect_uri=${window.location.origin}${routeConfig.IdentityRoute.AuthorizeDiscord}&scope=identify&state=${JSON.stringify(socialSignInState)}`}
+        href={`https://discord.com/oauth2/authorize?client_id=${discordClientId}&response_type=code&redirect_uri=${window.location.origin}${routeConfig.IdentityRoute.AuthorizeDiscord}&scope=${variableConfig.SocialSignInConfig.DiscordScope}&state=${JSON.stringify(socialSignInState)}`}
       >
         <DiscordLogo className='w-6 h-6' />
         {signIn.discordSignIn[locale]}
