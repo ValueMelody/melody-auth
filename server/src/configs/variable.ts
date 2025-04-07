@@ -37,4 +37,8 @@ export const OIDCProviderConfigs: Record<string, OIDCProviderConfig> = Object.fr
   },
 })
 
-export const SocialSignInConfig = { DiscordScope: 'identity+email' }
+export const SocialSignInConfig = Object.freeze({
+  DiscordScope: 'identity+email',
+  FacebookScope: 'public_profile',
+  AppleScope: 'name email',
+})
