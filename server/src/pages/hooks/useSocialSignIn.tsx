@@ -17,7 +17,7 @@ import {
 
 export interface UseSocialSignInProps {
   params: AuthorizeParams;
-  handleSubmitError: (error: string) => void;
+  onSubmitError: (error: string) => void;
   locale: typeConfig.Locale;
   onSwitchView: (view: View) => void;
   oidcProviders?: string[];
@@ -25,7 +25,7 @@ export interface UseSocialSignInProps {
 
 const useSocialSignIn = ({
   params,
-  handleSubmitError,
+  onSubmitError,
   locale,
   onSwitchView,
   oidcProviders,
@@ -63,10 +63,10 @@ const useSocialSignIn = ({
           )
         })
         .catch((error) => {
-          handleSubmitError(error)
+          onSubmitError(error)
         })
     },
-    [params, locale, handleSubmitError, onSwitchView],
+    [params, locale, onSubmitError, onSwitchView],
   )
 
   const handleFacebookSignIn = useCallback(
@@ -98,10 +98,10 @@ const useSocialSignIn = ({
           )
         })
         .catch((error) => {
-          handleSubmitError(error)
+          onSubmitError(error)
         })
     },
-    [params, locale, handleSubmitError, onSwitchView],
+    [params, locale, onSubmitError, onSwitchView],
   )
 
   const socialSignInState = useMemo(

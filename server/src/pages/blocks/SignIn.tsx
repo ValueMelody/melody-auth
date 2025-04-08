@@ -145,42 +145,42 @@ const SignIn = ({
               googleClientId={initialProps.googleClientId}
               locale={locale}
               params={params}
-              handleSubmitError={onSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <FacebookSignIn
               facebookClientId={initialProps.facebookClientId}
               locale={locale}
               params={params}
-              handleSubmitError={onSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <GithubSignIn
               githubClientId={initialProps.githubClientId}
               locale={locale}
               params={params}
-              handleSubmitError={onSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <DiscordSignIn
               discordClientId={initialProps.discordClientId}
               locale={locale}
               params={params}
-              handleSubmitError={onSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <AppleSignIn
               appleClientId={initialProps.appleClientId}
               locale={locale}
               params={params}
-              handleSubmitError={onSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <OidcSignIn
               oidcProviders={initialProps.oidcProviders}
               locale={locale}
               params={params}
-              handleSubmitError={onSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
           </section>

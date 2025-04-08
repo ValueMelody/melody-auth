@@ -9,7 +9,7 @@ export interface GoogleSignInProps {
   googleClientId: string;
   locale: typeConfig.Locale;
   params: AuthorizeParams;
-  handleSubmitError: (error: string) => void;
+  onSubmitError: (error: string) => void;
   onSwitchView: (view: View) => void;
 }
 
@@ -17,13 +17,13 @@ const GoogleSignIn = ({
   googleClientId,
   locale,
   params,
-  handleSubmitError,
+  onSubmitError,
   onSwitchView,
 }: GoogleSignInProps) => {
   const { handleGoogleSignIn } = useSocialSignIn({
     params,
     locale,
-    handleSubmitError,
+    onSubmitError,
     onSwitchView,
   })
 

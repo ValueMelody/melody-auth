@@ -20,7 +20,7 @@ export interface FacebookSignInProps {
   facebookClientId: string;
   locale: typeConfig.Locale;
   params: AuthorizeParams;
-  handleSubmitError: (error: string) => void;
+  onSubmitError: (error: string) => void;
   onSwitchView: (view: View) => void;
 }
 
@@ -28,12 +28,12 @@ const FacebookSignIn = ({
   facebookClientId,
   locale,
   params,
-  handleSubmitError,
+  onSubmitError,
   onSwitchView,
 }: FacebookSignInProps) => {
   const { handleFacebookSignIn } = useSocialSignIn({
     params,
-    handleSubmitError,
+    onSubmitError,
     locale,
     onSwitchView,
   })
