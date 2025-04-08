@@ -6,8 +6,8 @@ import { typeConfig } from 'configs'
 
 export interface PasswordlessVerifyProps {
   locale: typeConfig.Locale;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'mfaCode', value: string[]) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'mfaCode', value: string[]) => void;
   resent: boolean;
   values: {
     mfaCode: string[];
@@ -17,17 +17,21 @@ export interface PasswordlessVerifyProps {
   };
   submitError: string | null;
   sendPasswordlessCode: (resend: boolean) => void;
+  isSubmitting: boolean;
+  isSending: boolean;
 }
 
 const PasswordlessVerify = ({
   locale,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   sendPasswordlessCode,
   resent,
   values,
   errors,
   submitError,
+  isSubmitting,
+  isSending,
 }: PasswordlessVerifyProps) => {
   return (
     <>
@@ -36,7 +40,7 @@ const PasswordlessVerify = ({
       />
       <form
         autoComplete='on'
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
       >
         <section className='flex flex-col gap-4 justify-center'>
           <SecondaryButton
@@ -45,6 +49,7 @@ const PasswordlessVerify = ({
               : passwordlessCode.resend[locale]
             }
             disabled={resent}
+            isLoading={isSending}
             onClick={() => sendPasswordlessCode(true)}
           />
           <CodeInput
@@ -52,7 +57,7 @@ const PasswordlessVerify = ({
             required
             code={values.mfaCode ?? []}
             error={errors.mfaCode}
-            setCode={(value) => handleChange(
+            setCode={(value) => onChange(
               'mfaCode',
               value,
             )}
@@ -61,6 +66,7 @@ const PasswordlessVerify = ({
           <PrimaryButton
             title={passwordlessCode.verify[locale]}
             type='submit'
+            isLoading={isSubmitting}
           />
         </section>
       </form>

@@ -31,6 +31,9 @@ const useSignInForm = ({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isPasswordlessSigningIn, setIsPasswordlessSigningIn] = useState(false)
+
   const [touched, setTouched] = useState({
     email: false,
     password: false,
@@ -80,6 +83,8 @@ const useSignInForm = ({
         return
       }
 
+      setIsSubmitting(true)
+
       fetch(
         routeConfig.IdentityRoute.AuthorizePassword,
         {
@@ -109,6 +114,9 @@ const useSignInForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSubmitting(false)
+        })
     },
     [params, locale, onSubmitError, onSwitchView, email, password, errors],
   )
@@ -124,6 +132,8 @@ const useSignInForm = ({
       if (errors.email !== undefined) {
         return
       }
+
+      setIsPasswordlessSigningIn(true)
 
       fetch(
         routeConfig.IdentityRoute.AuthorizePasswordless,
@@ -153,6 +163,9 @@ const useSignInForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsPasswordlessSigningIn(false)
+        })
     },
     [params, locale, onSubmitError, onSwitchView, email, errors],
   )
@@ -166,6 +179,8 @@ const useSignInForm = ({
     handleChange,
     handleSubmit,
     handlePasswordlessSignIn,
+    isSubmitting,
+    isPasswordlessSigningIn,
   }
 }
 

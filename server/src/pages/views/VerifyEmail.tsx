@@ -26,6 +26,7 @@ const VerifyEmail = ({
     handleChange,
     values,
     errors,
+    isSubmitting,
   } = useVerifyEmailForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -35,11 +36,12 @@ const VerifyEmail = ({
     <VerifyEmailBlock
       success={success}
       locale={locale}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       values={values}
       errors={errors}
       submitError={submitError}
+      isSubmitting={isSubmitting}
     />
   )
 }

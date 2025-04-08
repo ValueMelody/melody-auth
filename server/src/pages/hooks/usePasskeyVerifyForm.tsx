@@ -34,6 +34,8 @@ const usePasskeyVerifyForm = ({
 }: UsePasskeyVerifyFormProps) => {
   const [passkeyOption, setPasskeyOption] = useState<GetAuthorizePasskeyVerifyRes['passkeyOption'] | null | false>(null)
 
+  const [isVerifyingPasskey, setIsVerifyingPasskey] = useState(false)
+
   const signInSchema = object({ email: emailField(locale) })
 
   const errors = validate(
@@ -104,6 +106,8 @@ const usePasskeyVerifyForm = ({
         return
       }
 
+      setIsVerifyingPasskey(true)
+
       startAuthentication({ optionsJSON: passkeyOption })
         .then((res) => {
           if (res) {
@@ -113,12 +117,18 @@ const usePasskeyVerifyForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsVerifyingPasskey(false)
+        })
     },
     [passkeyOption, onSubmitError, submitPasskey],
   )
 
   return {
-    passkeyOption, getPasskeyOption, handleVerifyPasskey,
+    passkeyOption,
+    getPasskeyOption,
+    handleVerifyPasskey,
+    isVerifyingPasskey,
   }
 }
 

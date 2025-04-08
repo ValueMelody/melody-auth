@@ -36,6 +36,8 @@ const useSignUpForm = ({
   onSubmitError,
   onSwitchView,
 }: UseSignUpFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -116,6 +118,8 @@ const useSignUpForm = ({
         return
       }
 
+      setIsSubmitting(true)
+
       fetch(
         routeConfig.IdentityRoute.AuthorizeAccount,
         {
@@ -147,6 +151,9 @@ const useSignUpForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSubmitting(false)
+        })
     },
     [params, locale, onSubmitError, initialProps, onSwitchView, email, password, firstName, lastName, errors],
   )
@@ -162,6 +169,7 @@ const useSignUpForm = ({
     },
     handleChange,
     handleSubmit,
+    isSubmitting,
   }
 }
 

@@ -27,7 +27,7 @@ describe(
     const defaultProps = {
       locale: 'en' as any,
       success: false,
-      handleSubmit: vi.fn(),
+      onSubmit: vi.fn(),
       submitError: null as string | null,
       onSwitchView: vi.fn(),
       values: {
@@ -42,9 +42,11 @@ describe(
         password: undefined,
         confirmPassword: undefined,
       },
-      handleChange: vi.fn(),
-      handleResend: vi.fn(),
+      onChange: vi.fn(),
+      onResend: vi.fn(),
       resent: false,
+      isSubmitting: false,
+      isSending: false,
     }
 
     const setup = (props = defaultProps) => {
@@ -58,9 +60,9 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleSubmit.mockReset()
-      defaultProps.handleChange.mockReset()
-      defaultProps.handleResend.mockReset()
+      defaultProps.onSubmit.mockReset()
+      defaultProps.onChange.mockReset()
+      defaultProps.onResend.mockReset()
       defaultProps.onSwitchView.mockReset()
     })
 
@@ -180,7 +182,7 @@ describe(
         )
         expect(primaryButton).toBeDefined()
         fireEvent.click(primaryButton)
-        expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -202,7 +204,7 @@ describe(
         )
         expect(resendButton).toBeDefined()
         fireEvent.click(resendButton)
-        expect(defaultProps.handleResend).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onResend).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -253,7 +255,7 @@ describe(
           emailInput,
           { target: { value: 'test@example.com' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'email',
           'test@example.com',
         )
@@ -278,7 +280,7 @@ describe(
           codeInput,
           { target: { value: '1' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1'],
         )
@@ -304,7 +306,7 @@ describe(
           { target: { value: 'newPassword123' } },
         )
 
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'confirmPassword',
           'newPassword123',
         )
@@ -330,7 +332,7 @@ describe(
           { target: { value: 'myNewPassword123' } },
         )
 
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'password',
           'myNewPassword123',
         )

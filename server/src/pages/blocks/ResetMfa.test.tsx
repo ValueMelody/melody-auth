@@ -23,9 +23,10 @@ describe(
     const defaultProps = {
       locale: 'en' as any,
       success: false,
-      handleSubmit: vi.fn((e: Event) => e.preventDefault()),
+      onSubmit: vi.fn((e: Event) => e.preventDefault()),
       submitError: null as string | null,
       redirectUri: '/redirect',
+      isSubmitting: false,
     }
 
     const setup = (props = defaultProps) => {
@@ -39,7 +40,7 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleSubmit.mockReset()
+      defaultProps.onSubmit.mockReset()
     })
 
     it(
@@ -101,7 +102,7 @@ describe(
         )
         expect(button).toBeDefined()
         fireEvent.click(button)
-        expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
       },
     )
 

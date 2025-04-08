@@ -26,6 +26,7 @@ const ResetMfa = ({
     handleSubmit,
     success,
     redirectUri,
+    isSubmitting,
   } = useResetMfaForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -35,9 +36,10 @@ const ResetMfa = ({
     <ResetMfaBlock
       locale={locale}
       success={success}
-      handleSubmit={handleSubmit}
+      onSubmit={handleSubmit}
       submitError={submitError}
       redirectUri={redirectUri}
+      isSubmitting={isSubmitting}
     />
   )
 }

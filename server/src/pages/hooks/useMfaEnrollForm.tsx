@@ -30,6 +30,7 @@ const useMfaEnrollForm = ({
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
+  const [isEnrolling, setIsEnrolling] = useState(false)
   const [mfaEnrollInfo, setMfaEnrollInfo] = useState<GetProcessMfaEnrollRes | null>(null)
 
   const getMfaEnrollInfo = useCallback(
@@ -57,6 +58,7 @@ const useMfaEnrollForm = ({
 
   const handleEnroll = useCallback(
     (mfaType: userModel.MfaType) => {
+      setIsEnrolling(true)
       fetch(
         routeConfig.IdentityRoute.ProcessMfaEnroll,
         {
@@ -85,6 +87,9 @@ const useMfaEnrollForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsEnrolling(false)
+        })
     },
     [onSubmitError, locale, followUpParams, onSwitchView],
   )
@@ -93,6 +98,7 @@ const useMfaEnrollForm = ({
     mfaEnrollInfo,
     getMfaEnrollInfo,
     handleEnroll,
+    isEnrolling,
   }
 }
 

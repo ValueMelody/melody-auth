@@ -23,8 +23,8 @@ describe(
     const defaultProps = {
       success: false,
       locale: 'en' as any,
-      handleSubmit: vi.fn((e: Event) => e.preventDefault()),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn((e: Event) => e.preventDefault()),
+      onChange: vi.fn(),
       values: {
         firstName: '',
         lastName: '',
@@ -35,6 +35,7 @@ describe(
       },
       submitError: null as string | null,
       redirectUri: 'https://example.com',
+      isSubmitting: false,
     }
 
     const setup = (props = defaultProps) => {
@@ -48,8 +49,8 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleSubmit.mockReset()
-      defaultProps.handleChange.mockReset()
+      defaultProps.onSubmit.mockReset()
+      defaultProps.onChange.mockReset()
     })
 
     it(
@@ -107,7 +108,7 @@ describe(
           updateInfo.confirm.en,
         )
         fireEvent.click(confirmButton)
-        expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -122,7 +123,7 @@ describe(
           firstNameInput,
           { target: { value: 'John' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'firstName',
           'John',
         )
@@ -131,7 +132,7 @@ describe(
           lastNameInput,
           { target: { value: 'Doe' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'lastName',
           'Doe',
         )

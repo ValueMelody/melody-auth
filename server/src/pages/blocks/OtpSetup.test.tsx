@@ -18,11 +18,12 @@ describe(
       locale: 'en' as any,
       otpUri: 'dummy-uri',
       qrCodeEl: dummyRef,
-      handleChange: vi.fn(),
-      handleMfa: vi.fn(),
+      onChange: vi.fn(),
+      onVerifyMfa: vi.fn(),
       submitError: null as string | null,
       values: { mfaCode: [] },
       errors: { mfaCode: undefined },
+      isVerifyingMfa: false,
     }
 
     const setup = (props = defaultProps) => {
@@ -36,8 +37,8 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleChange.mockReset()
-      defaultProps.handleMfa.mockReset()
+      defaultProps.onChange.mockReset()
+      defaultProps.onVerifyMfa.mockReset()
     })
 
     it(
@@ -88,7 +89,7 @@ describe(
           codeInput,
           { target: { value: '1' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1'],
         )
@@ -118,7 +119,7 @@ describe(
         expect(primaryButton).toBeDefined()
 
         fireEvent.click(primaryButton)
-        expect(defaultProps.handleMfa).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onVerifyMfa).toHaveBeenCalledTimes(1)
       },
     )
   },

@@ -23,11 +23,13 @@ const useResetMfaForm = ({
     [],
   )
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
 
   const handleSubmit = (e: Event) => {
     e.preventDefault()
 
+    setIsSubmitting(true)
     fetch(
       routeConfig.IdentityRoute.ResetMfa,
       {
@@ -51,12 +53,16 @@ const useResetMfaForm = ({
       .catch((error) => {
         onSubmitError(error)
       })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
   }
 
   return {
     handleSubmit,
     success,
     redirectUri: followUpParams.redirectUri,
+    isSubmitting,
   }
 }
 

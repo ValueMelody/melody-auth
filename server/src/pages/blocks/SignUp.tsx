@@ -10,8 +10,8 @@ import { typeConfig } from 'configs'
 
 export interface SignUpProps {
   locale: typeConfig.Locale;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'email' | 'password' | 'confirmPassword' | 'firstName' | 'lastName', value: string) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'email' | 'password' | 'confirmPassword' | 'firstName' | 'lastName', value: string) => void;
   values: {
     email: string;
     password: string;
@@ -29,24 +29,26 @@ export interface SignUpProps {
   submitError: string | null;
   onSwitchView: (view: View) => void;
   initialProps: InitialProps;
+  isSubmitting: boolean;
 }
 
 const SignUp = ({
   locale,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   values,
   errors,
   submitError,
   onSwitchView,
   initialProps,
+  isSubmitting,
 }: SignUpProps) => {
   return (
     <>
       <ViewTitle title={signUp.title[locale]} />
       <form
         autoComplete='on'
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
       >
         <section className='flex flex-col gap-2'>
           <Field
@@ -57,7 +59,7 @@ const SignUp = ({
             name='email'
             autoComplete='email'
             error={errors.email}
-            onChange={(value) => handleChange(
+            onChange={(value) => onChange(
               'email',
               value,
             )}
@@ -69,7 +71,7 @@ const SignUp = ({
             value={values.password}
             error={errors.password}
             autoComplete='new-password'
-            onChange={(value) => handleChange(
+            onChange={(value) => onChange(
               'password',
               value,
             )}
@@ -81,7 +83,7 @@ const SignUp = ({
             value={values.confirmPassword}
             error={errors.confirmPassword}
             autoComplete='new-password'
-            onChange={(value) => handleChange(
+            onChange={(value) => onChange(
               'confirmPassword',
               value,
             )}
@@ -95,7 +97,7 @@ const SignUp = ({
                 value={values.firstName}
                 name='firstName'
                 error={errors.firstName}
-                onChange={(value) => handleChange(
+                onChange={(value) => onChange(
                   'firstName',
                   value,
                 )}
@@ -107,7 +109,7 @@ const SignUp = ({
                 value={values.lastName}
                 name='lastName'
                 error={errors.lastName}
-                onChange={(value) => handleChange(
+                onChange={(value) => onChange(
                   'lastName',
                   value,
                 )}
@@ -119,6 +121,7 @@ const SignUp = ({
             className='mt-4'
             title={signUp.signUp[locale]}
             type='submit'
+            isLoading={isSubmitting}
           />
           {(initialProps.termsLink || initialProps.privacyPolicyLink) && (
             <div class='text-center text-gray'>

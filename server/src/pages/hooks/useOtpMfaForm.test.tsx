@@ -51,7 +51,7 @@ test(
     expect(result.current.errors).toEqual({ mfaCode: undefined })
     expect(typeof result.current.getOtpSetupInfo).toBe('function')
     expect(typeof result.current.getOtpMfaInfo).toBe('function')
-    expect(typeof result.current.handleMfa).toBe('function')
+    expect(typeof result.current.handleVerifyMfa).toBe('function')
     expect(typeof result.current.handleChange).toBe('function')
   },
 )
@@ -260,7 +260,7 @@ test(
     const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
 
     await act(async () => {
-      result.current.handleMfa(fakeEvent)
+      result.current.handleVerifyMfa(fakeEvent)
       await Promise.resolve()
     })
 
@@ -308,7 +308,7 @@ test(
     )
 
     await act(async () => {
-      result.current.handleMfa(fakeEvent)
+      result.current.handleVerifyMfa(fakeEvent)
       await Promise.resolve()
     })
 
@@ -348,7 +348,7 @@ test(
     const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
 
     await act(async () => {
-      result.current.handleMfa(fakeEvent)
+      result.current.handleVerifyMfa(fakeEvent)
       await Promise.resolve()
     })
 

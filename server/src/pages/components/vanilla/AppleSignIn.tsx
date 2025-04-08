@@ -13,7 +13,7 @@ export interface AppleSignInProps {
   appleClientId: string;
   locale: typeConfig.Locale;
   params: AuthorizeParams;
-  handleSubmitError: (error: string) => void;
+  onSubmitError: (error: string) => void;
   onSwitchView: (view: View) => void;
 }
 
@@ -22,14 +22,14 @@ const AppleSignIn = ({
   locale,
   params,
   onSwitchView,
-  handleSubmitError,
+  onSubmitError,
 }: AppleSignInProps) => {
   const [scriptLoaded, setScriptLoaded] = useState(false)
 
   const { socialSignInState } = useSocialSignIn({
     params,
     locale,
-    handleSubmitError,
+    onSubmitError,
     onSwitchView,
   })
 

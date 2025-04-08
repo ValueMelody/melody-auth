@@ -30,6 +30,8 @@ const ChangeEmail = ({
     redirectUri,
     resent,
     handleResend,
+    isSubmitting,
+    isResending,
   } = useChangeEmailForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -39,14 +41,16 @@ const ChangeEmail = ({
     <ChangeEmailBlock
       locale={locale}
       success={success}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       values={values}
       errors={errors}
       submitError={submitError}
       redirectUri={redirectUri}
       resent={resent}
-      handleResend={handleResend}
+      onResend={handleResend}
+      isSubmitting={isSubmitting}
+      isResending={isResending}
     />
   )
 }

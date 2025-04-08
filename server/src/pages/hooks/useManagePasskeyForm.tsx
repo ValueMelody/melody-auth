@@ -30,6 +30,9 @@ const useManagePasskeyForm = ({
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
+  const [isRemoving, setIsRemoving] = useState(false)
+  const [isEnrolling, setIsEnrolling] = useState(false)
+
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [passkey, setPasskey] = useState<userPasskeyModel.Record | null>(null)
   const [enrollOptions, setEnrollOptions] = useState<PublicKeyCredentialCreationOptionsJSON | null>(null)
@@ -60,6 +63,7 @@ const useManagePasskeyForm = ({
 
   const handleRemove = useCallback(
     () => {
+      setIsRemoving(true)
       fetch(
         routeConfig.IdentityRoute.ManagePasskey,
         {
@@ -83,6 +87,9 @@ const useManagePasskeyForm = ({
         })
         .catch((error) => {
           onSubmitError(error)
+        })
+        .finally(() => {
+          setIsRemoving(false)
         })
     },
     [locale, onSubmitError, followUpParams],
@@ -122,9 +129,14 @@ const useManagePasskeyForm = ({
   const handleEnroll = useCallback(
     () => {
       if (!enrollOptions) return
+
+      setIsEnrolling(true)
       startRegistration({ optionsJSON: enrollOptions })
         .then((enrollInfo) => {
           if (enrollInfo) submitEnroll(enrollInfo)
+        })
+        .finally(() => {
+          setIsEnrolling(false)
         })
     },
     [enrollOptions, submitEnroll],
@@ -138,6 +150,8 @@ const useManagePasskeyForm = ({
     handleRemove,
     handleEnroll,
     redirectUri: followUpParams.redirectUri,
+    isRemoving,
+    isEnrolling,
   }
 }
 

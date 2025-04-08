@@ -49,7 +49,7 @@ describe(
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError: vi.fn(),
+            onSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView: vi.fn(),
           }))
@@ -75,7 +75,7 @@ describe(
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError: vi.fn(),
+            onSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView: vi.fn(),
           }))
@@ -88,12 +88,11 @@ describe(
     test(
       'handleGoogleSignIn successfully processes valid credential',
       async () => {
-        const handleSubmitError = vi.fn()
         const onSwitchView = vi.fn()
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError,
+            onSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView,
           }))
@@ -151,12 +150,12 @@ describe(
     test(
       'handleGoogleSignIn calls handleSubmitError on fetch failure',
       async () => {
-        const handleSubmitError = vi.fn()
+        const onSubmitError = vi.fn()
         const onSwitchView = vi.fn()
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError,
+            onSubmitError,
             locale: dummyLocale,
             onSwitchView,
           }))
@@ -173,7 +172,7 @@ describe(
           await Promise.resolve()
         })
 
-        expect(handleSubmitError).toHaveBeenCalledWith(expect.any(Error))
+        expect(onSubmitError).toHaveBeenCalledWith(expect.any(Error))
         fetchSpy.mockRestore()
       },
     )
@@ -184,7 +183,7 @@ describe(
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError: vi.fn(),
+            onSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView: vi.fn(),
           }))
@@ -199,12 +198,12 @@ describe(
     test(
       'handleFacebookSignIn successfully processes valid response',
       async () => {
-        const handleSubmitError = vi.fn()
+        const onSubmitError = vi.fn()
         const onSwitchView = vi.fn()
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError,
+            onSubmitError,
             locale: dummyLocale,
             onSwitchView,
           }))
@@ -258,12 +257,12 @@ describe(
     test(
       'handleFacebookSignIn calls handleSubmitError on fetch failure',
       async () => {
-        const handleSubmitError = vi.fn()
+        const onSubmitError = vi.fn()
         const onSwitchView = vi.fn()
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError,
+            onSubmitError,
             locale: dummyLocale,
             onSwitchView,
           }))
@@ -279,7 +278,7 @@ describe(
           await Promise.resolve()
         })
 
-        expect(handleSubmitError).toHaveBeenCalledWith(expect.any(Error))
+        expect(onSubmitError).toHaveBeenCalledWith(expect.any(Error))
         fetchSpy.mockRestore()
       },
     )
@@ -311,7 +310,7 @@ describe(
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError: vi.fn(),
+            onSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView: vi.fn(),
             oidcProviders: ['provider1', 'provider2'],
@@ -330,7 +329,7 @@ describe(
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError: vi.fn(),
+            onSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView: vi.fn(),
           }))
@@ -366,7 +365,7 @@ describe(
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError: vi.fn(),
+            onSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView: vi.fn(),
             oidcProviders: ['provider1', 'provider2'],
@@ -392,7 +391,7 @@ describe(
         const { result } = renderHook(() =>
           useSocialSignIn({
             params: dummyParams,
-            handleSubmitError: vi.fn(),
+            onSubmitError: vi.fn(),
             locale: dummyLocale,
             onSwitchView: vi.fn(),
           }))

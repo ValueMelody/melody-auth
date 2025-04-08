@@ -8,7 +8,7 @@ import { typeConfig } from 'configs'
 export interface ResetPasswordProps {
   locale: typeConfig.Locale;
   success: boolean;
-  handleSubmit: (e: Event) => void;
+  onSubmit: (e: Event) => void;
   submitError: string | null;
   onSwitchView: (view: View) => void;
   values: {
@@ -23,22 +23,26 @@ export interface ResetPasswordProps {
     password: string | undefined;
     confirmPassword: string | undefined;
   };
-  handleChange: (name: 'email' | 'mfaCode' | 'password' | 'confirmPassword', value: string | string[]) => void;
-  handleResend: () => void;
+  onChange: (name: 'email' | 'mfaCode' | 'password' | 'confirmPassword', value: string | string[]) => void;
+  onResend: () => void;
   resent: boolean;
+  isSubmitting: boolean;
+  isSending: boolean;
 }
 
 const ResetPassword = ({
   locale,
   success,
-  handleSubmit,
+  onSubmit,
   submitError,
   onSwitchView,
   values,
   errors,
-  handleChange,
-  handleResend,
+  onChange,
+  onResend,
   resent,
+  isSubmitting,
+  isSending,
 }: ResetPasswordProps) => {
   return (
     <>
@@ -64,7 +68,7 @@ const ResetPassword = ({
           </p>
           <form
             autoComplete='on'
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
           >
             <section className='flex flex-col gap-2'>
               <Field
@@ -75,7 +79,7 @@ const ResetPassword = ({
                 name='email'
                 autoComplete='email'
                 error={errors.email}
-                onChange={(value) => handleChange(
+                onChange={(value) => onChange(
                   'email',
                   value,
                 )}
@@ -87,14 +91,15 @@ const ResetPassword = ({
                       ? resetPassword.resent[locale]
                       : resetPassword.resend[locale]
                     }
-                    onClick={handleResend}
+                    onClick={onResend}
                     disabled={resent}
+                    isLoading={isSending}
                   />
                   <CodeInput
                     label={resetPassword.code[locale]}
                     required
                     code={values.mfaCode}
-                    setCode={(code) => handleChange(
+                    setCode={(code) => onChange(
                       'mfaCode',
                       code,
                     )}
@@ -107,7 +112,7 @@ const ResetPassword = ({
                     value={values.password}
                     error={errors.password}
                     autoComplete='new-password'
-                    onChange={(value) => handleChange(
+                    onChange={(value) => onChange(
                       'password',
                       value,
                     )}
@@ -119,7 +124,7 @@ const ResetPassword = ({
                     value={values.confirmPassword}
                     error={errors.confirmPassword}
                     autoComplete='new-password'
-                    onChange={(value) => handleChange(
+                    onChange={(value) => onChange(
                       'confirmPassword',
                       value,
                     )}
@@ -135,6 +140,7 @@ const ResetPassword = ({
                     ? resetPassword.reset[locale]
                     : resetPassword.send[locale]
                 }
+                isLoading={isSubmitting}
               />
             </section>
           </form>

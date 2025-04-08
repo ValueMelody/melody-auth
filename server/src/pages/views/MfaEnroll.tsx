@@ -26,6 +26,7 @@ const MfaEnroll = ({
     mfaEnrollInfo,
     getMfaEnrollInfo,
     handleEnroll,
+    isEnrolling,
   } = useMfaEnrollForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -43,8 +44,9 @@ const MfaEnroll = ({
     <MfaEnrollBlock
       locale={locale}
       mfaEnrollInfo={mfaEnrollInfo}
-      handleEnroll={handleEnroll}
+      onEnroll={handleEnroll}
       submitError={submitError}
+      isEnrolling={isEnrolling}
     />
   )
 }

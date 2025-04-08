@@ -22,7 +22,7 @@ const PasswordlessVerify = ({
   })
 
   const {
-    resent, values, errors, handleChange, sendPasswordlessCode, handleSubmit,
+    resent, values, errors, handleChange, sendPasswordlessCode, handleSubmit, isSubmitting, isSending,
   } = usePasswordlessVerifyForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -40,12 +40,14 @@ const PasswordlessVerify = ({
     <PasswordlessVerifyBlock
       errors={errors}
       locale={locale}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       resent={resent}
       values={values}
       submitError={submitError}
       sendPasswordlessCode={sendPasswordlessCode}
+      isSubmitting={isSubmitting}
+      isSending={isSending}
     />
   )
 }

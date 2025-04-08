@@ -31,6 +31,9 @@ const usePasswordlessVerifyForm = ({
     [],
   )
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+
   const [resent, setResent] = useState(false)
   const [mfaCode, setMfaCode] = useState<string[]>(new Array(6).fill(''))
   const [touched, setTouched] = useState({ mfaCode: false })
@@ -53,6 +56,7 @@ const usePasswordlessVerifyForm = ({
 
   const sendPasswordlessCode = useCallback(
     (isResend: boolean = false) => {
+      setIsSending(true)
       fetch(
         routeConfig.IdentityRoute.SendPasswordlessCode,
         {
@@ -76,6 +80,9 @@ const usePasswordlessVerifyForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSending(false)
+        })
     },
     [onSubmitError, followUpParams, locale],
   )
@@ -88,6 +95,8 @@ const usePasswordlessVerifyForm = ({
       if (Object.values(errors).some((error) => error !== undefined)) {
         return
       }
+
+      setIsSubmitting(true)
 
       fetch(
         routeConfig.IdentityRoute.ProcessPasswordlessCode,
@@ -117,6 +126,9 @@ const usePasswordlessVerifyForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSubmitting(false)
+        })
     },
     [errors, setTouched, followUpParams, mfaCode, onSwitchView, locale, onSubmitError],
   )
@@ -128,6 +140,8 @@ const usePasswordlessVerifyForm = ({
     handleChange,
     sendPasswordlessCode,
     handleSubmit,
+    isSubmitting,
+    isSending,
   }
 }
 

@@ -15,9 +15,10 @@ import CodeInput from 'pages/components/vanilla/CodeInput'
 import PhoneField from 'pages/components/vanilla/PhoneField'
 import CheckboxInput from 'pages/components/vanilla/CheckboxInput'
 import SuccessMessage from 'pages/components/vanilla/SuccessMessage'
+import Spinner from 'pages/components/vanilla/Spinner'
 
 export {
   LocaleSelector, PrimaryButton, SecondaryButton, ViewTitle, Field, PasswordField,
   GoogleSignIn, FacebookSignIn, GithubSignIn, DiscordSignIn, AppleSignIn, OidcSignIn,
-  SubmitError, CodeInput, PhoneField, CheckboxInput, SuccessMessage,
+  SubmitError, CodeInput, PhoneField, CheckboxInput, SuccessMessage, Spinner,
 }

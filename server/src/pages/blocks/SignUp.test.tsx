@@ -25,8 +25,8 @@ describe(
   () => {
     const defaultProps = {
       locale: 'en' as any,
-      handleSubmit: vi.fn((e: Event) => e.preventDefault()),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn((e: Event) => e.preventDefault()),
+      onChange: vi.fn(),
       values: {
         email: '',
         password: '',
@@ -41,6 +41,7 @@ describe(
         firstName: undefined,
         lastName: undefined,
       },
+      isSubmitting: false,
       submitError: null as string | null,
       onSwitchView: vi.fn(),
       initialProps: {
@@ -62,8 +63,8 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleSubmit.mockReset()
-      defaultProps.handleChange.mockReset()
+      defaultProps.onSubmit.mockReset()
+      defaultProps.onChange.mockReset()
       defaultProps.onSwitchView.mockReset()
     })
 
@@ -134,7 +135,7 @@ describe(
           emailField,
           { target: { value: 'test@example.com' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'email',
           'test@example.com',
         )
@@ -144,7 +145,7 @@ describe(
           passwordField,
           { target: { value: '123456' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'password',
           '123456',
         )
@@ -154,7 +155,7 @@ describe(
           confirmPasswordField,
           { target: { value: '123456' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'confirmPassword',
           '123456',
         )
@@ -165,7 +166,7 @@ describe(
             firstNameField,
             { target: { value: 'John' } },
           )
-          expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          expect(defaultProps.onChange).toHaveBeenCalledWith(
             'firstName',
             'John',
           )
@@ -175,7 +176,7 @@ describe(
             lastNameField,
             { target: { value: 'Doe' } },
           )
-          expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          expect(defaultProps.onChange).toHaveBeenCalledWith(
             'lastName',
             'Doe',
           )
@@ -192,7 +193,7 @@ describe(
           signUp.signUp.en,
         )
         fireEvent.click(signUpButton)
-        expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
       },
     )
 

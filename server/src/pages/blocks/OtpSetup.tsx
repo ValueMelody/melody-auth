@@ -9,8 +9,8 @@ export interface OtpSetupProps {
   locale: typeConfig.Locale;
   otpUri: string;
   qrCodeEl: React.RefObject<HTMLCanvasElement>;
-  handleChange: (name: 'mfaCode', value: string[]) => void;
-  handleMfa: (e: Event) => void;
+  onChange: (name: 'mfaCode', value: string[]) => void;
+  onVerifyMfa: (e: Event) => void;
   submitError: string | null;
   values: {
     mfaCode: string[];
@@ -18,17 +18,19 @@ export interface OtpSetupProps {
   errors: {
     mfaCode: string | undefined;
   };
+  isVerifyingMfa: boolean;
 }
 
 const OtpSetup = ({
   locale,
   otpUri,
   qrCodeEl,
-  handleChange,
-  handleMfa,
+  onChange,
+  onVerifyMfa,
   submitError,
   values,
   errors,
+  isVerifyingMfa,
 }: OtpSetupProps) => {
   return (
     <>
@@ -45,7 +47,7 @@ const OtpSetup = ({
         required={true}
         code={values.mfaCode}
         setCode={(code) => {
-          handleChange(
+          onChange(
             'mfaCode',
             code,
           )
@@ -57,7 +59,8 @@ const OtpSetup = ({
         className='w-(--text-width)'
         type='button'
         title={otpMfa.verify[locale]}
-        onClick={handleMfa}
+        onClick={onVerifyMfa}
+        isLoading={isVerifyingMfa}
       />
     </>
   )

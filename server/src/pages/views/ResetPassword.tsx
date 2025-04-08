@@ -28,6 +28,8 @@ const ResetPassword = ({
     handleResend,
     resent,
     success,
+    isSubmitting,
+    isSending,
   } = useResetPasswordForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -37,14 +39,16 @@ const ResetPassword = ({
     <ResetPasswordBlock
       locale={locale}
       success={success}
-      handleSubmit={handleSubmit}
+      onSubmit={handleSubmit}
       submitError={submitError}
       onSwitchView={onSwitchView}
       values={values}
       errors={errors}
-      handleChange={handleChange}
-      handleResend={handleResend}
+      onChange={handleChange}
+      onResend={handleResend}
       resent={resent}
+      isSubmitting={isSubmitting}
+      isSending={isSending}
     />
   )
 }

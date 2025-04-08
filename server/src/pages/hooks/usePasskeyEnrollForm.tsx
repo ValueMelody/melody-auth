@@ -32,6 +32,9 @@ const usePasskeyEnrollForm = ({
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
+  const [isEnrolling, setIsEnrolling] = useState(false)
+  const [isDeclining, setIsDeclining] = useState(false)
+
   const [enrollOptions, setEnrollOptions] = useState<PublicKeyCredentialCreationOptionsJSON | null>(null)
   const [rememberSkip, setRememberSkip] = useState(false)
 
@@ -97,9 +100,14 @@ const usePasskeyEnrollForm = ({
   const handleEnroll = useCallback(
     () => {
       if (!enrollOptions) return
+
+      setIsEnrolling(true)
       startRegistration({ optionsJSON: enrollOptions })
         .then((enrollInfo) => {
           if (enrollInfo) submitEnroll(enrollInfo)
+        })
+        .finally(() => {
+          setIsEnrolling(false)
         })
     },
     [enrollOptions, submitEnroll],
@@ -107,6 +115,8 @@ const usePasskeyEnrollForm = ({
 
   const handleDecline = useCallback(
     () => {
+      setIsDeclining(true)
+
       fetch(
         routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
         {
@@ -135,6 +145,9 @@ const usePasskeyEnrollForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsDeclining(false)
+        })
     },
     [followUpParams, locale, onSubmitError, onSwitchView, rememberSkip],
   )
@@ -146,6 +159,8 @@ const usePasskeyEnrollForm = ({
     handleRememberSkip,
     handleEnroll,
     handleDecline,
+    isEnrolling,
+    isDeclining,
   }
 }
 

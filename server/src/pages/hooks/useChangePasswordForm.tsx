@@ -27,6 +27,8 @@ const useChangePasswordForm = ({
     [],
   )
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [touched, setTouched] = useState({
@@ -81,6 +83,8 @@ const useChangePasswordForm = ({
       return
     }
 
+    setIsSubmitting(true)
+
     fetch(
       routeConfig.IdentityRoute.ChangePassword,
       {
@@ -111,6 +115,9 @@ const useChangePasswordForm = ({
       .catch((error) => {
         onSubmitError(error)
       })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
   }
 
   return {
@@ -121,6 +128,7 @@ const useChangePasswordForm = ({
     },
     handleChange,
     handleSubmit,
+    isSubmitting,
     success,
     redirectUri: followUpParams.redirectUri,
   }

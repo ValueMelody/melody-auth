@@ -7,17 +7,19 @@ import { typeConfig } from 'configs'
 export interface ResetMfaProps {
   locale: typeConfig.Locale;
   success: boolean;
-  handleSubmit: (e: Event) => void;
+  onSubmit: (e: Event) => void;
   submitError: string | null;
   redirectUri: string;
+  isSubmitting: boolean;
 }
 
 const ResetMfa = ({
   locale,
   success,
-  handleSubmit,
+  onSubmit,
   submitError,
   redirectUri,
+  isSubmitting,
 }: ResetMfaProps) => {
   return (
     <>
@@ -32,7 +34,7 @@ const ResetMfa = ({
         <>
           <ViewTitle title={resetMfa.title[locale]} />
           <form
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
           >
             <section className='flex flex-col gap-2'>
               <p className='w-(--text-width)'>{resetMfa.desc[locale]}</p>
@@ -41,6 +43,7 @@ const ResetMfa = ({
                 className='mt-4'
                 type='submit'
                 title={resetMfa.confirm[locale]}
+                isLoading={isSubmitting}
               />
             </section>
           </form>

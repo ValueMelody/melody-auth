@@ -7,21 +7,23 @@ import { typeConfig } from 'configs'
 export interface VerifyEmailProps {
   success: boolean;
   locale: typeConfig.Locale;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'mfaCode', value: string[]) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'mfaCode', value: string[]) => void;
   values: { mfaCode: string[] };
   errors: { mfaCode: string | undefined };
   submitError: string | null;
+  isSubmitting: boolean;
 }
 
 const VerifyEmail = ({
   success,
   locale,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   values,
   errors,
   submitError,
+  isSubmitting,
 }: VerifyEmailProps) => {
   return (
     <>
@@ -39,13 +41,13 @@ const VerifyEmail = ({
             {verifyEmail.desc[locale]}
           </p>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
           >
             <section className='flex flex-col gap-2'>
               <CodeInput
                 required
                 code={values.mfaCode}
-                setCode={(code) => handleChange(
+                setCode={(code) => onChange(
                   'mfaCode',
                   code,
                 )}
@@ -58,6 +60,7 @@ const VerifyEmail = ({
                 className='mt-4'
                 type='submit'
                 title={verifyEmail.verify[locale]}
+                isLoading={isSubmitting}
               />
             </section>
           </form>

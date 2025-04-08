@@ -31,6 +31,9 @@ const useEmailMfaForm = ({
     [],
   )
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+
   const [resent, setResent] = useState(false)
   const [mfaCode, setMfaCode] = useState<string[]>(new Array(6).fill(''))
   const [touched, setTouched] = useState({ mfaCode: false })
@@ -53,6 +56,8 @@ const useEmailMfaForm = ({
 
   const sendEmailMfa = useCallback(
     (isResend: boolean = false) => {
+      setIsSending(true)
+
       fetch(
         routeConfig.IdentityRoute.SendEmailMfa,
         {
@@ -76,6 +81,9 @@ const useEmailMfaForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSending(false)
+        })
     },
     [onSubmitError, followUpParams, locale],
   )
@@ -88,6 +96,8 @@ const useEmailMfaForm = ({
       if (Object.values(errors).some((error) => error !== undefined)) {
         return
       }
+
+      setIsSubmitting(true)
 
       fetch(
         routeConfig.IdentityRoute.ProcessEmailMfa,
@@ -117,6 +127,9 @@ const useEmailMfaForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSubmitting(false)
+        })
     },
     [errors, setTouched, followUpParams, mfaCode, onSwitchView, locale, onSubmitError],
   )
@@ -128,6 +141,8 @@ const useEmailMfaForm = ({
     handleChange,
     sendEmailMfa,
     handleSubmit,
+    isSubmitting,
+    isSending,
   }
 }
 

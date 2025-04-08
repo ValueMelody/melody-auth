@@ -14,7 +14,7 @@ import { signIn } from 'pages/tools/locale'
 export interface OidcSignInProps {
   locale: typeConfig.Locale;
   params: AuthorizeParams;
-  handleSubmitError: (error: string) => void;
+  onSubmitError: (error: string) => void;
   onSwitchView: (view: View) => void;
   oidcProviders: string[];
 }
@@ -23,7 +23,7 @@ const OidcSignIn = ({
   locale,
   oidcProviders,
   params,
-  handleSubmitError,
+  onSubmitError,
   onSwitchView,
 }: OidcSignInProps) => {
   const [codeChallenge, setCodeChallenge] = useState<string>('')
@@ -33,7 +33,7 @@ const OidcSignIn = ({
   } = useSocialSignIn({
     params,
     locale,
-    handleSubmitError,
+    onSubmitError,
     onSwitchView,
     oidcProviders,
   })

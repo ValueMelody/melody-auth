@@ -7,23 +7,25 @@ import { typeConfig } from 'configs'
 export interface ChangePasswordProps {
   locale: typeConfig.Locale;
   success: boolean;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'password' | 'confirmPassword', value: string) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'password' | 'confirmPassword', value: string) => void;
   values: { password: string; confirmPassword: string };
   errors: { password: string | undefined; confirmPassword: string | undefined };
   submitError: string | null;
   redirectUri: string;
+  isSubmitting: boolean;
 }
 
 const ChangePassword = ({
   locale,
   success,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   values,
   errors,
   submitError,
   redirectUri,
+  isSubmitting,
 }: ChangePasswordProps) => {
   return (
     <>
@@ -37,7 +39,7 @@ const ChangePassword = ({
       <ViewTitle title={changePassword.title[locale]} />
       <form
         autoComplete='on'
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
       >
         <section className='flex flex-col gap-2'>
           <PasswordField
@@ -47,7 +49,7 @@ const ChangePassword = ({
             value={values.password}
             error={errors.password}
             autoComplete='new-password'
-            onChange={(value) => handleChange(
+            onChange={(value) => onChange(
               'password',
               value,
             )}
@@ -58,7 +60,7 @@ const ChangePassword = ({
             name='confirmPassword'
             value={values.confirmPassword}
             error={errors.confirmPassword}
-            onChange={(value) => handleChange(
+            onChange={(value) => onChange(
               'confirmPassword',
               value,
             )}
@@ -66,6 +68,7 @@ const ChangePassword = ({
           <SubmitError error={submitError} />
           <PrimaryButton
             className='mt-4'
+            isLoading={isSubmitting}
             type='submit'
             title={changePassword.confirm[locale]}
           />

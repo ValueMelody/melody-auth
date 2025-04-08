@@ -8,8 +8,8 @@ import { View } from 'pages/hooks'
 
 export interface OtpMfaProps {
   locale: typeConfig.Locale;
-  handleChange: (name: 'mfaCode', value: string[]) => void;
-  handleMfa: (e: Event) => void;
+  onChange: (name: 'mfaCode', value: string[]) => void;
+  onVerifyMfa: (e: Event) => void;
   submitError: string | null;
   allowFallbackToEmailMfa: boolean;
   onSwitchView: (view: View) => void;
@@ -19,17 +19,19 @@ export interface OtpMfaProps {
   errors: {
     mfaCode: string | undefined;
   };
+  isVerifyingMfa: boolean;
 }
 
 const OtpMfa = ({
   locale,
-  handleChange,
-  handleMfa,
+  onChange,
+  onVerifyMfa,
   submitError,
   allowFallbackToEmailMfa,
   onSwitchView,
   values,
   errors,
+  isVerifyingMfa,
 }: OtpMfaProps) => {
   return (
     <>
@@ -40,7 +42,7 @@ const OtpMfa = ({
         required
         code={values.mfaCode}
         setCode={(code) => {
-          handleChange(
+          onChange(
             'mfaCode',
             code,
           )
@@ -52,7 +54,8 @@ const OtpMfa = ({
         className='w-(--text-width)'
         type='button'
         title={otpMfa.verify[locale]}
-        onClick={handleMfa}
+        onClick={onVerifyMfa}
+        isLoading={isVerifyingMfa}
       />
       {allowFallbackToEmailMfa && (
         <SecondaryButton

@@ -14,13 +14,14 @@ describe(
   () => {
     const defaultProps = {
       locale: 'en' as any,
-      handleChange: vi.fn(),
-      handleMfa: vi.fn(),
+      onChange: vi.fn(),
+      onVerifyMfa: vi.fn(),
       submitError: null as string | null,
       allowFallbackToEmailMfa: true,
       onSwitchView: vi.fn(),
       values: { mfaCode: [] },
       errors: { mfaCode: undefined },
+      isVerifyingMfa: false,
     }
 
     const setup = (props = defaultProps) => {
@@ -34,8 +35,8 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleChange.mockReset()
-      defaultProps.handleMfa.mockReset()
+      defaultProps.onChange.mockReset()
+      defaultProps.onVerifyMfa.mockReset()
       defaultProps.onSwitchView.mockReset()
     })
 
@@ -72,7 +73,7 @@ describe(
           otpMfa.verify.en,
         )
         fireEvent.click(primaryButton)
-        expect(defaultProps.handleMfa).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onVerifyMfa).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -118,7 +119,7 @@ describe(
           codeInput,
           { target: { value: '1' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1'],
         )

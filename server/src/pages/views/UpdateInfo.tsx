@@ -28,6 +28,7 @@ const UpdateInfo = ({
     handleSubmit,
     success,
     redirectUri,
+    isSubmitting,
   } = useUpdateInfoForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -37,12 +38,13 @@ const UpdateInfo = ({
     <UpdateInfoBlock
       success={success}
       locale={locale}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       values={values}
       errors={errors}
       submitError={submitError}
       redirectUri={redirectUri}
+      isSubmitting={isSubmitting}
     />
   )
 }

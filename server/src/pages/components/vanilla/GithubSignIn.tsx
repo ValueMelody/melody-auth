@@ -9,7 +9,7 @@ export interface GithubSignInProps {
   githubClientId: string;
   locale: typeConfig.Locale;
   params: AuthorizeParams;
-  handleSubmitError: (error: string) => void;
+  onSubmitError: (error: string) => void;
   onSwitchView: (view: View) => void;
 }
 
@@ -18,12 +18,12 @@ const GithubSignIn = ({
   locale,
   params,
   onSwitchView,
-  handleSubmitError,
+  onSubmitError,
 }: GithubSignInProps) => {
   const { socialSignInState } = useSocialSignIn({
     params,
     locale,
-    handleSubmitError,
+    onSubmitError,
     onSwitchView,
   })
 

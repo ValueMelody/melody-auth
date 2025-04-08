@@ -87,7 +87,7 @@ export enum RequestError {
   SmsMfaLocked = 'Too many SMS verification attempts. Please try again after 30 minutes.',
   EmailMfaLocked = 'Too many Email verification attempts. Please try again after 30 minutes.',
   PasswordResetLocked = 'Too many password reset email requests. Please try again tomorrow.',
-  ChangeEmailLocked = 'Too many password change email requests. Please try again after 30 minutes.',
+  ChangeEmailLocked = 'Too many send email change code requests. Please try again after 30 minutes.',
   UniqueKey = 'Unique key constraint failed',
   UnknownScope = 'Unknown scope',
 }

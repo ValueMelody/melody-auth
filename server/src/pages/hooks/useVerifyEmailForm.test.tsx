@@ -31,6 +31,7 @@ test(
       handleChange: expect.any(Function),
       handleSubmit: expect.any(Function),
       success: false,
+      isSubmitting: false,
     })
   },
 )
@@ -97,6 +98,7 @@ test(
       values: { mfaCode: ['1', '2', '3', '4', '5', '6'] },
       handleChange: expect.any(Function),
       handleSubmit: expect.any(Function),
+      isSubmitting: false,
     })
     expect(fetchSpy).toHaveBeenCalled()
 
@@ -142,6 +144,7 @@ test(
       values: { mfaCode: ['1', '2', '3', '4', '5', '6'] },
       handleChange: expect.any(Function),
       handleSubmit: expect.any(Function),
+      isSubmitting: false,
     })
 
     expect(onSubmitError).toHaveBeenCalledTimes(2)
@@ -198,6 +201,7 @@ test(
       values: { mfaCode: ['1', '2', '3'] },
       handleChange: expect.any(Function),
       handleSubmit: expect.any(Function),
+      isSubmitting: false,
     })
 
     fetchSpy.mockRestore()

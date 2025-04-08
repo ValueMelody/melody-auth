@@ -6,24 +6,28 @@ import { typeConfig } from 'configs'
 
 export interface EmailMfaProps {
   locale: typeConfig.Locale;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'mfaCode', value: string[]) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'mfaCode', value: string[]) => void;
   values: { mfaCode: string[] | null };
   errors: { mfaCode: string | undefined };
   submitError: string | null;
   resent: boolean;
   sendEmailMfa: (send: boolean) => void;
+  isSubmitting: boolean;
+  isSending: boolean;
 }
 
 const EmailMfa = ({
   locale,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   values,
   errors,
   submitError,
   resent,
   sendEmailMfa,
+  isSubmitting,
+  isSending,
 }: EmailMfaProps) => {
   return (
     <>
@@ -32,7 +36,7 @@ const EmailMfa = ({
       />
       <form
         autoComplete='on'
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
       >
         <section className='flex flex-col gap-4 justify-center'>
           <SecondaryButton
@@ -41,6 +45,7 @@ const EmailMfa = ({
               : emailMfa.resend[locale]
             }
             disabled={resent}
+            isLoading={isSending}
             onClick={() => sendEmailMfa(true)}
           />
           <CodeInput
@@ -48,7 +53,7 @@ const EmailMfa = ({
             required
             code={values.mfaCode ?? []}
             error={errors.mfaCode}
-            setCode={(value) => handleChange(
+            setCode={(value) => onChange(
               'mfaCode',
               value,
             )}
@@ -57,6 +62,7 @@ const EmailMfa = ({
           <PrimaryButton
             title={emailMfa.verify[locale]}
             type='submit'
+            isLoading={isSubmitting}
           />
         </section>
       </form>

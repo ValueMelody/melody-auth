@@ -11,7 +11,7 @@ export interface DiscordSignInProps {
   discordClientId: string;
   locale: typeConfig.Locale;
   params: AuthorizeParams;
-  handleSubmitError: (error: string) => void;
+  onSubmitError: (error: string) => void;
   onSwitchView: (view: View) => void;
 }
 
@@ -20,12 +20,12 @@ const DiscordSignIn = ({
   locale,
   params,
   onSwitchView,
-  handleSubmitError,
+  onSubmitError,
 }: DiscordSignInProps) => {
   const { socialSignInState } = useSocialSignIn({
     params,
     locale,
-    handleSubmitError,
+    onSubmitError,
     onSwitchView,
   })
 

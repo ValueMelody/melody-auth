@@ -11,8 +11,8 @@ import { AuthorizeParams } from 'pages/tools/param'
 
 export interface SignInProps {
   locale: typeConfig.Locale;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'email' | 'password', value: string) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'email' | 'password', value: string) => void;
   values: {
     email: string;
     password: string;
@@ -24,38 +24,44 @@ export interface SignInProps {
   submitError: string | null;
   onSwitchView: (view: View) => void;
   initialProps: InitialProps;
-  handleVerifyPasskey: () => void;
-  handlePasswordlessSignIn: (e: Event) => void;
+  onVerifyPasskey: () => void;
+  onPasswordlessSignIn: (e: Event) => void;
   getPasskeyOption: () => void;
   shouldLoadPasskeyInfo: boolean;
   passkeyOption: false | null | PublicKeyCredentialRequestOptionsJSON;
-  handleSubmitError: (error: string) => void;
+  onSubmitError: (error: string) => void;
   params: AuthorizeParams;
+  isSubmitting: boolean;
+  isVerifyingPasskey: boolean;
+  isPasswordlessSigningIn: boolean;
 }
 
 const SignIn = ({
   locale,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   values,
   errors,
   submitError,
   onSwitchView,
   initialProps,
-  handleVerifyPasskey,
-  handlePasswordlessSignIn,
+  onVerifyPasskey,
+  onPasswordlessSignIn,
   getPasskeyOption,
   shouldLoadPasskeyInfo,
   passkeyOption,
-  handleSubmitError,
+  onSubmitError,
   params,
+  isSubmitting,
+  isVerifyingPasskey,
+  isPasswordlessSigningIn,
 }: SignInProps) => {
   return (
     <>
       <ViewTitle title={signIn.title[locale]} />
       <form
         autoComplete='on'
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
       >
         <section className='flex flex-col gap-2'>
           {(initialProps.enablePasswordSignIn || initialProps.enablePasswordlessSignIn) && (
@@ -68,7 +74,7 @@ const SignIn = ({
                 name='email'
                 autoComplete='email'
                 error={errors.email}
-                onChange={(value) => handleChange(
+                onChange={(value) => onChange(
                   'email',
                   value,
                 )}
@@ -79,7 +85,8 @@ const SignIn = ({
                   type='button'
                   className='mt-2 mb-4'
                   title={signIn.withPasskey[locale]}
-                  onClick={handleVerifyPasskey}
+                  onClick={onVerifyPasskey}
+                  isLoading={isVerifyingPasskey}
                 />
               )}
             </>
@@ -92,7 +99,7 @@ const SignIn = ({
               value={values.password}
               error={errors.password}
               autoComplete='current-password'
-              onChange={(value) => handleChange(
+              onChange={(value) => onChange(
                 'password',
                 value,
               )}
@@ -112,6 +119,7 @@ const SignIn = ({
               className='mt-4'
               title={signIn.submit[locale]}
               type='submit'
+              isLoading={isSubmitting}
             />
           )}
           {initialProps.enablePasswordlessSignIn && !shouldLoadPasskeyInfo && (
@@ -119,7 +127,8 @@ const SignIn = ({
               type='button'
               className='mt-4'
               title={signIn.continue[locale]}
-              onClick={handlePasswordlessSignIn}
+              onClick={onPasswordlessSignIn}
+              isLoading={isPasswordlessSigningIn}
             />
           )}
         </section>
@@ -136,42 +145,42 @@ const SignIn = ({
               googleClientId={initialProps.googleClientId}
               locale={locale}
               params={params}
-              handleSubmitError={handleSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <FacebookSignIn
               facebookClientId={initialProps.facebookClientId}
               locale={locale}
               params={params}
-              handleSubmitError={handleSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <GithubSignIn
               githubClientId={initialProps.githubClientId}
               locale={locale}
               params={params}
-              handleSubmitError={handleSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <DiscordSignIn
               discordClientId={initialProps.discordClientId}
               locale={locale}
               params={params}
-              handleSubmitError={handleSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <AppleSignIn
               appleClientId={initialProps.appleClientId}
               locale={locale}
               params={params}
-              handleSubmitError={handleSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
             <OidcSignIn
               oidcProviders={initialProps.oidcProviders}
               locale={locale}
               params={params}
-              handleSubmitError={handleSubmitError}
+              onSubmitError={onSubmitError}
               onSwitchView={onSwitchView}
             />
           </section>

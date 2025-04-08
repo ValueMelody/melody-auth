@@ -24,8 +24,8 @@ describe(
     const defaultProps: ChangeEmailProps = {
       locale: 'en' as any,
       success: false,
-      handleSubmit: vi.fn(),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn(),
+      onChange: vi.fn(),
       values: {
         email: '',
         mfaCode: null,
@@ -37,7 +37,9 @@ describe(
       submitError: null,
       redirectUri: '/login',
       resent: false,
-      handleResend: vi.fn(),
+      onResend: vi.fn(),
+      isSubmitting: false,
+      isResending: false,
     }
 
     const setup = (props = defaultProps) => {
@@ -51,9 +53,9 @@ describe(
     }
 
     beforeEach(() => {
-      (defaultProps.handleSubmit as Mock).mockReset();
-      (defaultProps.handleChange as Mock).mockReset();
-      (defaultProps.handleResend as Mock).mockReset()
+      (defaultProps.onSubmit as Mock).mockReset();
+      (defaultProps.onChange as Mock).mockReset();
+      (defaultProps.onResend as Mock).mockReset()
     })
 
     it(
@@ -118,7 +120,7 @@ describe(
           emailInput,
           { target: { value: 'test@example.com' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'email',
           'test@example.com',
         )
@@ -138,7 +140,7 @@ describe(
 
         if (formElement) {
           fireEvent.click(changeEmailButton)
-          expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+          expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
         }
       },
     )
@@ -199,7 +201,7 @@ describe(
 
         if (resendButton) {
           fireEvent.click(resendButton)
-          expect(defaultProps.handleResend).toHaveBeenCalledTimes(1)
+          expect(defaultProps.onResend).toHaveBeenCalledTimes(1)
         }
       },
     )
@@ -258,7 +260,7 @@ firstCodeInput as HTMLInputElement,
 { target: { value: '1' } },
         )
 
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1', '', '', '', '', ''],
         )

@@ -27,6 +27,8 @@ const PasskeyEnroll = ({
     handleRememberSkip,
     handleEnroll,
     handleDecline,
+    isEnrolling,
+    isDeclining,
   } = usePasskeyEnrollForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -43,11 +45,13 @@ const PasskeyEnroll = ({
   return (
     <PasskeyEnrollBlock
       locale={locale}
-      handleDecline={handleDecline}
-      handleEnroll={handleEnroll}
+      onDecline={handleDecline}
+      onEnroll={handleEnroll}
       submitError={submitError}
       rememberSkip={rememberSkip}
-      handleRememberSkip={handleRememberSkip}
+      onRememberSkip={handleRememberSkip}
+      isEnrolling={isEnrolling}
+      isDeclining={isDeclining}
     />
   )
 }

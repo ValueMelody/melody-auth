@@ -23,13 +23,15 @@ describe(
   () => {
     const defaultProps: PasswordlessVerifyProps = {
       locale: 'en' as any,
-      handleSubmit: vi.fn(),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn(),
+      onChange: vi.fn(),
       resent: false,
       values: { mfaCode: [] },
       errors: { mfaCode: undefined },
       submitError: null,
       sendPasswordlessCode: vi.fn(),
+      isSubmitting: false,
+      isSending: false,
     }
 
     const setup = (props: PasswordlessVerifyProps = defaultProps) => {
@@ -43,8 +45,8 @@ describe(
     }
 
     beforeEach(() => {
-      (defaultProps.handleSubmit as Mock).mockReset();
-      (defaultProps.handleChange as Mock).mockReset();
+      (defaultProps.onSubmit as Mock).mockReset();
+      (defaultProps.onChange as Mock).mockReset();
       (defaultProps.sendPasswordlessCode as Mock).mockReset()
     })
 
@@ -70,7 +72,7 @@ describe(
         )
         expect(button).toBeDefined()
         fireEvent.click(button)
-        expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -121,7 +123,7 @@ describe(
           codeInput,
           { target: { value: '1' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1'],
         )
