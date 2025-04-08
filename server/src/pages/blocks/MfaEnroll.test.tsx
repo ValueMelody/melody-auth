@@ -19,8 +19,9 @@ describe(
     const defaultProps: MfaEnrollProps = {
       locale: 'en' as any,
       mfaEnrollInfo: fakeMfaEnrollInfo,
-      handleEnroll: vi.fn(),
+      onEnroll: vi.fn(),
       submitError: null,
+      isEnrolling: false,
     }
 
     const setup = (props: MfaEnrollProps = defaultProps) => {
@@ -34,7 +35,7 @@ describe(
     }
 
     beforeEach(() => {
-      (defaultProps.handleEnroll as Mock).mockReset()
+      (defaultProps.onEnroll as Mock).mockReset()
     })
 
     it(
@@ -75,7 +76,7 @@ describe(
           mfaEnroll.email.en,
         )
         fireEvent.click(emailButton)
-        expect(defaultProps.handleEnroll).toHaveBeenCalledWith('email')
+        expect(defaultProps.onEnroll).toHaveBeenCalledWith('email')
       },
     )
 

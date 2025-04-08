@@ -36,6 +36,9 @@ const useSmsMfaForm = ({
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+
   const [currentNumber, setCurrentNumber] = useState<string | null>(null)
   const [allowFallbackToEmailMfa, setAllowFallbackToEmailMfa] = useState<boolean>(false)
   const [countryCode, setCountryCode] = useState('')
@@ -121,7 +124,9 @@ const useSmsMfaForm = ({
 
   const requestSetupMfa = useCallback(
     () => {
-      fetch(
+      setIsSending(true)
+
+      return fetch(
         routeConfig.IdentityRoute.SetupSmsMfa,
         {
           method: 'POST',
@@ -145,6 +150,9 @@ const useSmsMfaForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSending(false)
+        })
     },
     [followUpParams, locale, countryCode, phoneNumber, onSubmitError],
   )
@@ -154,6 +162,8 @@ const useSmsMfaForm = ({
       if (errors.phoneNumber !== undefined) {
         return
       }
+
+      setIsSending(true)
 
       if (currentNumber) {
         fetch(
@@ -180,8 +190,13 @@ const useSmsMfaForm = ({
           .catch((error) => {
             onSubmitError(error)
           })
+          .finally(() => {
+            setIsSending(false)
+          })
       } else {
-        requestSetupMfa()
+        requestSetupMfa().finally(() => {
+          setIsSending(false)
+        })
       }
     },
     [
@@ -202,8 +217,12 @@ const useSmsMfaForm = ({
         return
       }
 
+      setIsSubmitting(true)
+
       if (mfaCode === null) {
-        requestSetupMfa()
+        requestSetupMfa().finally(() => {
+          setIsSubmitting(false)
+        })
       } else {
         fetch(
           routeConfig.IdentityRoute.ProcessSmsMfa,
@@ -233,6 +252,9 @@ const useSmsMfaForm = ({
           .catch((error) => {
             onSubmitError(error)
           })
+          .finally(() => {
+            setIsSubmitting(false)
+          })
       }
     },
     [
@@ -255,6 +277,8 @@ const useSmsMfaForm = ({
     handleSubmit,
     handleResend,
     resent,
+    isSubmitting,
+    isSending,
   }
 }
 

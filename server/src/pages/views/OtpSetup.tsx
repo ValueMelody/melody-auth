@@ -27,10 +27,11 @@ const OtpSetup = ({
   const {
     otpUri,
     getOtpSetupInfo,
-    handleMfa,
+    handleVerifyMfa,
     errors,
     values,
     handleChange,
+    isVerifyingMfa,
   } = useOtpMfaForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -63,11 +64,12 @@ const OtpSetup = ({
       locale={locale}
       otpUri={otpUri}
       qrCodeEl={qrCodeEl}
-      handleChange={handleChange}
-      handleMfa={handleMfa}
+      onChange={handleChange}
+      onVerifyMfa={handleVerifyMfa}
       submitError={submitError}
       values={values}
       errors={errors}
+      isVerifyingMfa={isVerifyingMfa}
     />
   )
 }

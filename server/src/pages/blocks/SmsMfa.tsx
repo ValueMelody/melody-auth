@@ -8,8 +8,8 @@ import { smsMfa } from 'pages/tools/locale'
 export interface SmsMfaProps {
   locale: typeConfig.Locale;
   onSwitchView: (view: View) => void;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'phoneNumber' | 'mfaCode', value: string | string[]) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'phoneNumber' | 'mfaCode', value: string | string[]) => void;
   values: { phoneNumber: string; mfaCode: string[] | null };
   errors: { phoneNumber: string | undefined; mfaCode: string | undefined };
   submitError: string | null;
@@ -17,14 +17,16 @@ export interface SmsMfaProps {
   countryCode: string;
   allowFallbackToEmailMfa: boolean;
   resent: boolean;
-  handleResend: () => void;
+  onResend: () => void;
+  isSubmitting: boolean;
+  isSending: boolean;
 }
 
 const SmsMfa = ({
   locale,
   onSwitchView,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   values,
   errors,
   submitError,
@@ -32,7 +34,9 @@ const SmsMfa = ({
   countryCode,
   allowFallbackToEmailMfa,
   resent,
-  handleResend,
+  onResend,
+  isSubmitting,
+  isSending,
 }: SmsMfaProps) => {
   return (
     <>
@@ -41,7 +45,7 @@ const SmsMfa = ({
       />
       <form
         autoComplete='on'
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
       >
         <section className='flex flex-col gap-4 justify-center'>
           <PhoneField
@@ -51,7 +55,7 @@ const SmsMfa = ({
             name='phoneNumber'
             value={currentNumber ?? values.phoneNumber}
             disabled={!!currentNumber}
-            onChange={(value) => handleChange(
+            onChange={(value) => onChange(
               'phoneNumber',
               value,
             )}
@@ -64,15 +68,16 @@ const SmsMfa = ({
                   ? smsMfa.resent[locale]
                   : smsMfa.resend[locale]
                 }
-                onClick={handleResend}
+                onClick={onResend}
                 disabled={resent}
+                isLoading={isSending}
               />
               <CodeInput
                 label={smsMfa.code[locale]}
                 required
                 code={values.mfaCode}
                 error={errors.mfaCode}
-                setCode={(value) => handleChange(
+                setCode={(value) => onChange(
                   'mfaCode',
                   value,
                 )}
@@ -83,6 +88,7 @@ const SmsMfa = ({
           <PrimaryButton
             title={smsMfa.verify[locale]}
             type='submit'
+            isLoading={isSubmitting}
           />
         </section>
       </form>

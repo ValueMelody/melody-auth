@@ -32,6 +32,8 @@ const useConsentForm = ({
 
   const [consentInfo, setConsentInfo] = useState<GetAppConsentRes | null>(null)
 
+  const [isAccepting, setIsAccepting] = useState(false)
+
   const getConsentInfo = useCallback(
     () => {
       fetch(
@@ -57,6 +59,8 @@ const useConsentForm = ({
 
   const handleAccept = useCallback(
     () => {
+      setIsAccepting(true)
+
       fetch(
         routeConfig.IdentityRoute.AppConsent,
         {
@@ -84,6 +88,9 @@ const useConsentForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsAccepting(false)
+        })
     },
     [onSubmitError, locale, followUpParams, onSwitchView],
   )
@@ -100,6 +107,7 @@ const useConsentForm = ({
     consentInfo,
     handleAccept,
     handleDecline,
+    isAccepting,
   }
 }
 

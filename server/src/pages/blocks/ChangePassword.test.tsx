@@ -29,8 +29,8 @@ describe(
     const defaultProps: ChangePasswordProps = {
       locale: 'en' as any,
       success: false,
-      handleSubmit: vi.fn((e) => e.preventDefault()),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn((e) => e.preventDefault()),
+      onChange: vi.fn(),
       values: {
         password: '',
         confirmPassword: '',
@@ -41,6 +41,7 @@ describe(
       },
       submitError: null,
       redirectUri: '/login',
+      isSubmitting: false,
     }
 
     // Setup function to render ChangePassword and return a container element.
@@ -55,8 +56,8 @@ describe(
     }
 
     beforeEach(() => {
-      (defaultProps.handleSubmit as Mock).mockReset();
-      (defaultProps.handleChange as Mock).mockReset()
+      (defaultProps.onSubmit as Mock).mockReset();
+      (defaultProps.onChange as Mock).mockReset()
     })
 
     it(
@@ -139,7 +140,7 @@ describe(
 
         if (submitButton) {
           fireEvent.click(submitButton)
-          expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+          expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
         }
       },
     )
@@ -157,7 +158,7 @@ describe(
             passwordInput,
             { target: { value: 'newpassword' } },
           )
-          expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          expect(defaultProps.onChange).toHaveBeenCalledWith(
             'password',
             'newpassword',
           )
@@ -178,7 +179,7 @@ describe(
             confirmPasswordInput,
             { target: { value: 'newpassword' } },
           )
-          expect(defaultProps.handleChange).toHaveBeenCalledWith(
+          expect(defaultProps.onChange).toHaveBeenCalledWith(
             'confirmPassword',
             'newpassword',
           )

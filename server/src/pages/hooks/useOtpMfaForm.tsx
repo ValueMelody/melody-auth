@@ -35,6 +35,8 @@ const useOtpMfaForm = ({
   )
   const qs = `?code=${followUpParams.code}&locale=${locale}&org=${followUpParams.org}`
 
+  const [isVerifyingMfa, setIsVerifyingMfa] = useState(false)
+
   const [otpUri, setOtpUri] = useState('')
   const [allowFallbackToEmailMfa, setAllowFallbackToEmailMfa] = useState(false)
 
@@ -103,7 +105,7 @@ const useOtpMfaForm = ({
     [onSubmitError, qs],
   )
 
-  const handleMfa = useCallback(
+  const handleVerifyMfa = useCallback(
     (e: Event) => {
       e.preventDefault()
       setTouched({ mfaCode: true })
@@ -111,6 +113,8 @@ const useOtpMfaForm = ({
       if (Object.values(errors).some((error) => error !== undefined)) {
         return
       }
+
+      setIsVerifyingMfa(true)
 
       fetch(
         routeConfig.IdentityRoute.ProcessOtpMfa,
@@ -140,6 +144,9 @@ const useOtpMfaForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsVerifyingMfa(false)
+        })
     },
     [errors, mfaCode, onSubmitError, followUpParams, locale, onSwitchView],
   )
@@ -149,10 +156,11 @@ const useOtpMfaForm = ({
     getOtpSetupInfo,
     getOtpMfaInfo,
     allowFallbackToEmailMfa,
-    handleMfa,
+    handleVerifyMfa,
     errors: { mfaCode: touched.mfaCode ? errors.mfaCode : undefined },
     values,
     handleChange,
+    isVerifyingMfa,
   }
 }
 

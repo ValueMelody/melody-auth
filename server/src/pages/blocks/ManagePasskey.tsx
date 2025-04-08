@@ -9,20 +9,24 @@ export interface ManagePasskeyProps {
   locale: typeConfig.Locale;
   successMessage: string | null;
   passkey: userPasskeyModel.Record | null;
-  handleRemove: () => void;
-  handleEnroll: () => void;
+  onRemove: () => void;
+  onEnroll: () => void;
   submitError: string | null;
   redirectUri: string;
+  isRemoving: boolean;
+  isEnrolling: boolean;
 }
 
 const ManagePasskey = ({
   locale,
   successMessage,
   passkey,
-  handleRemove,
-  handleEnroll,
+  onRemove,
+  onEnroll,
   submitError,
   redirectUri,
+  isRemoving,
+  isEnrolling,
 }: ManagePasskeyProps) => {
   return (
     <>
@@ -51,7 +55,8 @@ const ManagePasskey = ({
             <PrimaryButton
               type='button'
               title={managePasskey.remove[locale]}
-              onClick={handleRemove}
+              isLoading={isRemoving}
+              onClick={onRemove}
             />
           </div>
         )
@@ -65,7 +70,8 @@ const ManagePasskey = ({
           <PrimaryButton
             type='button'
             title={managePasskey.enroll[locale]}
-            onClick={handleEnroll}
+            isLoading={isEnrolling}
+            onClick={onEnroll}
           />
         </div>
       )}

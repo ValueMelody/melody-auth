@@ -24,8 +24,9 @@ const SignIn = ({
     onSwitchView,
     locale,
   })
+
   const {
-    values, errors, handleChange, handleSubmit, handlePasswordlessSignIn,
+    values, errors, handleChange, handleSubmit, handlePasswordlessSignIn, isSubmitting, isPasswordlessSigningIn,
   } = useSignInForm({
     locale,
     params,
@@ -34,8 +35,10 @@ const SignIn = ({
   })
 
   const {
-    passkeyOption, getPasskeyOption,
+    passkeyOption,
+    getPasskeyOption,
     handleVerifyPasskey,
+    isVerifyingPasskey,
   } = usePasskeyVerifyForm({
     params,
     email: values.email,
@@ -49,20 +52,23 @@ const SignIn = ({
   return (
     <SignInBlock
       passkeyOption={passkeyOption}
-      handleSubmitError={handleSubmitError}
+      onSubmitError={handleSubmitError}
       params={params}
       locale={locale}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       values={values}
       errors={errors}
       submitError={submitError}
       onSwitchView={onSwitchView}
       initialProps={initialProps}
-      handleVerifyPasskey={handleVerifyPasskey}
-      handlePasswordlessSignIn={handlePasswordlessSignIn}
+      onVerifyPasskey={handleVerifyPasskey}
+      onPasswordlessSignIn={handlePasswordlessSignIn}
       getPasskeyOption={getPasskeyOption}
       shouldLoadPasskeyInfo={shouldLoadPasskeyInfo}
+      isSubmitting={isSubmitting}
+      isVerifyingPasskey={isVerifyingPasskey}
+      isPasswordlessSigningIn={isPasswordlessSigningIn}
     />
   )
 }

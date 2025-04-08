@@ -21,7 +21,7 @@ const Consent = ({
   })
 
   const {
-    getConsentInfo, consentInfo, handleAccept, handleDecline,
+    getConsentInfo, consentInfo, handleAccept, handleDecline, isAccepting,
   } = useConsentForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -39,9 +39,10 @@ const Consent = ({
     <ConsentBlock
       locale={locale}
       consentInfo={consentInfo}
-      handleDecline={handleDecline}
-      handleAccept={handleAccept}
+      onDecline={handleDecline}
+      onAccept={handleAccept}
       submitError={submitError}
+      isAccepting={isAccepting}
     />
   )
 }

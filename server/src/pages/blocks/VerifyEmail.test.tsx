@@ -23,11 +23,12 @@ describe(
     const defaultProps = {
       success: false,
       locale: 'en' as any,
-      handleSubmit: vi.fn(),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn(),
+      onChange: vi.fn(),
       values: { mfaCode: [''] },
       errors: { mfaCode: undefined },
       submitError: null as string | null,
+      isSubmitting: false,
     }
 
     const setup = (props = defaultProps) => {
@@ -41,8 +42,8 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleSubmit.mockReset()
-      defaultProps.handleChange.mockReset()
+      defaultProps.onSubmit.mockReset()
+      defaultProps.onChange.mockReset()
     })
 
     it(
@@ -100,7 +101,7 @@ describe(
           verifyEmail.verify.en,
         )
         fireEvent.click(verifyButton)
-        expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -116,7 +117,7 @@ describe(
           codeInput,
           { target: { value: '1' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1'],
         )

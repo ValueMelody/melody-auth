@@ -7,23 +7,25 @@ import { updateInfo } from 'pages/tools/locale'
 export interface UpdateInfoProps {
   success: boolean;
   locale: typeConfig.Locale;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'firstName' | 'lastName', value: string) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'firstName' | 'lastName', value: string) => void;
   values: { firstName: string; lastName: string };
   errors: { firstName: string | undefined; lastName: string | undefined };
   submitError: string | null;
   redirectUri: string;
+  isSubmitting: boolean;
 }
 
 const UpdateInfo = ({
   success,
   locale,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   values,
   errors,
   submitError,
   redirectUri,
+  isSubmitting,
 }: UpdateInfoProps) => {
   return (
     <>
@@ -37,7 +39,7 @@ const UpdateInfo = ({
       <ViewTitle title={updateInfo.title[locale]} />
       <form
         autoComplete='on'
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
       >
         <section className='flex flex-col gap-2'>
           <Field
@@ -47,7 +49,7 @@ const UpdateInfo = ({
             value={values.firstName}
             name='firstName'
             error={errors.firstName}
-            onChange={(value) => handleChange(
+            onChange={(value) => onChange(
               'firstName',
               value,
             )}
@@ -59,7 +61,7 @@ const UpdateInfo = ({
             value={values.lastName}
             name='lastName'
             error={errors.lastName}
-            onChange={(value) => handleChange(
+            onChange={(value) => onChange(
               'lastName',
               value,
             )}
@@ -69,6 +71,7 @@ const UpdateInfo = ({
             className='mt-4'
             type='submit'
             title={updateInfo.confirm[locale]}
+            isLoading={isSubmitting}
           />
         </section>
       </form>

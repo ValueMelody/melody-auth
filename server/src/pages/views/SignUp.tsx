@@ -25,7 +25,7 @@ const SignUp = ({
     locale,
   })
   const {
-    values, errors, handleChange, handleSubmit,
+    values, errors, handleChange, handleSubmit, isSubmitting,
   } = useSignUpForm({
     locale,
     initialProps,
@@ -37,13 +37,14 @@ const SignUp = ({
   return (
     <SignUpBlock
       locale={locale}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       values={values}
       errors={errors}
       submitError={submitError}
       onSwitchView={onSwitchView}
       initialProps={initialProps}
+      isSubmitting={isSubmitting}
     />
   )
 }

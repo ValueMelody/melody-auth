@@ -7,43 +7,39 @@ import {
 export interface ChangeEmailProps {
   locale: typeConfig.Locale;
   success: boolean;
-  handleSubmit: (e: Event) => void;
-  handleChange: (name: 'email' | 'mfaCode', value: string | string[]) => void;
+  onSubmit: (e: Event) => void;
+  onChange: (name: 'email' | 'mfaCode', value: string | string[]) => void;
   values: { email: string; mfaCode: string[] | null };
   errors: { email: string | undefined; mfaCode: string | undefined };
   submitError: string | null;
   redirectUri: string;
   resent: boolean;
-  handleResend: () => void;
+  onResend: () => void;
+  isSubmitting: boolean;
+  isResending: boolean;
 }
 
 const ChangeEmail = ({
   locale,
   success,
-  handleSubmit,
-  handleChange,
+  onSubmit,
+  onChange,
   values,
   errors,
   submitError,
   redirectUri,
   resent,
-  handleResend,
+  onResend,
+  isSubmitting,
+  isResending,
 }: ChangeEmailProps) => {
   return (
     <>
       {success && (
-        <section className='flex flex-col gap-4'>
-          <section className='flex justify-center w-full'>
-            <SuccessMessage
-              message={changeEmail.success[locale]}
-            />
-          </section>
-          <a
-            className='mt-6'
-            href={redirectUri}
-          >
-            {changeEmail.redirect[locale]}
-          </a>
+        <section className='flex justify-center w-full'>
+          <SuccessMessage
+            message={changeEmail.success[locale]}
+          />
         </section>
       )}
       {!success && (
@@ -51,7 +47,7 @@ const ChangeEmail = ({
           <ViewTitle title={changeEmail.title[locale]} />
           <form
             autoComplete='on'
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
           >
             <section className='flex flex-col gap-2'>
               <Field
@@ -62,7 +58,7 @@ const ChangeEmail = ({
                 name='email'
                 autoComplete='email'
                 error={errors.email}
-                onChange={(value) => handleChange(
+                onChange={(value) => onChange(
                   'email',
                   value,
                 )}
@@ -74,14 +70,15 @@ const ChangeEmail = ({
                       ? changeEmail.resent[locale]
                       : changeEmail.resend[locale]
                     }
-                    onClick={handleResend}
+                    isLoading={isResending}
+                    onClick={onResend}
                     disabled={resent}
                   />
                   <CodeInput
                     label={changeEmail.code[locale]}
                     required
                     code={values.mfaCode}
-                    setCode={(code) => handleChange(
+                    setCode={(code) => onChange(
                       'mfaCode',
                       code,
                     )}
@@ -93,6 +90,7 @@ const ChangeEmail = ({
               <PrimaryButton
                 className='mt-4'
                 type='submit'
+                isLoading={isSubmitting}
                 title={
                   values.mfaCode !== null
                     ? changeEmail.confirm[locale]
@@ -103,6 +101,12 @@ const ChangeEmail = ({
           </form>
         </>
       )}
+      <a
+        className='mt-6 text-center'
+        href={redirectUri}
+      >
+        {changeEmail.redirect[locale]}
+      </a>
     </>
   )
 }

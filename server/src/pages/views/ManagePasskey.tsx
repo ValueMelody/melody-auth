@@ -22,7 +22,7 @@ const ManagePasskey = ({
   })
 
   const {
-    successMessage, getManagePasskeyInfo, passkey, handleRemove, handleEnroll, redirectUri,
+    successMessage, getManagePasskeyInfo, passkey, handleRemove, handleEnroll, redirectUri, isRemoving, isEnrolling,
   } = useManagePasskeyForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -40,10 +40,12 @@ const ManagePasskey = ({
       locale={locale}
       successMessage={successMessage}
       passkey={passkey}
-      handleRemove={handleRemove}
-      handleEnroll={handleEnroll}
+      onRemove={handleRemove}
+      onEnroll={handleEnroll}
       submitError={submitError}
       redirectUri={redirectUri}
+      isRemoving={isRemoving}
+      isEnrolling={isEnrolling}
     />
   )
 }

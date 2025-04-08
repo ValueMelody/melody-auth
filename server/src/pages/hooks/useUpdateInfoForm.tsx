@@ -28,6 +28,8 @@ const useUpdateInfoForm = ({
     [],
   )
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [touched, setTouched] = useState({
@@ -82,6 +84,8 @@ const useUpdateInfoForm = ({
       return
     }
 
+    setIsSubmitting(true)
+
     fetch(
       routeConfig.IdentityRoute.UpdateInfo,
       {
@@ -107,6 +111,9 @@ const useUpdateInfoForm = ({
       .catch((error) => {
         onSubmitError(error)
       })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
   }
 
   return {
@@ -119,6 +126,7 @@ const useUpdateInfoForm = ({
     handleSubmit,
     success,
     redirectUri: followUpParams.redirectUri,
+    isSubmitting,
   }
 }
 

@@ -30,10 +30,12 @@ describe(
       locale: 'en' as any,
       successMessage: null,
       passkey: fakePasskey,
-      handleRemove: vi.fn(),
-      handleEnroll: vi.fn(),
+      onRemove: vi.fn(),
+      onEnroll: vi.fn(),
       submitError: null,
       redirectUri: '/dashboard',
+      isRemoving: false,
+      isEnrolling: false,
     }
 
     const setup = (props: ManagePasskeyProps = defaultProps) => {
@@ -47,8 +49,8 @@ describe(
     }
 
     beforeEach(() => {
-      (defaultProps.handleRemove as Mock).mockReset();
-      (defaultProps.handleEnroll as Mock).mockReset()
+      (defaultProps.onRemove as Mock).mockReset();
+      (defaultProps.onEnroll as Mock).mockReset()
     })
 
     it(
@@ -88,7 +90,7 @@ describe(
         expect(removeButton).toBeDefined()
 
         fireEvent.click(removeButton)
-        expect(defaultProps.handleRemove).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onRemove).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -115,7 +117,7 @@ describe(
         expect(enrollButton).toBeDefined()
 
         fireEvent.click(enrollButton)
-        expect(defaultProps.handleEnroll).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onEnroll).toHaveBeenCalledTimes(1)
       },
     )
 

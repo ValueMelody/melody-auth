@@ -546,8 +546,8 @@ export const requestError = Object.freeze({
     fr: 'Trop de demandes de réinitialisation de mot de passe. Veuillez réessayer demain.',
   },
   changeEmailLocked: {
-    en: 'Too many password change email requests. Please try again after 30 minutes.',
-    fr: 'Trop de demandes de modification de mot de passe par e-mail. Veuillez réessayer dans 30 minutes.',
+    en: 'Too many send email change code requests. Please try again after 30 minutes.',
+    fr: 'Trop de demandes de modification de code de changement d\'adresse e-mail. Veuillez réessayer dans 30 minutes.',
   },
   emailTaken: {
     en: 'The email address is already in use.',

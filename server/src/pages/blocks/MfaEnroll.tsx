@@ -11,15 +11,17 @@ import { typeConfig } from 'configs'
 export interface MfaEnrollProps {
   locale: typeConfig.Locale;
   mfaEnrollInfo: GetProcessMfaEnrollRes | null;
-  handleEnroll: (mfaType: MfaType) => void;
+  onEnroll: (mfaType: MfaType) => void;
   submitError: string | null;
+  isEnrolling: boolean;
 }
 
 const MfaEnroll = ({
   locale,
   mfaEnrollInfo,
-  handleEnroll,
+  onEnroll,
   submitError,
+  isEnrolling,
 }: MfaEnrollProps) => {
   return (
     <>
@@ -29,7 +31,8 @@ const MfaEnroll = ({
           <SecondaryButton
             key={mfaType}
             title={mfaEnroll[mfaType][locale]}
-            onClick={() => handleEnroll(mfaType)}
+            onClick={() => onEnroll(mfaType)}
+            isLoading={isEnrolling}
           />
         ))}
       </section>

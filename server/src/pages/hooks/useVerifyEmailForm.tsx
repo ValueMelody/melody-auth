@@ -25,6 +25,8 @@ const useVerifyEmailForm = ({
     [],
   )
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [mfaCode, setMfaCode] = useState<string[]>([])
   const [success, setSuccess] = useState(false)
 
@@ -62,6 +64,8 @@ const useVerifyEmailForm = ({
         return
       }
 
+      setIsSubmitting(true)
+
       fetch(
         routeConfig.IdentityRoute.VerifyEmail,
         {
@@ -83,6 +87,9 @@ const useVerifyEmailForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSubmitting(false)
+        })
     },
     [mfaCode, verifyEmailParams.id, onSubmitError, errors],
   )
@@ -93,6 +100,7 @@ const useVerifyEmailForm = ({
     handleChange,
     handleSubmit,
     success,
+    isSubmitting,
   }
 }
 

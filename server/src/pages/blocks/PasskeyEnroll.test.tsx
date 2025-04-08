@@ -13,11 +13,13 @@ describe(
   () => {
     const defaultProps = {
       locale: 'en' as any,
-      handleDecline: vi.fn(),
-      handleEnroll: vi.fn(),
+      onDecline: vi.fn(),
+      onEnroll: vi.fn(),
       submitError: null as string | null,
       rememberSkip: false,
-      handleRememberSkip: vi.fn(),
+      onRememberSkip: vi.fn(),
+      isEnrolling: false,
+      isDeclining: false,
     }
 
     const setup = (props = defaultProps) => {
@@ -31,9 +33,9 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleDecline.mockReset()
-      defaultProps.handleEnroll.mockReset()
-      defaultProps.handleRememberSkip.mockReset()
+      defaultProps.onDecline.mockReset()
+      defaultProps.onEnroll.mockReset()
+      defaultProps.onRememberSkip.mockReset()
     })
 
     it(
@@ -65,10 +67,10 @@ describe(
         expect(enrollButton).toBeDefined()
 
         fireEvent.click(skipButton)
-        expect(defaultProps.handleDecline).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onDecline).toHaveBeenCalledTimes(1)
 
         fireEvent.click(enrollButton)
-        expect(defaultProps.handleEnroll).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onEnroll).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -101,16 +103,7 @@ describe(
         expect(checkboxInput.checked).toBe(true)
 
         fireEvent.click(checkboxInput)
-        expect(defaultProps.handleRememberSkip).toHaveBeenCalledWith(false)
-      },
-    )
-
-    it(
-      'renders the external script tag',
-      () => {
-        const container = setup()
-        const scriptTag = container.querySelector('script[src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"]')
-        expect(scriptTag).toBeDefined()
+        expect(defaultProps.onRememberSkip).toHaveBeenCalledWith(false)
       },
     )
   },

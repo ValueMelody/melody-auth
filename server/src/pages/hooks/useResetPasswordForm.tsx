@@ -21,6 +21,9 @@ const useResetPasswordForm = ({
   locale,
   onSubmitError,
 }: UseResetPasswordFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+
   const [email, setEmail] = useState('')
   const [mfaCode, setMfaCode] = useState<string[] | null>(null)
   const [password, setPassword] = useState('')
@@ -83,6 +86,7 @@ const useResetPasswordForm = ({
 
   const handleResend = useCallback(
     () => {
+      setIsSending(true)
       fetch(
         routeConfig.IdentityRoute.ResetPasswordCode,
         {
@@ -104,6 +108,9 @@ const useResetPasswordForm = ({
         .catch((error) => {
           onSubmitError(error)
         })
+        .finally(() => {
+          setIsSending(false)
+        })
     },
     [email, locale, onSubmitError],
   )
@@ -121,6 +128,8 @@ const useResetPasswordForm = ({
       if (Object.values(errors).some((error) => error !== undefined)) {
         return
       }
+
+      setIsSubmitting(true)
 
       if (mfaCode === null) {
         fetch(
@@ -143,6 +152,9 @@ const useResetPasswordForm = ({
           })
           .catch((error) => {
             onSubmitError(error)
+          })
+          .finally(() => {
+            setIsSubmitting(false)
           })
       } else {
         fetch(
@@ -167,6 +179,9 @@ const useResetPasswordForm = ({
           .catch((error) => {
             onSubmitError(error)
           })
+          .finally(() => {
+            setIsSubmitting(false)
+          })
       }
     },
     [errors, email, mfaCode, locale, onSubmitError, password],
@@ -185,6 +200,8 @@ const useResetPasswordForm = ({
     handleResend,
     resent,
     success,
+    isSubmitting,
+    isSending,
   }
 }
 

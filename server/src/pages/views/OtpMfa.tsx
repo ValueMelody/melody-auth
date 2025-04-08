@@ -24,10 +24,11 @@ const OtpMfa = ({
   const {
     allowFallbackToEmailMfa,
     getOtpMfaInfo,
-    handleMfa,
+    handleVerifyMfa,
     errors,
     values,
     handleChange,
+    isVerifyingMfa,
   } = useOtpMfaForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -44,13 +45,14 @@ const OtpMfa = ({
   return (
     <OtpMfaBlock
       locale={locale}
-      handleChange={handleChange}
-      handleMfa={handleMfa}
+      onChange={handleChange}
+      onVerifyMfa={handleVerifyMfa}
       submitError={submitError}
       allowFallbackToEmailMfa={allowFallbackToEmailMfa}
       onSwitchView={onSwitchView}
       values={values}
       errors={errors}
+      isVerifyingMfa={isVerifyingMfa}
     />
   )
 }

@@ -71,9 +71,10 @@ describe(
     const defaultProps: ConsentProps = {
       locale: 'en' as any,
       consentInfo: defaultConsentInfo as unknown as GetAppConsentRes,
-      handleDecline: vi.fn(),
-      handleAccept: vi.fn(),
+      onDecline: vi.fn(),
+      onAccept: vi.fn(),
       submitError: null,
+      isAccepting: false,
     }
 
     const setup = (props: ConsentProps = defaultProps) => {
@@ -87,8 +88,8 @@ describe(
     }
 
     beforeEach(() => {
-      (defaultProps.handleDecline as Mock).mockReset();
-      (defaultProps.handleAccept as Mock).mockReset()
+      (defaultProps.onDecline as Mock).mockReset();
+      (defaultProps.onAccept as Mock).mockReset()
     })
 
     it(
@@ -169,7 +170,7 @@ describe(
         )
         expect(declineButton).toBeDefined()
         fireEvent.click(declineButton)
-        expect(defaultProps.handleDecline).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onDecline).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -183,7 +184,7 @@ describe(
         )
         expect(acceptButton).toBeDefined()
         fireEvent.click(acceptButton)
-        expect(defaultProps.handleAccept).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onAccept).toHaveBeenCalledTimes(1)
       },
     )
 

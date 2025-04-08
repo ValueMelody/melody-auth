@@ -22,7 +22,7 @@ const EmailMfa = ({
   })
 
   const {
-    resent, values, errors, handleChange, sendEmailMfa, handleSubmit,
+    resent, values, errors, handleChange, sendEmailMfa, handleSubmit, isSubmitting, isSending,
   } = useEmailMfaForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -41,11 +41,13 @@ const EmailMfa = ({
       locale={locale}
       resent={resent}
       sendEmailMfa={sendEmailMfa}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       values={values}
       errors={errors}
       submitError={submitError}
+      isSubmitting={isSubmitting}
+      isSending={isSending}
     />
   )
 }

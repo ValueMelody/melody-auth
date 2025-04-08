@@ -24,13 +24,15 @@ describe(
   () => {
     const defaultProps: EmailMfaProps = {
       locale: 'en' as any,
-      handleSubmit: vi.fn(),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn(),
+      onChange: vi.fn(),
       values: { mfaCode: null },
       errors: { mfaCode: undefined },
       submitError: null,
       resent: false,
       sendEmailMfa: vi.fn(),
+      isSubmitting: false,
+      isSending: false,
     }
 
     const setup = (props: EmailMfaProps = defaultProps) => {
@@ -44,8 +46,8 @@ describe(
     }
 
     beforeEach(() => {
-      (defaultProps.handleSubmit as Mock).mockReset();
-      (defaultProps.handleChange as Mock).mockReset();
+      (defaultProps.onSubmit as Mock).mockReset();
+      (defaultProps.onChange as Mock).mockReset();
       (defaultProps.sendEmailMfa as Mock).mockReset()
     })
 
@@ -128,7 +130,7 @@ describe(
           codeInput,
           { target: { value: '1' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1'],
         )
@@ -146,7 +148,7 @@ describe(
         expect(button).toBeDefined()
         if (button) {
           fireEvent.click(button)
-          expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+          expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
         }
       },
     )
@@ -209,7 +211,7 @@ describe(
           firstInput,
           { clipboardData: { getData: () => pasteValue } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['3', '2', '1', '', '', ''],
         )
@@ -328,7 +330,7 @@ describe(
           firstInput,
           { target: { value: '' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['', '', '', '', '', ''],
         )
@@ -354,7 +356,7 @@ describe(
           firstInput,
           { target: { value: '78' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['7', '8', '', '', '', ''],
         )

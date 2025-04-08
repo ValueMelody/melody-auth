@@ -27,8 +27,8 @@ describe(
   () => {
     const defaultProps = {
       locale: 'en' as any,
-      handleSubmit: vi.fn((e: Event) => e.preventDefault()),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn((e: Event) => e.preventDefault()),
+      onChange: vi.fn(),
       values: {
         email: '',
         password: '',
@@ -52,12 +52,16 @@ describe(
         enablePasswordReset: true,
         oidcProviders: [],
       } as unknown as InitialProps,
-      handleVerifyPasskey: vi.fn(),
-      handlePasswordlessSignIn: vi.fn((e: Event) => e.preventDefault()),
+      onVerifyPasskey: vi.fn(),
+      onPasswordlessSignIn: vi.fn((e: Event) => e.preventDefault()),
       getPasskeyOption: vi.fn(),
       shouldLoadPasskeyInfo: false,
       passkeyOption: null as false | PublicKeyCredentialRequestOptionsJSON | null,
-      handleSubmitError: vi.fn(),
+      onSubmitError: vi.fn(),
+      isSubmitting: false,
+      isSending: false,
+      isVerifyingPasskey: false,
+      isPasswordlessSigningIn: false,
       params: { scope: 'openid email profile' } as any,
     }
 
@@ -72,13 +76,13 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.handleSubmit.mockReset()
-      defaultProps.handleChange.mockReset()
+      defaultProps.onSubmit.mockReset()
+      defaultProps.onChange.mockReset()
       defaultProps.onSwitchView.mockReset()
-      defaultProps.handleVerifyPasskey.mockReset()
-      defaultProps.handlePasswordlessSignIn.mockReset()
+      defaultProps.onVerifyPasskey.mockReset()
+      defaultProps.onPasswordlessSignIn.mockReset()
       defaultProps.getPasskeyOption.mockReset()
-      defaultProps.handleSubmitError.mockReset()
+      defaultProps.onSubmitError.mockReset()
       vi.resetAllMocks()
     })
 
@@ -104,7 +108,7 @@ describe(
           emailField,
           { target: { value: 'user@example.com' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'email',
           'user@example.com',
         )
@@ -124,7 +128,7 @@ describe(
         )
         expect(withPasskeyButton).toBeDefined()
         fireEvent.click(withPasskeyButton)
-        expect(defaultProps.handleVerifyPasskey).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onVerifyPasskey).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -138,7 +142,7 @@ describe(
           passwordField,
           { target: { value: 'password123' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'password',
           'password123',
         )
@@ -172,7 +176,7 @@ describe(
         )
         expect(submitButton).toBeDefined()
         fireEvent.click(submitButton)
-        expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -476,7 +480,7 @@ describe(
 
         // Test continue button click
         fireEvent.click(continueButton)
-        expect(defaultProps.handlePasswordlessSignIn).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onPasswordlessSignIn).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -498,7 +502,7 @@ describe(
           emailField,
           { target: { value: 'test@example.com' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'email',
           'test@example.com',
         )

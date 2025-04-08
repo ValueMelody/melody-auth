@@ -29,6 +29,9 @@ const useChangeEmailForm = ({
     [],
   )
 
+  const [isResending, setIsResending] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [email, setEmail] = useState('')
   const [mfaCode, setMfaCode] = useState<string[] | null>(null)
   const [success, setSuccess] = useState(false)
@@ -107,6 +110,8 @@ const useChangeEmailForm = ({
         return
       }
 
+      setIsSubmitting(true)
+
       if (mfaCode === null) {
         sendCode()
           .then(parseResponse)
@@ -115,6 +120,9 @@ const useChangeEmailForm = ({
           })
           .catch((error) => {
             onSubmitError(error)
+          })
+          .finally(() => {
+            setIsSubmitting(false)
           })
       } else {
         fetch(
@@ -142,6 +150,9 @@ const useChangeEmailForm = ({
           .catch((error) => {
             onSubmitError(error)
           })
+          .finally(() => {
+            setIsSubmitting(false)
+          })
       }
     },
     [onSubmitError, sendCode, mfaCode, errors, email, followUpParams, locale],
@@ -149,6 +160,7 @@ const useChangeEmailForm = ({
 
   const handleResend = useCallback(
     () => {
+      setIsResending(true)
       sendCode()
         .then(parseResponse)
         .then(() => {
@@ -157,6 +169,9 @@ const useChangeEmailForm = ({
         })
         .catch((error) => {
           onSubmitError(error)
+        })
+        .finally(() => {
+          setIsResending(false)
         })
     },
     [onSubmitError, sendCode],
@@ -170,9 +185,11 @@ const useChangeEmailForm = ({
     },
     handleChange,
     handleSubmit,
+    isSubmitting,
     success,
     resent,
     handleResend,
+    isResending,
     redirectUri: followUpParams.redirectUri,
   }
 }

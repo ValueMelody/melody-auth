@@ -6,20 +6,24 @@ import { typeConfig } from 'configs'
 
 export interface PasskeyEnrollProps {
   locale: typeConfig.Locale;
-  handleDecline: () => void;
-  handleEnroll: () => void;
+  onDecline: () => void;
+  onEnroll: () => void;
   submitError: string | null;
   rememberSkip: boolean;
-  handleRememberSkip: (checked: boolean) => void;
+  onRememberSkip: (checked: boolean) => void;
+  isEnrolling: boolean;
+  isDeclining: boolean;
 }
 
 const PasskeyEnroll = ({
   locale,
-  handleDecline,
-  handleEnroll,
+  onDecline,
+  onEnroll,
   submitError,
   rememberSkip,
-  handleRememberSkip,
+  onRememberSkip,
+  isEnrolling,
+  isDeclining,
 }: PasskeyEnrollProps) => {
   return (
     <>
@@ -27,11 +31,13 @@ const PasskeyEnroll = ({
       <section class='mt-4 flex items-center justify-center gap-8 w-full'>
         <SecondaryButton
           title={passkeyEnroll.skip[locale]}
-          onClick={handleDecline}
+          onClick={onDecline}
+          isLoading={isDeclining}
         />
         <SecondaryButton
           title={passkeyEnroll.enroll[locale]}
-          onClick={handleEnroll}
+          onClick={onEnroll}
+          isLoading={isEnrolling}
         />
       </section>
       <SubmitError error={submitError} />
@@ -39,7 +45,7 @@ const PasskeyEnroll = ({
         id='skipPasskeyEnroll'
         label={passkeyEnroll.rememberSkip[locale]}
         checked={rememberSkip}
-        onChange={handleRememberSkip}
+        onChange={onRememberSkip}
       />
     </>
   )

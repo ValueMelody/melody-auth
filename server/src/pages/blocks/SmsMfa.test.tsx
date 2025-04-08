@@ -24,8 +24,11 @@ describe(
     const defaultProps = {
       locale: 'en' as any,
       onSwitchView: vi.fn(),
-      handleSubmit: vi.fn((e: Event) => e.preventDefault()),
-      handleChange: vi.fn(),
+      onSubmit: vi.fn((e: Event) => e.preventDefault()),
+      onChange: vi.fn(),
+      onResend: vi.fn(),
+      isSubmitting: false,
+      isSending: false,
       values: {
         phoneNumber: '',
         mfaCode: null as string[] | null,
@@ -39,7 +42,6 @@ describe(
       countryCode: '+1',
       allowFallbackToEmailMfa: false,
       resent: false,
-      handleResend: vi.fn(),
     }
 
     const setup = (props = defaultProps) => {
@@ -54,9 +56,9 @@ describe(
 
     beforeEach(() => {
       defaultProps.onSwitchView.mockReset()
-      defaultProps.handleSubmit.mockReset()
-      defaultProps.handleChange.mockReset()
-      defaultProps.handleResend.mockReset()
+      defaultProps.onSubmit.mockReset()
+      defaultProps.onChange.mockReset()
+      defaultProps.onResend.mockReset()
     })
 
     it(
@@ -129,7 +131,7 @@ describe(
         )
         expect(verifyButton).toBeDefined()
         fireEvent.click(verifyButton)
-        expect(defaultProps.handleSubmit).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onSubmit).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -149,7 +151,7 @@ describe(
         )
         expect(resendButton).toBeDefined()
         fireEvent.click(resendButton)
-        expect(defaultProps.handleResend).toHaveBeenCalledTimes(1)
+        expect(defaultProps.onResend).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -200,7 +202,7 @@ describe(
           phoneInput,
           { target: { value: '987-654-3210' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'phoneNumber',
           '987-654-3210',
         )
@@ -225,7 +227,7 @@ describe(
           codeInput,
           { target: { value: '1' } },
         )
-        expect(defaultProps.handleChange).toHaveBeenCalledWith(
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
           'mfaCode',
           ['1'],
         )

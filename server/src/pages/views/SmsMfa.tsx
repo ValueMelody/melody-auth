@@ -31,6 +31,8 @@ const SmsMfa = ({
     handleSubmit,
     handleResend,
     resent,
+    isSubmitting,
+    isSending,
   } = useSmsMfaForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -48,8 +50,8 @@ const SmsMfa = ({
     <SmsMfaBlock
       locale={locale}
       onSwitchView={onSwitchView}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       values={values}
       errors={errors}
       submitError={submitError}
@@ -57,7 +59,9 @@ const SmsMfa = ({
       countryCode={countryCode}
       allowFallbackToEmailMfa={allowFallbackToEmailMfa}
       resent={resent}
-      handleResend={handleResend}
+      onResend={handleResend}
+      isSubmitting={isSubmitting}
+      isSending={isSending}
     />
   )
 }

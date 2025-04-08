@@ -9,17 +9,19 @@ import { GetAppConsentRes } from 'handlers/identity'
 export interface ConsentProps {
   locale: typeConfig.Locale;
   consentInfo: GetAppConsentRes | null;
-  handleDecline: () => void;
-  handleAccept: () => void;
+  onDecline: () => void;
+  onAccept: () => void;
   submitError: string | null;
+  isAccepting: boolean;
 }
 
 const Consent = ({
   locale,
   consentInfo,
-  handleDecline,
-  handleAccept,
+  onDecline,
+  onAccept,
   submitError,
+  isAccepting,
 }: ConsentProps) => {
   return (
     <>
@@ -49,11 +51,12 @@ const Consent = ({
       <section class='mt-4 flex gap-8 w-full justify-center'>
         <SecondaryButton
           title={consent.decline[locale]}
-          onClick={handleDecline}
+          onClick={onDecline}
         />
         <SecondaryButton
           title={consent.accept[locale]}
-          onClick={handleAccept}
+          isLoading={isAccepting}
+          onClick={onAccept}
         />
       </section>
     </>

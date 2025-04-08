@@ -28,6 +28,7 @@ const ChangePassword = ({
     handleSubmit,
     success,
     redirectUri,
+    isSubmitting,
   } = useChangePasswordForm({
     locale,
     onSubmitError: handleSubmitError,
@@ -37,12 +38,13 @@ const ChangePassword = ({
     <ChangePasswordBlock
       locale={locale}
       success={success}
-      handleSubmit={handleSubmit}
-      handleChange={handleChange}
+      onSubmit={handleSubmit}
+      onChange={handleChange}
       values={values}
       errors={errors}
       submitError={submitError}
       redirectUri={redirectUri}
+      isSubmitting={isSubmitting}
     />
   )
 }
