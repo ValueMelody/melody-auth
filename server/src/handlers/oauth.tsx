@@ -60,9 +60,7 @@ export const createFullAuthorize = async (
   c: Context<typeConfig.Context>, authInfo: typeConfig.AuthCodeBody,
 ) => {
   const authCode = genRandomString(128)
-  const {
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-  } = env(c)
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
   await kvService.storeAuthCode(
     c.env.KV,
     authCode,
