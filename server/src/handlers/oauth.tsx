@@ -131,7 +131,6 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
-  // console.log('authInfo', authInfo)
 
   if (!authInfo) {
     loggerUtil.triggerLogger(
