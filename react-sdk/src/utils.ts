@@ -47,6 +47,10 @@ export const handleTokenExchangeByAuthCode = (
         e,
         ErrorType.ObtainAccessToken,
       )
+      console.error(
+        'Authentication error:',
+        msg,
+      )
       dispatch({
         type: 'setAuthenticationError', payload: msg,
       })

@@ -33,7 +33,7 @@ const Setup = () => {
         return
       }
 
-      if (containCode || state.checkedStorage) {
+      if (!state.authenticationError && (containCode || state.checkedStorage)) {
         const {
           code, state: requestState,
         } = loadCodeAndStateFromUrl()
@@ -46,7 +46,15 @@ const Setup = () => {
         )
       }
     },
-    [dispatch, state.checkedStorage, state.accessTokenStorage, state.config, acquireToken, state.refreshTokenStorage],
+    [
+      dispatch,
+      state.checkedStorage,
+      state.accessTokenStorage,
+      state.config,
+      acquireToken,
+      state.refreshTokenStorage,
+      state.authenticationError,
+    ],
   )
 
   return null
