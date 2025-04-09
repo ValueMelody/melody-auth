@@ -656,6 +656,50 @@ describe(
     )
 
     test(
+      'could login through session and ignore mfa setup',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain('http://localhost:3000/en/dashboard?code')
+        const code = path!.split('?')[1].split('&')[0].split('=')[1]
+
+        process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
       'could login through session and bypass passwordless',
       async () => {
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string

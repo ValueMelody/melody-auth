@@ -62,10 +62,6 @@ export const createFullAuthorize = async (
   const authCode = genRandomString(128)
   const {
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
-    OTP_MFA_IS_REQUIRED: enableOtpMfa,
-    SMS_MFA_IS_REQUIRED: enableSmsMfa,
-    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
   await kvService.storeAuthCode(
     c.env.KV,
@@ -79,38 +75,6 @@ export const createFullAuthorize = async (
     },
     codeExpiresIn,
   )
-
-  if (enablePasswordlessSignIn) {
-    await kvService.markPasswordlessVerified(
-      c.env.KV,
-      authCode,
-      codeExpiresIn,
-    )
-  }
-
-  if (enableOtpMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Otp)) {
-    await kvService.markOtpMfaVerified(
-      c.env.KV,
-      authCode,
-      codeExpiresIn,
-    )
-  }
-
-  if (enableSmsMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Sms)) {
-    await kvService.markSmsMfaVerified(
-      c.env.KV,
-      authCode,
-      codeExpiresIn,
-    )
-  }
-
-  if (enableEmailMfa || authInfo.user.mfaTypes.includes(userModel.MfaType.Email)) {
-    await kvService.markEmailMfaVerified(
-      c.env.KV,
-      authCode,
-      codeExpiresIn,
-    )
-  }
 
   return authCode
 }
@@ -167,6 +131,8 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     bodyDto.code,
   )
+  // console.log('authInfo', authInfo)
+
   if (!authInfo) {
     loggerUtil.triggerLogger(
       c,
@@ -201,7 +167,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
 
-  if (!isSocialLogin) {
+  if (!isSocialLogin && !authInfo.isFullyAuthorized) {
     if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
       if (!authInfo.user.mfaTypes.length) {
         loggerUtil.triggerLogger(
