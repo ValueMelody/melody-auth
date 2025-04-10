@@ -78,7 +78,7 @@ export const AuthProvider = {
           return
         }
 
-        if (containCode || state.checkedStorage) {
+        if (!state.authenticationError && (containCode || state.checkedStorage)) {
           const {
             code, state: requestState,
           } = loadCodeAndStateFromUrl()
