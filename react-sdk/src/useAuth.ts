@@ -41,6 +41,7 @@ export const useAuth = () => {
     (
       method: AuthorizeMethod, props?: LoginProps,
     ) => {
+      if (state.authenticationError) return
       if (state.isAuthenticating) throw new Error('Please wait until isAuthenticating=false')
       if (state.isAuthenticated && (!props?.policy || props?.policy === 'sign_in_or_sign_up')) throw new Error('Already authenticated, please logout first')
       try {
@@ -70,7 +71,7 @@ export const useAuth = () => {
         })
       }
     },
-    [state.config, state.isAuthenticating, state.isAuthenticated, dispatch],
+    [state.config, state.isAuthenticating, state.isAuthenticated, dispatch, state.authenticationError],
   )
 
   const loginRedirect = useCallback(

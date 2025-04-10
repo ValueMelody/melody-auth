@@ -44,6 +44,10 @@ export const handleTokenExchangeByAuthCode = (
         e,
         ErrorType.ObtainAccessToken,
       )
+      console.error(
+        'Authentication error:',
+        msg,
+      )
       state.authenticationError = msg
       state.isAuthenticating = false
     })
