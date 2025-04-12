@@ -1,5 +1,5 @@
 import {
-  ViewTitle, Field, PasswordField, PrimaryButton, SubmitError, SecondaryButton,
+  ViewTitle, PasswordField, PrimaryButton, SubmitError, SecondaryButton,
   GoogleSignIn, FacebookSignIn, GithubSignIn, DiscordSignIn, OidcSignIn, AppleSignIn,
 } from 'pages/components'
 import { typeConfig } from 'configs'
@@ -8,6 +8,7 @@ import {
 } from 'pages/hooks'
 import { signIn } from 'pages/tools/locale'
 import { AuthorizeParams } from 'pages/tools/param'
+import EmailField from 'pages/components/vanilla/EmailField'
 
 export interface SignInProps {
   locale: typeConfig.Locale;
@@ -29,6 +30,7 @@ export interface SignInProps {
   getPasskeyOption: () => void;
   shouldLoadPasskeyInfo: boolean;
   passkeyOption: false | null | PublicKeyCredentialRequestOptionsJSON;
+  onResetPasskeyInfo: () => void;
   onSubmitError: (error: string) => void;
   params: AuthorizeParams;
   isSubmitting: boolean;
@@ -50,6 +52,7 @@ const SignIn = ({
   getPasskeyOption,
   shouldLoadPasskeyInfo,
   passkeyOption,
+  onResetPasskeyInfo,
   onSubmitError,
   params,
   isSubmitting,
@@ -66,7 +69,7 @@ const SignIn = ({
         <section className='flex flex-col gap-2'>
           {(initialProps.enablePasswordSignIn || initialProps.enablePasswordlessSignIn) && (
             <>
-              <Field
+              <EmailField
                 label={signIn.email[locale]}
                 type='email'
                 required
@@ -74,6 +77,8 @@ const SignIn = ({
                 name='email'
                 autoComplete='email'
                 error={errors.email}
+                locked={passkeyOption !== null}
+                onUnlock={onResetPasskeyInfo}
                 onChange={(value) => onChange(
                   'email',
                   value,

@@ -124,11 +124,19 @@ const usePasskeyVerifyForm = ({
     [passkeyOption, onSubmitError, submitPasskey],
   )
 
+  const handleResetPasskeyInfo = useCallback(
+    () => {
+      setPasskeyOption(null)
+    },
+    [],
+  )
+
   return {
     passkeyOption,
     getPasskeyOption,
     handleVerifyPasskey,
     isVerifyingPasskey,
+    handleResetPasskeyInfo,
   }
 }
 
