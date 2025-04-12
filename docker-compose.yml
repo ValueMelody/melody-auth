@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: melody-auth
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app/server
+    volumes:
+      - ./server:/app/server
+    env_file:
+      - ./server/.dev.vars
+    ports:
+      - "8787:8788"
+    depends_on:
+      - postgres
+      - redis

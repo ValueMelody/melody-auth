@@ -34,6 +34,9 @@ DEV_SMS_RECEIVER= # When the ENVIRONMENT is not set to 'prod', all SMS messages 
 # PG_CONNECTION_STRING=postgres://postgres:postgres@127.0.0.1:5432/melody-auth
 # REDIS_CONNECTION_STRING=redis://username:password@127.0.0.1:6379
 
+# If you are running this project using docker, you can use the following env vars
+# PG_CONNECTION_STRING=postgres://admin:admin@postgres:5432/melody-auth
+# REDIS_CONNECTION_STRING=redis://redis:6379
 
 # Config following env vars to use an SMTP mailer server under node environment
 # SMTP_SENDER_ADDRESS=your_email_address

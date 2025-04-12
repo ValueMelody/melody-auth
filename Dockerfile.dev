@@ -1,0 +1,25 @@
+# -----------------------------------------------------------------------------
+# Melody Auth - Development Dockerfile
+# ⚠️ This is for development only. Do NOT use in production environments.
+#
+# You need to set the following env vars in server/.dev.vars to run this project using docker
+# PG_CONNECTION_STRING=postgres://admin:admin@postgres:5432/melody-auth
+# REDIS_CONNECTION_STRING=redis://redis:6379
+# -----------------------------------------------------------------------------
+FROM node:22
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+RUN npm run build --workspace=shared
+
+WORKDIR /app/server
+
+RUN npm run node:secret:generate
+
+EXPOSE 8787
+
+CMD sleep 5 && npm run node:migration:apply && npx vite --host --port 8788 --config vite-node.config.ts
