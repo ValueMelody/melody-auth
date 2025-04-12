@@ -392,3 +392,48 @@ test(
     fetchSpy.mockRestore()
   },
 )
+
+test(
+  'handleResetPasskeyInfo resets the passkeyOption to null',
+  async () => {
+    const onSubmitError = vi.fn()
+    const onSwitchView = vi.fn()
+    // Using the already declared dummyParams from earlier in the file.
+    const dummyPasskeyOption = {
+      challenge: 'dummy-challenge',
+      allowCredentials: [{ id: 'dummy-id' }],
+    }
+    const fakeResponse = {
+      ok: true,
+      json: async () => ({ passkeyOption: dummyPasskeyOption }),
+    }
+    const fetchSpy = vi.spyOn(
+      global,
+      'fetch',
+    ).mockResolvedValue(fakeResponse as Response)
+
+    const { result } = renderHook(() =>
+      usePasskeyVerifyForm({
+        email: 'user@example.com',
+        locale: 'en' as typeConfig.Locale,
+        onSubmitError,
+        onSwitchView,
+        params: dummyParams,
+      }))
+
+    await act(async () => {
+      await result.current.getPasskeyOption()
+    })
+    // Ensure the passkeyOption has been set to our dummy value.
+    expect(result.current.passkeyOption).toEqual(dummyPasskeyOption)
+
+    // Call handleResetPasskeyInfo to reset the passkeyOption.
+    act(() => {
+      result.current.handleResetPasskeyInfo()
+    })
+    // Verify that passkeyOption is now reset to null.
+    expect(result.current.passkeyOption).toBeNull()
+
+    fetchSpy.mockRestore()
+  },
+)

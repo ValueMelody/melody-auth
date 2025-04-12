@@ -59,6 +59,18 @@ const EyeSlashIconButton = ({ onClick }: {
   </button>
 )
 
+export interface PasswordFieldProps {
+  label: string;
+  required: boolean;
+  name: string;
+  autoComplete?: string;
+  className?: string;
+  value?: string;
+  disabled?: boolean;
+  error?: string;
+  onChange: (value: string) => void;
+}
+
 const PasswordField = ({
   label,
   required,
@@ -69,17 +81,7 @@ const PasswordField = ({
   disabled,
   error,
   onChange,
-}: {
-  label: string;
-  required: boolean;
-  name: string;
-  autoComplete?: string;
-  className?: string;
-  value?: string;
-  disabled?: boolean;
-  error?: string;
-  onChange: (value: string) => void;
-}) => {
+}: PasswordFieldProps) => {
   const [showPassword, setShowPassword] = useState(false)
 
   return (

@@ -55,6 +55,7 @@ describe(
       onVerifyPasskey: vi.fn(),
       onPasswordlessSignIn: vi.fn((e: Event) => e.preventDefault()),
       getPasskeyOption: vi.fn(),
+      onResetPasskeyInfo: vi.fn(),
       shouldLoadPasskeyInfo: false,
       passkeyOption: null as false | PublicKeyCredentialRequestOptionsJSON | null,
       onSubmitError: vi.fn(),
@@ -575,6 +576,73 @@ describe(
 
         const resetPasswordButton = container.querySelector('button[title="Reset Password"]')
         expect(resetPasswordButton).toBeNull()
+      },
+    )
+
+    it(
+      'show no unlock email button when passkeyOption is not provided',
+      () => {
+        const props = {
+          ...defaultProps,
+          passkeyOption: null as false | PublicKeyCredentialRequestOptionsJSON | null,
+        }
+        const container = setup(props)
+
+        const unlockButton = container.querySelector('button[aria-label="Edit email"]')
+        expect(unlockButton).toBeNull()
+
+        const emailField = container.querySelector('input[name="email"]') as HTMLInputElement
+        expect(emailField).not.toBeNull()
+        expect(emailField.disabled).toBeFalsy()
+      },
+    )
+
+    it(
+      'triggers onResetPasskeyInfo when the unlock email button is clicked',
+      () => {
+        const props = {
+          ...defaultProps,
+          passkeyOption: {
+            challenge: 'dummy-challenge',
+            allowCredentials: [{ id: 'dummy-id' }],
+          } as PublicKeyCredentialRequestOptionsJSON,
+        }
+        const container = setup(props)
+
+        const emailField = container.querySelector('input[name="email"]') as HTMLInputElement
+        expect(emailField).not.toBeNull()
+        expect(emailField.disabled).toBeTruthy()
+
+        const unlockButton = container.querySelector('button[aria-label="Edit email"]')
+        expect(unlockButton).not.toBeNull()
+        if (unlockButton) {
+          fireEvent.click(unlockButton)
+        }
+        // Verify that the onResetPasskeyInfo callback is called.
+        expect(props.onResetPasskeyInfo).toHaveBeenCalledTimes(1)
+      },
+    )
+
+    it(
+      'triggers onResetPasskeyInfo when the unlock email button is clicked and passkeyOption is false',
+      () => {
+        const props = {
+          ...defaultProps,
+          passkeyOption: false as false | PublicKeyCredentialRequestOptionsJSON | null,
+        }
+        const container = setup(props)
+
+        const emailField = container.querySelector('input[name="email"]') as HTMLInputElement
+        expect(emailField).not.toBeNull()
+        expect(emailField.disabled).toBeTruthy()
+
+        const unlockButton = container.querySelector('button[aria-label="Edit email"]')
+        expect(unlockButton).not.toBeNull()
+        if (unlockButton) {
+          fireEvent.click(unlockButton)
+        }
+        // Verify that the onResetPasskeyInfo callback is called.
+        expect(props.onResetPasskeyInfo).toHaveBeenCalledTimes(1)
       },
     )
 

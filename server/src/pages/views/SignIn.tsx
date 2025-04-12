@@ -36,6 +36,7 @@ const SignIn = ({
 
   const {
     passkeyOption,
+    handleResetPasskeyInfo,
     getPasskeyOption,
     handleVerifyPasskey,
     isVerifyingPasskey,
@@ -52,6 +53,7 @@ const SignIn = ({
   return (
     <SignInBlock
       passkeyOption={passkeyOption}
+      onResetPasskeyInfo={handleResetPasskeyInfo}
       onSubmitError={handleSubmitError}
       params={params}
       locale={locale}

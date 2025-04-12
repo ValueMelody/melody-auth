@@ -290,5 +290,40 @@ firstCodeInput as HTMLInputElement,
         expect(newCodeInputs[5].value).toBe('')
       },
     )
+
+    it(
+      'do not display spinner in PrimaryButton when isSubmitting is false',
+      () => {
+        const props = {
+          ...defaultProps,
+          isSubmitting: false,
+        }
+        const container = setup(props)
+        const submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement
+        expect(submitButton).toBeDefined()
+        expect(submitButton?.disabled).toBeFalsy()
+        const spinnerSpan = submitButton?.querySelector('span.ml-2')
+        expect(spinnerSpan).toBeNull()
+      },
+    )
+
+    it(
+      'displays spinner in PrimaryButton when isSubmitting is true',
+      () => {
+        const props = {
+          ...defaultProps,
+          isSubmitting: true, // simulate loading state
+        }
+        const container = setup(props)
+        // Find the primary submit button (used for sending code or confirming)
+        const submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement
+        expect(submitButton).toBeDefined()
+        // Expect the button to be disabled when in loading state
+        expect(submitButton?.disabled).toBeTruthy()
+        // Verify that the spinner element (a <span> with class "ml-2") is rendered inside the button
+        const spinnerSpan = submitButton?.querySelector('span.ml-2')
+        expect(spinnerSpan).toBeDefined()
+      },
+    )
   },
 )
