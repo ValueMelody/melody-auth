@@ -65,7 +65,7 @@ Triggers a new authentication flow by redirecting to the auth server.
 | locale | string | Specifies the locale to use in the authentication flow | N/A | No |
 | state | string | Specifies the state to use in the authentication flow if you prefer not to use a randomly generated string | N/A | No |
 | policy | string | Specifies the policy to use in the authentication flow | 'sign_in_or_sign_up' | No |
-| org | string | Specifies the organization to use in the authentication flow | N/A | No |
+| org | string | Specifies the organization to use in the authentication flow, the value should be the slug of the organization | N/A | No |
 
 ```
 import { useAuth } from '@melody-auth/react'
@@ -94,7 +94,7 @@ Triggers a new authentication flow in a popup.
 |-----------|------|-------------|---------|----------|
 | locale | string | Specifies the locale to use in the authentication flow | N/A | No |
 | state | string | Specifies the state to use in the authentication flow if you prefer not to use a randomly generated string | N/A | No |
-| org | string | Specifies the organization to use in the authentication flow | N/A | No |
+| org | string | Specifies the organization to use in the authentication flow, the value should be the slug of the organization | N/A | No |
 ```
 import { useAuth } from '@melody-auth/react'
 
