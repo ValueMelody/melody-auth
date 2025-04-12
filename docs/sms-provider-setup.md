@@ -33,3 +33,6 @@ Use the table below to configure Twilio as your SMS provider.
 ## Cloudflare Local/Development or Node.js Environment
 1. In your melody-auth/server directory, locate or create a .dev.vars file (you can copy .dev.vars.example if needed).
 2. Update any environment variables that apply to your use case to .dev.vars
+
+## SMS MFA Country Code
+Default country code for SMS MFA is "+1". You can change it by setting the `CountryCode` for SmsMfaConfig in server/src/configs/variable.ts.

@@ -63,7 +63,6 @@ describe(
           CHANGE_EMAIL_EMAIL_THRESHOLD: 5,
           OTP_MFA_IS_REQUIRED: false,
           SMS_MFA_IS_REQUIRED: false,
-          SMS_MFA_COUNTRY_CODE: '+1',
           SMS_MFA_MESSAGE_THRESHOLD: 5,
           ACCOUNT_LOCKOUT_THRESHOLD: 5,
           ACCOUNT_LOCKOUT_EXPIRES_IN: 86400,

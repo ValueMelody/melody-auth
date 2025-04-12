@@ -4,6 +4,7 @@ import {
 import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
@@ -493,10 +494,7 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
-  const {
-    SMS_MFA_IS_REQUIRED: enableSmsMfa,
-    SMS_MFA_COUNTRY_CODE: countryCode,
-  } = env(c)
+  const { SMS_MFA_IS_REQUIRED: enableSmsMfa } = env(c)
 
   const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
   if (!requireSmsMfa) throw new errorConfig.Forbidden()
@@ -523,7 +521,7 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
 
   return c.json({
     allowFallbackToEmailMfa,
-    countryCode,
+    countryCode: variableConfig.SmsMfaConfig.CountryCode,
     phoneNumber: maskedNumber,
   })
 }

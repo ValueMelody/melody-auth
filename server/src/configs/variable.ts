@@ -42,3 +42,7 @@ export const SocialSignInConfig = Object.freeze({
   FacebookScope: 'public_profile',
   AppleScope: 'name email',
 })
+
+// Prefix of the phone number to be used for SMS MFA.
+// For example, if you are based in the United States, you should set this to "+1".
+export const SmsMfaConfig = Object.freeze({ CountryCode: '+1' })
