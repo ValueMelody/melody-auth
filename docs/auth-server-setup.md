@@ -1,6 +1,8 @@
 # Auth Server Setup
 This guide will walk you through setting up Melody Auth in both Cloudflare (remote/production or local/development) and Node.js environments.
 
+If you're on Windows, please use either WSL or Docker to set up your environment.
+
 ## Cloudflare Remote/Production Environment
 
 ### 1. Cloudflare Account Setup
@@ -161,4 +163,23 @@ cd server
 npm run node:migration:apply # If there are new migrations
 npm run node:build
 npm run node:start
+```
+
+## Node Dev Environment with Docker
+- Set required env vars in server/.dev.vars
+```
+cd server
+cp .dev.vars.example .dev.vars
+
+# Enable PostgreSQL & Redis connection strings for docker
+PG_CONNECTION_STRING=postgres://admin:admin@postgres:5432/melody-auth
+REDIS_CONNECTION_STRING=redis://redis:6379
+
+# Include the required environment variables for any email, SMS, or social sign-in providers you plan to use.
+# Make sure the environment variable "ENVIRONMENT" is set to "dev" for your local environment.
+```
+
+- Run docker compose
+```
+docker-compose up --build
 ```
