@@ -26,7 +26,6 @@ export type Bindings = {
   RESEND_API_KEY: string;
   RESEND_SENDER_ADDRESS: string;
   SMS_MFA_IS_REQUIRED: boolean;
-  SMS_MFA_COUNTRY_CODE: string;
   SMS_MFA_MESSAGE_THRESHOLD: number;
   TWILIO_ACCOUNT_ID: string;
   TWILIO_AUTH_TOKEN: string;
