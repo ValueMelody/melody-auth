@@ -1,6 +1,8 @@
 # Auth Server Setup
 This guide will walk you through setting up Melody Auth in both Cloudflare (remote/production or local/development) and Node.js environments.
 
+If you're on Windows, please use either WSL or Docker to set up your environment.
+
 ## Cloudflare Remote/Production Environment
 
 ### 1. Cloudflare Account Setup
