@@ -132,3 +132,11 @@ Run the secret clean script whenever you want to stop verifying tokens signed wi
   -	change_email: Allows users to change their email address (for password-based users only). Requires ENABLE_EMAIL_VERIFICATION to be set to true in the configuration.
   -	reset_mfa: Allows users to reset their enrolled MFA (Multi-Factor Authentication) method.
   - manage_passkey: Allows users to manage their passkey. Requires ALLOW_PASSKEY_ENROLLMENT to be set to true in the configuration.
+
+## How to change theme/branding for authorization pages
+- You can change the default theme/branding by setting the `DefaultBranding` variable in server/src/configs/variable.ts.
+- In case you want to use different theme/branding for different clients
+  - set ENABLE_ORG to true in server/wrangler.toml
+  - create a new org in the admin panel, with a unique slug
+  - update the theme/branding for the org you just created in the admin panel
+  - trigger a login redirect to the authorization page with the org=[slug] as query string
