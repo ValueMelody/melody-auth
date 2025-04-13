@@ -10,13 +10,16 @@
     "server",
     "web-sdk",
     "react-sdk",
-    "vue-sdk"
+    "vue-sdk",
+    "angular-sdk"
   ],
   "scripts": {
-    "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check -w=web-sdk && npm run type:check -w=react-sdk && npm run type:check -w=vue-sdk && cd admin-panel && npm run type:check",
+    "type:check:sdks": "npm run type:check -w=web-sdk && npm run type:check -w=react-sdk && npm run type:check -w=vue-sdk && npm run type:check -w=angular-sdk",
+    "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check:sdks && cd admin-panel && npm run type:check",
     "lint:check": "eslint ./ --ext .ts,.tsx,.js,.cjs --ignore-pattern 'examples/*'",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js,.cjs",
-    "build": "npm run build -w=shared && npm run build -w=web-sdk && npm run build -w=react-sdk && npm run build -w=vue-sdk",
+    "build:sdks": "npm run build -w=web-sdk && npm run build -w=react-sdk && npm run build -w=vue-sdk && npm run build -w=angular-sdk",
+    "build": "npm run build -w=shared && npm run build -w=server && npm run build:sdks && cd admin-panel && npm run build",
     "docs:build": "vuepress build docs",
     "docs:dev": "vuepress dev docs"
   },
