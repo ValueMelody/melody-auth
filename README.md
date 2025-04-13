@@ -15,9 +15,11 @@
 - **Server-to-Server REST API** for backend integrations
   - [Swagger API Doc](https://auth-server.valuemelody.com/api/v1/swagger)
   - [S2S API Doc](https://auth.valuemelody.com/s2s-api.html)
-- **React/Vue SDK** to seamlessly integrate authentication into your frontend
+- **React/Angular/Vue SDK** to seamlessly integrate PKCE-based authentication into your frontend application.
   - [React NPM Package](https://www.npmjs.com/package/@melody-auth/react)
   - [React SDK Doc](https://auth.valuemelody.com/react-sdk.html)
+  - [Angular NPM Package](https://www.npmjs.com/package/@melody-auth/angular)
+  - [Angular SDK Doc](https://auth.valuemelody.com/angular-sdk.html)
   - [Vue NPM Package](https://www.npmjs.com/package/@melody-auth/vue)
   - [Vue SDK Doc](https://auth.valuemelody.com/vue-sdk.html)
 - **Admin Panel** for managing resources (also serves as a full-stack implementation example)
@@ -101,6 +103,7 @@
 ## Demo & Examples
 - [Vite React Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/vite-react-demo)
   - [Demo Site: Password Sign-in/Sign-up with OTP MFA and Passkey enrollment](https://auth-demo.valuemelody.com)
+- [Angular Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/angular-example)
 - [Vite Vue Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/vite-vue-example)
 - [Next.js Full stack implementation Example](https://github.com/ValueMelody/melody-auth/tree/main/admin-panel)
 - [Next.js Auth.js Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/next-auth-js-example)

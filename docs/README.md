@@ -26,6 +26,9 @@ actions:
   - text: React SDK
     link: /react-sdk.html
     type: secondary
+  - text: Angular SDK
+    link: /angular-sdk.html
+    type: secondary
   - text: Vue SDK
     link: /vue-sdk.html
     type: secondary
