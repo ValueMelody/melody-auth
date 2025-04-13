@@ -2,13 +2,10 @@ import {
   computed, inject,
 } from 'vue'
 import {
-  AuthorizeMethod, LoginProps,
-} from 'shared/dist/clientInterface'
-import {
   getUserInfo, logout, triggerLogin,
 } from '@melody-auth/web'
 import {
-  handleError, ErrorType,
+  handleError, ErrorType, AuthorizeMethod, LoginProps,
 } from 'shared'
 import {
   handleTokenExchangeByAuthCode, acquireToken as rawAcquireToken,

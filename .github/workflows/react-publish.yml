@@ -21,12 +21,10 @@ jobs:
       run: npm ci
 
     - name: Build shared package
-      run: npm run build
+      run: npm run build -w=shared
 
     - name: Build react-sdk package
-      run: |
-        cd react-sdk
-        npm run build
+      run: npm run build -w=react-sdk
 
     - name: Publish to npm
       run: |

@@ -9,6 +9,7 @@ docs/.vuepress/.temp
 expo-env.d.ts
 next-env.d.ts
 .open-next
+.angular/
 
 .dev.vars
 .env
