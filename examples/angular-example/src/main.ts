@@ -8,7 +8,7 @@ bootstrapApplication(
   {
     providers: [
       provideAuth({
-        clientId: '1A3564de462142A60cE5456edaADB5659dBC1B9c719c9E558dcaac0850a2f8F8',
+        clientId: '3aDCB32a6E4aee15c46672A23FE11326a26fC3F5c0EBC7ca43ba87CD34865dE5',
         redirectUri: 'http://localhost:3000/en/dashboard',
         serverUri: 'http://localhost:8787',
         storage: 'localStorage',
