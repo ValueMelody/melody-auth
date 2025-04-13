@@ -1,4 +1,4 @@
-# React SDK
+# Angular SDK
 
 ## Installation
 
@@ -8,7 +8,7 @@ npm install @melody-auth/angular --save
 
 ## AuthProvider
 
-Wrap your application inside AuthProvider component to provide the auth related context to your application components.
+Provide the auth related configs to your application bootstrap.
 
 | Parameter | Type | Description | Default | Required |
 |-----------|------|-------------|---------|----------|
