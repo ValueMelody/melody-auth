@@ -174,7 +174,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
               )}
             >
               <img
-                src='https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg'
+                src='https://valuemelody.com/logo.svg'
                 className='mr-3 h-6 sm:h-9'
               />
               <span className='self-center whitespace-nowrap text-medium font-semibold dark:text-white'>

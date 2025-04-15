@@ -1,7 +1,7 @@
 ---
 home: true
 title: Melody Auth
-heroImage: https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg
+heroImage: https://valuemelody.com/logo.svg
 actions:
   - text: GitHub
     link: https://github.com/ValueMelody/melody-auth
