@@ -45,6 +45,7 @@ test(
 
     // otpUri should be empty, allowFallback false, and mfaCode initialized with 6 empty strings.
     expect(result.current.otpUri).toBe('')
+    expect(result.current.otpSecret).toBe('')
     expect(result.current.allowFallbackToEmailMfa).toBe(false)
     expect(result.current.values).toEqual({ mfaCode: new Array(6).fill('') })
     // Since the field has not been touched, errors should be undefined.
@@ -91,7 +92,9 @@ test(
     // Prepare a fake fetch response containing otpUri.
     const fakeResponse = {
       ok: true,
-      json: async () => ({ otpUri: 'test-uri' }),
+      json: async () => ({
+        otpUri: 'test-uri', otpSecret: 'test-secret',
+      }),
     }
     const fetchSpy = vi.spyOn(
       global,
@@ -115,6 +118,7 @@ test(
         },
       },
     )
+    expect(result.current.otpSecret).toBe('test-secret')
     expect(result.current.otpUri).toBe('test-uri')
 
     fetchSpy.mockRestore()

@@ -38,6 +38,7 @@ const useOtpMfaForm = ({
   const [isVerifyingMfa, setIsVerifyingMfa] = useState(false)
 
   const [otpUri, setOtpUri] = useState('')
+  const [otpSecret, setOtpSecret] = useState('')
   const [allowFallbackToEmailMfa, setAllowFallbackToEmailMfa] = useState(false)
 
   const [mfaCode, setMfaCode] = useState<string[]>(new Array(6).fill(''))
@@ -74,6 +75,7 @@ const useOtpMfaForm = ({
         .then(parseResponse)
         .then((response) => {
           setOtpUri((response as GetOtpMfaSetupRes).otpUri)
+          setOtpSecret((response as GetOtpMfaSetupRes).otpSecret)
         })
         .catch((error) => {
           onSubmitError(error)
@@ -153,6 +155,7 @@ const useOtpMfaForm = ({
 
   return {
     otpUri,
+    otpSecret,
     getOtpSetupInfo,
     getOtpMfaInfo,
     allowFallbackToEmailMfa,

@@ -16,6 +16,7 @@ describe(
   () => {
     const defaultProps = {
       locale: 'en' as any,
+      otpSecret: 'dummy-secret',
       otpUri: 'dummy-uri',
       qrCodeEl: dummyRef,
       onChange: vi.fn(),
