@@ -1,10 +1,10 @@
+import { useState } from 'hono/jsx'
 import {
   CodeInput, ViewTitle, SubmitError, PrimaryButton,
 } from 'pages/components'
 
 import { otpMfa } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
-import { useState } from 'hono/jsx'
 
 export interface OtpSetupProps {
   locale: typeConfig.Locale;
@@ -51,7 +51,10 @@ const OtpSetup = ({
           <canvas ref={qrCodeEl} />
           <section className='flex flex-col mb-6 items-center'>
             {!showKey && (
-              <button type="button" onClick={handleShowKey} className="w-(--text-width) text-center underline text-blue-500">
+              <button
+                type='button'
+                onClick={handleShowKey}
+                className='w-(--text-width) text-center underline text-blue-500'>
                 {otpMfa.manual[locale]}
               </button>
             )}

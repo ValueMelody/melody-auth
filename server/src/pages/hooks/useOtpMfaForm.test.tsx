@@ -92,7 +92,9 @@ test(
     // Prepare a fake fetch response containing otpUri.
     const fakeResponse = {
       ok: true,
-      json: async () => ({ otpUri: 'test-uri', otpSecret: 'test-secret' }),
+      json: async () => ({
+        otpUri: 'test-uri', otpSecret: 'test-secret',
+      }),
     }
     const fetchSpy = vi.spyOn(
       global,
