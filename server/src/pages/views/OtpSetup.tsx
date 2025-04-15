@@ -26,6 +26,7 @@ const OtpSetup = ({
 
   const {
     otpUri,
+    otpSecret,
     getOtpSetupInfo,
     handleVerifyMfa,
     errors,
@@ -63,6 +64,7 @@ const OtpSetup = ({
     <OtpSetupBlock
       locale={locale}
       otpUri={otpUri}
+      otpSecret={otpSecret}
       qrCodeEl={qrCodeEl}
       onChange={handleChange}
       onVerifyMfa={handleVerifyMfa}

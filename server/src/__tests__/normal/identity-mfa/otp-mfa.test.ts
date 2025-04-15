@@ -64,7 +64,9 @@ describe(
 
         expect(res.status).toBe(200)
         const user = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
-        expect(await res.json()).toStrictEqual({ otpUri: `otpauth://totp/Admin Panel (SPA):test@email.com?secret=${user.otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30` })
+        expect(await res.json()).toStrictEqual({
+          otpSecret: user.otpSecret,
+          otpUri: `otpauth://totp/Admin Panel (SPA):test@email.com?secret=${user.otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30` })
       },
     )
 

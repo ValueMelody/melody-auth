@@ -581,6 +581,7 @@ export const postProcessSmsMfa = async (c: Context<typeConfig.Context>) => {
 
 export interface GetOtpMfaSetupRes {
   otpUri: string;
+  otpSecret: string;
 }
 export const getOtpMfaSetup = async (c: Context<typeConfig.Context>)
 :Promise<TypedResponse<GetOtpMfaSetupRes>> => {
@@ -632,7 +633,10 @@ export const getOtpMfaSetup = async (c: Context<typeConfig.Context>)
 
   const otpUri = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
 
-  return c.json({ otpUri })
+  return c.json({
+    otpUri,
+    otpSecret,
+  })
 }
 
 export interface GetProcessOtpMfaRes {
