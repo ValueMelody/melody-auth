@@ -8,17 +8,17 @@
   "workspaces": [
     "shared",
     "server",
-    "web-sdk",
-    "react-sdk",
-    "vue-sdk",
-    "angular-sdk"
+    "sdks/web-sdk",
+    "sdks/react-sdk",
+    "sdks/vue-sdk",
+    "sdks/angular-sdk"
   ],
   "scripts": {
-    "type:check:sdks": "npm run type:check -w=web-sdk && npm run type:check -w=react-sdk && npm run type:check -w=vue-sdk && npm run type:check -w=angular-sdk",
+    "type:check:sdks": "npm run type:check -w=sdks/web-sdk && npm run type:check -w=sdks/react-sdk && npm run type:check -w=sdks/vue-sdk && npm run type:check -w=sdks/angular-sdk",
     "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check:sdks && cd admin-panel && npm run type:check",
     "lint:check": "eslint ./ --ext .ts,.tsx,.js,.cjs --ignore-pattern 'examples/*'",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js,.cjs",
-    "build:sdks": "npm run build -w=web-sdk && npm run build -w=react-sdk && npm run build -w=vue-sdk && npm run build -w=angular-sdk",
+    "build:sdks": "npm run build -w=sdks/web-sdk && npm run build -w=sdks/react-sdk && npm run build -w=sdks/vue-sdk && npm run build -w=sdks/angular-sdk",
     "build": "npm run build -w=shared && npm run build:sdks",
     "docs:build": "vuepress build docs",
     "docs:dev": "vuepress dev docs"

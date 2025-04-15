@@ -23,9 +23,9 @@ jobs:
     - run: npm run lint:check
     - run: npm run type:check
     - run: cd ./shared && npm run test:check
-    - run: cd ./web-sdk && npm run test:check
-    - run: cd ./react-sdk && npm run test:check
-    - run: cd ./vue-sdk && npm run test:check
+    - run: cd ./sdks/web-sdk && npm run test:check
+    - run: cd ./sdks/react-sdk && npm run test:check
+    - run: cd ./sdks/vue-sdk && npm run test:check
     - run: cd ./server && npm run node:secret:generate
     - run: cd ./server && npm run test:check:cf
     - run: cd ./server && npm run test:check:node

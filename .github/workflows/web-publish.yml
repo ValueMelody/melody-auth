@@ -24,11 +24,11 @@ jobs:
       run: npm run build -w=shared
 
     - name: Build web-sdk package
-      run: npm run build -w=web-sdk
+      run: npm run build -w=sdks/web-sdk
 
     - name: Publish to npm
       run: |
-        cd web-sdk
+        cd sdks/web-sdk
         npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
