@@ -23,7 +23,7 @@
     "@angular/core": "^19.2.0"
   },
   "scripts": {
-    "build": "rm -rf ./dist && mkdir ./dist && ng-packagr -p ./ng-package.json && mkdir ./dist/shared && cp -r ../shared/dist/* ./dist/shared && tsc-alias",
+    "build": "rm -rf ./dist && mkdir ./dist && ng-packagr -p ./ng-package.json && mkdir ./dist/shared && cp -r ../../shared/dist/* ./dist/shared && tsc-alias",
     "type:check": "tsc --noEmit",
     "test:check": "vitest run .",
     "test:coverage": "vitest run . --coverage"

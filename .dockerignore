@@ -4,6 +4,4 @@ node_modules
 admin-panel
 docs
 examples
-react-sdk
-vue-sdk
-web-sdk
+sdks

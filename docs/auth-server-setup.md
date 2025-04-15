@@ -45,7 +45,7 @@ In your Cloudflare dashboard:
     git clone git@github.com:ValueMelody/melody-auth.git
     cd melody-auth
     npm install
-    npm run build
+    npm run build -w=shared
     ```
 
 2. Configure `server/wrangler.toml`: Replace the KV and D1 IDs with the resources you created:
@@ -85,7 +85,7 @@ To set up your local development environment, follow these steps:
 git clone git@github.com:ValueMelody/melody-auth.git
 cd melody-auth
 npm install
-npm run build
+npm run build -w=shared
 
 cd server
 cp .dev.vars.example .dev.vars
@@ -131,7 +131,7 @@ Begin by setting up your PostgreSQL and Redis servers, and ensure you have the c
 git clone git@github.com:ValueMelody/melody-auth.git
 cd melody-auth
 npm install
-npm run build
+npm run build -w=shared
 
 cd server
 cp .dev.vars.example .dev.vars

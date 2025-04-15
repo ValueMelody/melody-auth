@@ -24,11 +24,11 @@ jobs:
       run: npm run build -w=shared
 
     - name: Build react-sdk package
-      run: npm run build -w=react-sdk
+      run: npm run build -w=sdks/react-sdk
 
     - name: Publish to npm
       run: |
-        cd react-sdk
+        cd sdks/react-sdk
         npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
