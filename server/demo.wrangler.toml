@@ -5,7 +5,7 @@ keep_vars = true
 [vars]
 
 # Branding
-COMPANY_LOGO_URL="https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg"
+COMPANY_LOGO_URL="https://valuemelody.com/logo.svg"
 EMAIL_SENDER_NAME="Melody Auth Demo"
 TERMS_LINK=""
 PRIVACY_POLICY_LINK=""

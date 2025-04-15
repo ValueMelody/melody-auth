@@ -9,7 +9,7 @@ export default defineUserConfig({
   description: 'Effortless OAuth and Authentication, Built for Flexibility and Control.',
 
   theme: defaultTheme({
-    logo: 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg',
+    logo: 'https://valuemelody.com/logo.svg',
     navbar: [],
   }),
 

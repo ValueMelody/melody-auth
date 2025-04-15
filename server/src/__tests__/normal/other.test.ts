@@ -48,7 +48,7 @@ describe(
           AUTH_SERVER_URL: 'http://localhost:8787',
           SUPPORTED_LOCALES: ['en', 'fr'],
           ENABLE_LOCALE_SELECTOR: true,
-          COMPANY_LOGO_URL: 'https://raw.githubusercontent.com/ValueMelody/melody-homepage/main/logo.jpg',
+          COMPANY_LOGO_URL: 'https://valuemelody.com/logo.svg',
           EMAIL_SENDER_NAME: 'Melody Auth',
           ENABLE_SIGN_UP: true,
           ENABLE_PASSWORD_RESET: true,
