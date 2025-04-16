@@ -11,7 +11,7 @@ import {
   exchangeTokenByRefreshToken,
   getUserInfo,
 } from '@melody-auth/web'
-import * as shared from 'shared'
+import * as shared from '@melody-auth/shared'
 import { useAuth } from './useAuth'
 import authContext from './context'
 import * as utils from './utils'

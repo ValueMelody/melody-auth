@@ -1,4 +1,4 @@
-import { ProviderConfig } from 'shared'
+import { ProviderConfig } from '@melody-auth/shared'
 import { getUserInfo } from '../requests'
 
 export const fetchUserInfo = async (

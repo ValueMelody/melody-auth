@@ -1,8 +1,8 @@
 import {
   describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest'
-import { StorageKey } from 'shared'
-import type { ProviderConfig } from 'shared'
+import { StorageKey } from '@melody-auth/shared'
+import type { ProviderConfig } from '@melody-auth/shared'
 import { postLogout } from '../requests'
 import { logout } from './logout'
 

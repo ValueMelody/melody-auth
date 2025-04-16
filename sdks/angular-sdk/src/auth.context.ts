@@ -9,7 +9,7 @@ import {
   getParams,
   checkStorage,
   AuthState,
-} from 'shared'
+} from '@melody-auth/shared'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import {
   acquireToken,

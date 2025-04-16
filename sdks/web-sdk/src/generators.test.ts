@@ -10,7 +10,7 @@ import {
 import {
   genRandomString,
   genCodeChallenge,
-} from 'shared'
+} from '@melody-auth/shared'
 import {
   genCodeVerifierAndChallenge,
   genAuthorizeState,
@@ -18,7 +18,7 @@ import {
 
 // Mock the shared functions
 vi.mock(
-  'shared',
+  '@melody-auth/shared',
   () => ({
     genRandomString: vi.fn(),
     genCodeChallenge: vi.fn(),

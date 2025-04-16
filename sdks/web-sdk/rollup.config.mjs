@@ -14,7 +14,7 @@ export default {
   plugins: [
     alias({
       entries: [
-        { find: 'shared', replacement: path.resolve(__dirname, 'dist/shared') },
+        { find: '@melody-auth/shared', replacement: path.resolve(__dirname, 'dist/shared') },
       ],
     }),
     resolve(),

@@ -3,7 +3,7 @@ import {
   useRef,
 } from 'react'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
-import { getParams } from 'shared'
+import { getParams } from '@melody-auth/shared'
 import { useAuth } from './useAuth'
 import authContext, { AuthContext } from './context'
 import { handleTokenExchangeByAuthCode } from './utils'

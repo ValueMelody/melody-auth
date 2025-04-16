@@ -8,7 +8,7 @@ import {
 import type {
   ProviderConfig,
   AccessTokenStorage,
-} from 'shared'
+} from '@melody-auth/shared'
 
 import { postTokenByRefreshToken } from '../requests'
 import { exchangeTokenByRefreshToken } from './exchangeTokenByRefreshToken'

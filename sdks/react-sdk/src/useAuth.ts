@@ -8,7 +8,7 @@ import {
 } from '@melody-auth/web'
 import {
   AuthorizeMethod, LoginProps, LoginPopupProps, isValidTokens, ErrorType, handleError,
-} from 'shared'
+} from '@melody-auth/shared'
 import authContext, { AuthContext } from './context'
 import { handleTokenExchangeByAuthCode } from './utils'
 

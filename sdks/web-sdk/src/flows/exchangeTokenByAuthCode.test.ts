@@ -2,10 +2,10 @@ import {
   describe, it, beforeEach, afterEach, expect, vi,
 } from 'vitest'
 // Import any necessary types and key constants from your shared module
-import type { ProviderConfig } from 'shared'
+import type { ProviderConfig } from '@melody-auth/shared'
 import {
   SessionStorageKey, StorageKey,
-} from 'shared'
+} from '@melody-auth/shared'
 import { postTokenByAuthCode } from '../requests'
 import {
   exchangeTokenByAuthCode, loadCodeAndStateFromUrl,

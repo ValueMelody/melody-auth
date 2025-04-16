@@ -4,7 +4,7 @@ import {
 import { mount } from '@vue/test-utils'
 import { defineComponent } from 'vue'
 import * as webModule from '@melody-auth/web'
-import * as shared from 'shared'
+import * as shared from '@melody-auth/shared'
 import { useAuth } from './useAuth'
 import * as utils from './utils'
 import { melodyAuthInjectionKey } from './context'
@@ -28,7 +28,7 @@ vi.mock(
 )
 
 vi.mock(
-  'shared',
+  '@melody-auth/shared',
   () => ({
     handleError: vi.fn(),
     ErrorType: {

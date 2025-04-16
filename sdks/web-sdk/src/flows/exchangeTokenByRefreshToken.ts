@@ -1,6 +1,6 @@
 import {
   ProviderConfig, AccessTokenStorage,
-} from 'shared'
+} from '@melody-auth/shared'
 import { postTokenByRefreshToken } from '../requests'
 
 export const exchangeTokenByRefreshToken = async (

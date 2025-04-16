@@ -1,7 +1,7 @@
 import {
   describe, it, expect, vi,
 } from 'vitest'
-import type { ProviderConfig } from 'shared'
+import type { ProviderConfig } from '@melody-auth/shared'
 import { getUserInfo } from '../requests'
 import { fetchUserInfo } from './fetchUserInfo'
 

@@ -5,7 +5,7 @@ import {
   GetUserInfoRes,
   AccessTokenStorage, RefreshTokenStorage,
   IdTokenBody, AuthState as SdkAuthState,
-} from 'shared'
+} from '@melody-auth/shared'
 
 export interface AuthState extends SdkAuthState {}
 

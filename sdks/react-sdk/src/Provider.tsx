@@ -7,7 +7,7 @@ import {
   ProviderConfig,
   RefreshTokenStorage,
   isValidStorage,
-} from 'shared'
+} from '@melody-auth/shared'
 import Setup from './Setup'
 import authContext, {
   AuthState, DispatchAction,

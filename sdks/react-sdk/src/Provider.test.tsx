@@ -4,7 +4,7 @@ import {
 import {
   beforeEach, describe, it, expect, vi,
 } from 'vitest'
-import { StorageKey } from 'shared'
+import { StorageKey } from '@melody-auth/shared'
 import { useContext } from 'react'
 import * as React from 'react'
 import {

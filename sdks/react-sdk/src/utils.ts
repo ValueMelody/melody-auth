@@ -1,7 +1,7 @@
 import { Dispatch } from 'react'
 import {
   ProviderConfig, handleError, ErrorType,
-} from 'shared'
+} from '@melody-auth/shared'
 import { exchangeTokenByAuthCode } from '@melody-auth/web'
 
 export const handleTokenExchangeByAuthCode = (

@@ -1,6 +1,6 @@
 import {
   ProviderConfig, StorageKey,
-} from 'shared'
+} from '@melody-auth/shared'
 import { postLogout } from '../requests'
 
 export const logout = async (

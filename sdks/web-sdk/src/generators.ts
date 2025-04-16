@@ -1,6 +1,6 @@
 import {
   genRandomString, genCodeChallenge,
-} from 'shared'
+} from '@melody-auth/shared'
 
 export const genCodeVerifierAndChallenge = async () => {
   const codeVerifier = genRandomString(128)

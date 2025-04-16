@@ -15,7 +15,7 @@ import {
   isValidTokens,
   handleError,
   ErrorType,
-} from 'shared'
+} from '@melody-auth/shared'
 
 import {
   handleTokenExchangeByAuthCode,
@@ -49,7 +49,7 @@ vi.mock(
 )
 
 vi.mock(
-  'shared',
+  '@melody-auth/shared',
   () => {
     return {
       handleError: vi.fn().mockImplementation((
