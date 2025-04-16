@@ -1,4 +1,4 @@
-import { ClientType } from 'shared'
+import { ClientType } from '@melody-auth/shared'
 import {
   adapterConfig, errorConfig,
 } from 'configs'

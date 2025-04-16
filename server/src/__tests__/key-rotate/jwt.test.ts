@@ -2,7 +2,7 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
-import { Role } from 'shared'
+import { Role } from '@melody-auth/shared'
 import app from 'index'
 import {
   adapterConfig, routeConfig,

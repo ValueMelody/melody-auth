@@ -2,7 +2,7 @@ import { Context } from 'hono'
 import {
   ClientType, PostTokenByAuthCodeRes, PostTokenByRefreshTokenRes, PostTokenByClientCredentialsRes, Scope,
   genRandomString,
-} from 'shared'
+} from '@melody-auth/shared'
 import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, routeConfig, typeConfig,

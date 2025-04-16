@@ -3,7 +3,7 @@ import {
   IsEnum,
   IsNotEmpty, IsOptional, IsString, Length,
 } from 'class-validator'
-import { ClientType } from 'shared'
+import { ClientType } from '@melody-auth/shared'
 import { requestUtil } from 'utils'
 
 const formatRedirectUri = (redirectUris: string[]) => redirectUris

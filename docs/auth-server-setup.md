@@ -43,9 +43,8 @@ In your Cloudflare dashboard:
 1. Clone the Repository:
     ```
     git clone git@github.com:ValueMelody/melody-auth.git
-    cd melody-auth
+    cd melody-auth/server
     npm install
-    npm run build -w=shared
     ```
 
 2. Configure `server/wrangler.toml`: Replace the KV and D1 IDs with the resources you created:
@@ -83,11 +82,8 @@ npm run prod:deploy
 To set up your local development environment, follow these steps:
 ```
 git clone git@github.com:ValueMelody/melody-auth.git
-cd melody-auth
+cd melody-auth/server
 npm install
-npm run build -w=shared
-
-cd server
 cp .dev.vars.example .dev.vars
 # Include the required environment variables for any email, SMS, or social sign-in providers you plan to use.
 # Make sure the environment variable "ENVIRONMENT" is set to "dev" for your local environment.
@@ -129,11 +125,8 @@ Begin by setting up your PostgreSQL and Redis servers, and ensure you have the c
 ### 2. Project setup
 ```
 git clone git@github.com:ValueMelody/melody-auth.git
-cd melody-auth
+cd melody-auth/server
 npm install
-npm run build -w=shared
-
-cd server
 cp .dev.vars.example .dev.vars
 # Fill in PostgreSQL & Redis connection strings
 # Include the required environment variables for any email, SMS, or social sign-in providers you plan to use.

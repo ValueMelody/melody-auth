@@ -6,7 +6,7 @@ import {
   Mock,
 } from 'vitest'
 import { render } from 'hono/jsx/dom'
-import { Scope } from 'shared'
+import { Scope } from '@melody-auth/shared'
 import Consent, { ConsentProps } from './Consent'
 import { consent } from 'pages/tools/locale'
 import { GetAppConsentRes } from 'handlers/identity/main'

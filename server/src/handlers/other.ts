@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { Scope } from 'shared'
+import { Scope } from '@melody-auth/shared'
 import { oauthDto } from 'dtos'
 import {
   routeConfig, typeConfig,

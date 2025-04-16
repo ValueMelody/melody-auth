@@ -12,14 +12,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install
-
-RUN npm run build --workspace=shared
-
 WORKDIR /app/server
+
+RUN npm ci
 
 RUN npm run node:secret:generate
 
 EXPOSE 8787
-
-CMD sleep 5 && npm run node:migration:apply && npx vite --host --port 8788 --config vite-node.config.ts

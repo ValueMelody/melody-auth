@@ -1,7 +1,15 @@
 {
-  "name": "shared",
+  "name": "@melody-auth/shared",
+  "version": "1.0.0",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ValueMelody/melody-auth.git"
+  },
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "rm -rf ./dist && tsc --build",
     "type:check": "tsc --noEmit",

@@ -30,6 +30,7 @@
   "dependencies": {
     "@hono/node-server": "^1.12.2",
     "@hono/swagger-ui": "^0.4.0",
+    "@melody-auth/shared": "^1.0.0",
     "@simplewebauthn/browser": "^13.1.0",
     "@simplewebauthn/server": "^13.1.1",
     "base32-decode": "^1.0.0",
@@ -45,7 +46,6 @@
     "pg": "^8.12.0",
     "qrcode": "^1.5.4",
     "qs": "^6.14.0",
-    "shared": "*",
     "tailwindcss": "^4.0.8",
     "toml": "^3.0.0",
     "yup": "^1.6.1"
@@ -81,5 +81,8 @@
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^2.0.5",
     "wrangler": "^3.112.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.40.0"
   }
 }

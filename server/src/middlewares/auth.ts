@@ -3,7 +3,7 @@ import {
 } from 'hono'
 import { bearerAuth } from 'hono/bearer-auth'
 import { basicAuth } from 'hono/basic-auth'
-import { Scope } from 'shared'
+import { Scope } from '@melody-auth/shared'
 import { typeConfig } from 'configs'
 import { jwtService } from 'services'
 import { oauthDto } from 'dtos'

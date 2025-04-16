@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { ClientType } from 'shared'
+import { ClientType } from '@melody-auth/shared'
 import {
   errorConfig,
   messageConfig,

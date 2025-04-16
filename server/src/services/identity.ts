@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { genRandomString } from 'shared'
+import { genRandomString } from '@melody-auth/shared'
 import {
   routeConfig, typeConfig,
 } from 'configs'

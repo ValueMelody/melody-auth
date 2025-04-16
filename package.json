@@ -7,7 +7,6 @@
   "repository": "https://github.com/ValueMelody/melody-auth",
   "workspaces": [
     "shared",
-    "server",
     "sdks/web-sdk",
     "sdks/react-sdk",
     "sdks/vue-sdk",
@@ -40,8 +39,5 @@
     "sass-embedded": "^1.85.0",
     "vue": "^3.4.0",
     "vuepress": "^2.0.0-rc.19"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.40.0"
   }
 }

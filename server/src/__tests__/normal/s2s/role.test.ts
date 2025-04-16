@@ -4,7 +4,7 @@ import {
 import { Database } from 'better-sqlite3'
 import {
   Role, Scope,
-} from 'shared'
+} from '@melody-auth/shared'
 import app from 'index'
 import { routeConfig } from 'configs'
 import {

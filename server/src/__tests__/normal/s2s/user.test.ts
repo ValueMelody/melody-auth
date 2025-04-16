@@ -1,5 +1,5 @@
 import { Database } from 'better-sqlite3'
-import { Scope } from 'shared'
+import { Scope } from '@melody-auth/shared'
 import {
   afterEach, beforeEach, describe, expect, Mock, test,
   vi,

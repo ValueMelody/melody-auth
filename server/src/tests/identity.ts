@@ -1,5 +1,5 @@
 import { Database } from 'better-sqlite3'
-import { genCodeChallenge } from 'shared'
+import { genCodeChallenge } from '@melody-auth/shared'
 import app from 'index'
 import { mock } from 'tests/mock'
 import { appModel } from 'models'
