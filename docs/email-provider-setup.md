@@ -20,6 +20,8 @@ Use the table below to configure your chosen email provider. Some variables are 
 | BREVO_SENDER_ADDRESS | Verified sender address in Brevo (Required if you intend to use Brevo) | "noreply@yourdomain.com" |
 | RESEND_API_KEY | Your Resend.com API key (Required if you intend to use Resend.com) | "re_xxxxxxxxxxxxxxxxxxxxxxx" |
 | RESEND_SENDER_ADDRESS | Verified sender address in Resend.com (Required if you intend to use Resend.com) |
+| POSTMARK_API_KEY | Your Postmark API key (Required if you intend to use Postmark) | "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" |
+| POSTMARK_SENDER_ADDRESS | Verified sender address in Postmark (Required if you intend to use Postmark) | "noreply@yourdomain.com" |
 | SMTP_SENDER_ADDRESS | SMTP sender email address (Node.js only) | "noreply@yourdomain.com" |
 | SMTP_CONNECTION_STRING | SMTP connection string (Node.js only) | "smtp://username:password@smtp.mailserver.com:587" |
 
@@ -34,12 +36,12 @@ Use the table below to configure your chosen email provider. Some variables are 
 
 ## Priority Between Providers
 - Node.js Environment
-  - If SMTP_CONNECTION_STRING is defined, SMTP will always be used—regardless of SendGrid, Mailgun, Brevo or Resend settings.
-  - Otherwise, if more than one API key and sender address are provided (SendGrid, Mailgun, Brevo, Resend), SendGrid is used first, then Mailgun, Brevo and finally Resend.
+  - If SMTP_CONNECTION_STRING is defined, SMTP will always be used—regardless of SendGrid, Mailgun, Brevo, Resend or Postmark settings.
+  - Otherwise, if more than one API key and sender address are provided (SendGrid, Mailgun, Brevo, Resend, Postmark), SendGrid is used first, then Mailgun, Brevo, Resend and finally Postmark.
 
 - Cloudflare Environment
   - SMTP settings are ignored.
-  - If you set up multiple providers (SendGrid, Mailgun, Brevo), SendGrid takes priority, followed by Mailgun, Brevo and then Resend.
+  - If you set up multiple providers (SendGrid, Mailgun, Brevo, Resend, Postmark), SendGrid takes priority, followed by Mailgun, Brevo, Resend and then Postmark.
 
 ## Cloudflare Remote/Production Configuration
 1. Navigate to the Cloudflare dashboard -> Go to "Workers & Pages"

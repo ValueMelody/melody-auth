@@ -16,6 +16,8 @@ DEV_SMS_RECEIVER= # When the ENVIRONMENT is not set to 'prod', all SMS messages 
 #BREVO_SENDER_ADDRESS= # Put your Brevo sender address here
 #RESEND_API_KEY= # Put your Resend api key here and leave SENDGRID_API_KEY, MAILGUN_API_KEY, BREVO_API_KEY empty if you want to use Resend handle email functionalities
 #RESEND_SENDER_ADDRESS= # Put your Resend sender address here
+#POSTMARK_API_KEY= # Put your Postmark api key here
+#POSTMARK_SENDER_ADDRESS= # Put your Postmark sender address here
 
 # Config following env vars to work with SMS MFA
 #TWILIO_ACCOUNT_ID= # Put your Twilio account id here

@@ -25,6 +25,8 @@ export type Bindings = {
   MAILGUN_SENDER_ADDRESS: string;
   RESEND_API_KEY: string;
   RESEND_SENDER_ADDRESS: string;
+  POSTMARK_API_KEY: string;
+  POSTMARK_SENDER_ADDRESS: string;
   SMS_MFA_IS_REQUIRED: boolean;
   SMS_MFA_MESSAGE_THRESHOLD: number;
   TWILIO_ACCOUNT_ID: string;

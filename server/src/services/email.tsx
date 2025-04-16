@@ -5,6 +5,7 @@ import { IMailer } from './email/interface'
 import { MailgunMailer } from './email/mailgun'
 import { ResendMailer } from './email/resend'
 import { SendgridMailer } from './email/sendgrid'
+import { PostmarkMailer } from './email/postmark'
 import { SmtpMailer } from './email/smtp'
 import {
   cryptoUtil, loggerUtil,
@@ -33,13 +34,16 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
     MAILGUN_SENDER_ADDRESS: mailgunSender,
     RESEND_API_KEY: resendApiKey,
     RESEND_SENDER_ADDRESS: resendSender,
+    POSTMARK_API_KEY: postmarkApiKey,
+    POSTMARK_SENDER_ADDRESS: postmarkSender,
   } = env(c)
   if (
     !c.env.SMTP &&
     (!mailgunApiKey || !mailgunSender) &&
     (!brevoApiKey || !brevoSender) &&
     (!sendgridApiKey || !sendgridSender) &&
-    (!resendApiKey || !resendSender)
+    (!resendApiKey || !resendSender) &&
+    (!postmarkApiKey || !postmarkSender)
   ) {
     loggerUtil.triggerLogger(
       c,
@@ -68,8 +72,12 @@ const buildMailer = (context: Context<typeConfig.Context>): IMailer => {
     return new BrevoMailer({ context })
   }
 
+  if (vars.RESEND_API_KEY && vars.RESEND_SENDER_ADDRESS) {
+    return new ResendMailer({ context })
+  }
+
   // checkEmailSetup should have been called before this
-  return new ResendMailer({ context })
+  return new PostmarkMailer({ context })
 }
 
 export const sendEmail = async (

@@ -374,6 +374,77 @@ describe(
     )
 
     test(
+      'could send reset code by Postmark',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.POSTMARK_API_KEY = 'abc'
+        process.env.POSTMARK_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const {
+          res, code,
+        } = await sendCorrectResetPasswordCodeReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(code.length).toBe(6)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.postmarkapp.com/email')
+        expect(body).toContain(code)
+        expect(body).toContain('"To":"test@email.com"')
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(0)
+
+        global.fetch = fetchMock
+
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.POSTMARK_API_KEY = ''
+        process.env.POSTMARK_SENDER_ADDRESS = ''
+      },
+    )
+
+    test(
+      'could log email by Postmark',
+      async () => {
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.POSTMARK_API_KEY = 'abc'
+        process.env.POSTMARK_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.ENABLE_EMAIL_LOG = true as unknown as string
+
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const { res } = await sendCorrectResetPasswordCodeReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const logs = await db.prepare('select * from email_log').all()
+        expect(logs.length).toBe(1)
+        expect(logs[0]).toStrictEqual(emailLogRecord)
+        global.fetch = fetchMock
+
+        process.env.POSTMARK_API_KEY = ''
+        process.env.POSTMARK_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.ENABLE_EMAIL_LOG = false as unknown as string
+      },
+    )
+
+    test(
       'could send reset code by smtp',
       async () => {
         process.env.MAILGUN_API_KEY = 'abc'
