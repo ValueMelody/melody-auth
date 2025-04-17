@@ -102,13 +102,13 @@
 - Access Control [Custom Role Access for the Admin Panel](https://auth.valuemelody.com/admin-panel-setup.html#custom-role-access-for-the-admin-panel)
 
 ## Demo & Examples
-- [Vite React Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/vite-react-demo)
+- [Vite React Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-react-demo)
   - [Demo Site: Password Sign-in/Sign-up with OTP MFA and Passkey enrollment](https://auth-demo.valuemelody.com)
-- [Angular Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/angular-example)
-- [Vite Vue Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/vite-vue-example)
+- [Angular Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/angular-example)
+- [Vite Vue Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-vue-example)
 - [Next.js Full stack implementation Example](https://github.com/ValueMelody/melody-auth/tree/main/admin-panel)
-- [Next.js Auth.js Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/next-auth-js-example)
-- [React Native Example](https://github.com/ValueMelody/melody-auth/tree/main/examples/react-native-example)
+- [Next.js Auth.js Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/next-auth-js-example)
+- [React Native Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/react-native-example)
 
 ## Screenshots
 [Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)  
