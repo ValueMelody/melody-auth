@@ -65,6 +65,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/qrcode": "^1.5.5",
     "@types/qs": "^6.9.18",
+    "@types/react": "^19.1.2",
     "@vitest/coverage-v8": "^2.0.5",
     "better-sqlite3": "^11.2.1",
     "ioredis-mock": "^8.9.0",
