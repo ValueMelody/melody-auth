@@ -15,8 +15,5 @@
     "type:check": "tsc --noEmit",
     "test:check": "vitest run .",
     "test:coverage": "vitest run . --coverage"
-  },
-  "devDependencies": {
-    "vitest": "^3.0.5"
   }
 }

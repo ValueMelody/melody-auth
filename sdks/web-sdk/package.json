@@ -22,7 +22,6 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "rollup": "^4.19.2",
-    "tsc-alias": "^1.8.10",
-    "vitest": "^3.0.5"
+    "tsc-alias": "^1.8.10"
   }
 }
