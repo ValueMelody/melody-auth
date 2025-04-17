@@ -6,6 +6,7 @@ keep_vars = true
 
 # Branding
 COMPANY_LOGO_URL="https://valuemelody.com/logo.svg"
+COMPANY_EMAIL_LOGO_URL="https://valuemelody.com/logo.jpg"
 EMAIL_SENDER_NAME="Melody Auth Demo"
 TERMS_LINK=""
 PRIVACY_POLICY_LINK=""

@@ -5,6 +5,7 @@ const Org = {
     name: { type: 'string' },
     slug: { type: 'string' },
     companyLogoUrl: { type: 'string' },
+    companyEmailLogoUrl: { type: 'string' },
     fontFamily: { type: 'string' },
     fontUrl: { type: 'string' },
     layoutColor: { type: 'string' },
@@ -27,7 +28,7 @@ const Org = {
     },
   },
   required: [
-    'id', 'name', 'slug', 'companyLogoUrl',
+    'id', 'name', 'slug', 'companyLogoUrl', 'companyEmailLogoUrl',
     'fontFamily', 'fontUrl', 'layoutColor', 'labelColor',
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
@@ -50,6 +51,11 @@ const PutOrgReq = {
       maxLength: 50,
     },
     companyLogoUrl: {
+      type: 'string',
+      minLength: 0,
+      maxLength: 250,
+    },
+    companyEmailLogoUrl: {
       type: 'string',
       minLength: 0,
       maxLength: 250,

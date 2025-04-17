@@ -53,6 +53,14 @@ export class PutOrgDto {
   @IsString()
   @Length(
     0,
+    250,
+  )
+  @IsOptional()
+    companyEmailLogoUrl: string
+
+  @IsString()
+  @Length(
+    0,
     50,
   )
   @IsOptional()
@@ -166,6 +174,7 @@ export class PutOrgDto {
     this.name = dto.name?.trim()
     this.slug = dto.slug?.trim()
     this.companyLogoUrl = dto.companyLogoUrl
+    this.companyEmailLogoUrl = dto.companyEmailLogoUrl
     this.fontFamily = dto.fontFamily
     this.fontUrl = dto.fontUrl
     this.layoutColor = dto.layoutColor

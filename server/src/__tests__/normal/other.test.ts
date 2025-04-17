@@ -49,6 +49,7 @@ describe(
           SUPPORTED_LOCALES: ['en', 'fr'],
           ENABLE_LOCALE_SELECTOR: true,
           COMPANY_LOGO_URL: 'https://valuemelody.com/logo.svg',
+          COMPANY_EMAIL_LOGO_URL: 'https://valuemelody.com/logo.jpg',
           EMAIL_SENDER_NAME: 'Melody Auth',
           ENABLE_SIGN_UP: true,
           ENABLE_PASSWORD_RESET: true,

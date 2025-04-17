@@ -58,6 +58,7 @@ export const updateOrg = async (
       name: dto.name,
       slug: dto.slug,
       companyLogoUrl: dto.companyLogoUrl,
+      companyEmailLogoUrl: dto.companyEmailLogoUrl,
       fontFamily: dto.fontFamily,
       fontUrl: dto.fontUrl,
       layoutColor: dto.layoutColor,

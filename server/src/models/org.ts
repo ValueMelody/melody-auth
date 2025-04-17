@@ -8,6 +8,7 @@ export interface Record {
   name: string;
   slug: string;
   companyLogoUrl: string;
+  companyEmailLogoUrl: string;
   fontFamily: string;
   fontUrl: string;
   layoutColor: string;
@@ -42,6 +43,7 @@ export interface Update {
   name?: string;
   slug?: string;
   companyLogoUrl?: string;
+  companyEmailLogoUrl?: string;
   fontFamily?: string;
   fontUrl?: string;
   layoutColor?: string;
@@ -126,7 +128,7 @@ export const update = async (
   db: D1Database, id: number, update: Update,
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
-    'name', 'slug', 'companyLogoUrl', 'fontFamily', 'fontUrl', 'layoutColor', 'labelColor',
+    'name', 'slug', 'companyLogoUrl', 'companyEmailLogoUrl', 'fontFamily', 'fontUrl', 'layoutColor', 'labelColor',
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
     'criticalIndicatorColor', 'emailSenderName', 'termsLink', 'privacyPolicyLink',

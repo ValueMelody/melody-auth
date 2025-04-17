@@ -58,6 +58,7 @@ const newOrg = {
   name: 'test name',
   slug: 'test slug',
   companyLogoUrl: '',
+  companyEmailLogoUrl: '',
   fontFamily: '',
   fontUrl: '',
   layoutColor: '',

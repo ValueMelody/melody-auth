@@ -277,6 +277,9 @@
           "companyLogoUrl": {
             "type": "string"
           },
+          "companyEmailLogoUrl": {
+            "type": "string"
+          },
           "fontFamily": {
             "type": "string"
           },
@@ -335,6 +338,7 @@
           "name",
           "slug",
           "companyLogoUrl",
+          "companyEmailLogoUrl",
           "fontFamily",
           "fontUrl",
           "layoutColor",
@@ -368,6 +372,11 @@
             "maxLength": 50
           },
           "companyLogoUrl": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 250
+          },
+          "companyEmailLogoUrl": {
             "type": "string",
             "minLength": 0,
             "maxLength": 250
