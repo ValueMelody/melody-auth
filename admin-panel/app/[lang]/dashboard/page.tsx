@@ -25,6 +25,7 @@ const Page = () => {
       name: t('dashboard.informationConfigs'),
       value: [
         'COMPANY_LOGO_URL',
+        'COMPANY_EMAIL_LOGO_URL',
         'EMAIL_SENDER_NAME',
         'TERMS_LINK',
         'PRIVACY_POLICY_LINK',

@@ -11,7 +11,8 @@ const mockProps = {
   branding: {
     name: 'Test Brand',
     logo: 'test-logo.png',
-    logoUrl: 'https://test.com/logo.png',
+    logoUrl: '',
+    emailLogoUrl: 'https://test.com/logo.png',
     fontFamily: 'Arial',
     fontUrl: null,
     layoutColor: '#ffffff',

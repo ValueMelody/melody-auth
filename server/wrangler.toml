@@ -9,6 +9,7 @@ keep_vars = true
 
 # Information
 COMPANY_LOGO_URL="https://valuemelody.com/logo.svg"
+COMPANY_EMAIL_LOGO_URL="https://valuemelody.com/logo.jpg" # be aware that svg format might not be supported in some email clients
 EMAIL_SENDER_NAME="Melody Auth"
 TERMS_LINK="" # Display a link to your terms on sign-up page
 PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
@@ -25,7 +26,7 @@ ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
 ENABLE_EMAIL_VERIFICATION=true # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html
-ENABLE_ORG=false
+ENABLE_ORG=true
 BLOCKED_POLICIES=[] # A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info), preventing end users from triggering them
 ENABLE_PASSWORDLESS_SIGN_IN=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. Setting this option to true will automatically override ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT to false. Also, make sure to disable email MFA in order to use this feature.
 
