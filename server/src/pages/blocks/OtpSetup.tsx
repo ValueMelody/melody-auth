@@ -10,7 +10,7 @@ export interface OtpSetupProps {
   locale: typeConfig.Locale;
   otpSecret: string;
   otpUri: string;
-  qrCodeEl: React.RefObject<HTMLCanvasElement>;
+  qrCodeEl: React.RefObject<HTMLCanvasElement | null>;
   onChange: (name: 'mfaCode', value: string[]) => void;
   onVerifyMfa: (e: Event) => void;
   submitError: string | null;
