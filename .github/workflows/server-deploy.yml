@@ -19,13 +19,10 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Build package
-        run: npm run build -w=shared
+        run: cd server && npm ci
 
       - name: Build Server View
-        run: npm run build -w=server
+        run: cd server && npm run build
 
       - name: Run Migration
         uses: cloudflare/wrangler-action@v3

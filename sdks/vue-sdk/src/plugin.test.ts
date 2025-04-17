@@ -3,7 +3,7 @@ import {
 } from 'vitest'
 import { createApp } from 'vue'
 import * as webModule from '@melody-auth/web'
-import * as shared from 'shared'
+import * as shared from '@melody-auth/shared'
 import { AuthProvider } from './plugin'
 import * as utils from './utils'
 import { melodyAuthInjectionKey } from './context'
@@ -29,7 +29,7 @@ vi.mock(
 
 // Provide default return values for mocked functions
 vi.mock(
-  'shared',
+  '@melody-auth/shared',
   () => ({
     checkStorage: vi.fn().mockReturnValue({
       storedRefreshToken: null,

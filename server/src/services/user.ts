@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { GetUserInfoRes } from 'shared'
+import { GetUserInfoRes } from '@melody-auth/shared'
 import {
   errorConfig,
   messageConfig,

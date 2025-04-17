@@ -1,6 +1,6 @@
 import {
   ProviderConfig, SessionStorageKey, AuthorizeMethod,
-} from 'shared'
+} from '@melody-auth/shared'
 import {
   genCodeVerifierAndChallenge, genAuthorizeState,
 } from '../generators'

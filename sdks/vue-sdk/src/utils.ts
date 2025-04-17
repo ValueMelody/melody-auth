@@ -3,7 +3,7 @@ import {
 } from '@melody-auth/web'
 import {
   handleError, ErrorType, isValidTokens,
-} from 'shared'
+} from '@melody-auth/shared'
 import { AuthState } from './context'
 
 export const handleTokenExchangeByAuthCode = (

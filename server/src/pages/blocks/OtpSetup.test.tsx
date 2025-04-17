@@ -9,7 +9,7 @@ import OtpSetup from './OtpSetup'
 import { otpMfa } from 'pages/tools/locale'
 
 // Create a dummy ref for the canvas element
-const dummyRef = { current: null } as React.RefObject<HTMLCanvasElement>
+const dummyRef = { current: null } as unknown as React.RefObject<HTMLCanvasElement>
 
 describe(
   'OtpSetup Component',

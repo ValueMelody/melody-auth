@@ -1,7 +1,7 @@
 import {
   Provider, InjectionToken,
 } from '@angular/core'
-import { ProviderConfig } from 'shared'
+import { ProviderConfig } from '@melody-auth/shared'
 
 export const PROVIDER_CONFIG = new InjectionToken<ProviderConfig>('melody-auth.config')
 

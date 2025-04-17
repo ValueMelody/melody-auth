@@ -17,8 +17,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@testing-library/vue": "^8.1.0",
     "rollup": "^4.19.2",
-    "tsc-alias": "^1.8.10",
-    "vitest": "^3.0.5"
+    "tsc-alias": "^1.8.10"
   },
   "peerDependencies": {
     "vue": "^3"

@@ -1,4 +1,4 @@
-import { genCodeChallenge } from 'shared'
+import { genCodeChallenge } from '@melody-auth/shared'
 // eslint-disable-next-line import/default
 import bcrypt from 'bcryptjs'
 import base32Encode from 'base32-encode'

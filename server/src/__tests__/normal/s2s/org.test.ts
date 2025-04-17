@@ -2,7 +2,7 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
-import { Scope } from 'shared'
+import { Scope } from '@melody-auth/shared'
 import {
   insertUsers, user1, user2,
 } from './user.test'

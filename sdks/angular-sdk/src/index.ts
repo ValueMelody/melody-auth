@@ -1,6 +1,6 @@
 import {
   GetUserInfoRes, ErrorType,
-} from 'shared'
+} from '@melody-auth/shared'
 import { AuthService } from './auth.service'
 import { provideAuth } from './auth.provider'
 

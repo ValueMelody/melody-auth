@@ -1,7 +1,7 @@
 import {
   describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest'
-import type { ProviderConfig } from 'shared'
+import type { ProviderConfig } from '@melody-auth/shared'
 import {
   getAuthorize,
   getUserInfo,

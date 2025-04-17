@@ -8,7 +8,7 @@ import {
   ErrorType,
   isValidTokens,
   AuthState,
-} from 'shared'
+} from '@melody-auth/shared'
 
 export const handleTokenExchangeByAuthCode = (
   code: string,

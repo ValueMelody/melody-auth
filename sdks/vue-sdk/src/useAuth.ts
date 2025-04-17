@@ -6,7 +6,7 @@ import {
 } from '@melody-auth/web'
 import {
   handleError, ErrorType, AuthorizeMethod, LoginProps,
-} from 'shared'
+} from '@melody-auth/shared'
 import {
   handleTokenExchangeByAuthCode, acquireToken as rawAcquireToken,
 } from './utils'

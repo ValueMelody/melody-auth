@@ -1,7 +1,7 @@
 import {
   useEffect, useState,
 } from 'hono/jsx'
-import { genCodeChallenge } from 'shared'
+import { genCodeChallenge } from '@melody-auth/shared'
 import {
   useSocialSignIn, View,
 } from 'pages/hooks'

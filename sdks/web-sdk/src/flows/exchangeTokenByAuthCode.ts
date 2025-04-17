@@ -1,7 +1,7 @@
 import {
   ProviderConfig, AccessTokenStorage, RefreshTokenStorage, SessionStorageKey, StorageKey,
   IdTokenBody,
-} from 'shared'
+} from '@melody-auth/shared'
 import { postTokenByAuthCode } from '../requests'
 
 const base64UrlDecode = (str: string) => {

@@ -3,7 +3,7 @@ import {
 } from 'vue'
 import {
   ProviderConfig, RefreshTokenStorage, IdTokenBody, isValidStorage, getParams, checkStorage,
-} from 'shared'
+} from '@melody-auth/shared'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import {
   AuthState, melodyAuthInjectionKey,

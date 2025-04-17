@@ -39,7 +39,7 @@ const OtpSetup = ({
     onSwitchView,
   })
 
-  const qrCodeEl = useRef<HTMLCanvasElement>(null)
+  const qrCodeEl = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(
     () => {

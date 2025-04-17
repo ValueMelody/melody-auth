@@ -6,7 +6,7 @@ import {
 import { JWTPayload } from 'hono/utils/jwt/types'
 import {
   ClientType, IdTokenBody,
-} from 'shared'
+} from '@melody-auth/shared'
 import { SignatureKey } from 'hono/utils/jwt/jws'
 import { encodeBase64Url } from 'hono/utils/encode'
 import {

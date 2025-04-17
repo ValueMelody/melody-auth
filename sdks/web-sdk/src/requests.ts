@@ -1,7 +1,7 @@
 import {
   ProviderConfig, GetUserInfoRes, AuthorizeMethod,
   PostTokenByAuthCodeRes, PostTokenByRefreshTokenRes,
-} from 'shared'
+} from '@melody-auth/shared'
 
 export const getAuthorize = async (
   {

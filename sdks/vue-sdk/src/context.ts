@@ -1,4 +1,4 @@
-import { AuthState as SdkAuthState } from 'shared'
+import { AuthState as SdkAuthState } from '@melody-auth/shared'
 import type { InjectionKey } from 'vue'
 
 export interface AuthState extends SdkAuthState {}

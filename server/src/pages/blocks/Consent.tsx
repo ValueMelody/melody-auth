@@ -1,4 +1,4 @@
-import { Scope } from 'shared'
+import { Scope } from '@melody-auth/shared'
 import {
   SubmitError, SecondaryButton, ViewTitle,
 } from 'pages/components'

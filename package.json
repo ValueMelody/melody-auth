@@ -7,7 +7,6 @@
   "repository": "https://github.com/ValueMelody/melody-auth",
   "workspaces": [
     "shared",
-    "server",
     "sdks/web-sdk",
     "sdks/react-sdk",
     "sdks/vue-sdk",
@@ -15,7 +14,7 @@
   ],
   "scripts": {
     "type:check:sdks": "npm run type:check -w=sdks/web-sdk && npm run type:check -w=sdks/react-sdk && npm run type:check -w=sdks/vue-sdk && npm run type:check -w=sdks/angular-sdk",
-    "type:check": "npm run type:check -w=shared && npm run type:check -w=server && npm run type:check:sdks && cd admin-panel && npm run type:check",
+    "type:check": "npm run type:check -w=shared && npm run type:check:sdks && cd server && npm run type:check && cd ../admin-panel && npm run type:check",
     "lint:check": "eslint ./ --ext .ts,.tsx,.js,.cjs --ignore-pattern 'examples/*'",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js,.cjs",
     "build:sdks": "npm run build -w=sdks/web-sdk && npm run build -w=sdks/react-sdk && npm run build -w=sdks/vue-sdk && npm run build -w=sdks/angular-sdk",
@@ -36,12 +35,10 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "ioredis-mock": "^8.9.0",
+    "jsdom": "^26.1.0",
     "sass-embedded": "^1.85.0",
+    "vitest": "^3.1.1",
     "vue": "^3.4.0",
     "vuepress": "^2.0.0-rc.19"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.40.0"
   }
 }

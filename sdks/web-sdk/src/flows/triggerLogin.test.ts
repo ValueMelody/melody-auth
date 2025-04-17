@@ -7,8 +7,8 @@ import {
   afterEach,
 } from 'vitest'
 
-import type { ProviderConfig } from 'shared'
-import { SessionStorageKey } from 'shared'
+import type { ProviderConfig } from '@melody-auth/shared'
+import { SessionStorageKey } from '@melody-auth/shared'
 
 import {
   genCodeVerifierAndChallenge,
