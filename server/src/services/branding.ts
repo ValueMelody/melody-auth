@@ -7,6 +7,7 @@ import { orgModel } from 'models'
 
 export interface Branding {
   logoUrl: string;
+  emailLogoUrl: string;
   fontFamily: string;
   fontUrl: string;
   layoutColor: string;
@@ -25,6 +26,7 @@ export interface Branding {
 const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
   const {
     COMPANY_LOGO_URL: logoUrl,
+    COMPANY_EMAIL_LOGO_URL: emailLogoUrl,
     TERMS_LINK: termsLink,
     PRIVACY_POLICY_LINK: privacyPolicyLink,
   } = env(c)
@@ -43,6 +45,7 @@ const getDefaultBranding = (c: Context<typeConfig.Context>): Branding => {
     termsLink,
     privacyPolicyLink,
     logoUrl,
+    emailLogoUrl,
   }
 }
 
@@ -64,6 +67,7 @@ export const getBranding = async (
     fontFamily: org?.fontFamily || defaultBranding.fontFamily,
     fontUrl: org?.fontUrl || defaultBranding.fontUrl,
     logoUrl: org?.companyLogoUrl || defaultBranding.logoUrl,
+    emailLogoUrl: org?.companyEmailLogoUrl || defaultBranding.emailLogoUrl,
     layoutColor: org?.layoutColor || defaultBranding.layoutColor,
     labelColor: org?.labelColor || defaultBranding.labelColor,
     primaryButtonColor: org?.primaryButtonColor || defaultBranding.primaryButtonColor,

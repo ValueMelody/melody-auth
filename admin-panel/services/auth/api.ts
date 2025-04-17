@@ -838,6 +838,7 @@ export type Org = {
   name: string;
   slug: string;
   companyLogoUrl: string;
+  companyEmailLogoUrl: string;
   fontFamily: string;
   fontUrl: string;
   layoutColor: string;
@@ -864,6 +865,7 @@ export type PutOrgReq = {
   name?: string;
   slug?: string;
   companyLogoUrl?: string;
+  companyEmailLogoUrl?: string;
   fontFamily?: string;
   fontUrl?: string;
   layoutColor?: string;

@@ -96,7 +96,7 @@ describe(
     test(
       'could override verification email with branding config',
       async () => {
-        process.env.COMPANY_LOGO_URL = 'https://google.com'
+        process.env.COMPANY_EMAIL_LOGO_URL = 'https://google.com'
 
         const mockFetch = vi.fn(async () => {
           return Promise.resolve({ ok: true })
@@ -112,7 +112,7 @@ describe(
         expect(emailBody).not.toContain('https://valuemelody.com/logo.svg')
 
         global.fetch = fetchMock
-        process.env.COMPANY_LOGO_URL = 'https://valuemelody.com/logo.svg'
+        process.env.COMPANY_EMAIL_LOGO_URL = 'https://valuemelody.com/logo.svg'
       },
     )
 
@@ -126,7 +126,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        db.exec('insert into "org" (name, slug, "companyLogoUrl") values (\'test\', \'default\', \'https://test.com\')')
+        db.exec('insert into "org" (name, slug, "companyEmailLogoUrl") values (\'test\', \'default\', \'https://test_logo.com\')')
 
         const appRecord = await getApp(db)
         const body = {
@@ -150,8 +150,9 @@ describe(
         const callArgs = mockFetch.mock.calls[0] as any[]
         const emailBody = (callArgs[1] as unknown as { body: string }).body
         expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
-        expect(emailBody).toContain('https://test.com')
+        expect(emailBody).toContain('https://test_logo.com')
         expect(emailBody).not.toContain(process.env.COMPANY_LOGO_URL)
+        expect(emailBody).not.toContain(process.env.COMPANY_EMAIL_LOGO_URL)
 
         process.env.ENABLE_ORG = false as unknown as string
       },

@@ -138,6 +138,7 @@
     "status": "Statut",
     "new": "Créer une organisation",
     "companyLogoUrl": "URL du logo",
+    "companyEmailLogoUrl": "URL du logo de l'email",
     "fontFamily": "Police d’écriture",
     "fontUrl": "URL de la police",
     "layoutColor": "Couleur de la mise en page",

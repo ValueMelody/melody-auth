@@ -4,7 +4,7 @@ import {
 } from 'configs'
 
 export interface Branding {
-  logoUrl: string;
+  emailLogoUrl: string;
 }
 
 const Layout = ({
@@ -42,7 +42,7 @@ const Layout = ({
                                 <tr>
                                     <td align="center">
                                         <img
-                                          src="${branding.logoUrl}"
+                                          src="${branding.emailLogoUrl}"
                                           alt="Melody Auth Logo" style="width: 40px; height: auto; margin-bottom: 20px;"
                                         >
                                     </td>

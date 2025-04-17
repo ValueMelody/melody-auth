@@ -14,6 +14,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** https://valuemelody.com/logo.svg
 - **Description:** URL of the logo displayed on authentication pages.
 
+### COMPANY_EMAIL_LOGO_URL
+- **Default:** https://valuemelody.com/logo.jpg
+- **Description:** URL of the logo displayed on emails. Note that SVG format might not be supported in some email clients.
+
 ### EMAIL_SENDER_NAME
 - **Default:** "Melody Auth"
 - **Description:** Display name in emails sent to users.

@@ -145,6 +145,7 @@
     "status": "Status",
     "new": "Create an org",
     "companyLogoUrl": "Logo Url",
+    "companyEmailLogoUrl": "Email Logo Url",
     "fontFamily": "Font Family",
     "fontUrl": "Font Url",
     "layoutColor": "Layout Color",

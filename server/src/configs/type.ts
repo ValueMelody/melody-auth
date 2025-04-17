@@ -39,6 +39,7 @@ export type Bindings = {
   ID_TOKEN_EXPIRES_IN: number;
   SERVER_SESSION_EXPIRES_IN: number;
   COMPANY_LOGO_URL: string;
+  COMPANY_EMAIL_LOGO_URL: string;
   EMAIL_SENDER_NAME: string;
   SMTP_SENDER_ADDRESS: string;
   AUTH_SERVER_URL: string;

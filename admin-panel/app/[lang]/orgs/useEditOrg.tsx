@@ -11,6 +11,7 @@ const useEditOrg = (org: Org | undefined) => {
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [companyLogoUrl, setCompanyLogoUrl] = useState('')
+  const [companyEmailLogoUrl, setCompanyEmailLogoUrl] = useState('')
   const [fontFamily, setFontFamily] = useState('')
   const [fontUrl, setFontUrl] = useState('')
   const [layoutColor, setLayoutColor] = useState('')
@@ -30,6 +31,7 @@ const useEditOrg = (org: Org | undefined) => {
       setName(org?.name ?? '')
       setSlug(org?.slug ?? '')
       setCompanyLogoUrl(org?.companyLogoUrl ?? '')
+      setCompanyEmailLogoUrl(org?.companyEmailLogoUrl ?? '')
       setFontFamily(org?.fontFamily ?? '')
       setFontUrl(org?.fontUrl ?? '')
       setLayoutColor(org?.layoutColor ?? '')
@@ -52,6 +54,7 @@ const useEditOrg = (org: Org | undefined) => {
       name,
       slug,
       companyLogoUrl,
+      companyEmailLogoUrl,
       fontFamily,
       fontUrl,
       layoutColor,
@@ -70,6 +73,7 @@ const useEditOrg = (org: Org | undefined) => {
       name,
       slug,
       companyLogoUrl,
+      companyEmailLogoUrl,
       fontFamily,
       fontUrl,
       layoutColor,
@@ -106,6 +110,9 @@ const useEditOrg = (org: Org | undefined) => {
       break
     case 'companyLogoUrl':
       setCompanyLogoUrl(value as string)
+      break
+    case 'companyEmailLogoUrl':
+      setCompanyEmailLogoUrl(value as string)
       break
     case 'fontFamily':
       setFontFamily(value as string)

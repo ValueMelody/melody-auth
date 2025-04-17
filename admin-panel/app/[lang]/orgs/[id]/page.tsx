@@ -152,6 +152,20 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
+              <TableCell>{t('orgs.companyEmailLogoUrl')}</TableCell>
+              <TableCell>
+                <LinkInput
+                  data-testid='companyEmailLogoUrlInput'
+                  disabled={!canWriteOrg}
+                  onChange={(value) => onChange(
+                    'companyEmailLogoUrl',
+                    value,
+                  )}
+                  value={values.companyEmailLogoUrl}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
               <TableCell>{t('orgs.fontFamily')}</TableCell>
               <TableCell>
                 <Input

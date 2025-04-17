@@ -9,6 +9,7 @@ keep_vars = true
 
 # Information
 COMPANY_LOGO_URL="https://valuemelody.com/logo.svg"
+COMPANY_EMAIL_LOGO_URL="https://valuemelody.com/logo.jpg" # be aware that svg format might not be supported in some email clients
 EMAIL_SENDER_NAME="Melody Auth"
 TERMS_LINK="" # Display a link to your terms on sign-up page
 PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
