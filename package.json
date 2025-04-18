@@ -1,6 +1,6 @@
 {
   "name": "melody-auth",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "A turnkey OAuth & authentication system.",
   "license": "MIT",
   "author": "Baozier",
@@ -26,6 +26,7 @@
     "@types/react": "^18.3.3",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
+    "@vitest/coverage-v8": "^3.1.1",
     "@vitest/mocker": "^3.0.7",
     "@vuepress/bundler-vite": "^2.0.0-rc.19",
     "@vuepress/theme-default": "^2.0.0-rc.74",
