@@ -124,6 +124,7 @@ export interface RefreshTokenBody {
   clientId: string;
   scope: string;
   roles: string[];
+  impersonatedBy?: string;
 }
 
 export interface Pagination {

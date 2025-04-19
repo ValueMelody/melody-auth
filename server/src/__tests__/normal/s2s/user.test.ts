@@ -1668,3 +1668,25 @@ describe(
     )
   },
 )
+
+describe(
+  'impersonate user',
+  () => {
+    test('should impersonate user', async () => {
+      await insertUsers(db)
+
+      const res = await app.request(
+        `${BaseRoute}/1-1-1-2/impersonate/1`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          body: JSON.stringify({
+            impersonatedBy: '1-1-1-1',
+          }),
+        },
+        mock(db),
+      )
+      expect(res.status).toBe(200)
+    })
+  },
+)

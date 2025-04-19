@@ -2293,6 +2293,52 @@
         }
       }
     },
+    "/api/v1/users/{authId}/impersonation/{appId}": {
+      "post": {
+        "summary": "Generate an impersonation refresh token for a user by authId and appId",
+        "description": "Required scope - root",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "authId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The authId of the user"
+          },
+          {
+            "in": "path",
+            "name": "appId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The id of the app"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A refresh token for impersonation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshToken": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/logs/email": {
       "get": {
         "summary": "Get a list of email logs",
