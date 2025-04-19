@@ -12,10 +12,11 @@ export default {
     sourcemap: true,
     globals: {
       react: 'React',
-      'react-dom': 'ReactDOM'
-    }
+      'react-dom': 'ReactDOM',
+      'react/jsx-runtime': 'ReactJsxRuntime',
+    },
   },
-  external: ['react', 'react-dom'],
+  external: ['react', 'react-dom', 'react/jsx-runtime'],
   plugins: [
     alias({
       entries: [
