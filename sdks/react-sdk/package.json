@@ -1,6 +1,6 @@
 {
   "name": "@melody-auth/react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
     "tsc-alias": "^1.8.10"
   },
   "peerDependencies": {
-    "react": "^16.11.0 || ^17 || ^18"
+    "react": "^16.11.0 || ^17 || ^18 || ^19"
   },
   "scripts": {
     "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && cp -r ../../shared/dist/* ./dist/shared && rollup -c --bundleConfigAsCjs && tsc-alias",
