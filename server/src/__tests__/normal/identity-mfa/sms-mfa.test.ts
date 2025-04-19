@@ -53,7 +53,7 @@ describe(
         )
         expect(res.status).toBe(200)
         expect(await res.json()).toStrictEqual({
-          allowFallbackToEmailMfa: false,
+          allowFallbackToEmailMfa: true,
           countryCode: '+1',
           phoneNumber: null,
         })
@@ -86,7 +86,7 @@ describe(
         )
         expect(res.status).toBe(200)
         expect(await res.json()).toStrictEqual({
-          allowFallbackToEmailMfa: false,
+          allowFallbackToEmailMfa: true,
           countryCode: '+1',
           phoneNumber: null,
         })

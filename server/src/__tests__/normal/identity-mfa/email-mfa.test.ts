@@ -408,63 +408,118 @@ describe(
       },
     )
 
-    // test(
-    //   'could use as fallback for both sms and otp at same time',
-    //   async () => {
-    //     const mockFetch = vi.fn(async () => {
-    //       return Promise.resolve({ ok: true })
-    //     })
-    //     global.fetch = mockFetch as Mock
+    test(
+      'could use as fallback for both sms and otp at same time',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
 
-    //     await insertUsers(
-    //       db,
-    //       false,
-    //     )
-    //     await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
-    //       '+16471231234',
-    //       1,
-    //     )
-    //     db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('sms,otp')
+        await insertUsers(
+          db,
+          false,
+        )
+        await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+          '+16471231234',
+          1,
+        )
+        db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('sms,otp')
 
-    //     const requestBody = await prepareFollowUpBody(db)
-    //     await app.request(
-    //       routeConfig.IdentityRoute.SendEmailMfa,
-    //       {
-    //         method: 'POST',
-    //         body: JSON.stringify({ ...requestBody }),
-    //       },
-    //       mock(db),
-    //     )
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
 
-    //     const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
-    //     expect(mfaCode?.length).toBe(6)
-    //     expect(mockFetch).toBeCalledTimes(1)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+        expect(mockFetch).toBeCalledTimes(1)
 
-    //     global.fetch = fetchMock
+        global.fetch = fetchMock
 
-    //     const res = await app.request(
-    //       routeConfig.IdentityRoute.ProcessEmailMfa,
-    //       {
-    //         method: 'POST',
-    //         body: JSON.stringify({
-    //           code: requestBody.code,
-    //           locale: requestBody.locale,
-    //           mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
-    //         }),
-    //       },
-    //       mock(db),
-    //     )
-    //     const json = await res.json() as { code: string }
-    //     expect(json).toStrictEqual({
-    //       code: expect.any(String),
-    //       redirectUri: 'http://localhost:3000/en/dashboard',
-    //       state: '123',
-    //       scopes: ['profile', 'openid', 'offline_access'],
-    //     })
-    //     expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
-    //     expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
-    //   },
-    // )
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+      },
+    )
+
+    test(
+      'could use as fallback for both sms and otp setup at same time',
+      async () => {
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('sms,otp')
+
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+        expect(mockFetch).toBeCalledTimes(1)
+
+        global.fetch = fetchMock
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+      },
+    )
 
     test(
       'should throw error if auth code is wrong',

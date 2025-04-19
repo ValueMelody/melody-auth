@@ -132,8 +132,6 @@ const allowSmsSwitchToEmailMfa = (
   c: Context<typeConfig.Context>,
   authCodeStore: AuthCodeBody,
 ) => {
-  if (!authCodeStore.user.smsPhoneNumber || !authCodeStore.user.smsPhoneNumberVerified) return false
-
   const {
     SMS_MFA_IS_REQUIRED: enableSmsMfa,
     EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
