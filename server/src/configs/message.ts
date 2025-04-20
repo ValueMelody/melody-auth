@@ -90,4 +90,7 @@ export enum RequestError {
   ChangeEmailLocked = 'Too many send email change code requests. Please try again after 30 minutes.',
   UniqueKey = 'Unique key constraint failed',
   UnknownScope = 'Unknown scope',
+  impersonatorTokenIsRequired = 'impersonatorToken is required for impersonation',
+  impersonatorIsNotSuperAdmin = 'Only super admin can impersonate other users',
+  impersonateNonSpaApp = 'Impersonate request sent to a non-SPA app',
 }

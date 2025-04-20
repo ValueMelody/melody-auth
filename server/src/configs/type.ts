@@ -112,6 +112,7 @@ export interface AccessTokenBody {
   iat: number;
   exp: number;
   roles?: string[];
+  impersonatedBy?: string;
 }
 
 export interface BasicAuthBody {
@@ -124,6 +125,7 @@ export interface RefreshTokenBody {
   clientId: string;
   scope: string;
   roles: string[];
+  impersonatedBy?: string;
 }
 
 export interface Pagination {

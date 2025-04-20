@@ -4,6 +4,8 @@ import {
   afterEach, beforeEach, describe, expect, Mock, test,
   vi,
 } from 'vitest'
+import { decode } from 'hono/jwt'
+import { exchangeWithAuthToken } from '../oauth.test'
 import {
   adapterConfig, localeConfig, messageConfig, routeConfig,
 } from 'configs'
@@ -25,6 +27,7 @@ import {
   enrollSmsMfa,
   getS2sToken,
 } from 'tests/util'
+import { oauthDto } from 'dtos'
 
 let db: Database
 
@@ -1664,6 +1667,229 @@ describe(
         )
         const checkJson = await checkRes.json() as { passkeys: userPasskeyModel.Record[] }
         expect(checkJson.passkeys).toStrictEqual([])
+      },
+    )
+  },
+)
+
+describe(
+  'impersonate user',
+  () => {
+    test(
+      'should impersonate user',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(db)
+        db.exec('delete from "user_role"')
+        db.exec('insert into "user_role" ("userId", "roleId") values (1, 1)')
+
+        const adminUser = await exchangeWithAuthToken(db)
+        const adminUserRes = await adminUser.json() as { access_token: string }
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2/impersonation/1`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            body: JSON.stringify({ impersonatorToken: adminUserRes.access_token }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const result = await res.json() as { refresh_token: string }
+        expect(result).toHaveProperty('refresh_token')
+
+        const body = {
+          grant_type: oauthDto.TokenGrantType.RefreshToken,
+          refresh_token: result.refresh_token,
+        }
+
+        const refreshTokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        const refreshRes = await refreshTokenRes.json() as { access_token: string }
+        expect(refreshRes).toStrictEqual({
+          access_token: expect.any(String),
+          expires_in: 1800,
+          expires_on: expect.any(Number),
+          token_type: 'Bearer',
+        })
+
+        expect(decode(refreshRes.access_token)).toStrictEqual({
+          header: {
+            alg: 'RS256',
+            typ: 'JWT',
+            kid: expect.any(String),
+          },
+          payload: {
+            sub: '1-1-1-2',
+            azp: expect.any(String),
+            scope: 'offline_access profile',
+            iat: expect.any(Number),
+            exp: expect.any(Number),
+            roles: [],
+            impersonatedBy: '1-1-1-1',
+          },
+        })
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if no impersonatorToken provided',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(db)
+        db.exec('delete from "user_role"')
+        db.exec('insert into "user_role" ("userId", "roleId") values (1, 1)')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2/impersonation/1`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            body: JSON.stringify({}),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.impersonatorTokenIsRequired)
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if impersonator is not super admin',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(db)
+        db.exec('delete from "user_role"')
+
+        const adminUser = await exchangeWithAuthToken(db)
+        const adminUserRes = await adminUser.json() as { access_token: string }
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2/impersonation/1`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            body: JSON.stringify({ impersonatorToken: adminUserRes.access_token }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.impersonatorIsNotSuperAdmin)
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if impersonate non-SPA app',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(db)
+        db.exec('delete from "user_role"')
+        db.exec('insert into "user_role" ("userId", "roleId") values (1, 1)')
+
+        const adminUser = await exchangeWithAuthToken(db)
+        const adminUserRes = await adminUser.json() as { access_token: string }
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2/impersonation/2`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            body: JSON.stringify({ impersonatorToken: adminUserRes.access_token }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.impersonateNonSpaApp)
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if consent is required',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        await insertUsers(db)
+        db.exec('delete from "user_role"')
+        db.exec('insert into "user_role" ("userId", "roleId") values (1, 1)')
+
+        const adminUser = await exchangeWithAuthToken(db)
+        const adminUserRes = await adminUser.json() as { access_token: string }
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2/impersonation/1`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            body: JSON.stringify({ impersonatorToken: adminUserRes.access_token }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoConsent)
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if not using root scope',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(db)
+        db.exec('delete from "user_role"')
+        db.exec('insert into "user_role" ("userId", "roleId") values (1, 1)')
+
+        const adminUser = await exchangeWithAuthToken(db)
+        const adminUserRes = await adminUser.json() as { access_token: string }
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2/impersonation/1`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteUser,
+              )}`,
+            },
+            body: JSON.stringify({ impersonatorToken: adminUserRes.access_token }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
   },

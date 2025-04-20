@@ -578,3 +578,50 @@ userRoutes.delete(
   authMiddleware.s2sWriteUser,
   userHandler.unlinkAccount,
 )
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/impersonation/{appId}:
+ *   post:
+ *     summary: Generate an impersonation refresh token for a user by authId and appId
+ *     description: Required scope - root
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *       - in: path
+ *         name: appId
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The id of the app
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               impersonatorToken:
+ *                 type: string
+ *                 description: The access token of the user impersonating, this user must be a super_admin
+ *     responses:
+ *       200:
+ *         description: A refresh token for impersonation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 refreshToken:
+ *                   type: string
+ */
+userRoutes.post(
+  `${BaseRoute}/:authId/impersonation/:appId`,
+  authMiddleware.s2sRoot,
+  userHandler.impersonateUser,
+)

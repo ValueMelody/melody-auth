@@ -1,14 +1,19 @@
 import { Context } from 'hono'
 import {
+  ClientType, genRandomString, Scope,
+} from '@melody-auth/shared'
+import {
   errorConfig, messageConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 import {
-  consentService,
+  consentService, appService, roleService,
   emailService, kvService, passkeyService, userService,
+  jwtService,
 } from 'services'
 import { userDto } from 'dtos'
 import {
-  loggerUtil, validateUtil,
+  loggerUtil, timeUtil, validateUtil,
 } from 'utils'
 import { PaginationDto } from 'dtos/common'
 import { userModel } from 'models'
@@ -364,4 +369,108 @@ export const unlinkAccount = async (c: Context<typeConfig.Context>) => {
   }
 
   return c.json({ success: true })
+}
+
+export const impersonateUser = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const appId = c.req.param('appId')
+  const reqBody = await c.req.json()
+  const impersonatorToken = reqBody.impersonatorToken
+
+  let impersonator = null
+  if (typeof impersonatorToken === 'string') {
+    const accessTokenBody = await jwtService.getAccessTokenBody(
+      c,
+      impersonatorToken,
+    )
+    if (accessTokenBody) {
+      impersonator = await userService.getUserByAuthId(
+        c,
+        accessTokenBody.sub,
+      )
+    }
+  }
+
+  if (!impersonator) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.impersonatorTokenIsRequired,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.impersonatorTokenIsRequired)
+  }
+
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  const app = await appService.getAppById(
+    c,
+    Number(appId),
+  )
+
+  if (app.type !== ClientType.SPA) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.impersonateNonSpaApp,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.impersonateNonSpaApp)
+  }
+
+  const impersonatorRoles = await roleService.getUserRoles(
+    c,
+    impersonator.id,
+  )
+
+  if (!impersonatorRoles.includes(variableConfig.S2sConfig.impersonationRole)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.impersonatorIsNotSuperAdmin,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.impersonatorIsNotSuperAdmin)
+  }
+
+  const requireConsent = await consentService.shouldCollectConsent(
+    c,
+    user.id,
+    app.id,
+  )
+
+  if (requireConsent) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoConsent,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.NoConsent)
+  }
+
+  const userRoles = await roleService.getUserRoles(
+    c,
+    user.id,
+  )
+
+  const scope = `${Scope.OfflineAccess} ${Scope.Profile}`
+  const currentTimestamp = timeUtil.getCurrentTimestamp()
+  const refreshTokenExpiresIn = 1800
+  const refreshToken = genRandomString(128)
+  const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
+
+  await kvService.storeRefreshToken(
+    c.env.KV,
+    refreshToken,
+    {
+      authId, clientId: app.clientId, scope, roles: userRoles, impersonatedBy: impersonator.authId,
+    },
+    refreshTokenExpiresIn,
+  )
+
+  return c.json({
+    refresh_token: refreshToken,
+    refresh_token_expires_in: refreshTokenExpiresIn,
+    refresh_token_expires_on: refreshTokenExpiresAt,
+  })
 }

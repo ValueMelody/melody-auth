@@ -856,7 +856,7 @@ describe(
   },
 )
 
-const exchangeWithAuthToken = async () => {
+export const exchangeWithAuthToken = async (db: Database) => {
   const appRecord = await getApp(db)
 
   const res = await postSignInRequest(
@@ -890,7 +890,7 @@ describe(
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         const tokenJson = await tokenRes.json()
 
         expect(tokenJson).toStrictEqual({
@@ -932,7 +932,7 @@ describe(
 
           return Promise.resolve(kv[key])
         }
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(400)
         expect(await tokenRes.text()).toBe(messageConfig.ConfigError.NoJwtPrivateSecret)
 
@@ -947,7 +947,7 @@ describe(
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         global.process.env.ENABLE_SIGN_IN_LOG = true as unknown as string
         await insertUsers(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(200)
 
         const logs = await db.prepare('select * from sign_in_log').all()
@@ -1060,7 +1060,7 @@ describe(
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         const tokenJson = await tokenRes.json() as { refresh_token: string }
 
         const refreshToken = tokenJson.refresh_token
@@ -1095,7 +1095,7 @@ describe(
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         const tokenJson = await tokenRes.json() as { refresh_token: string }
 
         const refreshToken = tokenJson.refresh_token
@@ -1325,7 +1325,7 @@ describe(
           false,
         )
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -1336,7 +1336,7 @@ describe(
       'should fail if mfa enroll is required',
       async () => {
         await insertUsers(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
       },
     )
@@ -1346,7 +1346,7 @@ describe(
       async () => {
         global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
         await insertUsers(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
 
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
@@ -1358,7 +1358,7 @@ describe(
       async () => {
         await insertUsers(db)
         await enrollOtpMfa(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
       },
     )
@@ -1368,7 +1368,7 @@ describe(
       async () => {
         global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
         await insertUsers(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
         global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -1379,7 +1379,7 @@ describe(
       async () => {
         await insertUsers(db)
         await enrollEmailMfa(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
       },
     )
@@ -1389,7 +1389,7 @@ describe(
       async () => {
         global.process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
         await insertUsers(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
         global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -1400,7 +1400,7 @@ describe(
       async () => {
         await insertUsers(db)
         await enrollSmsMfa(db)
-        const tokenRes = await exchangeWithAuthToken()
+        const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
       },
     )

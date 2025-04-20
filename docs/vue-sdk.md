@@ -186,7 +186,6 @@ const { acquireUserInfo, isAuthenticated } = useAuth()
 
 async function fetchPublicInfo() {
   const userInfo = await acquireUserInfo()
-  console.log(userInfo)
 }
 </script>
 
