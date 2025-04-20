@@ -607,9 +607,9 @@ userRoutes.delete(
  *           schema:
  *             type: object
  *             properties:
- *               impersonatedBy:
+ *               impersonatorToken:
  *                 type: string
- *                 description: The authId of the user impersonating, this user must be a super_admin
+ *                 description: The access token of the user impersonating, this user must be a super_admin
  *     responses:
  *       200:
  *         description: A refresh token for impersonation

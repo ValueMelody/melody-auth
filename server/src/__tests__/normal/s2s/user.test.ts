@@ -25,6 +25,7 @@ import {
   enrollSmsMfa,
   getS2sToken,
 } from 'tests/util'
+import { exchangeWithAuthToken } from '../oauth.test'
 
 let db: Database
 
@@ -1673,7 +1674,12 @@ describe(
   'impersonate user',
   () => {
     test('should impersonate user', async () => {
+      process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
       await insertUsers(db)
+
+      const adminUser = await exchangeWithAuthToken(db)
+      const adminUserRes = await adminUser.json() as { access_token: string }
 
       const res = await app.request(
         `${BaseRoute}/1-1-1-2/impersonate/1`,
@@ -1681,12 +1687,14 @@ describe(
           method: 'POST',
           headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           body: JSON.stringify({
-            impersonatedBy: '1-1-1-1',
+            impersonatorToken: adminUserRes.access_token,
           }),
         },
         mock(db),
       )
       expect(res.status).toBe(200)
+
+      process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
     })
   },
 )

@@ -2320,6 +2320,22 @@
             "description": "The id of the app"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "impersonatorToken": {
+                    "type": "string",
+                    "description": "The access token of the user impersonating, this user must be a super_admin"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "A refresh token for impersonation",

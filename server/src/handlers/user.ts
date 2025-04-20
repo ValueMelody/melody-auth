@@ -5,6 +5,7 @@ import {
 import {
   consentService, appService, roleService,
   emailService, kvService, passkeyService, userService,
+  jwtService,
 } from 'services'
 import { userDto } from 'dtos'
 import {
@@ -372,12 +373,21 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const appId = c.req.param('appId')
   const reqBody = await c.req.parseBody()
-  const impersonatedBy = reqBody.impersonatedBy
+  const impersonatorToken = reqBody.impersonatorToken
 
-  const impersonatedUser = typeof impersonatedBy === 'string' ? await userService.getUserByAuthId(
-    c,
-    impersonatedBy,
-  ) : null
+  let impersonatedUser = null
+  if (typeof impersonatorToken === 'string') {
+    const accessTokenBody = await jwtService.getAccessTokenBody(
+      c,
+      impersonatorToken,
+    )
+    if (accessTokenBody) {
+      impersonatedUser = await userService.getUserByAuthId(
+        c,
+        accessTokenBody.sub,
+      )
+    }
+  }
 
   if (!impersonatedUser) {
     loggerUtil.triggerLogger(
