@@ -4,6 +4,7 @@ import {
 import {
   triggerLogin, getUserInfo, logout,
 } from '@melody-auth/web'
+import { handleError } from '@melody-auth/shared'
 import { AuthService } from './auth.service'
 import { acquireToken } from './utils'
 
@@ -15,6 +16,17 @@ vi.mock(
     getUserInfo: vi.fn(),
     logout: vi.fn(),
   }),
+)
+
+vi.mock(
+  '@melody-auth/shared',
+  async () => {
+    const original = await import('@melody-auth/shared')
+    return {
+      ...original,
+      handleError: vi.fn(),
+    }
+  },
 )
 
 vi.mock(
@@ -286,13 +298,7 @@ describe(
               throw simulatedError
             })
 
-            // Spy on handleError from the shared module to simulate a specific error message
-            // (Ensure to import from @melody-auth/shared if not already imported in this file)
-            const shared = await import('@melody-auth/shared')
-            const handleErrorSpy = vi.spyOn(
-              shared,
-              'handleError',
-            ).mockReturnValue('Fake login error')
+            const handleErrorSpy = vi.mocked(handleError).mockReturnValue('Fake login error')
 
             // Clear any previous loginError
             fakeState.set({ loginError: '' })
@@ -449,6 +455,7 @@ describe(
             ;(acquireToken as any).mockResolvedValue('acquired-token')
             const error = new Error()
       ;(getUserInfo as any).mockRejectedValue(error)
+            const handleErrorSpy = vi.mocked(handleError).mockReturnValue('Failed to fetch user info')
             const result = await authService.acquireUserInfo()
             expect(result).toBeUndefined()
             expect(getUserInfo).toHaveBeenCalledWith(
@@ -457,6 +464,8 @@ describe(
             )
             expect(fakeState().acquireUserInfoError).toBe('Failed to fetch user info')
             expect(fakeState().isLoadingUserInfo).toBe(false)
+
+            handleErrorSpy.mockRestore()
           },
         )
       },
@@ -532,13 +541,16 @@ describe(
         it(
           'should handle errors during logout and update state.logoutError',
           async () => {
-            const error = new Error()
+            const error = new Error('')
       ;(acquireToken as any).mockResolvedValue('acquired-token')
             ;(logout as any).mockRejectedValue(error)
+            const handleErrorSpy = vi.mocked(handleError).mockReturnValue('Unable to initial logout flow')
             await authService.logoutRedirect({
               postLogoutRedirectUri: '', localOnly: false,
             })
             expect(fakeState().logoutError).toBe('Unable to initial logout flow')
+
+            handleErrorSpy.mockRestore()
           },
         )
       },

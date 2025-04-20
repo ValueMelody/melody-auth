@@ -11,7 +11,7 @@ import {
   exchangeTokenByRefreshToken,
   getUserInfo,
 } from '@melody-auth/web'
-import * as shared from '@melody-auth/shared'
+import { handleError } from '@melody-auth/shared'
 import { useAuth } from './useAuth'
 import authContext from './context'
 import * as utils from './utils'
@@ -25,6 +25,17 @@ vi.mock(
     exchangeTokenByRefreshToken: vi.fn(),
     getUserInfo: vi.fn(),
   }),
+)
+
+vi.mock(
+  '@melody-auth/shared',
+  async () => {
+    const original = await import('@melody-auth/shared')
+    return {
+      ...original,
+      handleError: vi.fn(),
+    }
+  },
 )
 
 // A simple wrapper component that calls the useAuth hook and passes its value to onRender.
@@ -172,10 +183,7 @@ describe(
         // Simulate rawLoginRedirect throwing an error.
         (triggerLogin as any).mockImplementation(() => { throw new Error('Test error') })
         // Spy on handleError to return a predictable error message.
-        vi.spyOn(
-          shared,
-          'handleError',
-        ).mockImplementation(() => 'handled error message')
+        vi.mocked(handleError).mockReturnValue('handled error message')
         const auth = renderHookWithState({
           isAuthenticated: false, isAuthenticating: false,
         })
@@ -251,10 +259,7 @@ describe(
           },
         }
         // Force handleError to return a predictable error message
-        vi.spyOn(
-          shared,
-          'handleError',
-        ).mockImplementation(() => 'handled acquire token error')
+        vi.mocked(handleError).mockReturnValue('handled acquire token error')
         // Simulate exchangeTokenByRefreshToken throwing an error.
         ;(exchangeTokenByRefreshToken as any).mockRejectedValue(new Error('Test error'))
         const auth = renderHookWithState(state)
@@ -329,10 +334,7 @@ describe(
           userInfo: null,
         }
         // Force handleError to return a predictable error message.
-        vi.spyOn(
-          shared,
-          'handleError',
-        ).mockImplementation(() => 'handled fetch user info error')
+        vi.mocked(handleError).mockReturnValue('handled fetch user info error')
         // Simulate getUserInfo throwing an error.
         ;(getUserInfo as any).mockRejectedValue(new Error('Test error'))
         const auth = renderHookWithState(state)
@@ -416,10 +418,7 @@ describe(
             refreshToken: 'refreshValid', expiresOn: futureTime,
           },
         }
-        vi.spyOn(
-          shared,
-          'handleError',
-        ).mockImplementation(() => 'handled logout error')
+        vi.mocked(handleError).mockReturnValue('handled logout error')
         ;(logout as any).mockRejectedValue(new Error('Test error'))
         const auth = renderHookWithState(state)
         await act(async () => {
@@ -494,10 +493,7 @@ describe(
         // Simulate triggerLogin throwing an error.
         ;(triggerLogin as any).mockImplementation(() => { throw new Error('Test error') })
         // Spy on handleError to return a predictable error message.
-        vi.spyOn(
-          shared,
-          'handleError',
-        ).mockImplementation(() => 'handled error message')
+        vi.mocked(handleError).mockReturnValue('handled error message')
         const auth = renderHookWithState({
           isAuthenticated: false, isAuthenticating: false,
         })

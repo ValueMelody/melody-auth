@@ -19,16 +19,31 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
+    - run: npm run docs:build
     - run: cd ./admin-panel && npm ci
     - run: cd ./server && npm ci
-    - run: npm run build
+    - run: cd ./shared && npm ci
+    - run: cd ./sdks/web-sdk && npm ci
+    - run: cd ./sdks/react-sdk && npm ci
+    - run: cd ./sdks/vue-sdk && npm ci
+    - run: cd ./sdks/angular-sdk && npm ci
     - run: npm run lint:check
-    - run: npm run type:check
+    - run: cd ./shared && npm run type:check
     - run: cd ./shared && npm run test:check
+    - run: cd ./shared && npm run build
+    - run: cd ./sdks/web-sdk && npm run type:check
     - run: cd ./sdks/web-sdk && npm run test:check
+    - run: cd ./sdks/web-sdk && npm run build
+    - run: cd ./sdks/react-sdk && npm run type:check
     - run: cd ./sdks/react-sdk && npm run test:check
+    - run: cd ./sdks/react-sdk && npm run build
+    - run: cd ./sdks/vue-sdk && npm run type:check
     - run: cd ./sdks/vue-sdk && npm run test:check
+    - run: cd ./sdks/vue-sdk && npm run build
+    - run: cd ./sdks/angular-sdk && npm run type:check
     - run: cd ./sdks/angular-sdk && npm run test:check
+    - run: cd ./sdks/angular-sdk && npm run build
+    - run: cd ./server && npm run type:check
     - run: cd ./server && npm run node:secret:generate
     - run: cd ./server && npm run test:check:cf
     - run: cd ./server && npm run test:check:node
@@ -37,6 +52,7 @@ jobs:
     - run: cd ./server && npm run node:secret:generate
     - run: cd ./server && npm run test:check:cf-key-rotate
     - run: cd ./server && npm run test:check:node-key-rotate
+    - run: cd ./admin-panel && npm run type:check
     - run: cd ./admin-panel && npm run test:check
     - run: rm -rf node_modules
     - run: cd ./server && npm run node:build
