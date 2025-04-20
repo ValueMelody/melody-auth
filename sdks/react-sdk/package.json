@@ -23,6 +23,7 @@
     "react": "^18",
     "react-dom": "^18.3.1",
     "rollup": "^4.19.2",
+    "tslib": "^2.8.1",
     "vitest": "^3.1.1"
   },
   "peerDependencies": {
