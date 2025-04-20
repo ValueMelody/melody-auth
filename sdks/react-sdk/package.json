@@ -19,19 +19,19 @@
     "@testing-library/react": "^16.0.1",
     "react": "^18",
     "react-dom": "^18.3.1",
-    "rollup": "^4.19.2",
-    "tsc-alias": "^1.8.10"
+    "rollup": "^4.19.2"
   },
   "peerDependencies": {
     "react": "^16.11.0 || ^17 || ^18 || ^19"
   },
   "scripts": {
-    "build": "rm -rf ./dist && mkdir ./dist && mkdir ./dist/shared && cp -r ../../shared/dist/* ./dist/shared && rollup -c --bundleConfigAsCjs && tsc-alias",
+    "build": "rm -rf ./dist && mkdir ./dist && rollup -c --bundleConfigAsCjs",
     "type:check": "tsc --noEmit",
     "test:check": "vitest run .",
     "test:coverage": "vitest run . --coverage"
   },
   "dependencies": {
-    "@melody-auth/web": "^1.0.1"
+    "@melody-auth/web": "^1.0.2",
+    "@melody-auth/shared": "^1.0.2"
   }
 }
