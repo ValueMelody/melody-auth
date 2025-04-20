@@ -1,5 +1,3 @@
-import path from 'path';
-import alias from '@rollup/plugin-alias';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
@@ -18,11 +16,6 @@ export default {
   },
   external: ['react', 'react-dom', 'react/jsx-runtime'],
   plugins: [
-    alias({
-      entries: [
-        { find: '@melody-auth/shared', replacement: path.resolve(__dirname, 'dist/shared') },
-      ],
-    }),
     resolve(),
     commonjs(),
     typescript()

@@ -18,17 +18,12 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     - name: Install dependencies
-      run: npm ci
-
-    - name: Build shared package
-      run: npm run build -w=shared
+      run: cd sdks/react-sdk && npm ci
 
     - name: Build react-sdk package
-      run: npm run build -w=sdks/react-sdk
+      run: cd sdks/react-sdk && npm run build
 
     - name: Publish to npm
-      run: |
-        cd sdks/react-sdk
-        npm publish
+      run: cd sdks/react-sdk && npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

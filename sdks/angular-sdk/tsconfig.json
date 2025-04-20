@@ -11,10 +11,7 @@
     "moduleResolution": "Node",
     "module": "ESNext",
     "rootDir": "src",
-    "outDir": "./dist",
-    "paths": {
-      "shared": ["./shared"] 
-    }
+    "outDir": "./dist"
   },
   "angularCompilerOptions": {
     "compilationMode": "partial"

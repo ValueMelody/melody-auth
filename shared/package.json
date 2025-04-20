@@ -1,7 +1,8 @@
 {
   "name": "@melody-auth/shared",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ValueMelody/melody-auth.git"
@@ -11,9 +12,14 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rm -rf ./dist && tsc --build",
+    "build": "rm -rf ./dist && tsc --build && cp src/index.d.ts dist/index.d.ts",
     "type:check": "tsc --noEmit",
     "test:check": "vitest run .",
     "test:coverage": "vitest run . --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.1.1",
+    "jsdom": "^26.1.0",
+    "vitest": "^3.1.1"
   }
 }
