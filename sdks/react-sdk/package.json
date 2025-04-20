@@ -32,6 +32,6 @@
     "test:coverage": "vitest run . --coverage"
   },
   "dependencies": {
-    "@melody-auth/web": "^1.0.0"
+    "@melody-auth/web": "^1.0.1"
   }
 }
