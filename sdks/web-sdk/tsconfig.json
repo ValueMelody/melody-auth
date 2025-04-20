@@ -10,7 +10,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "paths": {
-      "shared": ["./shared"] 
+      "@melody-auth/shared": ["./shared"] 
     }
   },
   "include": ["src"],
