@@ -4,9 +4,9 @@ import {
 import {
   triggerLogin, getUserInfo, logout,
 } from '@melody-auth/web'
+import { handleError } from '@melody-auth/shared'
 import { AuthService } from './auth.service'
 import { acquireToken } from './utils'
-import { handleError } from '@melody-auth/shared'
 
 // Mock the external dependencies
 vi.mock(
