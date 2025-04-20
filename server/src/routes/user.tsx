@@ -579,7 +579,6 @@ userRoutes.delete(
   userHandler.unlinkAccount,
 )
 
-
 /**
  * @swagger
  * /api/v1/users/{authId}/impersonation/{appId}:

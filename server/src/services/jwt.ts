@@ -156,6 +156,7 @@ export const genAccessToken = async (
   azp: string,
   scope: string,
   roles?: string[] | null,
+  impersonatedBy?: string | null,
 ) => {
   const {
     SPA_ACCESS_TOKEN_EXPIRES_IN,
@@ -175,7 +176,7 @@ export const genAccessToken = async (
     exp: accessTokenExpiresAt,
   }
   if (roles) accessTokenBody.roles = roles
-
+  if (impersonatedBy) accessTokenBody.impersonatedBy = impersonatedBy
   const accessToken = await signWithKid(
     c,
     accessTokenBody as unknown as JWTPayload,

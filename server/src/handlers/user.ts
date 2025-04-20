@@ -1,6 +1,11 @@
 import { Context } from 'hono'
 import {
+  ClientType, genRandomString, Scope,
+} from '@melody-auth/shared'
+import { env } from 'hono/adapter'
+import {
   errorConfig, messageConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 import {
   consentService, appService, roleService,
@@ -13,8 +18,6 @@ import {
 } from 'utils'
 import { PaginationDto } from 'dtos/common'
 import { userModel } from 'models'
-import { ClientType, genRandomString, Role, Scope } from '@melody-auth/shared'
-import { env } from 'hono/adapter'
 
 export const getUsers = async (c: Context<typeConfig.Context>) => {
   const {
@@ -372,30 +375,30 @@ export const unlinkAccount = async (c: Context<typeConfig.Context>) => {
 export const impersonateUser = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const appId = c.req.param('appId')
-  const reqBody = await c.req.parseBody()
+  const reqBody = await c.req.json()
   const impersonatorToken = reqBody.impersonatorToken
 
-  let impersonatedUser = null
+  let impersonator = null
   if (typeof impersonatorToken === 'string') {
     const accessTokenBody = await jwtService.getAccessTokenBody(
       c,
       impersonatorToken,
     )
     if (accessTokenBody) {
-      impersonatedUser = await userService.getUserByAuthId(
+      impersonator = await userService.getUserByAuthId(
         c,
         accessTokenBody.sub,
       )
     }
   }
 
-  if (!impersonatedUser) {
+  if (!impersonator) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.ImpersonatedByIsRequired,
+      messageConfig.RequestError.impersonatorTokenIsRequired,
     )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.ImpersonatedByIsRequired)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.impersonatorTokenIsRequired)
   }
 
   const user = await userService.getUserByAuthId(
@@ -408,19 +411,27 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
     Number(appId),
   )
 
-
-  const impersonatedUserRoles = await roleService.getUserRoles(
-    c,
-    impersonatedUser.id,
-  )
-
-  if (!impersonatedUserRoles.includes(Role.SuperAdmin)) {
+  if (app.type !== ClientType.SPA) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.ImpersonatedByIsNotSuperAdmin,
+      messageConfig.RequestError.impersonateNonSpaApp,
     )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.ImpersonatedByIsNotSuperAdmin)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.impersonateNonSpaApp)
+  }
+
+  const impersonatorRoles = await roleService.getUserRoles(
+    c,
+    impersonator.id,
+  )
+
+  if (!impersonatorRoles.includes(variableConfig.S2sConfig.impersonationRole)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.impersonatorIsNotSuperAdmin,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.impersonatorIsNotSuperAdmin)
   }
 
   const requireConsent = await consentService.shouldCollectConsent(
@@ -428,15 +439,6 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
     user.id,
     app.id,
   )
-
-  if (app.type !== ClientType.SPA) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.ImpersonateNonSpaApp,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.ImpersonateNonSpaApp)
-  }
 
   if (requireConsent) {
     loggerUtil.triggerLogger(
@@ -446,7 +448,7 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.NoConsent)
   }
-  
+
   const userRoles = await roleService.getUserRoles(
     c,
     user.id,
@@ -463,7 +465,7 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     refreshToken,
     {
-      authId, clientId: app.clientId, scope, roles: userRoles, impersonatedBy: impersonatedUser.authId,
+      authId, clientId: app.clientId, scope, roles: userRoles, impersonatedBy: impersonator.authId,
     },
     refreshTokenExpiresIn,
   )

@@ -378,6 +378,7 @@ export const postTokenRefreshToken = async (c: Context<typeConfig.Context>) => {
     refreshTokenBody.clientId,
     refreshTokenBody.scope,
     refreshTokenBody.roles,
+    refreshTokenBody.impersonatedBy,
   )
 
   const result: PostTokenByRefreshTokenRes = {

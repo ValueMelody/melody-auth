@@ -112,6 +112,7 @@ export interface AccessTokenBody {
   iat: number;
   exp: number;
   roles?: string[];
+  impersonatedBy?: string;
 }
 
 export interface BasicAuthBody {
