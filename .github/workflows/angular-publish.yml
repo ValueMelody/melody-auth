@@ -18,17 +18,12 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     - name: Install dependencies
-      run: npm ci
-
-    - name: Build shared package
-      run: npm run build -w=shared
+      run: cd sdks/angular-sdk && npm ci
 
     - name: Build angular-sdk package
-      run: npm run build -w=sdks/angular-sdk
+      run: cd sdks/angular-sdk && npm run build
 
     - name: Publish to npm
-      run: |
-        cd sdks/angular-sdk
-        npm publish
+      run: cd sdks/angular-sdk && npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
