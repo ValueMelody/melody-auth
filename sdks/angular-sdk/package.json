@@ -1,6 +1,6 @@
 {
   "name": "@melody-auth/angular",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/fesm2022/melody-auth-angular.mjs",
   "typings": "dist/index.d.ts",
   "repository": {
@@ -12,22 +12,26 @@
     "access": "public"
   },
   "devDependencies": {
-    "tsc-alias": "^1.8.10",
     "@angular/cli": "~19.2.0",
     "@angular/compiler": "^19.2.0",
     "@angular/compiler-cli": "^19.2.0",
-    "ng-packagr": "^19.2.0"
+    "@vitest/coverage-v8": "^3.1.1",
+    "jsdom": "^26.1.0",
+    "ng-packagr": "^19.2.0",
+    "tsc-alias": "^1.8.10",
+    "vitest": "^3.1.1"
   },
   "peerDependencies": {
     "@angular/core": "^19.2.0"
   },
   "scripts": {
-    "build": "rm -rf ./dist && mkdir ./dist && ng-packagr -p ./ng-package.json && mkdir ./dist/shared && cp -r ../../shared/dist/* ./dist/shared && tsc-alias",
+    "build": "rm -rf ./dist && mkdir ./dist && ng-packagr -p ./ng-package.json",
     "type:check": "tsc --noEmit",
     "test:check": "vitest run .",
     "test:coverage": "vitest run . --coverage"
   },
   "dependencies": {
-    "@melody-auth/web": "^1.0.0"
+    "@melody-auth/shared": "^1.0.2",
+    "@melody-auth/web": "^1.0.2"
   }
 }
