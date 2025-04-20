@@ -5,29 +5,15 @@
   "license": "MIT",
   "author": "Baozier",
   "repository": "https://github.com/ValueMelody/melody-auth",
-  "workspaces": [
-    "shared",
-    "sdks/web-sdk",
-    "sdks/react-sdk",
-    "sdks/vue-sdk",
-    "sdks/angular-sdk"
-  ],
   "scripts": {
-    "type:check:sdks": "npm run type:check -w=sdks/web-sdk && npm run type:check -w=sdks/react-sdk && npm run type:check -w=sdks/vue-sdk && npm run type:check -w=sdks/angular-sdk",
-    "type:check": "npm run type:check -w=shared && npm run type:check:sdks && cd server && npm run type:check && cd ../admin-panel && npm run type:check",
-    "lint:check": "eslint ./ --ext .ts,.tsx,.js,.cjs --ignore-pattern 'examples/*'",
+    "lint:check": "eslint ./ --ext .ts,.tsx,.js,.cjs",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js,.cjs",
-    "build:sdks": "npm run build -w=sdks/web-sdk && npm run build -w=sdks/react-sdk && npm run build -w=sdks/vue-sdk && npm run build -w=sdks/angular-sdk",
-    "build": "npm run build -w=shared && npm run build:sdks",
     "docs:build": "vuepress build docs",
     "docs:dev": "vuepress dev docs"
   },
   "devDependencies": {
-    "@types/react": "^18.3.3",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
-    "@vitest/coverage-v8": "^3.1.1",
-    "@vitest/mocker": "^3.0.7",
     "@vuepress/bundler-vite": "^2.0.0-rc.19",
     "@vuepress/theme-default": "^2.0.0-rc.74",
     "eslint": "^8.52.0",
@@ -36,9 +22,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "jsdom": "^26.1.0",
     "sass-embedded": "^1.85.0",
-    "vitest": "^3.1.1",
     "vue": "^3.4.0",
     "vuepress": "^2.0.0-rc.19"
   }

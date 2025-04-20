@@ -9,9 +9,6 @@
     "module": "ESNext",
     "rootDir": "src",
     "outDir": "dist",
-    "paths": {
-      "@melody-auth/shared": ["./shared"] 
-    }
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts"]
