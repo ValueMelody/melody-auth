@@ -456,8 +456,7 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
 
   const scope = `${Scope.OfflineAccess} ${Scope.Profile}`
   const currentTimestamp = timeUtil.getCurrentTimestamp()
-
-  const { SPA_REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn } = env(c)
+  const refreshTokenExpiresIn = 1800
   const refreshToken = genRandomString(128)
   const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
 
