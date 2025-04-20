@@ -41,7 +41,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^0.6.5",
+    "@opennextjs/cloudflare": "^0.6.6",
     "@rtk-query/codegen-openapi": "^1.2.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
@@ -54,7 +54,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^3.0.9",
-    "wrangler": "^3.95.0"
+    "vitest": "^3.1.1",
+    "wrangler": "^4.12.0"
   }
 }
