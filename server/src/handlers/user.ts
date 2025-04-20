@@ -2,7 +2,6 @@ import { Context } from 'hono'
 import {
   ClientType, genRandomString, Scope,
 } from '@melody-auth/shared'
-import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, typeConfig,
   variableConfig,
