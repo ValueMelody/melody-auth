@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/16/solid'
 import { useAuth } from '@melody-auth/react'
+import ImpersonationModal from './ImpersonationModal'
 import {
   Card, CardHeader, CardTitle, CardContent,
 } from 'components/ui/card'
@@ -81,6 +82,7 @@ const Page = () => {
   const [isResettingOtpMfa, setIsResettingOtpMfa] = useState(false)
   const [isResettingEmailMfa, setIsResettingEmailMfa] = useState(false)
   const [isRemovingPasskey, setIsRemovingPasskey] = useState(false)
+  const [showImpersonateModal, setShowImpersonateModal] = useState(false)
 
   const enableConsent = !!configs.ENABLE_USER_APP_CONSENT
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
@@ -147,6 +149,11 @@ const Page = () => {
   const isSelf = useMemo(
     () => userInfo?.authId === user?.authId,
     [user, userInfo],
+  )
+
+  const canImpersonate = accessTool.isAllowedAccess(
+    accessTool.Access.Impersonation,
+    userInfo?.roles,
   )
 
   const canWriteUser = accessTool.isAllowedAccess(
@@ -264,6 +271,10 @@ const Page = () => {
   const handleClickLinkedAccount = () => {
     router.push(`${routeTool.Internal.Users}/${user?.linkedAuthId}`)
   }
+
+  const handleClickImpersonate = () => setShowImpersonateModal(true)
+
+  const handleCloseImpersonate = () => setShowImpersonateModal(false)
 
   const renderEmailButtons = (user: UserDetail) => {
     if (user.socialAccountId || !canWriteUser) return null
@@ -423,8 +434,23 @@ const Page = () => {
                   {isSelf && (
                     <IsSelfLabel />
                   )}
+                  {canImpersonate && !isSelf && (
+                    <Button
+                      size='sm'
+                      onClick={handleClickImpersonate}
+                    >
+                      {t('users.impersonate')}
+                    </Button>
+                  )}
                 </div>
               </TableCell>
+              {showImpersonateModal && (
+                <ImpersonationModal
+                  user={user}
+                  show={showImpersonateModal}
+                  onClose={handleCloseImpersonate}
+                />
+              )}
             </TableRow>
             {user.email && (
               <TableRow>

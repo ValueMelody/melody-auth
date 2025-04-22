@@ -380,6 +380,17 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Users'],
       }),
+      postApiV1UsersByAuthIdImpersonationAndAppId: build.mutation<
+        PostApiV1UsersByAuthIdImpersonationAndAppIdApiResponse,
+        PostApiV1UsersByAuthIdImpersonationAndAppIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/users/${queryArg.authId}/impersonation/${queryArg.appId}`,
+          method: 'POST',
+          body: queryArg.body,
+        }),
+        invalidatesTags: ['Users'],
+      }),
       getApiV1LogsEmail: build.query<
         GetApiV1LogsEmailApiResponse,
         GetApiV1LogsEmailApiArg
@@ -721,6 +732,25 @@ export type DeleteApiV1UsersByAuthIdAccountLinkingApiArg = {
   /** The authId of the user */
   authId: string;
 };
+export type PostApiV1UsersByAuthIdImpersonationAndAppIdApiResponse =
+  /** status 200 A refresh token for impersonation */ {
+    /** The refresh token for impersonation */
+    refresh_token?: string;
+    /** The expiration time of the refresh token */
+    refresh_token_expires_on?: string;
+    /** The remaining time of the refresh token in seconds */
+    refresh_token_expires_in?: number;
+  };
+export type PostApiV1UsersByAuthIdImpersonationAndAppIdApiArg = {
+  /** The authId of the user */
+  authId: string;
+  /** The id of the app */
+  appId: number;
+  body: {
+    /** The access token of the user impersonating, this user must be a super_admin */
+    impersonatorToken?: string;
+  };
+};
 export type GetApiV1LogsEmailApiResponse =
   /** status 200 A list of email logs */ {
     logs?: EmailLog[];
@@ -1036,6 +1066,7 @@ export const {
   useDeleteApiV1UsersByAuthIdSmsMfaMutation,
   usePostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdMutation,
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
+  usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
   useGetApiV1LogsEmailQuery,
   useLazyGetApiV1LogsEmailQuery,
   useGetApiV1LogsEmailByIdQuery,

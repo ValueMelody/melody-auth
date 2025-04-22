@@ -2344,8 +2344,17 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "refreshToken": {
-                      "type": "string"
+                    "refresh_token": {
+                      "type": "string",
+                      "description": "The refresh token for impersonation"
+                    },
+                    "refresh_token_expires_on": {
+                      "type": "string",
+                      "description": "The expiration time of the refresh token"
+                    },
+                    "refresh_token_expires_in": {
+                      "type": "number",
+                      "description": "The remaining time of the refresh token in seconds"
                     }
                   }
                 }

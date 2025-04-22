@@ -7,6 +7,8 @@ import {
   ProviderConfig,
   RefreshTokenStorage,
   isValidStorage,
+  getParams,
+  StorageKey,
 } from '@melody-auth/shared'
 import Setup from './Setup'
 import authContext, {
@@ -126,8 +128,26 @@ export const AuthProvider = ({
         storedRefreshToken, storedAccount,
       } = checkStorage(config.storage)
 
-      if (storedRefreshToken) {
-        const parsed: RefreshTokenStorage = JSON.parse(storedRefreshToken)
+      const params = getParams()
+
+      let parsed: RefreshTokenStorage | null = null
+      if (params.refresh_token && params.refresh_token_expires_on) {
+        parsed = {
+          refreshToken: params.refresh_token,
+          expiresOn: parseInt(params.refresh_token_expires_on),
+          expiresIn: parseInt(params.refresh_token_expires_in),
+        }
+
+        const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
+        storage.setItem(
+          StorageKey.RefreshToken,
+          JSON.stringify(parsed),
+        )
+      } else if (storedRefreshToken) {
+        parsed = JSON.parse(storedRefreshToken)
+      }
+
+      if (parsed) {
         const isValid = isValidStorage(parsed)
         if (isValid) {
           const parsedAccount: IdTokenBody = storedAccount ? JSON.parse(storedAccount) : null
