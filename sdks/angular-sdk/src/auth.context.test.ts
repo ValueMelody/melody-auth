@@ -215,15 +215,15 @@ describe(
           storedAccount: JSON.stringify({ id: 'dummy-account' }),
         });
         (isValidStorage as Mock).mockReturnValue(true);
-        (getParams as Mock).mockReturnValue({});
+        (getParams as Mock).mockReturnValue({})
 
-        const authContext = new AuthContext(dummyConfig);
-        const stateValue = authContext.state();
+        const authContext = new AuthContext(dummyConfig)
+        const stateValue = authContext.state()
 
-        expect(stateValue.refreshTokenStorage).toEqual({ token: 'dummy-token-from-params' });
-        expect(stateValue.account).toEqual({ id: 'dummy-account' });
-        expect(stateValue.checkedStorage).toBe(true);
-      }
+        expect(stateValue.refreshTokenStorage).toEqual({ token: 'dummy-token-from-params' })
+        expect(stateValue.account).toEqual({ id: 'dummy-account' })
+        expect(stateValue.checkedStorage).toBe(true)
+      },
     )
 
     // Existing test: cover when window is undefined so initialWithStorage returns early
@@ -243,7 +243,7 @@ describe(
 
         // Verify that checkStorage was not called due to the early return.
         expect(mockedCheckStorage).not.toHaveBeenCalled()
-      }
+      },
     )
   },
 )

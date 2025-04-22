@@ -303,10 +303,14 @@ describe(
     const originalLocation = window.location
 
     afterEach(() => {
-      Object.defineProperty(window, 'location', {
-        value: originalLocation,
-        configurable: true,
-      })
+      Object.defineProperty(
+        window,
+        'location',
+        {
+          value: originalLocation,
+          configurable: true,
+        },
+      )
       window.localStorage.clear()
       window.sessionStorage.clear()
     })
@@ -314,12 +318,18 @@ describe(
     it(
       'should load refresh token from params and store it in localStorage when no storageKey is provided',
       () => {
-        Object.defineProperty(window, 'location', {
-          value: { search: '?refresh_token=my-token&refresh_token_expires_on=10000&refresh_token_expires_in=360' },
-          configurable: true,
-        })
+        Object.defineProperty(
+          window,
+          'location',
+          {
+            value: { search: '?refresh_token=my-token&refresh_token_expires_on=10000&refresh_token_expires_in=360' },
+            configurable: true,
+          },
+        )
         const result = loadRefreshTokenStorageFromParams()
-        expect(result).toEqual({ refreshToken: 'my-token', expiresOn: 10000, expiresIn: 360 })
+        expect(result).toEqual({
+          refreshToken: 'my-token', expiresOn: 10000, expiresIn: 360,
+        })
         expect(window.localStorage.getItem(StorageKey.RefreshToken)).toEqual(JSON.stringify(result))
       },
     )
@@ -327,12 +337,18 @@ describe(
     it(
       'should load refresh token from params and store it in sessionStorage when "sessionStorage" is provided',
       () => {
-        Object.defineProperty(window, 'location', {
-          value: { search: '?refresh_token=token123&refresh_token_expires_on=20000&refresh_token_expires_in=720' },
-          configurable: true,
-        })
+        Object.defineProperty(
+          window,
+          'location',
+          {
+            value: { search: '?refresh_token=token123&refresh_token_expires_on=20000&refresh_token_expires_in=720' },
+            configurable: true,
+          },
+        )
         const result = loadRefreshTokenStorageFromParams('sessionStorage')
-        expect(result).toEqual({ refreshToken: 'token123', expiresOn: 20000, expiresIn: 720 })
+        expect(result).toEqual({
+          refreshToken: 'token123', expiresOn: 20000, expiresIn: 720,
+        })
         expect(window.sessionStorage.getItem(StorageKey.RefreshToken)).toEqual(JSON.stringify(result))
       },
     )
@@ -340,10 +356,14 @@ describe(
     it(
       'should return null and not store anything when the required params are missing',
       () => {
-        Object.defineProperty(window, 'location', {
-          value: { search: '?foo=bar' },
-          configurable: true,
-        })
+        Object.defineProperty(
+          window,
+          'location',
+          {
+            value: { search: '?foo=bar' },
+            configurable: true,
+          },
+        )
         const result = loadRefreshTokenStorageFromParams()
         expect(result).toBeNull()
         expect(window.localStorage.getItem(StorageKey.RefreshToken)).toBeNull()

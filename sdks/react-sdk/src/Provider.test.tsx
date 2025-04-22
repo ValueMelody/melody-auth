@@ -241,17 +241,18 @@ describe(
           },
         )
         const account = { username: 'urlUser' }
-        window.localStorage.setItem(StorageKey.Account, JSON.stringify(account))
-        render(
-          <AuthProvider
-            serverUri='https://example.com'
-            redirectUri='https://example.com'
-            storage='localStorage'
-            clientId='dummy-client'
-          >
-            <Consumer />
-          </AuthProvider>,
+        window.localStorage.setItem(
+          StorageKey.Account,
+          JSON.stringify(account),
         )
+        render(<AuthProvider
+          serverUri='https://example.com'
+          redirectUri='https://example.com'
+          storage='localStorage'
+          clientId='dummy-client'
+        >
+          <Consumer />
+        </AuthProvider>)
         await waitFor(() => {
           const checkedStorages = screen.getAllByTestId('checkedStorage')
           const accounts = screen.getAllByTestId('account')

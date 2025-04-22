@@ -15,7 +15,6 @@ import { typeTool } from 'tools'
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem,
 } from 'components/ui/select'
-import { Label } from 'components/ui/label'
 import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
 import { Button } from '@/components/ui/button'
@@ -40,7 +39,6 @@ const ImpersonationModal = ({
     { skip: !enableConsent },
   )
   const consentedApps = consentsData?.consentedApps ?? []
-  console.log(consentedApps)
 
   const { accessToken } = useAuth()
 
@@ -116,7 +114,9 @@ const ImpersonationModal = ({
             <p className='mt-4 text-red-500'>{t('impersonateConsent')}</p>
           )}
           {isConsented && !refreshTokenStorage && selectedApp && (
-            <Button className='mt-4' onClick={handleImpersonate}>{t('confirmImpersonate')}</Button>
+            <Button
+              className='mt-4'
+              onClick={handleImpersonate}>{t('confirmImpersonate')}</Button>
           )}
           {refreshTokenStorage && (
             <div className='mt-6'>
