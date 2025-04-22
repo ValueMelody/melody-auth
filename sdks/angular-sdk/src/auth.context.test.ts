@@ -4,7 +4,7 @@ import {
 
 // Import the mocked functions for easy access in tests
 import {
-  getParams, checkStorage, isValidStorage,
+  getParams, checkStorage, isValidStorage, loadRefreshTokenStorageFromParams,
 } from '@melody-auth/shared'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import { AuthContext } from './auth.context'
@@ -19,6 +19,7 @@ vi.mock(
     getParams: vi.fn(),
     checkStorage: vi.fn(),
     isValidStorage: vi.fn(),
+    loadRefreshTokenStorageFromParams: vi.fn(),
   }),
 )
 
@@ -201,15 +202,39 @@ describe(
       },
     )
 
-    // New unit test: cover when window is undefined so initialWithStorage returns early.
+    // New unit test: cover branch when loadRefreshTokenStorageFromParams returns a value
+    it(
+      'should initialize state using loadRefreshTokenStorageFromParams when it returns a value',
+      () => {
+        // Ensure client-side environment
+        global.window = {} as any;
+        // Setup mocks: loadRefreshTokenStorageFromParams returns a dummy value
+        (loadRefreshTokenStorageFromParams as Mock).mockReturnValue({ token: 'dummy-token-from-params' });
+        (checkStorage as Mock).mockReturnValue({
+          storedRefreshToken: JSON.stringify({ token: 'dummy-refresh' }),
+          storedAccount: JSON.stringify({ id: 'dummy-account' }),
+        });
+        (isValidStorage as Mock).mockReturnValue(true);
+        (getParams as Mock).mockReturnValue({})
+
+        const authContext = new AuthContext(dummyConfig)
+        const stateValue = authContext.state()
+
+        expect(stateValue.refreshTokenStorage).toEqual({ token: 'dummy-token-from-params' })
+        expect(stateValue.account).toEqual({ id: 'dummy-account' })
+        expect(stateValue.checkedStorage).toBe(true)
+      },
+    )
+
+    // Existing test: cover when window is undefined so initialWithStorage returns early
     it(
       'should return early from initialWithStorage if window is undefined',
       () => {
-        global.window = undefined; // simulate server-side environment
-        (checkStorage as Mock).mockClear()
+        global.window = undefined // simulate server-side environment
+        const mockedCheckStorage = checkStorage as any
+        mockedCheckStorage.mockClear()
 
         const authContext = new AuthContext(dummyConfig)
-
         const stateValue = authContext.state()
         // Expect config to be set by initialize but refreshTokenStorage and checkedStorage remain unchanged
         expect(stateValue.config).toEqual(dummyConfig)
@@ -217,7 +242,7 @@ describe(
         expect(stateValue.checkedStorage).toBe(false)
 
         // Verify that checkStorage was not called due to the early return.
-        expect(checkStorage).not.toHaveBeenCalled()
+        expect(mockedCheckStorage).not.toHaveBeenCalled()
       },
     )
   },

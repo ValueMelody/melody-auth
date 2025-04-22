@@ -1,6 +1,6 @@
 {
   "name": "@melody-auth/vue",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
@@ -32,7 +32,7 @@
     "test:coverage": "vitest run . --coverage"
   },
   "dependencies": {
-    "@melody-auth/shared": "^1.0.2",
+    "@melody-auth/shared": "^1.0.3",
     "@melody-auth/web": "^1.0.2"
   }
 }

@@ -117,7 +117,16 @@
     "passkeyEnrolled": "Passkey Enrolled",
     "removePasskey": "Remove",
     "removePasskeyTitle": "Are you sure you want to remove this passkey?",
-    "noUsers": "No users found"
+    "noUsers": "No users found",
+    "impersonate": "Impersonation",
+    "impersonateTitle": "Impersonate {user}",
+    "impersonateApp": "Select an app",
+    "impersonateToken": "Impersonation refresh_token",
+    "impersonateTokenDesc": "This is a refresh token that can be used to impersonate the user. It will expire in 30 minutes. You can use this refresh token to exchange for an access token that represents the impersonated user, the token body will contain a key called 'impersonatedBy' to indicate the user who is impersonating.",
+    "impersonateDirect": "If you are using the provided sdk in your app, you can use following link to impersonate the user directly into your app",
+    "impersonateConsent": "The user has not consented to this app",
+    "confirmImpersonate": "Confirm Impersonation",
+    "closeImpersonate": "Close"
   },
   "roles": {
     "title": "Roles",

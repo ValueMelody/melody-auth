@@ -2,7 +2,8 @@ import {
   App, reactive,
 } from 'vue'
 import {
-  ProviderConfig, RefreshTokenStorage, IdTokenBody, isValidStorage, getParams, checkStorage,
+  ProviderConfig, IdTokenBody, isValidStorage, getParams, checkStorage,
+  loadRefreshTokenStorageFromParams,
 } from '@melody-auth/shared'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import {
@@ -41,8 +42,13 @@ export const AuthProvider = {
         storedRefreshToken, storedAccount,
       } = checkStorage(config.storage)
 
-      if (storedRefreshToken) {
-        const parsed: RefreshTokenStorage = JSON.parse(storedRefreshToken)
+      let parsed = loadRefreshTokenStorageFromParams(config.storage)
+
+      if (!parsed && storedRefreshToken) {
+        parsed = JSON.parse(storedRefreshToken)
+      }
+
+      if (parsed) {
         const isValid = isValidStorage(parsed)
 
         if (isValid) {

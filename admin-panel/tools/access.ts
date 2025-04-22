@@ -12,6 +12,7 @@ export enum Access {
   ReadOrg = 'ReadOrg',
   WriteOrg = 'WriteOrg',
   ReadLog = 'ReadLog',
+  Impersonation = 'Impersonation',
 }
 
 export const AllowedRoles = [
@@ -31,6 +32,7 @@ export const RoleAccesses = {
     Access.ReadOrg,
     Access.WriteOrg,
     Access.ReadLog,
+    Access.Impersonation,
   ],
 }
 

@@ -94,6 +94,7 @@
 ## Admin Panel & S2S REST API Features Supported
 - View Configurations
 - Manage Users
+  - Impersonation
 - Manage Apps
 - Manage Scopes
 - Manage Roles

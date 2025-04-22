@@ -617,8 +617,15 @@ userRoutes.delete(
  *             schema:
  *               type: object
  *               properties:
- *                 refreshToken:
+ *                 refresh_token:
  *                   type: string
+ *                   description: The refresh token for impersonation
+ *                 refresh_token_expires_on:
+ *                   type: number
+ *                   description: The expiration time of the refresh token
+ *                 refresh_token_expires_in:
+ *                   type: number
+ *                   description: The remaining time of the refresh token in seconds
  */
 userRoutes.post(
   `${BaseRoute}/:authId/impersonation/:appId`,

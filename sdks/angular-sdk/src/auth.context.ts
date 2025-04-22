@@ -3,12 +3,12 @@ import {
 } from '@angular/core'
 import {
   ProviderConfig,
-  RefreshTokenStorage,
   IdTokenBody,
   isValidStorage,
   getParams,
   checkStorage,
   AuthState,
+  loadRefreshTokenStorageFromParams,
 } from '@melody-auth/shared'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import {
@@ -60,8 +60,12 @@ export class AuthContext {
       storedRefreshToken, storedAccount,
     } = checkStorage(this.state().config.storage)
 
-    if (storedRefreshToken) {
-      const parsed: RefreshTokenStorage = JSON.parse(storedRefreshToken)
+    let parsed = loadRefreshTokenStorageFromParams(this.state().config.storage)
+    if (!parsed && storedRefreshToken) {
+      parsed = JSON.parse(storedRefreshToken)
+    }
+
+    if (parsed) {
       const valid = isValidStorage(parsed)
 
       if (valid) {
