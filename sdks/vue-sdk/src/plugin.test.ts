@@ -24,6 +24,7 @@ vi.mock(
   () => ({
     handleTokenExchangeByAuthCode: vi.fn(),
     acquireToken: vi.fn(),
+    loadRefreshTokenStorageFromParams: vi.fn().mockReturnValue(null),
   }),
 )
 
@@ -37,6 +38,7 @@ vi.mock(
     }),
     getParams: vi.fn().mockReturnValue({}),
     isValidStorage: vi.fn().mockReturnValue(false),
+    loadRefreshTokenStorageFromParams: vi.fn().mockReturnValue(null),
   }),
 )
 
@@ -65,6 +67,7 @@ describe(
       })
       shared.getParams.mockReturnValue({})
       shared.isValidStorage.mockReturnValue(false)
+      shared.loadRefreshTokenStorageFromParams.mockReturnValue(null)
 
       // Mock window object if needed
       global.window = Object.create(window)
