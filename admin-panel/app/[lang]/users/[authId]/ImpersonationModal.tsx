@@ -7,13 +7,18 @@ import {
   AlertDialogDescription,
 } from 'components/ui/alert-dialog'
 import {
-  UserDetail, useGetApiV1AppsQuery, usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
+  UserDetail, useGetApiV1AppsQuery,
+  useGetApiV1UsersByAuthIdConsentedAppsQuery,
+  usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
 } from 'services/auth/api'
 import { typeTool } from 'tools'
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem,
 } from 'components/ui/select'
 import { Label } from 'components/ui/label'
+import useSignalValue from 'app/useSignalValue'
+import { configSignal } from 'signals'
+import { Button } from '@/components/ui/button'
 
 const ImpersonationModal = ({
   show,
@@ -27,6 +32,15 @@ const ImpersonationModal = ({
   const t = useTranslations('users')
 
   const { data } = useGetApiV1AppsQuery()
+  const configs = useSignalValue(configSignal)
+
+  const enableConsent = !!configs.ENABLE_USER_APP_CONSENT
+  const { data: consentsData } = useGetApiV1UsersByAuthIdConsentedAppsQuery(
+    { authId: String(user.authId) },
+    { skip: !enableConsent },
+  )
+  const consentedApps = consentsData?.consentedApps ?? []
+  console.log(consentedApps)
 
   const { accessToken } = useAuth()
 
@@ -42,16 +56,21 @@ const ImpersonationModal = ({
     expiresIn: number;
   } | null>(null)
   const selectedApp = apps.find((app) => app.id === selectedAppId)
+  const isConsented = !enableConsent || consentedApps.some((app) => app.appId === selectedAppId)
 
   const handleAppChange = async (appId: string) => {
     setRefreshTokenStorage(null)
     setSelectedAppId(parseInt(appId))
+  }
+
+  const handleImpersonate = async () => {
+    if (!selectedAppId) return
     const res = await impersonate({
       authId: user.authId,
-      appId: parseInt(appId),
+      appId: selectedAppId,
       body: { impersonatorToken: accessToken ?? '' },
     })
-    if (res.data?.refresh_token) {
+    if (res.data?.refresh_token && res.data.refresh_token_expires_on && res.data.refresh_token_expires_in) {
       setRefreshTokenStorage({
         refreshToken: res.data.refresh_token,
         expiresOn: res.data.refresh_token_expires_on,
@@ -69,9 +88,9 @@ const ImpersonationModal = ({
             { user: user.email },
           )}</AlertDialogTitle>
         </AlertDialogHeader>
-        <AlertDialogDescription>
+        <section>
           <div className='flex items-center gap-2'>
-            <Label>{t('impersonateApp')}</Label>
+            <AlertDialogDescription>{t('impersonateApp')}</AlertDialogDescription>
             <Select
               value={selectedAppId?.toString()}
               onValueChange={handleAppChange}
@@ -93,6 +112,12 @@ const ImpersonationModal = ({
               </SelectContent>
             </Select>
           </div>
+          {!isConsented && selectedApp && (
+            <p className='mt-4 text-red-500'>{t('impersonateConsent')}</p>
+          )}
+          {isConsented && !refreshTokenStorage && selectedApp && (
+            <Button className='mt-4' onClick={handleImpersonate}>{t('confirmImpersonate')}</Button>
+          )}
           {refreshTokenStorage && (
             <div className='mt-6'>
               <p className='font-bold'>{t('impersonateToken')}:</p>
@@ -113,7 +138,7 @@ const ImpersonationModal = ({
               </div>
             </div>
           )}
-        </AlertDialogDescription>
+        </section>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>{t('closeImpersonate')}</AlertDialogCancel>
         </AlertDialogFooter>

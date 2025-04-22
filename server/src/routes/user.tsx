@@ -621,7 +621,7 @@ userRoutes.delete(
  *                   type: string
  *                   description: The refresh token for impersonation
  *                 refresh_token_expires_on:
- *                   type: string
+ *                   type: number
  *                   description: The expiration time of the refresh token
  *                 refresh_token_expires_in:
  *                   type: number

@@ -26,6 +26,9 @@ const Consumer: React.FC = () => {
       <div data-testid='checkedStorage'>
         {state.checkedStorage ? 'true' : 'false'}
       </div>
+      <div data-testid='refreshTokenStorage'>
+        {state.refreshTokenStorage ? JSON.stringify(state.refreshTokenStorage) : 'null'}
+      </div>
       <div data-testid='account'>
         {state.account ? JSON.stringify(state.account) : 'null'}
       </div>
@@ -86,6 +89,8 @@ describe(
           const accounts = screen.getAllByTestId('account')
           expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
           expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(account))
+          const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
+          expect(JSON.parse(refreshTokenStorages[refreshTokenStorages.length - 1].textContent ?? '{}')).toStrictEqual(validToken)
         })
       },
     )
@@ -143,6 +148,8 @@ describe(
           expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
           // No valid token means the account remains null.
           expect(accounts[accounts.length - 1].textContent).toBe('null')
+          const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
+          expect(refreshTokenStorages[accounts.length - 1].textContent).toBe('null')
         })
       },
     )
@@ -178,6 +185,8 @@ describe(
           const accounts = screen.getAllByTestId('account')
           expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
           expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(account))
+          const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
+          expect(JSON.parse(refreshTokenStorages[refreshTokenStorages.length - 1].textContent ?? '{}')).toStrictEqual(validToken)
         })
       },
     )
@@ -212,6 +221,58 @@ describe(
           expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
           expect(accounts[accounts.length - 1].textContent).toBe('null')
         })
+      },
+    )
+
+    it(
+      'dispatches setAuth when a valid refresh token is provided via URL parameters',
+      async () => {
+        const originalLocation = window.location
+        const now = Math.floor(Date.now() / 1000)
+        const futureTime = now + 60
+        const searchQuery = `?refresh_token=url-token&refresh_token_expires_on=${futureTime}&refresh_token_expires_in=60`
+        Object.defineProperty(
+          window,
+          'location',
+          {
+            writable: true,
+            value: { search: searchQuery },
+            configurable: true,
+          },
+        )
+        const account = { username: 'urlUser' }
+        window.localStorage.setItem(StorageKey.Account, JSON.stringify(account))
+        render(
+          <AuthProvider
+            serverUri='https://example.com'
+            redirectUri='https://example.com'
+            storage='localStorage'
+            clientId='dummy-client'
+          >
+            <Consumer />
+          </AuthProvider>,
+        )
+        await waitFor(() => {
+          const checkedStorages = screen.getAllByTestId('checkedStorage')
+          const accounts = screen.getAllByTestId('account')
+          expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
+          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(account))
+          const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
+          expect(JSON.parse(refreshTokenStorages[refreshTokenStorages.length - 1].textContent ?? '{}')).toStrictEqual({
+            refreshToken: 'url-token',
+            expiresOn: futureTime,
+            expiresIn: 60,
+          })
+        })
+        Object.defineProperty(
+          window,
+          'location',
+          {
+            writable: true,
+            value: originalLocation,
+            configurable: true,
+          },
+        )
       },
     )
   },

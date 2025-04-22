@@ -118,6 +118,8 @@
     "impersonateToken": "Impersonation refresh_token",
     "impersonateTokenDesc": "Ce token est un token de rafraîchissement qui peut être utilisé pour impersonner l'utilisateur. Il expirera dans 30 minutes. Vous pouvez utiliser ce token de rafraîchissement pour échanger contre un token d'accès qui représente l'utilisateur impersonné, le corps du token contiendra une clé appelée 'impersonatedBy' pour indiquer l'utilisateur qui impersonne.",
     "impersonateDirect": "Si vous utilisez le sdk fourni dans votre application, vous pouvez utiliser le lien suivant pour impersonner l'utilisateur directement dans votre application",
+    "impersonateConsent": "L'utilisateur n'a pas consenti à cette application",
+    "confirmImpersonate": "Confirmer l'impersonation",
     "closeImpersonate": "Fermer"
   },
   "roles": {
