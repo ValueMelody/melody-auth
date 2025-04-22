@@ -103,7 +103,7 @@ const ImpersonationModal = ({
                 {selectedApp?.redirectUris.map((uri) => (
                   <a
                     key={uri}
-                    href={`${uri}?refresh_token=${refreshTokenStorage.refreshToken}&refresh_token_expires_on=${refreshTokenStorage.expiresOn}`}
+                    href={`${uri}?refresh_token=${refreshTokenStorage.refreshToken}&refresh_token_expires_on=${refreshTokenStorage.expiresOn}&refresh_token_expires_in=${refreshTokenStorage.expiresIn}`}
                     target='_blank'
                     rel='noreferrer'
                     className='break-all text-blue-500'>
