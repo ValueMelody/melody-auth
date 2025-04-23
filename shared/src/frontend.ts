@@ -22,7 +22,7 @@ export const isValidStorage = (refreshTokenStorage: RefreshTokenStorage) => {
   return isValid
 }
 
-export const loadRefreshTokenStorageFromParams = (storageKey?: 'sessionStorage' | 'localStorage'): RefreshTokenStorage | null => {
+export const loadRefreshTokenStorageFromParams = (storageType?: 'sessionStorage' | 'localStorage'): RefreshTokenStorage | null => {
   const params = getParams()
   if (params.refresh_token && params.refresh_token_expires_on && params.refresh_token_expires_in) {
     const refreshTokenStorage = {
@@ -30,11 +30,13 @@ export const loadRefreshTokenStorageFromParams = (storageKey?: 'sessionStorage' 
       expiresOn: parseInt(params.refresh_token_expires_on),
       expiresIn: parseInt(params.refresh_token_expires_in),
     }
-    const storage = storageKey === 'sessionStorage' ? window.sessionStorage : window.localStorage
+    const storage = storageType === 'sessionStorage' ? window.sessionStorage : window.localStorage
     storage.setItem(
       StorageKey.RefreshToken,
       JSON.stringify(refreshTokenStorage),
     )
+    storage.removeItem(StorageKey.Account)
+
     return refreshTokenStorage
   }
 

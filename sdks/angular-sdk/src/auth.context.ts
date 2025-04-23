@@ -56,11 +56,12 @@ export class AuthContext {
   private initialWithStorage (): void {
     if (typeof window === 'undefined' || !this.state().config) return
 
+    let parsed = loadRefreshTokenStorageFromParams(this.state().config.storage)
+
     const {
       storedRefreshToken, storedAccount,
     } = checkStorage(this.state().config.storage)
 
-    let parsed = loadRefreshTokenStorageFromParams(this.state().config.storage)
     if (!parsed && storedRefreshToken) {
       parsed = JSON.parse(storedRefreshToken)
     }

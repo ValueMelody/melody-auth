@@ -369,5 +369,28 @@ describe(
         expect(window.localStorage.getItem(StorageKey.RefreshToken)).toBeNull()
       },
     )
+
+    it(
+      'should remove StorageKey.Account from storage after loading token',
+      () => {
+        window.localStorage.setItem(
+          StorageKey.Account,
+          'dummyAccount',
+        )
+        Object.defineProperty(
+          window,
+          'location',
+          {
+            value: { search: '?refresh_token=my-token&refresh_token_expires_on=10000&refresh_token_expires_in=360' },
+            configurable: true,
+          },
+        )
+        const result = loadRefreshTokenStorageFromParams()
+        expect(result).toEqual({
+          refreshToken: 'my-token', expiresOn: 10000, expiresIn: 360,
+        })
+        expect(window.localStorage.getItem(StorageKey.Account)).toBeNull()
+      },
+    )
   },
 )

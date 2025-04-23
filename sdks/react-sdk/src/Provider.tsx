@@ -122,11 +122,11 @@ export const AuthProvider = ({
     () => {
       if (typeof window === 'undefined') return
 
+      let parsed = loadRefreshTokenStorageFromParams(config.storage)
+
       const {
         storedRefreshToken, storedAccount,
       } = checkStorage(config.storage)
-
-      let parsed = loadRefreshTokenStorageFromParams(config.storage)
 
       if (!parsed && storedRefreshToken) {
         parsed = JSON.parse(storedRefreshToken)

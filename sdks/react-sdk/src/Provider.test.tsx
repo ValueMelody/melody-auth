@@ -257,7 +257,7 @@ describe(
           const checkedStorages = screen.getAllByTestId('checkedStorage')
           const accounts = screen.getAllByTestId('account')
           expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
-          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(account))
+          expect(accounts[accounts.length - 1].textContent).toBe('null')
           const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
           expect(JSON.parse(refreshTokenStorages[refreshTokenStorages.length - 1].textContent ?? '{}')).toStrictEqual({
             refreshToken: 'url-token',
