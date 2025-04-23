@@ -109,18 +109,18 @@ async function generateRSAKeyPair () {
 
     console.info('Secrets generated for node env')
   } else {
-    const condition = isProd ? (configPath ? `--config ${configPath}` : '') : '--local'
+    const condition = isProd ? (configPath ? `--config ${configPath}` : '--remote') : '--local'
 
-    const [hasSessionSecret] = JSON.parse(getWranglerResponse(`wrangler kv key list --prefix=sessionSecret --binding=KV ${condition}`))
+    const [hasSessionSecret] = JSON.parse(getWranglerResponse(`npx wrangler kv key list --prefix=sessionSecret --binding=KV ${condition}`))
     if (!hasSessionSecret) {
-      execSync(`wrangler kv key put sessionSecret ${sessionSecret} --binding=KV ${condition}`)
+      execSync(`npx wrangler kv key put sessionSecret ${sessionSecret} --binding=KV ${condition}`)
     }
 
-    const [hasPublicKey] = JSON.parse(getWranglerResponse(`wrangler kv key list --prefix=jwtPublicSecret --binding=KV ${condition}`))
-    const [hasPrivateKey] = JSON.parse(getWranglerResponse(`wrangler kv key list --prefix=jwtPrivateSecret --binding=KV ${condition}`))
+    const [hasPublicKey] = JSON.parse(getWranglerResponse(`npx wrangler kv key list --prefix=jwtPublicSecret --binding=KV ${condition}`))
+    const [hasPrivateKey] = JSON.parse(getWranglerResponse(`npx wrangler kv key list --prefix=jwtPrivateSecret --binding=KV ${condition}`))
     if (hasPublicKey && hasPrivateKey) {
-      const currentPublicKey = getWranglerResponse(`wrangler kv key get jwtPublicSecret --binding=KV ${condition}`)
-      const currentPrivateKey = getWranglerResponse(`wrangler kv key get jwtPrivateSecret --binding=KV ${condition}`)
+      const currentPublicKey = getWranglerResponse(`npx wrangler kv key get jwtPublicSecret --binding=KV ${condition}`)
+      const currentPrivateKey = getWranglerResponse(`npx wrangler kv key get jwtPrivateSecret --binding=KV ${condition}`)
 
       fs.writeFileSync(
         PUBLIC_KEY_FILE,
@@ -130,8 +130,8 @@ async function generateRSAKeyPair () {
         PRIVATE_KEY_FILE,
         currentPrivateKey,
       )
-      execSync(`wrangler kv key put deprecatedJwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${condition}`)
-      execSync(`wrangler kv key put deprecatedJwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${condition}`)
+      execSync(`npx wrangler kv key put deprecatedJwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${condition}`)
+      execSync(`npx wrangler kv key put deprecatedJwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${condition}`)
     }
 
     fs.writeFileSync(
@@ -143,8 +143,8 @@ async function generateRSAKeyPair () {
       pemPrivateKey,
     )
 
-    execSync(`wrangler kv key put jwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${condition}`)
-    execSync(`wrangler kv key put jwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${condition}`)
+    execSync(`npx wrangler kv key put jwtPublicSecret --path=${PUBLIC_KEY_FILE} --binding=KV ${condition}`)
+    execSync(`npx wrangler kv key put jwtPrivateSecret --path=${PRIVATE_KEY_FILE} --binding=KV ${condition}`)
 
     console.info('Secrets generated for CF env')
   }
