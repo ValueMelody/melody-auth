@@ -210,10 +210,7 @@ describe(
         global.window = {} as any;
         // Setup mocks: loadRefreshTokenStorageFromParams returns a dummy value
         (loadRefreshTokenStorageFromParams as Mock).mockReturnValue({ token: 'dummy-token-from-params' });
-        (checkStorage as Mock).mockReturnValue({
-          storedRefreshToken: JSON.stringify({ token: 'dummy-refresh' }),
-          storedAccount: JSON.stringify({ id: 'dummy-account' }),
-        });
+        (checkStorage as Mock).mockReturnValue({ storedRefreshToken: JSON.stringify({ token: 'dummy-refresh' }) });
         (isValidStorage as Mock).mockReturnValue(true);
         (getParams as Mock).mockReturnValue({})
 
@@ -221,7 +218,7 @@ describe(
         const stateValue = authContext.state()
 
         expect(stateValue.refreshTokenStorage).toEqual({ token: 'dummy-token-from-params' })
-        expect(stateValue.account).toEqual({ id: 'dummy-account' })
+        expect(stateValue.account).toBeNull()
         expect(stateValue.checkedStorage).toBe(true)
       },
     )

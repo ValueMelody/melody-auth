@@ -327,7 +327,9 @@ describe(
           },
         )
         const result = loadRefreshTokenStorageFromParams()
-        expect(result).toEqual({ refreshToken: 'my-token', expiresOn: 10000, expiresIn: 360 })
+        expect(result).toEqual({
+          refreshToken: 'my-token', expiresOn: 10000, expiresIn: 360,
+        })
         expect(window.localStorage.getItem(StorageKey.RefreshToken)).toEqual(JSON.stringify(result))
       },
     )
@@ -384,7 +386,9 @@ describe(
           },
         )
         const result = loadRefreshTokenStorageFromParams()
-        expect(result).toEqual({ refreshToken: 'my-token', expiresOn: 10000, expiresIn: 360 })
+        expect(result).toEqual({
+          refreshToken: 'my-token', expiresOn: 10000, expiresIn: 360,
+        })
         expect(window.localStorage.getItem(StorageKey.Account)).toBeNull()
       },
     )

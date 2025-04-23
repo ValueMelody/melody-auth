@@ -31,7 +31,7 @@
     "test:coverage": "vitest run . --coverage"
   },
   "dependencies": {
-    "@melody-auth/shared": "^1.0.3",
+    "@melody-auth/shared": "^1.0.4",
     "@melody-auth/web": "^1.0.2"
   }
 }
