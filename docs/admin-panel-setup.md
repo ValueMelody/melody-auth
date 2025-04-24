@@ -60,6 +60,8 @@ npm run dev
 
 ### Deploy Admin Panel to Cloudflare Workers
 The Admin Panel is a full-stack Next.js application typically deployed in a Node.js environment. Deployment to Cloudflare Workers is now supported via the opennextjs-cloudflare package.
+
+**Note**: Cloudflare Workers cannot call other Workers within the same Cloudflare account, so if you plan to deploy both the Admin Panel and the Auth Server on Cloudflare, you must either assign each Worker a custom domain (e.g., admin.example.com and auth.example.com), or deploy the two Workers under separate Cloudflare accounts to avoid the restriction.
   
 Steps to Deploy:  
 1. Create a new worker named "melody-auth-admin-panel"
