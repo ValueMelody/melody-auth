@@ -109,7 +109,7 @@ async function generateRSAKeyPair () {
 
     console.info('Secrets generated for node env')
   } else {
-    const condition = isProd ? (configPath ? `--config ${configPath}` : '--remote') : '--local'
+    const condition = isProd ? (configPath ? `--config ${configPath} --remote` : '--remote') : '--local'
 
     const [hasSessionSecret] = JSON.parse(getWranglerResponse(`npx wrangler kv key list --prefix=sessionSecret --binding=KV ${condition}`))
     if (!hasSessionSecret) {
