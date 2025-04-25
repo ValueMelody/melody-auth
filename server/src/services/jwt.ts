@@ -161,6 +161,7 @@ export const genAccessToken = async (
   const {
     SPA_ACCESS_TOKEN_EXPIRES_IN,
     S2S_ACCESS_TOKEN_EXPIRES_IN,
+    AUTH_SERVER_URL: serverUrl,
   } = env(c)
 
   const isSpa = type === ClientType.SPA
@@ -171,6 +172,7 @@ export const genAccessToken = async (
   const accessTokenBody: typeConfig.AccessTokenBody = {
     sub,
     azp,
+    iss: serverUrl,
     scope,
     iat: currentTimestamp,
     exp: accessTokenExpiresAt,

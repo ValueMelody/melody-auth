@@ -108,6 +108,7 @@ export interface AuthCodeBody {
 export interface AccessTokenBody {
   sub: string;
   azp: string;
+  iss: string;
   scope: string;
   iat: number;
   exp: number;
