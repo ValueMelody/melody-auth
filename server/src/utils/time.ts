@@ -3,6 +3,10 @@ export const getCurrentTimestamp = () => Math.floor(Date.now() / 1000)
 export const getDbCurrentTime = () => {
   const date = new Date()
 
+  return getDbDate(date)
+}
+
+export const getDbDate = (date: Date) => {
   const year = date.getUTCFullYear()
   const month = String(date.getUTCMonth() + 1).padStart(
     2,

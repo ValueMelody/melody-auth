@@ -93,4 +93,5 @@ export enum RequestError {
   impersonatorTokenIsRequired = 'impersonatorToken is required for impersonation',
   impersonatorIsNotSuperAdmin = 'Only super admin can impersonate other users',
   impersonateNonSpaApp = 'Impersonate request sent to a non-SPA app',
+  deleteBeforeDaysMustBeGreaterThanZero = 'deleteBeforeDays must be greater than 0',
 }

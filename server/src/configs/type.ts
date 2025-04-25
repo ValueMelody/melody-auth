@@ -108,6 +108,7 @@ export interface AuthCodeBody {
 export interface AccessTokenBody {
   sub: string;
   azp: string;
+  iss: string;
   scope: string;
   iat: number;
   exp: number;
@@ -141,4 +142,9 @@ export interface Search {
 export interface Match {
   column: string;
   value: string;
+}
+
+export interface Sort {
+  column: string;
+  order: 'ASC' | 'DESC';
 }

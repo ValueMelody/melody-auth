@@ -193,6 +193,33 @@ logRoutes.get(
 
 /**
  * @swagger
+ * /api/v1/logs/sign-in:
+ *   delete:
+ *     summary: Delete Sign-in logs before a certain date, this action is irreversible
+ *     description: Required scope - root
+ *     tags: [Logs]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               deleteBeforeDays:
+ *                 type: number
+ *                 description: Delete all logs that are older than this many days.
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+logRoutes.delete(
+  `${BaseRoute}/sign-in`,
+  authMiddleware.s2sRoot,
+  logHandler.deleteSignInLogs,
+)
+
+/**
+ * @swagger
  * /api/v1/logs/sign-in/{id}:
  *   get:
  *     summary: Get an sign-in log by id

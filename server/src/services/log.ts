@@ -5,6 +5,7 @@ import {
 import {
   emailLogModel, signInLogModel, smsLogModel,
 } from 'models'
+import { timeUtil } from 'utils'
 
 export const getEmailLogs = async (
   c: Context<typeConfig.Context>,
@@ -21,6 +22,14 @@ export const getEmailLogs = async (
   return {
     logs, count,
   }
+}
+
+export const deleteEmailLogs = async (
+  c: Context<typeConfig.Context>,
+  deleteBeforeDays: number,
+) => {
+  const targetDate = new Date(Date.now() - deleteBeforeDays * 24 * 60 * 60 * 1000)
+  await emailLogModel.destroy(c.env.DB, timeUtil.getDbDate(targetDate))
 }
 
 export const getEmailLogById = async (

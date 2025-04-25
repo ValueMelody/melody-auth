@@ -51,7 +51,13 @@ export const getAll = async (
   const stmt = dbUtil.d1SelectAllQuery(
     db,
     TableName,
-    option,
+    {
+      ...option,
+      sort: {
+        column: 'id',
+        order: 'DESC',
+      },
+    },
   )
   const { results: logs }: { results: Raw[] } = await stmt.all()
   return logs.map((raw) => convertToRecord(raw))
