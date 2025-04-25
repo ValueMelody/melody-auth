@@ -1732,6 +1732,7 @@ describe(
           payload: {
             sub: '1-1-1-2',
             azp: expect.any(String),
+            iss: 'http://localhost:8787',
             scope: 'offline_access profile',
             iat: expect.any(Number),
             exp: expect.any(Number),
