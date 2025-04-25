@@ -891,7 +891,7 @@ describe(
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken(db)
-        const tokenJson = await tokenRes.json()
+        const tokenJson = await tokenRes.json() as { access_token: string; id_token: string }
 
         expect(tokenJson).toStrictEqual({
           access_token: expect.any(String),
@@ -904,6 +904,34 @@ describe(
           refresh_token_expires_in: 604800,
           refresh_token_expires_on: expect.any(Number),
           id_token: expect.any(String),
+        })
+
+        const appRecord = await getApp(db)
+
+        const accessTokenBody = decode(tokenJson.access_token)
+        expect(accessTokenBody.payload).toStrictEqual({
+          sub: '1-1-1-1',
+          azp: appRecord.clientId,
+          iss: 'http://localhost:8787',
+          scope: 'profile openid offline_access',
+          iat: expect.any(Number),
+          exp: expect.any(Number),
+          roles: [],
+        })
+
+        const idTokenBody = decode(tokenJson.id_token)
+        expect(idTokenBody.payload).toStrictEqual({
+          sub: '1-1-1-1',
+          azp: appRecord.clientId,
+          aud: appRecord.clientId,
+          iss: 'http://localhost:8787',
+          roles: [],
+          locale: 'en',
+          last_name: null,
+          first_name: null,
+          iat: expect.any(Number),
+          exp: expect.any(Number),
+          email: 'test@email.com',
         })
 
         const logs = await db.prepare('select * from sign_in_log').all()
@@ -1079,11 +1107,25 @@ describe(
           },
           mock(db),
         )
-        expect(await refreshTokenRes.json()).toStrictEqual({
+        const refreshTokenJson = await refreshTokenRes.json() as { access_token: string }
+        expect(refreshTokenJson).toStrictEqual({
           access_token: expect.any(String),
           expires_in: 1800,
           expires_on: expect.any(Number),
           token_type: 'Bearer',
+        })
+
+        const appRecord = await getApp(db)
+
+        const tokenBody = decode(refreshTokenJson.access_token)
+        expect(tokenBody.payload).toStrictEqual({
+          sub: '1-1-1-1',
+          azp: appRecord.clientId,
+          iss: 'http://localhost:8787',
+          scope: 'profile openid offline_access',
+          iat: expect.any(Number),
+          exp: expect.any(Number),
+          roles: [],
         })
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -1155,12 +1197,24 @@ describe(
           },
           mock(db),
         )
-        expect(await res.json()).toStrictEqual({
+
+        const tokenJson = await res.json() as { access_token: string }
+        expect(tokenJson).toStrictEqual({
           access_token: expect.any(String),
           expires_in: 3600,
           expires_on: expect.any(Number),
           token_type: 'Bearer',
           scope: 'root',
+        })
+
+        const tokenBody = decode(tokenJson.access_token)
+        expect(tokenBody.payload).toStrictEqual({
+          sub: appRecord.clientId,
+          azp: expect.any(String),
+          iss: 'http://localhost:8787',
+          scope: 'root',
+          iat: expect.any(Number),
+          exp: expect.any(Number),
         })
       },
     )
