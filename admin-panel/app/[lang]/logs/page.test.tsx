@@ -48,9 +48,7 @@ vi.mock(
 
 vi.mock(
   '@melody-auth/react',
-  () => ({
-    useAuth: vi.fn(() => ({ userInfo: { roles: ['admin'] } })),
-  }),
+  () => ({ useAuth: vi.fn(() => ({ userInfo: { roles: ['admin'] } })) }),
 )
 
 vi.mock(
