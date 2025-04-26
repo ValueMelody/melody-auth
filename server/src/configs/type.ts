@@ -143,3 +143,8 @@ export interface Match {
   column: string;
   value: string;
 }
+
+export interface Sort {
+  column: string;
+  order: 'ASC' | 'DESC';
+}

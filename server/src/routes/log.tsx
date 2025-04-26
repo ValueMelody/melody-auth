@@ -51,6 +51,29 @@ logRoutes.get(
 
 /**
  * @swagger
+ * /api/v1/logs/email:
+ *   delete:
+ *     summary: Delete email logs before a certain date, this action is irreversible
+ *     description: Required scope - root
+ *     tags: [Logs]
+ *     parameters:
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: Delete all logs that are older than this date in utc format.
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+logRoutes.delete(
+  `${BaseRoute}/email`,
+  authMiddleware.s2sRoot,
+  logHandler.deleteEmailLogs,
+)
+
+/**
+ * @swagger
  * /api/v1/logs/email/{id}:
  *   get:
  *     summary: Get an email log by id
@@ -122,6 +145,29 @@ logRoutes.get(
 
 /**
  * @swagger
+ * /api/v1/logs/sms:
+ *   delete:
+ *     summary: Delete SMS logs before a certain date, this action is irreversible
+ *     description: Required scope - root
+ *     tags: [Logs]
+ *     parameters:
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: Delete all logs that are older than this date in utc format.
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+logRoutes.delete(
+  `${BaseRoute}/sms`,
+  authMiddleware.s2sRoot,
+  logHandler.deleteSmsLogs,
+)
+
+/**
+ * @swagger
  * /api/v1/logs/sms/{id}:
  *   get:
  *     summary: Get an SMS log by id
@@ -189,6 +235,29 @@ logRoutes.get(
   `${BaseRoute}/sign-in`,
   authMiddleware.s2sRoot,
   logHandler.getSignInLogs,
+)
+
+/**
+ * @swagger
+ * /api/v1/logs/sign-in:
+ *   delete:
+ *     summary: Delete Sign-in logs before a certain date, this action is irreversible
+ *     description: Required scope - root
+ *     tags: [Logs]
+ *     parameters:
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: Delete all logs that are older than this date in utc format.
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+logRoutes.delete(
+  `${BaseRoute}/sign-in`,
+  authMiddleware.s2sRoot,
+  logHandler.deleteSignInLogs,
 )
 
 /**

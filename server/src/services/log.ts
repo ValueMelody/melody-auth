@@ -23,6 +23,23 @@ export const getEmailLogs = async (
   }
 }
 
+export const deleteEmailLogs = async (
+  c: Context<typeConfig.Context>,
+  before: string,
+) => {
+  const targetDate = before.replace(
+    'T',
+    ' ',
+  ).replace(
+    'Z',
+    '',
+  )
+  await emailLogModel.destroy(
+    c.env.DB,
+    targetDate,
+  )
+}
+
 export const getEmailLogById = async (
   c: Context<typeConfig.Context>,
   id: number,
@@ -54,6 +71,23 @@ export const getSmsLogs = async (
   }
 }
 
+export const deleteSmsLogs = async (
+  c: Context<typeConfig.Context>,
+  before: string,
+) => {
+  const targetDate = before.replace(
+    'T',
+    ' ',
+  ).replace(
+    'Z',
+    '',
+  )
+  await smsLogModel.destroy(
+    c.env.DB,
+    targetDate,
+  )
+}
+
 export const getSmsLogById = async (
   c: Context<typeConfig.Context>,
   id: number,
@@ -83,6 +117,23 @@ export const getSignInLogs = async (
   return {
     logs, count,
   }
+}
+
+export const deleteSignInLogs = async (
+  c: Context<typeConfig.Context>,
+  before: string,
+) => {
+  const targetDate = before.replace(
+    'T',
+    ' ',
+  ).replace(
+    'Z',
+    '',
+  )
+  await signInLogModel.destroy(
+    c.env.DB,
+    targetDate,
+  )
 }
 
 export const getSignInLogById = async (

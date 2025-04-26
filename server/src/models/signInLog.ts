@@ -37,7 +37,13 @@ export const getAll = async (
   const stmt = dbUtil.d1SelectAllQuery(
     db,
     TableName,
-    option,
+    {
+      ...option,
+      sort: {
+        column: 'id',
+        order: 'DESC',
+      },
+    },
   )
   const { results: logs }: { results: Record[] } = await stmt.all()
   return logs
@@ -71,6 +77,17 @@ export const create = async (
     create.ip,
     create.detail,
   )
+  const result = await dbUtil.d1Run(stmt)
+  if (!result.success) throw new errorConfig.InternalServerError()
+  return true
+}
+
+export const destroy = async (
+  db: D1Database,
+  date: string,
+) => {
+  const query = `DELETE FROM ${TableName} WHERE "createdAt" < $1`
+  const stmt = db.prepare(query).bind(date)
   const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
   return true

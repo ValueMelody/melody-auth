@@ -27,3 +27,12 @@ export const getDbCurrentTime = () => {
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
+
+export const isUtcString = (value: string | undefined): boolean => {
+  if (typeof value !== 'string') return false
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return false
+
+  return true
+}

@@ -8,7 +8,7 @@
     "apps": "Gérer les applications",
     "scopes": "Gérer les portées",
     "orgs": "Gérer les organisations",
-    "logs": "Afficher les journaux",
+    "logs": "Gérer les journaux",
     "dashboard": "Tableau de bord",
     "account": "Compte"
   },
@@ -177,6 +177,9 @@
     "response": "Réponse",
     "content": "Contenu",
     "ip": "Adresse IP",
-    "detail": "Détail"
+    "detail": "Détail",
+    "clean": "Nettoyer",
+    "cleanAlertTitle": "Nettoyer les journaux qui ont plus de 30 jours",
+    "cleanAlertDescription": "Cette opération est irréversible. Veuillez vous assurer de faire une sauvegarde de vos données avant de procéder."
   }
 }
