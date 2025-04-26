@@ -47,6 +47,13 @@ vi.mock(
 )
 
 vi.mock(
+  '@melody-auth/react',
+  () => ({
+    useAuth: vi.fn(() => ({ userInfo: { roles: ['admin'] } })),
+  }),
+)
+
+vi.mock(
   'i18n/navigation',
   () => ({
     useRouter: vi.fn(() => ({ push: vi.fn() })),
