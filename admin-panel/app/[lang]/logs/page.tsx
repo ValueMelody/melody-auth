@@ -80,7 +80,7 @@ const Page = () => {
 
   const configs = useSignalValue(configSignal)
 
-  const [cleanTarget, setCleanTarget] = useState<'email' | 'sms' | 'signIn'>('')
+  const [cleanTarget, setCleanTarget] = useState<'email' | 'sms' | 'signIn' | ''>('')
 
   const [emailLogPageNumber, setEmailLogPageNumber] = useState(1)
   const {

@@ -8,6 +8,9 @@ import { act } from 'react'
 import { render } from '../../../vitest.setup'
 import Page from 'app/[lang]/logs/page'
 import {
+  useDeleteApiV1LogsEmailMutation,
+  useDeleteApiV1LogsSignInMutation,
+  useDeleteApiV1LogsSmsMutation,
   useGetApiV1LogsEmailQuery,
   useGetApiV1LogsSignInQuery,
   useGetApiV1LogsSmsQuery,
@@ -23,6 +26,9 @@ vi.mock(
     useGetApiV1LogsEmailQuery: vi.fn(),
     useGetApiV1LogsSignInQuery: vi.fn(),
     useGetApiV1LogsSmsQuery: vi.fn(),
+    useDeleteApiV1LogsEmailMutation: vi.fn(),
+    useDeleteApiV1LogsSmsMutation: vi.fn(),
+    useDeleteApiV1LogsSignInMutation: vi.fn(),
   }),
 )
 
@@ -54,7 +60,10 @@ describe(
     beforeEach(() => {
       (useGetApiV1LogsEmailQuery as Mock).mockReturnValue({ data: { logs: emailLogs } });
       (useGetApiV1LogsSmsQuery as Mock).mockReturnValue({ data: { logs: smsLogs } });
-      (useGetApiV1LogsSignInQuery as Mock).mockReturnValue({ data: { logs: signInLogs } })
+      (useGetApiV1LogsSignInQuery as Mock).mockReturnValue({ data: { logs: signInLogs } });
+      (useDeleteApiV1LogsEmailMutation as Mock).mockReturnValue([]);
+      (useDeleteApiV1LogsSmsMutation as Mock).mockReturnValue([]);
+      (useDeleteApiV1LogsSignInMutation as Mock).mockReturnValue([])
     })
 
     it(
