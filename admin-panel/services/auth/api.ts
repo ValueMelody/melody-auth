@@ -404,6 +404,17 @@ const injectedRtkApi = api
         }),
         providesTags: ['Logs'],
       }),
+      deleteApiV1LogsEmail: build.mutation<
+        DeleteApiV1LogsEmailApiResponse,
+        DeleteApiV1LogsEmailApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/logs/email',
+          method: 'DELETE',
+          params: { before: queryArg.before },
+        }),
+        invalidatesTags: ['Logs'],
+      }),
       getApiV1LogsEmailById: build.query<
         GetApiV1LogsEmailByIdApiResponse,
         GetApiV1LogsEmailByIdApiArg
@@ -424,6 +435,17 @@ const injectedRtkApi = api
         }),
         providesTags: ['Logs'],
       }),
+      deleteApiV1LogsSms: build.mutation<
+        DeleteApiV1LogsSmsApiResponse,
+        DeleteApiV1LogsSmsApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/logs/sms',
+          method: 'DELETE',
+          params: { before: queryArg.before },
+        }),
+        invalidatesTags: ['Logs'],
+      }),
       getApiV1LogsSmsById: build.query<
         GetApiV1LogsSmsByIdApiResponse,
         GetApiV1LogsSmsByIdApiArg
@@ -443,6 +465,17 @@ const injectedRtkApi = api
           },
         }),
         providesTags: ['Logs'],
+      }),
+      deleteApiV1LogsSignIn: build.mutation<
+        DeleteApiV1LogsSignInApiResponse,
+        DeleteApiV1LogsSignInApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/logs/sign-in',
+          method: 'DELETE',
+          params: { before: queryArg.before },
+        }),
+        invalidatesTags: ['Logs'],
       }),
       getApiV1LogsSignInById: build.query<
         GetApiV1LogsSignInByIdApiResponse,
@@ -763,6 +796,11 @@ export type GetApiV1LogsEmailApiArg = {
   /** Page number to return */
   pageNumber?: number;
 };
+export type DeleteApiV1LogsEmailApiResponse = unknown;
+export type DeleteApiV1LogsEmailApiArg = {
+  /** Delete all logs that are older than this date in utc format. */
+  before?: string;
+};
 export type GetApiV1LogsEmailByIdApiResponse =
   /** status 200 A single email log object */ {
     log?: EmailLog;
@@ -781,6 +819,11 @@ export type GetApiV1LogsSmsApiArg = {
   pageSize?: number;
   /** Page number to return */
   pageNumber?: number;
+};
+export type DeleteApiV1LogsSmsApiResponse = unknown;
+export type DeleteApiV1LogsSmsApiArg = {
+  /** Delete all logs that are older than this date in utc format. */
+  before?: string;
 };
 export type GetApiV1LogsSmsByIdApiResponse =
   /** status 200 A single SMS log object */ {
@@ -801,6 +844,11 @@ export type GetApiV1LogsSignInApiArg = {
   pageSize?: number;
   /** Page number to return */
   pageNumber?: number;
+};
+export type DeleteApiV1LogsSignInApiResponse = unknown;
+export type DeleteApiV1LogsSignInApiArg = {
+  /** Delete all logs that are older than this date in utc format. */
+  before?: string;
 };
 export type GetApiV1LogsSignInByIdApiResponse =
   /** status 200 A single sign-in log object */ {
@@ -1069,14 +1117,17 @@ export const {
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
   useGetApiV1LogsEmailQuery,
   useLazyGetApiV1LogsEmailQuery,
+  useDeleteApiV1LogsEmailMutation,
   useGetApiV1LogsEmailByIdQuery,
   useLazyGetApiV1LogsEmailByIdQuery,
   useGetApiV1LogsSmsQuery,
   useLazyGetApiV1LogsSmsQuery,
+  useDeleteApiV1LogsSmsMutation,
   useGetApiV1LogsSmsByIdQuery,
   useLazyGetApiV1LogsSmsByIdQuery,
   useGetApiV1LogsSignInQuery,
   useLazyGetApiV1LogsSignInQuery,
+  useDeleteApiV1LogsSignInMutation,
   useGetApiV1LogsSignInByIdQuery,
   useLazyGetApiV1LogsSignInByIdQuery,
 } = injectedRtkApi

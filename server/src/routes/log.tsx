@@ -51,6 +51,29 @@ logRoutes.get(
 
 /**
  * @swagger
+ * /api/v1/logs/email:
+ *   delete:
+ *     summary: Delete email logs before a certain date, this action is irreversible
+ *     description: Required scope - root
+ *     tags: [Logs]
+ *     parameters:
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: Delete all logs that are older than this date in utc format.
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+logRoutes.delete(
+  `${BaseRoute}/email`,
+  authMiddleware.s2sRoot,
+  logHandler.deleteEmailLogs,
+)
+
+/**
+ * @swagger
  * /api/v1/logs/email/{id}:
  *   get:
  *     summary: Get an email log by id
@@ -118,6 +141,29 @@ logRoutes.get(
   `${BaseRoute}/sms`,
   authMiddleware.s2sRoot,
   logHandler.getSmsLogs,
+)
+
+/**
+ * @swagger
+ * /api/v1/logs/sms:
+ *   delete:
+ *     summary: Delete SMS logs before a certain date, this action is irreversible
+ *     description: Required scope - root
+ *     tags: [Logs]
+ *     parameters:
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: Delete all logs that are older than this date in utc format.
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+logRoutes.delete(
+  `${BaseRoute}/sms`,
+  authMiddleware.s2sRoot,
+  logHandler.deleteSmsLogs,
 )
 
 /**
@@ -198,16 +244,12 @@ logRoutes.get(
  *     summary: Delete Sign-in logs before a certain date, this action is irreversible
  *     description: Required scope - root
  *     tags: [Logs]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               deleteBeforeDays:
- *                 type: number
- *                 description: Delete all logs that are older than this many days.
+ *     parameters:
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: Delete all logs that are older than this date in utc format.
  *     responses:
  *       204:
  *         description: Successful operation with no content to return

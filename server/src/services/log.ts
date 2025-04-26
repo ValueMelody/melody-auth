@@ -5,7 +5,6 @@ import {
 import {
   emailLogModel, signInLogModel, smsLogModel,
 } from 'models'
-import { timeUtil } from 'utils'
 
 export const getEmailLogs = async (
   c: Context<typeConfig.Context>,
@@ -26,10 +25,19 @@ export const getEmailLogs = async (
 
 export const deleteEmailLogs = async (
   c: Context<typeConfig.Context>,
-  deleteBeforeDays: number,
+  before: string,
 ) => {
-  const targetDate = new Date(Date.now() - deleteBeforeDays * 24 * 60 * 60 * 1000)
-  await emailLogModel.destroy(c.env.DB, timeUtil.getDbDate(targetDate))
+  const targetDate = before.replace(
+    'T',
+    ' ',
+  ).replace(
+    'Z',
+    '',
+  )
+  await emailLogModel.destroy(
+    c.env.DB,
+    targetDate,
+  )
 }
 
 export const getEmailLogById = async (
@@ -63,6 +71,23 @@ export const getSmsLogs = async (
   }
 }
 
+export const deleteSmsLogs = async (
+  c: Context<typeConfig.Context>,
+  before: string,
+) => {
+  const targetDate = before.replace(
+    'T',
+    ' ',
+  ).replace(
+    'Z',
+    '',
+  )
+  await smsLogModel.destroy(
+    c.env.DB,
+    targetDate,
+  )
+}
+
 export const getSmsLogById = async (
   c: Context<typeConfig.Context>,
   id: number,
@@ -92,6 +117,23 @@ export const getSignInLogs = async (
   return {
     logs, count,
   }
+}
+
+export const deleteSignInLogs = async (
+  c: Context<typeConfig.Context>,
+  before: string,
+) => {
+  const targetDate = before.replace(
+    'T',
+    ' ',
+  ).replace(
+    'Z',
+    '',
+  )
+  await signInLogModel.destroy(
+    c.env.DB,
+    targetDate,
+  )
 }
 
 export const getSignInLogById = async (

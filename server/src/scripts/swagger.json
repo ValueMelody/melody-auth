@@ -2413,6 +2413,28 @@
             }
           }
         }
+      },
+      "delete": {
+        "summary": "Delete email logs before a certain date, this action is irreversible",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Delete all logs that are older than this date in utc format."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
       }
     },
     "/api/v1/logs/email/{id}": {
@@ -2501,6 +2523,28 @@
             }
           }
         }
+      },
+      "delete": {
+        "summary": "Delete SMS logs before a certain date, this action is irreversible",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Delete all logs that are older than this date in utc format."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
       }
     },
     "/api/v1/logs/sms/{id}": {
@@ -2587,6 +2631,28 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Sign-in logs before a certain date, this action is irreversible",
+        "description": "Required scope - root",
+        "tags": [
+          "Logs"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Delete all logs that are older than this date in utc format."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
           }
         }
       }

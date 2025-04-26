@@ -3,10 +3,6 @@ export const getCurrentTimestamp = () => Math.floor(Date.now() / 1000)
 export const getDbCurrentTime = () => {
   const date = new Date()
 
-  return getDbDate(date)
-}
-
-export const getDbDate = (date: Date) => {
   const year = date.getUTCFullYear()
   const month = String(date.getUTCMonth() + 1).padStart(
     2,
@@ -30,4 +26,13 @@ export const getDbDate = (date: Date) => {
   )
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
+
+export const isUtcString = (value: string | undefined): boolean => {
+  if (typeof value !== 'string') return false
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return false
+
+  return true
 }

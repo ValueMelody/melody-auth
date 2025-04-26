@@ -1,8 +1,12 @@
 import { Context } from 'hono'
-import { errorConfig, messageConfig, typeConfig } from 'configs'
+import {
+  errorConfig, messageConfig, typeConfig,
+} from 'configs'
 import { logService } from 'services'
 import { PaginationDto } from 'dtos/common'
-import { loggerUtil } from 'utils'
+import {
+  loggerUtil, timeUtil,
+} from 'utils'
 
 export const getEmailLogs = async (c: Context<typeConfig.Context>) => {
   const {
@@ -25,28 +29,23 @@ export const getEmailLogs = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteEmailLogs = async (c: Context<typeConfig.Context>) => {
-  const { deleteBeforeDays } = await c.req.json()
+  const before = c.req.query('before')
 
-  if (!deleteBeforeDays || deleteBeforeDays <= 0) {
+  if (!before || !timeUtil.isUtcString(before)) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.deleteBeforeDaysMustBeGreaterThanZero,
+      messageConfig.RequestError.deleteBeforeMustBePresent,
     )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.deleteBeforeDaysMustBeGreaterThanZero)
+    throw new errorConfig.Forbidden(messageConfig.RequestError.deleteBeforeMustBePresent)
   }
 
-  await logService.deleteEmailLogs(c, deleteBeforeDays)
-  return c.json({ message: 'Email logs deleted successfully' })
-}
-
-export const getEmailLog = async (c: Context<typeConfig.Context>) => {
-  const id = Number(c.req.param('id'))
-  const log = await logService.getEmailLogById(
+  await logService.deleteEmailLogs(
     c,
-    id,
+    before,
   )
-  return c.json({ log })
+  c.status(204)
+  return c.body(null)
 }
 
 export const getSmsLogs = async (c: Context<typeConfig.Context>) => {
@@ -67,6 +66,26 @@ export const getSmsLogs = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.json(res)
+}
+
+export const deleteSmsLogs = async (c: Context<typeConfig.Context>) => {
+  const before = c.req.query('before')
+
+  if (!before || !timeUtil.isUtcString(before)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.deleteBeforeMustBePresent,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.deleteBeforeMustBePresent)
+  }
+
+  await logService.deleteSmsLogs(
+    c,
+    before,
+  )
+  c.status(204)
+  return c.body(null)
 }
 
 export const getSmsLog = async (c: Context<typeConfig.Context>) => {
@@ -96,6 +115,35 @@ export const getSignInLogs = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.json(res)
+}
+
+export const deleteSignInLogs = async (c: Context<typeConfig.Context>) => {
+  const before = c.req.query('before')
+
+  if (!before || !timeUtil.isUtcString(before)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.deleteBeforeMustBePresent,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.deleteBeforeMustBePresent)
+  }
+
+  await logService.deleteSignInLogs(
+    c,
+    before,
+  )
+  c.status(204)
+  return c.body(null)
+}
+
+export const getEmailLog = async (c: Context<typeConfig.Context>) => {
+  const id = Number(c.req.param('id'))
+  const log = await logService.getEmailLogById(
+    c,
+    id,
+  )
+  return c.json({ log })
 }
 
 export const getSignInLog = async (c: Context<typeConfig.Context>) => {

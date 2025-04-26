@@ -8,7 +8,7 @@
     "apps": "Manage Apps",
     "scopes": "Manage Scopes",
     "orgs": "Manage Orgs",
-    "logs": "View Logs",
+    "logs": "Manage Logs",
     "dashboard": "Dashboard",
     "account": "Account"
   },
@@ -184,6 +184,9 @@
     "response": "Response",
     "content": "Content",
     "ip": "IP Address",
-    "detail": "detail"
+    "detail": "detail",
+    "clean": "Clean",
+    "cleanAlertTitle": "Clean logs that are older than 30 days",
+    "cleanAlertDescription": "This is a hard operation that cannot be undone. Please be sure to backup your data before proceeding."
   }
 }

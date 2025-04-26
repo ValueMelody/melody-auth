@@ -19,18 +19,68 @@ import useSignalValue from 'app/useSignalValue'
 import ConfigBooleanValue from 'components/ConfigBooleanValue'
 import ViewLink from 'components/ViewLink'
 import {
-  useGetApiV1LogsEmailQuery, useGetApiV1LogsSignInQuery, useGetApiV1LogsSmsQuery,
+  useDeleteApiV1LogsEmailMutation,
+  useDeleteApiV1LogsSignInMutation,
+  useDeleteApiV1LogsSmsMutation,
+  useGetApiV1LogsEmailQuery,
+  useGetApiV1LogsSignInQuery,
+  useGetApiV1LogsSmsQuery,
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
 import { routeTool } from 'tools'
+import { Button } from '@/components/ui/button'
+import {
+  AlertDialog, AlertDialogTitle, AlertDialogDescription,
+  AlertDialogContent, AlertDialogHeader,
+  AlertDialogFooter,
+} from 'components/ui/alert-dialog'
 
 const PageSize = 10
+
+const CleanAlert = ({
+  show,
+  onCancel,
+  onConfirm,
+}: {
+  show: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) => {
+  const t = useTranslations()
+
+  return (
+    <AlertDialog open={show}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {t('logs.cleanAlertTitle')}
+          </AlertDialogTitle>
+        </AlertDialogHeader>
+        <AlertDialogDescription>
+          {t('logs.cleanAlertDescription')}
+        </AlertDialogDescription>
+        <AlertDialogFooter>
+          <Button
+            variant='outline'
+            onClick={onCancel}>
+            {t('common.cancel')}
+          </Button>
+          <Button onClick={onConfirm}>
+            {t('common.delete')}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
 
 const Page = () => {
   const t = useTranslations()
 
   const configs = useSignalValue(configSignal)
+
+  const [cleanTarget, setCleanTarget] = useState<'email' | 'sms' | 'signIn'>('')
 
   const [emailLogPageNumber, setEmailLogPageNumber] = useState(1)
   const {
@@ -62,6 +112,10 @@ const Page = () => {
   const signInLogs = signInData?.logs ?? []
   const signInLogCount = signInData?.count ?? 0
 
+  const [deleteEmailLogs] = useDeleteApiV1LogsEmailMutation()
+  const [deleteSmsLogs] = useDeleteApiV1LogsSmsMutation()
+  const [deleteSignInLogs] = useDeleteApiV1LogsSignInMutation()
+
   const emailLogTotalPages = useMemo(
     () => Math.ceil(emailLogCount / PageSize),
     [emailLogCount],
@@ -89,22 +143,51 @@ const Page = () => {
     setSignInLogPageNumber(page)
   }
 
+  const handleConfirmClean = () => {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    const dateBefore = thirtyDaysAgo.toISOString()
+    switch (cleanTarget) {
+    case 'email':
+      deleteEmailLogs({ before: dateBefore })
+      break
+    case 'sms':
+      deleteSmsLogs({ before: dateBefore })
+      break
+    case 'signIn':
+      deleteSignInLogs({ before: dateBefore })
+      break
+    }
+    setCleanTarget('')
+  }
+
   if (!configs) return <LoadingPage />
 
   if (isEmailLoading || isSmsLoading || isSignInLoading) return <LoadingPage />
 
   return (
-    <section>
+    <section className='flex flex-col gap-8'>
+      <CleanAlert
+        show={!!cleanTarget}
+        onCancel={() => setCleanTarget('')}
+        onConfirm={handleConfirmClean}
+      />
       <Breadcrumb
-        className='mb-8'
         page={{ label: t('logs.title') }}
       />
       {configs.ENABLE_EMAIL_LOG && (
-        <>
-          <PageTitle
-            className='mb-6'
-            title={t('logs.emailLogs')}
-          />
+        <section className='flex flex-col'>
+          <header className='flex gap-8 items-center mb-6'>
+            <PageTitle
+              title={t('logs.emailLogs')}
+            />
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCleanTarget('email')}
+            >
+              {t('logs.clean')}
+            </Button>
+          </header>
           <Table className='break-all'>
             <TableHeader>
               <TableRow>
@@ -141,14 +224,22 @@ const Page = () => {
               nextLabel={t('common.next')}
             />
           )}
-        </>
+        </section>
       )}
       {configs.ENABLE_SMS_LOG && (
-        <>
-          <PageTitle
-            className='mt-8 mb-6'
-            title={t('logs.smsLogs')}
-          />
+        <section className='flex flex-col'>
+          <header className='flex gap-8 items-center mb-6'>
+            <PageTitle
+              title={t('logs.smsLogs')}
+            />
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCleanTarget('sms')}
+            >
+              {t('logs.clean')}
+            </Button>
+          </header>
           <Table className='break-all'>
             <TableHeader>
               <TableRow>
@@ -185,14 +276,22 @@ const Page = () => {
               nextLabel={t('common.next')}
             />
           )}
-        </>
+        </section>
       )}
       {configs.ENABLE_SIGN_IN_LOG && (
-        <>
-          <PageTitle
-            className='mt-8 mb-6'
-            title={t('logs.signInLogs')}
-          />
+        <section className='flex flex-col'>
+          <header className='flex gap-8 items-center mb-6'>
+            <PageTitle
+              title={t('logs.signInLogs')}
+            />
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCleanTarget('signIn')}
+            >
+              {t('logs.clean')}
+            </Button>
+          </header>
           <Table className='break-all'>
             <TableHeader>
               <TableRow>
@@ -227,7 +326,7 @@ const Page = () => {
               nextLabel={t('common.next')}
             />
           )}
-        </>
+        </section>
       )}
     </section>
   )

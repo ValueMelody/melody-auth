@@ -12,3 +12,13 @@ export async function GET (request: NextRequest) {
     requiredAccess: accessTool.Access.ReadLog,
   })
 }
+
+export async function DELETE (request: NextRequest) {
+  const before = request.nextUrl.searchParams.get('before')
+
+  return sendS2SRequest({
+    method: 'DELETE',
+    uri: `/api/v1/logs/email?before=${before}`,
+    requiredAccess: accessTool.Access.WriteLog,
+  })
+}

@@ -23,28 +23,28 @@ let db: Database
 const insertEmailLogs = async () => {
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content)
-    values ('test@email.com', 1, 'response 1', 'content 1')
+    (receiver, success, response, content, createdAt)
+    values ('test@email.com', 1, 'response 1', 'content 1', '2025-01-01 01:02:03')
   `)
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content)
-    values ('test@email.com', 1, 'response 2', 'content 2')
+    (receiver, success, response, content, createdAt)
+    values ('test@email.com', 1, 'response 2', 'content 2', '2025-01-02 01:02:04')
   `)
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content)
-    values ('test1@email.com', 1, 'response 3', 'content 3')
+    (receiver, success, response, content, createdAt)
+    values ('test1@email.com', 1, 'response 3', 'content 3', '2025-01-03 01:02:05')
   `)
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content)
-    values ('test1@email.com', 0, 'response 4', 'content 4')
+    (receiver, success, response, content, createdAt)
+    values ('test1@email.com', 0, 'response 4', 'content 4', '2025-01-04 01:02:06')
   `)
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content)
-    values ('test2@email.com', 1, 'response 5', 'content 5')
+    (receiver, success, response, content, createdAt)
+    values ('test2@email.com', 1, 'response 5', 'content 5', '2025-01-05 01:02:07')
   `)
 }
 
@@ -104,28 +104,28 @@ const emailLogs = [
 const insertSmsLogs = async () => {
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content)
-    values ('+6471231111', 1, 'response 1', 'content 1')
+    (receiver, success, response, content, createdAt)
+    values ('+6471231111', 1, 'response 1', 'content 1', '2025-01-01 01:02:03')
   `)
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content)
-    values ('+6471231111', 1, 'response 2', 'content 2')
+    (receiver, success, response, content, createdAt)
+    values ('+6471231111', 1, 'response 2', 'content 2', '2025-01-02 01:02:04')
   `)
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content)
-    values ('+6471231112', 1, 'response 3', 'content 3')
+    (receiver, success, response, content, createdAt)
+    values ('+6471231112', 1, 'response 3', 'content 3', '2025-01-03 01:02:05')
   `)
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content)
-    values ('+6471231112', 0, 'response 4', 'content 4')
+    (receiver, success, response, content, createdAt)
+    values ('+6471231112', 0, 'response 4', 'content 4', '2025-01-04 01:02:06')
   `)
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content)
-    values ('+6471231113', 1, 'response 5', 'content 5')
+    (receiver, success, response, content, createdAt)
+    values ('+6471231113', 1, 'response 5', 'content 5', '2025-01-05 01:02:07')
   `)
 }
 
@@ -185,28 +185,28 @@ const smsLogs = [
 const insertSignInLogs = async () => {
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail)
-    values (1, '1-1-1-1', 'detail 1')
+    ("userId", ip, detail, createdAt)
+    values (1, '1-1-1-1', 'detail 1', '2025-01-01 01:02:03')
   `)
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail)
-    values (1, '1-1-1-1', 'detail 2')
+    ("userId", ip, detail, createdAt)
+    values (1, '1-1-1-1', 'detail 2', '2025-01-02 01:02:04')
   `)
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail)
-    values (1, '1-1-1-2', 'detail 3')
+    ("userId", ip, detail, createdAt)
+    values (1, '1-1-1-2', 'detail 3', '2025-01-03 01:02:05')
   `)
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail)
-    values (2, '1-1-1-3', 'detail 4')
+    ("userId", ip, detail, createdAt)
+    values (2, '1-1-1-3', 'detail 4', '2025-01-04 01:02:06')
   `)
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail)
-    values (3, '1-1-1-4', 'detail 5')
+    ("userId", ip, detail, createdAt)
+    values (3, '1-1-1-4', 'detail 5', '2025-01-05 01:02:07')
   `)
 }
 
@@ -284,7 +284,7 @@ describe(
         )
         const json = await res.json()
         expect(json).toStrictEqual({
-          logs: emailLogs,
+          logs: [...emailLogs].reverse(),
           count: 5,
         })
       },
@@ -301,8 +301,10 @@ describe(
           mock(db),
         )
         const json = await res.json()
+
+        const reversedEmailLogs = [...emailLogs].reverse()
         expect(json).toStrictEqual({
-          logs: [emailLogs[0], emailLogs[1], emailLogs[2]],
+          logs: [reversedEmailLogs[0], reversedEmailLogs[1], reversedEmailLogs[2]],
           count: 5,
         })
 
@@ -313,7 +315,7 @@ describe(
         )
         const json1 = await res1.json()
         expect(json1).toStrictEqual({
-          logs: [emailLogs[2], emailLogs[3]],
+          logs: [reversedEmailLogs[2], reversedEmailLogs[3]],
           count: 5,
         })
       },
@@ -334,6 +336,90 @@ describe(
                 Scope.ReadUser,
               )}`,
             },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+      },
+    )
+  },
+)
+
+describe(
+  'delete email logs',
+  () => {
+    test(
+      'should delete all email logs',
+      async () => {
+        await insertEmailLogs()
+
+        const res = await app.request(
+          `${BaseRoute}/email?before=2025-01-06T01:02:03Z`,
+          {
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            method: 'DELETE',
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const res1 = await app.request(
+          `${BaseRoute}/email`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({
+          logs: [],
+          count: 0,
+        })
+      },
+    )
+
+    test(
+      'should delete email logs before a certain date',
+      async () => {
+        await insertEmailLogs()
+
+        const res = await app.request(
+          `${BaseRoute}/email?before=2025-01-03T01:02:03Z`,
+          {
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            method: 'DELETE',
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const res1 = await app.request(
+          `${BaseRoute}/email`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({
+          logs: [emailLogs[4], emailLogs[3], emailLogs[2]],
+          count: 3,
+        })
+      },
+    )
+
+    test(
+      'should return 401 when before is not a valid utc string',
+      async () => {
+        await insertEmailLogs()
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/email?before=2025-01-06T01:02:03`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+            method: 'DELETE',
           },
           mock(db),
         )
@@ -407,7 +493,7 @@ describe(
         )
         const json = await res.json()
         expect(json).toStrictEqual({
-          logs: smsLogs,
+          logs: [...smsLogs].reverse(),
           count: 5,
         })
       },
@@ -424,8 +510,10 @@ describe(
           mock(db),
         )
         const json = await res.json()
+
+        const reversedSmsLogs = [...smsLogs].reverse()
         expect(json).toStrictEqual({
-          logs: [smsLogs[0], smsLogs[1], smsLogs[2]],
+          logs: [reversedSmsLogs[0], reversedSmsLogs[1], reversedSmsLogs[2]],
           count: 5,
         })
 
@@ -436,7 +524,7 @@ describe(
         )
         const json1 = await res1.json()
         expect(json1).toStrictEqual({
-          logs: [smsLogs[2], smsLogs[3]],
+          logs: [reversedSmsLogs[2], reversedSmsLogs[3]],
           count: 5,
         })
       },
@@ -457,6 +545,90 @@ describe(
                 Scope.ReadUser,
               )}`,
             },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+      },
+    )
+  },
+)
+
+describe(
+  'delete sms logs',
+  () => {
+    test(
+      'should delete all sms logs',
+      async () => {
+        await insertSmsLogs()
+
+        const res = await app.request(
+          `${BaseRoute}/sms?before=2025-01-06T01:02:03Z`,
+          {
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            method: 'DELETE',
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const res1 = await app.request(
+          `${BaseRoute}/sms`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({
+          logs: [],
+          count: 0,
+        })
+      },
+    )
+
+    test(
+      'should delete sms logs before a certain date',
+      async () => {
+        await insertSmsLogs()
+
+        const res = await app.request(
+          `${BaseRoute}/sms?before=2025-01-03T01:02:03Z`,
+          {
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            method: 'DELETE',
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const res1 = await app.request(
+          `${BaseRoute}/sms`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({
+          logs: [smsLogs[4], smsLogs[3], smsLogs[2]],
+          count: 3,
+        })
+      },
+    )
+
+    test(
+      'should return 401 when before is not a valid utc string',
+      async () => {
+        await insertSmsLogs()
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/sms?before=2025-01-06T01:02:03`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+            method: 'DELETE',
           },
           mock(db),
         )
@@ -530,7 +702,7 @@ describe(
         )
         const json = await res.json()
         expect(json).toStrictEqual({
-          logs: signInLogs,
+          logs: [...signInLogs].reverse(),
           count: 5,
         })
       },
@@ -547,8 +719,9 @@ describe(
           mock(db),
         )
         const json = await res.json()
+        const reversedSignInLogs = [...signInLogs].reverse()
         expect(json).toStrictEqual({
-          logs: [signInLogs[0], signInLogs[1], signInLogs[2]],
+          logs: [reversedSignInLogs[0], reversedSignInLogs[1], reversedSignInLogs[2]],
           count: 5,
         })
 
@@ -559,7 +732,7 @@ describe(
         )
         const json1 = await res1.json()
         expect(json1).toStrictEqual({
-          logs: [signInLogs[2], signInLogs[3]],
+          logs: [reversedSignInLogs[2], reversedSignInLogs[3]],
           count: 5,
         })
       },
@@ -580,6 +753,90 @@ describe(
                 Scope.ReadUser,
               )}`,
             },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+      },
+    )
+  },
+)
+
+describe(
+  'delete sign-in logs',
+  () => {
+    test(
+      'should delete all sign-in logs',
+      async () => {
+        await insertSignInLogs()
+
+        const res = await app.request(
+          `${BaseRoute}/sign-in?before=2025-01-06T01:02:03Z`,
+          {
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            method: 'DELETE',
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const res1 = await app.request(
+          `${BaseRoute}/sign-in`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({
+          logs: [],
+          count: 0,
+        })
+      },
+    )
+
+    test(
+      'should delete sign-in logs before a certain date',
+      async () => {
+        await insertSignInLogs()
+
+        const res = await app.request(
+          `${BaseRoute}/sign-in?before=2025-01-03T01:02:03Z`,
+          {
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+            method: 'DELETE',
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const res1 = await app.request(
+          `${BaseRoute}/sign-in`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json()
+        expect(json1).toStrictEqual({
+          logs: [signInLogs[4], signInLogs[3], signInLogs[2]],
+          count: 3,
+        })
+      },
+    )
+
+    test(
+      'should return 401 when before is not a valid utc string',
+      async () => {
+        await insertSignInLogs()
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/sign-in?before=2025-01-06T01:02:03`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+            method: 'DELETE',
           },
           mock(db),
         )
