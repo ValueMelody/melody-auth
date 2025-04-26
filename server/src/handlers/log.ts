@@ -48,6 +48,15 @@ export const deleteEmailLogs = async (c: Context<typeConfig.Context>) => {
   return c.body(null)
 }
 
+export const getEmailLog = async (c: Context<typeConfig.Context>) => {
+  const id = Number(c.req.param('id'))
+  const log = await logService.getEmailLogById(
+    c,
+    id,
+  )
+  return c.json({ log })
+}
+
 export const getSmsLogs = async (c: Context<typeConfig.Context>) => {
   const {
     page_size: pageSize,
@@ -135,15 +144,6 @@ export const deleteSignInLogs = async (c: Context<typeConfig.Context>) => {
   )
   c.status(204)
   return c.body(null)
-}
-
-export const getEmailLog = async (c: Context<typeConfig.Context>) => {
-  const id = Number(c.req.param('id'))
-  const log = await logService.getEmailLogById(
-    c,
-    id,
-  )
-  return c.json({ log })
 }
 
 export const getSignInLog = async (c: Context<typeConfig.Context>) => {
