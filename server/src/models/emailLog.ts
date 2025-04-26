@@ -101,7 +101,7 @@ export const destroy = async (
   db: D1Database,
   date: string,
 ) => {
-  const query = `DELETE FROM ${TableName} WHERE createdAt < $1`
+  const query = `DELETE FROM ${TableName} WHERE "createdAt" < $1`
   const stmt = db.prepare(query).bind(date)
   const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()

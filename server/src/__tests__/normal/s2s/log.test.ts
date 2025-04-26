@@ -23,27 +23,27 @@ let db: Database
 const insertEmailLogs = async () => {
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('test@email.com', 1, 'response 1', 'content 1', '2025-01-01 01:02:03')
   `)
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('test@email.com', 1, 'response 2', 'content 2', '2025-01-02 01:02:04')
   `)
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('test1@email.com', 1, 'response 3', 'content 3', '2025-01-03 01:02:05')
   `)
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('test1@email.com', 0, 'response 4', 'content 4', '2025-01-04 01:02:06')
   `)
   await db.exec(`
     INSERT INTO "email_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('test2@email.com', 1, 'response 5', 'content 5', '2025-01-05 01:02:07')
   `)
 }
@@ -104,27 +104,27 @@ const emailLogs = [
 const insertSmsLogs = async () => {
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('+6471231111', 1, 'response 1', 'content 1', '2025-01-01 01:02:03')
   `)
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('+6471231111', 1, 'response 2', 'content 2', '2025-01-02 01:02:04')
   `)
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('+6471231112', 1, 'response 3', 'content 3', '2025-01-03 01:02:05')
   `)
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('+6471231112', 0, 'response 4', 'content 4', '2025-01-04 01:02:06')
   `)
   await db.exec(`
     INSERT INTO "sms_log"
-    (receiver, success, response, content, createdAt)
+    (receiver, success, response, content, "createdAt")
     values ('+6471231113', 1, 'response 5', 'content 5', '2025-01-05 01:02:07')
   `)
 }
@@ -185,27 +185,27 @@ const smsLogs = [
 const insertSignInLogs = async () => {
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail, createdAt)
+    ("userId", ip, detail, "createdAt")
     values (1, '1-1-1-1', 'detail 1', '2025-01-01 01:02:03')
   `)
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail, createdAt)
+    ("userId", ip, detail, "createdAt")
     values (1, '1-1-1-1', 'detail 2', '2025-01-02 01:02:04')
   `)
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail, createdAt)
+    ("userId", ip, detail, "createdAt")
     values (1, '1-1-1-2', 'detail 3', '2025-01-03 01:02:05')
   `)
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail, createdAt)
+    ("userId", ip, detail, "createdAt")
     values (2, '1-1-1-3', 'detail 4', '2025-01-04 01:02:06')
   `)
   await db.exec(`
     INSERT INTO "sign_in_log"
-    ("userId", ip, detail, createdAt)
+    ("userId", ip, detail, "createdAt")
     values (3, '1-1-1-4', 'detail 5', '2025-01-05 01:02:07')
   `)
 }
