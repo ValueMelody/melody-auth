@@ -140,3 +140,8 @@ Run the secret clean script whenever you want to stop verifying tokens signed wi
   - create a new org in the admin panel, with a unique slug
   - update the theme/branding for the org you just created in the admin panel
   - trigger a login redirect to the authorization page with the org=[slug] as query string
+
+## How to allow user with a custom role to perform impersonation
+By default, only user with super_admin role can perform impersonation. If you want to allow a user with a custom role to perform impersonation:
+- Add your custom role to the impersonationRoles array in server/src/configs/variable.ts, this will allow custom role to perform impersonation on the server side.
+- Add Access.Impersonation to the allowedAccesses array in admin-panel/tools/access.ts for your custom role, this will allow custom role to perform impersonation on the admin panel side.

@@ -49,4 +49,4 @@ export const SocialSignInConfig = Object.freeze({
 // For example, if you are based in the United States, you should set this to "+1".
 export const SmsMfaConfig = Object.freeze({ CountryCode: '+1' })
 
-export const S2sConfig = Object.freeze({ impersonationRole: Role.SuperAdmin })
+export const S2sConfig = Object.freeze({ impersonationRoles: [Role.SuperAdmin] })
