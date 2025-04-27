@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import {
   useMemo, useState,
 } from 'react'
+import { useAuth } from '@melody-auth/react'
 import Pagination from 'components/Pagination'
 import {
   Table,
@@ -28,7 +29,9 @@ import {
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
-import { routeTool } from 'tools'
+import {
+  accessTool, routeTool,
+} from 'tools'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog, AlertDialogTitle, AlertDialogDescription,
@@ -116,6 +119,12 @@ const Page = () => {
   const [deleteSmsLogs] = useDeleteApiV1LogsSmsMutation()
   const [deleteSignInLogs] = useDeleteApiV1LogsSignInMutation()
 
+  const { userInfo } = useAuth()
+  const showCleanBtn = accessTool.isAllowedAccess(
+    accessTool.Access.WriteLog,
+    userInfo?.roles,
+  )
+
   const emailLogTotalPages = useMemo(
     () => Math.ceil(emailLogCount / PageSize),
     [emailLogCount],
@@ -180,13 +189,15 @@ const Page = () => {
             <PageTitle
               title={t('logs.emailLogs')}
             />
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setCleanTarget('email')}
-            >
-              {t('logs.clean')}
-            </Button>
+            {showCleanBtn && (
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCleanTarget('email')}
+              >
+                {t('logs.clean')}
+              </Button>
+            )}
           </header>
           <Table className='break-all'>
             <TableHeader>
@@ -232,13 +243,15 @@ const Page = () => {
             <PageTitle
               title={t('logs.smsLogs')}
             />
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setCleanTarget('sms')}
-            >
-              {t('logs.clean')}
-            </Button>
+            {showCleanBtn && (
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCleanTarget('sms')}
+              >
+                {t('logs.clean')}
+              </Button>
+            )}
           </header>
           <Table className='break-all'>
             <TableHeader>
@@ -284,13 +297,15 @@ const Page = () => {
             <PageTitle
               title={t('logs.signInLogs')}
             />
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setCleanTarget('signIn')}
-            >
-              {t('logs.clean')}
-            </Button>
+            {showCleanBtn && (
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCleanTarget('signIn')}
+              >
+                {t('logs.clean')}
+              </Button>
+            )}
           </header>
           <Table className='break-all'>
             <TableHeader>

@@ -1,5 +1,6 @@
 import {
-  describe, it, expect, vi, beforeEach, Mock,
+  describe, it, expect, vi,
+  beforeEach, Mock,
 } from 'vitest'
 import {
   screen, waitFor,
@@ -44,6 +45,11 @@ vi.mock(
       subscribe: () => () => {},
     },
   }),
+)
+
+vi.mock(
+  '@melody-auth/react',
+  () => ({ useAuth: vi.fn(() => ({ userInfo: { roles: ['admin'] } })) }),
 )
 
 vi.mock(
