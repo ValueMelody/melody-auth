@@ -1,5 +1,6 @@
 import {
-  describe, it, expect, vi, beforeEach, Mock,
+  describe, it, expect, vi,
+  beforeEach, Mock,
 } from 'vitest'
 import {
   screen, waitFor,
