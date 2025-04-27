@@ -61,7 +61,7 @@ const AppleSignIn = ({
       />
       <div
         id='apple-login-btn'
-        className='w-[240px] h-[40px]'>
+        className='w-[260px] h-[40px]'>
         <div
           id='appleid-signin'
           data-color='black'

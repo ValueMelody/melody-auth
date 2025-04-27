@@ -33,7 +33,7 @@ const GithubSignIn = ({
     <div className='flex flex-row justify-center'>
       <a
         id='github-login-btn'
-        className='flex flex-row items-center justify-center cursor-pointer w-[240px] h-[40px] bg-[#24292e] p-[0 8px] gap-2 text-white text-medium font-bold rounded-md'
+        className='flex flex-row items-center justify-center cursor-pointer w-[260px] h-[40px] bg-[#24292e] p-[0 8px] gap-2 text-white text-medium font-bold rounded-md'
         href={`https://github.com/login/oauth/authorize?client_id=${githubClientId}&state=${JSON.stringify(socialSignInState)}`}
       >
         <GithubLogo className='w-6 h-6' />

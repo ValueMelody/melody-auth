@@ -62,7 +62,7 @@ const FacebookSignIn = ({
       <fb:login-button
         scope={variableConfig.SocialSignInConfig.FacebookScope}
         data-size='Large'
-        data-width='220'
+        data-width='260'
         data-use-continue-as='false'
         onlogin='checkLoginState();'
       />
