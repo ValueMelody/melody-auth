@@ -140,3 +140,8 @@ Run the secret clean script whenever you want to stop verifying tokens signed wi
   - create a new org in the admin panel, with a unique slug
   - update the theme/branding for the org you just created in the admin panel
   - trigger a login redirect to the authorization page with the org=[slug] as query string
+
+## How to allow users with a custom role to perform impersonation
+By default, only users with the super_admin role can impersonate other accounts. To let a custom-role user perform impersonation:
+- Add the custom role to the impersonationRoles array in server/src/configs/variable.ts. This enables the role to impersonate on the S2S API side.
+- Add Access.Impersonation to the allowedAccesses array in admin-panel/tools/access.ts for that role. This grants impersonation permission in the Admin Panel.

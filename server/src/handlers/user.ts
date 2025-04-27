@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import {
-  ClientType, genRandomString, Scope,
+  ClientType, genRandomString, Role, Scope,
 } from '@melody-auth/shared'
 import {
   errorConfig, messageConfig, typeConfig,
@@ -424,7 +424,7 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
     impersonator.id,
   )
 
-  if (!impersonatorRoles.includes(variableConfig.S2sConfig.impersonationRole)) {
+  if (!impersonatorRoles.some((role) => variableConfig.S2sConfig.impersonationRoles.includes(role as Role))) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

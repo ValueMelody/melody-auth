@@ -94,7 +94,7 @@
 ## Admin Panel & S2S REST API Features Supported
 - View Configurations
 - Manage Users
-  - Impersonation
+  - Impersonation [How to allow users with a custom role to perform impersonation](https://auth.valuemelody.com/q_a.html#how-to-allow-users-with-a-custom-role-to-perform-impersonation)
 - Manage Apps
 - Manage Scopes
 - Manage Roles
