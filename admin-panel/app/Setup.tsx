@@ -2,6 +2,7 @@
 
 import {
   PropsWithChildren, useEffect,
+  useMemo,
 } from 'react'
 import {
   AuthProvider, useAuth,
@@ -135,6 +136,8 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
     logoutRedirect, userInfo,
   } = useAuth()
 
+  const nextRouter = useRouter()
+
   const configs = useSignalValue(configSignal)
   const showLogs = (
     configs?.ENABLE_SIGN_IN_LOG || configs?.ENABLE_SMS_LOG || configs?.ENABLE_EMAIL_LOG
@@ -147,14 +150,26 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
     userInfo?.roles,
   )
 
+  const supportedLocales = useMemo(
+    () => {
+      return process.env.NEXT_PUBLIC_SUPPORTED_LOCALES?.split(',') ?? ['en', 'fr']
+    },
+    [],
+  )
+  const otherLocale = locale === 'en' ? 'fr' : 'en'
+
   useEffect(
     () => {
-      localStorage.setItem(
-        'Locale',
-        locale,
-      )
+      if (supportedLocales.includes(locale)) {
+        localStorage.setItem(
+          'Locale',
+          locale,
+        )
+      } else {
+        nextRouter.push(`/${otherLocale}${routeTool.Internal.Dashboard}`)
+      }
     },
-    [locale],
+    [locale, otherLocale, supportedLocales, nextRouter],
   )
 
   const handleLogout = () => {
@@ -270,14 +285,16 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
               {t('layout.account')}
             </Link>
           </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NextLink
-              href={`/${locale === 'en' ? 'fr' : 'en'}${routeTool.Internal.Dashboard}`}
-              className={navigationMenuTriggerStyle()}
-            >
-              {locale === 'en' ? 'FR' : 'EN'}
-            </NextLink>
-          </NavigationMenuItem>
+          {supportedLocales.includes(otherLocale) && (
+            <NavigationMenuItem>
+              <NextLink
+                href={`/${otherLocale}${routeTool.Internal.Dashboard}`}
+                className={navigationMenuTriggerStyle()}
+              >
+                {otherLocale.toUpperCase()}
+              </NextLink>
+            </NavigationMenuItem>
+          )}
           <NavigationMenuItem>
             <Button
               variant='link'
