@@ -40,9 +40,10 @@ export const handleTokenExchangeByAuthCode = (
         } else {
           newState.isAuthenticating = false
         }
-        if (res?.refreshTokenStorage) {
+        if (res?.refreshTokenStorage || res?.idTokenStorage) {
           newState.refreshTokenStorage = res.refreshTokenStorage
-          newState.account = res.idTokenBody
+          newState.account = res.idTokenStorage?.account ?? null
+          newState.idToken = res.idTokenStorage?.idToken ?? null
           newState.checkedStorage = true
         }
         return newState
@@ -72,6 +73,7 @@ export const acquireToken = async (state: WritableSignal<AuthState>): Promise<st
   } = isValidTokens(
     current.accessTokenStorage,
     current.refreshTokenStorage,
+    null,
   )
 
   if (hasValidAccessToken) {

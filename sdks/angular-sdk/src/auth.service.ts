@@ -35,6 +35,10 @@ export class AuthService {
     return this.authContext.state().isAuthenticating
   }
 
+  get idToken () {
+    return this.authContext.state().idToken
+  }
+
   get account () {
     return this.authContext.state().account
   }
