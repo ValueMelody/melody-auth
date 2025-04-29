@@ -1,25 +1,17 @@
 import { StorageKey } from './enum.js'
 import {
-  RefreshTokenStorage, AccessTokenStorage,
+  RefreshTokenStorage, AccessTokenStorage, IdTokenStorage
 } from './clientInterface.js'
 
 export const checkStorage = (storageKey?: 'sessionStorage' | 'localStorage') => {
   const storage = storageKey === 'sessionStorage' ? window.sessionStorage : window.localStorage
   const storedRefreshToken = storage.getItem(StorageKey.RefreshToken)
-  const storedAccount = storage.getItem(StorageKey.Account)
+  const storedIdToken = storage.getItem(StorageKey.IdToken)
 
   return {
     storedRefreshToken,
-    storedAccount,
+    storedIdToken,
   }
-}
-
-export const isValidStorage = (refreshTokenStorage: RefreshTokenStorage) => {
-  const currentTimestamp = new Date().getTime() / 1000
-  const isValid = refreshTokenStorage.refreshToken &&
-    refreshTokenStorage.expiresOn &&
-    refreshTokenStorage.expiresOn >= currentTimestamp + 5
-  return isValid
 }
 
 export const loadRefreshTokenStorageFromParams = (storageType?: 'sessionStorage' | 'localStorage'): RefreshTokenStorage | null => {
@@ -35,7 +27,7 @@ export const loadRefreshTokenStorageFromParams = (storageType?: 'sessionStorage'
       StorageKey.RefreshToken,
       JSON.stringify(refreshTokenStorage),
     )
-    storage.removeItem(StorageKey.Account)
+    storage.removeItem(StorageKey.IdToken)
 
     return refreshTokenStorage
   }
@@ -46,18 +38,28 @@ export const loadRefreshTokenStorageFromParams = (storageType?: 'sessionStorage'
 export const isValidTokens = (
   accessTokenStorage: AccessTokenStorage | null,
   refreshTokenStorage: RefreshTokenStorage | null,
+  idTokenStorage: IdTokenStorage | null,
 ) => {
   const currentTimeStamp = new Date().getTime() / 1000
+  const expectedTimestamp = currentTimeStamp + 5
 
-  const hasValidAccessToken = !!accessTokenStorage?.accessToken && currentTimeStamp < accessTokenStorage.expiresOn - 5
+  const hasValidAccessToken = !!accessTokenStorage?.accessToken &&
+    accessTokenStorage.expiresOn &&
+    expectedTimestamp < accessTokenStorage.expiresOn
 
-  const hasValidRefreshToken =
-    !!refreshTokenStorage?.refreshToken &&
-    currentTimeStamp < refreshTokenStorage.expiresOn - 5
+  const hasValidRefreshToken = !!refreshTokenStorage?.refreshToken &&
+    refreshTokenStorage.expiresOn &&
+    expectedTimestamp < refreshTokenStorage.expiresOn
+
+  const hasValidIdToken = !!idTokenStorage?.idToken &&
+    idTokenStorage.account &&
+    idTokenStorage.account.exp &&
+    expectedTimestamp < idTokenStorage.account.exp
 
   return {
     hasValidAccessToken,
     hasValidRefreshToken,
+    hasValidIdToken,
   }
 }
 

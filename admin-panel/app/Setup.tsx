@@ -133,8 +133,10 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
   const t = useTranslations()
   const locale = useLocale()
   const {
-    logoutRedirect, userInfo,
+    logoutRedirect, userInfo, account
   } = useAuth()
+
+  console.log(account)
 
   const nextRouter = useRouter()
 

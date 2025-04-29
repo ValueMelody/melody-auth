@@ -31,5 +31,5 @@ export enum SessionStorageKey {
 
 export enum StorageKey {
   RefreshToken = 'melody-auth-refresh-token',
-  Account = 'melody-auth-account',
+  IdToken = 'melody-auth-id-token',
 }
