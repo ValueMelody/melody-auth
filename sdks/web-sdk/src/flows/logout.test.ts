@@ -79,7 +79,7 @@ describe(
 
         // Verify storage items were removed
         expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.RefreshToken)
-        expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.Account)
+        expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.IdToken)
 
         // Verify redirect
         expect(mockWindow.location.href).toBe(mockLogoutUri)
@@ -103,7 +103,7 @@ describe(
 
         // Verify session storage was used
         expect(mockWindow.sessionStorage.removeItem).toHaveBeenCalledWith(StorageKey.RefreshToken)
-        expect(mockWindow.sessionStorage.removeItem).toHaveBeenCalledWith(StorageKey.Account)
+        expect(mockWindow.sessionStorage.removeItem).toHaveBeenCalledWith(StorageKey.IdToken)
         expect(mockWindow.localStorage.removeItem).not.toHaveBeenCalled()
       },
     )
@@ -124,7 +124,7 @@ describe(
 
         // Verify storage was still cleared
         expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.RefreshToken)
-        expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.Account)
+        expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.IdToken)
 
         // Verify redirect to default URI
         expect(mockWindow.location.href).toBe('https://default.redirect')
@@ -147,7 +147,7 @@ describe(
 
         // Verify storage was still cleared
         expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.RefreshToken)
-        expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.Account)
+        expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.IdToken)
       },
     )
 
@@ -169,7 +169,7 @@ describe(
 
         // Verify storage was still cleared
         expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.RefreshToken)
-        expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.Account)
+        expect(mockWindow.localStorage.removeItem).toHaveBeenCalledWith(StorageKey.IdToken)
 
         // Verify fallback to default redirect
         expect(mockWindow.location.href).toBe('https://default.redirect')

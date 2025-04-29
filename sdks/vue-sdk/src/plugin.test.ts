@@ -35,9 +35,14 @@ vi.mock(
     checkStorage: vi.fn().mockReturnValue({
       storedRefreshToken: null,
       storedAccount: null,
+      storedIdToken: null,
     }),
     getParams: vi.fn().mockReturnValue({}),
-    isValidStorage: vi.fn().mockReturnValue(false),
+    isValidTokens: vi.fn().mockReturnValue({
+      hasValidIdToken: false,
+      hasValidRefreshToken: false,
+      hasValidAccessToken: false,
+    }),
     loadRefreshTokenStorageFromParams: vi.fn().mockReturnValue(null),
   }),
 )
@@ -64,9 +69,14 @@ describe(
       shared.checkStorage.mockReturnValue({
         storedRefreshToken: null,
         storedAccount: null,
+        storedIdToken: null,
       })
       shared.getParams.mockReturnValue({})
-      shared.isValidStorage.mockReturnValue(false)
+      shared.isValidTokens.mockReturnValue({
+        hasValidIdToken: false,
+        hasValidRefreshToken: false,
+        hasValidAccessToken: false,
+      })
       shared.loadRefreshTokenStorageFromParams.mockReturnValue(null)
 
       // Mock window object if needed
@@ -124,18 +134,25 @@ describe(
           expiresAt: Date.now() + 3600000, // 1 hour from now
         })
 
-        const mockAccount = JSON.stringify({
-          sub: 'user-123',
-          name: 'Test User',
-          email: 'test@example.com',
+        const mockedIdToken = JSON.stringify({
+          idToken: 'test-id-token',
+          account: {
+            sub: 'user-123',
+            name: 'Test User',
+            email: 'test@example.com',
+          },
         })
 
         shared.checkStorage.mockReturnValue({
           storedRefreshToken: mockRefreshToken,
-          storedAccount: mockAccount,
+          storedIdToken: mockedIdToken,
         })
 
-        shared.isValidStorage.mockReturnValue(true)
+        shared.isValidTokens.mockReturnValue({
+          hasValidIdToken: true,
+          hasValidRefreshToken: true,
+          hasValidAccessToken: false,
+        })
 
         // Create a variable to capture the provided state
         let capturedState = null
@@ -161,7 +178,11 @@ describe(
         // Check that the state was initialized correctly
         expect(capturedState).not.toBeNull()
         expect(capturedState?.refreshTokenStorage).toEqual(JSON.parse(mockRefreshToken))
-        expect(capturedState?.account).toEqual(JSON.parse(mockAccount))
+        expect(capturedState?.account).toStrictEqual({
+          sub: 'user-123',
+          name: 'Test User',
+          email: 'test@example.com',
+        })
         expect(capturedState?.checkedStorage).toBe(true)
       },
     )
@@ -179,7 +200,11 @@ describe(
           storedAccount: null,
         })
 
-        shared.isValidStorage.mockReturnValue(false) // Invalid token
+        shared.isValidTokens.mockReturnValue({
+          hasValidIdToken: false,
+          hasValidRefreshToken: false,
+          hasValidAccessToken: false,
+        })
 
         // Create a variable to capture the provided state
         let capturedState = null

@@ -4,7 +4,7 @@ import {
 
 // Import the mocked functions for easy access in tests
 import {
-  getParams, checkStorage, isValidStorage, loadRefreshTokenStorageFromParams,
+  getParams, checkStorage, loadRefreshTokenStorageFromParams, isValidTokens,
 } from '@melody-auth/shared'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import { AuthContext } from './auth.context'
@@ -18,7 +18,7 @@ vi.mock(
   () => ({
     getParams: vi.fn(),
     checkStorage: vi.fn(),
-    isValidStorage: vi.fn(),
+    isValidTokens: vi.fn(),
     loadRefreshTokenStorageFromParams: vi.fn(),
   }),
 )
@@ -62,9 +62,15 @@ describe(
         // Setup mocks for a valid stored token scenario
         (checkStorage as Mock).mockReturnValue({
           storedRefreshToken: JSON.stringify({ token: 'dummy-refresh' }),
-          storedAccount: JSON.stringify({ id: 'dummy-account' }),
+          storedIdToken: JSON.stringify({
+            idToken: 'dummy-id-token', account: { id: 'dummy-account' },
+          }),
         })
-        ;(isValidStorage as Mock).mockReturnValue(true)
+        ;(isValidTokens as Mock).mockReturnValue({
+          hasValidIdToken: false,
+          hasValidRefreshToken: true,
+          hasValidAccessToken: true,
+        })
         ;(getParams as Mock).mockReturnValue({})
 
         const acquireTokenMock = acquireToken as Mock
@@ -75,7 +81,7 @@ describe(
         const stateValue = authContext.state()
         expect(stateValue.config).toEqual(dummyConfig)
         expect(stateValue.refreshTokenStorage).toEqual({ token: 'dummy-refresh' })
-        expect(stateValue.account).toEqual({ id: 'dummy-account' })
+        expect(stateValue.account).toStrictEqual({ id: 'dummy-account' })
         expect(stateValue.checkedStorage).toBe(true)
 
         expect(acquireTokenMock).toHaveBeenCalledTimes(1)
@@ -92,7 +98,11 @@ describe(
           storedRefreshToken: JSON.stringify({ token: 'dummy-refresh-null-account' }),
           storedAccount: null,
         })
-        ;(isValidStorage as Mock).mockReturnValue(true)
+        ;(isValidTokens as Mock).mockReturnValue({
+          hasValidIdToken: false,
+          hasValidRefreshToken: true,
+          hasValidAccessToken: true,
+        })
         ;(getParams as Mock).mockReturnValue({})
 
         const acquireTokenMock = acquireToken as Mock
@@ -211,7 +221,11 @@ describe(
         // Setup mocks: loadRefreshTokenStorageFromParams returns a dummy value
         (loadRefreshTokenStorageFromParams as Mock).mockReturnValue({ token: 'dummy-token-from-params' });
         (checkStorage as Mock).mockReturnValue({ storedRefreshToken: JSON.stringify({ token: 'dummy-refresh' }) });
-        (isValidStorage as Mock).mockReturnValue(true);
+        (isValidTokens as Mock).mockReturnValue({
+          hasValidIdToken: false,
+          hasValidRefreshToken: true,
+          hasValidAccessToken: true,
+        });
         (getParams as Mock).mockReturnValue({})
 
         const authContext = new AuthContext(dummyConfig)

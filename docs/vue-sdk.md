@@ -311,6 +311,22 @@ const { acquireUserInfoError } = useAuth()
 </template>
 ```
 
+## idToken
+
+The id_token of the current user.
+```
+<script setup lang="ts">
+import { useAuth } from '@melody-auth/vue'
+const { idToken } = useAuth()
+</script>
+
+<template>
+  <div>
+    <pre>{{ idToken }}</pre>
+  </div>
+</template>
+```
+
 ## account
 
 Decoded account information from the id_token.

@@ -23,6 +23,11 @@ export const useAuth = () => {
     [state.accessTokenStorage],
   )
 
+  const idToken = useMemo(
+    () => state.idToken ?? null,
+    [state.idToken],
+  )
+
   const refreshToken = useMemo(
     () => state.refreshTokenStorage?.refreshToken ?? null,
     [state.refreshTokenStorage],
@@ -104,6 +109,7 @@ export const useAuth = () => {
       } = isValidTokens(
         accessTokenStorage,
         refreshTokenStorage,
+        null,
       )
 
       if (hasValidAccessToken) return accessTokenStorage?.accessToken
@@ -211,6 +217,7 @@ export const useAuth = () => {
     refreshToken,
     logoutRedirect,
     accessToken,
+    idToken,
     isAuthenticated,
     acquireUserInfo,
     acquireToken,

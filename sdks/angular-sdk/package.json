@@ -1,6 +1,6 @@
 {
   "name": "@melody-auth/angular",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "dist/fesm2022/melody-auth-angular.mjs",
   "typings": "dist/index.d.ts",
   "repository": {
@@ -31,7 +31,7 @@
     "test:coverage": "vitest run . --coverage"
   },
   "dependencies": {
-    "@melody-auth/shared": "^1.0.4",
-    "@melody-auth/web": "^1.0.2"
+    "@melody-auth/shared": "^1.0.6",
+    "@melody-auth/web": "^1.0.4"
   }
 }

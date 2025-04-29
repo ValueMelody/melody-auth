@@ -2,10 +2,13 @@ import {
   describe, it, expect, beforeEach, afterEach,
 } from 'vitest'
 import {
-  ErrorType, handleError, checkStorage, isValidStorage, isValidTokens, getParams,
+  ErrorType, handleError, checkStorage, isValidTokens, getParams,
   loadRefreshTokenStorageFromParams,
 } from './frontend'
 import { StorageKey } from './enum.js'
+import {
+  AccessTokenStorage, IdTokenStorage, RefreshTokenStorage,
+} from './clientInterface.js'
 
 describe(
   'handleError',
@@ -68,13 +71,19 @@ describe(
           'dummyRefreshToken',
         )
         window.localStorage.setItem(
-          StorageKey.Account,
-          'dummyAccount',
+          StorageKey.IdToken,
+          JSON.stringify({
+            idToken: 'dummyIdToken',
+            account: 'dummyAccount',
+          }),
         )
         const result = checkStorage()
         expect(result).toEqual({
           storedRefreshToken: 'dummyRefreshToken',
-          storedAccount: 'dummyAccount',
+          storedIdToken: JSON.stringify({
+            idToken: 'dummyIdToken',
+            account: 'dummyAccount',
+          }),
         })
       },
     )
@@ -87,13 +96,19 @@ describe(
           'sessionRefresh',
         )
         window.sessionStorage.setItem(
-          StorageKey.Account,
-          'sessionAccount',
+          StorageKey.IdToken,
+          JSON.stringify({
+            idToken: 'dummyIdToken',
+            account: 'dummyAccount',
+          }),
         )
         const result = checkStorage('sessionStorage')
         expect(result).toEqual({
           storedRefreshToken: 'sessionRefresh',
-          storedAccount: 'sessionAccount',
+          storedIdToken: JSON.stringify({
+            idToken: 'dummyIdToken',
+            account: 'dummyAccount',
+          }),
         })
       },
     )
@@ -104,53 +119,8 @@ describe(
         const result = checkStorage()
         expect(result).toEqual({
           storedRefreshToken: null,
-          storedAccount: null,
+          storedIdToken: null,
         })
-      },
-    )
-  },
-)
-
-describe(
-  'isValidStorage',
-  () => {
-    it(
-      'should return true when refresh token is valid',
-      () => {
-        const currentTimestamp = new Date().getTime() / 1000
-        const validToken = {
-          refreshToken: 'valid-token', expiresOn: currentTimestamp + 10,
-        }
-        expect(isValidStorage(validToken)).toBe(true)
-      },
-    )
-    it(
-      'should return false when refresh token expires too soon',
-      () => {
-        const currentTimestamp = new Date().getTime() / 1000
-        const invalidToken = {
-          refreshToken: 'valid-token', expiresOn: currentTimestamp + 2,
-        }
-        expect(isValidStorage(invalidToken)).toBe(false)
-      },
-    )
-    it(
-      'should return false when refreshToken is empty',
-      () => {
-        const currentTimestamp = new Date().getTime() / 1000
-        const missingToken = {
-          refreshToken: '', expiresOn: currentTimestamp + 10,
-        }
-        expect(Boolean(isValidStorage(missingToken))).toBe(false)
-      },
-    )
-    it(
-      'should return false when expiresOn is zero',
-      () => {
-        const tokenMissingExpires = {
-          refreshToken: 'valid-token', expiresOn: 0,
-        }
-        expect(Boolean(isValidStorage(tokenMissingExpires))).toBe(false)
       },
     )
   },
@@ -165,15 +135,20 @@ describe(
         const currentTimestamp = new Date().getTime() / 1000
         const validAccess = {
           accessToken: 'valid-access', expiresOn: currentTimestamp + 10,
-        }
+        } as AccessTokenStorage
         const validRefresh = {
           refreshToken: 'valid-refresh', expiresOn: currentTimestamp + 10, expiresIn: 10,
-        }
+        } as RefreshTokenStorage
+        const validIdToken = {
+          idToken: 'valid-id-token',
+          account: { exp: currentTimestamp + 10 },
+        } as IdTokenStorage
         expect(isValidTokens(
           validAccess,
           validRefresh,
+          validIdToken,
         )).toEqual({
-          hasValidAccessToken: true, hasValidRefreshToken: true,
+          hasValidAccessToken: true, hasValidRefreshToken: true, hasValidIdToken: true,
         })
       },
     )
@@ -183,15 +158,20 @@ describe(
         const currentTimestamp = new Date().getTime() / 1000
         const expiredAccess = {
           accessToken: 'expired', expiresOn: currentTimestamp + 2,
-        }
+        } as AccessTokenStorage
         const validRefresh = {
           refreshToken: 'valid-refresh', expiresOn: currentTimestamp + 10, expiresIn: 10,
         }
+        const validIdToken = {
+          idToken: 'valid-id-token',
+          account: { exp: currentTimestamp + 10 },
+        } as IdTokenStorage
         expect(isValidTokens(
           expiredAccess,
           validRefresh,
+          validIdToken,
         )).toEqual({
-          hasValidAccessToken: false, hasValidRefreshToken: true,
+          hasValidAccessToken: false, hasValidRefreshToken: true, hasValidIdToken: true,
         })
       },
     )
@@ -201,26 +181,57 @@ describe(
         const currentTimestamp = new Date().getTime() / 1000
         const validAccess = {
           accessToken: 'valid-access', expiresOn: currentTimestamp + 10,
-        }
+        } as AccessTokenStorage
         const expiredRefresh = {
           refreshToken: 'expired', expiresOn: currentTimestamp + 2, expiresIn: 10,
         }
+        const validIdToken = {
+          idToken: 'valid-id-token',
+          account: { exp: currentTimestamp + 10 },
+        } as IdTokenStorage
         expect(isValidTokens(
           validAccess,
           expiredRefresh,
+          validIdToken,
         )).toEqual({
-          hasValidAccessToken: true, hasValidRefreshToken: false,
+          hasValidAccessToken: true, hasValidRefreshToken: false, hasValidIdToken: true,
         })
       },
     )
+
+    it(
+      'should return false for expired id token',
+      () => {
+        const currentTimestamp = new Date().getTime() / 1000
+        const validAccess = {
+          accessToken: 'valid-access', expiresOn: currentTimestamp + 10,
+        } as AccessTokenStorage
+        const validRefresh = {
+          refreshToken: 'valid-refresh', expiresOn: currentTimestamp + 10, expiresIn: 10,
+        }
+        const expiredIdToken = {
+          idToken: 'expired-id-token',
+          account: { exp: currentTimestamp + 2 },
+        } as IdTokenStorage
+        expect(isValidTokens(
+          validAccess,
+          validRefresh,
+          expiredIdToken,
+        )).toEqual({
+          hasValidAccessToken: true, hasValidRefreshToken: true, hasValidIdToken: false,
+        })
+      },
+    )
+
     it(
       'should return false for both tokens null',
       () => {
         expect(isValidTokens(
           null,
           null,
+          null,
         )).toEqual({
-          hasValidAccessToken: false, hasValidRefreshToken: false,
+          hasValidAccessToken: false, hasValidRefreshToken: false, hasValidIdToken: false,
         })
       },
     )
@@ -371,11 +382,14 @@ describe(
     )
 
     it(
-      'should remove StorageKey.Account from storage after loading token',
+      'should remove StorageKey.IdToken from storage after loading token',
       () => {
         window.localStorage.setItem(
-          StorageKey.Account,
-          'dummyAccount',
+          StorageKey.IdToken,
+          JSON.stringify({
+            idToken: 'dummyIdToken',
+            account: 'dummyAccount',
+          }),
         )
         Object.defineProperty(
           window,
@@ -389,7 +403,7 @@ describe(
         expect(result).toEqual({
           refreshToken: 'my-token', expiresOn: 10000, expiresIn: 360,
         })
-        expect(window.localStorage.getItem(StorageKey.Account)).toBeNull()
+        expect(window.localStorage.getItem(StorageKey.IdToken)).toBeNull()
       },
     )
   },

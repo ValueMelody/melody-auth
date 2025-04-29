@@ -1,6 +1,5 @@
 import {
-  ProviderConfig, AccessTokenStorage, RefreshTokenStorage, SessionStorageKey, StorageKey,
-  IdTokenBody,
+  ProviderConfig, AccessTokenStorage, RefreshTokenStorage, SessionStorageKey, StorageKey, IdTokenStorage,
 } from '@melody-auth/shared'
 import { postTokenByAuthCode } from '../requests'
 
@@ -81,26 +80,30 @@ export const exchangeTokenByAuthCode = async (
       )
     }
 
-    let idTokenBody: IdTokenBody | null = null
+    let idTokenStorage: IdTokenStorage | null = null
     if (result.id_token) {
       const payloadRaw = result.id_token.split('.')[1]
       const payload = base64UrlDecode(payloadRaw)
-      idTokenBody = JSON.parse(payload)
+      const account = JSON.parse(payload)
+      idTokenStorage = {
+        idToken: result.id_token,
+        account,
+      }
 
       storage.setItem(
-        StorageKey.Account,
-        payload,
+        StorageKey.IdToken,
+        JSON.stringify(idTokenStorage),
       )
     }
 
     const response: {
       accessTokenStorage: AccessTokenStorage;
       refreshTokenStorage: RefreshTokenStorage | null;
-      idTokenBody: IdTokenBody | null;
+      idTokenStorage: IdTokenStorage | null;
     } = {
       accessTokenStorage,
       refreshTokenStorage,
-      idTokenBody,
+      idTokenStorage,
     }
 
     const url = new URL(window.location.href)

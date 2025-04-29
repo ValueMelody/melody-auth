@@ -37,6 +37,11 @@ export interface IdTokenBody {
   roles?: string[];
 }
 
+export interface IdTokenStorage {
+  idToken: string;
+  account: IdTokenBody;
+}
+
 export interface AuthState {
   config: ProviderConfig;
   refreshTokenStorage: RefreshTokenStorage | null;
@@ -45,6 +50,7 @@ export interface AuthState {
   authenticationError: string;
   checkedStorage: boolean;
   userInfo: GetUserInfoRes | null;
+  idToken: string | null;
   account: IdTokenBody | null;
   isLoadingUserInfo: boolean;
   acquireUserInfoError: string;

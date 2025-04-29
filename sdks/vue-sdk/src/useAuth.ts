@@ -165,6 +165,7 @@ export function useAuth () {
     acquireUserInfo,
     acquireToken,
     isAuthenticating,
+    idToken: computed(() => state.idToken),
     account: computed(() => state.account),
     userInfo: computed(() => state.userInfo),
     isLoadingToken: state.isLoadingToken,

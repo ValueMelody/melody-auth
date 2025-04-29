@@ -32,12 +32,13 @@ export const handleTokenExchangeByAuthCode = (
           type: 'setIsAuthenticating', payload: false,
         })
       }
-      if (res?.refreshTokenStorage) {
+      if (res?.refreshTokenStorage || res?.idTokenStorage) {
         dispatch({
           type: 'setAuth',
           payload: {
             refreshTokenStorage: res.refreshTokenStorage,
-            idTokenBody: res.idTokenBody,
+            idTokenBody: res.idTokenStorage?.account ?? null,
+            idToken: res.idTokenStorage?.idToken ?? null,
           },
         })
       }

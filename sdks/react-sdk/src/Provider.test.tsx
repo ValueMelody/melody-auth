@@ -32,6 +32,9 @@ const Consumer: React.FC = () => {
       <div data-testid='account'>
         {state.account ? JSON.stringify(state.account) : 'null'}
       </div>
+      <div data-testid='idToken'>
+        {state.idToken ? state.idToken : 'null'}
+      </div>
     </div>
   )
 }
@@ -63,7 +66,10 @@ describe(
         const validToken = {
           refreshToken: 'valid-token', expiresOn: now + 60,
         }
-        const account = { username: 'testuser' }
+        const idTokenBody = {
+          idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
+          account: { username: 'testuser' },
+        }
 
         // Save token and account into localStorage using keys from shared.
         window.localStorage.setItem(
@@ -71,8 +77,8 @@ describe(
           JSON.stringify(validToken),
         )
         window.localStorage.setItem(
-          StorageKey.Account,
-          JSON.stringify(account),
+          StorageKey.IdToken,
+          JSON.stringify(idTokenBody),
         )
 
         render(<AuthProvider
@@ -88,7 +94,7 @@ describe(
           const checkedStorages = screen.getAllByTestId('checkedStorage')
           const accounts = screen.getAllByTestId('account')
           expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
-          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(account))
+          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(idTokenBody.account))
           const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
           expect(JSON.parse(refreshTokenStorages[refreshTokenStorages.length - 1].textContent ?? '{}')).toStrictEqual(validToken)
         })
@@ -128,10 +134,12 @@ describe(
           StorageKey.RefreshToken,
           JSON.stringify(expiredToken),
         )
-        // Even if an account is stored, it should be ignored because the token is not valid.
+
         window.localStorage.setItem(
-          StorageKey.Account,
-          JSON.stringify({ username: 'testuser' }),
+          StorageKey.IdToken,
+          JSON.stringify({
+            idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature', account: { username: 'testuser' },
+          }),
         )
 
         render(<AuthProvider
@@ -146,8 +154,7 @@ describe(
           const checkedStorages = screen.getAllByTestId('checkedStorage')
           const accounts = screen.getAllByTestId('account')
           expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
-          // No valid token means the account remains null.
-          expect(accounts[accounts.length - 1].textContent).toBe('null')
+          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify({ username: 'testuser' }))
           const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
           expect(refreshTokenStorages[accounts.length - 1].textContent).toBe('null')
         })
@@ -161,15 +168,20 @@ describe(
         const validToken = {
           refreshToken: 'valid-token', expiresOn: now + 60,
         }
-        const account = { username: 'sessionUser' }
+        const idTokenBody = {
+          idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
+          account: {
+            sub: 'user123', exp: now + 6,
+          },
+        }
 
         window.sessionStorage.setItem(
           StorageKey.RefreshToken,
           JSON.stringify(validToken),
         )
         window.sessionStorage.setItem(
-          StorageKey.Account,
-          JSON.stringify(account),
+          StorageKey.IdToken,
+          JSON.stringify(idTokenBody),
         )
 
         render(<AuthProvider
@@ -184,7 +196,9 @@ describe(
           const checkedStorages = screen.getAllByTestId('checkedStorage')
           const accounts = screen.getAllByTestId('account')
           expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
-          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(account))
+          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(idTokenBody.account))
+          const idTokens = screen.getAllByTestId('idToken')
+          expect(idTokens[idTokens.length - 1].textContent).toBe(idTokenBody.idToken)
           const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
           expect(JSON.parse(refreshTokenStorages[refreshTokenStorages.length - 1].textContent ?? '{}')).toStrictEqual(validToken)
         })
@@ -192,7 +206,122 @@ describe(
     )
 
     it(
-      'dispatches setAuth with null account when no stored account is found',
+      'dispatch when there is only refreshToken',
+      async () => {
+        const now = Math.floor(Date.now() / 1000)
+        const validToken = {
+          refreshToken: 'valid-token', expiresOn: now + 60,
+        }
+        window.sessionStorage.setItem(
+          StorageKey.RefreshToken,
+          JSON.stringify(validToken),
+        )
+
+        render(<AuthProvider
+          serverUri='https://example.com'
+          redirectUri='https://example.com'
+          storage='sessionStorage'
+          clientId='dummy-client'>
+          <Consumer />
+        </AuthProvider>)
+
+        await waitFor(() => {
+          const checkedStorages = screen.getAllByTestId('checkedStorage')
+          const accounts = screen.getAllByTestId('account')
+          expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
+          expect(accounts[accounts.length - 1].textContent).toBe('null')
+          const idTokens = screen.getAllByTestId('idToken')
+          expect(idTokens[idTokens.length - 1].textContent).toBe('null')
+          const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
+          expect(JSON.parse(refreshTokenStorages[refreshTokenStorages.length - 1].textContent ?? '{}')).toStrictEqual(validToken)
+        })
+      },
+    )
+
+    it(
+      'dispatch when there is only idToken',
+      async () => {
+        const now = Math.floor(Date.now() / 1000)
+
+        const idTokenBody = {
+          idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
+          account: {
+            sub: 'user123', exp: now + 6,
+          },
+        }
+
+        window.sessionStorage.setItem(
+          StorageKey.IdToken,
+          JSON.stringify(idTokenBody),
+        )
+
+        render(<AuthProvider
+          serverUri='https://example.com'
+          redirectUri='https://example.com'
+          storage='sessionStorage'
+          clientId='dummy-client'>
+          <Consumer />
+        </AuthProvider>)
+
+        await waitFor(() => {
+          const checkedStorages = screen.getAllByTestId('checkedStorage')
+          const accounts = screen.getAllByTestId('account')
+          expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
+          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(idTokenBody.account))
+          const idTokens = screen.getAllByTestId('idToken')
+          expect(idTokens[idTokens.length - 1].textContent).toBe(idTokenBody.idToken)
+          const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
+          expect(refreshTokenStorages[refreshTokenStorages.length - 1].textContent).toBe('null')
+        })
+      },
+    )
+
+    it(
+      'do not dispatch idToken if it is expired',
+      async () => {
+        const now = Math.floor(Date.now() / 1000)
+        const validToken = {
+          refreshToken: 'valid-token', expiresOn: now + 60,
+        }
+        const idTokenBody = {
+          idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
+          account: {
+            sub: 'user123', exp: now,
+          },
+        }
+
+        window.sessionStorage.setItem(
+          StorageKey.RefreshToken,
+          JSON.stringify(validToken),
+        )
+        window.sessionStorage.setItem(
+          StorageKey.IdToken,
+          JSON.stringify(idTokenBody),
+        )
+
+        render(<AuthProvider
+          serverUri='https://example.com'
+          redirectUri='https://example.com'
+          storage='sessionStorage'
+          clientId='dummy-client'>
+          <Consumer />
+        </AuthProvider>)
+
+        await waitFor(() => {
+          const checkedStorages = screen.getAllByTestId('checkedStorage')
+          const accounts = screen.getAllByTestId('account')
+          expect(checkedStorages[checkedStorages.length - 1].textContent).toBe('true')
+          expect(accounts[accounts.length - 1].textContent).toBe(JSON.stringify(idTokenBody.account))
+          const idTokens = screen.getAllByTestId('idToken')
+          expect(idTokens[idTokens.length - 1].textContent).toBe('null')
+          const refreshTokenStorages = screen.getAllByTestId('refreshTokenStorage')
+          expect(JSON.parse(refreshTokenStorages[refreshTokenStorages.length - 1].textContent ?? '{}')).toStrictEqual(validToken)
+        })
+      },
+    )
+
+    it(
+      'dispatches setAuth with null idTokenBody when no stored account is found',
       async () => {
         const now = Math.floor(Date.now() / 1000)
         const validToken = {
@@ -203,7 +332,7 @@ describe(
           StorageKey.RefreshToken,
           JSON.stringify(validToken),
         )
-        window.localStorage.removeItem(StorageKey.Account)
+        window.localStorage.removeItem(StorageKey.IdToken)
 
         render(<AuthProvider
           serverUri='https://example.com'

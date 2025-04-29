@@ -3,12 +3,12 @@ import {
 } from '@angular/core'
 import {
   ProviderConfig,
-  IdTokenBody,
-  isValidStorage,
   getParams,
   checkStorage,
   AuthState,
   loadRefreshTokenStorageFromParams,
+  IdTokenStorage,
+  isValidTokens,
 } from '@melody-auth/shared'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import {
@@ -26,6 +26,7 @@ export class AuthContext {
     isAuthenticated: false,
     config: null as unknown as ProviderConfig,
     userInfo: null,
+    idToken: null,
     account: null,
     accessTokenStorage: null,
     refreshTokenStorage: null,
@@ -56,27 +57,35 @@ export class AuthContext {
   private initialWithStorage (): void {
     if (typeof window === 'undefined' || !this.state().config) return
 
-    let parsed = loadRefreshTokenStorageFromParams(this.state().config.storage)
+    let parsedRefreshToken = loadRefreshTokenStorageFromParams(this.state().config.storage)
 
     const {
-      storedRefreshToken, storedAccount,
+      storedRefreshToken, storedIdToken,
     } = checkStorage(this.state().config.storage)
 
-    if (!parsed && storedRefreshToken) {
-      parsed = JSON.parse(storedRefreshToken)
+    if (!parsedRefreshToken && storedRefreshToken) {
+      parsedRefreshToken = JSON.parse(storedRefreshToken)
     }
 
-    if (parsed) {
-      const valid = isValidStorage(parsed)
+    const parsedIdToken: IdTokenStorage = storedIdToken ? JSON.parse(storedIdToken) : null
 
-      if (valid) {
-        const parsedAccount: IdTokenBody | null = storedAccount
-          ? JSON.parse(storedAccount)
-          : null
+    if (parsedRefreshToken || parsedIdToken) {
+      const {
+        hasValidIdToken, hasValidRefreshToken,
+      } = isValidTokens(
+        null,
+        parsedRefreshToken,
+        parsedIdToken,
+      )
+
+      const account = parsedIdToken?.account
+
+      if (hasValidIdToken || hasValidRefreshToken) {
         this.state.update((prev) => ({
           ...prev,
-          refreshTokenStorage: parsed,
-          account: parsedAccount,
+          refreshTokenStorage: hasValidRefreshToken ? parsedRefreshToken : null,
+          account: account ?? null,
+          idToken: hasValidIdToken ? parsedIdToken.idToken : null,
           checkedStorage: true,
         }))
         return
