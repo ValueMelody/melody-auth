@@ -3,8 +3,6 @@ import {
 } from '@angular/core'
 import {
   ProviderConfig,
-  IdTokenBody,
-  isValidStorage,
   getParams,
   checkStorage,
   AuthState,
