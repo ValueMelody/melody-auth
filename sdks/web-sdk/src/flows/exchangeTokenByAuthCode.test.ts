@@ -159,7 +159,10 @@ describe(
             expiresIn: 7200,
             expiresOn: 'refreshExpiry',
           },
-          idTokenBody: JSON.parse(fakePayload),
+          idTokenStorage: {
+            idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
+            account: JSON.parse(fakePayload),
+          },
         })
 
         // Ensure state and code verifier keys are removed from sessionStorage
@@ -174,8 +177,11 @@ describe(
           expiresOn: 'refreshExpiry',
         }))
 
-        const storedAccount = window.sessionStorage.getItem(StorageKey.Account)
-        expect(storedAccount).toBe(fakePayload) // The decoded id_token payload
+        const storedIdToken = window.sessionStorage.getItem(StorageKey.IdToken)
+        expect(storedIdToken).toBe(JSON.stringify({
+          idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
+          account: JSON.parse(fakePayload),
+        }))
 
         // Ensure postTokenByAuthCode is called with the correct parameters
         expect(mockedPostTokenByAuthCode).toHaveBeenCalledWith(
@@ -234,7 +240,7 @@ describe(
             expiresOn: 'expiryTime',
           },
           refreshTokenStorage: null,
-          idTokenBody: null,
+          idTokenStorage: null,
         })
 
         // Ensure state and code verifier keys are removed from sessionStorage
@@ -243,7 +249,7 @@ describe(
 
         // Verify that no tokens have been stored for refresh or account
         expect(window.sessionStorage.getItem(StorageKey.RefreshToken)).toBeNull()
-        expect(window.sessionStorage.getItem(StorageKey.Account)).toBeNull()
+        expect(window.sessionStorage.getItem(StorageKey.IdToken)).toBeNull()
       },
     )
 
@@ -302,7 +308,8 @@ describe(
         )
 
         // Validate that the idTokenBody is correctly decoded from our URL-safe base64 string.
-        expect(result?.idTokenBody).toEqual(payloadObj)
+        expect(result?.idTokenStorage?.idToken).toEqual('header.eyJmb28iOiJiYXIiLCJudW0iOjQyfQ.signature')
+        expect(result?.idTokenStorage?.account).toEqual(payloadObj)
       },
     )
 
@@ -395,7 +402,10 @@ describe(
             expiresIn: 7200,
             expiresOn: 'refreshExpireLocal',
           },
-          idTokenBody: payloadObj,
+          idTokenStorage: {
+            idToken: 'header.eyJsb2NhbCI6InZhbHVlIn0=.signature',
+            account: { local: 'value' },
+          },
         })
 
         // Verify that tokens are stored in localStorage
@@ -404,11 +414,14 @@ describe(
           expiresIn: 7200,
           expiresOn: 'refreshExpireLocal',
         }))
-        expect(window.localStorage.getItem(StorageKey.Account)).toBe(payloadStr)
+        expect(window.localStorage.getItem(StorageKey.IdToken)).toBe(JSON.stringify({
+          idToken: 'header.eyJsb2NhbCI6InZhbHVlIn0=.signature',
+          account: { local: 'value' },
+        }))
 
         // Ensure that the tokens are not stored in sessionStorage
         expect(window.sessionStorage.getItem(StorageKey.RefreshToken)).toBeNull()
-        expect(window.sessionStorage.getItem(StorageKey.Account)).toBeNull()
+        expect(window.sessionStorage.getItem(StorageKey.IdToken)).toBeNull()
       },
     )
   },

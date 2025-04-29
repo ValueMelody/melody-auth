@@ -91,7 +91,9 @@ describe(
         const mockResponse = {
           accessTokenStorage: { accessToken: 'fakeAccess' },
           refreshTokenStorage: { refreshToken: 'fakeRefresh' },
-          idTokenBody: { sub: 'user1' },
+          idTokenStorage: {
+            idToken: 'fakeIdToken', account: { sub: 'user1' },
+          },
         }
         const mockedExchangeToken = exchangeTokenByAuthCode as unknown as vi.Mock
         mockedExchangeToken.mockResolvedValue(mockResponse)
@@ -115,7 +117,7 @@ describe(
           state: 'reqState', locale: 'en',
         })
         expect(state.refreshTokenStorage).toEqual(mockResponse.refreshTokenStorage)
-        expect(state.account).toEqual(mockResponse.idTokenBody)
+        expect(state.account).toEqual(mockResponse.idTokenStorage.account)
         expect(state.checkedStorage).toBe(true)
       },
     )
@@ -126,7 +128,9 @@ describe(
         const mockResponse = {
           // No accessTokenStorage provided
           refreshTokenStorage: { refreshToken: 'fakeRefresh' },
-          idTokenBody: { sub: 'user1' },
+          idTokenStorage: {
+            idToken: 'fakeIdToken', account: { sub: 'user1' },
+          },
         }
         const mockedExchangeToken = exchangeTokenByAuthCode as unknown as vi.Mock
         mockedExchangeToken.mockResolvedValue(mockResponse)
@@ -142,7 +146,7 @@ describe(
         expect(state.isAuthenticating).toBe(false)
         expect(state.config.onLoginSuccess).not.toHaveBeenCalled()
         expect(state.refreshTokenStorage).toEqual(mockResponse.refreshTokenStorage)
-        expect(state.account).toEqual(mockResponse.idTokenBody)
+        expect(state.account).toEqual(mockResponse.idTokenStorage.account)
         expect(state.checkedStorage).toBe(true)
       },
     )

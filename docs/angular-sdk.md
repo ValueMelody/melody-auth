@@ -359,6 +359,27 @@ export class AuthActionsComponent {
 }
 ```
 
+## idToken
+
+The id_token of the current user.
+```
+import { CommonModule } from '@angular/common'
+import { Component } from '@angular/core'
+import { AuthService } from '@melody-auth/angular'
+
+@Component({
+  selector: 'auth-component',
+  template: `
+    <div>{{ authService.idToken }}</div>
+  `,
+  imports: [CommonModule],
+})
+
+export class AuthActionsComponent {
+  constructor (private authService: AuthService) {}
+}
+```
+
 ## account
 
 Decoded account information from id_token.

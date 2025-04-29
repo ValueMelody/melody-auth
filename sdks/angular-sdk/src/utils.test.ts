@@ -75,7 +75,9 @@ describe(
         const fakeResponse = {
           accessTokenStorage: { accessToken: 'sample-access-token' },
           refreshTokenStorage: { refreshToken: 'sample-refresh-token' },
-          idTokenBody: { id: 'account1' },
+          idTokenStorage: {
+            idToken: 'sample-id-token', account: { id: 'account1' },
+          },
         }
     // resolve the promise returned by exchangeTokenByAuthCode
     ;(exchangeTokenByAuthCode as any).mockResolvedValue(fakeResponse)
@@ -101,7 +103,7 @@ describe(
         expect(updatedState.isLoadingToken).toBe(false)
         expect(updatedState.acquireTokenError).toBe('')
         expect(updatedState.refreshTokenStorage).toEqual(fakeResponse.refreshTokenStorage)
-        expect(updatedState.account).toEqual(fakeResponse.idTokenBody)
+        expect(updatedState.account).toEqual(fakeResponse.idTokenStorage.account)
         expect(updatedState.checkedStorage).toBe(true)
         expect(onLoginSuccess).toHaveBeenCalledWith({
           state: 'sample-state', locale: 'en',

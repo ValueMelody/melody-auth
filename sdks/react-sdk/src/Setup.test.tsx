@@ -153,7 +153,10 @@ describe(
         const mockResponse = {
           accessTokenStorage: 'newAccessToken',
           refreshTokenStorage: 'newRefreshToken',
-          idTokenBody: { sub: 'user123' },
+          idTokenStorage: {
+            idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
+            account: { sub: 'user123' },
+          },
         }
         exchangeTokenByAuthCode.mockResolvedValueOnce(mockResponse)
 
@@ -182,6 +185,7 @@ describe(
             payload: {
               refreshTokenStorage: 'newRefreshToken',
               idTokenBody: { sub: 'user123' },
+              idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
             },
           })
           // onLoginSuccess callback should be invoked with the correct query parameters.
@@ -210,7 +214,10 @@ describe(
         const mockResponse = {
           // No accessTokenStorage returned here
           refreshTokenStorage: 'newRefreshToken',
-          idTokenBody: { sub: 'user456' },
+          idTokenStorage: {
+            idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
+            account: { sub: 'user456' },
+          },
         }
         exchangeTokenByAuthCode.mockResolvedValueOnce(mockResponse)
 
@@ -238,6 +245,7 @@ describe(
             payload: {
               refreshTokenStorage: 'newRefreshToken',
               idTokenBody: { sub: 'user456' },
+              idToken: 'header.eyJzdWIiOiIxMjM0NSJ9.signature',
             },
           })
         })

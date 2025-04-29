@@ -273,6 +273,17 @@ export default function Home () {
 }
 ```
 
+## idToken
+
+The id_token of the current user.
+```
+import { useAuth } from '@melody-auth/react'
+
+export default function Home () {
+  const { idToken } = useAuth()
+}
+```
+
 ## account
 
 Decoded account information from id_token.
