@@ -3,10 +3,10 @@ import {
 } from 'react'
 import {
   checkStorage,
-  IdTokenBody,
   ProviderConfig,
-  isValidStorage,
+  isValidTokens,
   loadRefreshTokenStorageFromParams,
+  IdTokenStorage,
 } from '@melody-auth/shared'
 import Setup from './Setup'
 import authContext, {
@@ -35,6 +35,7 @@ export const reducer = (
       ...state,
       refreshTokenStorage: action.payload.refreshTokenStorage,
       account: action.payload.idTokenBody,
+      idToken: action.payload.idToken,
       checkedStorage: true,
     }
   case 'setIsAuthenticating':
@@ -122,26 +123,29 @@ export const AuthProvider = ({
     () => {
       if (typeof window === 'undefined') return
 
-      let parsed = loadRefreshTokenStorageFromParams(config.storage)
+      let parsedRefreshToken = loadRefreshTokenStorageFromParams(config.storage)
 
       const {
-        storedRefreshToken, storedAccount,
+        storedRefreshToken, storedIdToken,
       } = checkStorage(config.storage)
 
-      if (!parsed && storedRefreshToken) {
-        parsed = JSON.parse(storedRefreshToken)
+      if (!parsedRefreshToken && storedRefreshToken) {
+        parsedRefreshToken = JSON.parse(storedRefreshToken)
       }
 
-      if (parsed) {
-        const isValid = isValidStorage(parsed)
-        if (isValid) {
-          const parsedAccount: IdTokenBody = storedAccount ? JSON.parse(storedAccount) : null
+      const parsedIdToken: IdTokenStorage = storedIdToken ? JSON.parse(storedIdToken) : null
 
+      if (parsedRefreshToken || parsedIdToken) {
+        const { hasValidIdToken, hasValidRefreshToken} = isValidTokens(null, parsedRefreshToken, parsedIdToken)
+        const account = parsedIdToken?.account
+
+        if (hasValidRefreshToken || !!account) {
           dispatch({
             type: 'setAuth',
             payload: {
-              refreshTokenStorage: parsed,
-              idTokenBody: parsedAccount,
+              refreshTokenStorage: hasValidRefreshToken ? parsedRefreshToken : null,
+              idTokenBody: account ?? null,
+              idToken: hasValidIdToken ? parsedIdToken.idToken : null,
             },
           })
           return

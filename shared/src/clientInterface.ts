@@ -50,6 +50,7 @@ export interface AuthState {
   authenticationError: string;
   checkedStorage: boolean;
   userInfo: GetUserInfoRes | null;
+  idToken: string | null;
   account: IdTokenBody | null;
   isLoadingUserInfo: boolean;
   acquireUserInfoError: string;

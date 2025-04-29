@@ -11,8 +11,9 @@ export interface AuthState extends SdkAuthState {}
 
 export type DispatchAction =
   | { type: 'setAuth'; payload: {
-    refreshTokenStorage: RefreshTokenStorage;
+    refreshTokenStorage: RefreshTokenStorage | null;
     idTokenBody: IdTokenBody | null;
+    idToken: string | null;
   }; }
   | { type: 'setAccessTokenStorage'; payload: AccessTokenStorage }
   | { type: 'setUserInfo'; payload: GetUserInfoRes | null }
