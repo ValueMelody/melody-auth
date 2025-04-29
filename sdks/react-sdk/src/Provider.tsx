@@ -107,6 +107,7 @@ export const AuthProvider = ({
       config,
       userInfo: null,
       account: null,
+      idToken: null,
       accessTokenStorage: null,
       refreshTokenStorage: null,
       checkedStorage: false,
@@ -136,7 +137,13 @@ export const AuthProvider = ({
       const parsedIdToken: IdTokenStorage = storedIdToken ? JSON.parse(storedIdToken) : null
 
       if (parsedRefreshToken || parsedIdToken) {
-        const { hasValidIdToken, hasValidRefreshToken} = isValidTokens(null, parsedRefreshToken, parsedIdToken)
+        const {
+          hasValidIdToken, hasValidRefreshToken,
+        } = isValidTokens(
+          null,
+          parsedRefreshToken,
+          parsedIdToken,
+        )
         const account = parsedIdToken?.account
 
         if (hasValidRefreshToken || !!account) {

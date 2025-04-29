@@ -37,7 +37,16 @@ export const handleTokenExchangeByAuthCode = (
           type: 'setAuth',
           payload: {
             refreshTokenStorage: res.refreshTokenStorage,
-            idTokenBody: res.idTokenBody,
+            idTokenBody: res.idTokenStorage?.account ?? null,
+            idToken: res.idTokenStorage?.idToken ?? null,
+          },
+        })
+      } else if (res?.idTokenStorage) {
+        dispatch({
+          type: 'setAuth',
+          payload: {
+            idTokenBody: res.idTokenStorage.account ?? null,
+            idToken: res.idTokenStorage.idToken ?? null,
           },
         })
       }

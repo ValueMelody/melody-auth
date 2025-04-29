@@ -109,6 +109,7 @@ export const useAuth = () => {
       } = isValidTokens(
         accessTokenStorage,
         refreshTokenStorage,
+        null,
       )
 
       if (hasValidAccessToken) return accessTokenStorage?.accessToken

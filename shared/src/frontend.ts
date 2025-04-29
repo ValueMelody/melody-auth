@@ -1,6 +1,6 @@
 import { StorageKey } from './enum.js'
 import {
-  RefreshTokenStorage, AccessTokenStorage, IdTokenStorage
+  RefreshTokenStorage, AccessTokenStorage, IdTokenStorage,
 } from './clientInterface.js'
 
 export const checkStorage = (storageKey?: 'sessionStorage' | 'localStorage') => {
