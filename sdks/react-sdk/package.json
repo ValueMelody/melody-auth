@@ -1,6 +1,6 @@
 {
   "name": "@melody-auth/react",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
@@ -37,6 +37,6 @@
   },
   "dependencies": {
     "@melody-auth/shared": "^1.0.6",
-    "@melody-auth/web": "^1.0.3"
+    "@melody-auth/web": "^1.0.4"
   }
 }
