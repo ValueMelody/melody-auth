@@ -28,7 +28,7 @@ export const logout = async (
   const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
 
   storage.removeItem(StorageKey.RefreshToken)
-  storage.removeItem(StorageKey.Account)
+  storage.removeItem(StorageKey.IdToken)
 
   window.location.href = redirectUri
 }

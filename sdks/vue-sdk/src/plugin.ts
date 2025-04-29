@@ -2,8 +2,12 @@ import {
   App, reactive,
 } from 'vue'
 import {
-  ProviderConfig, IdTokenBody, isValidStorage, getParams, checkStorage,
+  ProviderConfig,
+  getParams,
+  checkStorage,
   loadRefreshTokenStorageFromParams,
+  IdTokenStorage,
+  isValidTokens,
 } from '@melody-auth/shared'
 import { loadCodeAndStateFromUrl } from '@melody-auth/web'
 import {
@@ -23,6 +27,7 @@ export const AuthProvider = {
       isAuthenticated: false,
       config,
       userInfo: null,
+      idToken: null,
       account: null,
       accessTokenStorage: null,
       refreshTokenStorage: null,
@@ -38,26 +43,32 @@ export const AuthProvider = {
     const initialWithStorage = () => {
       if (typeof window === 'undefined') return
 
-      let parsed = loadRefreshTokenStorageFromParams(config.storage)
+      let parsedRefreshToken = loadRefreshTokenStorageFromParams(config.storage)
 
       const {
-        storedRefreshToken, storedAccount,
+        storedRefreshToken, storedIdToken,
       } = checkStorage(config.storage)
 
-      if (!parsed && storedRefreshToken) {
-        parsed = JSON.parse(storedRefreshToken)
+      if (!parsedRefreshToken && storedRefreshToken) {
+        parsedRefreshToken = JSON.parse(storedRefreshToken)
       }
 
-      if (parsed) {
-        const isValid = isValidStorage(parsed)
+      const parsedIdToken: IdTokenStorage = storedIdToken ? JSON.parse(storedIdToken) : null
 
-        if (isValid) {
-          const parsedAccount: IdTokenBody = storedAccount
-            ? JSON.parse(storedAccount)
-            : null
+      if (parsedRefreshToken || parsedIdToken) {
+        const {
+          hasValidIdToken, hasValidRefreshToken,
+        } = isValidTokens(
+          null,
+          parsedRefreshToken,
+          parsedIdToken,
+        )
+        const account = parsedIdToken?.account
 
-          state.refreshTokenStorage = parsed
-          state.account = parsedAccount
+        if (hasValidRefreshToken || !!account) {
+          state.refreshTokenStorage = hasValidRefreshToken ? parsedRefreshToken : null
+          state.account = account ?? null
+          state.idToken = hasValidIdToken ? parsedIdToken.idToken : null
           state.checkedStorage = true
           return
         }
