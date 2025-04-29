@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "@melody-auth/shared": "^1.0.6",
-    "@melody-auth/web": "^1.0.3"
+    "@melody-auth/web": "^1.0.4"
   }
 }
