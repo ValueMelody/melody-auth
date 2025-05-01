@@ -1,3 +1,5 @@
+import { variableConfig } from 'configs'
+
 export const authCodeExpired = Object.freeze({
   msg: {
     en: 'Your login state has expired. Please try initializing authentication again.',
@@ -119,8 +121,8 @@ export const emailMfa = Object.freeze({
 
 export const layout = Object.freeze({
   poweredByAuth: {
-    en: 'Powered by Melody Auth',
-    fr: 'Propulsé par Melody Auth',
+    en: `Powered by ${variableConfig.systemConfig.name}`,
+    fr: `Propulsé par ${variableConfig.systemConfig.name}`,
   },
 })
 

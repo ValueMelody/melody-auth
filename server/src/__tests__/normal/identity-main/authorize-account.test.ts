@@ -117,6 +117,28 @@ describe(
     )
 
     test(
+      'could override verification email with welcome email',
+      async () => {
+        process.env.REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL = true as unknown as string
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await postAuthorizeAccount()
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(emailBody).toContain(localeConfig.welcomeEmail.title.en)
+        expect(emailBody).toContain(localeConfig.welcomeEmail.desc.en)
+
+        global.fetch = fetchMock
+        process.env.REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL = false as unknown as string
+      },
+    )
+
+    test(
       'should store org slug after sign up',
       async () => {
         process.env.ENABLE_ORG = true as unknown as string

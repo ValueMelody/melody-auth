@@ -59,6 +59,7 @@ describe(
           ENABLE_USER_APP_CONSENT: true,
           ENFORCE_ONE_MFA_ENROLLMENT: ['otp', 'email'],
           ENABLE_EMAIL_VERIFICATION: true,
+          REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL: false,
           EMAIL_MFA_IS_REQUIRED: false,
           EMAIL_MFA_EMAIL_THRESHOLD: 10,
           CHANGE_EMAIL_EMAIL_THRESHOLD: 5,

@@ -1,7 +1,9 @@
+import { systemConfig } from './variable'
+
 export const common = Object.freeze({
   documentTitle: {
-    en: 'Melody Auth',
-    fr: 'Melody Auth',
+    en: systemConfig.name,
+    fr: systemConfig.name,
   },
   poweredBy: {
     en: 'Powered by',
@@ -11,12 +13,12 @@ export const common = Object.freeze({
 
 export const emailVerificationEmail = Object.freeze({
   subject: {
-    en: 'Welcome to Melody Auth! Please verify your email address',
-    fr: 'Bienvenue sur Melody Auth ! Veuillez vérifier votre adresse e-mail',
+    en: `Welcome to ${systemConfig.name}! Please verify your email address`,
+    fr: `Bienvenue sur ${systemConfig.name} ! Veuillez vérifier votre adresse e-mail`,
   },
   title: {
-    en: 'Welcome to Melody Auth',
-    fr: 'Bienvenue sur Melody Auth',
+    en: `Welcome to ${systemConfig.name}`,
+    fr: `Bienvenue sur ${systemConfig.name}`,
   },
   desc: {
     en: 'Thanks for signing up! Please verify your email address with us, your verification code is',
@@ -29,6 +31,21 @@ export const emailVerificationEmail = Object.freeze({
   verify: {
     en: 'Verify your email',
     fr: 'Vérifiez votre e-mail',
+  },
+})
+
+export const welcomeEmail = Object.freeze({
+  subject: {
+    en: `Welcome to ${systemConfig.name}!`,
+    fr: `Bienvenue sur ${systemConfig.name} !`,
+  },
+  title: {
+    en: `Welcome to ${systemConfig.name}!`,
+    fr: `Bienvenue sur ${systemConfig.name} !`,
+  },
+  desc: {
+    en: 'You can now sign in to your account using your email address and password.',
+    fr: 'Vous pouvez maintenant vous connecter à votre compte en utilisant votre adresse e-mail et votre mot de passe.',
   },
 })
 
