@@ -13,7 +13,9 @@ import {
 import {
   ChangeEmailVerificationTemplate,
   EmailMfaTemplate,
-  EmailVerificationTemplate, PasswordResetTemplate,
+  EmailVerificationTemplate,
+  PasswordResetTemplate,
+  WelcomeEmailTemplate,
 } from 'templates'
 import { brandingService } from 'services'
 import {
@@ -141,26 +143,46 @@ export const sendEmailVerification = async (
   user: userModel.Record,
   locale: typeConfig.Locale,
 ) => {
-  const { AUTH_SERVER_URL: serverUrl } = env(c)
+  const {
+    AUTH_SERVER_URL: serverUrl,
+    REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL: sendWelcomeEmail,
+  } = env(c)
 
   checkEmailSetup(c)
 
   const verificationCode = cryptoUtil.genRandom6DigitString()
-  const content = (<EmailVerificationTemplate
-    serverUrl={serverUrl}
-    authId={user.authId}
-    verificationCode={verificationCode}
-    org={user.orgSlug}
-    branding={await brandingService.getBranding(
-      c,
-      user.orgSlug,
-    )}
-    locale={locale} />).toString()
+  const content = (
+    sendWelcomeEmail
+      ? (
+        <WelcomeEmailTemplate
+          branding={await brandingService.getBranding(
+            c,
+            user.orgSlug,
+          )}
+          locale={locale}
+        />
+      )
+      : (
+        <EmailVerificationTemplate
+          serverUrl={serverUrl}
+          authId={user.authId}
+          verificationCode={verificationCode}
+          org={user.orgSlug}
+          branding={await brandingService.getBranding(
+            c,
+            user.orgSlug,
+          )}
+          locale={locale}
+        />
+      )
+  ).toString()
 
   const res = await sendEmail(
     c,
     email,
-    localeConfig.emailVerificationEmail.subject[locale],
+    sendWelcomeEmail
+      ? localeConfig.welcomeEmail.subject[locale]
+      : localeConfig.emailVerificationEmail.subject[locale],
     content,
   )
 

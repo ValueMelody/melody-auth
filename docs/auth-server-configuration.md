@@ -75,8 +75,12 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 
 ### ENABLE_EMAIL_VERIFICATION
 - **Default:** true
-- **Description:** Prompts users to grant permission to each app after authentication.
+- **Description:** Send a verification email to the user after sign-up.
 - Requires [Email Provider Setup](https://auth.valuemelody.com/email-provider-setup.html)
+
+### REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL
+- **Default:** false
+- **Description:** If both `ENABLE_EMAIL_VERIFICATION` and `REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL` are `true`, the verification email will be replaced with a welcome email after sign-up.
 
 ### ENABLE_ORG
 - **Default:** false
