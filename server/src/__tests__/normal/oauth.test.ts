@@ -1196,7 +1196,7 @@ describe(
           refresh_token: refreshToken,
         }
 
-        await db.prepare('update user set "isActive" = 0 where id = 1').run()
+        await db.prepare('update "user" set "isActive" = 0 where id = 1').run()
 
         const refreshTokenRes = await app.request(
           routeConfig.OauthRoute.Token,
