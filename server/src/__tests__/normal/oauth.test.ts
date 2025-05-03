@@ -1133,6 +1133,88 @@ describe(
     )
 
     test(
+      'could get token use refresh token',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken(db)
+        const tokenJson = await tokenRes.json() as { refresh_token: string }
+
+        const refreshToken = tokenJson.refresh_token
+
+        const body = {
+          grant_type: oauthDto.TokenGrantType.RefreshToken,
+          refresh_token: refreshToken,
+        }
+
+        const refreshTokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        const refreshTokenJson = await refreshTokenRes.json() as { access_token: string }
+        expect(refreshTokenJson).toStrictEqual({
+          access_token: expect.any(String),
+          expires_in: 1800,
+          expires_on: expect.any(Number),
+          token_type: 'Bearer',
+        })
+
+        const appRecord = await getApp(db)
+
+        const tokenBody = decode(refreshTokenJson.access_token)
+        expect(tokenBody.payload).toStrictEqual({
+          sub: '1-1-1-1',
+          azp: appRecord.clientId,
+          iss: 'http://localhost:8787',
+          scope: 'profile openid offline_access',
+          iat: expect.any(Number),
+          exp: expect.any(Number),
+          roles: [],
+        })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error when exchange token with refresh token if user is disabled',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken(db)
+        const tokenJson = await tokenRes.json() as { refresh_token: string }
+
+        const refreshToken = tokenJson.refresh_token
+
+        const body = {
+          grant_type: oauthDto.TokenGrantType.RefreshToken,
+          refresh_token: refreshToken,
+        }
+
+        await db.prepare('update user set "isActive" = 0 where id = 1').run()
+
+        const refreshTokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(refreshTokenRes.status).toBe(401)
+        expect(await refreshTokenRes.text()).toBe(messageConfig.RequestError.UserDisabled)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
       'could throw error if use wrong refresh token or grant type',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
