@@ -9,7 +9,7 @@ import {
 } from 'configs'
 import { oauthDto } from 'dtos'
 import {
-  appService, consentService, jwtService, kvService, roleService, scopeService, sessionService, userService,
+  appService, consentService, jwtService, kvService, mfaService, roleService, scopeService, sessionService, userService,
 } from 'services'
 import {
   cryptoUtil, loggerUtil, requestUtil, timeUtil, validateUtil,
@@ -156,13 +156,16 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
   const isSocialLogin = !!authInfo.user.socialAccountId
 
   const {
-    EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
-    OTP_MFA_IS_REQUIRED: requireOtpMfa,
-    ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
     ENABLE_SIGN_IN_LOG: enableSignInLog,
-    SMS_MFA_IS_REQUIRED: requireSmsMfa,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
   } = env(c)
+
+  const {
+    requireEmailMfa,
+    requireOtpMfa,
+    requireSmsMfa,
+    enforceOneMfaEnrollment: enforceMfa,
+  } = mfaService.getAuthorizeMfaConfig(c, authInfo)
 
   if (!isSocialLogin && !authInfo.isFullyAuthorized) {
     if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {

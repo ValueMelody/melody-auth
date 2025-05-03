@@ -18,11 +18,21 @@ export interface Common {
 export interface Raw extends Common {
   redirectUris: string;
   isActive: number;
+  useSystemMfaConfig: number;
+  requireEmailMfa: number;
+  requireOtpMfa: number;
+  requireSmsMfa: number;
+  allowEmailMfaAsBackup: number;
 }
 
 export interface Record extends Common {
   redirectUris: string[];
   isActive: boolean;
+  useSystemMfaConfig: boolean;
+  requireEmailMfa: boolean;
+  requireOtpMfa: boolean;
+  requireSmsMfa: boolean;
+  allowEmailMfaAsBackup: boolean;
 }
 
 export interface ApiRecord extends Record {
@@ -49,6 +59,11 @@ const format = (raw: Raw): Record => {
   return {
     ...raw,
     isActive: !!raw.isActive,
+    useSystemMfaConfig: !!raw.useSystemMfaConfig,
+    requireEmailMfa: !!raw.requireEmailMfa,
+    requireOtpMfa: !!raw.requireOtpMfa,
+    requireSmsMfa: !!raw.requireSmsMfa,
+    allowEmailMfaAsBackup: !!raw.allowEmailMfaAsBackup,
     redirectUris: raw.redirectUris ? raw.redirectUris.split(',') : [],
   }
 }

@@ -58,6 +58,11 @@ const newApp = {
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
+  useSystemMfaConfig: true,
+  requireEmailMfa: false,
+  requireOtpMfa: false,
+  requireSmsMfa: false,
+  allowEmailMfaAsBackup: false,
 }
 
 describe(
