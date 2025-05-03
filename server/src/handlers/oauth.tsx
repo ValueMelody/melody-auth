@@ -369,6 +369,19 @@ export const postTokenRefreshToken = async (c: Context<typeConfig.Context>) => {
     bodyDto.refreshToken,
   )
 
+  const user = await userService.getUserByAuthId(
+    c,
+    refreshTokenBody.authId,
+  )
+  if (!user || !user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.UserDisabled)
+  }
+
   const {
     accessToken,
     accessTokenExpiresIn,
