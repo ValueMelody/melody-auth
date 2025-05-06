@@ -32,6 +32,7 @@ import {
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
+import { Label } from 'components/ui/label'
 
 const Page = () => {
   const { id } = useParams()
@@ -66,8 +67,8 @@ const Page = () => {
   const updateObj = useMemo(
     () => {
       if (!app) return {}
-      type Key = 'name' | 'scopes' | 'redirectUris' | 'isActive'
-      const updateKeys = ['name', 'scopes', 'redirectUris', 'isActive'].filter((key) => values[key as Key] !== app[key as Key])
+      type Key = 'name' | 'scopes' | 'redirectUris' | 'isActive' | 'useSystemMfaConfig' | 'requireEmailMfa' | 'requireOtpMfa' | 'requireSmsMfa' | 'allowEmailMfaAsBackup'
+      const updateKeys = ['name', 'scopes', 'redirectUris', 'isActive', 'useSystemMfaConfig', 'requireEmailMfa', 'requireOtpMfa', 'requireSmsMfa', 'allowEmailMfaAsBackup'].filter((key) => values[key as Key] !== app[key as Key])
       return updateKeys.reduce(
         (
           obj, key,
@@ -214,6 +215,101 @@ const Page = () => {
                 </TableCell>
               </TableRow>
             )}
+            <TableRow>
+              <TableCell>{t('apps.appLevelMfa')}</TableCell>
+              <TableCell className='flex flex-col gap-4'>
+                <div className='flex items-center gap-2'>
+                  <Switch
+                    id='mfa-useSystem'
+                    checked={values.useSystemMfaConfig}
+                    disabled={!canWriteApp}
+                    onClick={() => onChange(
+                      'useSystemMfaConfig',
+                      !values.useSystemMfaConfig,
+                    )}
+                  />
+                  <Label
+                    htmlFor='mfa-useSystem'
+                    className='flex'
+                  >
+                    {t('apps.useSystemMfaConfig')}
+                  </Label>
+                </div>
+                {!values.useSystemMfaConfig && (
+                  <>
+                    <p className='text-sm'>{t('apps.appLevelMfaDescription')}</p>
+                    <div className='flex items-center gap-2'>
+                      <Switch
+                        id='mfa-requireEmail'
+                        checked={values.requireEmailMfa}
+                        disabled={!canWriteApp}
+                        onClick={() => onChange(
+                          'requireEmailMfa',
+                          !values.requireEmailMfa,
+                        )}
+                      />
+                      <Label
+                        htmlFor='mfa-requireEmail'
+                        className='flex'
+                      >
+                        {t('apps.requireEmailMfa')}
+                      </Label>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <Switch
+                        id='mfa-requireOtp'
+                        checked={values.requireOtpMfa}
+                        disabled={!canWriteApp}
+                        onClick={() => onChange(
+                          'requireOtpMfa',
+                          !values.requireOtpMfa,
+                        )}
+                      />
+                      <Label
+                        htmlFor='mfa-requireOtp'
+                        className='flex'
+                      >
+                        {t('apps.requireOtpMfa')}
+                      </Label>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <Switch
+                        id='mfa-requireSms'
+                        checked={values.requireSmsMfa}
+                        disabled={!canWriteApp}
+                        onClick={() => onChange(
+                          'requireSmsMfa',
+                          !values.requireSmsMfa,
+                        )}
+                      />
+                      <Label
+                        htmlFor='mfa-requireSms'
+                        className='flex'
+                      >
+                        {t('apps.requireSmsMfa')}
+                      </Label>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <Switch
+                        id='mfa-allowEmailMfaAsBackup'
+                        checked={values.allowEmailMfaAsBackup}
+                        disabled={!canWriteApp}
+                        onClick={() => onChange(
+                          'allowEmailMfaAsBackup',
+                          !values.allowEmailMfaAsBackup,
+                        )}
+                      />
+                      <Label
+                        htmlFor='mfa-allowEmailMfaAsBackup'
+                        className='flex'
+                      >
+                        {t('apps.allowEmailMfaAsBackup')}
+                      </Label>
+                    </div>
+                  </>
+                )}
+              </TableCell>
+            </TableRow>
             <TableRow>
               <TableCell>{t('common.createdAt')}</TableCell>
               <TableCell>{app.createdAt} UTC</TableCell>

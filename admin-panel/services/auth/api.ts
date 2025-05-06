@@ -987,6 +987,11 @@ export type App = {
   type: 'spa' | 's2s';
   secret: string;
   redirectUris: string[];
+  useSystemMfaConfig: boolean;
+  requireEmailMfa: boolean;
+  requireOtpMfa: boolean;
+  requireSmsMfa: boolean;
+  allowEmailMfaAsBackup: boolean;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -1005,6 +1010,11 @@ export type PutAppReq = {
   name?: string;
   isActive?: boolean;
   scopes?: string[];
+  useSystemMfaConfig?: boolean;
+  requireEmailMfa?: boolean;
+  requireOtpMfa?: boolean;
+  requireSmsMfa?: boolean;
+  allowEmailMfaAsBackup?: boolean;
 };
 export type UserDetail = User & {
   roles: string[] | null;

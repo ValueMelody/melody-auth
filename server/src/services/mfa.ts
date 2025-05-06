@@ -1,7 +1,7 @@
-import { typeConfig } from "configs";
-import { Context } from "hono";
-import { env } from "hono/adapter";
-import { appModel } from "models";
+import { Context } from 'hono'
+import { env } from 'hono/adapter'
+import { typeConfig } from 'configs'
+import { appModel } from 'models'
 
 export interface MfaConfig {
   requireEmailMfa: boolean;
@@ -11,9 +11,7 @@ export interface MfaConfig {
   allowEmailMfaAsBackup: boolean;
 }
 
-const getSystemMfaConfig = (
-  c: Context<typeConfig.Context>,
-): MfaConfig => {
+const getSystemMfaConfig = (c: Context<typeConfig.Context>): MfaConfig => {
   const {
     EMAIL_MFA_IS_REQUIRED: requireEmailMfa,
     OTP_MFA_IS_REQUIRED: requireOtpMfa,
@@ -31,9 +29,7 @@ const getSystemMfaConfig = (
   }
 }
 
-export const getAppMfaConfig = (
-  app: appModel.Record
-): MfaConfig | null => {
+export const getAppMfaConfig = (app: appModel.Record): MfaConfig | null => {
   if (!app.useSystemMfaConfig) {
     return {
       requireEmailMfa: app.requireEmailMfa,
@@ -47,9 +43,7 @@ export const getAppMfaConfig = (
   return null
 }
 
-export const getAuthCodeBodyMfaConfig = (
-  mfaConfig: MfaConfig,
-): typeConfig.AuthCodeBodyMfaConfig => {
+export const getAuthCodeBodyMfaConfig = (mfaConfig: MfaConfig): typeConfig.AuthCodeBodyMfaConfig => {
   return {
     e: mfaConfig.requireEmailMfa,
     o: mfaConfig.requireOtpMfa,
@@ -68,7 +62,7 @@ export const getAuthorizeMfaConfig = (
       requireOtpMfa: authCodeBody.mfa.o,
       requireSmsMfa: authCodeBody.mfa.s,
       allowEmailMfaAsBackup: authCodeBody.mfa.b,
-      enforceOneMfaEnrollment: []
+      enforceOneMfaEnrollment: [],
     }
   }
 

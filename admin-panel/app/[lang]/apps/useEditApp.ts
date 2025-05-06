@@ -13,12 +13,29 @@ const useEditApp = (app: AppDetail | undefined) => {
   const [scopes, setScopes] = useState<string[]>([])
   const [isActive, setIsActive] = useState(true)
   const [redirectUris, setRedirectUris] = useState([''])
+  const [useSystemMfaConfig, setUseSystemMfaConfig] = useState(true)
+  const [requireEmailMfa, setRequireEmailMfa] = useState(false)
+  const [requireOtpMfa, setRequireOtpMfa] = useState(false)
+  const [requireSmsMfa, setRequireSmsMfa] = useState(false)
+  const [allowEmailMfaAsBackup, setAllowEmailMfaAsBackup] = useState(false)
 
   const values = useMemo(
     () => ({
-      name, type, scopes, redirectUris, isActive,
+      name,
+      type,
+      scopes,
+      redirectUris,
+      isActive,
+      useSystemMfaConfig,
+      requireEmailMfa,
+      requireOtpMfa,
+      requireSmsMfa,
+      allowEmailMfaAsBackup,
     }),
-    [name, type, scopes, redirectUris, isActive],
+    [
+      name, type, scopes, redirectUris, isActive,
+      useSystemMfaConfig, requireEmailMfa, requireOtpMfa, requireSmsMfa, allowEmailMfaAsBackup,
+    ],
   )
 
   useEffect(
@@ -28,6 +45,11 @@ const useEditApp = (app: AppDetail | undefined) => {
       setScopes(app?.scopes ?? [])
       setIsActive(app?.isActive ?? true)
       setRedirectUris(app?.redirectUris ?? [''])
+      setUseSystemMfaConfig(app?.useSystemMfaConfig ?? true)
+      setRequireEmailMfa(app?.requireEmailMfa ?? false)
+      setRequireOtpMfa(app?.requireOtpMfa ?? false)
+      setRequireSmsMfa(app?.requireSmsMfa ?? false)
+      setAllowEmailMfaAsBackup(app?.allowEmailMfaAsBackup ?? false)
     },
     [app],
   )
@@ -59,6 +81,27 @@ const useEditApp = (app: AppDetail | undefined) => {
       break
     case 'redirectUris':
       setRedirectUris(value as string[])
+      break
+    case 'useSystemMfaConfig':
+      setUseSystemMfaConfig(value as boolean)
+      if (value) {
+        setRequireEmailMfa(false)
+        setRequireOtpMfa(false)
+        setRequireSmsMfa(false)
+        setAllowEmailMfaAsBackup(false)
+      }
+      break
+    case 'requireEmailMfa':
+      setRequireEmailMfa(value as boolean)
+      break
+    case 'requireOtpMfa':
+      setRequireOtpMfa(value as boolean)
+      break
+    case 'requireSmsMfa':
+      setRequireSmsMfa(value as boolean)
+      break
+    case 'allowEmailMfaAsBackup':
+      setAllowEmailMfaAsBackup(value as boolean)
       break
     }
   }

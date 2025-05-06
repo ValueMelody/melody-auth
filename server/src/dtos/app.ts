@@ -59,10 +59,35 @@ export class PutAppDto {
   @IsOptional()
     scopes?: string[]
 
+  @IsBoolean()
+  @IsOptional()
+    useSystemMfaConfig?: boolean
+
+  @IsBoolean()
+  @IsOptional()
+    requireEmailMfa?: boolean
+
+  @IsBoolean()
+  @IsOptional()
+    requireOtpMfa?: boolean
+
+  @IsBoolean()
+  @IsOptional()
+    requireSmsMfa?: boolean
+
+  @IsBoolean()
+  @IsOptional()
+    allowEmailMfaAsBackup?: boolean
+
   constructor (dto: PutAppDto) {
     this.redirectUris = dto.redirectUris ? formatRedirectUri(dto.redirectUris) : undefined
     this.name = dto.name
     this.isActive = dto.isActive
     this.scopes = dto.scopes
+    this.useSystemMfaConfig = dto.useSystemMfaConfig
+    this.requireEmailMfa = dto.requireEmailMfa
+    this.requireOtpMfa = dto.requireOtpMfa
+    this.requireSmsMfa = dto.requireSmsMfa
+    this.allowEmailMfaAsBackup = dto.allowEmailMfaAsBackup
   }
 }

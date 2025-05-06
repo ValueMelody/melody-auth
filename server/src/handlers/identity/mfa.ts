@@ -25,7 +25,10 @@ const allowOtpSwitchToEmailMfa = (
     requireEmailMfa: enableOtpMfa,
     requireOtpMfa: enableEmailMfa,
     allowEmailMfaAsBackup: allowFallback,
-  } = mfaService.getAuthorizeMfaConfig(c, authCodeStore)
+  } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeStore,
+  )
 
   const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
   const enrolledOtp = enableOtpMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Otp)
@@ -56,9 +59,10 @@ export const handleSendEmailMfa = async (
     }
   }
 
-  const {
-    requireEmailMfa: enableEmailMfa,
-  } = mfaService.getAuthorizeMfaConfig(c, authCodeBody)
+  const { requireEmailMfa: enableEmailMfa } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeBody,
+  )
 
   const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
   const couldFallbackAsOtp = allowOtpSwitchToEmailMfa(
@@ -140,7 +144,10 @@ const allowSmsSwitchToEmailMfa = (
     requireEmailMfa: enableEmailMfa,
     requireSmsMfa: enableSmsMfa,
     allowEmailMfaAsBackup: allowFallback,
-  } = mfaService.getAuthorizeMfaConfig(c, authCodeStore)
+  } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeStore,
+  )
 
   const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
   const enrolledSms = enableSmsMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Sms)
@@ -160,7 +167,10 @@ const handleSendSmsMfa = async (
     SMS_MFA_MESSAGE_THRESHOLD: threshold,
   } = env(c)
 
-  const { requireSmsMfa: enableSmsMfa } = mfaService.getAuthorizeMfaConfig(c, authCodeBody)
+  const { requireSmsMfa: enableSmsMfa } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeBody,
+  )
 
   const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
 
@@ -498,7 +508,10 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
-  const { requireSmsMfa: enableSmsMfa } = mfaService.getAuthorizeMfaConfig(c, authCodeBody)
+  const { requireSmsMfa: enableSmsMfa } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeBody,
+  )
 
   const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
   if (!requireSmsMfa) throw new errorConfig.Forbidden()

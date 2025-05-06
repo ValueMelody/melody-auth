@@ -165,7 +165,10 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     requireOtpMfa,
     requireSmsMfa,
     enforceOneMfaEnrollment: enforceMfa,
-  } = mfaService.getAuthorizeMfaConfig(c, authInfo)
+  } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authInfo,
+  )
 
   if (!isSocialLogin && !authInfo.isFullyAuthorized) {
     if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {

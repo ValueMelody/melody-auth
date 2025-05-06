@@ -48,6 +48,11 @@ export interface Create {
 export interface Update {
   name?: string;
   redirectUris?: string;
+  useSystemMfaConfig?: number;
+  requireEmailMfa?: number;
+  requireOtpMfa?: number;
+  requireSmsMfa?: number;
+  allowEmailMfaAsBackup?: number;
   isActive?: number;
   deletedAt?: string | null;
   updatedAt?: string;
@@ -120,7 +125,9 @@ export const update = async (
   db: D1Database, id: number, update: Update,
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
-    'name', 'redirectUris', 'isActive', 'deletedAt', 'updatedAt',
+    'name', 'redirectUris', 'isActive',
+    'useSystemMfaConfig', 'requireEmailMfa', 'requireOtpMfa', 'requireSmsMfa', 'allowEmailMfaAsBackup',
+    'deletedAt', 'updatedAt',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,

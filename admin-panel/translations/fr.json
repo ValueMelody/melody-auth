@@ -67,7 +67,14 @@
     "type": "Type",
     "scopes": "Portées",
     "redirectUris": "URIs de redirection",
-    "urlFormat": "* Fournissez l’URL complète y compris le protocole."
+    "urlFormat": "* Fournissez l’URL complète y compris le protocole.",
+    "appLevelMfa": "MFA par application",
+    "useSystemMfaConfig": "Utiliser les configurations MFA du système",
+    "requireEmailMfa": "Exiger MFA par e-mail",
+    "requireOtpMfa": "Exiger MFA par OTP",
+    "requireSmsMfa": "Exiger MFA par SMS",
+    "allowEmailMfaAsBackup": "Autoriser MFA par e-mail comme backup",
+    "appLevelMfaDescription": "Quelles que soient les paramètres ci-dessous, les utilisateurs qui ont déjà s'enregistrer dans une méthode MFA par eux-mêmes doivent toujours passer par cette vérification MFA lorsqu'ils se connectent à cette application."
   },
   "users": {
     "title": "Utilisateurs",

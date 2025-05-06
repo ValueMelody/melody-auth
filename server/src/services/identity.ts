@@ -5,7 +5,7 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import {
-  consentService, passkeyService, sessionService, appService, kvService, mfaService
+  consentService, passkeyService, sessionService, appService, kvService, mfaService,
 } from 'services'
 import { userModel } from 'models'
 import { oauthDto } from 'dtos'
@@ -81,7 +81,10 @@ export const processPostAuthorize = async (
     requireOtpMfa: enableOtpMfa,
     requireSmsMfa: enableSmsMfa,
     enforceOneMfaEnrollment: enforceMfa,
-  } = mfaService.getAuthorizeMfaConfig(c, authCodeBody)
+  } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeBody,
+  )
 
   const {
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
