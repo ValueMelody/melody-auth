@@ -15,6 +15,10 @@ export class PutUserDto {
   @IsOptional()
     locale?: string
 
+  @IsString()
+  @IsOptional()
+    orgSlug?: string
+
   @IsBoolean()
   @IsOptional()
     isActive?: boolean
@@ -29,5 +33,6 @@ export class PutUserDto {
     this.firstName = dto.firstName
     this.lastName = dto.lastName
     this.locale = dto.locale
+    this.orgSlug = dto.orgSlug
   }
 }

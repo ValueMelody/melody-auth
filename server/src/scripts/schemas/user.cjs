@@ -99,6 +99,7 @@ const PutUserReq = {
     lastName: { type: 'string' },
     isActive: { type: 'boolean' },
     locale: { type: 'string' },
+    orgSlug: { type: 'string' },
     roles: {
       type: 'array',
       items: { type: 'string' },
