@@ -45,6 +45,7 @@ import {
   useDeleteApiV1UsersByAuthIdOtpMfaMutation,
   useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation,
   useDeleteApiV1UsersByAuthIdSmsMfaMutation,
+  useGetApiV1OrgsQuery,
   useGetApiV1RolesQuery,
   useGetApiV1UsersByAuthIdConsentedAppsQuery,
   useGetApiV1UsersByAuthIdLockedIpsQuery,
@@ -61,6 +62,8 @@ import ConfirmModal from 'components/ConfirmModal'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
 
+const NO_ORG_SLUG = ' '
+
 const Page = () => {
   const { authId } = useParams()
   const configs = useSignalValue(configSignal)
@@ -76,6 +79,7 @@ const Page = () => {
   const [isActive, setIsActive] = useState(true)
   const [emailResent, setEmailResent] = useState(false)
   const [userRoles, setUserRoles] = useState<string[] | null>([])
+  const [orgSlug, setOrgSlug] = useState('')
 
   const [isUnlinking, setIsUnlinking] = useState(false)
   const [isResettingSmsMfa, setIsResettingSmsMfa] = useState(false)
@@ -87,6 +91,7 @@ const Page = () => {
   const enableConsent = !!configs.ENABLE_USER_APP_CONSENT
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
   const enablePasskeyEnrollment = !!configs.ALLOW_PASSKEY_ENROLLMENT
+  const enableOrg = !!configs.ENABLE_ORG
 
   const {
     data: userData, isLoading: isUserLoading,
@@ -95,6 +100,9 @@ const Page = () => {
 
   const { data: rolesData } = useGetApiV1RolesQuery()
   const roles = rolesData?.roles ?? []
+
+  const { data: orgsData } = useGetApiV1OrgsQuery()
+  const orgs = orgsData?.orgs ?? []
 
   const { data: consentsData } = useGetApiV1UsersByAuthIdConsentedAppsQuery(
     { authId: String(authId) },
@@ -141,9 +149,16 @@ const Page = () => {
       if (firstName !== user.firstName) obj.firstName = firstName ?? ''
       if (lastName !== user.lastName) obj.lastName = lastName ?? ''
       if (locale !== user.locale) obj.locale = locale
+      if (enableOrg) {
+        if (orgSlug && orgSlug !== user.org?.slug) {
+          obj.orgSlug = orgSlug
+        } else if (!orgSlug && user.org?.slug) {
+          obj.orgSlug = orgSlug
+        }
+      }
       return obj
     },
-    [user, userRoles, isActive, firstName, lastName, locale],
+    [user, userRoles, isActive, firstName, lastName, locale, orgSlug, enableOrg],
   )
 
   const isSelf = useMemo(
@@ -185,6 +200,7 @@ const Page = () => {
         setIsActive(user.isActive)
         setUserRoles(user.roles)
         setLocale(user.locale)
+        setOrgSlug(user.org?.slug ?? '')
       }
     },
     [user],
@@ -716,11 +732,36 @@ const Page = () => {
                 </div>
               </TableCell>
             </TableRow>
-            {configs.ENABLE_ORG && (
+            {enableOrg && (
               <TableRow>
                 <TableCell>{t('users.org')}</TableCell>
                 <TableCell>
-                  {user.org?.name ?? ''}
+                  <Select
+                    value={orgSlug || NO_ORG_SLUG}
+                    onValueChange={setOrgSlug}
+                  >
+                    <SelectTrigger data-testid='orgSelect'>
+                      <SelectValue data-testid='orgSelectValue' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem
+                          key={0}
+                          value={NO_ORG_SLUG}
+                        >
+                          {t('users.noOrg')}
+                        </SelectItem>
+                        {orgs.map((org) => (
+                          <SelectItem
+                            key={org.id}
+                            value={org.slug}
+                          >
+                            {org.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </TableCell>
               </TableRow>
             )}

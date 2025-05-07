@@ -547,7 +547,6 @@ describe(
           'test',
           'test',
         )
-        await db.prepare('update "user" set "orgSlug" = ?').run('test')
 
         const updateObj = {
           locale: 'fr',
@@ -560,7 +559,10 @@ describe(
           `${BaseRoute}/1-1-1-2`,
           {
             method: 'PUT',
-            body: JSON.stringify(updateObj),
+            body: JSON.stringify({
+              ...updateObj,
+              orgSlug: 'test',
+            }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
           mock(db),

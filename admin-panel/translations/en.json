@@ -133,7 +133,8 @@
     "impersonateDirect": "If you are using the provided sdk in your app, you can use following link to impersonate the user directly into your app",
     "impersonateConsent": "The user has not consented to this app",
     "confirmImpersonate": "Confirm Impersonation",
-    "closeImpersonate": "Close"
+    "closeImpersonate": "Close",
+    "noOrg": "No Organization"
   },
   "roles": {
     "title": "Roles",

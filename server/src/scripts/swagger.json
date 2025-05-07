@@ -817,6 +817,9 @@
           "locale": {
             "type": "string"
           },
+          "orgSlug": {
+            "type": "string"
+          },
           "roles": {
             "type": "array",
             "items": {

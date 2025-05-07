@@ -1059,6 +1059,7 @@ export const updateUser = async (
   if (dto.lastName !== undefined) updateObj.lastName = dto.lastName
   if (dto.locale !== undefined) updateObj.locale = dto.locale
   if (dto.isActive !== undefined) updateObj.isActive = dto.isActive ? 1 : 0
+  if (dto.orgSlug !== undefined) updateObj.orgSlug = dto.orgSlug
 
   const updatedUser = Object.keys(updateObj).length
     ? await userModel.update(

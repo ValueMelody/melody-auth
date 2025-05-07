@@ -127,7 +127,8 @@
     "impersonateDirect": "Si vous utilisez le sdk fourni dans votre application, vous pouvez utiliser le lien suivant pour impersonner l'utilisateur directement dans votre application",
     "impersonateConsent": "L'utilisateur n'a pas consenti à cette application",
     "confirmImpersonate": "Confirmer l'impersonation",
-    "closeImpersonate": "Fermer"
+    "closeImpersonate": "Fermer",
+    "noOrg": "Aucune organisation"
   },
   "roles": {
     "title": "Rôles",

@@ -1029,6 +1029,7 @@ export type PutUserReq = {
   lastName?: string;
   isActive?: boolean;
   locale?: string;
+  orgSlug?: string;
   roles?: string[];
 };
 export type UserConsentedApp = {

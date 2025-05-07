@@ -25,6 +25,7 @@ import {
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
   useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation,
   useGetApiV1UsersByAuthIdPasskeysQuery,
+  useGetApiV1OrgsQuery,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
@@ -83,6 +84,7 @@ vi.mock(
     useDeleteApiV1UsersByAuthIdAccountLinkingMutation: vi.fn(),
     useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation: vi.fn(),
     useGetApiV1UsersByAuthIdPasskeysQuery: vi.fn(),
+    useGetApiV1OrgsQuery: vi.fn(),
   }),
 )
 
@@ -160,6 +162,7 @@ describe(
       (useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation as Mock)
         .mockReturnValue([mockDeletePasskey, { isLoading: false }]);
       (useGetApiV1UsersByAuthIdPasskeysQuery as Mock).mockReturnValue({ data: { passkeys: [{ id: 1 }] } });
+      (useGetApiV1OrgsQuery as Mock).mockReturnValue({ data: { orgs: [] } });
       (useDeleteApiV1UsersByAuthIdAccountLinkingMutation as Mock)
         .mockReturnValue([mockUnlinkAccount, { isLoading: false }])
     })
@@ -332,8 +335,17 @@ describe(
             user: {
               ...users[0],
               socialAccountId: null,
-              org: { name: 'Test Organization' },
+              org: {
+                name: 'Test Organization', slug: 'test',
+              },
             },
+          },
+        });
+        (useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [{
+              id: 1, name: 'Test Organization', slug: 'test',
+            }],
           },
         })
 
