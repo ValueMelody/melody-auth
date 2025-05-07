@@ -8,7 +8,9 @@ import { adapterConfig } from 'configs'
 import {
   pgAdapter, redisAdapter,
 } from 'adapters'
-import { userModel } from 'models'
+import {
+  userModel, appModel,
+} from 'models'
 import { cryptoUtil } from 'utils'
 
 const convertQuery = (
@@ -154,6 +156,16 @@ const formatUser = (raw: userModel.Raw) => ({
   skipPasskeyEnroll: Number(raw.skipPasskeyEnroll),
 })
 
+const formatApp = (raw: appModel.Raw) => ({
+  ...raw,
+  isActive: Number(raw.isActive),
+  useSystemMfaConfig: Number(raw.useSystemMfaConfig),
+  requireEmailMfa: Number(raw.requireEmailMfa),
+  requireOtpMfa: Number(raw.requireOtpMfa),
+  requireSmsMfa: Number(raw.requireSmsMfa),
+  allowEmailMfaAsBackup: Number(raw.allowEmailMfaAsBackup),
+})
+
 export const mock = (db: any) => {
   return {
     DB: getMockedDB(db),
@@ -182,6 +194,8 @@ export const migrate = async () => {
       let rows = result.rows
       if (query.includes(' "user" ')) {
         rows = result.rows.map((row: userModel.Raw) => formatUser(row))
+      } else if (query.includes(' "app" ')) {
+        rows = result.rows.map((row: appModel.Raw) => formatApp(row))
       }
       return rows
     }
@@ -191,10 +205,12 @@ export const migrate = async () => {
       let row = record
       if (query.includes(' "user" ')) {
         row = formatUser(record)
+      } else if (query.includes(' "app" ')) {
+        row = formatApp(record)
       }
       return row
     }
-    return {
+    const dbAdapter = {
       raw: async (
         query: string, params?: string[],
       ) => {
@@ -244,6 +260,10 @@ export const migrate = async () => {
       exec: async (query: string) => db.raw(query),
       close: async () => db.destroy(),
     } as unknown as Database
+
+    dbAdapter.prepare('update app set "useSystemMfaConfig" = 1, "requireEmailMfa" = 0, "requireOtpMfa" = 0, "requireSmsMfa" = 0, "allowEmailMfaAsBackup" = 0').run()
+
+    return dbAdapter
   }
 
   const db = new Sqlite(':memory:')

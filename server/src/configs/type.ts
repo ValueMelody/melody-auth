@@ -98,12 +98,20 @@ export type Context = {
 
 export type App = Hono<Context, BlankSchema, '/'>
 
+export interface AuthCodeBodyMfaConfig {
+  e: boolean; // requireEmailMfa
+  o: boolean; // requireOtpMfa
+  s: boolean; // requireSmsMfa
+  b: boolean; // allowEmailMfaAsBackup
+}
+
 export interface AuthCodeBody {
   request: oauthDto.GetAuthorizeDto;
   user: userModel.Record;
   appId: number;
   appName: string;
   isFullyAuthorized?: boolean;
+  mfa?: AuthCodeBodyMfaConfig;
 }
 
 export interface AccessTokenBody {

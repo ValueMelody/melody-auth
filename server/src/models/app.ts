@@ -18,11 +18,21 @@ export interface Common {
 export interface Raw extends Common {
   redirectUris: string;
   isActive: number;
+  useSystemMfaConfig: number;
+  requireEmailMfa: number;
+  requireOtpMfa: number;
+  requireSmsMfa: number;
+  allowEmailMfaAsBackup: number;
 }
 
 export interface Record extends Common {
   redirectUris: string[];
   isActive: boolean;
+  useSystemMfaConfig: boolean;
+  requireEmailMfa: boolean;
+  requireOtpMfa: boolean;
+  requireSmsMfa: boolean;
+  allowEmailMfaAsBackup: boolean;
 }
 
 export interface ApiRecord extends Record {
@@ -38,6 +48,11 @@ export interface Create {
 export interface Update {
   name?: string;
   redirectUris?: string;
+  useSystemMfaConfig?: number;
+  requireEmailMfa?: number;
+  requireOtpMfa?: number;
+  requireSmsMfa?: number;
+  allowEmailMfaAsBackup?: number;
   isActive?: number;
   deletedAt?: string | null;
   updatedAt?: string;
@@ -49,6 +64,11 @@ const format = (raw: Raw): Record => {
   return {
     ...raw,
     isActive: !!raw.isActive,
+    useSystemMfaConfig: !!raw.useSystemMfaConfig,
+    requireEmailMfa: !!raw.requireEmailMfa,
+    requireOtpMfa: !!raw.requireOtpMfa,
+    requireSmsMfa: !!raw.requireSmsMfa,
+    allowEmailMfaAsBackup: !!raw.allowEmailMfaAsBackup,
     redirectUris: raw.redirectUris ? raw.redirectUris.split(',') : [],
   }
 }
@@ -73,7 +93,7 @@ export const getAll = async (db: D1Database): Promise<Record[]> => {
 export const getById = async (
   db: D1Database, id: number,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`
+  const query = `SELECT * FROM "${TableName}" WHERE id = $1 AND "deletedAt" IS NULL`
   const stmt = db.prepare(query).bind(id)
   const app = await stmt.first() as Raw | null
   if (!app) return app
@@ -105,7 +125,9 @@ export const update = async (
   db: D1Database, id: number, update: Update,
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
-    'name', 'redirectUris', 'isActive', 'deletedAt', 'updatedAt',
+    'name', 'redirectUris', 'isActive',
+    'useSystemMfaConfig', 'requireEmailMfa', 'requireOtpMfa', 'requireSmsMfa', 'allowEmailMfaAsBackup',
+    'deletedAt', 'updatedAt',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,

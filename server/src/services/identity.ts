@@ -5,7 +5,7 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import {
-  consentService, passkeyService, sessionService, appService, kvService,
+  consentService, passkeyService, sessionService, appService, kvService, mfaService,
 } from 'services'
 import { userModel } from 'models'
 import { oauthDto } from 'dtos'
@@ -77,11 +77,17 @@ export const processPostAuthorize = async (
   }
 
   const {
-    EMAIL_MFA_IS_REQUIRED: enableEmailMfa,
+    requireEmailMfa: enableEmailMfa,
+    requireOtpMfa: enableOtpMfa,
+    requireSmsMfa: enableSmsMfa,
+    enforceOneMfaEnrollment: enforceMfa,
+  } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeBody,
+  )
+
+  const {
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
-    OTP_MFA_IS_REQUIRED: enableOtpMfa,
-    SMS_MFA_IS_REQUIRED: enableSmsMfa,
-    ENFORCE_ONE_MFA_ENROLLMENT: enforceMfa,
     ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
   } = env(c)
 
@@ -228,6 +234,8 @@ export const processSignIn = async (
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
 
+  const mfaConfig = mfaService.getAppMfaConfig(app)
+
   const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCode = genRandomString(128)
   const authCodeBody = {
@@ -235,6 +243,7 @@ export const processSignIn = async (
     appName: app.name,
     user,
     request,
+    mfa: mfaConfig ? mfaService.getAuthCodeBodyMfaConfig(mfaConfig) : undefined,
   }
   await kvService.storeAuthCode(
     c.env.KV,

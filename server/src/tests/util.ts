@@ -33,6 +33,11 @@ export const adminSpaApp = {
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
+  useSystemMfaConfig: true,
+  requireEmailMfa: false,
+  requireOtpMfa: false,
+  requireSmsMfa: false,
+  allowEmailMfaAsBackup: false,
 }
 
 export const adminS2sApp = {
@@ -46,6 +51,11 @@ export const adminS2sApp = {
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
+  useSystemMfaConfig: true,
+  requireEmailMfa: false,
+  requireOtpMfa: false,
+  requireSmsMfa: false,
+  allowEmailMfaAsBackup: false,
 }
 
 export const attachIndividualScopes = async (db: Database) => {

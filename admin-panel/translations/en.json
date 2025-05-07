@@ -69,7 +69,14 @@
     "type": "Type",
     "scopes": "Scopes",
     "redirectUris": "Redirect URIs",
-    "urlFormat": "* Provide full url including protocol"
+    "urlFormat": "* Provide full url including protocol",
+    "appLevelMfa": "App Level MFA",
+    "useSystemMfaConfig": "Use System MFA Config",
+    "requireEmailMfa": "Require Email MFA",
+    "requireOtpMfa": "Require OTP MFA",
+    "requireSmsMfa": "Require SMS MFA",
+    "allowEmailMfaAsBackup": "Allow Email MFA as Backup",
+    "appLevelMfaDescription": "Regardless of the settings below, users who have self‑enrolled in an MFA method will still need to complete that MFA verification when signing in to this app."
   },
   "users": {
     "title": "Users",

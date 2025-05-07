@@ -58,6 +58,11 @@ const newApp = {
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
+  useSystemMfaConfig: true,
+  requireEmailMfa: false,
+  requireOtpMfa: false,
+  requireSmsMfa: false,
+  allowEmailMfaAsBackup: false,
 }
 
 describe(
@@ -334,6 +339,46 @@ describe(
             ...newApp,
             ...updateObj,
             redirectUris: ['http://localhost:5200', 'http://google.com'],
+            useSystemMfaConfig: true,
+            requireEmailMfa: false,
+            requireOtpMfa: false,
+            requireSmsMfa: false,
+            allowEmailMfaAsBackup: false,
+          },
+        })
+      },
+    )
+
+    test(
+      'should update app level mfa config',
+      async () => {
+        await createNewApp()
+        const updateObj = {
+          useSystemMfaConfig: false,
+          requireEmailMfa: true,
+          requireOtpMfa: true,
+          requireSmsMfa: true,
+          allowEmailMfaAsBackup: true,
+        }
+        const res = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          app: {
+            ...newApp,
+            useSystemMfaConfig: false,
+            requireEmailMfa: true,
+            requireOtpMfa: true,
+            requireSmsMfa: true,
+            allowEmailMfaAsBackup: true,
           },
         })
       },

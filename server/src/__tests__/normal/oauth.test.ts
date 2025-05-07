@@ -1464,6 +1464,8 @@ describe(
         const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
 
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.NoConsent)
+
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
@@ -1474,6 +1476,7 @@ describe(
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
       },
     )
 
@@ -1484,6 +1487,7 @@ describe(
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
 
         global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -1496,6 +1500,7 @@ describe(
         await enrollOtpMfa(db)
         const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
       },
     )
 
@@ -1506,6 +1511,7 @@ describe(
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
         global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
       },
     )
@@ -1516,6 +1522,7 @@ describe(
         await insertUsers(db)
         await enrollEmailMfa(db)
         const tokenRes = await exchangeWithAuthToken(db)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
         expect(tokenRes.status).toBe(401)
       },
     )
@@ -1527,6 +1534,7 @@ describe(
         await insertUsers(db)
         const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
         global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
       },
     )
@@ -1538,6 +1546,7 @@ describe(
         await enrollSmsMfa(db)
         const tokenRes = await exchangeWithAuthToken(db)
         expect(tokenRes.status).toBe(401)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
       },
     )
 

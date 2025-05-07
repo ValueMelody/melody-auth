@@ -221,6 +221,49 @@ describe(
     )
 
     test(
+      'could force otp mfa use app level config',
+      async () => {
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        db.prepare('update app set "useSystemMfaConfig" = 0, "requireEmailMfa" = 0, "requireOtpMfa" = 1, "requireSmsMfa" = 0, "allowEmailMfaAsBackup" = 0').run()
+
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.OtpSetup,
+        })
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
+      },
+    )
+
+    test(
+      'could disable otp mfa use app level config',
+      async () => {
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        global.process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        db.prepare('update app set "useSystemMfaConfig" = 0, "requireEmailMfa" = 0, "requireOtpMfa" = 0, "requireSmsMfa" = 0, "allowEmailMfaAsBackup" = 0').run()
+
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        global.process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
       'could force email mfa',
       async () => {
         global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
@@ -240,6 +283,49 @@ describe(
     )
 
     test(
+      'could force email mfa use app level config',
+      async () => {
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        db.prepare('update app set "useSystemMfaConfig" = 0, "requireEmailMfa" = 1, "requireOtpMfa" = 0, "requireSmsMfa" = 0, "allowEmailMfaAsBackup" = 0').run()
+
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.EmailMfa,
+        })
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'could disable email mfa use app level config',
+      async () => {
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        global.process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+
+        db.prepare('update app set "useSystemMfaConfig" = 0, "requireEmailMfa" = 0, "requireOtpMfa" = 0, "requireSmsMfa" = 0, "allowEmailMfaAsBackup" = 0').run()
+
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        global.process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
       'could force sms mfa',
       async () => {
         global.process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
@@ -255,6 +341,49 @@ describe(
         })
         global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could force sms mfa use app level config',
+      async () => {
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        db.prepare('update app set "useSystemMfaConfig" = 0, "requireEmailMfa" = 0, "requireOtpMfa" = 0, "requireSmsMfa" = 1, "allowEmailMfaAsBackup" = 0').run()
+
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.SmsMfa,
+        })
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'could disable sms mfa use app level config',
+      async () => {
+        global.process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        global.process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+
+        db.prepare('update app set "useSystemMfaConfig" = 0, "requireEmailMfa" = 0, "requireOtpMfa" = 0, "requireSmsMfa" = 0, "allowEmailMfaAsBackup" = 0').run()
+
+        const res = await postAuthorizeAccount()
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+        global.process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        global.process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 

@@ -14,6 +14,11 @@ const App = {
       type: 'array',
       items: { type: 'string' },
     },
+    useSystemMfaConfig: { type: 'boolean' },
+    requireEmailMfa: { type: 'boolean' },
+    requireOtpMfa: { type: 'boolean' },
+    requireSmsMfa: { type: 'boolean' },
+    allowEmailMfaAsBackup: { type: 'boolean' },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },
     deletedAt: {
@@ -21,7 +26,11 @@ const App = {
       nullable: true,
     },
   },
-  required: ['id', 'clientId', 'name', 'isActive', 'type', 'secret', 'redirectUris', 'createdAt', 'updatedAt', 'deletedAt'],
+  required: [
+    'id', 'clientId', 'name', 'isActive', 'type', 'secret', 'redirectUris',
+    'useSystemMfaConfig', 'requireEmailMfa', 'requireOtpMfa', 'requireSmsMfa',
+    'allowEmailMfaAsBackup', 'createdAt', 'updatedAt', 'deletedAt',
+  ],
 }
 
 const AppDetail = {
@@ -81,6 +90,11 @@ const PutAppReq = {
       type: 'array',
       items: { type: 'string' },
     },
+    useSystemMfaConfig: { type: 'boolean' },
+    requireEmailMfa: { type: 'boolean' },
+    requireOtpMfa: { type: 'boolean' },
+    requireSmsMfa: { type: 'boolean' },
+    allowEmailMfaAsBackup: { type: 'boolean' },
   },
 }
 

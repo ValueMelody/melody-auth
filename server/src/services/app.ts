@@ -173,6 +173,11 @@ export const updateApp = async (
     name: dto.name,
   }
   if (dto.isActive !== undefined) updateDto.isActive = dto.isActive ? 1 : 0
+  if (dto.useSystemMfaConfig !== undefined) updateDto.useSystemMfaConfig = dto.useSystemMfaConfig ? 1 : 0
+  if (dto.requireEmailMfa !== undefined) updateDto.requireEmailMfa = dto.requireEmailMfa ? 1 : 0
+  if (dto.requireOtpMfa !== undefined) updateDto.requireOtpMfa = dto.requireOtpMfa ? 1 : 0
+  if (dto.requireSmsMfa !== undefined) updateDto.requireSmsMfa = dto.requireSmsMfa ? 1 : 0
+  if (dto.allowEmailMfaAsBackup !== undefined) updateDto.allowEmailMfaAsBackup = dto.allowEmailMfaAsBackup ? 1 : 0
 
   const app = await appModel.getById(
     c.env.DB,

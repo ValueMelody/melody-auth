@@ -96,6 +96,7 @@
 - Manage Users
   - Impersonation [How to allow users with a custom role to perform impersonation](https://auth.valuemelody.com/q_a.html#how-to-allow-users-with-a-custom-role-to-perform-impersonation)
 - Manage Apps
+  - App Level MFA Config
 - Manage Scopes
 - Manage Roles
 - Manage Organizations
