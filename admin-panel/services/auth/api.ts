@@ -1,42 +1,40 @@
-import { authApi as api } from "./";
+import { authApi as api } from './'
 export const addTagTypes = [
-  "Scopes",
-  "Roles",
-  "Orgs",
-  "Apps",
-  "Users",
-  "Logs",
-] as const;
+  'Scopes',
+  'Roles',
+  'Orgs',
+  'Apps',
+  'Users',
+  'Logs',
+] as const
 const injectedRtkApi = api
-  .enhanceEndpoints({
-    addTagTypes,
-  })
+  .enhanceEndpoints({ addTagTypes })
   .injectEndpoints({
     endpoints: (build) => ({
       getApiV1Scopes: build.query<
         GetApiV1ScopesApiResponse,
         GetApiV1ScopesApiArg
       >({
-        query: () => ({ url: `/api/v1/scopes` }),
-        providesTags: ["Scopes"],
+        query: () => ({ url: '/api/v1/scopes' }),
+        providesTags: ['Scopes'],
       }),
       postApiV1Scopes: build.mutation<
         PostApiV1ScopesApiResponse,
         PostApiV1ScopesApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/scopes`,
-          method: "POST",
+          url: '/api/v1/scopes',
+          method: 'POST',
           body: queryArg.postScopeReq,
         }),
-        invalidatesTags: ["Scopes"],
+        invalidatesTags: ['Scopes'],
       }),
       getApiV1ScopesById: build.query<
         GetApiV1ScopesByIdApiResponse,
         GetApiV1ScopesByIdApiArg
       >({
         query: (queryArg) => ({ url: `/api/v1/scopes/${queryArg.id}` }),
-        providesTags: ["Scopes"],
+        providesTags: ['Scopes'],
       }),
       putApiV1ScopesById: build.mutation<
         PutApiV1ScopesByIdApiResponse,
@@ -44,10 +42,10 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/scopes/${queryArg.id}`,
-          method: "PUT",
+          method: 'PUT',
           body: queryArg.putScopeReq,
         }),
-        invalidatesTags: ["Scopes"],
+        invalidatesTags: ['Scopes'],
       }),
       deleteApiV1ScopesById: build.mutation<
         DeleteApiV1ScopesByIdApiResponse,
@@ -55,33 +53,31 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/scopes/${queryArg.id}`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Scopes"],
+        invalidatesTags: ['Scopes'],
       }),
-      getApiV1Roles: build.query<GetApiV1RolesApiResponse, GetApiV1RolesApiArg>(
-        {
-          query: () => ({ url: `/api/v1/roles` }),
-          providesTags: ["Roles"],
-        }
-      ),
+      getApiV1Roles: build.query<GetApiV1RolesApiResponse, GetApiV1RolesApiArg>({
+        query: () => ({ url: '/api/v1/roles' }),
+        providesTags: ['Roles'],
+      }),
       postApiV1Roles: build.mutation<
         PostApiV1RolesApiResponse,
         PostApiV1RolesApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/roles`,
-          method: "POST",
+          url: '/api/v1/roles',
+          method: 'POST',
           body: queryArg.postRoleReq,
         }),
-        invalidatesTags: ["Roles"],
+        invalidatesTags: ['Roles'],
       }),
       getApiV1RolesById: build.query<
         GetApiV1RolesByIdApiResponse,
         GetApiV1RolesByIdApiArg
       >({
         query: (queryArg) => ({ url: `/api/v1/roles/${queryArg.id}` }),
-        providesTags: ["Roles"],
+        providesTags: ['Roles'],
       }),
       putApiV1RolesById: build.mutation<
         PutApiV1RolesByIdApiResponse,
@@ -89,10 +85,10 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/roles/${queryArg.id}`,
-          method: "PUT",
+          method: 'PUT',
           body: queryArg.putRoleReq,
         }),
-        invalidatesTags: ["Roles"],
+        invalidatesTags: ['Roles'],
       }),
       deleteApiV1RolesById: build.mutation<
         DeleteApiV1RolesByIdApiResponse,
@@ -100,31 +96,31 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/roles/${queryArg.id}`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Roles"],
+        invalidatesTags: ['Roles'],
       }),
       getApiV1Orgs: build.query<GetApiV1OrgsApiResponse, GetApiV1OrgsApiArg>({
-        query: () => ({ url: `/api/v1/orgs` }),
-        providesTags: ["Orgs"],
+        query: () => ({ url: '/api/v1/orgs' }),
+        providesTags: ['Orgs'],
       }),
       postApiV1Orgs: build.mutation<
         PostApiV1OrgsApiResponse,
         PostApiV1OrgsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/orgs`,
-          method: "POST",
+          url: '/api/v1/orgs',
+          method: 'POST',
           body: queryArg.postOrgReq,
         }),
-        invalidatesTags: ["Orgs"],
+        invalidatesTags: ['Orgs'],
       }),
       getApiV1OrgsById: build.query<
         GetApiV1OrgsByIdApiResponse,
         GetApiV1OrgsByIdApiArg
       >({
         query: (queryArg) => ({ url: `/api/v1/orgs/${queryArg.id}` }),
-        providesTags: ["Orgs"],
+        providesTags: ['Orgs'],
       }),
       putApiV1OrgsById: build.mutation<
         PutApiV1OrgsByIdApiResponse,
@@ -132,10 +128,10 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/orgs/${queryArg.id}`,
-          method: "PUT",
+          method: 'PUT',
           body: queryArg.putOrgReq,
         }),
-        invalidatesTags: ["Orgs"],
+        invalidatesTags: ['Orgs'],
       }),
       deleteApiV1OrgsById: build.mutation<
         DeleteApiV1OrgsByIdApiResponse,
@@ -143,9 +139,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/orgs/${queryArg.id}`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Orgs"],
+        invalidatesTags: ['Orgs'],
       }),
       getApiV1OrgsByIdUsers: build.query<
         GetApiV1OrgsByIdUsersApiResponse,
@@ -159,29 +155,29 @@ const injectedRtkApi = api
             search: queryArg.search,
           },
         }),
-        providesTags: ["Orgs"],
+        providesTags: ['Orgs'],
       }),
       getApiV1Apps: build.query<GetApiV1AppsApiResponse, GetApiV1AppsApiArg>({
-        query: () => ({ url: `/api/v1/apps` }),
-        providesTags: ["Apps"],
+        query: () => ({ url: '/api/v1/apps' }),
+        providesTags: ['Apps'],
       }),
       postApiV1Apps: build.mutation<
         PostApiV1AppsApiResponse,
         PostApiV1AppsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/apps`,
-          method: "POST",
+          url: '/api/v1/apps',
+          method: 'POST',
           body: queryArg.postAppReq,
         }),
-        invalidatesTags: ["Apps"],
+        invalidatesTags: ['Apps'],
       }),
       getApiV1AppsById: build.query<
         GetApiV1AppsByIdApiResponse,
         GetApiV1AppsByIdApiArg
       >({
         query: (queryArg) => ({ url: `/api/v1/apps/${queryArg.id}` }),
-        providesTags: ["Apps"],
+        providesTags: ['Apps'],
       }),
       putApiV1AppsById: build.mutation<
         PutApiV1AppsByIdApiResponse,
@@ -189,10 +185,10 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/apps/${queryArg.id}`,
-          method: "PUT",
+          method: 'PUT',
           body: queryArg.putAppReq,
         }),
-        invalidatesTags: ["Apps"],
+        invalidatesTags: ['Apps'],
       }),
       deleteApiV1AppsById: build.mutation<
         DeleteApiV1AppsByIdApiResponse,
@@ -200,29 +196,27 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/apps/${queryArg.id}`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Apps"],
+        invalidatesTags: ['Apps'],
       }),
-      getApiV1Users: build.query<GetApiV1UsersApiResponse, GetApiV1UsersApiArg>(
-        {
-          query: (queryArg) => ({
-            url: `/api/v1/users`,
-            params: {
-              page_size: queryArg.pageSize,
-              page_number: queryArg.pageNumber,
-              search: queryArg.search,
-            },
-          }),
-          providesTags: ["Users"],
-        }
-      ),
+      getApiV1Users: build.query<GetApiV1UsersApiResponse, GetApiV1UsersApiArg>({
+        query: (queryArg) => ({
+          url: '/api/v1/users',
+          params: {
+            page_size: queryArg.pageSize,
+            page_number: queryArg.pageNumber,
+            search: queryArg.search,
+          },
+        }),
+        providesTags: ['Users'],
+      }),
       getApiV1UsersByAuthId: build.query<
         GetApiV1UsersByAuthIdApiResponse,
         GetApiV1UsersByAuthIdApiArg
       >({
         query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}` }),
-        providesTags: ["Users"],
+        providesTags: ['Users'],
       }),
       putApiV1UsersByAuthId: build.mutation<
         PutApiV1UsersByAuthIdApiResponse,
@@ -230,10 +224,10 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}`,
-          method: "PUT",
+          method: 'PUT',
           body: queryArg.putUserReq,
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       deleteApiV1UsersByAuthId: build.mutation<
         DeleteApiV1UsersByAuthIdApiResponse,
@@ -241,18 +235,16 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       getApiV1UsersByAuthIdLockedIps: build.query<
         GetApiV1UsersByAuthIdLockedIpsApiResponse,
         GetApiV1UsersByAuthIdLockedIpsApiArg
       >({
-        query: (queryArg) => ({
-          url: `/api/v1/users/${queryArg.authId}/locked-ips`,
-        }),
-        providesTags: ["Users"],
+        query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/locked-ips` }),
+        providesTags: ['Users'],
       }),
       deleteApiV1UsersByAuthIdLockedIps: build.mutation<
         DeleteApiV1UsersByAuthIdLockedIpsApiResponse,
@@ -260,9 +252,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/locked-ips`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       postApiV1UsersByAuthIdVerifyEmail: build.mutation<
         PostApiV1UsersByAuthIdVerifyEmailApiResponse,
@@ -270,18 +262,16 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/verify-email`,
-          method: "POST",
+          method: 'POST',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       getApiV1UsersByAuthIdConsentedApps: build.query<
         GetApiV1UsersByAuthIdConsentedAppsApiResponse,
         GetApiV1UsersByAuthIdConsentedAppsApiArg
       >({
-        query: (queryArg) => ({
-          url: `/api/v1/users/${queryArg.authId}/consented-apps`,
-        }),
-        providesTags: ["Users"],
+        query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/consented-apps` }),
+        providesTags: ['Users'],
       }),
       deleteApiV1UsersByAuthIdConsentedAppsAndAppId: build.mutation<
         DeleteApiV1UsersByAuthIdConsentedAppsAndAppIdApiResponse,
@@ -289,18 +279,16 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/consented-apps/${queryArg.appId}`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       getApiV1UsersByAuthIdPasskeys: build.query<
         GetApiV1UsersByAuthIdPasskeysApiResponse,
         GetApiV1UsersByAuthIdPasskeysApiArg
       >({
-        query: (queryArg) => ({
-          url: `/api/v1/users/${queryArg.authId}/passkeys`,
-        }),
-        providesTags: ["Users"],
+        query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/passkeys` }),
+        providesTags: ['Users'],
       }),
       deleteApiV1UsersByAuthIdPasskeysAndPasskeyId: build.mutation<
         DeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdApiResponse,
@@ -308,9 +296,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/passkeys/${queryArg.passkeyId}`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       postApiV1UsersByAuthIdEmailMfa: build.mutation<
         PostApiV1UsersByAuthIdEmailMfaApiResponse,
@@ -318,9 +306,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/email-mfa`,
-          method: "POST",
+          method: 'POST',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       deleteApiV1UsersByAuthIdEmailMfa: build.mutation<
         DeleteApiV1UsersByAuthIdEmailMfaApiResponse,
@@ -328,9 +316,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/email-mfa`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       postApiV1UsersByAuthIdOtpMfa: build.mutation<
         PostApiV1UsersByAuthIdOtpMfaApiResponse,
@@ -338,9 +326,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/otp-mfa`,
-          method: "POST",
+          method: 'POST',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       deleteApiV1UsersByAuthIdOtpMfa: build.mutation<
         DeleteApiV1UsersByAuthIdOtpMfaApiResponse,
@@ -348,9 +336,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/otp-mfa`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       postApiV1UsersByAuthIdSmsMfa: build.mutation<
         PostApiV1UsersByAuthIdSmsMfaApiResponse,
@@ -358,9 +346,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/sms-mfa`,
-          method: "POST",
+          method: 'POST',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       deleteApiV1UsersByAuthIdSmsMfa: build.mutation<
         DeleteApiV1UsersByAuthIdSmsMfaApiResponse,
@@ -368,9 +356,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/sms-mfa`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       postApiV1UsersByAuthIdAccountLinkingAndLinkingAuthId: build.mutation<
         PostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdApiResponse,
@@ -378,9 +366,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/account-linking/${queryArg.linkingAuthId}`,
-          method: "POST",
+          method: 'POST',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       deleteApiV1UsersByAuthIdAccountLinking: build.mutation<
         DeleteApiV1UsersByAuthIdAccountLinkingApiResponse,
@@ -388,9 +376,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/account-linking`,
-          method: "DELETE",
+          method: 'DELETE',
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       postApiV1UsersByAuthIdImpersonationAndAppId: build.mutation<
         PostApiV1UsersByAuthIdImpersonationAndAppIdApiResponse,
@@ -398,108 +386,108 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/v1/users/${queryArg.authId}/impersonation/${queryArg.appId}`,
-          method: "POST",
+          method: 'POST',
           body: queryArg.body,
         }),
-        invalidatesTags: ["Users"],
+        invalidatesTags: ['Users'],
       }),
       getApiV1LogsEmail: build.query<
         GetApiV1LogsEmailApiResponse,
         GetApiV1LogsEmailApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/logs/email`,
+          url: '/api/v1/logs/email',
           params: {
             page_size: queryArg.pageSize,
             page_number: queryArg.pageNumber,
           },
         }),
-        providesTags: ["Logs"],
+        providesTags: ['Logs'],
       }),
       deleteApiV1LogsEmail: build.mutation<
         DeleteApiV1LogsEmailApiResponse,
         DeleteApiV1LogsEmailApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/logs/email`,
-          method: "DELETE",
+          url: '/api/v1/logs/email',
+          method: 'DELETE',
           params: { before: queryArg.before },
         }),
-        invalidatesTags: ["Logs"],
+        invalidatesTags: ['Logs'],
       }),
       getApiV1LogsEmailById: build.query<
         GetApiV1LogsEmailByIdApiResponse,
         GetApiV1LogsEmailByIdApiArg
       >({
         query: (queryArg) => ({ url: `/api/v1/logs/email/${queryArg.id}` }),
-        providesTags: ["Logs"],
+        providesTags: ['Logs'],
       }),
       getApiV1LogsSms: build.query<
         GetApiV1LogsSmsApiResponse,
         GetApiV1LogsSmsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/logs/sms`,
+          url: '/api/v1/logs/sms',
           params: {
             page_size: queryArg.pageSize,
             page_number: queryArg.pageNumber,
           },
         }),
-        providesTags: ["Logs"],
+        providesTags: ['Logs'],
       }),
       deleteApiV1LogsSms: build.mutation<
         DeleteApiV1LogsSmsApiResponse,
         DeleteApiV1LogsSmsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/logs/sms`,
-          method: "DELETE",
+          url: '/api/v1/logs/sms',
+          method: 'DELETE',
           params: { before: queryArg.before },
         }),
-        invalidatesTags: ["Logs"],
+        invalidatesTags: ['Logs'],
       }),
       getApiV1LogsSmsById: build.query<
         GetApiV1LogsSmsByIdApiResponse,
         GetApiV1LogsSmsByIdApiArg
       >({
         query: (queryArg) => ({ url: `/api/v1/logs/sms/${queryArg.id}` }),
-        providesTags: ["Logs"],
+        providesTags: ['Logs'],
       }),
       getApiV1LogsSignIn: build.query<
         GetApiV1LogsSignInApiResponse,
         GetApiV1LogsSignInApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/logs/sign-in`,
+          url: '/api/v1/logs/sign-in',
           params: {
             page_size: queryArg.pageSize,
             page_number: queryArg.pageNumber,
           },
         }),
-        providesTags: ["Logs"],
+        providesTags: ['Logs'],
       }),
       deleteApiV1LogsSignIn: build.mutation<
         DeleteApiV1LogsSignInApiResponse,
         DeleteApiV1LogsSignInApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/v1/logs/sign-in`,
-          method: "DELETE",
+          url: '/api/v1/logs/sign-in',
+          method: 'DELETE',
           params: { before: queryArg.before },
         }),
-        invalidatesTags: ["Logs"],
+        invalidatesTags: ['Logs'],
       }),
       getApiV1LogsSignInById: build.query<
         GetApiV1LogsSignInByIdApiResponse,
         GetApiV1LogsSignInByIdApiArg
       >({
         query: (queryArg) => ({ url: `/api/v1/logs/sign-in/${queryArg.id}` }),
-        providesTags: ["Logs"],
+        providesTags: ['Logs'],
       }),
     }),
     overrideExisting: false,
-  });
-export { injectedRtkApi as authApi };
+  })
+export { injectedRtkApi as authApi }
 export type GetApiV1ScopesApiResponse = /** status 200 A list of scopes */ {
   scopes?: Scope[];
 };
@@ -874,7 +862,7 @@ export type Scope = {
   id: number;
   name: string;
   note: string;
-  type: "spa" | "s2s";
+  type: 'spa' | 's2s';
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -892,7 +880,7 @@ export type ScopeDetail = Scope & {
 };
 export type PostScopeReq = {
   name: string;
-  type: "spa" | "s2s";
+  type: 'spa' | 's2s';
   note?: string;
   locales?: {
     locale: string;
@@ -996,7 +984,7 @@ export type App = {
   clientId: string;
   name: string;
   isActive: boolean;
-  type: "spa" | "s2s";
+  type: 'spa' | 's2s';
   secret: string;
   redirectUris: string[];
   useSystemMfaConfig: boolean;
@@ -1013,7 +1001,7 @@ export type AppDetail = App & {
 };
 export type PostAppReq = {
   name: string;
-  type: "spa" | "s2s";
+  type: 'spa' | 's2s';
   scopes: string[];
   redirectUris: string[];
 };
@@ -1153,4 +1141,4 @@ export const {
   useDeleteApiV1LogsSignInMutation,
   useGetApiV1LogsSignInByIdQuery,
   useLazyGetApiV1LogsSignInByIdQuery,
-} = injectedRtkApi;
+} = injectedRtkApi
