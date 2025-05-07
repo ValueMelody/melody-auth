@@ -93,7 +93,7 @@ export const getAll = async (db: D1Database): Promise<Record[]> => {
 export const getById = async (
   db: D1Database, id: number,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`
+  const query = `SELECT * FROM "${TableName}" WHERE id = $1 AND "deletedAt" IS NULL`
   const stmt = db.prepare(query).bind(id)
   const app = await stmt.first() as Raw | null
   if (!app) return app

@@ -74,7 +74,7 @@
     "requireOtpMfa": "Exiger MFA par OTP",
     "requireSmsMfa": "Exiger MFA par SMS",
     "allowEmailMfaAsBackup": "Autoriser MFA par e-mail comme backup",
-    "appLevelMfaDescription": "Quelles que soient les paramètres ci-dessous, les utilisateurs qui ont déjà s'enregistrer dans une méthode MFA par eux-mêmes doivent toujours passer par cette vérification MFA lorsqu'ils se connectent à cette application."
+    "appLevelMfaDescription": "Peu importe les paramètres ci‑dessous, les utilisateurs qui se sont auto‑inscrits à une méthode MFA devront tout de même effectuer cette vérification MFA lorsqu’ils se connectent à cette application."
   },
   "users": {
     "title": "Utilisateurs",

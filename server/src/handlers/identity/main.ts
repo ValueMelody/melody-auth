@@ -14,7 +14,7 @@ import {
 } from 'dtos'
 import {
   appService, consentService, emailService,
-  identityService, kvService, scopeService, userService,
+  identityService, kvService, mfaService, scopeService, userService,
 } from 'services'
 import {
   requestUtil, validateUtil, loggerUtil,
@@ -101,6 +101,8 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   }
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const mfaConfig = mfaService.getAppMfaConfig(app)
+
   const request = new oauthDto.GetAuthorizeDto(bodyDto)
   const authCode = genRandomString(128)
   const authCodeBody = {
@@ -108,6 +110,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     appName: app.name,
     user,
     request,
+    mfa: mfaConfig ? mfaService.getAuthCodeBodyMfaConfig(mfaConfig) : undefined,
   }
   await kvService.storeAuthCode(
     c.env.KV,
