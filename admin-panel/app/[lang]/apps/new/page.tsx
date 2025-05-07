@@ -68,7 +68,8 @@ const Page = () => {
 
     const res = await createApp({
       postAppReq: {
-        ...values,
+        name: values.name,
+        scopes: values.scopes,
         type: values.type as 'spa' | 's2s',
         redirectUris: values.redirectUris.map((uri) => uri.trim().toLowerCase()).filter((uri) => !!uri),
       },

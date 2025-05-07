@@ -80,7 +80,6 @@ describe(
 
         expect(mockCreate).toHaveBeenLastCalledWith({
           postAppReq: {
-            isActive: true,
             redirectUris: [],
             name: 'new name',
             type: 's2s',
@@ -127,7 +126,6 @@ describe(
 
         expect(mockCreate).toHaveBeenLastCalledWith({
           postAppReq: {
-            isActive: true,
             name: 'new name',
             type: 'spa',
             scopes: ['openid', 'test spa'],
