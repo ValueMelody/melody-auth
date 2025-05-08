@@ -20,8 +20,13 @@ import {
   requestUtil, validateUtil, loggerUtil,
 } from 'utils'
 import { scopeModel } from 'models'
+import {
+  signUpHook, signInHook,
+} from 'hooks'
 
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
+  await signInHook.preSignIn()
+
   const reqBody = await c.req.json()
 
   const bodyDto = new identityDto.PostAuthorizeWithPasswordDto({
@@ -43,15 +48,21 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
     user,
   )
 
-  return c.json(await identityService.processPostAuthorize(
+  const result = await identityService.processPostAuthorize(
     c,
     identityService.AuthorizeStep.Password,
     authCode,
     authCodeBody,
-  ))
+  )
+
+  await signInHook.postSignIn()
+
+  return c.json(result)
 }
 
 export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
+  await signUpHook.preSignUp()
+
   const {
     NAMES_IS_REQUIRED: namesIsRequired,
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
@@ -119,12 +130,16 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     codeExpiresIn,
   )
 
-  return c.json(await identityService.processPostAuthorize(
+  const result = await identityService.processPostAuthorize(
     c,
     identityService.AuthorizeStep.Account,
     authCode,
     authCodeBody,
-  ))
+  )
+
+  await signUpHook.postSignUp()
+
+  return c.json(result)
 }
 
 export interface GetAppConsentRes {

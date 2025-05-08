@@ -18,6 +18,9 @@ import {
   signInLogModel, userModel,
 } from 'models'
 import { PopupRedirect } from 'templates'
+import {
+  authCodeHook, clientCredentialsHook,
+} from 'hooks'
 
 export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeDto> => {
   const queryDto = new oauthDto.GetAuthorizeDto({
@@ -116,6 +119,8 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
+  await authCodeHook.preTokenExchangeWithAuthCode()
+
   const reqBody = await c.req.parseBody()
 
   const bodyDto = new oauthDto.PostTokenAuthCodeDto({
@@ -355,6 +360,8 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     )
   }
 
+  await authCodeHook.postTokenExchangeWithAuthCode()
+
   return c.json(result)
 }
 
@@ -411,6 +418,8 @@ export const postTokenRefreshToken = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postTokenClientCredentials = async (c: Context<typeConfig.Context>) => {
+  await clientCredentialsHook.preTokenClientCredentials()
+
   const basicAuth = c.get('basic_auth_body')!
   const reqBody = await c.req.parseBody()
 
@@ -453,6 +462,7 @@ export const postTokenClientCredentials = async (c: Context<typeConfig.Context>)
     scope: validScopes.join(' '),
   }
 
+  await clientCredentialsHook.postTokenClientCredentials()
   return c.json(result)
 }
 
