@@ -4,6 +4,7 @@ const Org = {
     id: { type: 'number' },
     name: { type: 'string' },
     slug: { type: 'string' },
+    allowPublicRegistration: { type: 'boolean' },
     companyLogoUrl: { type: 'string' },
     companyEmailLogoUrl: { type: 'string' },
     fontFamily: { type: 'string' },
@@ -28,7 +29,7 @@ const Org = {
     },
   },
   required: [
-    'id', 'name', 'slug', 'companyLogoUrl', 'companyEmailLogoUrl',
+    'id', 'name', 'slug', 'allowPublicRegistration', 'companyLogoUrl', 'companyEmailLogoUrl',
     'fontFamily', 'fontUrl', 'layoutColor', 'labelColor',
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
@@ -50,6 +51,7 @@ const PutOrgReq = {
       minLength: 1,
       maxLength: 50,
     },
+    allowPublicRegistration: { type: 'boolean' },
     companyLogoUrl: {
       type: 'string',
       minLength: 0,
@@ -146,8 +148,9 @@ const PostOrgReq = {
       minLength: 1,
       maxLength: 50,
     },
+    allowPublicRegistration: { type: 'boolean' },
   },
-  required: ['name', 'slug'],
+  required: ['name', 'slug', 'allowPublicRegistration'],
 }
 
 module.exports = {

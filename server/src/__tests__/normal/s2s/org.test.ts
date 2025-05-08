@@ -34,13 +34,15 @@ afterEach(async () => {
 const BaseRoute = routeConfig.InternalRoute.ApiOrgs
 
 const createNewOrg = async (
-  token?: string, values?: { name?: string; slug?: string },
+  token?: string, values?: { name?: string; slug?: string; allowPublicRegistration?: boolean },
 ) => await app.request(
   BaseRoute,
   {
     method: 'POST',
     body: JSON.stringify({
-      name: values?.name ?? 'test name', slug: values?.slug ?? 'test slug',
+      name: values?.name ?? 'test name',
+      slug: values?.slug ?? 'test slug',
+      allowPublicRegistration: values?.allowPublicRegistration ?? true,
     }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
   },
@@ -57,6 +59,7 @@ const newOrg = {
   id: 1,
   name: 'test name',
   slug: 'test slug',
+  allowPublicRegistration: true,
   companyLogoUrl: '',
   companyEmailLogoUrl: '',
   fontFamily: '',
@@ -242,6 +245,37 @@ describe(
     )
 
     test(
+      'should create org with allowPublicRegistration to false',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        const res = await app.request(
+          BaseRoute,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              name: 'test name',
+              slug: 'test slug',
+              allowPublicRegistration: false,
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          org: {
+            ...newOrg,
+            allowPublicRegistration: false,
+          },
+        })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
       'should trigger unique constraint on name',
       async () => {
         global.process.env.ENABLE_ORG = true as unknown as string
@@ -320,8 +354,10 @@ describe(
         global.process.env.ENABLE_ORG = true as unknown as string
 
         await createNewOrg()
+
         const updateObj = {
-          name: 'test name 1', slug: 'test slug 1',
+          name: 'test name 1',
+          slug: 'test slug 1',
         }
         const res = await app.request(
           `${BaseRoute}/1`,
@@ -338,6 +374,53 @@ describe(
           org: {
             ...newOrg,
             ...updateObj,
+          },
+        })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'could update org with allowPublicRegistration',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ allowPublicRegistration: false }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          org: {
+            ...newOrg,
+            allowPublicRegistration: false,
+          },
+        })
+
+        const res1 = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ allowPublicRegistration: true }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json1 = await res1.json()
+
+        expect(json1).toStrictEqual({
+          org: {
+            ...newOrg,
+            allowPublicRegistration: true,
           },
         })
 

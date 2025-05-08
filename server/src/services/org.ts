@@ -40,7 +40,9 @@ export const createOrg = async (
   const org = await orgModel.create(
     c.env.DB,
     {
-      name: dto.name, slug: dto.slug,
+      name: dto.name,
+      slug: dto.slug,
+      allowPublicRegistration: dto.allowPublicRegistration ? 1 : 0,
     },
   )
   return org
@@ -51,12 +53,15 @@ export const updateOrg = async (
   orgId: number,
   dto: orgDto.PutOrgDto,
 ): Promise<orgModel.Record> => {
+  const allowPublicRegistration = dto.allowPublicRegistration ? 1 : 0
+
   const org = await orgModel.update(
     c.env.DB,
     orgId,
     {
       name: dto.name,
       slug: dto.slug,
+      allowPublicRegistration: dto.allowPublicRegistration === undefined ? undefined : allowPublicRegistration,
       companyLogoUrl: dto.companyLogoUrl,
       companyEmailLogoUrl: dto.companyEmailLogoUrl,
       fontFamily: dto.fontFamily,

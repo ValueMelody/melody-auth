@@ -168,7 +168,8 @@
     "secondaryButtonBorderColor": "Couleur de la bordure du bouton secondaire",
     "criticalIndicatorColor": "Couleur de l'indicateur critique",
     "termsLink": "Lien des conditions d'utilisation",
-    "privacyPolicyLink": "Lien de la politique de confidentialité"
+    "privacyPolicyLink": "Lien de la politique de confidentialité",
+    "allowPublicRegistration": "Autoriser l'inscription publique"
   },
   "logs": {
     "title": "Journaux",

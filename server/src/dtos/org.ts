@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsNotEmpty, IsOptional, IsString, Length,
 } from 'class-validator'
 
@@ -19,9 +20,14 @@ export class PostOrgDto {
   @IsNotEmpty()
     slug: string
 
+  @IsBoolean()
+  @IsNotEmpty()
+    allowPublicRegistration: boolean
+
   constructor (dto: PostOrgDto) {
     this.name = dto.name.trim()
     this.slug = dto.slug.trim()
+    this.allowPublicRegistration = dto.allowPublicRegistration
   }
 }
 
@@ -41,6 +47,10 @@ export class PutOrgDto {
   )
   @IsOptional()
     slug: string
+
+  @IsBoolean()
+  @IsOptional()
+    allowPublicRegistration: boolean
 
   @IsString()
   @Length(
@@ -173,6 +183,7 @@ export class PutOrgDto {
   constructor (dto: PutOrgDto) {
     this.name = dto.name?.trim()
     this.slug = dto.slug?.trim()
+    this.allowPublicRegistration = dto.allowPublicRegistration
     this.companyLogoUrl = dto.companyLogoUrl
     this.companyEmailLogoUrl = dto.companyEmailLogoUrl
     this.fontFamily = dto.fontFamily

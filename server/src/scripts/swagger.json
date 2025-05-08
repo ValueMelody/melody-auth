@@ -274,6 +274,9 @@
           "slug": {
             "type": "string"
           },
+          "allowPublicRegistration": {
+            "type": "boolean"
+          },
           "companyLogoUrl": {
             "type": "string"
           },
@@ -337,6 +340,7 @@
           "id",
           "name",
           "slug",
+          "allowPublicRegistration",
           "companyLogoUrl",
           "companyEmailLogoUrl",
           "fontFamily",
@@ -370,6 +374,9 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 50
+          },
+          "allowPublicRegistration": {
+            "type": "boolean"
           },
           "companyLogoUrl": {
             "type": "string",
@@ -465,11 +472,15 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 50
+          },
+          "allowPublicRegistration": {
+            "type": "boolean"
           }
         },
         "required": [
           "name",
-          "slug"
+          "slug",
+          "allowPublicRegistration"
         ]
       },
       "App": {

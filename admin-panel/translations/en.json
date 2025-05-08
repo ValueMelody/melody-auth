@@ -175,7 +175,8 @@
     "secondaryButtonBorderColor": "Secondary Button Border Color",
     "criticalIndicatorColor": "Critical Indicator Color",
     "termsLink": "Terms Link",
-    "privacyPolicyLink": "Privacy Policy Link"
+    "privacyPolicyLink": "Privacy Policy Link",
+    "allowPublicRegistration": "Allow Public Registration"
   },
   "logs": {
     "title": "Logs",
