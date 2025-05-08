@@ -915,6 +915,7 @@ export type Org = {
   id: number;
   name: string;
   slug: string;
+  allowPublicRegistration: boolean;
   companyLogoUrl: string;
   companyEmailLogoUrl: string;
   fontFamily: string;
@@ -938,10 +939,12 @@ export type Org = {
 export type PostOrgReq = {
   name: string;
   slug: string;
+  allowPublicRegistration: boolean;
 };
 export type PutOrgReq = {
   name?: string;
   slug?: string;
+  allowPublicRegistration?: boolean;
   companyLogoUrl?: string;
   companyEmailLogoUrl?: string;
   fontFamily?: string;

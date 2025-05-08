@@ -3,7 +3,7 @@ import {
 } from 'configs'
 import { dbUtil } from 'utils'
 
-export interface Record {
+export interface Common {
   id: number;
   name: string;
   slug: string;
@@ -28,6 +28,14 @@ export interface Record {
   deletedAt: string | null;
 }
 
+export interface Raw extends Common {
+  allowPublicRegistration: number;
+}
+
+export interface Record extends Common {
+  allowPublicRegistration: boolean;
+}
+
 export interface ApiRecord {
   id: number;
   name: string;
@@ -37,11 +45,13 @@ export interface ApiRecord {
 export interface Create {
   name: string;
   slug: string;
+  allowPublicRegistration: number;
 }
 
 export interface Update {
   name?: string;
   slug?: string;
+  allowPublicRegistration?: number;
   companyLogoUrl?: string;
   companyEmailLogoUrl?: string;
   fontFamily?: string;
@@ -64,6 +74,13 @@ export interface Update {
 
 const TableName = adapterConfig.TableName.Org
 
+export const format = (raw: Raw): Record => {
+  return {
+    ...raw,
+    allowPublicRegistration: !!raw.allowPublicRegistration,
+  }
+}
+
 export const convertToApiRecord = (record: Record): ApiRecord => {
   const result: ApiRecord = {
     id: record.id,
@@ -76,8 +93,8 @@ export const convertToApiRecord = (record: Record): ApiRecord => {
 export const getAll = async (db: D1Database): Promise<Record[]> => {
   const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL ORDER BY id ASC`
   const stmt = db.prepare(query)
-  const { results: orgs }: { results: Record[] } = await stmt.all()
-  return orgs
+  const { results: orgs }: { results: Raw[] } = await stmt.all()
+  return orgs.map((org) => format(org))
 }
 
 export const getById = async (
@@ -88,8 +105,8 @@ export const getById = async (
 
   const stmt = db.prepare(query)
     .bind(id)
-  const org = await stmt.first() as Record | null
-  return org
+  const org = await stmt.first() as Raw | null
+  return org ? format(org) : null
 }
 
 export const getBySlug = async (
@@ -107,10 +124,11 @@ export const getBySlug = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (name, slug) values ($1, $2)`
+  const query = `INSERT INTO ${TableName} (name, slug, "allowPublicRegistration") values ($1, $2, $3)`
   const stmt = db.prepare(query).bind(
     create.name,
     create.slug,
+    create.allowPublicRegistration,
   )
   const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
@@ -132,7 +150,7 @@ export const update = async (
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
     'criticalIndicatorColor', 'emailSenderName', 'termsLink', 'privacyPolicyLink',
-    'updatedAt',
+    'updatedAt', 'allowPublicRegistration',
   ]
 
   const stmt = dbUtil.d1UpdateQuery(

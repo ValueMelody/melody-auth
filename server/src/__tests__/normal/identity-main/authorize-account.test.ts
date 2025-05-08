@@ -181,6 +181,48 @@ describe(
     )
 
     test(
+      'should not store org slug after sign up if allowPublicRegistration is false',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration") values (\'test\', \'default\', \'https://test_logo.com\', 0)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          org: 'default',
+        }
+
+        await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.orgSlug).toBe('')
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(emailBody).not.toContain('https://test_logo.com')
+        expect(emailBody).toContain(process.env.COMPANY_LOGO_URL)
+        expect(emailBody).toContain(process.env.COMPANY_EMAIL_LOGO_URL)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if email exists',
       async () => {
         const res = await postAuthorizeAccount()

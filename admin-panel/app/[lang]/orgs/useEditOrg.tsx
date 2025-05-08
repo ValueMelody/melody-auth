@@ -10,6 +10,7 @@ const useEditOrg = (org: Org | undefined) => {
 
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
+  const [allowPublicRegistration, setAllowPublicRegistration] = useState(true)
   const [companyLogoUrl, setCompanyLogoUrl] = useState('')
   const [companyEmailLogoUrl, setCompanyEmailLogoUrl] = useState('')
   const [fontFamily, setFontFamily] = useState('')
@@ -30,6 +31,7 @@ const useEditOrg = (org: Org | undefined) => {
     () => {
       setName(org?.name ?? '')
       setSlug(org?.slug ?? '')
+      setAllowPublicRegistration(org?.allowPublicRegistration ?? true)
       setCompanyLogoUrl(org?.companyLogoUrl ?? '')
       setCompanyEmailLogoUrl(org?.companyEmailLogoUrl ?? '')
       setFontFamily(org?.fontFamily ?? '')
@@ -53,6 +55,7 @@ const useEditOrg = (org: Org | undefined) => {
     () => ({
       name,
       slug,
+      allowPublicRegistration,
       companyLogoUrl,
       companyEmailLogoUrl,
       fontFamily,
@@ -72,6 +75,7 @@ const useEditOrg = (org: Org | undefined) => {
     [
       name,
       slug,
+      allowPublicRegistration,
       companyLogoUrl,
       companyEmailLogoUrl,
       fontFamily,
@@ -99,7 +103,7 @@ const useEditOrg = (org: Org | undefined) => {
   )
 
   const onChange = (
-    key: string, value: string | string[],
+    key: string, value: string | boolean | string[],
   ) => {
     switch (key) {
     case 'name':
@@ -107,6 +111,9 @@ const useEditOrg = (org: Org | undefined) => {
       break
     case 'slug':
       setSlug(value as string)
+      break
+    case 'allowPublicRegistration':
+      setAllowPublicRegistration(value as boolean)
       break
     case 'companyLogoUrl':
       setCompanyLogoUrl(value as string)

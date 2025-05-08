@@ -31,6 +31,7 @@ import UserTable from 'components/UserTable'
 import Breadcrumb from 'components/Breadcrumb'
 import PageTitle from 'components/PageTitle'
 import LoadingPage from 'components/LoadingPage'
+import { Switch } from 'components/ui/switch'
 
 const Page = () => {
   const { id } = useParams()
@@ -138,215 +139,231 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>{t('orgs.companyLogoUrl')}</TableCell>
+              <TableCell>{t('orgs.allowPublicRegistration')}</TableCell>
               <TableCell>
-                <LinkInput
-                  data-testid='companyLogoUrlInput'
-                  disabled={!canWriteOrg}
-                  onChange={(value) => onChange(
-                    'companyLogoUrl',
-                    value,
+                <Switch
+                  checked={values.allowPublicRegistration}
+                  onClick={() => onChange(
+                    'allowPublicRegistration',
+                    !values.allowPublicRegistration,
                   )}
-                  value={values.companyLogoUrl}
                 />
               </TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.companyEmailLogoUrl')}</TableCell>
-              <TableCell>
-                <LinkInput
-                  data-testid='companyEmailLogoUrlInput'
-                  disabled={!canWriteOrg}
-                  onChange={(value) => onChange(
-                    'companyEmailLogoUrl',
-                    value,
-                  )}
-                  value={values.companyEmailLogoUrl}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.fontFamily')}</TableCell>
-              <TableCell>
-                <Input
-                  disabled={!canWriteOrg}
-                  data-testid='fontFamilyInput'
-                  onChange={(e) => onChange(
-                    'fontFamily',
-                    e.target.value,
-                  )}
-                  value={values.fontFamily}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.fontUrl')}</TableCell>
-              <TableCell>
-                <LinkInput
-                  disabled={!canWriteOrg}
-                  data-testid='fontUrlInput'
-                  onChange={(value) => onChange(
-                    'fontUrl',
-                    value,
-                  )}
-                  value={values.fontUrl}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.layoutColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='layoutColorInput'
-                  onChange={(value) => onChange(
-                    'layoutColor',
-                    value,
-                  )}
-                  value={values.layoutColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.labelColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='labelColorInput'
-                  onChange={(value) => onChange(
-                    'labelColor',
-                    value,
-                  )}
-                  value={values.labelColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.primaryButtonColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='primaryButtonColorInput'
-                  onChange={(value) => onChange(
-                    'primaryButtonColor',
-                    value,
-                  )}
-                  value={values.primaryButtonColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.primaryButtonLabelColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='primaryButtonLabelColorInput'
-                  onChange={(value) => onChange(
-                    'primaryButtonLabelColor',
-                    value,
-                  )}
-                  value={values.primaryButtonLabelColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.primaryButtonBorderColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='primaryButtonBorderColorInput'
-                  onChange={(value) => onChange(
-                    'primaryButtonBorderColor',
-                    value,
-                  )}
-                  value={values.primaryButtonBorderColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.secondaryButtonColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='secondaryButtonColorInput'
-                  onChange={(value) => onChange(
-                    'secondaryButtonColor',
-                    value,
-                  )}
-                  value={values.secondaryButtonColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.secondaryButtonLabelColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='secondaryButtonLabelColorInput'
-                  onChange={(value) => onChange(
-                    'secondaryButtonLabelColor',
-                    value,
-                  )}
-                  value={values.secondaryButtonLabelColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.secondaryButtonBorderColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='secondaryButtonBorderColorInput'
-                  onChange={(value) => onChange(
-                    'secondaryButtonBorderColor',
-                    value,
-                  )}
-                  value={values.secondaryButtonBorderColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.criticalIndicatorColor')}</TableCell>
-              <TableCell>
-                <ColorInput
-                  disabled={!canWriteOrg}
-                  data-testid='criticalIndicatorColorInput'
-                  onChange={(value) => onChange(
-                    'criticalIndicatorColor',
-                    value,
-                  )}
-                  value={values.criticalIndicatorColor}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.termsLink')}</TableCell>
-              <TableCell>
-                <LinkInput
-                  data-testid='termsLinkInput'
-                  disabled={!canWriteOrg}
-                  onChange={(value) => onChange(
-                    'termsLink',
-                    value,
-                  )}
-                  value={values.termsLink}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>{t('orgs.privacyPolicyLink')}</TableCell>
-              <TableCell>
-                <LinkInput
-                  data-testid='privacyPolicyLinkInput'
-                  disabled={!canWriteOrg}
-                  onChange={(value) => onChange(
-                    'privacyPolicyLink',
-                    value,
-                  )}
-                  value={values.privacyPolicyLink}
-                />
-              </TableCell>
-            </TableRow>
+            {!!values.allowPublicRegistration && (
+              <>
+                <TableRow>
+                  <TableCell>{t('orgs.companyLogoUrl')}</TableCell>
+                  <TableCell>
+                    <LinkInput
+                      data-testid='companyLogoUrlInput'
+                      disabled={!canWriteOrg}
+                      onChange={(value) => onChange(
+                        'companyLogoUrl',
+                        value,
+                      )}
+                      value={values.companyLogoUrl}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.companyEmailLogoUrl')}</TableCell>
+                  <TableCell>
+                    <LinkInput
+                      data-testid='companyEmailLogoUrlInput'
+                      disabled={!canWriteOrg}
+                      onChange={(value) => onChange(
+                        'companyEmailLogoUrl',
+                        value,
+                      )}
+                      value={values.companyEmailLogoUrl}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.fontFamily')}</TableCell>
+                  <TableCell>
+                    <Input
+                      disabled={!canWriteOrg}
+                      data-testid='fontFamilyInput'
+                      onChange={(e) => onChange(
+                        'fontFamily',
+                        e.target.value,
+                      )}
+                      value={values.fontFamily}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.fontUrl')}</TableCell>
+                  <TableCell>
+                    <LinkInput
+                      disabled={!canWriteOrg}
+                      data-testid='fontUrlInput'
+                      onChange={(value) => onChange(
+                        'fontUrl',
+                        value,
+                      )}
+                      value={values.fontUrl}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.layoutColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='layoutColorInput'
+                      onChange={(value) => onChange(
+                        'layoutColor',
+                        value,
+                      )}
+                      value={values.layoutColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.labelColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='labelColorInput'
+                      onChange={(value) => onChange(
+                        'labelColor',
+                        value,
+                      )}
+                      value={values.labelColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.primaryButtonColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='primaryButtonColorInput'
+                      onChange={(value) => onChange(
+                        'primaryButtonColor',
+                        value,
+                      )}
+                      value={values.primaryButtonColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.primaryButtonLabelColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='primaryButtonLabelColorInput'
+                      onChange={(value) => onChange(
+                        'primaryButtonLabelColor',
+                        value,
+                      )}
+                      value={values.primaryButtonLabelColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.primaryButtonBorderColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='primaryButtonBorderColorInput'
+                      onChange={(value) => onChange(
+                        'primaryButtonBorderColor',
+                        value,
+                      )}
+                      value={values.primaryButtonBorderColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.secondaryButtonColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='secondaryButtonColorInput'
+                      onChange={(value) => onChange(
+                        'secondaryButtonColor',
+                        value,
+                      )}
+                      value={values.secondaryButtonColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.secondaryButtonLabelColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='secondaryButtonLabelColorInput'
+                      onChange={(value) => onChange(
+                        'secondaryButtonLabelColor',
+                        value,
+                      )}
+                      value={values.secondaryButtonLabelColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.secondaryButtonBorderColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='secondaryButtonBorderColorInput'
+                      onChange={(value) => onChange(
+                        'secondaryButtonBorderColor',
+                        value,
+                      )}
+                      value={values.secondaryButtonBorderColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.criticalIndicatorColor')}</TableCell>
+                  <TableCell>
+                    <ColorInput
+                      disabled={!canWriteOrg}
+                      data-testid='criticalIndicatorColorInput'
+                      onChange={(value) => onChange(
+                        'criticalIndicatorColor',
+                        value,
+                      )}
+                      value={values.criticalIndicatorColor}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.termsLink')}</TableCell>
+                  <TableCell>
+                    <LinkInput
+                      data-testid='termsLinkInput'
+                      disabled={!canWriteOrg}
+                      onChange={(value) => onChange(
+                        'termsLink',
+                        value,
+                      )}
+                      value={values.termsLink}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.privacyPolicyLink')}</TableCell>
+                  <TableCell>
+                    <LinkInput
+                      data-testid='privacyPolicyLinkInput'
+                      disabled={!canWriteOrg}
+                      onChange={(value) => onChange(
+                        'privacyPolicyLink',
+                        value,
+                      )}
+                      value={values.privacyPolicyLink}
+                    />
+                  </TableCell>
+                </TableRow>
+              </>
+            )}
             <TableRow>
               <TableCell>{t('common.createdAt')}</TableCell>
               <TableCell>{org.createdAt} UTC</TableCell>

@@ -14,6 +14,7 @@ import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import { usePostApiV1OrgsMutation } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
+import { Switch } from 'components/ui/switch'
 
 const Page = () => {
   const t = useTranslations()
@@ -83,6 +84,18 @@ const Page = () => {
                   value={values.slug}
                 />
                 {showErrors && <FieldError error={errors.slug} />}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.allowPublicRegistration')}</TableCell>
+              <TableCell>
+                <Switch
+                  checked={values.allowPublicRegistration}
+                  onClick={() => onChange(
+                    'allowPublicRegistration',
+                    !values.allowPublicRegistration,
+                  )}
+                />
               </TableCell>
             </TableRow>
           </TableBody>
