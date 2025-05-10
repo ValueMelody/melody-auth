@@ -221,6 +221,7 @@ const Page = () => {
                 <div className='flex items-center gap-2'>
                   <Switch
                     id='mfa-useSystem'
+                    data-testid='mfa-useSystem'
                     checked={values.useSystemMfaConfig}
                     disabled={!canWriteApp}
                     onClick={() => onChange(
@@ -241,6 +242,7 @@ const Page = () => {
                     <div className='flex items-center gap-2'>
                       <Switch
                         id='mfa-requireEmail'
+                        data-testid='mfa-requireEmail'
                         checked={values.requireEmailMfa}
                         disabled={!canWriteApp}
                         onClick={() => onChange(
@@ -258,6 +260,7 @@ const Page = () => {
                     <div className='flex items-center gap-2'>
                       <Switch
                         id='mfa-requireOtp'
+                        data-testid='mfa-requireOtp'
                         checked={values.requireOtpMfa}
                         disabled={!canWriteApp}
                         onClick={() => onChange(
@@ -275,6 +278,7 @@ const Page = () => {
                     <div className='flex items-center gap-2'>
                       <Switch
                         id='mfa-requireSms'
+                        data-testid='mfa-requireSms'
                         checked={values.requireSmsMfa}
                         disabled={!canWriteApp}
                         onClick={() => onChange(
@@ -292,6 +296,7 @@ const Page = () => {
                     <div className='flex items-center gap-2'>
                       <Switch
                         id='mfa-allowEmailMfaAsBackup'
+                        data-testid='mfa-allowEmailMfaAsBackup'
                         checked={values.allowEmailMfaAsBackup}
                         disabled={!canWriteApp}
                         onClick={() => onChange(

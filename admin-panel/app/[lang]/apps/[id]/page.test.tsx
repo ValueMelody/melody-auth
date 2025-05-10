@@ -333,22 +333,22 @@ describe(
       async () => {
         render(<Page />)
         // Query the system MFA switch by its id
-        const systemSwitch = document.getElementById('mfa-useSystem')
+        const systemSwitch = screen.getByTestId('mfa-useSystem')
         expect(systemSwitch).toBeInTheDocument()
 
         // Initially, additional MFA fields should not be rendered when useSystemMfaConfig is true
-        expect(screen.queryByLabelText('apps.requireEmailMfa')).toBeNull()
-        expect(screen.queryByLabelText('apps.requireOtpMfa')).toBeNull()
-        expect(screen.queryByLabelText('apps.requireSmsMfa')).toBeNull()
-        expect(screen.queryByLabelText('apps.allowEmailMfaAsBackup')).toBeNull()
+        expect(screen.getByTestId('mfa-requireEmail')).not.toBeInTheDocument()
+        expect(screen.getByTestId('mfa-requireOtp')).not.toBeInTheDocument()
+        expect(screen.getByTestId('mfa-requireSms')).not.toBeInTheDocument()
+        expect(screen.getByTestId('mfa-allowEmailMfaAsBackup')).not.toBeInTheDocument()
 
         // Toggle the system MFA switch to false
         fireEvent.click(systemSwitch)
 
-        expect(screen.getByLabelText('apps.requireEmailMfa')).not.toBeNull()
-        expect(screen.getByLabelText('apps.requireOtpMfa')).not.toBeNull()
-        expect(screen.getByLabelText('apps.requireSmsMfa')).not.toBeNull()
-        expect(screen.getByLabelText('apps.allowEmailMfaAsBackup')).not.toBeNull()
+        expect(screen.getByTestId('mfa-requireEmail')).toBeInTheDocument()
+        expect(screen.getByTestId('mfa-requireOtp')).toBeInTheDocument()
+        expect(screen.getByTestId('mfa-requireSms')).toBeInTheDocument()
+        expect(screen.getByTestId('mfa-allowEmailMfaAsBackup')).toBeInTheDocument()
       },
     )
   },
