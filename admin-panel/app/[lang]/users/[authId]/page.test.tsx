@@ -1106,10 +1106,10 @@ describe(
               ...users[0],
               org: {
                 name: 'Current Org',
-                slug: 'current-org'
-              }
-            }
-          }
+                slug: 'current-org',
+              },
+            },
+          },
         })
 
         ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
@@ -1118,15 +1118,15 @@ describe(
               {
                 id: 1,
                 name: 'Current Org',
-                slug: 'current-org'
+                slug: 'current-org',
               },
               {
                 id: 2,
                 name: 'New Org',
-                slug: 'new-org'
-              }
-            ]
-          }
+                slug: 'new-org',
+              },
+            ],
+          },
         })
 
         render(<Page />)
@@ -1144,8 +1144,8 @@ describe(
           expect(mockUpdate).toHaveBeenLastCalledWith({
             authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
             putUserReq: {
-              orgSlug: 'new-org'
-            }
+              orgSlug: 'new-org',
+            },
           })
         })
       },
@@ -1171,5 +1171,66 @@ describe(
         expect(screen.getByRole('alertdialog')).toBeInTheDocument();
       });
     });
+
+    it(
+      'renders read-only view when user does not have write permission',
+      async () => {
+        // Override the auth hook to simulate a user with no write permissions
+        mockUseAuth.mockReturnValue({
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [],
+          },
+        });
+        render(<Page />);
+        // Expect that the Save button is not rendered for a read-only view
+        expect(screen.queryByTestId('saveButton')).not.toBeInTheDocument();
+        // Optionally, check that input fields are disabled if they appear
+        const firstNameInput = screen.queryByTestId('firstNameInput');
+        if (firstNameInput) {
+          expect(firstNameInput).toHaveAttribute('disabled');
+        }
+      },
+    )
+
+    it(
+      'renders loading state when user is loading',
+      async () => {
+        (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          isLoading: true,
+          data: undefined,
+        })
+        render(<Page />)
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
+      },
+    )
+
+    // New test: unlink button should not render when no write permission
+    it(
+      'does not render unlink account button when user does not have write permission',
+      async () => {
+        // simulate no write permissions and a linked account
+        ;mockUseAuth.mockReturnValue({
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [],
+          },
+        })
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              socialAccountId: null,
+              linkedAuthId: 'linked-user-123',
+            },
+          },
+        })
+        render(<Page />)
+        await waitFor(() => {
+          expect(screen.getByText('linked-user-123')).toBeInTheDocument()
+          expect(screen.queryByText('users.unlink')).not.toBeInTheDocument()
+        })
+      },
+    )
   },
 );

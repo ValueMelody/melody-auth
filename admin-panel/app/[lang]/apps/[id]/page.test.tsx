@@ -337,18 +337,42 @@ describe(
         expect(systemSwitch).toBeInTheDocument()
 
         // Initially, additional MFA fields should not be rendered when useSystemMfaConfig is true
-        expect(screen.getByTestId('mfa-requireEmail')).not.toBeInTheDocument()
-        expect(screen.getByTestId('mfa-requireOtp')).not.toBeInTheDocument()
-        expect(screen.getByTestId('mfa-requireSms')).not.toBeInTheDocument()
-        expect(screen.getByTestId('mfa-allowEmailMfaAsBackup')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('mfa-requireEmail')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('mfa-requireOtp')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('mfa-requireSms')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('mfa-allowEmailMfaAsBackup')).not.toBeInTheDocument()
 
         // Toggle the system MFA switch to false
         fireEvent.click(systemSwitch)
 
-        expect(screen.getByTestId('mfa-requireEmail')).toBeInTheDocument()
-        expect(screen.getByTestId('mfa-requireOtp')).toBeInTheDocument()
-        expect(screen.getByTestId('mfa-requireSms')).toBeInTheDocument()
-        expect(screen.getByTestId('mfa-allowEmailMfaAsBackup')).toBeInTheDocument()
+        const requireEmailSwitch = screen.getByTestId('mfa-requireEmail')
+        const requireOtpSwitch = screen.getByTestId('mfa-requireOtp')
+        const requireSmsSwitch = screen.getByTestId('mfa-requireSms')
+        const allowEmailMfaAsBackupSwitch = screen.getByTestId('mfa-allowEmailMfaAsBackup')
+        expect(requireEmailSwitch).toBeInTheDocument()
+        expect(requireEmailSwitch.getAttribute('aria-checked')).toBe('false')
+        expect(requireOtpSwitch).toBeInTheDocument()
+        expect(requireOtpSwitch.getAttribute('aria-checked')).toBe('false')
+        expect(requireSmsSwitch).toBeInTheDocument()
+        expect(requireSmsSwitch.getAttribute('aria-checked')).toBe('false')
+        expect(allowEmailMfaAsBackupSwitch).toBeInTheDocument()
+        expect(allowEmailMfaAsBackupSwitch.getAttribute('aria-checked')).toBe('false')
+
+        fireEvent.click(requireEmailSwitch)
+        expect(requireEmailSwitch.getAttribute('aria-checked')).toBe('true')
+        fireEvent.click(requireOtpSwitch)
+        expect(requireOtpSwitch.getAttribute('aria-checked')).toBe('true')
+        fireEvent.click(requireSmsSwitch)
+        expect(requireSmsSwitch.getAttribute('aria-checked')).toBe('true')
+        fireEvent.click(allowEmailMfaAsBackupSwitch)
+        expect(allowEmailMfaAsBackupSwitch.getAttribute('aria-checked')).toBe('true')
+        
+        fireEvent.click(systemSwitch)
+
+        expect(requireEmailSwitch).not.toBeInTheDocument()
+        expect(requireOtpSwitch).not.toBeInTheDocument()
+        expect(requireSmsSwitch).not.toBeInTheDocument()
+        expect(allowEmailMfaAsBackupSwitch).not.toBeInTheDocument()
       },
     )
   },
@@ -440,6 +464,23 @@ describe(
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 
         expect(mockDelete).toHaveBeenLastCalledWith({ id: 2 })
+      },
+    )
+  },
+)
+
+describe(
+  'Page loading',
+  () => {
+    it(
+      'renders loading state when app is loading',
+      async () => {
+        (useGetApiV1AppsByIdQuery as Mock).mockReturnValue({ data: undefined, isLoading: true })
+        render(<Page />)
+        // When loading, the main content such as the name input should not be rendered
+        expect(screen.queryByTestId('nameInput')).not.toBeInTheDocument()
+        // Assuming LoadingPage displays text that includes the word "loading"
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
       },
     )
   },

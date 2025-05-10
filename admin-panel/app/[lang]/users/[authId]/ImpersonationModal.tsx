@@ -57,9 +57,15 @@ const ImpersonationModal = ({
   const isConsented = !enableConsent || consentedApps.some((app) => app.appId === selectedAppId)
 
   const handleAppChange = async (appId: string) => {
+    console.log('111111111111111111111111111')
+    console.log(appId)
     setRefreshTokenStorage(null)
     setSelectedAppId(parseInt(appId))
   }
+
+  console.log(selectedAppId)
+  console.log(apps)
+  console.log(selectedApp)
 
   const handleImpersonate = async () => {
     if (!selectedAppId) return
@@ -93,8 +99,8 @@ const ImpersonationModal = ({
               value={selectedAppId?.toString()}
               onValueChange={handleAppChange}
             >
-              <SelectTrigger data-testid='typeSelect'>
-                <SelectValue data-testid='typeSelectValue' />
+              <SelectTrigger data-testid='appSelect'>
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -102,6 +108,7 @@ const ImpersonationModal = ({
                     <SelectItem
                       key={app.id}
                       value={app.id.toString()}
+                      data-testid={`appSelectItem-${app.id}`}
                     >
                       {app.name}
                     </SelectItem>
@@ -116,7 +123,11 @@ const ImpersonationModal = ({
           {isConsented && !refreshTokenStorage && selectedApp && (
             <Button
               className='mt-4'
-              onClick={handleImpersonate}>{t('confirmImpersonate')}</Button>
+              onClick={handleImpersonate}
+              data-testid='confirmImpersonate'
+            >
+              {t('confirmImpersonate')}
+            </Button>
           )}
           {refreshTokenStorage && (
             <div className='mt-6'>
