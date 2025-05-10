@@ -1143,34 +1143,33 @@ describe(
         await waitFor(() => {
           expect(mockUpdate).toHaveBeenLastCalledWith({
             authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
-            putUserReq: {
-              orgSlug: 'new-org',
-            },
+            putUserReq: { orgSlug: 'new-org' },
           })
         })
       },
     )
 
-    it('shows impersonation modal when impersonate button is clicked', async () => {
-      (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
-        data: {
-          user: {
-            ...users[0],
-            authId: 'different-auth-id',
+    it(
+      'shows impersonation modal when impersonate button is clicked',
+      async () => {
+        (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              authId: 'different-auth-id',
+            },
           },
-        },
-      });
-      (useGetApiV1AppsQuery as Mock).mockReturnValue({
-        data: { apps: [] },
-      });
-      (usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation as Mock).mockReturnValue([]);
-      render(<Page />);
-      const impersonateButton = screen.getByText('users.impersonate');
-      fireEvent.click(impersonateButton);
-      await waitFor(() => {
-        expect(screen.getByRole('alertdialog')).toBeInTheDocument();
-      });
-    });
+        });
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({ data: { apps: [] } });
+        (usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation as Mock).mockReturnValue([])
+        render(<Page />)
+        const impersonateButton = screen.getByText('users.impersonate')
+        fireEvent.click(impersonateButton)
+        await waitFor(() => {
+          expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+        })
+      },
+    )
 
     it(
       'renders read-only view when user does not have write permission',
@@ -1181,14 +1180,14 @@ describe(
             authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
             roles: [],
           },
-        });
-        render(<Page />);
+        })
+        render(<Page />)
         // Expect that the Save button is not rendered for a read-only view
-        expect(screen.queryByTestId('saveButton')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('saveButton')).not.toBeInTheDocument()
         // Optionally, check that input fields are disabled if they appear
-        const firstNameInput = screen.queryByTestId('firstNameInput');
+        const firstNameInput = screen.queryByTestId('firstNameInput')
         if (firstNameInput) {
-          expect(firstNameInput).toHaveAttribute('disabled');
+          expect(firstNameInput).toHaveAttribute('disabled')
         }
       },
     )
@@ -1233,4 +1232,4 @@ describe(
       },
     )
   },
-);
+)

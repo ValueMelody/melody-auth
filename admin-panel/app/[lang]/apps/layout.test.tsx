@@ -19,17 +19,21 @@ const pushMock = vi.fn()
 
 vi.mock(
   '@melody-auth/react',
-  () => ({ useAuth: vi.fn() })
+  () => ({ useAuth: vi.fn() }),
 )
 
 vi.mock(
   'tools',
-  () => ({ accessTool: { Access: { ReadApp: 'read_app' }, isAllowedAccess: vi.fn() } })
+  () => ({
+    accessTool: {
+      Access: { ReadApp: 'read_app' }, isAllowedAccess: vi.fn(),
+    },
+  }),
 )
 
 vi.mock(
   'i18n/navigation',
-  () => ({ useRouter: () => ({ push: pushMock }) })
+  () => ({ useRouter: () => ({ push: pushMock }) }),
 )
 
 describe(
@@ -45,11 +49,9 @@ describe(
         ;(useAuth as any).mockReturnValue({ userInfo: { roles: ['admin'] } })
         ;(accessTool.isAllowedAccess as any).mockReturnValue(true)
 
-        render(
-          <Layout>
-            <div data-testid="child">Child Content</div>
-          </Layout>,
-        )
+        render(<Layout>
+          <div data-testid='child'>Child Content</div>
+        </Layout>)
 
         expect(screen.getByTestId('child')).toBeInTheDocument()
         expect(pushMock).not.toHaveBeenCalled()
@@ -62,11 +64,9 @@ describe(
         ;(useAuth as any).mockReturnValue({ userInfo: { roles: [] } })
         ;(accessTool.isAllowedAccess as any).mockReturnValue(false)
 
-        render(
-          <Layout>
-            <div data-testid="child">Child Content</div>
-          </Layout>,
-        )
+        render(<Layout>
+          <div data-testid='child'>Child Content</div>
+        </Layout>)
 
         await waitFor(() => {
           expect(pushMock).toHaveBeenCalledWith('/')

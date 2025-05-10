@@ -57,15 +57,9 @@ const ImpersonationModal = ({
   const isConsented = !enableConsent || consentedApps.some((app) => app.appId === selectedAppId)
 
   const handleAppChange = async (appId: string) => {
-    console.log('111111111111111111111111111')
-    console.log(appId)
     setRefreshTokenStorage(null)
     setSelectedAppId(parseInt(appId))
   }
-
-  console.log(selectedAppId)
-  console.log(apps)
-  console.log(selectedApp)
 
   const handleImpersonate = async () => {
     if (!selectedAppId) return
@@ -131,7 +125,9 @@ const ImpersonationModal = ({
           )}
           {refreshTokenStorage && (
             <div className='mt-6'>
-              <p className='font-bold'>{t('impersonateToken')}:</p>
+              <p
+                className='font-bold'
+                data-testid='impersonateToken'>{t('impersonateToken')}:</p>
               <p className='break-all mt-2'>{refreshTokenStorage.refreshToken}</p>
               <p className='text-sm text-gray-500 mt-4'>{t('impersonateTokenDesc')}</p>
               <p className='font-bold mt-6'>{t('impersonateDirect')}:</p>

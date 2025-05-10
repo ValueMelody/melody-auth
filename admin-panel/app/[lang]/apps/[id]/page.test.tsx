@@ -1,5 +1,5 @@
 import {
-  fireEvent, screen, waitFor,
+  fireEvent, screen,
 } from '@testing-library/react'
 import {
   describe, it, expect, vi, beforeEach, Mock,
@@ -366,7 +366,7 @@ describe(
         expect(requireSmsSwitch.getAttribute('aria-checked')).toBe('true')
         fireEvent.click(allowEmailMfaAsBackupSwitch)
         expect(allowEmailMfaAsBackupSwitch.getAttribute('aria-checked')).toBe('true')
-        
+
         fireEvent.click(systemSwitch)
 
         expect(requireEmailSwitch).not.toBeInTheDocument()
@@ -475,7 +475,9 @@ describe(
     it(
       'renders loading state when app is loading',
       async () => {
-        (useGetApiV1AppsByIdQuery as Mock).mockReturnValue({ data: undefined, isLoading: true })
+        (useGetApiV1AppsByIdQuery as Mock).mockReturnValue({
+          data: undefined, isLoading: true,
+        })
         render(<Page />)
         // When loading, the main content such as the name input should not be rendered
         expect(screen.queryByTestId('nameInput')).not.toBeInTheDocument()

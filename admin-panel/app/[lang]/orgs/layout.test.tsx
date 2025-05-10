@@ -19,9 +19,7 @@ const pushMock = vi.fn()
 
 vi.mock(
   '@melody-auth/react',
-  () => ({
-    useAuth: vi.fn(),
-  }),
+  () => ({ useAuth: vi.fn() }),
 )
 
 vi.mock(
@@ -36,9 +34,7 @@ vi.mock(
 
 vi.mock(
   'i18n/navigation',
-  () => ({
-    useRouter: () => ({ push: pushMock }),
-  }),
+  () => ({ useRouter: () => ({ push: pushMock }) }),
 )
 
 describe(
@@ -56,7 +52,10 @@ describe(
         render(<Layout><div data-testid='child'>Child Content</div></Layout>)
         expect(screen.getByTestId('child')).toBeInTheDocument()
         expect(pushMock).not.toHaveBeenCalled()
-        expect(accessTool.isAllowedAccess).toHaveBeenCalledWith(accessTool.Access.ReadOrg, ['org_member'])
+        expect(accessTool.isAllowedAccess).toHaveBeenCalledWith(
+          accessTool.Access.ReadOrg,
+          ['org_member'],
+        )
       },
     )
 
@@ -69,8 +68,11 @@ describe(
         await waitFor(() => {
           expect(pushMock).toHaveBeenCalledWith('/')
         })
-        expect(accessTool.isAllowedAccess).toHaveBeenCalledWith(accessTool.Access.ReadOrg, [])
+        expect(accessTool.isAllowedAccess).toHaveBeenCalledWith(
+          accessTool.Access.ReadOrg,
+          [],
+        )
       },
     )
   },
-) 
+)

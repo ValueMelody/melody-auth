@@ -17,27 +17,55 @@ import { accessTool } from 'tools'
 
 const pushMock = vi.fn()
 
-vi.mock('@melody-auth/react', () => ({ useAuth: vi.fn() }))
-vi.mock('tools', () => ({ accessTool: { Access: { ReadRole: 'read_role' }, isAllowedAccess: vi.fn() } }))
-vi.mock('i18n/navigation', () => ({ useRouter: () => ({ push: pushMock }) }))
+vi.mock(
+  '@melody-auth/react',
+  () => ({ useAuth: vi.fn() }),
+)
+vi.mock(
+  'tools',
+  () => ({
+    accessTool: {
+      Access: { ReadRole: 'read_role' }, isAllowedAccess: vi.fn(),
+    },
+  }),
+)
+vi.mock(
+  'i18n/navigation',
+  () => ({ useRouter: () => ({ push: pushMock }) }),
+)
 
-describe('Layout component for roles', () => {
-  afterEach(() => vi.clearAllMocks())
+describe(
+  'Layout component for roles',
+  () => {
+    afterEach(() => vi.clearAllMocks())
 
-  it('renders children when user has access', () => {
-    ;(useAuth as any).mockReturnValue({ userInfo: { roles: ['role_member'] } })
-    ;(accessTool.isAllowedAccess as any).mockReturnValue(true)
-    render(<Layout><div data-testid="child">Child Content</div></Layout>)
-    expect(screen.getByTestId('child')).toBeInTheDocument()
-    expect(pushMock).not.toHaveBeenCalled()
-    expect(accessTool.isAllowedAccess).toHaveBeenCalledWith(accessTool.Access.ReadRole, ['role_member'])
-  })
+    it(
+      'renders children when user has access',
+      () => {
+        ;(useAuth as any).mockReturnValue({ userInfo: { roles: ['role_member'] } })
+        ;(accessTool.isAllowedAccess as any).mockReturnValue(true)
+        render(<Layout><div data-testid='child'>Child Content</div></Layout>)
+        expect(screen.getByTestId('child')).toBeInTheDocument()
+        expect(pushMock).not.toHaveBeenCalled()
+        expect(accessTool.isAllowedAccess).toHaveBeenCalledWith(
+          accessTool.Access.ReadRole,
+          ['role_member'],
+        )
+      },
+    )
 
-  it('redirects when user does not have access', async () => {
-    ;(useAuth as any).mockReturnValue({ userInfo: { roles: [] } })
-    ;(accessTool.isAllowedAccess as any).mockReturnValue(false)
-    render(<Layout><div data-testid="child">Child Content</div></Layout>)
-    await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/'))
-    expect(accessTool.isAllowedAccess).toHaveBeenCalledWith(accessTool.Access.ReadRole, [])
-  })
-}) 
+    it(
+      'redirects when user does not have access',
+      async () => {
+        ;(useAuth as any).mockReturnValue({ userInfo: { roles: [] } })
+        ;(accessTool.isAllowedAccess as any).mockReturnValue(false)
+        render(<Layout><div data-testid='child'>Child Content</div></Layout>)
+        await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/'))
+        expect(accessTool.isAllowedAccess).toHaveBeenCalledWith(
+          accessTool.Access.ReadRole,
+          [],
+        )
+      },
+    )
+  },
+)

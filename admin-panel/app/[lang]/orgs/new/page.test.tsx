@@ -165,11 +165,17 @@ describe(
         render(<Page />)
         const toggle = screen.getByTestId('allowPublicRegistrationSwitch')
         // Check that initially the switch is off
-        expect(toggle).toHaveAttribute('aria-checked', 'true')
+        expect(toggle).toHaveAttribute(
+          'aria-checked',
+          'true',
+        )
         // Toggle the switch
         fireEvent.click(toggle)
         // Expect the switch to be on
-        expect(toggle).toHaveAttribute('aria-checked', 'false')
+        expect(toggle).toHaveAttribute(
+          'aria-checked',
+          'false',
+        )
       },
     )
   },
