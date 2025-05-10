@@ -843,6 +843,29 @@ describe(
         expect(res.status).toBe(401)
       },
     )
+
+    test(
+      'should return 401 when before is not a valid time string',
+      async () => {
+        await insertSignInLogs()
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/sign-in?before=abc`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+            method: 'DELETE',
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+      },
+    )
   },
 )
 

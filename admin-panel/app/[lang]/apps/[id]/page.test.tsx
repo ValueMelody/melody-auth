@@ -1,5 +1,5 @@
 import {
-  fireEvent, screen,
+  fireEvent, screen, waitFor,
 } from '@testing-library/react'
 import {
   describe, it, expect, vi, beforeEach, Mock,
@@ -325,6 +325,30 @@ describe(
         expect(screen.queryByTestId('statusInput')).not.toBeInTheDocument()
         expect(screen.queryByTestId('saveButton')).not.toBeInTheDocument()
         expect(screen.queryByTestId('deleteButton')).not.toBeInTheDocument()
+      },
+    )
+
+    it(
+      'toggles MFA configuration fields',
+      async () => {
+        render(<Page />)
+        // Query the system MFA switch by its id
+        const systemSwitch = document.getElementById('mfa-useSystem')
+        expect(systemSwitch).toBeInTheDocument()
+
+        // Initially, additional MFA fields should not be rendered when useSystemMfaConfig is true
+        expect(screen.queryByLabelText('apps.requireEmailMfa')).toBeNull()
+        expect(screen.queryByLabelText('apps.requireOtpMfa')).toBeNull()
+        expect(screen.queryByLabelText('apps.requireSmsMfa')).toBeNull()
+        expect(screen.queryByLabelText('apps.allowEmailMfaAsBackup')).toBeNull()
+
+        // Toggle the system MFA switch to false
+        fireEvent.click(systemSwitch)
+
+        expect(screen.getByLabelText('apps.requireEmailMfa')).not.toBeNull()
+        expect(screen.getByLabelText('apps.requireOtpMfa')).not.toBeNull()
+        expect(screen.getByLabelText('apps.requireSmsMfa')).not.toBeNull()
+        expect(screen.getByLabelText('apps.allowEmailMfaAsBackup')).not.toBeNull()
       },
     )
   },

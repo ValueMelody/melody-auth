@@ -77,5 +77,15 @@ describe(
         expect(createButton.getAttribute('href')).toBe('/apps/new')
       },
     )
+
+    it(
+      'shows loading state when isLoading is true',
+      () => {
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({ isLoading: true })
+        render(<Page />)
+        // Assert that the LoadingPage component is rendered by checking for text that includes 'loading'
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
+      },
+    )
   },
 )

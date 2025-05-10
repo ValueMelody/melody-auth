@@ -3,7 +3,7 @@ import {
   Mock,
 } from 'vitest'
 import {
-  render, screen, fireEvent, waitFor,
+  render, screen, fireEvent, waitFor, within,
 } from '@testing-library/react'
 import Page from 'app/[lang]/orgs/[id]/page'
 import {
@@ -340,6 +340,13 @@ describe(
         )
         expect(companyLogoInput).toHaveValue('https://example.com/new-logo.png')
 
+        const companyEmailLogoInput = screen.getByTestId('companyEmailLogoUrlInput')
+        fireEvent.change(
+          companyEmailLogoInput,
+          { target: { value: 'https://example.com/new-logo1.png' } },
+        )
+        expect(companyEmailLogoInput).toHaveValue('https://example.com/new-logo1.png')
+
         // Test slug input
         const slugInput = screen.getByTestId('slugInput')
         fireEvent.change(
@@ -580,17 +587,14 @@ describe(
       'handles page changes correctly',
       async () => {
         render(<Page />)
-
         ;(useGetApiV1OrgsByIdUsersQuery as Mock).mockClear()
-
         await waitFor(() => {
           const nextButton = screen.getByTitle('common.next')
           expect(nextButton).toBeInTheDocument()
           nextButton.click()
         })
-
         await waitFor(() => {
-        // Verify the API was called with page 2
+          // Verify the API was called with page 2
           expect(useGetApiV1OrgsByIdUsersQuery).toHaveBeenCalledWith(
             expect.objectContaining({
               pageNumber: 2,
@@ -599,6 +603,54 @@ describe(
             expect.objectContaining({ skip: false }),
           )
         })
+      },
+    )
+
+    it(
+      'toggles allowPublicRegistration switch and conditionally renders additional fields',
+      async () => {
+        const orgWithPublicReg = {
+          ...mockOrg,
+          allowPublicRegistration: true,
+        }
+        vi.mocked(useGetApiV1OrgsByIdQuery).mockReturnValueOnce({
+          data: { org: orgWithPublicReg },
+          isLoading: false,
+          error: null,
+        } as any)
+
+        render(<Page />)
+
+        // Confirm extra fields are rendered initially
+        expect(screen.getByTestId('companyLogoUrlInput')).toHaveValue(orgWithPublicReg.companyLogoUrl)
+
+        // Get the row for allowPublicRegistration switch
+        const registrationRow = screen.getByText('orgs.allowPublicRegistration').closest('tr')
+        expect(registrationRow).toBeTruthy()
+        const { getByRole } = within(registrationRow!)
+        const regSwitch = getByRole('switch')
+        expect(regSwitch).toBeInTheDocument()
+
+        // Toggle the switch to false
+        fireEvent.click(regSwitch)
+
+        // Wait for the extra fields to disappear
+        await waitFor(() => {
+          expect(screen.queryByTestId('companyLogoUrlInput')).toBeNull()
+        })
+      },
+    )
+
+    it(
+      'renders nothing when there is no org',
+      () => {
+        vi.mocked(useGetApiV1OrgsByIdQuery).mockReturnValueOnce({
+          data: { org: null },
+          isLoading: false,
+          error: null,
+        } as any)
+        const { container } = render(<Page />)
+        expect(container.innerHTML).toBe('')
       },
     )
   },

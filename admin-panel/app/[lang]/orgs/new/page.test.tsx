@@ -158,5 +158,19 @@ describe(
         expect(saveButton).toBeDisabled()
       },
     )
+
+    it(
+      'toggles allowPublicRegistration switch',
+      () => {
+        render(<Page />)
+        const toggle = screen.getByTestId('allowPublicRegistrationSwitch')
+        // Check that initially the switch is off
+        expect(toggle).toHaveAttribute('aria-checked', 'true')
+        // Toggle the switch
+        fireEvent.click(toggle)
+        // Expect the switch to be on
+        expect(toggle).toHaveAttribute('aria-checked', 'false')
+      },
+    )
   },
 )

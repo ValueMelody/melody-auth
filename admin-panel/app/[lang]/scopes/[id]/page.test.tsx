@@ -158,6 +158,19 @@ describe(
         expect(container.firstChild).toBeNull()
       },
     )
+
+    it(
+      'renders loading state when scope data is loading',
+      () => {
+        (useGetApiV1ScopesByIdQuery as Mock).mockReturnValue({
+          isLoading: true,
+          data: undefined,
+          error: null,
+        })
+        render(<Page />)
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
+      },
+    )
   },
 )
 

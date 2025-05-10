@@ -90,6 +90,7 @@ const Page = () => {
               <TableCell>{t('orgs.allowPublicRegistration')}</TableCell>
               <TableCell>
                 <Switch
+                  data-testid='allowPublicRegistrationSwitch'
                   checked={values.allowPublicRegistration}
                   onClick={() => onChange(
                     'allowPublicRegistration',

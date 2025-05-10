@@ -100,7 +100,7 @@
 - Manage Scopes
 - Manage Roles
 - Manage Organizations
-- View Logs
+- Manage Logs
 - Access Control [Custom Role Access for the Admin Panel](https://auth.valuemelody.com/admin-panel-setup.html#custom-role-access-for-the-admin-panel)
 
 ## Demo & Examples
