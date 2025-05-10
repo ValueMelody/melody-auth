@@ -381,6 +381,35 @@ describe(
             allowEmailMfaAsBackup: true,
           },
         })
+
+        const updateObj1 = {
+          useSystemMfaConfig: true,
+          requireEmailMfa: false,
+          requireOtpMfa: false,
+          requireSmsMfa: false,
+          allowEmailMfaAsBackup: false,
+        }
+        const res1 = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj1),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json1 = await res1.json()
+
+        expect(json1).toStrictEqual({
+          app: {
+            ...newApp,
+            useSystemMfaConfig: true,
+            requireEmailMfa: false,
+            requireOtpMfa: false,
+            requireSmsMfa: false,
+            allowEmailMfaAsBackup: false,
+          },
+        })
       },
     )
 

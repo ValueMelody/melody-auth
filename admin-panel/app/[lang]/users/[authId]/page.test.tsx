@@ -26,6 +26,8 @@ import {
   useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation,
   useGetApiV1UsersByAuthIdPasskeysQuery,
   useGetApiV1OrgsQuery,
+  useGetApiV1AppsQuery,
+  usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
@@ -85,6 +87,8 @@ vi.mock(
     useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation: vi.fn(),
     useGetApiV1UsersByAuthIdPasskeysQuery: vi.fn(),
     useGetApiV1OrgsQuery: vi.fn(),
+    useGetApiV1AppsQuery: vi.fn(),
+    usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation: vi.fn(),
   }),
 )
 
@@ -1089,6 +1093,141 @@ describe(
 
         await waitFor(() => {
           expect(mockUpdate).not.toHaveBeenCalled()
+        })
+      },
+    )
+
+    it(
+      'updates organization when org selection changes',
+      async () => {
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                name: 'Current Org',
+                slug: 'current-org',
+              },
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [
+              {
+                id: 1,
+                name: 'Current Org',
+                slug: 'current-org',
+              },
+              {
+                id: 2,
+                name: 'New Org',
+                slug: 'new-org',
+              },
+            ],
+          },
+        })
+
+        render(<Page />)
+
+        const orgSelect = screen.getByTestId('orgSelect')
+        fireEvent.click(orgSelect)
+
+        const newOrgOption = screen.getByText('New Org')
+        fireEvent.click(newOrgOption)
+
+        const saveButton = screen.getByTestId('saveButton')
+        fireEvent.click(saveButton)
+
+        await waitFor(() => {
+          expect(mockUpdate).toHaveBeenLastCalledWith({
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            putUserReq: { orgSlug: 'new-org' },
+          })
+        })
+      },
+    )
+
+    it(
+      'shows impersonation modal when impersonate button is clicked',
+      async () => {
+        (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              authId: 'different-auth-id',
+            },
+          },
+        });
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({ data: { apps: [] } });
+        (usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation as Mock).mockReturnValue([])
+        render(<Page />)
+        const impersonateButton = screen.getByText('users.impersonate')
+        fireEvent.click(impersonateButton)
+        await waitFor(() => {
+          expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+        })
+      },
+    )
+
+    it(
+      'renders read-only view when user does not have write permission',
+      async () => {
+        // Override the auth hook to simulate a user with no write permissions
+        mockUseAuth.mockReturnValue({
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [],
+          },
+        })
+        render(<Page />)
+        // Expect that the Save button is not rendered for a read-only view
+        expect(screen.queryByTestId('saveButton')).not.toBeInTheDocument()
+        // Optionally, check that input fields are disabled if they appear
+        const firstNameInput = screen.queryByTestId('firstNameInput')
+        if (firstNameInput) {
+          expect(firstNameInput).toHaveAttribute('disabled')
+        }
+      },
+    )
+
+    it(
+      'renders loading state when user is loading',
+      async () => {
+        (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          isLoading: true,
+          data: undefined,
+        })
+        render(<Page />)
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
+      },
+    )
+
+    // New test: unlink button should not render when no write permission
+    it(
+      'does not render unlink account button when user does not have write permission',
+      async () => {
+        // simulate no write permissions and a linked account
+        ;mockUseAuth.mockReturnValue({
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [],
+          },
+        })
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              socialAccountId: null,
+              linkedAuthId: 'linked-user-123',
+            },
+          },
+        })
+        render(<Page />)
+        await waitFor(() => {
+          expect(screen.getByText('linked-user-123')).toBeInTheDocument()
+          expect(screen.queryByText('users.unlink')).not.toBeInTheDocument()
         })
       },
     )

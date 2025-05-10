@@ -145,5 +145,18 @@ describe(
         expect(screen.queryByTestId(/^roleRow-/)).not.toBeInTheDocument()
       },
     )
+
+    it(
+      'renders LoadingPage when data is loading',
+      () => {
+        vi.mocked(useGetApiV1OrgsQuery).mockReturnValue({
+          data: undefined,
+          isLoading: true,
+          error: null,
+        } as any)
+        render(<Page />)
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
+      },
+    )
   },
 )

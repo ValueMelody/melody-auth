@@ -80,5 +80,18 @@ describe(
         expect(rows.length).toBe(0)
       },
     )
+
+    it(
+      'renders loading state when data is loading',
+      () => {
+        (useGetApiV1RolesQuery as Mock).mockReturnValue({
+          data: undefined,
+          isLoading: true,
+          error: null,
+        })
+        render(<Page />)
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
+      },
+    )
   },
 )

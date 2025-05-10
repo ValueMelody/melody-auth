@@ -93,8 +93,8 @@ const ImpersonationModal = ({
               value={selectedAppId?.toString()}
               onValueChange={handleAppChange}
             >
-              <SelectTrigger data-testid='typeSelect'>
-                <SelectValue data-testid='typeSelectValue' />
+              <SelectTrigger data-testid='appSelect'>
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -102,6 +102,7 @@ const ImpersonationModal = ({
                     <SelectItem
                       key={app.id}
                       value={app.id.toString()}
+                      data-testid={`appSelectItem-${app.id}`}
                     >
                       {app.name}
                     </SelectItem>
@@ -116,11 +117,17 @@ const ImpersonationModal = ({
           {isConsented && !refreshTokenStorage && selectedApp && (
             <Button
               className='mt-4'
-              onClick={handleImpersonate}>{t('confirmImpersonate')}</Button>
+              onClick={handleImpersonate}
+              data-testid='confirmImpersonate'
+            >
+              {t('confirmImpersonate')}
+            </Button>
           )}
           {refreshTokenStorage && (
             <div className='mt-6'>
-              <p className='font-bold'>{t('impersonateToken')}:</p>
+              <p
+                className='font-bold'
+                data-testid='impersonateToken'>{t('impersonateToken')}:</p>
               <p className='break-all mt-2'>{refreshTokenStorage.refreshToken}</p>
               <p className='text-sm text-gray-500 mt-4'>{t('impersonateTokenDesc')}</p>
               <p className='font-bold mt-6'>{t('impersonateDirect')}:</p>

@@ -191,6 +191,7 @@ const Page = () => {
             />
             {showCleanBtn && (
               <Button
+                data-testid='emailLogCleanBtn'
                 variant='outline'
                 size='sm'
                 onClick={() => setCleanTarget('email')}
@@ -245,6 +246,7 @@ const Page = () => {
             />
             {showCleanBtn && (
               <Button
+                data-testid='smsLogCleanBtn'
                 variant='outline'
                 size='sm'
                 onClick={() => setCleanTarget('sms')}
@@ -301,6 +303,7 @@ const Page = () => {
               <Button
                 variant='outline'
                 size='sm'
+                data-testid='signInLogCleanBtn'
                 onClick={() => setCleanTarget('signIn')}
               >
                 {t('logs.clean')}

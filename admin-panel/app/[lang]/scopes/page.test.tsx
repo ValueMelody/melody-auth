@@ -71,5 +71,26 @@ describe(
         expect(rows.length).toBe(0)
       },
     )
+
+    it(
+      'renders breadcrumb with correct page label',
+      () => {
+        render(<Page />)
+        expect(screen.getByText(/scopes\.title/i)).toBeInTheDocument()
+      },
+    )
+
+    it(
+      'renders loading state when scopes are loading',
+      () => {
+        (useGetApiV1ScopesQuery as Mock).mockReturnValue({
+          isLoading: true,
+          data: undefined,
+          error: null,
+        })
+        render(<Page />)
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
+      },
+    )
   },
 )

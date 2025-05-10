@@ -169,5 +169,18 @@ describe(
         expect(screen.queryByTestId('deleteButton')).not.toBeInTheDocument()
       },
     )
+
+    it(
+      'renders loading state when role data is loading',
+      () => {
+        (useGetApiV1RolesByIdQuery as Mock).mockReturnValue({
+          data: undefined,
+          isLoading: true,
+          error: null,
+        })
+        render(<Page />)
+        expect(screen.getByTestId('spinner')).toBeInTheDocument()
+      },
+    )
   },
 )

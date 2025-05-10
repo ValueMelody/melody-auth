@@ -3,7 +3,7 @@ import {
   beforeEach, Mock,
 } from 'vitest'
 import {
-  screen, waitFor,
+  screen, waitFor, fireEvent,
 } from '@testing-library/react'
 import { act } from 'react'
 import { render } from '../../../vitest.setup'
@@ -49,7 +49,7 @@ vi.mock(
 
 vi.mock(
   '@melody-auth/react',
-  () => ({ useAuth: vi.fn(() => ({ userInfo: { roles: ['admin'] } })) }),
+  () => ({ useAuth: vi.fn(() => ({ userInfo: { roles: ['super_admin'] } })) }),
 )
 
 vi.mock(
@@ -384,6 +384,90 @@ describe(
         // Should not show pagination
         const paginations = screen.queryAllByRole('pagination')
         expect(paginations).toHaveLength(0)
+      },
+    )
+
+    it(
+      'shows loading state when any log queries are loading',
+      () => {
+        ;(useGetApiV1LogsEmailQuery as Mock).mockReturnValue({ isLoading: true })
+        ;(useGetApiV1LogsSmsQuery as Mock).mockReturnValue({ isLoading: true })
+        ;(useGetApiV1LogsSignInQuery as Mock).mockReturnValue({ isLoading: true })
+        render(<Page />)
+        const spinner = screen.getByTestId('spinner')
+        expect(spinner).toBeInTheDocument()
+      },
+    )
+
+    it(
+      'handles email logs cleaning correctly',
+      async () => {
+        const mockDeleteEmail = vi.fn()
+        ;(useDeleteApiV1LogsEmailMutation as Mock).mockReturnValue([mockDeleteEmail])
+        render(<Page />)
+
+        const cleanButton = screen.getByTestId('emailLogCleanBtn')
+        fireEvent.click(cleanButton)
+
+        await waitFor(() => expect(screen.getByText('logs.cleanAlertTitle')).toBeInTheDocument())
+
+        const confirmButton = screen.getByText('common.delete')
+        fireEvent.click(confirmButton)
+
+        await waitFor(() => {
+          expect(mockDeleteEmail).toHaveBeenCalled()
+          const callArg = mockDeleteEmail.mock.calls[0][0]
+          expect(callArg).toHaveProperty('before')
+          expect(callArg.before).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+        })
+      },
+    )
+
+    it(
+      'handles sms logs cleaning correctly',
+      async () => {
+        const mockDeleteSms = vi.fn()
+        ;(useDeleteApiV1LogsSmsMutation as Mock).mockReturnValue([mockDeleteSms])
+        render(<Page />)
+
+        const cleanButton = screen.getByTestId('smsLogCleanBtn')
+        fireEvent.click(cleanButton)
+
+        await waitFor(() => expect(screen.getByText('logs.cleanAlertTitle')).toBeInTheDocument())
+
+        const confirmButton = screen.getByText('common.delete')
+        fireEvent.click(confirmButton)
+
+        await waitFor(() => {
+          expect(mockDeleteSms).toHaveBeenCalled()
+          const callArg = mockDeleteSms.mock.calls[0][0]
+          expect(callArg).toHaveProperty('before')
+          expect(callArg.before).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+        })
+      },
+    )
+
+    it(
+      'handles signIn logs cleaning correctly',
+      async () => {
+        const mockDeleteSignIn = vi.fn()
+        ;(useDeleteApiV1LogsSignInMutation as Mock).mockReturnValue([mockDeleteSignIn])
+        render(<Page />)
+
+        const cleanButton = screen.getByTestId('signInLogCleanBtn')
+        fireEvent.click(cleanButton)
+
+        await waitFor(() => expect(screen.getByText('logs.cleanAlertTitle')).toBeInTheDocument())
+
+        const confirmButton = screen.getByText('common.delete')
+        fireEvent.click(confirmButton)
+
+        await waitFor(() => {
+          expect(mockDeleteSignIn).toHaveBeenCalled()
+          const callArg = mockDeleteSignIn.mock.calls[0][0]
+          expect(callArg).toHaveProperty('before')
+          expect(callArg.before).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+        })
       },
     )
   },

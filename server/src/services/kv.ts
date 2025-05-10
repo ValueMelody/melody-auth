@@ -146,23 +146,6 @@ export const emailMfaCodeVerified = async (
   return storedCode && storedCode === '1'
 }
 
-export const markEmailMfaVerified = async (
-  kv: KVNamespace,
-  authCode: string,
-  expiresIn: number,
-) => {
-  const key = adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.EmailMfaCode,
-    authCode,
-  )
-  await kv.put(
-    key,
-    '1',
-    { expirationTtl: expiresIn },
-  )
-  return true
-}
-
 export const stampEmailMfaCode = async (
   kv: KVNamespace,
   authCode: string,
@@ -319,40 +302,6 @@ export const optMfaCodeVerified = async (
   return storedCode && storedCode === '1'
 }
 
-export const markSmsMfaVerified = async (
-  kv: KVNamespace,
-  authCode: string,
-  expiresIn: number,
-) => {
-  const key = adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.SmsMfaCode,
-    authCode,
-  )
-  await kv.put(
-    key,
-    '1',
-    { expirationTtl: expiresIn },
-  )
-  return true
-}
-
-export const markOtpMfaVerified = async (
-  kv: KVNamespace,
-  authCode: string,
-  expiresIn: number,
-) => {
-  const key = adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.OtpMfaCode,
-    authCode,
-  )
-  await kv.put(
-    key,
-    '1',
-    { expirationTtl: expiresIn },
-  )
-  return true
-}
-
 export const storePasswordlessCode = async (
   kv: KVNamespace,
   authCode: string,
@@ -403,23 +352,6 @@ export const passwordlessCodeVerified = async (
   )
   const storedCode = await kv.get(key)
   return storedCode && storedCode === '1'
-}
-
-export const markPasswordlessVerified = async (
-  kv: KVNamespace,
-  authCode: string,
-  expiresIn: number,
-) => {
-  const key = adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.PasswordlessCode,
-    authCode,
-  )
-  await kv.put(
-    key,
-    '1',
-    { expirationTtl: expiresIn },
-  )
-  return true
 }
 
 export const storeEmailVerificationCode = async (
