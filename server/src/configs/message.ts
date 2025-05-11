@@ -20,6 +20,7 @@ export enum ConfigError {
   ResetMfaPolicyNotEnabled = 'Reset MFA policy is not enabled',
   ManagePasskeyPolicyNotEnabled = 'Manage passkey policy is not enabled or passkey enrollment is not enabled',
   UpdateInfoPolicyNotEnabled = 'Update info policy is not enabled or user names are not enabled',
+  EmbeddedAuthFeatureNotEnabled = 'Embedded auth feature is not enabled',
   NoSmsSender = 'A sms request triggered but no sms sender is configured',
   NoEmailSender = 'An email request triggered but no email sender is configured',
   NoSessionSecret = 'Session secret is not configured',

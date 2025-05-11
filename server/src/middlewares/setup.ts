@@ -70,7 +70,19 @@ export const validEmbeddedOrigin = async (
     EMBEDDED_AUTH_ORIGINS: origins,
   } = env(c)
 
-  if (requestUtil.stripEndingSlash(serverUrl) !== origin && (!origin || !origins.includes(origin))) {
+  if (!origins.length) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.EmbeddedAuthFeatureNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.EmbeddedAuthFeatureNotEnabled)
+  }
+
+  if (
+    requestUtil.stripEndingSlash(serverUrl) !== origin &&
+    (!origin || !origins.includes(origin))
+  ) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
