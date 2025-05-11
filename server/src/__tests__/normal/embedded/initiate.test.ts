@@ -79,6 +79,8 @@ describe(
     test(
       'should return session id',
       async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        
         const appRecord = await getApp(db)
         const res = await sendInitiateRequest(
           db,
@@ -106,12 +108,16 @@ describe(
             codeChallenge: await genCodeChallenge('abc'),
           },
         })
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
 
     test(
       'could generate session with org id',
       async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
         const appRecord = await getApp(db)
 
         const res = await sendInitiateRequest(
@@ -142,12 +148,16 @@ describe(
             org: 'default',
           },
         })
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
 
     test(
       'should throw error if no enough params provided',
       async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
         const res = await app.request(
           routeConfig.EmbeddedRoute.Initiate,
           {
@@ -163,12 +173,16 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
 
     test(
       'should throw error if wrong app used',
       async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
         const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
 
         const res = await sendInitiateRequest(
@@ -179,12 +193,16 @@ describe(
 
         expect(res.status).toBe(401)
         expect(await res.text()).toBe(messageConfig.RequestError.NotSpaTypeApp)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
 
     test(
       'should throw error if app is not found',
       async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
         const appRecord = await getApp(db)
 
         const res = await sendInitiateRequest(
@@ -197,12 +215,16 @@ describe(
         )
         expect(res.status).toBe(404)
         expect(await res.text()).toBe(messageConfig.RequestError.NoSpaAppFound)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
 
     test(
       'should throw error if app is disabled',
       async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
         const appRecord = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
         await db.prepare('update app set "isActive" = ?').run(0)
         const res = await sendInitiateRequest(
@@ -211,21 +233,27 @@ describe(
         )
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.SpaAppDisabled)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
 
     test(
       'should throw error if wrong redirect uri used',
       async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
         const appRecord = await getApp(db)
 
         const res = await sendInitiateRequest(
           db,
           appRecord,
-          { redirectUri: 'http://localhost:3000/en/dashboard1' },
+          { redirectUri: 'http://localhost:3001' },
         )
         expect(res.status).toBe(401)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongRedirectUri)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
   },
