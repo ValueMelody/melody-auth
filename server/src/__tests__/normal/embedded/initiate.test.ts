@@ -80,7 +80,7 @@ describe(
       'should return session id',
       async () => {
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
-        
+
         const appRecord = await getApp(db)
         const res = await sendInitiateRequest(
           db,
