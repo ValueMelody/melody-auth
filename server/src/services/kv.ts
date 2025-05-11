@@ -81,6 +81,35 @@ export const getAuthCodeBody = async (
   return codeBody
 }
 
+export const getEmbeddedSessionBody = async (
+  kv: KVNamespace, sessionId: string,
+): Promise<typeConfig.EmbeddedSessionBody | false> => {
+  const sessionInKv = await kv.get(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.EmbeddedSession,
+    sessionId,
+  ))
+  if (!sessionInKv) return false
+  const sessionBody = JSON.parse(sessionInKv)
+  if (!sessionBody) return false
+  return sessionBody
+}
+
+export const storeEmbeddedSession = async (
+  kv: KVNamespace,
+  sessionId: string,
+  embeddedSessionBody: typeConfig.EmbeddedSessionBody,
+  expiresIn: number,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.EmbeddedSession,
+      sessionId,
+    ),
+    JSON.stringify(embeddedSessionBody),
+    { expirationTtl: expiresIn },
+  )
+}
+
 export const storeRefreshToken = async (
   kv: KVNamespace,
   refreshToken: string,

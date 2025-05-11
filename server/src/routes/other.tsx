@@ -1,6 +1,7 @@
 import { swaggerUI } from '@hono/swagger-ui'
 import { Hono } from 'hono'
-import swaggerSpec from '../scripts/swagger.json'
+import s2sSwaggerSpec from '../scripts/swagger.json'
+import embeddedSwaggerSpec from '../scripts/embedded-swagger.json'
 import { otherHandler } from 'handlers'
 import { typeConfig } from 'configs'
 
@@ -25,6 +26,13 @@ otherRoutes.get(
 otherRoutes.get(
   '/api/v1/swagger',
   swaggerUI({
-    spec: swaggerSpec, url: '/',
+    spec: s2sSwaggerSpec, url: '/',
+  }),
+)
+
+otherRoutes.get(
+  '/api/v1/embedded-swagger',
+  swaggerUI({
+    spec: embeddedSwaggerSpec, url: '/',
   }),
 )

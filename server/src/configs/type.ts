@@ -84,6 +84,7 @@ export type Bindings = {
   APPLE_AUTH_CLIENT_ID: string;
   APPLE_AUTH_CLIENT_SECRET: string;
   OIDC_AUTH_PROVIDERS: string[] | undefined;
+  EMBEDDED_AUTH_ORIGINS: string[];
 };
 
 export type Context = {
@@ -111,6 +112,14 @@ export interface AuthCodeBody {
   appId: number;
   appName: string;
   isFullyAuthorized?: boolean;
+  mfa?: AuthCodeBodyMfaConfig;
+}
+
+export interface EmbeddedSessionBody {
+  request: oauthDto.CoreAuthorizeDto;
+  appId: number;
+  appName: string;
+  user?: userModel.Record;
   mfa?: AuthCodeBodyMfaConfig;
 }
 

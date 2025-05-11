@@ -105,6 +105,7 @@ vi.mock(
       ...origin,
       setupMiddleware: {
         validOrigin: mockMiddleware,
+        validEmbeddedOrigin: mockMiddleware,
         session: async (
           c: Context, next: Next,
         ) => {

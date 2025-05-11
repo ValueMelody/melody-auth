@@ -1,0 +1,90 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Melody Auth Embedded Auth API",
+    "version": "0.0.1"
+  },
+  "components": {
+    "schemas": {
+      "PostInitiateReq": {
+        "type": "object",
+        "properties": {
+          "redirectUri": {
+            "type": "string"
+          },
+          "clientId": {
+            "type": "string"
+          },
+          "codeChallenge": {
+            "type": "string"
+          },
+          "codeChallengeMethod": {
+            "type": "string",
+            "enum": [
+              "S256",
+              "plain"
+            ]
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "locale": {
+            "type": "string"
+          },
+          "org": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "redirectUri",
+          "clientId",
+          "codeChallenge",
+          "codeChallengeMethod",
+          "scopes",
+          "locale"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/embedded-auth/v1/initiate": {
+      "post": {
+        "summary": "Initiate a new embedded auth session",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostInitiateReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A session id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sessionId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}

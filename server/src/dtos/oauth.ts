@@ -30,21 +30,14 @@ export enum Policy {
 
 const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())
 
-export class GetAuthorizeDto {
-  @IsString()
-  @IsNotEmpty()
-    clientId: string
-
+export class CoreAuthorizeDto {
   @IsString()
   @IsNotEmpty()
     redirectUri: string
 
-  @IsEnum(AuthorizeResponseType)
-    responseType: string
-
   @IsString()
   @IsNotEmpty()
-    state: string
+    clientId: string
 
   @IsString()
   @IsNotEmpty()
@@ -53,10 +46,6 @@ export class GetAuthorizeDto {
   @IsEnum(AuthorizeCodeChallengeMethod)
     codeChallengeMethod: string
 
-  @IsString()
-  @IsOptional()
-    authorizeMethod?: string | undefined
-
   @IsString({ each: true })
   @ArrayMinSize(1)
     scopes: string[]
@@ -64,26 +53,43 @@ export class GetAuthorizeDto {
   @IsString()
     locale: typeConfig.Locale
 
-  @IsEnum(Policy)
-  @IsOptional()
-    policy?: string | undefined
-
   @IsString()
   @IsOptional()
     org?: string | undefined
 
-  constructor (dto: GetAuthorizeDto) {
-    this.clientId = dto.clientId
+  constructor (dto: CoreAuthorizeDto) {
     this.redirectUri = dto.redirectUri.toLowerCase()
-    this.responseType = dto.responseType.toLowerCase()
-    this.state = dto.state
+    this.clientId = dto.clientId
     this.codeChallenge = dto.codeChallenge
-    this.codeChallengeMethod = dto.codeChallengeMethod.toLowerCase()
+    this.codeChallengeMethod = dto.codeChallengeMethod?.toLowerCase()
     this.scopes = parseScopes(dto.scopes)
     this.locale = dto.locale
-    this.policy = dto.policy
     this.org = dto.org
+  }
+}
+
+export class GetAuthorizeDto extends CoreAuthorizeDto {
+  @IsEnum(AuthorizeResponseType)
+    responseType: string
+
+  @IsString()
+  @IsNotEmpty()
+    state: string
+
+  @IsString()
+  @IsOptional()
+    authorizeMethod?: string | undefined
+
+  @IsEnum(Policy)
+  @IsOptional()
+    policy?: string | undefined
+
+  constructor (dto: GetAuthorizeDto) {
+    super(dto)
+    this.responseType = dto.responseType.toLowerCase()
+    this.state = dto.state
     this.authorizeMethod = dto.authorizeMethod
+    this.policy = dto.policy
   }
 }
 
