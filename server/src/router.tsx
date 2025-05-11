@@ -5,7 +5,7 @@ import { env } from 'hono/adapter'
 import {
   oauthRoute, userRoute, identityRoute,
   otherRoute, appRoute, roleRoute, scopeRoute, logRoute,
-  orgRoute,
+  orgRoute, embeddedRoute,
 } from 'routes'
 import { setupMiddleware } from 'middlewares'
 import {
@@ -66,6 +66,10 @@ export const loadRouters = (app: Hono<typeConfig.Context>) => {
   app.route(
     '/',
     oauthRoute,
+  )
+  app.route(
+    '/',
+    embeddedRoute,
   )
   app.route(
     '/',

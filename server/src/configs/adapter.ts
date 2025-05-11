@@ -22,6 +22,7 @@ export enum BaseKVKey {
   SessionSecret = 'sessionSecret',
   RefreshToken = 'RT',
   AuthCode = 'AC',
+  EmbeddedSession = 'ES',
   EmailMfaCode = 'EMC',
   OtpMfaCode = 'OMC',
   SmsMfaCode = 'SMC',

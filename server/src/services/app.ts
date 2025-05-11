@@ -1,5 +1,6 @@
 import { Context } from 'hono'
 import { ClientType } from '@melody-auth/shared'
+import { env } from 'hono/adapter'
 import {
   errorConfig,
   messageConfig,
@@ -49,7 +50,13 @@ export const verifySPAClientRequest = async (
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.NotSpaTypeApp)
   }
-  if (!app.redirectUris.includes(requestUtil.stripEndingSlash(redirectUri))) {
+
+  const { EMBEDDED_AUTH_ORIGINS: allowedOrigins } = env(c)
+
+  if (
+    !app.redirectUris.includes(requestUtil.stripEndingSlash(redirectUri)) &&
+    !allowedOrigins.includes(requestUtil.stripEndingSlash(redirectUri))
+  ) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

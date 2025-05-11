@@ -7,6 +7,7 @@ export enum InternalRoute {
   ApiScopes = '/api/v1/scopes',
   ApiOrgs = '/api/v1/orgs',
   ApiLogs = '/api/v1/logs',
+  Embedded = '/embedded-auth/v1',
 }
 
 export enum OauthRoute {
@@ -85,4 +86,8 @@ export enum View {
   ChangeEmail = 'change_email',
   AuthCodeExpired = 'auth_code_expired',
   VerifyEmail = 'verify_email',
+}
+
+export enum EmbeddedRoute {
+  Initiate = `${InternalRoute.Embedded}/initiate`,
 }

@@ -25,7 +25,8 @@
     "test:check:pages": "vitest run ./src/pages",
     "test:coverage": "vitest run --coverage ./src --exclude ./src/__tests__/key-rotate",
     "type:check": "tsc --noEmit",
-    "swagger:generate": "node ./src/scripts/generate-swagger.cjs"
+    "swagger:generate:s2s": "node ./src/scripts/generate-swagger.cjs",
+    "swagger:generate:embedded": "node ./src/scripts/generate-embeded-swagger.cjs"
   },
   "dependencies": {
     "@hono/node-server": "^1.12.2",

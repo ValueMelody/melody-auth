@@ -59,3 +59,37 @@ export const validOrigin = async (
 
   await next()
 }
+
+export const validEmbeddedOrigin = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const origin = c.req.header('origin')
+
+  const {
+    AUTH_SERVER_URL: serverUrl,
+    EMBEDDED_AUTH_ORIGINS: origins,
+  } = env(c)
+
+  if (!origins.length) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.EmbeddedAuthFeatureNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.EmbeddedAuthFeatureNotEnabled)
+  }
+
+  if (
+    requestUtil.stripEndingSlash(serverUrl) !== origin &&
+    (!origin || !origins.includes(origin))
+  ) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongOrigin,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongOrigin)
+  }
+
+  await next()
+}

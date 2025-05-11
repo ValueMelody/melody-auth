@@ -80,6 +80,7 @@ describe(
           ENABLE_PASSWORDLESS_SIGN_IN: false,
           ENABLE_ORG: false,
           BLOCKED_POLICIES: [],
+          EMBEDDED_AUTH_ORIGINS: [],
         })
       },
     )

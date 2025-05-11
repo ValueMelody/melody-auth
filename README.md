@@ -101,7 +101,7 @@
 - Manage Roles
 - Manage Organizations
 - Manage Logs
-- Access Control [Custom Role Access for the Admin Panel](https://auth.valuemelody.com/admin-panel-setup.html#custom-role-access-for-the-admin-panel)
+- Admin Panel Access Control [Custom Role Access for the Admin Panel](https://auth.valuemelody.com/admin-panel-setup.html#custom-role-access-for-the-admin-panel)
 
 ## Demo & Examples
 - [Vite React Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-react-demo)
