@@ -43,7 +43,7 @@ export const postInitiateBody = async (
   org: orgSlug ?? undefined,
 })
 
-const sendInitiateRequest = async (
+export const sendInitiateRequest = async (
   db: Database,
   appRecord: appModel.Record,
   {

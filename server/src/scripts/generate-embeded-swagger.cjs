@@ -1,6 +1,14 @@
 const fs = require('fs')
 const swaggerJsdoc = require('swagger-jsdoc')
-const { PostInitiateReq } = require('./schemas/embedded.cjs')
+const {
+  PostInitiateReq,
+  PostSignInReq,
+  TokenExchangeReq,
+  AuthRes,
+  TokenExchangeRes,
+  TokenRefreshReq,
+  TokenRefreshRes,
+} = require('./schemas/embedded.cjs')
 
 const options = {
   definition: {
@@ -9,7 +17,17 @@ const options = {
       title: 'Melody Auth Embedded Auth API',
       version: '0.0.1',
     },
-    components: { schemas: { PostInitiateReq } },
+    components: {
+      schemas: {
+        PostInitiateReq,
+        PostSignInReq,
+        TokenExchangeReq,
+        AuthRes,
+        TokenExchangeRes,
+        TokenRefreshReq,
+        TokenRefreshRes,
+      },
+    },
   },
   apis: [
     './src/routes/embedded.tsx',

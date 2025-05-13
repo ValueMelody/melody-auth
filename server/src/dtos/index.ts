@@ -1,5 +1,7 @@
 export * as oauthDto from 'dtos/oauth'
+export * as baseDto from 'dtos/base'
 export * as identityDto from 'dtos/identity'
+export * as embeddedDto from 'dtos/embedded'
 export * as roleDto from 'dtos/role'
 export * as scopeDto from 'dtos/scope'
 export * as userDto from 'dtos/user'
