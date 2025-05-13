@@ -44,9 +44,7 @@ const TokenExchangeReq = {
 
 const TokenRefreshReq = {
   type: 'object',
-  properties: {
-    refreshToken: { type: 'string' },
-  },
+  properties: { refreshToken: { type: 'string' } },
   required: ['refreshToken'],
 }
 

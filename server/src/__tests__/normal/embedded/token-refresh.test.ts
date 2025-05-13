@@ -76,9 +76,7 @@ const sendTokenRefreshRequest = async (
     routeConfig.EmbeddedRoute.TokenRefresh,
     {
       method: 'POST',
-      body: JSON.stringify({
-        refreshToken: refreshToken ?? tokens.refresh_token,
-      }),
+      body: JSON.stringify({ refreshToken: refreshToken ?? tokens.refresh_token }),
     },
     mock(db),
   )

@@ -17,9 +17,7 @@ import {
   roleService,
   userService,
 } from 'services'
-import {
-  baseDto, oauthDto,
-} from 'dtos'
+import { oauthDto } from 'dtos'
 import {
   signInLogModel, userModel,
 } from 'models'
