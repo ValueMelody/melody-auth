@@ -46,6 +46,150 @@
           "scopes",
           "locale"
         ]
+      },
+      "PostSignInReq": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "sessionId"
+        ]
+      },
+      "TokenExchangeReq": {
+        "type": "object",
+        "properties": {
+          "codeVerifier": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "codeVerifier",
+          "sessionId"
+        ]
+      },
+      "AuthRes": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "nextStep": {
+            "type": "string",
+            "enum": [
+              "consent",
+              "mfa_enroll",
+              "email_mfa",
+              "sms_mfa",
+              "otp_setup",
+              "opt_mfa",
+              "passkey_enroll"
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sessionId",
+          "success"
+        ]
+      },
+      "TokenExchangeRes": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "number"
+          },
+          "expires_on": {
+            "type": "number"
+          },
+          "not_before": {
+            "type": "number"
+          },
+          "token_type": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          },
+          "scope": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "refresh_token_expires_in": {
+            "type": "number"
+          },
+          "refresh_token_expires_on": {
+            "type": "number"
+          },
+          "id_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "expires_in",
+          "expires_on",
+          "not_before",
+          "token_type",
+          "scope"
+        ]
+      },
+      "TokenRefreshReq": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "TokenRefreshRes": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "number"
+          },
+          "expires_on": {
+            "type": "number"
+          },
+          "token_type": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          }
+        },
+        "required": [
+          "access_token",
+          "expires_in",
+          "expires_on",
+          "token_type"
+        ]
       }
     }
   },
@@ -78,6 +222,96 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/sign-in": {
+      "post": {
+        "summary": "Sign in using the embedded auth session",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostSignInReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Next step of the auth flow",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbeddedAuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/token-exchange": {
+      "post": {
+        "summary": "Exchange the auth code for access token, refresh token, id token",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenExchangeReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Access token, refresh token, id token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenExchangeRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/token-refresh": {
+      "post": {
+        "summary": "Refresh the access token",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRefreshReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenRefreshRes"
                 }
               }
             }

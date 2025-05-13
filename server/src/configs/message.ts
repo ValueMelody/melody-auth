@@ -40,6 +40,7 @@ export enum RequestError {
   WrongTokenTypeHint = 'Invalid token_type_hint provided',
   WrongAccessToken = 'Invalid access_token provided',
   WrongAuthCode = 'Invalid auth code provided',
+  WrongSessionId = 'Invalid session id provided',
   WrongCode = 'Invalid code provided',
   WrongChangeEmailCode = 'Invalid change email code provided',
   WrongEmailVerificationCode = 'Invalid email verification code provided',

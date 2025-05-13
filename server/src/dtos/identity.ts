@@ -7,13 +7,17 @@ import {
   AuthenticationResponseJSON, RegistrationResponseJSON,
 } from '@simplewebauthn/server'
 import { typeConfig } from 'configs'
-import { oauthDto } from 'dtos'
+import {
+  oauthDto, baseDto,
+} from 'dtos'
 import {
   requestUtil, validateUtil,
 } from 'utils'
 import { userModel } from 'models'
 
-export class PostAuthorizeWithPasswordDto extends oauthDto.GetAuthorizeDto {
+export class PostAuthorizeWithPasswordDto
+  extends oauthDto.GetAuthorizeDto
+  implements baseDto.SignInDto {
   @IsEmail()
     email: string
 

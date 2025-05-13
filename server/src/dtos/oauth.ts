@@ -3,6 +3,7 @@ import {
   IsOptional,
 } from 'class-validator'
 import { typeConfig } from 'configs'
+import * as baseDto from 'dtos/base'
 
 enum AuthorizeResponseType {
   Code = 'code',
@@ -93,7 +94,7 @@ export class GetAuthorizeDto extends CoreAuthorizeDto {
   }
 }
 
-export class PostTokenAuthCodeDto {
+export class PostTokenAuthCodeDto extends baseDto.AuthCodeTokenExchangeDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
@@ -101,28 +102,20 @@ export class PostTokenAuthCodeDto {
   @IsNotEmpty()
     code: string
 
-  @IsString()
-  @IsNotEmpty()
-    codeVerifier: string
-
   constructor (dto: PostTokenAuthCodeDto) {
-    this.grantType = dto.grantType
+    super(dto)
     this.code = dto.code
-    this.codeVerifier = dto.codeVerifier
+    this.grantType = dto.grantType
   }
 }
 
-export class PostTokenRefreshTokenDto {
+export class PostTokenRefreshTokenDto extends baseDto.RefreshTokenTokenExchangeDto {
   @IsEnum(TokenGrantType)
     grantType: string
 
-  @IsString()
-  @IsNotEmpty()
-    refreshToken: string
-
   constructor (dto: PostTokenRefreshTokenDto) {
+    super(dto)
     this.grantType = dto.grantType
-    this.refreshToken = dto.refreshToken
   }
 }
 

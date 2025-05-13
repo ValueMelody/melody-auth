@@ -7,14 +7,10 @@ import {
   typeConfig,
 } from 'configs'
 import {
-  identityDto, userDto,
+  baseDto, identityDto, userDto,
 } from 'dtos'
 import {
-  PostAuthorizeWithNamesDto, PostAuthorizeWithPasswordDto,
-} from 'dtos/identity'
-import {
-  orgModel,
-  roleModel, userAppConsentModel, userModel, userRoleModel,
+  orgModel, roleModel, userAppConsentModel, userModel, userRoleModel,
 } from 'models'
 import {
   emailService, jwtService, kvService, roleService,
@@ -279,7 +275,7 @@ export const getPasswordlessUserOrCreate = async (
 
 export const verifyPasswordSignIn = async (
   c: Context<typeConfig.Context>,
-  bodyDto: PostAuthorizeWithPasswordDto,
+  bodyDto: baseDto.SignInDto,
 ): Promise<userModel.Record> => {
   const {
     ACCOUNT_LOCKOUT_THRESHOLD: lockThreshold, ACCOUNT_LOCKOUT_EXPIRES_IN: lockExpiresIn,
@@ -351,7 +347,7 @@ export const verifyPasswordSignIn = async (
 
 export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
-  bodyDto: PostAuthorizeWithNamesDto,
+  bodyDto: identityDto.PostAuthorizeWithNamesDto,
 ): Promise<userModel.Record> => {
   const user = await userModel.getNormalUserByEmail(
     c.env.DB,
