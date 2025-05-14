@@ -345,9 +345,17 @@ export const verifyPasswordSignIn = async (
   return user
 }
 
+interface CreateAccountBody {
+  email: string;
+  password: string;
+  firstName: string | null;
+  lastName: string | null;
+  locale: typeConfig.Locale;
+  org?: string;
+}
 export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostAuthorizeWithNamesDto,
+  bodyDto: CreateAccountBody,
 ): Promise<userModel.Record> => {
   const user = await userModel.getNormalUserByEmail(
     c.env.DB,

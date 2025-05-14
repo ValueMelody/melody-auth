@@ -26,7 +26,7 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const sendTokenExchangeRequest = async (
+export const sendTokenExchangeRequest = async (
   db: Database,
   { sessionId }: {
     sessionId?: string;
