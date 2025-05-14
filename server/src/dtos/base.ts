@@ -65,7 +65,7 @@ export class RequiredNamesDto {
     1,
     50,
   )
-    firstName: string | null
+    firstName: string
 
   @IsString()
   @Length(

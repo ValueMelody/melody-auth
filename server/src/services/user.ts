@@ -355,11 +355,7 @@ interface CreateAccountBody {
 }
 export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
-<<<<<<< HEAD
   bodyDto: CreateAccountBody,
-=======
-  bodyDto: identityDto.PostAuthorizeWithNamesDto,
->>>>>>> 15025eeb982b49317aa46cedf2717745cd865804
 ): Promise<userModel.Record> => {
   const user = await userModel.getNormalUserByEmail(
     c.env.DB,

@@ -292,7 +292,6 @@ export const handleRefreshTokenTokenExchange = async (
 
   return result
 }
-<<<<<<< HEAD
 
 export const handleInvalidRefreshToken = async (
   c: Context<typeConfig.Context>,
@@ -318,5 +317,3 @@ export const handleInvalidRefreshToken = async (
     refreshToken,
   )
 }
-=======
->>>>>>> 15025eeb982b49317aa46cedf2717745cd865804
