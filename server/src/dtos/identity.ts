@@ -41,7 +41,9 @@ export class PostAuthorizeWithPasswordlessDto extends oauthDto.GetAuthorizeDto {
   }
 }
 
-export class PostAuthorizeWithNamesDto extends PostAuthorizeWithPasswordDto {
+export class PostAuthorizeWithNamesDto
+  extends PostAuthorizeWithPasswordDto
+  implements baseDto.NamesDto {
   @IsString()
   @Length(
     0,
@@ -69,20 +71,22 @@ export class PostAuthorizeWithNamesDto extends PostAuthorizeWithPasswordDto {
   }
 }
 
-export class PostAuthorizeWithRequiredNamesDto extends PostAuthorizeWithPasswordDto {
+export class PostAuthorizeWithRequiredNamesDto
+  extends PostAuthorizeWithPasswordDto
+  implements baseDto.RequiredNamesDto {
   @IsString()
   @Length(
     1,
     50,
   )
-    firstName: string | null
+    firstName: string
 
   @IsString()
   @Length(
     1,
     50,
   )
-    lastName: string | null
+    lastName: string
 
   constructor (dto: PostAuthorizeWithRequiredNamesDto) {
     super(dto)

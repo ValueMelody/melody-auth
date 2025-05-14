@@ -39,6 +39,32 @@ embeddedRoutes.post(
 
 /**
  * @swagger
+ * /embedded-auth/v1/sign-up:
+ *   post:
+ *     summary: Sign up using the embedded auth session
+ *     tags: [Embedded Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PostSignUpReq'
+ *     responses:
+ *       200:
+ *         description: Next step of the auth flow
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.SignUp,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.signUp,
+)
+
+/**
+ * @swagger
  * /embedded-auth/v1/sign-in:
  *   post:
  *     summary: Sign in using the embedded auth session
@@ -55,7 +81,7 @@ embeddedRoutes.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/EmbeddedAuthResponse'
+ *               $ref: '#/components/schemas/AuthRes'
  */
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignIn,
@@ -113,4 +139,26 @@ embeddedRoutes.post(
   routeConfig.EmbeddedRoute.TokenRefresh,
   setupMiddleware.validEmbeddedOrigin,
   embeddedHandler.tokenRefresh,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/sign-out:
+ *   post:
+ *     summary: Sign out
+ *     tags: [Embedded Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SignOutReq'
+ *     responses:
+ *       200:
+ *         description: Sign out successfully
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.SignOut,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.signOut,
 )

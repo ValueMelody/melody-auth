@@ -270,23 +270,10 @@ export const revokeToken = async (c: Context<typeConfig.Context>) => {
 
   const { username: clientId } = c.get('basic_auth_body')!
 
-  const refreshTokenBody = await kvService.getRefreshTokenBody(
+  await oauthService.handleInvalidRefreshToken(
     c,
     token,
-  )
-
-  if (!refreshTokenBody || clientId !== refreshTokenBody.clientId) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongRefreshToken,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
-  }
-
-  await kvService.invalidRefreshToken(
-    c.env.KV,
-    token,
+    clientId,
   )
 
   c.status(200)

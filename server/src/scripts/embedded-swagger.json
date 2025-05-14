@@ -66,6 +66,31 @@
           "sessionId"
         ]
       },
+      "PostSignUpReq": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "sessionId"
+        ]
+      },
       "TokenExchangeReq": {
         "type": "object",
         "properties": {
@@ -190,6 +215,21 @@
           "expires_on",
           "token_type"
         ]
+      },
+      "SignOutReq": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          },
+          "clientId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken",
+          "clientId"
+        ]
       }
     }
   },
@@ -229,6 +269,36 @@
         }
       }
     },
+    "/embedded-auth/v1/sign-up": {
+      "post": {
+        "summary": "Sign up using the embedded auth session",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostSignUpReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Next step of the auth flow",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/embedded-auth/v1/sign-in": {
       "post": {
         "summary": "Sign in using the embedded auth session",
@@ -251,7 +321,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmbeddedAuthResponse"
+                  "$ref": "#/components/schemas/AuthRes"
                 }
               }
             }
@@ -315,6 +385,29 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/sign-out": {
+      "post": {
+        "summary": "Sign out",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignOutReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sign out successfully"
           }
         }
       }

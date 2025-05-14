@@ -292,3 +292,28 @@ export const handleRefreshTokenTokenExchange = async (
 
   return result
 }
+
+export const handleInvalidRefreshToken = async (
+  c: Context<typeConfig.Context>,
+  refreshToken: string,
+  clientId: string,
+) => {
+  const refreshTokenBody = await kvService.getRefreshTokenBody(
+    c,
+    refreshToken,
+  )
+
+  if (!refreshTokenBody || clientId !== refreshTokenBody.clientId) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongRefreshToken,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
+  }
+
+  await kvService.invalidRefreshToken(
+    c.env.KV,
+    refreshToken,
+  )
+}

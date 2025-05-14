@@ -3,11 +3,13 @@ const swaggerJsdoc = require('swagger-jsdoc')
 const {
   PostInitiateReq,
   PostSignInReq,
+  PostSignUpReq,
   TokenExchangeReq,
   AuthRes,
   TokenExchangeRes,
   TokenRefreshReq,
   TokenRefreshRes,
+  SignOutReq,
 } = require('./schemas/embedded.cjs')
 
 const options = {
@@ -21,11 +23,13 @@ const options = {
       schemas: {
         PostInitiateReq,
         PostSignInReq,
+        PostSignUpReq,
         TokenExchangeReq,
         AuthRes,
         TokenExchangeRes,
         TokenRefreshReq,
         TokenRefreshRes,
+        SignOutReq,
       },
     },
   },
