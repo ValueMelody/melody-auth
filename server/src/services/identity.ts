@@ -6,6 +6,7 @@ import {
 } from 'configs'
 import {
   consentService, passkeyService, sessionService, appService, kvService, mfaService,
+  scopeService,
 } from 'services'
 import { userModel } from 'models'
 import { oauthDto } from 'dtos'
@@ -255,5 +256,26 @@ export const processSignIn = async (
   return {
     authCode,
     authCodeBody,
+  }
+}
+
+export const processGetAppConsent = async (
+  c: Context<typeConfig.Context>,
+  request: oauthDto.CoreAuthorizeDto,
+) => {
+  const app = await appService.verifySPAClientRequest(
+    c,
+    request.clientId,
+    request.redirectUri,
+  )
+
+  const scopes = await scopeService.getScopesByName(
+    c,
+    request.scopes,
+  )
+
+  return {
+    scopes,
+    appName: app.name,
   }
 }

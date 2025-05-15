@@ -55,15 +55,11 @@
           },
           "password": {
             "type": "string"
-          },
-          "sessionId": {
-            "type": "string"
           }
         },
         "required": [
           "email",
-          "password",
-          "sessionId"
+          "password"
         ]
       },
       "PostSignUpReq": {
@@ -80,15 +76,11 @@
           },
           "lastName": {
             "type": "string"
-          },
-          "sessionId": {
-            "type": "string"
           }
         },
         "required": [
           "email",
-          "password",
-          "sessionId"
+          "password"
         ]
       },
       "TokenExchangeReq": {
@@ -230,6 +222,73 @@
           "refreshToken",
           "clientId"
         ]
+      },
+      "GetAppConsentRes": {
+        "type": "object",
+        "properties": {
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "deletedAt": {
+                  "type": "string"
+                },
+                "locales": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "scopeId": {
+                        "type": "number"
+                      },
+                      "locale": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      },
+                      "updatedAt": {
+                        "type": "string"
+                      },
+                      "deletedAt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "appName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "scopes",
+          "appName"
+        ]
       }
     }
   },
@@ -269,11 +328,21 @@
         }
       }
     },
-    "/embedded-auth/v1/sign-up": {
+    "/embedded-auth/v1/{sessionId}/sign-up": {
       "post": {
         "summary": "Sign up using the embedded auth session",
         "tags": [
           "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -299,11 +368,21 @@
         }
       }
     },
-    "/embedded-auth/v1/sign-in": {
+    "/embedded-auth/v1/{sessionId}/sign-in": {
       "post": {
         "summary": "Sign in using the embedded auth session",
         "tags": [
           "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -318,6 +397,64 @@
         "responses": {
           "200": {
             "description": "Next step of the auth flow",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/{sessionId}/app-consent": {
+      "get": {
+        "summary": "Get app consent",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "App consent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAppConsentRes"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Post app consent",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "App consent",
             "content": {
               "application/json": {
                 "schema": {

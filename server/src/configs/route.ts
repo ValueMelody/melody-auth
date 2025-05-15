@@ -90,8 +90,9 @@ export enum View {
 
 export enum EmbeddedRoute {
   Initiate = `${InternalRoute.Embedded}/initiate`,
-  SignIn = `${InternalRoute.Embedded}/sign-in`,
-  SignUp = `${InternalRoute.Embedded}/sign-up`,
+  SignIn = `${InternalRoute.Embedded}/:sessionId/sign-in`,
+  SignUp = `${InternalRoute.Embedded}/:sessionId/sign-up`,
+  AppConsent = `${InternalRoute.Embedded}/:sessionId/app-consent`,
   TokenExchange = `${InternalRoute.Embedded}/token-exchange`,
   TokenRefresh = `${InternalRoute.Embedded}/token-refresh`,
   SignOut = `${InternalRoute.Embedded}/sign-out`,

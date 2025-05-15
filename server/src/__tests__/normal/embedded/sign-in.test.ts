@@ -48,11 +48,13 @@ const sendSignInRequest = async (
   await insertUsers(db)
 
   const res = await app.request(
-    routeConfig.EmbeddedRoute.SignIn,
+    routeConfig.EmbeddedRoute.SignIn.replace(
+      ':sessionId',
+      sessionId,
+    ),
     {
       method: 'POST',
       body: JSON.stringify({
-        sessionId,
         email: email ?? 'test@email.com',
         password: password ?? 'Password1!',
       }),
