@@ -14,7 +14,7 @@ import {
 } from 'dtos'
 import {
   appService, consentService, emailService,
-  identityService, kvService, mfaService, scopeService, userService,
+  identityService, kvService, mfaService, userService,
 } from 'services'
 import {
   requestUtil, validateUtil, loggerUtil,
@@ -163,21 +163,12 @@ Promise<TypedResponse<GetAppConsentRes>> => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
-  const app = await appService.verifySPAClientRequest(
+  const result = await identityService.processGetAppConsent(
     c,
-    authInfo.request.clientId,
-    authInfo.request.redirectUri,
+    authInfo.request,
   )
 
-  const scopes = await scopeService.getScopesByName(
-    c,
-    authInfo.request.scopes,
-  )
-
-  return c.json({
-    scopes,
-    appName: app.name,
-  })
+  return c.json(result)
 }
 
 export const postAppConsent = async (c: Context<typeConfig.Context>) => {

@@ -51,11 +51,13 @@ const sendSignUpRequest = async (
   await insertUsers(db)
 
   const res = await app.request(
-    routeConfig.EmbeddedRoute.SignUp,
+    routeConfig.EmbeddedRoute.SignUp.replace(
+      ':sessionId',
+      sessionId,
+    ),
     {
       method: 'POST',
       body: JSON.stringify({
-        sessionId,
         email,
         password,
         firstName,

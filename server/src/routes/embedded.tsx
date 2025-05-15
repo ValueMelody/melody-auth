@@ -39,10 +39,16 @@ embeddedRoutes.post(
 
 /**
  * @swagger
- * /embedded-auth/v1/sign-up:
+ * /embedded-auth/v1/{sessionId}/sign-up:
  *   post:
  *     summary: Sign up using the embedded auth session
  *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -65,10 +71,16 @@ embeddedRoutes.post(
 
 /**
  * @swagger
- * /embedded-auth/v1/sign-in:
+ * /embedded-auth/v1/{sessionId}/sign-in:
  *   post:
  *     summary: Sign in using the embedded auth session
  *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -87,6 +99,58 @@ embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignIn,
   setupMiddleware.validEmbeddedOrigin,
   embeddedHandler.signIn,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/app-consent:
+ *   get:
+ *     summary: Get app consent
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: App consent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GetAppConsentRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.AppConsent,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.getAppConsent,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/app-consent:
+ *   post:
+ *     summary: Post app consent
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: App consent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.AppConsent,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postAppConsent,
 )
 
 /**

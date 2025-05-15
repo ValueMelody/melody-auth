@@ -5,7 +5,7 @@ import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
-  appService, emailService, identityService, kvService, mfaService, oauthService, scopeService,
+  appService, consentService, emailService, identityService, kvService, mfaService, oauthService, scopeService,
   userService,
 } from 'services'
 import {
@@ -108,7 +108,12 @@ const processAuthorizeWithUser = async (
 export const signUp = async (c: Context<typeConfig.Context>) => {
   await signUpHook.preSignUp()
 
-  const reqBody = await c.req.json()
+  const sessionId = c.req.param('sessionId')
+
+  const reqBody = {
+    ...(await c.req.json()),
+    sessionId,
+  }
 
   const {
     NAMES_IS_REQUIRED: namesIsRequired,
@@ -180,7 +185,12 @@ export const signUp = async (c: Context<typeConfig.Context>) => {
 export const signIn = async (c: Context<typeConfig.Context>) => {
   await signInHook.preSignIn()
 
-  const reqBody = await c.req.json()
+  const sessionId = c.req.param('sessionId')
+
+  const reqBody = {
+    ...(await c.req.json()),
+    sessionId,
+  }
 
   const bodyDto = new embeddedDto.SignInDto(reqBody)
   await validateUtil.dto(bodyDto)
@@ -287,4 +297,72 @@ export const signOut = async (c: Context<typeConfig.Context>) => {
 
   c.status(200)
   return c.body(null)
+}
+
+export const getAppConsent = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+
+  const bodyDto = new embeddedDto.EmbeddedSessionDto({ sessionId })
+  await validateUtil.dto(bodyDto)
+
+  const sessionBody = await kvService.getEmbeddedSessionBody(
+    c.env.KV,
+    bodyDto.sessionId,
+  )
+
+  if (!sessionBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongSessionId,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
+  }
+
+  const result = await identityService.processGetAppConsent(
+    c,
+    sessionBody.request,
+  )
+
+  return c.json(result)
+}
+
+export const postAppConsent = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+
+  const bodyDto = new embeddedDto.EmbeddedSessionDto({ sessionId })
+  await validateUtil.dto(bodyDto)
+
+  const sessionBody = await kvService.getEmbeddedSessionBody(
+    c.env.KV,
+    bodyDto.sessionId,
+  )
+
+  if (!sessionBody || !sessionBody.user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongSessionId,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
+  }
+
+  await consentService.createUserAppConsent(
+    c,
+    sessionBody.user.id,
+    sessionBody.appId,
+  )
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.Password,
+    bodyDto.sessionId,
+    sessionBodyToAuthCodeBody(sessionBody),
+  )
+
+  return c.json({
+    sessionId: bodyDto.sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
 }

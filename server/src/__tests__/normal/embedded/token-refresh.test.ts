@@ -44,11 +44,13 @@ const sendTokenRefreshRequest = async (
   await insertUsers(db)
 
   await app.request(
-    routeConfig.EmbeddedRoute.SignIn,
+    routeConfig.EmbeddedRoute.SignIn.replace(
+      ':sessionId',
+      correctSessionId,
+    ),
     {
       method: 'POST',
       body: JSON.stringify({
-        sessionId: correctSessionId,
         email: 'test@email.com',
         password: 'Password1!',
       }),
