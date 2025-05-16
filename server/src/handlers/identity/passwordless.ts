@@ -1,6 +1,5 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { handleSendEmailMfa } from './mfa'
 import {
   typeConfig,
   errorConfig,
@@ -50,14 +49,11 @@ export const postSendPasswordlessCode = async (c: Context<typeConfig.Context>) =
   const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const isPasswordlessCode = true
-  const emailRes = await handleSendEmailMfa(
-    c,
+  const authCodeBody = await kvService.getAuthCodeBody(
+    c.env.KV,
     bodyDto.code,
-    bodyDto.locale,
-    isPasswordlessCode,
   )
-  if (!emailRes.result && emailRes.reason === messageConfig.RequestError.WrongAuthCode) {
+  if (!authCodeBody) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -66,14 +62,14 @@ export const postSendPasswordlessCode = async (c: Context<typeConfig.Context>) =
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
-  if (!emailRes.result && emailRes.reason === messageConfig.RequestError.EmailMfaLocked) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.EmailMfaLocked,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.EmailMfaLocked)
-  }
+  const isPasswordlessCode = true
+  await identityService.handleSendEmailMfa(
+    c,
+    bodyDto.code,
+    authCodeBody,
+    bodyDto.locale,
+    isPasswordlessCode,
+  )
 
   return c.json({ success: true })
 }

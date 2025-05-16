@@ -118,7 +118,7 @@ describe(
           { sessionId: 'abc' },
         )
 
-        expect(res.status).toBe(400)
+        expect(res.status).toBe(404)
         expect(await res.text()).toStrictEqual(messageConfig.RequestError.WrongSessionId)
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string

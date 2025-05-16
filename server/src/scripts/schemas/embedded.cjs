@@ -45,6 +45,12 @@ const PostSignUpReq = {
   ],
 }
 
+const MfaCodeReq = {
+  type: 'object',
+  properties: { mfaCode: { type: 'string' } },
+  required: ['mfaCode'],
+}
+
 const AuthRes = {
   type: 'object',
   properties: {
@@ -165,6 +171,7 @@ module.exports = {
   PostSignUpReq,
   TokenExchangeReq,
   TokenRefreshReq,
+  MfaCodeReq,
   AuthRes,
   TokenExchangeRes,
   TokenRefreshRes,

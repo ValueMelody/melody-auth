@@ -36,6 +36,26 @@ const sessionBodyToAuthCodeBody = (sessionBody: typeConfig.EmbeddedSessionBody):
   }
 }
 
+const getSessionBodyWithUser = async (
+  c: Context<typeConfig.Context>, sessionId: string,
+) => {
+  const sessionBody = await kvService.getEmbeddedSessionBody(
+    c.env.KV,
+    sessionId,
+  )
+
+  if (!sessionBody || !sessionBody.user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongSessionId,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
+  }
+
+  return sessionBody as typeConfig.EmbeddedSessionBodyWithUser
+}
+
 export const initiate = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const queryDto = new oauthDto.CoreAuthorizeDto(reqBody)
@@ -237,19 +257,10 @@ export const tokenExchange = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.TokenExchangeDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionBody = await kvService.getEmbeddedSessionBody(
-    c.env.KV,
+  const sessionBody = await getSessionBodyWithUser(
+    c,
     bodyDto.sessionId,
   )
-
-  if (!sessionBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongSessionId,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongSessionId)
-  }
 
   const result = await oauthService.handleAuthCodeTokenExchange(
     c,
@@ -301,23 +312,10 @@ export const signOut = async (c: Context<typeConfig.Context>) => {
 
 export const getAppConsent = async (c: Context<typeConfig.Context>) => {
   const sessionId = c.req.param('sessionId')
-
-  const bodyDto = new embeddedDto.EmbeddedSessionDto({ sessionId })
-  await validateUtil.dto(bodyDto)
-
-  const sessionBody = await kvService.getEmbeddedSessionBody(
-    c.env.KV,
-    bodyDto.sessionId,
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
   )
-
-  if (!sessionBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongSessionId,
-    )
-    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
-  }
 
   const result = await identityService.processGetAppConsent(
     c,
@@ -329,23 +327,10 @@ export const getAppConsent = async (c: Context<typeConfig.Context>) => {
 
 export const postAppConsent = async (c: Context<typeConfig.Context>) => {
   const sessionId = c.req.param('sessionId')
-
-  const bodyDto = new embeddedDto.EmbeddedSessionDto({ sessionId })
-  await validateUtil.dto(bodyDto)
-
-  const sessionBody = await kvService.getEmbeddedSessionBody(
-    c.env.KV,
-    bodyDto.sessionId,
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
   )
-
-  if (!sessionBody || !sessionBody.user) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongSessionId,
-    )
-    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
-  }
 
   await consentService.createUserAppConsent(
     c,
@@ -356,12 +341,63 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
   const result = await identityService.processPostAuthorize(
     c,
     identityService.AuthorizeStep.Password,
-    bodyDto.sessionId,
+    sessionId,
     sessionBodyToAuthCodeBody(sessionBody),
   )
 
   return c.json({
-    sessionId: bodyDto.sessionId,
+    sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
+export const postEmailMfaCode = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const isPasswordlessCode = false
+  await identityService.handleSendEmailMfa(
+    c,
+    sessionId,
+    sessionBody,
+    sessionBody.request.locale,
+    isPasswordlessCode,
+  )
+
+  return c.json({ success: true })
+}
+
+export const postEmailMfa = async (c: Context<typeConfig.Context>) => {
+  const bodyDto = new embeddedDto.MfaDto(await c.req.json())
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  await identityService.processEmailMfa(
+    c,
+    sessionId,
+    sessionBody,
+    bodyDto.mfaCode,
+  )
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.EmailMfa,
+    sessionId,
+    sessionBodyToAuthCodeBody(sessionBody),
+  )
+
+  return c.json({
+    sessionId,
     nextStep: result.nextPage,
     success: !result.nextPage,
   })

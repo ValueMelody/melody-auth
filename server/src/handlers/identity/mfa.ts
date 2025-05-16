@@ -9,151 +9,12 @@ import {
 import { identityDto } from 'dtos'
 import {
   identityService, mfaService,
-  emailService, kvService, smsService, userService,
+  kvService, smsService, userService,
 } from 'services'
 import {
   requestUtil, validateUtil, loggerUtil,
 } from 'utils'
-import { AuthCodeBody } from 'configs/type'
 import { userModel } from 'models'
-
-const allowOtpSwitchToEmailMfa = (
-  c: Context<typeConfig.Context>,
-  authCodeStore: AuthCodeBody,
-) => {
-  const {
-    requireEmailMfa: enableOtpMfa,
-    requireOtpMfa: enableEmailMfa,
-    allowEmailMfaAsBackup: allowFallback,
-  } = mfaService.getAuthorizeMfaConfig(
-    c,
-    authCodeStore,
-  )
-
-  const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
-  const enrolledOtp = enableOtpMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Otp)
-
-  return allowFallback && notEnrolledEmail && enrolledOtp
-}
-
-export const handleSendEmailMfa = async (
-  c: Context<typeConfig.Context>,
-  authCode: string,
-  locale: typeConfig.Locale,
-  isPasswordlessCode: boolean = false,
-) => {
-  const {
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    EMAIL_MFA_EMAIL_THRESHOLD: threshold,
-    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
-  } = env(c)
-
-  const authCodeBody = await kvService.getAuthCodeBody(
-    c.env.KV,
-    authCode,
-  )
-  if (!authCodeBody) {
-    return {
-      result: false,
-      reason: messageConfig.RequestError.WrongAuthCode,
-    }
-  }
-
-  const { requireEmailMfa: enableEmailMfa } = mfaService.getAuthorizeMfaConfig(
-    c,
-    authCodeBody,
-  )
-
-  const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
-  const couldFallbackAsOtp = allowOtpSwitchToEmailMfa(
-    c,
-    authCodeBody,
-  )
-  const couldFallbackAsSms = allowSmsSwitchToEmailMfa(
-    c,
-    authCodeBody,
-  )
-
-  if (
-    !authCodeBody.user.email ||
-    (!requireEmailMfa && !couldFallbackAsOtp && !couldFallbackAsSms && !enablePasswordlessSignIn)
-  ) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Error,
-      messageConfig.ConfigError.NotSupposeToSendEmailMfa,
-    )
-    throw new errorConfig.Forbidden(messageConfig.ConfigError.NotSupposeToSendEmailMfa)
-  }
-
-  const ip = requestUtil.getRequestIP(c)
-  const attempts = await kvService.getEmailMfaEmailAttemptsByIP(
-    c.env.KV,
-    authCodeBody.user.id,
-    ip,
-  )
-
-  if (threshold) {
-    if (attempts >= threshold) {
-      return {
-        result: false,
-        reason: messageConfig.RequestError.EmailMfaLocked,
-      }
-    }
-
-    await kvService.setEmailMfaEmailAttempts(
-      c.env.KV,
-      authCodeBody.user.id,
-      ip,
-      attempts + 1,
-    )
-  }
-
-  const mfaCode = await emailService.sendEmailMfa(
-    c,
-    authCodeBody.user.email,
-    authCodeBody.user.orgSlug,
-    locale,
-  )
-  if (mfaCode) {
-    if (isPasswordlessCode) {
-      await kvService.storePasswordlessCode(
-        c.env.KV,
-        authCode,
-        mfaCode,
-        codeExpiresIn,
-      )
-    } else {
-      await kvService.storeEmailMfaCode(
-        c.env.KV,
-        authCode,
-        mfaCode,
-        codeExpiresIn,
-      )
-    }
-  }
-
-  return { result: true }
-}
-
-const allowSmsSwitchToEmailMfa = (
-  c: Context<typeConfig.Context>,
-  authCodeStore: AuthCodeBody,
-) => {
-  const {
-    requireEmailMfa: enableEmailMfa,
-    requireSmsMfa: enableSmsMfa,
-    allowEmailMfaAsBackup: allowFallback,
-  } = mfaService.getAuthorizeMfaConfig(
-    c,
-    authCodeStore,
-  )
-
-  const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
-  const enrolledSms = enableSmsMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Sms)
-
-  return allowFallback && notEnrolledEmail && enrolledSms
-}
 
 const handleSendSmsMfa = async (
   c: Context<typeConfig.Context>,
@@ -225,16 +86,12 @@ const handleSendSmsMfa = async (
   return true
 }
 
-export interface GetProcessMfaEnrollRes {
-  mfaTypes: userModel.MfaType[];
-}
-export const getProcessMfaEnroll = async (c: Context<typeConfig.Context>)
-:Promise<TypedResponse<GetProcessMfaEnrollRes>> => {
-  const queryDto = await identityDto.parseGetProcess(c)
-
+const getAuthCodeBody = async (
+  c: Context<typeConfig.Context>, code: string,
+) => {
   const authCodeStore = await kvService.getAuthCodeBody(
     c.env.KV,
-    queryDto.code,
+    code,
   )
   if (!authCodeStore) {
     loggerUtil.triggerLogger(
@@ -244,6 +101,20 @@ export const getProcessMfaEnroll = async (c: Context<typeConfig.Context>)
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
+  return authCodeStore
+}
+
+export interface GetProcessMfaEnrollRes {
+  mfaTypes: userModel.MfaType[];
+}
+export const getProcessMfaEnroll = async (c: Context<typeConfig.Context>)
+:Promise<TypedResponse<GetProcessMfaEnrollRes>> => {
+  const queryDto = await identityDto.parseGetProcess(c)
+
+  const authCodeStore = await getAuthCodeBody(
+    c,
+    queryDto.code,
+  )
 
   if (authCodeStore.user.mfaTypes.length) {
     loggerUtil.triggerLogger(
@@ -265,18 +136,10 @@ export const postProcessMfaEnroll = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostProcessMfaEnrollDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeStore = await getAuthCodeBody(
+    c,
     bodyDto.code,
   )
-  if (!authCodeStore) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
   if (authCodeStore.user.mfaTypes.length) {
     loggerUtil.triggerLogger(
@@ -318,30 +181,19 @@ export const postSendEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const isPasswordlessCode = false
-  const emailRes = await handleSendEmailMfa(
+  const authCodeBody = await getAuthCodeBody(
     c,
     bodyDto.code,
+  )
+
+  const isPasswordlessCode = false
+  await identityService.handleSendEmailMfa(
+    c,
+    bodyDto.code,
+    authCodeBody,
     bodyDto.locale,
     isPasswordlessCode,
   )
-  if (!emailRes || (!emailRes.result && emailRes.reason === messageConfig.RequestError.WrongAuthCode)) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
-
-  if (!emailRes.result && emailRes.reason === messageConfig.RequestError.EmailMfaLocked) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.EmailMfaLocked,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.EmailMfaLocked)
-  }
 
   return c.json({ success: true })
 }
@@ -352,48 +204,17 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeMfaDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeStore = await getAuthCodeBody(
+    c,
     bodyDto.code,
   )
-  if (!authCodeStore) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
-  const isOtpFallback = allowOtpSwitchToEmailMfa(
+  await identityService.processEmailMfa(
     c,
-    authCodeStore,
-  )
-
-  const isSmsFallback = allowSmsSwitchToEmailMfa(
-    c,
-    authCodeStore,
-  )
-
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
-
-  const isValid = await kvService.stampEmailMfaCode(
-    c.env.KV,
     bodyDto.code,
+    authCodeStore,
     bodyDto.mfaCode,
-    expiresIn,
-    isOtpFallback,
-    isSmsFallback,
   )
-
-  if (!isValid) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongEmailMfaCode,
-    )
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
-  }
 
   return c.json(await identityService.processPostAuthorize(
     c,
@@ -409,18 +230,10 @@ export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostSetupSmsMfaDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const authCodeBody = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeBody = await getAuthCodeBody(
+    c,
     bodyDto.code,
   )
-  if (!authCodeBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
   if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) {
     throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
@@ -452,18 +265,10 @@ export const resendSmsMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostProcessDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const authCodeBody = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeBody = await getAuthCodeBody(
+    c,
     bodyDto.code,
   )
-  if (!authCodeBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
   if (!authCodeBody.user.smsPhoneNumber) {
     loggerUtil.triggerLogger(
@@ -495,18 +300,10 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
   const queryDto = await identityDto.parseGetProcess(c)
   await validateUtil.dto(queryDto)
 
-  const authCodeBody = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeBody = await getAuthCodeBody(
+    c,
     queryDto.code,
   )
-  if (!authCodeBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
   const { requireSmsMfa: enableSmsMfa } = mfaService.getAuthorizeMfaConfig(
     c,
@@ -531,7 +328,7 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
     ? '*'.repeat(phoneNumber.length - 4) + phoneNumber.slice(-4)
     : null
 
-  const allowFallbackToEmailMfa = allowSmsSwitchToEmailMfa(
+  const allowFallbackToEmailMfa = identityService.allowSmsSwitchToEmailMfa(
     c,
     authCodeBody,
   )
@@ -549,18 +346,10 @@ export const postProcessSmsMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeMfaDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeStore = await getAuthCodeBody(
+    c,
     bodyDto.code,
   )
-  if (!authCodeStore) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
 
@@ -604,18 +393,10 @@ export const getOtpMfaSetup = async (c: Context<typeConfig.Context>)
 :Promise<TypedResponse<GetOtpMfaSetupRes>> => {
   const queryDto = await identityDto.parseGetProcess(c)
 
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeStore = await getAuthCodeBody(
+    c,
     queryDto.code,
   )
-  if (!authCodeStore) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
   if (authCodeStore.user.otpVerified) {
     loggerUtil.triggerLogger(
@@ -663,20 +444,12 @@ export const getProcessOtpMfa = async (c: Context<typeConfig.Context>)
 :Promise<TypedResponse<GetProcessOtpMfaRes>> => {
   const queryDto = await identityDto.parseGetProcess(c)
 
-  const authCodeBody = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeBody = await getAuthCodeBody(
+    c,
     queryDto.code,
   )
-  if (!authCodeBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
-  const allowFallbackToEmailMfa = allowOtpSwitchToEmailMfa(
+  const allowFallbackToEmailMfa = identityService.allowOtpSwitchToEmailMfa(
     c,
     authCodeBody,
   )
@@ -690,18 +463,10 @@ export const postProcessOtpMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new identityDto.PostAuthorizeMfaDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
+  const authCodeStore = await getAuthCodeBody(
+    c,
     bodyDto.code,
   )
-  if (!authCodeStore) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongAuthCode,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
-  }
 
   if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
 

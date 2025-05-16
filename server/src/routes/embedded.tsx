@@ -128,6 +128,7 @@ embeddedRoutes.post(
 embeddedRoutes.get(
   routeConfig.EmbeddedRoute.AppConsent,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableAppConsent,
   embeddedHandler.getAppConsent,
 )
 
@@ -154,7 +155,62 @@ embeddedRoutes.get(
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.AppConsent,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableAppConsent,
   embeddedHandler.postAppConsent,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/email-mfa-code:
+ *   post:
+ *     summary: send an email mfa code to the user
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: an email mfa code has been sent to the user
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.EmailMfaCode,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postEmailMfaCode,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/email-mfa:
+ *   post:
+ *     summary: verify the email mfa code
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MfaCodeReq'
+ *     responses:
+ *       200:
+ *         description: the email mfa code has been verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.EmailMfa,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postEmailMfa,
 )
 
 /**
@@ -233,9 +289,9 @@ embeddedRoutes.post(
 
 /**
  * @swagger
- * /embedded-auth/v1/reset-password:
+ * /embedded-auth/v1/reset-password-code:
  *   post:
- *     summary: Trigger a password reset email
+ *     summary: Trigger a password reset code
  *     tags: [Embedded Auth]
  *     requestBody:
  *       required: true
@@ -248,7 +304,7 @@ embeddedRoutes.post(
  *         description: Password reset email triggered
  */
 embeddedRoutes.post(
-  routeConfig.EmbeddedRoute.ResetPassword,
+  routeConfig.EmbeddedRoute.ResetPasswordCode,
   setupMiddleware.validEmbeddedOrigin,
   configMiddleware.enablePasswordReset,
   embeddedHandler.resetPassword,

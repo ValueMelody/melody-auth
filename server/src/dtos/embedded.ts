@@ -121,3 +121,13 @@ export class ResetPasswordDto extends baseDto.ResetPasswordDto {
     this.locale = dto.locale
   }
 }
+
+export class MfaDto {
+  @IsString()
+  @IsNotEmpty()
+    mfaCode: string
+
+  constructor (dto: MfaDto) {
+    this.mfaCode = dto.mfaCode
+  }
+}

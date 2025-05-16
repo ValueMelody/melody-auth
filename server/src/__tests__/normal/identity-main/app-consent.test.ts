@@ -145,6 +145,28 @@ describe(
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
+
+    test(
+      'should throw error if app consent is not enabled',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const params = await prepareFollowUpParams(db)
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AppConsent}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.AppConsentNotEnabled)
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
   },
 )
 
@@ -202,6 +224,31 @@ describe(
         )
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+      },
+    )
+
+    test(
+      'should throw error if app consent is not enabled',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AppConsent,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.AppConsentNotEnabled)
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
   },
