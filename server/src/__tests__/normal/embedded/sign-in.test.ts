@@ -137,5 +137,24 @@ describe(
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_PASSWORD_SIGN_IN = false as unknown as string
+
+        const { res } = await sendSignInRequest(
+          db,
+          { email: 'test@test1.com' },
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toStrictEqual(messageConfig.ConfigError.PasswordSignInNotEnabled)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_PASSWORD_SIGN_IN = true as unknown as string
+      },
+    )
   },
 )

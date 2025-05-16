@@ -110,3 +110,14 @@ export class SignOutDto {
     this.clientId = dto.clientId
   }
 }
+
+export class ResetPasswordDto extends baseDto.ResetPasswordDto {
+  @IsString()
+  @IsOptional()
+    locale: string
+
+  constructor (dto: ResetPasswordDto) {
+    super(dto)
+    this.locale = dto.locale
+  }
+}

@@ -33,10 +33,7 @@ afterEach(async () => {
 })
 
 const sendCorrectResetPasswordCodeReq = async () => {
-  const body = {
-    email: 'test@email.com',
-    password: 'Password1!',
-  }
+  const body = { email: 'test@email.com' }
 
   const res = await app.request(
     routeConfig.IdentityRoute.ResetPasswordCode,
@@ -125,7 +122,7 @@ describe(
           routeConfig.IdentityRoute.ResetPasswordCode,
           {
             method: 'POST',
-            body: JSON.stringify({ password: 'Password1!' }),
+            body: JSON.stringify({}),
           },
           mock(db),
         )

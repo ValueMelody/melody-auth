@@ -96,4 +96,5 @@ export enum EmbeddedRoute {
   TokenExchange = `${InternalRoute.Embedded}/token-exchange`,
   TokenRefresh = `${InternalRoute.Embedded}/token-refresh`,
   SignOut = `${InternalRoute.Embedded}/sign-out`,
+  ResetPassword = `${InternalRoute.Embedded}/reset-password`,
 }

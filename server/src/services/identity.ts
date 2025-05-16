@@ -2,13 +2,19 @@ import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { genRandomString } from '@melody-auth/shared'
 import {
+  errorConfig,
+  messageConfig,
   routeConfig, typeConfig,
 } from 'configs'
 import {
   consentService, passkeyService, sessionService, appService, kvService, mfaService,
   scopeService,
+  userService,
 } from 'services'
 import { userModel } from 'models'
+import {
+  loggerUtil, requestUtil,
+} from 'utils'
 import { oauthDto } from 'dtos'
 
 export enum AuthorizeStep {
@@ -278,4 +284,44 @@ export const processGetAppConsent = async (
     scopes,
     appName: app.name,
   }
+}
+
+export const processResetPassword = async (
+  c: Context<typeConfig.Context>,
+  email: string,
+  locale: typeConfig.Locale,
+) => {
+  if (!email) throw new errorConfig.Forbidden()
+
+  const ip = requestUtil.getRequestIP(c)
+  const { PASSWORD_RESET_EMAIL_THRESHOLD: resetThreshold } = env(c)
+
+  if (resetThreshold) {
+    const resetAttempts = await kvService.getPasswordResetAttemptsByIP(
+      c.env.KV,
+      email,
+      ip,
+    )
+    if (resetAttempts >= resetThreshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.PasswordResetLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordResetLocked)
+    }
+
+    await kvService.setPasswordResetAttemptsByIP(
+      c.env.KV,
+      email,
+      ip,
+      resetAttempts + 1,
+    )
+  }
+
+  await userService.sendPasswordReset(
+    c,
+    email,
+    locale,
+  )
 }

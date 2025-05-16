@@ -11,6 +11,7 @@ const {
   TokenRefreshRes,
   SignOutReq,
   GetAppConsentRes,
+  ResetPasswordReq,
 } = require('./schemas/embedded.cjs')
 
 const options = {
@@ -32,6 +33,7 @@ const options = {
         TokenRefreshRes,
         SignOutReq,
         GetAppConsentRes,
+        ResetPasswordReq,
       },
     },
   },

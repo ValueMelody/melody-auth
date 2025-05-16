@@ -8,7 +8,9 @@ import {
   migrate, mock,
   mockedKV,
 } from 'tests/mock'
-import { routeConfig } from 'configs'
+import {
+  messageConfig, routeConfig,
+} from 'configs'
 import {
   getApp, insertUsers,
 } from 'tests/identity'
@@ -170,6 +172,32 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
         process.env.NAMES_IS_REQUIRED = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if sign up is disabled',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_SIGN_UP = false as unknown as string
+
+        const { res } = await sendSignUpRequest(
+          db,
+          {
+            email: 'test1@email.com',
+            password: 'Password1!',
+          },
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toStrictEqual(messageConfig.ConfigError.SignUpNotEnabled)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_SIGN_UP = true as unknown as string
       },
     )
 

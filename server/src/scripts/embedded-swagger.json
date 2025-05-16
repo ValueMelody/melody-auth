@@ -289,6 +289,20 @@
           "scopes",
           "appName"
         ]
+      },
+      "ResetPasswordReq": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
       }
     }
   },
@@ -545,6 +559,29 @@
         "responses": {
           "200": {
             "description": "Sign out successfully"
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/reset-password": {
+      "post": {
+        "summary": "Trigger a password reset email",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset email triggered"
           }
         }
       }
