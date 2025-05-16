@@ -98,6 +98,17 @@
           "sessionId"
         ]
       },
+      "MfaCodeReq": {
+        "type": "object",
+        "properties": {
+          "mfaCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mfaCode"
+        ]
+      },
       "AuthRes": {
         "type": "object",
         "properties": {
@@ -480,6 +491,69 @@
         }
       }
     },
+    "/embedded-auth/v1/{sessionId}/email-mfa-code": {
+      "post": {
+        "summary": "send an email mfa code to the user",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an email mfa code has been sent to the user"
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/{sessionId}/email-mfa": {
+      "post": {
+        "summary": "verify the email mfa code",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MfaCodeReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the email mfa code has been verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/embedded-auth/v1/token-exchange": {
       "post": {
         "summary": "Exchange the auth code for access token, refresh token, id token",
@@ -563,9 +637,9 @@
         }
       }
     },
-    "/embedded-auth/v1/reset-password": {
+    "/embedded-auth/v1/reset-password-code": {
       "post": {
-        "summary": "Trigger a password reset email",
+        "summary": "Trigger a password reset code",
         "tags": [
           "Embedded Auth"
         ],

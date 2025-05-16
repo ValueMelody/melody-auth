@@ -5,6 +5,7 @@ export enum ConfigError {
   PasswordSignInNotEnabled = 'Password sign in is not enabled or passwordless sign in is enabled',
   PasswordResetNotEnabled = 'Password reset is not enabled or passwordless sign in is enabled',
   PasswordlessSignInNotEnabled = 'Passwordless sign in is not enabled',
+  AppConsentNotEnabled = 'App consent is not enabled',
   OrgNotEnabled = 'Organization is not enabled',
   PasskeyEnrollmentNotEnabled = 'Passkey enrollment is not enabled or passwordless sign in is enabled',
   GoogleSignInNotEnabled = 'Google id is not configured',

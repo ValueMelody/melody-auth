@@ -7,6 +7,7 @@ import {
 } from 'configs'
 import { Policy } from 'dtos/oauth'
 import { loggerUtil } from 'utils'
+
 export const enableSignUp = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
@@ -42,6 +43,22 @@ export const enablePasswordSignIn = async (
       messageConfig.ConfigError.PasswordSignInNotEnabled,
     )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.PasswordSignInNotEnabled)
+  }
+
+  await next()
+}
+
+export const enableAppConsent = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_USER_APP_CONSENT: enabledAppConsent } = env(c)
+  if (!enabledAppConsent) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.AppConsentNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.AppConsentNotEnabled)
   }
 
   await next()

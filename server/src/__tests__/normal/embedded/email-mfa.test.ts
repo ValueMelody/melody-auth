@@ -9,12 +9,11 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   getApp, insertUsers,
 } from 'tests/identity'
-import { dbTime } from 'tests/util'
 
 let db: Database
 
@@ -75,13 +74,15 @@ const sendSignUpRequest = async (
 }
 
 describe(
-  'get /app-consent',
+  'post /email-mfa-code',
   () => {
     test(
-      'should get app consent',
+      'should post email mfa code',
       async () => {
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
 
         const {
           res, sessionId,
@@ -98,143 +99,71 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({
           sessionId,
-          nextStep: routeConfig.View.Consent,
+          nextStep: routeConfig.View.EmailMfa,
           success: false,
         })
 
         const consentRes = await app.request(
-          routeConfig.EmbeddedRoute.AppConsent.replace(
+          routeConfig.EmbeddedRoute.EmailMfaCode.replace(
             ':sessionId',
             sessionId,
           ),
-          { method: 'GET' },
+          { method: 'POST' },
           mock(db),
         )
         expect(consentRes.status).toBe(200)
-        expect(await consentRes.json()).toStrictEqual({
-          appName: 'Admin Panel (SPA)',
-          scopes: [
-            {
-              createdAt: dbTime,
-              deletedAt: null,
-              id: 2,
-              locales: [
-                {
-                  createdAt: dbTime,
-                  deletedAt: null,
-                  id: 1,
-                  locale: 'en',
-                  scopeId: 2,
-                  updatedAt: dbTime,
-                  value: 'Access your basic profile information',
-                },
-                {
-                  createdAt: dbTime,
-                  deletedAt: null,
-                  id: 2,
-                  locale: 'fr',
-                  scopeId: 2,
-                  updatedAt: dbTime,
-                  value: 'Accéder à vos informations de profil de base',
-                },
-              ],
-              name: 'profile',
-              note: '',
-              type: 'spa',
-              updatedAt: dbTime,
-            },
-            {
-              createdAt: dbTime,
-              deletedAt: null,
-              id: 1,
-              locales: [],
-              name: 'openid',
-              note: '',
-              type: 'spa',
-              updatedAt: dbTime,
-            },
-            {
-              createdAt: dbTime,
-              deletedAt: null,
-              id: 3,
-              locales: [],
-              name: 'offline_access',
-              note: '',
-              type: 'spa',
-              updatedAt: dbTime,
-            },
-          ],
-        })
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        expect(mfaCode?.length).toBe(6)
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
-      },
-    )
-
-    test(
-      'should throw error when app consent is not enabled',
-      async () => {
-        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
-        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
-        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
-
-        const { sessionId } = await sendSignUpRequest(
-          db,
-          {
-            email: 'test1@email.com',
-            password: 'Password1!',
-          },
-        )
-
-        const consentRes = await app.request(
-          routeConfig.EmbeddedRoute.AppConsent.replace(
-            ':sessionId',
-            sessionId,
-          ),
-          { method: 'GET' },
-          mock(db),
-        )
-        expect(consentRes.status).toBe(400)
-        expect(await consentRes.text()).toStrictEqual(messageConfig.ConfigError.AppConsentNotEnabled)
-
-        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
-        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
     test(
-      'should throw error when sessionId is not found',
+      'should throw error with invalid session id',
       async () => {
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
 
         const consentRes = await app.request(
-          routeConfig.EmbeddedRoute.AppConsent.replace(
+          routeConfig.EmbeddedRoute.EmailMfaCode.replace(
             ':sessionId',
             'abc',
           ),
-          { method: 'GET' },
+          { method: 'POST' },
           mock(db),
         )
         expect(consentRes.status).toBe(404)
         expect(await consentRes.text()).toStrictEqual(messageConfig.RequestError.WrongSessionId)
 
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-abc`)
+        expect(mfaCode).toBeNull()
+
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
   },
 )
 
 describe(
-  'post /app-consent',
+  'post /process-email-mfa',
   () => {
     test(
-      'should post app consent',
+      'should process email mfa',
       async () => {
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
 
         const {
           res, sessionId,
@@ -251,12 +180,12 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({
           sessionId,
-          nextStep: routeConfig.View.Consent,
+          nextStep: routeConfig.View.EmailMfa,
           success: false,
         })
 
         const consentRes = await app.request(
-          routeConfig.EmbeddedRoute.AppConsent.replace(
+          routeConfig.EmbeddedRoute.EmailMfaCode.replace(
             ':sessionId',
             sessionId,
           ),
@@ -264,46 +193,46 @@ describe(
           mock(db),
         )
         expect(consentRes.status).toBe(200)
-        expect(await consentRes.json()).toStrictEqual({
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const processRes = await app.request(
+          routeConfig.EmbeddedRoute.EmailMfa.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST', body: JSON.stringify({ mfaCode }),
+          },
+          mock(db),
+        )
+        expect(processRes.status).toBe(200)
+
+        const processJson = await processRes.json()
+        expect(processJson).toStrictEqual({
           sessionId,
           success: true,
         })
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
 
     test(
-      'should throw error when sessionId is not found',
-      async () => {
-        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
-        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
-
-        const consentRes = await app.request(
-          routeConfig.EmbeddedRoute.AppConsent.replace(
-            ':sessionId',
-            'abc',
-          ),
-          { method: 'POST' },
-          mock(db),
-        )
-        expect(consentRes.status).toBe(404)
-        expect(await consentRes.text()).toStrictEqual(messageConfig.RequestError.WrongSessionId)
-
-        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
-        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
-      },
-    )
-
-    test(
-      'should throw error when app consent is not enabled',
+      'should throw error with invalid session id',
       async () => {
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
 
-        const { sessionId } = await sendSignUpRequest(
+        const {
+          res, sessionId,
+        } = await sendSignUpRequest(
           db,
           {
             email: 'test1@email.com',
@@ -311,19 +240,104 @@ describe(
           },
         )
 
+        expect(res.status).toBe(200)
+
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          sessionId,
+          nextStep: routeConfig.View.EmailMfa,
+          success: false,
+        })
+
         const consentRes = await app.request(
-          routeConfig.EmbeddedRoute.AppConsent.replace(
+          routeConfig.EmbeddedRoute.EmailMfaCode.replace(
             ':sessionId',
             sessionId,
           ),
           { method: 'POST' },
           mock(db),
         )
-        expect(consentRes.status).toBe(400)
-        expect(await consentRes.text()).toStrictEqual(messageConfig.ConfigError.AppConsentNotEnabled)
+        expect(consentRes.status).toBe(200)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const processRes = await app.request(
+          routeConfig.EmbeddedRoute.EmailMfa.replace(
+            ':sessionId',
+            'abc',
+          ),
+          {
+            method: 'POST', body: JSON.stringify({ mfaCode }),
+          },
+          mock(db),
+        )
+        expect(processRes.status).toBe(404)
+        expect(await processRes.text()).toStrictEqual(messageConfig.RequestError.WrongSessionId)
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if wrong mfa code is provided',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
+
+        const {
+          res, sessionId,
+        } = await sendSignUpRequest(
+          db,
+          {
+            email: 'test1@email.com',
+            password: 'Password1!',
+          },
+        )
+
+        expect(res.status).toBe(200)
+
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          sessionId,
+          nextStep: routeConfig.View.EmailMfa,
+          success: false,
+        })
+
+        const consentRes = await app.request(
+          routeConfig.EmbeddedRoute.EmailMfaCode.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          { method: 'POST' },
+          mock(db),
+        )
+        expect(consentRes.status).toBe(200)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const processRes = await app.request(
+          routeConfig.EmbeddedRoute.EmailMfa.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST', body: JSON.stringify({ mfaCode: '123456' }),
+          },
+          mock(db),
+        )
+        expect(processRes.status).toBe(401)
+        expect(await processRes.text()).toStrictEqual(messageConfig.RequestError.WrongMfaCode)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.EMAIL_MFA_IS_REQUIRED = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )

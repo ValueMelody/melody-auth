@@ -45,12 +45,14 @@ identityRoutes.post(
 
 identityRoutes.get(
   routeConfig.IdentityRoute.AppConsent,
+  configMiddleware.enableAppConsent,
   identityHandler.getAppConsent,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.AppConsent,
   setupMiddleware.validOrigin,
+  configMiddleware.enableAppConsent,
   identityHandler.postAppConsent,
 )
 

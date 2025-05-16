@@ -4,12 +4,14 @@ import { genRandomString } from '@melody-auth/shared'
 import {
   errorConfig,
   messageConfig,
-  routeConfig, typeConfig,
+  routeConfig,
+  typeConfig,
 } from 'configs'
 import {
   consentService, passkeyService, sessionService, appService, kvService, mfaService,
   scopeService,
   userService,
+  emailService,
 } from 'services'
 import { userModel } from 'models'
 import {
@@ -324,4 +326,171 @@ export const processResetPassword = async (
     email,
     locale,
   )
+}
+
+export const allowOtpSwitchToEmailMfa = (
+  c: Context<typeConfig.Context>,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+) => {
+  const {
+    requireEmailMfa: enableOtpMfa,
+    requireOtpMfa: enableEmailMfa,
+    allowEmailMfaAsBackup: allowFallback,
+  } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeStore,
+  )
+
+  const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
+  const enrolledOtp = enableOtpMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Otp)
+
+  return allowFallback && notEnrolledEmail && enrolledOtp
+}
+
+export const allowSmsSwitchToEmailMfa = (
+  c: Context<typeConfig.Context>,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+) => {
+  const {
+    requireEmailMfa: enableEmailMfa,
+    requireSmsMfa: enableSmsMfa,
+    allowEmailMfaAsBackup: allowFallback,
+  } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeStore,
+  )
+
+  const notEnrolledEmail = !enableEmailMfa && !authCodeStore.user.mfaTypes.includes(userModel.MfaType.Email)
+  const enrolledSms = enableSmsMfa || authCodeStore.user.mfaTypes.includes(userModel.MfaType.Sms)
+
+  return allowFallback && notEnrolledEmail && enrolledSms
+}
+
+export const handleSendEmailMfa = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+  locale: typeConfig.Locale,
+  isPasswordlessCode: boolean = false,
+) => {
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    EMAIL_MFA_EMAIL_THRESHOLD: threshold,
+    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+  } = env(c)
+
+  const { requireEmailMfa: enableEmailMfa } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeBody,
+  )
+
+  const requireEmailMfa = enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)
+  const couldFallbackAsOtp = allowOtpSwitchToEmailMfa(
+    c,
+    authCodeBody,
+  )
+  const couldFallbackAsSms = allowSmsSwitchToEmailMfa(
+    c,
+    authCodeBody,
+  )
+
+  if (
+    !authCodeBody.user.email ||
+    (!requireEmailMfa && !couldFallbackAsOtp && !couldFallbackAsSms && !enablePasswordlessSignIn)
+  ) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.NotSupposeToSendEmailMfa,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.NotSupposeToSendEmailMfa)
+  }
+
+  const ip = requestUtil.getRequestIP(c)
+  const attempts = await kvService.getEmailMfaEmailAttemptsByIP(
+    c.env.KV,
+    authCodeBody.user.id,
+    ip,
+  )
+
+  if (threshold) {
+    if (attempts >= threshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.EmailMfaLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.EmailMfaLocked)
+    }
+
+    await kvService.setEmailMfaEmailAttempts(
+      c.env.KV,
+      authCodeBody.user.id,
+      ip,
+      attempts + 1,
+    )
+  }
+
+  const mfaCode = await emailService.sendEmailMfa(
+    c,
+    authCodeBody.user.email,
+    authCodeBody.user.orgSlug,
+    locale,
+  )
+  if (mfaCode) {
+    if (isPasswordlessCode) {
+      await kvService.storePasswordlessCode(
+        c.env.KV,
+        authCode,
+        mfaCode,
+        codeExpiresIn,
+      )
+    } else {
+      await kvService.storeEmailMfaCode(
+        c.env.KV,
+        authCode,
+        mfaCode,
+        codeExpiresIn,
+      )
+    }
+  }
+
+  return { result: true }
+}
+
+export const processEmailMfa = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+  mfaCode: string,
+) => {
+  const isOtpFallback = allowOtpSwitchToEmailMfa(
+    c,
+    authCodeStore,
+  )
+
+  const isSmsFallback = allowSmsSwitchToEmailMfa(
+    c,
+    authCodeStore,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+
+  const isValid = await kvService.stampEmailMfaCode(
+    c.env.KV,
+    authCode,
+    mfaCode,
+    expiresIn,
+    isOtpFallback,
+    isSmsFallback,
+  )
+
+  if (!isValid) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongEmailMfaCode,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
+  }
 }

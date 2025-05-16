@@ -33,7 +33,7 @@ const sendCorrectResetPasswordCodeReq = async () => {
   }
 
   const res = await app.request(
-    routeConfig.EmbeddedRoute.ResetPassword,
+    routeConfig.EmbeddedRoute.ResetPasswordCode,
     {
       method: 'POST', body: JSON.stringify(body),
     },
@@ -84,7 +84,7 @@ describe(
         await insertUsers(db)
 
         const res = await app.request(
-          routeConfig.EmbeddedRoute.ResetPassword,
+          routeConfig.EmbeddedRoute.ResetPasswordCode,
           {
             method: 'POST',
             body: JSON.stringify({ locale: 'en' }),

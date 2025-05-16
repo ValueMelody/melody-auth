@@ -54,7 +54,7 @@ export const getAuthCodeBodyMfaConfig = (mfaConfig: MfaConfig): typeConfig.AuthC
 
 export const getAuthorizeMfaConfig = (
   c: Context<typeConfig.Context>,
-  authCodeBody: typeConfig.AuthCodeBody,
+  authCodeBody: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
 ): MfaConfig => {
   if (authCodeBody.mfa) {
     return {
