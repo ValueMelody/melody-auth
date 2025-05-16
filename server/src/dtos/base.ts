@@ -79,3 +79,13 @@ export class RequiredNamesDto {
     this.lastName = dto.lastName
   }
 }
+
+export class ResetPasswordDto {
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  constructor (dto: ResetPasswordDto) {
+    this.email = dto.email
+  }
+}

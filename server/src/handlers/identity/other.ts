@@ -1,17 +1,16 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { typeConfig } from 'configs'
 import {
-  errorConfig,
-  messageConfig,
-  typeConfig,
-} from 'configs'
-import { identityDto } from 'dtos'
+  baseDto, identityDto,
+} from 'dtos'
 import {
+  identityService,
   kvService,
   userService,
 } from 'services'
 import {
-  requestUtil, validateUtil, loggerUtil,
+  requestUtil, validateUtil,
 } from 'utils'
 
 export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
@@ -33,47 +32,21 @@ export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
 
 export const postResetPasswordCode = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
-  const email = reqBody.email
-    ? String(reqBody.email).trim()
-      .toLowerCase()
-    : ''
+
+  const bodyDto = new baseDto.ResetPasswordDto(reqBody)
+
+  const email = bodyDto.email
   const locale = requestUtil.getLocaleFromQuery(
     c,
     reqBody.locale,
   )
-  if (!email) throw new errorConfig.Forbidden()
 
-  const ip = requestUtil.getRequestIP(c)
-  const { PASSWORD_RESET_EMAIL_THRESHOLD: resetThreshold } = env(c)
-
-  if (resetThreshold) {
-    const resetAttempts = await kvService.getPasswordResetAttemptsByIP(
-      c.env.KV,
-      email,
-      ip,
-    )
-    if (resetAttempts >= resetThreshold) {
-      loggerUtil.triggerLogger(
-        c,
-        loggerUtil.LoggerLevel.Warn,
-        messageConfig.RequestError.PasswordResetLocked,
-      )
-      throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordResetLocked)
-    }
-
-    await kvService.setPasswordResetAttemptsByIP(
-      c.env.KV,
-      email,
-      ip,
-      resetAttempts + 1,
-    )
-  }
-
-  await userService.sendPasswordReset(
+  await identityService.processResetPassword(
     c,
     email,
     locale,
   )
+
   return c.json({ success: true })
 }
 

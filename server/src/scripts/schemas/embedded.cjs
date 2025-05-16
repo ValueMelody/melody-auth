@@ -150,6 +150,15 @@ const GetAppConsentRes = {
   required: ['scopes', 'appName'],
 }
 
+const ResetPasswordReq = {
+  type: 'object',
+  properties: {
+    email: { type: 'string' },
+    locale: { type: 'string' },
+  },
+  required: ['email'],
+}
+
 module.exports = {
   PostInitiateReq,
   PostSignInReq,
@@ -161,4 +170,5 @@ module.exports = {
   TokenRefreshRes,
   SignOutReq,
   GetAppConsentRes,
+  ResetPasswordReq,
 }

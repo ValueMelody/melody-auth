@@ -12,7 +12,7 @@ import {
   embeddedDto, oauthDto,
 } from 'dtos'
 import {
-  loggerUtil, validateUtil,
+  loggerUtil, requestUtil, validateUtil,
 } from 'utils'
 import {
   authCodeHook, signInHook,
@@ -365,4 +365,22 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
     nextStep: result.nextPage,
     success: !result.nextPage,
   })
+}
+
+export const resetPassword = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+  const bodyDto = new embeddedDto.ResetPasswordDto(reqBody)
+  const email = bodyDto.email
+  const locale = requestUtil.getLocaleFromQuery(
+    c,
+    bodyDto.locale,
+  )
+
+  await identityService.processResetPassword(
+    c,
+    email,
+    locale,
+  )
+
+  return c.json({ success: true })
 }

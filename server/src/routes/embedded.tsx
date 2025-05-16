@@ -3,7 +3,9 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import { embeddedHandler } from 'handlers'
-import { setupMiddleware } from 'middlewares'
+import {
+  configMiddleware, setupMiddleware,
+} from 'middlewares'
 
 const embeddedRoutes = new Hono<typeConfig.Context>()
 export default embeddedRoutes
@@ -66,6 +68,7 @@ embeddedRoutes.post(
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignUp,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableSignUp,
   embeddedHandler.signUp,
 )
 
@@ -98,6 +101,7 @@ embeddedRoutes.post(
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignIn,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasswordSignIn,
   embeddedHandler.signIn,
 )
 
@@ -225,4 +229,27 @@ embeddedRoutes.post(
   routeConfig.EmbeddedRoute.SignOut,
   setupMiddleware.validEmbeddedOrigin,
   embeddedHandler.signOut,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/reset-password:
+ *   post:
+ *     summary: Trigger a password reset email
+ *     tags: [Embedded Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ResetPasswordReq'
+ *     responses:
+ *       200:
+ *         description: Password reset email triggered
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.ResetPassword,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasswordReset,
+  embeddedHandler.resetPassword,
 )
