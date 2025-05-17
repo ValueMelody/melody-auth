@@ -7,7 +7,7 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
-  identityService, kvService, userService,
+  identityService, kvService, mfaService, userService,
 } from 'services'
 import {
   validateUtil, loggerUtil,
@@ -63,7 +63,7 @@ export const postSendPasswordlessCode = async (c: Context<typeConfig.Context>) =
   }
 
   const isPasswordlessCode = true
-  await identityService.handleSendEmailMfa(
+  await mfaService.handleSendEmailMfa(
     c,
     bodyDto.code,
     authCodeBody,

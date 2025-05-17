@@ -231,7 +231,7 @@ embeddedRoutes.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/MfaSetupReq'
+ *               $ref: '#/components/schemas/OtpMfaConfigRes'
  */
 embeddedRoutes.get(
   routeConfig.EmbeddedRoute.OtpMfa,
@@ -269,6 +269,86 @@ embeddedRoutes.post(
   routeConfig.EmbeddedRoute.OtpMfa,
   setupMiddleware.validEmbeddedOrigin,
   embeddedHandler.postOtpMfa,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/sms-mfa:
+ *   get:
+ *     summary: get the sms mfa config, this will also send a sms mfa code to the user
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: the sms mfa config
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SmsMfaConfigRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.SmsMfa,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.getSmsMfa,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/sms-mfa-code:
+ *   post:
+ *     summary: send a new sms mfa code to the user
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: a new sms mfa code has been sent to the user
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.SmsMfaCode,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postSmsMfaCode,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/sms-mfa:
+ *   post:
+ *     summary: verify the sms mfa code
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MfaCodeReq'
+ *     responses:
+ *       200:
+ *         description: the sms mfa code has been verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.SmsMfa,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postSmsMfa,
 )
 
 /**
