@@ -51,10 +51,25 @@ const MfaCodeReq = {
   required: ['mfaCode'],
 }
 
+const OtpMfaSetupRes = {
+  type: 'object',
+  properties: {
+    otpUri: { type: 'string' },
+    otpSecret: { type: 'string' },
+  },
+  required: ['otpUri', 'otpSecret'],
+}
+
 const OtpMfaConfigRes = {
   type: 'object',
   properties: { couldFallbackToEmailMfa: { type: 'boolean' } },
   required: ['couldFallbackToEmailMfa'],
+}
+
+const SmsMfaSetupReq = {
+  type: 'object',
+  properties: { phoneNumber: { type: 'string' } },
+  required: ['phoneNumber'],
 }
 
 const SmsMfaConfigRes = {
@@ -188,7 +203,9 @@ module.exports = {
   TokenExchangeReq,
   TokenRefreshReq,
   MfaCodeReq,
+  OtpMfaSetupRes,
   OtpMfaConfigRes,
+  SmsMfaSetupReq,
   SmsMfaConfigRes,
   AuthRes,
   TokenExchangeRes,

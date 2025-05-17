@@ -17,6 +17,7 @@ import {
 import {
   getApp, insertUsers,
 } from 'tests/identity'
+import { userModel } from 'models'
 
 let db: Database
 
@@ -34,19 +35,23 @@ const sendVerifiedSignInRequest = async (
   {
     email,
     password,
+    insertPhoneNumber = true,
   }: {
     email?: string;
     password?: string;
+    insertPhoneNumber?: boolean;
   },
 ) => {
   const appRecord = await getApp(db)
 
   await insertUsers(db)
 
-  await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
-    '+16471231234',
-    1,
-  )
+  if (insertPhoneNumber) {
+    await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
+      '+16471231234',
+      1,
+    )
+  }
 
   const initiateRes = await sendInitiateRequest(
     db,
@@ -74,6 +79,167 @@ const sendVerifiedSignInRequest = async (
     sessionId,
   }
 }
+
+describe(
+  'post /sms-mfa-setup',
+  () => {
+    test(
+      'should post sms mfa setup',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          { insertPhoneNumber: false },
+        )
+
+        const otpSetupRes = await app.request(
+          routeConfig.EmbeddedRoute.SmsMfaSetup.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST', body: JSON.stringify({ phoneNumber: '+16471231234' }),
+          },
+          mock(db),
+        )
+
+        expect(otpSetupRes.status).toBe(200)
+
+        const user = db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
+        expect(user.smsPhoneNumber).toBe('+16471231234')
+        expect(user.smsPhoneNumberVerified).toBe(0)
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const otpRes = await app.request(
+          routeConfig.EmbeddedRoute.SmsMfa.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST', body: JSON.stringify({ mfaCode }),
+          },
+          mock(db),
+        )
+
+        expect(otpRes.status).toBe(200)
+
+        const otpJson = await otpRes.json()
+        expect(otpJson).toStrictEqual({
+          sessionId,
+          success: true,
+        })
+
+        const newUser = db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
+        expect(newUser.smsPhoneNumber).toBe('+16471231234')
+        expect(newUser.smsPhoneNumberVerified).toBe(1)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should throw error if phone number is already enrolled',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
+        )
+
+        const otpSetupRes = await app.request(
+          routeConfig.EmbeddedRoute.SmsMfaSetup.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST', body: JSON.stringify({ phoneNumber: '+16471231234' }),
+          },
+          mock(db),
+        )
+
+        expect(otpSetupRes.status).toBe(400)
+        expect(await otpSetupRes.text()).toBe(messageConfig.RequestError.MfaEnrolled)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should throw error if session id is invalid',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch
+
+        const otpSetupRes = await app.request(
+          routeConfig.EmbeddedRoute.SmsMfaSetup.replace(
+            ':sessionId',
+            'invalid-session-id',
+          ),
+          {
+            method: 'POST', body: JSON.stringify({ phoneNumber: '+16471231234' }),
+          },
+          mock(db),
+        )
+
+        expect(otpSetupRes.status).toBe(404)
+        expect(await otpSetupRes.text()).toBe(messageConfig.RequestError.WrongSessionId)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+  },
+)
 
 describe(
   'get /sms-mfa',
