@@ -468,54 +468,12 @@ export const postProcessOtpMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
 
-  if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
-
-  const ip = requestUtil.getRequestIP(c)
-  const failedAttempts = await kvService.getFailedOtpMfaAttemptsByIP(
-    c.env.KV,
-    authCodeStore.user.id,
-    ip,
-  )
-  if (failedAttempts >= 5) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.OtpMfaLocked,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.OtpMfaLocked)
-  }
-
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
-
-  const isValid = await kvService.stampOtpMfaCode(
-    c.env.KV,
+  await identityService.processOtpMfa(
+    c,
     bodyDto.code,
+    authCodeStore,
     bodyDto.mfaCode,
-    authCodeStore.user.otpSecret,
-    expiresIn,
   )
-
-  if (!isValid) {
-    await kvService.setFailedOtpMfaAttempts(
-      c.env.KV,
-      authCodeStore.user.id,
-      ip,
-      failedAttempts + 1,
-    )
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongOtpMfaCode,
-    )
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
-  }
-
-  if (!authCodeStore.user.otpVerified) {
-    await userService.markOtpAsVerified(
-      c,
-      authCodeStore.user.id,
-    )
-  }
 
   return c.json(await identityService.processPostAuthorize(
     c,

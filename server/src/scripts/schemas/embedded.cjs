@@ -51,6 +51,12 @@ const MfaCodeReq = {
   required: ['mfaCode'],
 }
 
+const MfaSetupReq = {
+  type: 'object',
+  properties: { couldFallbackToEmailMfa: { type: 'boolean' } },
+  required: ['couldFallbackToEmailMfa'],
+}
+
 const AuthRes = {
   type: 'object',
   properties: {
@@ -172,6 +178,7 @@ module.exports = {
   TokenExchangeReq,
   TokenRefreshReq,
   MfaCodeReq,
+  MfaSetupReq,
   AuthRes,
   TokenExchangeRes,
   TokenRefreshRes,

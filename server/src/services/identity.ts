@@ -333,8 +333,8 @@ export const allowOtpSwitchToEmailMfa = (
   authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
 ) => {
   const {
-    requireEmailMfa: enableOtpMfa,
-    requireOtpMfa: enableEmailMfa,
+    requireEmailMfa: enableEmailMfa,
+    requireOtpMfa: enableOtpMfa,
     allowEmailMfaAsBackup: allowFallback,
   } = mfaService.getAuthorizeMfaConfig(
     c,
@@ -492,5 +492,61 @@ export const processEmailMfa = async (
       messageConfig.RequestError.WrongEmailMfaCode,
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
+  }
+}
+
+export const processOtpMfa = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+  mfaCode: string,
+) => {
+  if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
+
+  const ip = requestUtil.getRequestIP(c)
+  const failedAttempts = await kvService.getFailedOtpMfaAttemptsByIP(
+    c.env.KV,
+    authCodeStore.user.id,
+    ip,
+  )
+  if (failedAttempts >= 5) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.OtpMfaLocked,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.OtpMfaLocked)
+  }
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+
+  const isValid = await kvService.stampOtpMfaCode(
+    c.env.KV,
+    authCode,
+    mfaCode,
+    authCodeStore.user.otpSecret,
+    expiresIn,
+  )
+
+  if (!isValid) {
+    await kvService.setFailedOtpMfaAttempts(
+      c.env.KV,
+      authCodeStore.user.id,
+      ip,
+      failedAttempts + 1,
+    )
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongOtpMfaCode,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
+  }
+
+  if (!authCodeStore.user.otpVerified) {
+    await userService.markOtpAsVerified(
+      c,
+      authCodeStore.user.id,
+    )
   }
 }

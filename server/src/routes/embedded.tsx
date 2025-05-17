@@ -215,6 +215,64 @@ embeddedRoutes.post(
 
 /**
  * @swagger
+ * /embedded-auth/v1/{sessionId}/otp-mfa:
+ *   get:
+ *     summary: get the otp mfa config
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: the otp mfa config
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MfaSetupReq'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.OtpMfa,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.getOtpMfa,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/otp-mfa:
+ *   post:
+ *     summary: verify the otp mfa code
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MfaCodeReq'
+ *     responses:
+ *       200:
+ *         description: the otp mfa code has been verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.OtpMfa,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postOtpMfa,
+)
+
+/**
+ * @swagger
  * /embedded-auth/v1/token-exchange:
  *   post:
  *     summary: Exchange the auth code for access token, refresh token, id token
