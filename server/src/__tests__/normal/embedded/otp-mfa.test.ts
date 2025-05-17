@@ -2,6 +2,7 @@ import {
   afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { authenticator } from 'otplib'
 import { sendInitiateRequest } from './initiate.test'
 import app from 'index'
 import {
@@ -14,7 +15,6 @@ import {
 import {
   getApp, insertUsers,
 } from 'tests/identity'
-import { authenticator } from 'otplib'
 import { cryptoUtil } from 'utils'
 import { userModel } from 'models'
 
@@ -87,10 +87,9 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
 
-        const {
-          sessionId,
-        } = await sendVerifiedSignInRequest(
-          db, {}
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
         )
 
         const otpRes = await app.request(
@@ -104,9 +103,7 @@ describe(
         expect(otpRes.status).toBe(200)
 
         const otpJson = await otpRes.json()
-        expect(otpJson).toStrictEqual({
-          allowFallbackToEmailMfa: true,
-        })
+        expect(otpJson).toStrictEqual({ allowFallbackToEmailMfa: true })
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -122,10 +119,9 @@ describe(
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
 
-        const {
-          sessionId,
-        } = await sendVerifiedSignInRequest(
-          db, {}
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
         )
 
         const otpRes = await app.request(
@@ -139,9 +135,7 @@ describe(
         expect(otpRes.status).toBe(200)
 
         const otpJson = await otpRes.json()
-        expect(otpJson).toStrictEqual({
-          allowFallbackToEmailMfa: false,
-        })
+        expect(otpJson).toStrictEqual({ allowFallbackToEmailMfa: false })
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -158,10 +152,9 @@ describe(
         process.env.EMAIL_MFA_IS_REQUIRED = true as unknown as string
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
 
-        const {
-          sessionId,
-        } = await sendVerifiedSignInRequest(
-          db, {}
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
         )
 
         const otpRes = await app.request(
@@ -175,9 +168,7 @@ describe(
         expect(otpRes.status).toBe(200)
 
         const otpJson = await otpRes.json()
-        expect(otpJson).toStrictEqual({
-          allowFallbackToEmailMfa: false,
-        })
+        expect(otpJson).toStrictEqual({ allowFallbackToEmailMfa: false })
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -196,10 +187,9 @@ describe(
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
         process.env.ALLOW_EMAIL_MFA_AS_BACKUP = false as unknown as string
 
-        const {
-          sessionId,
-        } = await sendVerifiedSignInRequest(
-          db, {}
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
         )
 
         const otpRes = await app.request(
@@ -213,9 +203,7 @@ describe(
         expect(otpRes.status).toBe(200)
 
         const otpJson = await otpRes.json()
-        expect(otpJson).toStrictEqual({
-          allowFallbackToEmailMfa: false,
-        })
+        expect(otpJson).toStrictEqual({ allowFallbackToEmailMfa: false })
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
@@ -224,7 +212,7 @@ describe(
         process.env.ALLOW_EMAIL_MFA_AS_BACKUP = true as unknown as string
       },
     )
-  }
+  },
 )
 
 describe(
@@ -238,10 +226,9 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
 
-        const {
-          sessionId,
-        } = await sendVerifiedSignInRequest(
-          db, {}
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
         )
 
         const user = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
@@ -252,7 +239,9 @@ describe(
             ':sessionId',
             sessionId,
           ),
-          { method: 'POST', body: JSON.stringify({ mfaCode }) },
+          {
+            method: 'POST', body: JSON.stringify({ mfaCode }),
+          },
           mock(db),
         )
         expect(otpRes.status).toBe(200)
@@ -278,10 +267,9 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
 
-        const {
-          sessionId,
-        } = await sendVerifiedSignInRequest(
-          db, {}
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
         )
 
         const otpRes = await app.request(
@@ -289,7 +277,9 @@ describe(
             ':sessionId',
             sessionId,
           ),
-          { method: 'POST', body: JSON.stringify({ mfaCode: '123456' }) },
+          {
+            method: 'POST', body: JSON.stringify({ mfaCode: '123456' }),
+          },
           mock(db),
         )
         expect(otpRes.status).toBe(401)
@@ -310,10 +300,9 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
 
-        const {
-          sessionId,
-        } = await sendVerifiedSignInRequest(
-          db, {}
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
         )
 
         await db.prepare('UPDATE "user" SET "otpSecret" = ? WHERE id = 1').run('')
@@ -323,7 +312,9 @@ describe(
             ':sessionId',
             sessionId,
           ),
-          { method: 'POST', body: JSON.stringify({ mfaCode: '123456' }) },
+          {
+            method: 'POST', body: JSON.stringify({ mfaCode: '123456' }),
+          },
           mock(db),
         )
         expect(otpRes.status).toBe(401)

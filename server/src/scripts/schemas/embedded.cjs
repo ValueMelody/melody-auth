@@ -53,9 +53,7 @@ const MfaCodeReq = {
 
 const MfaSetupReq = {
   type: 'object',
-  properties: {
-    couldFallbackToEmailMfa: { type: 'boolean' },
-  },
+  properties: { couldFallbackToEmailMfa: { type: 'boolean' } },
   required: ['couldFallbackToEmailMfa'],
 }
 
