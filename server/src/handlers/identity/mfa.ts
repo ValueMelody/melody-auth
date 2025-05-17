@@ -4,87 +4,16 @@ import {
 import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, typeConfig,
-  variableConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
   identityService, mfaService,
-  kvService, smsService, userService,
+  kvService, userService,
 } from 'services'
 import {
-  requestUtil, validateUtil, loggerUtil,
+  validateUtil, loggerUtil,
 } from 'utils'
 import { userModel } from 'models'
-
-const handleSendSmsMfa = async (
-  c: Context<typeConfig.Context>,
-  phoneNumber: string,
-  authCode: string,
-  authCodeBody: typeConfig.AuthCodeBody,
-  locale: typeConfig.Locale,
-): Promise<true> => {
-  const {
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    SMS_MFA_MESSAGE_THRESHOLD: threshold,
-  } = env(c)
-
-  const { requireSmsMfa: enableSmsMfa } = mfaService.getAuthorizeMfaConfig(
-    c,
-    authCodeBody,
-  )
-
-  const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
-
-  if (!requireSmsMfa) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Error,
-      messageConfig.ConfigError.NotSupposeToSendSmsMfa,
-    )
-    throw new errorConfig.Forbidden(messageConfig.ConfigError.NotSupposeToSendSmsMfa)
-  }
-
-  const ip = requestUtil.getRequestIP(c)
-  const attempts = await kvService.getSmsMfaMessageAttemptsByIP(
-    c.env.KV,
-    authCodeBody.user.id,
-    ip,
-  )
-
-  if (threshold) {
-    if (attempts >= threshold) {
-      loggerUtil.triggerLogger(
-        c,
-        loggerUtil.LoggerLevel.Warn,
-        messageConfig.RequestError.SmsMfaLocked,
-      )
-      throw new errorConfig.Forbidden(messageConfig.RequestError.SmsMfaLocked)
-    }
-
-    await kvService.setSmsMfaMessageAttempts(
-      c.env.KV,
-      authCodeBody.user.id,
-      ip,
-      attempts + 1,
-    )
-  }
-
-  const mfaCode = await smsService.sendSmsMfa(
-    c,
-    phoneNumber,
-    locale,
-  )
-  if (mfaCode) {
-    await kvService.storeSmsMfaCode(
-      c.env.KV,
-      authCode,
-      mfaCode,
-      codeExpiresIn,
-    )
-  }
-
-  return true
-}
 
 const getAuthCodeBody = async (
   c: Context<typeConfig.Context>, code: string,
@@ -187,7 +116,7 @@ export const postSendEmailMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   const isPasswordlessCode = false
-  await identityService.handleSendEmailMfa(
+  await mfaService.handleSendEmailMfa(
     c,
     bodyDto.code,
     authCodeBody,
@@ -209,7 +138,7 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
 
-  await identityService.processEmailMfa(
+  await mfaService.processEmailMfa(
     c,
     bodyDto.code,
     authCodeStore,
@@ -239,7 +168,7 @@ export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
   }
 
-  await handleSendSmsMfa(
+  await mfaService.handleSendSmsMfa(
     c,
     bodyDto.phoneNumber,
     bodyDto.code,
@@ -270,18 +199,8 @@ export const resendSmsMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
 
-  if (!authCodeBody.user.smsPhoneNumber) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.SmsMfaNotSetup,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.SmsMfaNotSetup)
-  }
-
-  await handleSendSmsMfa(
+  await mfaService.handleSendSmsMfaCode(
     c,
-    authCodeBody.user.smsPhoneNumber,
     bodyDto.code,
     authCodeBody,
     bodyDto.locale,
@@ -305,39 +224,14 @@ export const getProcessSmsMfa = async (c: Context<typeConfig.Context>)
     queryDto.code,
   )
 
-  const { requireSmsMfa: enableSmsMfa } = mfaService.getAuthorizeMfaConfig(
+  const info = await mfaService.getSmsMfaInfo(
     c,
+    queryDto.code,
     authCodeBody,
+    queryDto.locale,
   )
 
-  const requireSmsMfa = enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
-  if (!requireSmsMfa) throw new errorConfig.Forbidden()
-
-  if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) {
-    await handleSendSmsMfa(
-      c,
-      authCodeBody.user.smsPhoneNumber,
-      queryDto.code,
-      authCodeBody,
-      queryDto.locale,
-    )
-  }
-
-  const phoneNumber = authCodeBody.user.smsPhoneNumber
-  const maskedNumber = phoneNumber && authCodeBody.user.smsPhoneNumberVerified
-    ? '*'.repeat(phoneNumber.length - 4) + phoneNumber.slice(-4)
-    : null
-
-  const allowFallbackToEmailMfa = identityService.allowSmsSwitchToEmailMfa(
-    c,
-    authCodeBody,
-  )
-
-  return c.json({
-    allowFallbackToEmailMfa,
-    countryCode: variableConfig.SmsMfaConfig.CountryCode,
-    phoneNumber: maskedNumber,
-  })
+  return c.json(info)
 }
 
 export const postProcessSmsMfa = async (c: Context<typeConfig.Context>) => {
@@ -351,31 +245,12 @@ export const postProcessSmsMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
-
-  const isValid = await kvService.stampSmsMfaCode(
-    c.env.KV,
+  await mfaService.processSmsMfa(
+    c,
     bodyDto.code,
+    authCodeStore,
     bodyDto.mfaCode,
-    expiresIn,
   )
-
-  if (!isValid) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongSmsMfaCode,
-    )
-    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
-  }
-
-  if (!authCodeStore.user.smsPhoneNumberVerified) {
-    await userModel.update(
-      c.env.DB,
-      authCodeStore.user.id,
-      { smsPhoneNumberVerified: 1 },
-    )
-  }
 
   return c.json(await identityService.processPostAuthorize(
     c,
@@ -449,7 +324,7 @@ export const getProcessOtpMfa = async (c: Context<typeConfig.Context>)
     queryDto.code,
   )
 
-  const allowFallbackToEmailMfa = identityService.allowOtpSwitchToEmailMfa(
+  const allowFallbackToEmailMfa = mfaService.allowOtpSwitchToEmailMfa(
     c,
     authCodeBody,
   )
@@ -468,7 +343,7 @@ export const postProcessOtpMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
 
-  await identityService.processOtpMfa(
+  await mfaService.processOtpMfa(
     c,
     bodyDto.code,
     authCodeStore,

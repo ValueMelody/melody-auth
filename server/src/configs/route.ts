@@ -96,6 +96,8 @@ export enum EmbeddedRoute {
   EmailMfaCode = `${InternalRoute.Embedded}/:sessionId/email-mfa-code`,
   EmailMfa = `${InternalRoute.Embedded}/:sessionId/email-mfa`,
   OtpMfa = `${InternalRoute.Embedded}/:sessionId/otp-mfa`,
+  SmsMfaCode = `${InternalRoute.Embedded}/:sessionId/sms-mfa-code`,
+  SmsMfa = `${InternalRoute.Embedded}/:sessionId/sms-mfa`,
   TokenExchange = `${InternalRoute.Embedded}/token-exchange`,
   TokenRefresh = `${InternalRoute.Embedded}/token-refresh`,
   SignOut = `${InternalRoute.Embedded}/sign-out`,

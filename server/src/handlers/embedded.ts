@@ -361,7 +361,7 @@ export const postEmailMfaCode = async (c: Context<typeConfig.Context>) => {
   )
 
   const isPasswordlessCode = false
-  await identityService.handleSendEmailMfa(
+  await mfaService.handleSendEmailMfa(
     c,
     sessionId,
     sessionBody,
@@ -382,7 +382,7 @@ export const postEmailMfa = async (c: Context<typeConfig.Context>) => {
     sessionId,
   )
 
-  await identityService.processEmailMfa(
+  await mfaService.processEmailMfa(
     c,
     sessionId,
     sessionBody,
@@ -410,7 +410,7 @@ export const getOtpMfa = async (c: Context<typeConfig.Context>) => {
     sessionId,
   )
 
-  const allowFallbackToEmailMfa = identityService.allowOtpSwitchToEmailMfa(
+  const allowFallbackToEmailMfa = mfaService.allowOtpSwitchToEmailMfa(
     c,
     sessionBody,
   )
@@ -428,7 +428,7 @@ export const postOtpMfa = async (c: Context<typeConfig.Context>) => {
     sessionId,
   )
 
-  await identityService.processOtpMfa(
+  await mfaService.processOtpMfa(
     c,
     sessionId,
     sessionBody,
@@ -438,6 +438,71 @@ export const postOtpMfa = async (c: Context<typeConfig.Context>) => {
   const result = await identityService.processPostAuthorize(
     c,
     identityService.AuthorizeStep.OtpMfa,
+    sessionId,
+    sessionBodyToAuthCodeBody(sessionBody),
+  )
+
+  return c.json({
+    sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
+export const getSmsMfa = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const info = await mfaService.getSmsMfaInfo(
+    c,
+    sessionId,
+    sessionBody,
+    sessionBody.request.locale,
+  )
+
+  return c.json(info)
+}
+
+export const postSmsMfaCode = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  await mfaService.handleSendSmsMfaCode(
+    c,
+    sessionId,
+    sessionBody,
+    sessionBody.request.locale,
+  )
+
+  return c.json({ success: true })
+}
+
+export const postSmsMfa = async (c: Context<typeConfig.Context>) => {
+  const bodyDto = new embeddedDto.MfaDto(await c.req.json())
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  await mfaService.processSmsMfa(
+    c,
+    sessionId,
+    sessionBody,
+    bodyDto.mfaCode,
+  )
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.SmsMfa,
     sessionId,
     sessionBodyToAuthCodeBody(sessionBody),
   )
