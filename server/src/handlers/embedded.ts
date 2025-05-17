@@ -403,6 +403,41 @@ export const postEmailMfa = async (c: Context<typeConfig.Context>) => {
   })
 }
 
+export const getOtpMfaSetup = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const {
+    user, otpUri, otpSecret,
+  } = await mfaService.handleGetOtpMfaSetup(
+    c,
+    sessionBody,
+  )
+
+  if (user) {
+    const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+    const newSessionBody = {
+      ...sessionBody,
+      user,
+    }
+
+    await kvService.storeEmbeddedSession(
+      c.env.KV,
+      sessionId,
+      newSessionBody,
+      codeExpiresIn,
+    )
+  }
+
+  return c.json({
+    otpUri,
+    otpSecret,
+  })
+}
+
 export const getOtpMfa = async (c: Context<typeConfig.Context>) => {
   const sessionId = c.req.param('sessionId')
   const sessionBody = await getSessionBodyWithUser(
@@ -447,6 +482,27 @@ export const postOtpMfa = async (c: Context<typeConfig.Context>) => {
     nextStep: result.nextPage,
     success: !result.nextPage,
   })
+}
+
+export const postSmsMfaSetup = async (c: Context<typeConfig.Context>) => {
+  const bodyDto = new embeddedDto.SmsMfaSetupDto(await c.req.json())
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  await mfaService.handleSmsMfaSetup(
+    c,
+    sessionId,
+    sessionBody,
+    bodyDto.phoneNumber,
+    sessionBody.request.locale,
+  )
+
+  return c.json({ success: true })
 }
 
 export const getSmsMfa = async (c: Context<typeConfig.Context>) => {

@@ -131,3 +131,13 @@ export class MfaDto {
     this.mfaCode = dto.mfaCode
   }
 }
+
+export class SmsMfaSetupDto {
+  @IsString()
+  @IsNotEmpty()
+    phoneNumber: string
+
+  constructor (dto: SmsMfaSetupDto) {
+    this.phoneNumber = dto.phoneNumber
+  }
+}

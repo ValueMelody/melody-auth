@@ -215,9 +215,35 @@ embeddedRoutes.post(
 
 /**
  * @swagger
+ * /embedded-auth/v1/{sessionId}/otp-mfa-setup:
+ *   get:
+ *     summary: get the otp mfa initial setup info, this is for the first time otp mfa setup
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: the otp mfa initial setup info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OtpMfaSetupRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.OtpMfaSetup,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.getOtpMfaSetup,
+)
+
+/**
+ * @swagger
  * /embedded-auth/v1/{sessionId}/otp-mfa:
  *   get:
- *     summary: get the otp mfa config
+ *     summary: get the otp mfa config, this is for the existing otp mfa verification
  *     tags: [Embedded Auth]
  *     parameters:
  *       - name: sessionId
@@ -269,6 +295,34 @@ embeddedRoutes.post(
   routeConfig.EmbeddedRoute.OtpMfa,
   setupMiddleware.validEmbeddedOrigin,
   embeddedHandler.postOtpMfa,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/sms-mfa-setup:
+ *   post:
+ *     summary: send a sms mfa code to the phone number provided, this is for the first time sms mfa setup
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SmsMfaSetupReq'
+ *     responses:
+ *       200:
+ *         description: a new sms mfa code has been sent to the user
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.SmsMfaSetup,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postSmsMfaSetup,
 )
 
 /**

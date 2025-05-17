@@ -164,25 +164,12 @@ export const postSetupSmsMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
 
-  if (authCodeBody.user.smsPhoneNumber && authCodeBody.user.smsPhoneNumberVerified) {
-    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
-  }
-
-  await mfaService.handleSendSmsMfa(
+  await mfaService.handleSmsMfaSetup(
     c,
-    bodyDto.phoneNumber,
     bodyDto.code,
     authCodeBody,
+    bodyDto.phoneNumber,
     bodyDto.locale,
-  )
-
-  await userModel.update(
-    c.env.DB,
-    authCodeBody.user.id,
-    {
-      smsPhoneNumber: bodyDto.phoneNumber,
-      smsPhoneNumberVerified: 0,
-    },
   )
 
   return c.json({ success: true })
@@ -273,38 +260,27 @@ export const getOtpMfaSetup = async (c: Context<typeConfig.Context>)
     queryDto.code,
   )
 
-  if (authCodeStore.user.otpVerified) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.OtpAlreadySet,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.OtpAlreadySet)
-  }
+  const {
+    user, otpUri, otpSecret,
+  } = await mfaService.handleGetOtpMfaSetup(
+    c,
+    authCodeStore,
+  )
 
-  let otpSecret = authCodeStore.user.otpSecret
-  if (!otpSecret) {
-    const user = await userService.genUserOtp(
-      c,
-      authCodeStore.user.id,
-    )
-
+  if (user) {
     const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
     const newAuthCodeStore = {
       ...authCodeStore,
       user,
     }
+
     await kvService.storeAuthCode(
       c.env.KV,
       queryDto.code,
       newAuthCodeStore,
       codeExpiresIn,
     )
-
-    otpSecret = user.otpSecret
   }
-
-  const otpUri = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
 
   return c.json({
     otpUri,

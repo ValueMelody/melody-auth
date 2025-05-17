@@ -246,6 +246,39 @@ export const processEmailMfa = async (
   }
 }
 
+export const handleGetOtpMfaSetup = async (
+  c: Context<typeConfig.Context>,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+) => {
+  if (authCodeStore.user.otpVerified) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.OtpAlreadySet,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.OtpAlreadySet)
+  }
+
+  let otpSecret = authCodeStore.user.otpSecret
+  let user = null
+  if (!otpSecret) {
+    user = await userService.genUserOtp(
+      c,
+      authCodeStore.user.id,
+    )
+
+    otpSecret = user.otpSecret
+  }
+
+  const otpUri = `otpauth://totp/${authCodeStore.appName}:${authCodeStore.user.email}?secret=${otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`
+
+  return {
+    otpUri,
+    otpSecret,
+    user,
+  }
+}
+
 export const processOtpMfa = async (
   c: Context<typeConfig.Context>,
   authCode: string,
@@ -300,6 +333,35 @@ export const processOtpMfa = async (
       authCodeStore.user.id,
     )
   }
+}
+
+export const handleSmsMfaSetup = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+  phoneNumber: string,
+  locale: typeConfig.Locale,
+) => {
+  if (authCodeStore.user.smsPhoneNumber && authCodeStore.user.smsPhoneNumberVerified) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
+  }
+
+  await handleSendSmsMfa(
+    c,
+    phoneNumber,
+    authCode,
+    authCodeStore,
+    locale,
+  )
+
+  await userModel.update(
+    c.env.DB,
+    authCodeStore.user.id,
+    {
+      smsPhoneNumber: phoneNumber,
+      smsPhoneNumberVerified: 0,
+    },
+  )
 }
 
 export const handleSendSmsMfa = async (
