@@ -403,6 +403,52 @@ export const postEmailMfa = async (c: Context<typeConfig.Context>) => {
   })
 }
 
+export const getOtpMfa = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const allowFallbackToEmailMfa = identityService.allowOtpSwitchToEmailMfa(
+    c,
+    sessionBody,
+  )
+
+  return c.json({ allowFallbackToEmailMfa })
+}
+
+export const postOtpMfa = async (c: Context<typeConfig.Context>) => {
+  const bodyDto = new embeddedDto.MfaDto(await c.req.json())
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  await identityService.processOtpMfa(
+    c,
+    sessionId,
+    sessionBody,
+    bodyDto.mfaCode,
+  )
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.OtpMfa,
+    sessionId,
+    sessionBodyToAuthCodeBody(sessionBody),
+  )
+
+  return c.json({
+    sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
 export const resetPassword = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const bodyDto = new embeddedDto.ResetPasswordDto(reqBody)
