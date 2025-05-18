@@ -115,7 +115,7 @@ describe(
 
         expect(otpSetupRes.status).toBe(200)
 
-        const user = db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
+        const user = await db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
         expect(user.smsPhoneNumber).toBe('+16471231234')
         expect(user.smsPhoneNumberVerified).toBe(0)
 
@@ -141,7 +141,7 @@ describe(
           success: true,
         })
 
-        const newUser = db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
+        const newUser = await db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
         expect(newUser.smsPhoneNumber).toBe('+16471231234')
         expect(newUser.smsPhoneNumberVerified).toBe(1)
 

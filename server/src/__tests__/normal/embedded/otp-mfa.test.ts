@@ -63,7 +63,7 @@ const sendVerifiedSignInRequest = async (
   )
 
   if (markAsVerified) {
-    await db.prepare('UPDATE "user" SET "otpVerified" = true WHERE id = ?').run(1)
+    await db.prepare('UPDATE "user" SET "otpVerified" = 1 WHERE id = ?').run(1)
   }
 
   const res = await app.request(
@@ -214,7 +214,7 @@ describe(
         expect(otpSecret.length).toBe(32)
         expect(otpUri).toBe(`otpauth://totp/Admin Panel (SPA):test@email.com?secret=${otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`)
 
-        const user = db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
+        const user = await db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
         expect(user.otpSecret).toBe(otpSecret)
 
         const sessionBody = await mockedKV.get(`${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`)
