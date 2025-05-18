@@ -10,7 +10,9 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
+  adapterConfig,
   messageConfig, routeConfig,
+  typeConfig,
 } from 'configs'
 import {
   getApp, insertUsers,
@@ -34,9 +36,13 @@ const sendVerifiedSignInRequest = async (
   {
     email,
     password,
+    genSecret = true,
+    markAsVerified = false,
   }: {
     email?: string;
     password?: string;
+    genSecret?: boolean;
+    markAsVerified?: boolean;
   },
 ) => {
   const appRecord = await getApp(db)
@@ -50,11 +56,15 @@ const sendVerifiedSignInRequest = async (
 
   await insertUsers(db)
 
-  const otpSecret = cryptoUtil.genOtpSecret()
+  const otpSecret = genSecret ? cryptoUtil.genOtpSecret() : ''
   await db.prepare('UPDATE "user" SET "otpSecret" = ? WHERE id = ?').run(
     otpSecret,
     1,
   )
+
+  if (markAsVerified) {
+    await db.prepare('UPDATE "user" SET "otpVerified" = 1 WHERE id = ?').run(1)
+  }
 
   const res = await app.request(
     routeConfig.EmbeddedRoute.SignIn.replace(
@@ -73,8 +83,151 @@ const sendVerifiedSignInRequest = async (
   return {
     res,
     sessionId,
+    otpSecret,
   }
 }
+
+describe(
+  'get /otp-mfa-setup',
+  () => {
+    test(
+      'should get otp mfa setup',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        const {
+          sessionId, otpSecret,
+        } = await sendVerifiedSignInRequest(
+          db,
+          {},
+        )
+
+        const otpRes = await app.request(
+          routeConfig.EmbeddedRoute.OtpMfaSetup.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(otpRes.status).toBe(200)
+
+        const otpJson = await otpRes.json()
+        expect(otpJson).toStrictEqual({
+          otpUri: `otpauth://totp/Admin Panel (SPA):test@email.com?secret=${otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`,
+          otpSecret,
+        })
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if otp mfa is already set',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          { markAsVerified: true },
+        )
+
+        const otpRes = await app.request(
+          routeConfig.EmbeddedRoute.OtpMfaSetup.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(otpRes.status).toBe(400)
+        expect(await otpRes.text()).toBe(messageConfig.RequestError.OtpAlreadySet)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if session id is invalid',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        const otpRes = await app.request(
+          routeConfig.EmbeddedRoute.OtpMfaSetup.replace(
+            ':sessionId',
+            '123456',
+          ),
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(otpRes.status).toBe(404)
+        expect(await otpRes.text()).toBe(messageConfig.RequestError.WrongSessionId)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'could generate secret if not set',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          { genSecret: false },
+        )
+
+        const otpRes = await app.request(
+          routeConfig.EmbeddedRoute.OtpMfaSetup.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(otpRes.status).toBe(200)
+
+        const {
+          otpUri, otpSecret,
+        } = await otpRes.json() as { otpUri: string; otpSecret: string }
+        expect(otpSecret.length).toBe(32)
+        expect(otpUri).toBe(`otpauth://totp/Admin Panel (SPA):test@email.com?secret=${otpSecret}&issuer=melody-auth&algorithm=SHA1&digits=6&period=30`)
+
+        const user = await db.prepare('select * from "user" where id = ?').get(1) as userModel.Raw
+        expect(user.otpSecret).toBe(otpSecret)
+
+        const sessionBody = await mockedKV.get(`${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`)
+        expect((JSON.parse(sessionBody!) as typeConfig.EmbeddedSessionBody).user?.otpSecret).toBe(otpSecret)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+  },
+)
 
 describe(
   'get /otp-mfa',
