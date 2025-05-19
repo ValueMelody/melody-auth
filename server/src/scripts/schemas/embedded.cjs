@@ -45,6 +45,29 @@ const PostSignUpReq = {
   ],
 }
 
+const MfaEnrollmentInfoRes = {
+  type: 'object',
+  properties: {
+    mfaTypes: {
+      type: 'array',
+      items: {
+        type: 'string', enum: ['otp', 'email', 'sms'],
+      },
+    },
+  },
+  required: ['mfaTypes'],
+}
+
+const PostMfaEnrollmentReq = {
+  type: 'object',
+  properties: {
+    type: {
+      type: 'string', enum: ['otp', 'email', 'sms'],
+    },
+  },
+  required: ['type'],
+}
+
 const MfaCodeReq = {
   type: 'object',
   properties: { mfaCode: { type: 'string' } },
@@ -202,6 +225,8 @@ module.exports = {
   PostSignUpReq,
   TokenExchangeReq,
   TokenRefreshReq,
+  MfaEnrollmentInfoRes,
+  PostMfaEnrollmentReq,
   MfaCodeReq,
   OtpMfaSetupRes,
   OtpMfaConfigRes,

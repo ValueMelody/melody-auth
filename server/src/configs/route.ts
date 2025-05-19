@@ -93,6 +93,7 @@ export enum EmbeddedRoute {
   SignIn = `${InternalRoute.Embedded}/:sessionId/sign-in`,
   SignUp = `${InternalRoute.Embedded}/:sessionId/sign-up`,
   AppConsent = `${InternalRoute.Embedded}/:sessionId/app-consent`,
+  MfaEnrollment = `${InternalRoute.Embedded}/:sessionId/mfa-enrollment`,
   EmailMfaCode = `${InternalRoute.Embedded}/:sessionId/email-mfa-code`,
   EmailMfa = `${InternalRoute.Embedded}/:sessionId/email-mfa`,
   OtpMfaSetup = `${InternalRoute.Embedded}/:sessionId/otp-mfa-setup`,

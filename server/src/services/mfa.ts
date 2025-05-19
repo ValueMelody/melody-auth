@@ -531,3 +531,44 @@ export const handleSendSmsMfaCode = async (
     locale,
   )
 }
+
+export const getMfaEnrollmentInfo = async (
+  c: Context<typeConfig.Context>,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+) => {
+  if (authCodeStore.user.mfaTypes.length) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.MfaEnrolled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
+  }
+
+  const { ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes } = env(c)
+
+  return { mfaTypes }
+}
+
+export const processMfaEnrollment = async (
+  c: Context<typeConfig.Context>,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+  type: userModel.MfaType,
+) => {
+  if (authCodeStore.user.mfaTypes.length) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.MfaEnrolled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
+  }
+
+  const user = await userService.enrollUserMfa(
+    c,
+    authCodeStore.user.authId,
+    type,
+  )
+
+  return user
+}

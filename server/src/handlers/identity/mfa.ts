@@ -7,8 +7,9 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
-  identityService, mfaService,
-  kvService, userService,
+  identityService,
+  mfaService,
+  kvService,
 } from 'services'
 import {
   validateUtil, loggerUtil,
@@ -45,18 +46,12 @@ export const getProcessMfaEnroll = async (c: Context<typeConfig.Context>)
     queryDto.code,
   )
 
-  if (authCodeStore.user.mfaTypes.length) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.MfaEnrolled,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
-  }
+  const result = await mfaService.getMfaEnrollmentInfo(
+    c,
+    authCodeStore,
+  )
 
-  const { ENFORCE_ONE_MFA_ENROLLMENT: mfaTypes } = env(c)
-
-  return c.json({ mfaTypes })
+  return c.json(result)
 }
 
 export const postProcessMfaEnroll = async (c: Context<typeConfig.Context>) => {
@@ -70,20 +65,12 @@ export const postProcessMfaEnroll = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
 
-  if (authCodeStore.user.mfaTypes.length) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.MfaEnrolled,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.MfaEnrolled)
-  }
-
-  const user = await userService.enrollUserMfa(
+  const user = await mfaService.processMfaEnrollment(
     c,
-    authCodeStore.user.authId,
+    authCodeStore,
     bodyDto.type,
   )
+
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
   const newAuthCodeStore = {
     ...authCodeStore,
