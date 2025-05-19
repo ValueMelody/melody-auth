@@ -90,6 +90,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** []
 - **Description:** A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info), preventing end users from triggering them
 
+### EMBEDDED_AUTH_ORIGINS
+- **Default:** []
+- **Description:** A list of origins that are allowed to use embedded auth APIs.
+
 ## Auth Configs
 
 ### AUTHORIZATION_CODE_EXPIRES_IN
