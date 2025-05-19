@@ -352,6 +352,63 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
   })
 }
 
+export const getMfaEnrollment = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const result = await mfaService.getMfaEnrollmentInfo(
+    c,
+    sessionBody,
+  )
+
+  return c.json(result)
+}
+
+export const postMfaEnrollment = async (c: Context<typeConfig.Context>) => {
+  const bodyDto = new embeddedDto.PostMfaEnrollmentDto(await c.req.json())
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const user = await mfaService.processMfaEnrollment(
+    c,
+    sessionBody,
+    bodyDto.type,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const newSessionBody = {
+    ...sessionBody,
+    user,
+  }
+  await kvService.storeEmbeddedSession(
+    c.env.KV,
+    sessionId,
+    newSessionBody,
+    codeExpiresIn,
+  )
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.MfaEnroll,
+    sessionId,
+    sessionBodyToAuthCodeBody(newSessionBody),
+  )
+
+  return c.json({
+    sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
 export const postEmailMfaCode = async (c: Context<typeConfig.Context>) => {
   const sessionId = c.req.param('sessionId')
 

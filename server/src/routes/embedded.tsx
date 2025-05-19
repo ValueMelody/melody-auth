@@ -161,6 +161,64 @@ embeddedRoutes.post(
 
 /**
  * @swagger
+ * /embedded-auth/v1/{sessionId}/mfa-enrollment:
+ *   get:
+ *     summary: Get mfa enrollment
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Mfa enrollment
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MfaEnrollmentInfoRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.MfaEnrollment,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.getMfaEnrollment,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/mfa-enrollment:
+ *   post:
+ *     summary: Enroll a new mfa
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PostMfaEnrollmentReq'
+ *     responses:
+ *       200:
+ *         description: Mfa enrolled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.MfaEnrollment,
+  setupMiddleware.validEmbeddedOrigin,
+  embeddedHandler.postMfaEnrollment,
+)
+
+/**
+ * @swagger
  * /embedded-auth/v1/{sessionId}/email-mfa-code:
  *   post:
  *     summary: send an email mfa code to the user

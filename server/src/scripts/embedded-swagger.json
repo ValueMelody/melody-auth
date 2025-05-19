@@ -98,6 +98,41 @@
           "sessionId"
         ]
       },
+      "MfaEnrollmentInfoRes": {
+        "type": "object",
+        "properties": {
+          "mfaTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "otp",
+                "email",
+                "sms"
+              ]
+            }
+          }
+        },
+        "required": [
+          "mfaTypes"
+        ]
+      },
+      "PostMfaEnrollmentReq": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "otp",
+              "email",
+              "sms"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
       "MfaCodeReq": {
         "type": "object",
         "properties": {
@@ -536,6 +571,74 @@
         "responses": {
           "200": {
             "description": "App consent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/{sessionId}/mfa-enrollment": {
+      "get": {
+        "summary": "Get mfa enrollment",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mfa enrollment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MfaEnrollmentInfoRes"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Enroll a new mfa",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostMfaEnrollmentReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mfa enrolled",
             "content": {
               "application/json": {
                 "schema": {
