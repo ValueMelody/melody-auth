@@ -7,11 +7,6 @@ If you're on Windows, please use either WSL or Docker to set up your environment
 
 ### 1. Cloudflare Account Setup
 1. Sign up for a Cloudflare account if you don't have one already.
-2. Install Wrangler CLI and Authenticate:
-    ```
-    npx wrangler
-    wrangler login
-    ```
 
 ### 2. Cloudflare Resource Creation
 In your Cloudflare dashboard:
@@ -40,11 +35,12 @@ In your Cloudflare dashboard:
 5. Define an environment variable “ENVIRONMENT” and ensure it is set to a value other than “dev”.
 
 ### 4. Project Setup
-1. Clone the Repository:
+1. Clone the Repository and login to Cloudflare:
     ```
     git clone git@github.com:ValueMelody/melody-auth.git
     cd melody-auth/server
     npm install
+    npx wrangler login
     ```
 
 2. Configure `server/wrangler.toml`: Replace the KV and D1 IDs with the resources you created:

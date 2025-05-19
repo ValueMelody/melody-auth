@@ -32,6 +32,12 @@ actions:
   - text: Vue SDK
     link: /vue-sdk.html
     type: secondary
+  - text: Embedded Auth API
+    link: /embedded-auth-api.html
+    type: secondary
+  - text: Embedded Auth API Swagger
+    link: https://auth-server.valuemelody.com/api/v1/embedded-swagger
+    type: secondary
   - text: S2S API
     link: /s2s-api.html
     type: secondary

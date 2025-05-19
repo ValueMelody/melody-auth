@@ -42,8 +42,7 @@ export class PostAuthorizeWithPasswordlessDto extends oauthDto.GetAuthorizeDto {
 }
 
 export class PostAuthorizeWithNamesDto
-  extends PostAuthorizeWithPasswordDto
-  implements baseDto.NamesDto {
+  extends PostAuthorizeWithPasswordDto {
   @IsString()
   @Length(
     0,
@@ -72,8 +71,7 @@ export class PostAuthorizeWithNamesDto
 }
 
 export class PostAuthorizeWithRequiredNamesDto
-  extends PostAuthorizeWithPasswordDto
-  implements baseDto.RequiredNamesDto {
+  extends PostAuthorizeWithPasswordDto {
   @IsString()
   @Length(
     1,

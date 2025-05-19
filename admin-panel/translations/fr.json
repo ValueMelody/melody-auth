@@ -54,6 +54,7 @@
     "configSeconds": "secondes",
     "links": "Liens système",
     "apiSwagger": "Swagger API S2S",
+    "embeddedSwagger": "Swagger API Embed",
     "systemInfo": "Informations système"
   },
   "apps": {

@@ -216,10 +216,18 @@ describe(
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
 
+        const appRecord = await getApp(db)
+        const initiateRes = await sendInitiateRequest(
+          db,
+          appRecord,
+        )
+
+        const { sessionId } = await initiateRes.json() as { sessionId: string }
+
         const mfaEnrollmentRes = await app.request(
           routeConfig.EmbeddedRoute.MfaEnrollment.replace(
             ':sessionId',
-            '123',
+            sessionId,
           ),
           {
             method: 'POST', body: JSON.stringify({ type: 'otp' }),

@@ -20,8 +20,7 @@ export class SignInDto
 }
 
 export class SignUpDtoWithNames
-  extends SignInDto
-  implements baseDto.NamesDto {
+  extends SignInDto {
   @IsString()
   @IsOptional()
   @Length(
@@ -46,8 +45,7 @@ export class SignUpDtoWithNames
 }
 
 export class SignUpDtoWithRequiredNames
-  extends SignInDto
-  implements baseDto.RequiredNamesDto {
+  extends SignInDto {
   @IsString()
   @Length(
     1,

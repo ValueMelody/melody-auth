@@ -15,6 +15,8 @@
 - **Server-to-Server REST API** for backend integrations
   - [Swagger API Doc](https://auth-server.valuemelody.com/api/v1/swagger)
   - [S2S API Doc](https://auth.valuemelody.com/s2s-api.html)
+- **Admin Panel** for managing resources (also serves as a full-stack implementation example)
+  - [Admin Panel Setup Doc](https://auth.valuemelody.com/admin-panel-setup.html)
 - **React/Angular/Vue SDK** to seamlessly integrate PKCE-based authentication into your frontend application.
   - [React NPM Package](https://www.npmjs.com/package/@melody-auth/react)
   - [React SDK Doc](https://auth.valuemelody.com/react-sdk.html)
@@ -22,8 +24,9 @@
   - [Angular SDK Doc](https://auth.valuemelody.com/angular-sdk.html)
   - [Vue NPM Package](https://www.npmjs.com/package/@melody-auth/vue)
   - [Vue SDK Doc](https://auth.valuemelody.com/vue-sdk.html)
-- **Admin Panel** for managing resources (also serves as a full-stack implementation example)
-  - [Admin Panel Setup Doc](https://auth.valuemelody.com/admin-panel-setup.html)
+- **Embedded Auth API** for embedding authentication flows directly within your application.
+  - [Embedded Auth API Doc](https://auth.valuemelody.com/embedded-auth-api.html)
+  - [Embedded Auth API Swagger](https://auth-server.valuemelody.com/api/v1/embedded-swagger)
 
 ## Auth Server Features Supported
 - <b>OAuth 2.0</b>:
@@ -111,6 +114,7 @@
 - [Next.js Full stack implementation Example](https://github.com/ValueMelody/melody-auth/tree/main/admin-panel)
 - [Next.js Auth.js Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/next-auth-js-example)
 - [React Native Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/react-native-example)
+- [Embedded Auth API Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/embedded-auth)
 
 ## Screenshots
 [Authorization Screenshots](https://auth.valuemelody.com/screenshots.html#identity-pages-and-emails)  

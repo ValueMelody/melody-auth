@@ -105,6 +105,7 @@ const Page = () => {
         openidConfig: `${configs.AUTH_SERVER_URL}/.well-known/openid-configuration`,
         jwks: `${configs.AUTH_SERVER_URL}/.well-known/jwks.json`,
         apiSwagger: `${configs.AUTH_SERVER_URL}/api/v1/swagger`,
+        embeddedSwagger: `${configs.AUTH_SERVER_URL}/api/v1/embedded-swagger`,
         systemInfo: `${configs.AUTH_SERVER_URL}/info`,
       })
       : null,
@@ -165,6 +166,18 @@ const Page = () => {
                     rel='noreferrer'
                   >
                     {links.apiSwagger}
+                  </a>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>{t('dashboard.embeddedSwagger')}</TableCell>
+                <TableCell>
+                  <a
+                    target='_blank'
+                    href={links.embeddedSwagger}
+                    rel='noreferrer'
+                  >
+                    {links.embeddedSwagger}
                   </a>
                 </TableCell>
               </TableRow>
