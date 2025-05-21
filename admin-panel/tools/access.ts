@@ -3,6 +3,8 @@ import { typeTool } from './'
 export enum Access {
   ReadUser = 'ReadUser',
   WriteUser = 'WriteUser',
+  ReadUserAttribute = 'ReadUserAttribute',
+  WriteUserAttribute = 'WriteUserAttribute',
   ReadRole = 'ReadRole',
   WriteRole = 'WriteRole',
   ReadApp = 'ReadApp',
@@ -24,6 +26,8 @@ export const RoleAccesses = {
   [typeTool.Role.SuperAdmin]: [
     Access.ReadUser,
     Access.WriteUser,
+    Access.ReadUserAttribute,
+    Access.WriteUserAttribute,
     Access.ReadRole,
     Access.WriteRole,
     Access.ReadApp,

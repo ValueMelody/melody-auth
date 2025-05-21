@@ -1,5 +1,6 @@
 export { default as oauthRoute } from 'routes/oauth'
 export { default as userRoute } from 'routes/user'
+export { default as userAttributeRoute } from 'routes/userAttribute'
 export { default as appRoute } from 'routes/app'
 export { default as roleRoute } from 'routes/role'
 export { default as scopeRoute } from 'routes/scope'

@@ -4,6 +4,7 @@
     "brand": "Melody Auth",
     "logout": "Logout",
     "users": "Manage Users",
+    "userAttributes": "Manage User Attributes",
     "roles": "Manage Roles",
     "apps": "Manage Apps",
     "scopes": "Manage Scopes",
@@ -136,6 +137,9 @@
     "confirmImpersonate": "Confirm Impersonation",
     "closeImpersonate": "Close",
     "noOrg": "No Organization"
+  },
+  "userAttributes": {
+    "title": "User Attributes"
   },
   "roles": {
     "title": "Roles",

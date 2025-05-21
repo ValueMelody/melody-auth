@@ -28,6 +28,7 @@ ENABLE_USER_APP_CONSENT=true
 ENABLE_EMAIL_VERIFICATION=true # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. If true, on user sign-up, the email verification email will be sent.
 REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL=false # If both ENABLE_EMAIL_VERIFICATION and REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL are true, on user sign-up, the welcome email will be sent instead of the email verification email.
 ENABLE_ORG=false
+ENABLE_USER_ATTRIBUTE=true
 BLOCKED_POLICIES=[] # A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info), preventing end users from triggering them
 ENABLE_PASSWORDLESS_SIGN_IN=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. Setting this option to true will automatically override ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT to false. Also, make sure to disable email MFA in order to use this feature.
 EMBEDDED_AUTH_ORIGINS=[] # List of origins that are allowed to use embedded auth APIs.

@@ -101,6 +101,23 @@ export const enablePasswordlessSignIn = async (
   await next()
 }
 
+export const enableUserAttribute = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_USER_ATTRIBUTE: enabledUserAttribute } = env(c)
+
+  if (!enabledUserAttribute) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.UserAttributeNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.UserAttributeNotEnabled)
+  }
+
+  await next()
+}
+
 export const enableOrg = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

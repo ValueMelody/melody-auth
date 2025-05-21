@@ -3,7 +3,7 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { env } from 'hono/adapter'
 import {
-  oauthRoute, userRoute, identityRoute,
+  oauthRoute, userRoute, userAttributeRoute, identityRoute,
   otherRoute, appRoute, roleRoute, scopeRoute, logRoute,
   orgRoute, embeddedRoute,
 } from 'routes'
@@ -54,6 +54,10 @@ export const loadRouters = (app: Hono<typeConfig.Context>) => {
   app.route(
     '/',
     userRoute,
+  )
+  app.route(
+    '/',
+    userAttributeRoute,
   )
   app.route(
     '/',
