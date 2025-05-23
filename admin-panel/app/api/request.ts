@@ -66,7 +66,12 @@ export const getAllowedRoles = async () => {
 export const obtainS2SAccessToken = async () => {
   if (accessToken && accessTokenExpiresOn) {
     const currentTime = new Date().getTime() / 1000
-    if (currentTime + 5 < accessTokenExpiresOn) return accessToken
+    if (currentTime + 5 < accessTokenExpiresOn) {
+      return {
+        success: true,
+        token: accessToken,
+      }
+    }
   }
 
   const body = {
@@ -84,15 +89,23 @@ export const obtainS2SAccessToken = async () => {
       body: new URLSearchParams(body).toString(),
     },
   )
+
   if (res.ok) {
     const data = await res.json()
 
     accessToken = data.access_token
     accessTokenExpiresOn = data.expires_on
 
-    return accessToken
+    return {
+      success: true,
+      token: accessToken,
+    }
   } else {
-    return false
+    const resText = await res.text()
+    return {
+      success: false,
+      error: resText,
+    }
   }
 }
 
@@ -110,8 +123,9 @@ export const sendS2SRequest = async ({
   const roles = await getAllowedRoles()
   if (!roles.length) return throwForbiddenError()
 
-  const token = await obtainS2SAccessToken()
-  if (!token) return throwForbiddenError()
+  const tokenRes = await obtainS2SAccessToken()
+  if (!tokenRes.success) return throwForbiddenError(tokenRes.error)
+  const token = tokenRes.token
 
   const isAllowed = !requiredAccess || accessTool.isAllowedAccess(
     requiredAccess,
