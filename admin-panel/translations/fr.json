@@ -133,7 +133,14 @@
     "noOrg": "Aucune organisation"
   },
   "userAttributes": {
-    "title": "Attributs utilisateur"
+    "title": "Attributs utilisateur",
+    "name": "Nom",
+    "includeInSignUpForm": "Inclure dans le formulaire d'inscription",
+    "requiredInSignUpForm": "Requis dans le formulaire d'inscription",
+    "includeInIdTokenBody": "Inclure dans le corps du token ID",
+    "includeInUserInfo": "Inclure dans l'info utilisateur",
+    "new": "Créer un attribut utilisateur",
+    "userAttribute": "Attribut utilisateur"
   },
   "roles": {
     "title": "Rôles",

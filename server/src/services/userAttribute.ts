@@ -16,7 +16,10 @@ export const getUserAttributeById = async (
   c: Context<typeConfig.Context>,
   id: number,
 ): Promise<userAttributeModel.Record> => {
-  const userAttribute = await userAttributeModel.getById(c.env.DB, id)
+  const userAttribute = await userAttributeModel.getById(
+    c.env.DB,
+    id,
+  )
 
   if (!userAttribute) {
     loggerUtil.triggerLogger(
@@ -74,5 +77,8 @@ export const deleteUserAttributeById = async (
   c: Context<typeConfig.Context>,
   id: number,
 ): Promise<void> => {
-  await userAttributeModel.remove(c.env.DB, id)
+  await userAttributeModel.remove(
+    c.env.DB,
+    id,
+  )
 }

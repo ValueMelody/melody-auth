@@ -19,6 +19,9 @@ const {
 const {
   EmailLog, SmsLog, SignInLog,
 } = require('./schemas/log.cjs')
+const {
+  UserAttribute, PostUserAttributeReq, PutUserAttributeReq,
+} = require('./schemas/userAttribute.cjs')
 
 const options = {
   definition: {
@@ -72,6 +75,9 @@ const options = {
         User,
         UserDetail,
         UserConsentedApp,
+        UserAttribute,
+        PostUserAttributeReq,
+        PutUserAttributeReq,
         UserPasskey,
         PutUserReq,
         EmailLog,
@@ -86,6 +92,7 @@ const options = {
     './src/routes/org.tsx',
     './src/routes/app.tsx',
     './src/routes/user.tsx',
+    './src/routes/userAttribute.tsx',
     './src/routes/log.tsx',
   ],
 }

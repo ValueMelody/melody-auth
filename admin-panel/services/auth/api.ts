@@ -5,6 +5,7 @@ export const addTagTypes = [
   'Orgs',
   'Apps',
   'Users',
+  'User Attributes',
   'Logs',
 ] as const
 const injectedRtkApi = api
@@ -390,6 +391,52 @@ const injectedRtkApi = api
           body: queryArg.body,
         }),
         invalidatesTags: ['Users'],
+      }),
+      getApiV1UserAttributes: build.query<
+        GetApiV1UserAttributesApiResponse,
+        GetApiV1UserAttributesApiArg
+      >({
+        query: () => ({ url: '/api/v1/user-attributes' }),
+        providesTags: ['User Attributes'],
+      }),
+      postApiV1UserAttributes: build.mutation<
+        PostApiV1UserAttributesApiResponse,
+        PostApiV1UserAttributesApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/user-attributes',
+          method: 'POST',
+          body: queryArg.postUserAttributeReq,
+        }),
+        invalidatesTags: ['User Attributes'],
+      }),
+      getApiV1UserAttributesById: build.query<
+        GetApiV1UserAttributesByIdApiResponse,
+        GetApiV1UserAttributesByIdApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/user-attributes/${queryArg.id}` }),
+        providesTags: ['User Attributes'],
+      }),
+      putApiV1UserAttributesById: build.mutation<
+        PutApiV1UserAttributesByIdApiResponse,
+        PutApiV1UserAttributesByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/user-attributes/${queryArg.id}`,
+          method: 'PUT',
+          body: queryArg.putUserAttributeReq,
+        }),
+        invalidatesTags: ['User Attributes'],
+      }),
+      deleteApiV1UserAttributesById: build.mutation<
+        DeleteApiV1UserAttributesByIdApiResponse,
+        DeleteApiV1UserAttributesByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/user-attributes/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['User Attributes'],
       }),
       getApiV1LogsEmail: build.query<
         GetApiV1LogsEmailApiResponse,
@@ -784,6 +831,40 @@ export type PostApiV1UsersByAuthIdImpersonationAndAppIdApiArg = {
     impersonatorToken?: string;
   };
 };
+export type GetApiV1UserAttributesApiResponse =
+  /** status 200 A list of user attributes */ {
+    userAttributes?: UserAttribute[];
+  };
+export type GetApiV1UserAttributesApiArg = void;
+export type PostApiV1UserAttributesApiResponse =
+  /** status 200 A user attribute */ {
+    userAttribute?: UserAttribute;
+  };
+export type PostApiV1UserAttributesApiArg = {
+  postUserAttributeReq: PostUserAttributeReq;
+};
+export type GetApiV1UserAttributesByIdApiResponse =
+  /** status 200 A user attribute */ {
+    userAttribute?: UserAttribute;
+  };
+export type GetApiV1UserAttributesByIdApiArg = {
+  /** The unique ID of the user attribute */
+  id: number;
+};
+export type PutApiV1UserAttributesByIdApiResponse =
+  /** status 200 A user attribute */ {
+    userAttribute?: UserAttribute;
+  };
+export type PutApiV1UserAttributesByIdApiArg = {
+  /** The unique ID of the user attribute */
+  id: number;
+  putUserAttributeReq: PutUserAttributeReq;
+};
+export type DeleteApiV1UserAttributesByIdApiResponse = unknown;
+export type DeleteApiV1UserAttributesByIdApiArg = {
+  /** The unique ID of the user attribute */
+  id: number;
+};
 export type GetApiV1LogsEmailApiResponse =
   /** status 200 A list of email logs */ {
     logs?: EmailLog[];
@@ -1044,6 +1125,31 @@ export type UserPasskey = {
   credentialId: string;
   counter: number;
 };
+export type UserAttribute = {
+  id: number;
+  name: string;
+  includeInSignUpForm: boolean;
+  requiredInSignUpForm: boolean;
+  includeInIdTokenBody: boolean;
+  includeInUserInfo: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+export type PostUserAttributeReq = {
+  name: string;
+  includeInSignUpForm: boolean;
+  requiredInSignUpForm: boolean;
+  includeInIdTokenBody: boolean;
+  includeInUserInfo: boolean;
+};
+export type PutUserAttributeReq = {
+  name?: string;
+  includeInSignUpForm?: boolean;
+  requiredInSignUpForm?: boolean;
+  includeInIdTokenBody?: boolean;
+  includeInUserInfo?: boolean;
+};
 export type EmailLog = {
   id: number;
   success: boolean;
@@ -1129,6 +1235,13 @@ export const {
   usePostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdMutation,
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
+  useGetApiV1UserAttributesQuery,
+  useLazyGetApiV1UserAttributesQuery,
+  usePostApiV1UserAttributesMutation,
+  useGetApiV1UserAttributesByIdQuery,
+  useLazyGetApiV1UserAttributesByIdQuery,
+  usePutApiV1UserAttributesByIdMutation,
+  useDeleteApiV1UserAttributesByIdMutation,
   useGetApiV1LogsEmailQuery,
   useLazyGetApiV1LogsEmailQuery,
   useDeleteApiV1LogsEmailMutation,

@@ -1,4 +1,6 @@
-import { adapterConfig, errorConfig } from 'configs'
+import {
+  adapterConfig, errorConfig,
+} from 'configs'
 import { dbUtil } from 'utils'
 
 export interface Common {
@@ -55,7 +57,7 @@ export const getById = async (
   db: D1Database,
   id: number,
 ): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`
+  const query = `SELECT * FROM "${TableName}" WHERE id = $1 AND "deletedAt" IS NULL`
 
   const stmt = db.prepare(query)
     .bind(id)
@@ -64,7 +66,7 @@ export const getById = async (
 }
 
 export const getAll = async (db: D1Database): Promise<Record[]> => {
-  const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL ORDER BY id ASC`
+  const query = `SELECT * FROM "${TableName}" WHERE "deletedAt" IS NULL ORDER BY id ASC`
   const stmt = db.prepare(query)
   const { results: userAttributes }: { results: Raw[] } = await stmt.all()
   return userAttributes.map((userAttribute) => format(userAttribute))
@@ -73,7 +75,7 @@ export const getAll = async (db: D1Database): Promise<Record[]> => {
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values ($1, $2, $3, $4, $5)`
+  const query = `INSERT INTO "${TableName}" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values ($1, $2, $3, $4, $5)`
   const stmt = db.prepare(query).bind(
     create.name,
     create.includeInSignUpForm,
@@ -117,7 +119,6 @@ export const update = async (
   if (!record) throw new errorConfig.InternalServerError()
   return record
 }
-
 
 export const remove = async (
   db: D1Database, id: number,

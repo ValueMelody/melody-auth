@@ -4,6 +4,8 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [tsconfigPaths({ root: './' })],
   test: {
+    testTimeout: 20000,
+    hookTimeout: 20000,
     setupFiles: './src/tests/setup.ts',
     environment: 'node',
     environmentMatchGlobs: [

@@ -4,16 +4,12 @@ import { userAttributeService } from 'services'
 import { userAttributeDto } from 'dtos'
 import { validateUtil } from 'utils'
 
-export const getUserAttributes = async (
-  c: Context<typeConfig.Context>,
-) => {
+export const getUserAttributes = async (c: Context<typeConfig.Context>) => {
   const userAttributes = await userAttributeService.getUserAttributes(c)
-  return c.json(userAttributes)
+  return c.json({ userAttributes })
 }
 
-export const createUserAttribute = async (
-  c: Context<typeConfig.Context>,
-) => {
+export const createUserAttribute = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
 
   const bodyDto = new userAttributeDto.PostUserAttributeDto(reqBody)
@@ -28,9 +24,7 @@ export const createUserAttribute = async (
   return c.json({ userAttribute })
 }
 
-export const updateUserAttribute = async (
-  c: Context<typeConfig.Context>,
-) => {
+export const updateUserAttribute = async (c: Context<typeConfig.Context>) => {
   const id = Number(c.req.param('id'))
 
   const reqBody = await c.req.json()
@@ -47,9 +41,7 @@ export const updateUserAttribute = async (
   return c.json({ userAttribute })
 }
 
-export const getUserAttribute = async (
-  c: Context<typeConfig.Context>,
-) => {
+export const getUserAttribute = async (c: Context<typeConfig.Context>) => {
   const id = Number(c.req.param('id'))
 
   const userAttribute = await userAttributeService.getUserAttributeById(
