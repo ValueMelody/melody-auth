@@ -794,6 +794,99 @@
           "appName"
         ]
       },
+      "UserAttribute": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "includeInSignUpForm": {
+            "type": "boolean"
+          },
+          "requiredInSignUpForm": {
+            "type": "boolean"
+          },
+          "includeInIdTokenBody": {
+            "type": "boolean"
+          },
+          "includeInUserInfo": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "includeInSignUpForm",
+          "requiredInSignUpForm",
+          "includeInIdTokenBody",
+          "includeInUserInfo",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "PostUserAttributeReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "includeInSignUpForm": {
+            "type": "boolean"
+          },
+          "requiredInSignUpForm": {
+            "type": "boolean"
+          },
+          "includeInIdTokenBody": {
+            "type": "boolean"
+          },
+          "includeInUserInfo": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "includeInSignUpForm",
+          "requiredInSignUpForm",
+          "includeInIdTokenBody",
+          "includeInUserInfo"
+        ]
+      },
+      "PutUserAttributeReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "includeInSignUpForm": {
+            "type": "boolean"
+          },
+          "requiredInSignUpForm": {
+            "type": "boolean"
+          },
+          "includeInIdTokenBody": {
+            "type": "boolean"
+          },
+          "includeInUserInfo": {
+            "type": "boolean"
+          }
+        }
+      },
       "UserPasskey": {
         "type": "object",
         "properties": {
@@ -2409,6 +2502,174 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/user-attributes": {
+      "get": {
+        "summary": "Get a list of user attributes",
+        "description": "Required scope - root",
+        "tags": [
+          "User Attributes"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of user attributes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userAttributes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserAttribute"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a user attribute",
+        "description": "Required scope - root",
+        "tags": [
+          "User Attributes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUserAttributeReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A user attribute",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userAttribute": {
+                      "$ref": "#/components/schemas/UserAttribute"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user-attributes/{id}": {
+      "get": {
+        "summary": "Get a user attribute",
+        "description": "Required scope - root",
+        "tags": [
+          "User Attributes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the user attribute"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A user attribute",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userAttribute": {
+                      "$ref": "#/components/schemas/UserAttribute"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a user attribute",
+        "description": "Required scope - root",
+        "tags": [
+          "User Attributes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the user attribute"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutUserAttributeReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A user attribute",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userAttribute": {
+                      "$ref": "#/components/schemas/UserAttribute"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an existing user attribute by ID",
+        "description": "Required scope - root",
+        "tags": [
+          "User Attributes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the user attribute"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
           }
         }
       }

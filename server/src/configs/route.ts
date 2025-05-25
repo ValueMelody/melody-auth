@@ -2,6 +2,7 @@ export enum InternalRoute {
   OAuth = '/oauth2/v1',
   Identity = '/identity/v1',
   ApiUsers = '/api/v1/users',
+  ApiUserAttributes = '/api/v1/user-attributes',
   ApiApps = '/api/v1/apps',
   ApiRoles = '/api/v1/roles',
   ApiScopes = '/api/v1/scopes',

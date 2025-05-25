@@ -149,6 +149,10 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
     accessTool.Access.ReadOrg,
     userInfo?.roles,
   )
+  const showUserAttribute = configs?.ENABLE_USER_ATTRIBUTE && accessTool.isAllowedAccess(
+    accessTool.Access.ReadUserAttribute,
+    userInfo?.roles,
+  )
 
   const supportedLocales = useMemo(
     () => {
@@ -215,6 +219,16 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
                 className={navigationMenuTriggerStyle()}
               >
                 {t('layout.users')}
+              </Link>
+            </NavigationMenuItem>
+          )}
+          {showUserAttribute && (
+            <NavigationMenuItem>
+              <Link
+                href={routeTool.Internal.UserAttributes}
+                className={navigationMenuTriggerStyle()}
+              >
+                {t('layout.userAttributes')}
               </Link>
             </NavigationMenuItem>
           )}

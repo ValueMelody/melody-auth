@@ -4,6 +4,7 @@
     "brand": "Melody Auth",
     "logout": "Déconnexion",
     "users": "Gérer les utilisateurs",
+    "userAttributes": "Gérer les attributs utilisateur",
     "roles": "Gérer les rôles",
     "apps": "Gérer les applications",
     "scopes": "Gérer les portées",
@@ -130,6 +131,16 @@
     "confirmImpersonate": "Confirmer l'impersonation",
     "closeImpersonate": "Fermer",
     "noOrg": "Aucune organisation"
+  },
+  "userAttributes": {
+    "title": "Attributs utilisateur",
+    "name": "Nom",
+    "includeInSignUpForm": "Inclure dans le formulaire d'inscription",
+    "requiredInSignUpForm": "Requis dans le formulaire d'inscription",
+    "includeInIdTokenBody": "Inclure dans le corps du token ID",
+    "includeInUserInfo": "Inclure dans l'info utilisateur",
+    "new": "Créer un attribut utilisateur",
+    "userAttribute": "Attribut utilisateur"
   },
   "roles": {
     "title": "Rôles",

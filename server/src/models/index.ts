@@ -1,5 +1,6 @@
 export * as appModel from 'models/app'
 export * as userModel from 'models/user'
+export * as userAttributeModel from 'models/userAttribute'
 export * as userAppConsentModel from 'models/userAppConsent'
 export * as userRoleModel from 'models/userRole'
 export * as userPasskeyModel from 'models/userPasskey'

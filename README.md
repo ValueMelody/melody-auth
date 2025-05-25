@@ -69,6 +69,7 @@
   - manage_passkey
 - <b>Organization</b>:
   - Branding config override
+  - Organization users
 - <b>Mailer Option</b> [Email Provider Setup Doc](https://auth.valuemelody.com/email-provider-setup.html)
   - SendGrid
   - Mailgun
