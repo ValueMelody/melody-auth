@@ -1719,6 +1719,45 @@ describe(
     )
 
     test(
+      'should get userinfo with attributes',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        const tokenJson = await prepareUserInfoRequest()
+
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInUserInfo") values ('test', 1)
+        `)
+        db.exec(`
+          INSERT INTO "user_attribute_value" ("userId", "userAttributeId", "value") values (1, 1, 'test value')
+        `)
+
+        const userInfoRes = await app.request(
+          routeConfig.OauthRoute.Userinfo,
+          { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
+          mock(db),
+        )
+        expect(await userInfoRes.json()).toStrictEqual({
+          authId: '1-1-1-1',
+          linkedAccount: null,
+          email: 'test@email.com',
+          locale: 'en',
+          createdAt: dbTime,
+          updatedAt: dbTime,
+          emailVerified: false,
+          attributes: { test: 'test value' },
+          roles: [],
+          firstName: null,
+          lastName: null,
+        })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if can not verify access token',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

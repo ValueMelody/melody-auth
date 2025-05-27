@@ -101,7 +101,10 @@ const Page = () => {
   const { data: rolesData } = useGetApiV1RolesQuery()
   const roles = rolesData?.roles ?? []
 
-  const { data: orgsData } = useGetApiV1OrgsQuery()
+  const { data: orgsData } = useGetApiV1OrgsQuery(
+    {},
+    { skip: !enableOrg },
+  )
   const orgs = orgsData?.orgs ?? []
 
   const { data: consentsData } = useGetApiV1UsersByAuthIdConsentedAppsQuery(

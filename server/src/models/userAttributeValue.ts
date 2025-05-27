@@ -34,3 +34,12 @@ export const create = async (
   if (!result.success) throw new errorConfig.InternalServerError()
   return true
 }
+
+export const getAllByUserId = async (
+  db: D1Database, userId: number,
+): Promise<Record[]> => {
+  const query = `SELECT * FROM ${TableName} WHERE "userId" = $1 AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query).bind(userId)
+  const { results: userAttributeValues }: { results: Record[] } = await stmt.all()
+  return userAttributeValues
+}

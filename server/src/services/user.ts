@@ -10,7 +10,7 @@ import {
   baseDto, identityDto, userDto,
 } from 'dtos'
 import {
-  orgModel, roleModel, userAppConsentModel, userAttributeValueModel, userModel, userRoleModel,
+  orgModel, roleModel, userAppConsentModel, userAttributeModel, userAttributeValueModel, userModel, userRoleModel,
 } from 'models'
 import {
   emailService, jwtService, kvService, roleService,
@@ -41,6 +41,27 @@ export const getUserInfo = async (
       messageConfig.RequestError.UserDisabled,
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
+
+  const {
+    ENABLE_USER_ATTRIBUTE: enableUserAttribute,
+    ENABLE_NAMES: enableNames,
+  } = env(c)
+
+  let attributes: Record<string, string> | undefined
+  if (enableUserAttribute) {
+    attributes = {}
+    const userAttributes = await userAttributeModel.getAll(c.env.DB)
+    const userAttributeValues = await userAttributeValueModel.getAllByUserId(
+      c.env.DB,
+      user.id,
+    )
+    for (const userAttributeValue of userAttributeValues) {
+      const userAttribute = userAttributes.find((attribute) => attribute.id === userAttributeValue.userAttributeId)
+      if (userAttribute?.includeInUserInfo) {
+        attributes[userAttribute.name] = userAttributeValue.value
+      }
+    }
   }
 
   const roles = await roleService.getUserRoles(
@@ -80,9 +101,9 @@ export const getUserInfo = async (
       }
       : null,
     roles,
+    attributes,
   }
 
-  const { ENABLE_NAMES: enableNames } = env(c)
   if (enableNames) {
     result.firstName = user.firstName
     result.lastName = user.lastName
