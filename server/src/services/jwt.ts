@@ -195,6 +195,7 @@ export const genIdToken = async (
   currentTimestamp: number,
   authInfo: typeConfig.AuthCodeBody,
   roles: string[],
+  attributes: Record<string, string> | undefined,
 ) => {
   const {
     ID_TOKEN_EXPIRES_IN: idTokenExpiresIn,
@@ -212,6 +213,7 @@ export const genIdToken = async (
     locale: authInfo.user.locale,
     first_name: authInfo.user.firstName,
     last_name: authInfo.user.lastName,
+    attributes,
   }
   body.roles = roles
 

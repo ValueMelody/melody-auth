@@ -19,7 +19,7 @@ import {
 } from 'services'
 import { oauthDto } from 'dtos'
 import {
-  signInLogModel, userModel,
+  signInLogModel, userAttributeModel, userAttributeValueModel, userModel,
 } from 'models'
 
 export const handleAuthCodeTokenExchange = async (
@@ -46,6 +46,7 @@ export const handleAuthCodeTokenExchange = async (
   const {
     ENABLE_SIGN_IN_LOG: enableSignInLog,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+    ENABLE_USER_ATTRIBUTE: enableUserAttribute,
   } = env(c)
 
   const {
@@ -196,6 +197,23 @@ export const handleAuthCodeTokenExchange = async (
   }
 
   if (authInfo.request.scopes.includes(Scope.OpenId)) {
+    let attributes: Record<string, string> | undefined
+    if (enableUserAttribute) {
+      attributes = {}
+      const userAttributes = await userAttributeModel.getAll(c.env.DB)
+      const userAttributeValues = await userAttributeValueModel.getAllByUserId(
+        c.env.DB,
+        authInfo.user.id,
+      )
+      for (const userAttributeValue of userAttributeValues) {
+        const userAttribute = userAttributes.find((attribute) => attribute.id === userAttributeValue.userAttributeId)
+        if (userAttribute?.includeInIdTokenBody) {
+          attributes[userAttribute.name] = userAttributeValue.value
+        }
+      }
+    }
+
+
     const { idToken } = await jwtService.genIdToken(
       c,
       currentTimestamp,
