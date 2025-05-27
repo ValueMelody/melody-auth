@@ -102,7 +102,7 @@ const Page = () => {
   const roles = rolesData?.roles ?? []
 
   const { data: orgsData } = useGetApiV1OrgsQuery(
-    {},
+    undefined,
     { skip: !enableOrg },
   )
   const orgs = orgsData?.orgs ?? []
