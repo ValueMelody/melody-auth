@@ -14,12 +14,14 @@ import {
 } from 'dtos'
 import {
   appService, consentService, emailService,
-  identityService, kvService, mfaService, userService,
+  identityService, kvService, mfaService, userAttributeService, userService,
 } from 'services'
 import {
   requestUtil, validateUtil, loggerUtil,
 } from 'utils'
-import { scopeModel } from 'models'
+import {
+  scopeModel, userAttributeModel,
+} from 'models'
 import {
   signUpHook, signInHook,
 } from 'hooks'
@@ -60,12 +62,27 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   return c.json(result)
 }
 
+export interface GetAuthorizeAccountRes {
+  userAttributes: userAttributeModel.Record[];
+}
+export const getAuthorizeAccount = async (c: Context<typeConfig.Context>):
+  Promise<TypedResponse<GetAuthorizeAccountRes>> => {
+  const { ENABLE_USER_ATTRIBUTE: enableUserAttribute } = env(c)
+
+  const userAttributes = enableUserAttribute
+    ? await userAttributeService.getUserSignUpAttributes(c)
+    : []
+
+  return c.json({ userAttributes })
+}
+
 export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   await signUpHook.preSignUp()
 
   const {
     NAMES_IS_REQUIRED: namesIsRequired,
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
+    ENABLE_USER_ATTRIBUTE: enableUserAttribute,
   } = env(c)
 
   const reqBody = await c.req.json()
@@ -77,6 +94,19 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
       c,
       reqBody.locale,
     ),
+  }
+
+  const attributeValues = {} as Record<number, string>
+  if (enableUserAttribute) {
+    const userAttributes = await userAttributeService.getUserSignUpAttributes(c)
+    for (const attr of userAttributes) {
+      if (attr.requiredInSignUpForm && !reqBody.attributes[String(attr.id)]) {
+        throw new errorConfig.Forbidden(`${messageConfig.RequestError.AttributeIsRequired}: ${attr.name}`)
+      }
+      if (attr.includeInSignUpForm && reqBody.attributes[String(attr.id)]) {
+        attributeValues[attr.id] = reqBody.attributes[attr.id]
+      }
+    }
   }
 
   const bodyDto = namesIsRequired
@@ -93,6 +123,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   const user = await userService.createAccountWithPassword(
     c,
     bodyDto,
+    attributeValues,
   )
 
   if (enableEmailVerification) {

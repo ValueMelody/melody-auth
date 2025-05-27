@@ -7,7 +7,7 @@ const EditIconButton = ({ onClick }: {
 }) => (
   <button
     type='button'
-    className='absolute ml-[255px] cursor-pointer'
+    className='relative ml-[-25px] cursor-pointer'
     aria-label='Edit email'
     onClick={onClick}
   >

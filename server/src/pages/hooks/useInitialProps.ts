@@ -21,6 +21,7 @@ export interface InitialProps {
   discordClientId: string;
   appleClientId: string;
   oidcProviders: string[];
+  enableUserAttribute: boolean;
 }
 
 const useInitialProps = () => {
@@ -55,6 +56,7 @@ const useInitialProps = () => {
         enablePasswordlessSignIn: 'enablePasswordlessSignIn' in intialProps ? Boolean(intialProps.enablePasswordlessSignIn) : false,
         enableNames: 'enableNames' in intialProps ? Boolean(intialProps.enableNames) : false,
         namesIsRequired: 'namesIsRequired' in intialProps ? Boolean(intialProps.namesIsRequired) : false,
+        enableUserAttribute: 'enableUserAttribute' in intialProps ? Boolean(intialProps.enableUserAttribute) : false,
         termsLink: 'termsLink' in intialProps ? String(intialProps.termsLink) : '',
         privacyPolicyLink: 'privacyPolicyLink' in intialProps ? String(intialProps.privacyPolicyLink) : '',
         appName: 'appName' in intialProps ? String(intialProps.appName) : '',

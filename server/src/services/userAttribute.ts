@@ -12,6 +12,11 @@ export const getUserAttributes = async (c: Context<typeConfig.Context>): Promise
   return userAttributes
 }
 
+export const getUserSignUpAttributes = async (c: Context<typeConfig.Context>): Promise<userAttributeModel.Record[]> => {
+  const userAttributes = await userAttributeModel.getAll(c.env.DB)
+  return userAttributes.filter((attribute) => attribute.includeInSignUpForm)
+}
+
 export const getUserAttributeById = async (
   c: Context<typeConfig.Context>,
   id: number,

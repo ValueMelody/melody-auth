@@ -134,6 +134,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
     OIDC_AUTH_PROVIDERS: oidcAuthProviders,
+    ENABLE_USER_ATTRIBUTE: enableUserAttribute,
   } = env(c)
 
   const isBasePolicy = !queryDto.policy || queryDto.policy === oauthDto.Policy.SignInOrSignUp
@@ -175,6 +176,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         termsLink: "${branding.termsLink}",
         privacyPolicyLink: "${branding.privacyPolicyLink}",
         allowPasskey: ${allowPasskey.toString()},
+        enableUserAttribute: ${enableUserAttribute.toString()},
       }
     </script>
   `

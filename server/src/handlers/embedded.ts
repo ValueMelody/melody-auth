@@ -168,6 +168,7 @@ export const signUp = async (c: Context<typeConfig.Context>) => {
       locale: sessionBody.request.locale,
       org: sessionBody.request.org,
     },
+    {},
   )
 
   if (enableEmailVerification) {
