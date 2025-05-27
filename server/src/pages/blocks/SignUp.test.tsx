@@ -41,6 +41,7 @@ describe(
         firstName: undefined,
         lastName: undefined,
       },
+      userAttributes: [],
       isSubmitting: false,
       submitError: null as string | null,
       onSwitchView: vi.fn(),

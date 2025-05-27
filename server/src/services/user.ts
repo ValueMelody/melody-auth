@@ -10,7 +10,7 @@ import {
   baseDto, identityDto, userDto,
 } from 'dtos'
 import {
-  orgModel, roleModel, userAppConsentModel, userModel, userRoleModel,
+  orgModel, roleModel, userAppConsentModel, userAttributeValueModel, userModel, userRoleModel,
 } from 'models'
 import {
   emailService, jwtService, kvService, roleService,
@@ -356,6 +356,7 @@ interface CreateAccountBody {
 export const createAccountWithPassword = async (
   c: Context<typeConfig.Context>,
   bodyDto: CreateAccountBody,
+  attributeValues: Record<number, string>,
 ): Promise<userModel.Record> => {
   const user = await userModel.getNormalUserByEmail(
     c.env.DB,
@@ -395,6 +396,15 @@ export const createAccountWithPassword = async (
       lastName: bodyDto.lastName,
     },
   )
+
+  for (const [userAttributeId, value] of Object.entries(attributeValues)) {
+    await userAttributeValueModel.create(
+      c.env.DB,
+      {
+        userId: newUser.id, userAttributeId: Number(userAttributeId), value,
+      },
+    )
+  }
 
   return newUser
 }

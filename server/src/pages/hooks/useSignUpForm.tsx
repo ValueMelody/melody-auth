@@ -3,6 +3,7 @@ import {
 } from 'hono/jsx'
 import {
   object, string,
+  StringSchema,
 } from 'yup'
 import {
   routeConfig, typeConfig,
@@ -10,6 +11,7 @@ import {
 import {
   validate, emailField, passwordField,
   confirmPasswordField,
+  requiredField,
 } from 'pages/tools/form'
 import {
   InitialProps, View,
@@ -20,6 +22,8 @@ import {
 } from 'pages/tools/request'
 import { AuthorizeParams } from 'pages/tools/param'
 import { validateError } from 'pages/tools/locale'
+import { userAttributeModel } from 'models'
+import { GetAuthorizeAccountRes } from 'handlers/identity'
 
 export interface UseSignUpFormProps {
   locale: typeConfig.Locale;
@@ -43,62 +47,116 @@ const useSignUpForm = ({
   const [confirmPassword, setConfirmPassword] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
+  const [attributeValues, setAttributeValues] = useState<Record<string, string>>({})
+  const [userAttributes, setUserAttributes] = useState<userAttributeModel.Record[]>([])
 
-  const [touched, setTouched] = useState({
-    email: false,
-    password: false,
-    confirmPassword: false,
-    firstName: false,
-    lastName: false,
-  })
+  const [touched, setTouched] = useState(false)
 
   const values = useMemo(
-    () => ({
-      email,
-      password,
-      confirmPassword,
-      firstName,
-      lastName,
-    }),
-    [email, password, confirmPassword, firstName, lastName],
+    () => {
+      const val = {
+        email,
+        password,
+        confirmPassword,
+        firstName,
+        lastName,
+      } as Record<string, string>
+
+      userAttributes.forEach((attr) => {
+        val[String(attr.id)] = attributeValues[attr.id]
+      })
+
+      return val
+    },
+    [email, password, confirmPassword, firstName, lastName, attributeValues, userAttributes],
   )
 
-  const signUpSchema = object({
-    email: emailField(locale),
-    password: passwordField(locale),
-    confirmPassword: confirmPasswordField(locale),
-    firstName: initialProps.namesIsRequired
-      ? string().required(validateError.firstNameIsEmpty[locale])
-      : string(),
-    lastName: initialProps.namesIsRequired
-      ? string().required(validateError.lastNameIsEmpty[locale])
-      : string(),
-  })
+  const getSignUpInfo = useCallback(
+    () => {
+      if (!initialProps.enableUserAttribute) {
+        return
+      }
+
+      fetch(
+        `${routeConfig.IdentityRoute.AuthorizeAccount}`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+        .then(parseResponse)
+        .then((response) => {
+          const attributes = (response as GetAuthorizeAccountRes).userAttributes
+          setUserAttributes(attributes)
+        })
+        .catch((error) => {
+          onSubmitError(error)
+        })
+    },
+    [onSubmitError, initialProps.enableUserAttribute],
+  )
+
+  const formDefinition = useMemo(
+    () => {
+      const definition = {
+        email: emailField(locale),
+        password: passwordField(locale),
+        confirmPassword: confirmPasswordField(locale),
+        firstName: initialProps.namesIsRequired
+          ? string().required(validateError.firstNameIsEmpty[locale])
+          : string(),
+        lastName: initialProps.namesIsRequired
+          ? string().required(validateError.lastNameIsEmpty[locale])
+          : string(),
+      } as Record<string, StringSchema<string, {}, undefined, ''>>
+
+      userAttributes.forEach((attr) => {
+        if (attr.requiredInSignUpForm) {
+          definition[String(attr.id)] = requiredField(locale)
+        }
+      })
+
+      return definition
+    },
+    [userAttributes, locale, initialProps.namesIsRequired],
+  )
+
+  const signUpSchema = object(formDefinition)
 
   const errors = validate(
     signUpSchema,
-    values,
+    values as any,
   )
 
   const handleChange = (
-    name: 'email' | 'password' | 'confirmPassword' | 'firstName' | 'lastName', value: string,
+    name: 'email' | 'password' | 'confirmPassword' | 'firstName' | 'lastName' | number,
+    value: string | Record<string, string>,
   ) => {
     onSubmitError(null)
     switch (name) {
     case 'email':
-      setEmail(value)
+      setEmail(value as string)
       break
     case 'password':
-      setPassword(value)
+      setPassword(value as string)
       break
     case 'confirmPassword':
-      setConfirmPassword(value)
+      setConfirmPassword(value as string)
       break
     case 'firstName':
-      setFirstName(value)
+      setFirstName(value as string)
       break
     case 'lastName':
-      setLastName(value)
+      setLastName(value as string)
+      break
+    default:
+      setAttributeValues({
+        ...attributeValues,
+        [name]: value as string,
+      })
       break
     }
   }
@@ -106,13 +164,7 @@ const useSignUpForm = ({
   const handleSubmit = useCallback(
     (e: Event) => {
       e.preventDefault()
-      setTouched({
-        email: true,
-        password: true,
-        confirmPassword: true,
-        firstName: true,
-        lastName: true,
-      })
+      setTouched(true)
 
       if (Object.values(errors).some((error) => error !== undefined)) {
         return
@@ -133,6 +185,7 @@ const useSignUpForm = ({
             lastName: initialProps.enableNames ? lastName : undefined,
             email,
             password,
+            attributes: userAttributes.length ? attributeValues : undefined,
             ...parseAuthorizeBaseValues(
               params,
               locale,
@@ -155,21 +208,30 @@ const useSignUpForm = ({
           setIsSubmitting(false)
         })
     },
-    [params, locale, onSubmitError, initialProps, onSwitchView, email, password, firstName, lastName, errors],
+    [
+      params,
+      locale,
+      onSubmitError,
+      initialProps,
+      onSwitchView,
+      email,
+      password,
+      firstName,
+      lastName,
+      errors,
+      attributeValues,
+      userAttributes,
+    ],
   )
 
   return {
     values,
-    errors: {
-      email: touched.email ? errors.email : undefined,
-      password: touched.password ? errors.password : undefined,
-      confirmPassword: touched.confirmPassword ? errors.confirmPassword : undefined,
-      firstName: touched.firstName ? errors.firstName : undefined,
-      lastName: touched.lastName ? errors.lastName : undefined,
-    },
+    errors: touched ? errors : {},
     handleChange,
     handleSubmit,
     isSubmitting,
+    userAttributes,
+    getSignUpInfo,
   }
 }
 

@@ -99,4 +99,5 @@ export enum RequestError {
   impersonatorIsNotSuperAdmin = 'Only super admin can impersonate other users',
   impersonateNonSpaApp = 'Impersonate request sent to a non-SPA app',
   deleteBeforeMustBePresent = 'deleteBefore must be present and in utc format',
+  AttributeIsRequired = 'Attribute is required',
 }

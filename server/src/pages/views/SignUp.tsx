@@ -1,3 +1,4 @@
+import { useEffect } from 'hono/jsx'
 import { typeConfig } from 'configs'
 import {
   useSubmitError, View, useSignUpForm,
@@ -25,7 +26,7 @@ const SignUp = ({
     locale,
   })
   const {
-    values, errors, handleChange, handleSubmit, isSubmitting,
+    values, errors, handleChange, handleSubmit, isSubmitting, userAttributes, getSignUpInfo,
   } = useSignUpForm({
     locale,
     initialProps,
@@ -33,6 +34,13 @@ const SignUp = ({
     onSubmitError: handleSubmitError,
     onSwitchView,
   })
+
+  useEffect(
+    () => {
+      getSignUpInfo()
+    },
+    [getSignUpInfo],
+  )
 
   return (
     <SignUpBlock
@@ -45,6 +53,7 @@ const SignUp = ({
       onSwitchView={onSwitchView}
       initialProps={initialProps}
       isSubmitting={isSubmitting}
+      userAttributes={userAttributes}
     />
   )
 }

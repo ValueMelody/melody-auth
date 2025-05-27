@@ -7,29 +7,19 @@ import {
 } from 'pages/hooks'
 import { signUp } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
+import { userAttributeModel } from 'models'
 
 export interface SignUpProps {
   locale: typeConfig.Locale;
   onSubmit: (e: Event) => void;
-  onChange: (name: 'email' | 'password' | 'confirmPassword' | 'firstName' | 'lastName', value: string) => void;
-  values: {
-    email: string;
-    password: string;
-    confirmPassword: string;
-    firstName: string;
-    lastName: string;
-  };
-  errors: {
-    email: string | undefined;
-    password: string | undefined;
-    confirmPassword: string | undefined;
-    firstName: string | undefined;
-    lastName: string | undefined;
-  };
+  onChange: (name: 'email' | 'password' | 'confirmPassword' | 'firstName' | 'lastName' | number, value: string) => void;
+  values: Record<string, string>;
+  errors: Record<string | number, string | undefined>;
   submitError: string | null;
   onSwitchView: (view: View) => void;
   initialProps: InitialProps;
   isSubmitting: boolean;
+  userAttributes: userAttributeModel.Record[];
 }
 
 const SignUp = ({
@@ -42,6 +32,7 @@ const SignUp = ({
   onSwitchView,
   initialProps,
   isSubmitting,
+  userAttributes,
 }: SignUpProps) => {
   return (
     <>
@@ -116,6 +107,21 @@ const SignUp = ({
               />
             </>
           )}
+          {userAttributes.map((attribute) => (
+            <Field
+              key={attribute.id}
+              type='text'
+              label={attribute.name}
+              required={attribute.requiredInSignUpForm}
+              error={errors[attribute.id]}
+              name={attribute.name}
+              value={values[attribute.id]}
+              onChange={(value) => onChange(
+                attribute.id,
+                value,
+              )}
+            />
+          ))}
           <SubmitError error={submitError} />
           <PrimaryButton
             className='mt-4'

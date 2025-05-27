@@ -574,6 +574,10 @@ export const validateError = Object.freeze({
     en: 'Password is required!',
     fr: 'Le mot de passe est requis !',
   },
+  fieldIsRequired: {
+    en: 'This field is required!',
+    fr: 'Ce champ est requis !',
+  },
   passwordFormat: {
     en: 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
     fr: 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',

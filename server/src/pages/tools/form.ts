@@ -12,6 +12,10 @@ export const emailField = (locale: typeConfig.Locale) => {
     .email(validateError.wrongEmailFormat[locale])
 }
 
+export const requiredField = (locale: typeConfig.Locale) => {
+  return string().required(validateError.fieldIsRequired[locale])
+}
+
 export const passwordField = (locale: typeConfig.Locale) => {
   return string()
     .required(validateError.passwordIsRequired[locale])

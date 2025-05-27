@@ -17,7 +17,9 @@ import {
   getApp,
   postAuthorizeBody,
 } from 'tests/identity'
-import { userModel } from 'models'
+import {
+  userAttributeValueModel, userModel,
+} from 'models'
 
 let db: Database
 
@@ -559,6 +561,204 @@ describe(
         expect(res.status).toBe(400)
 
         global.process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'post /authorize-account with user attribute',
+  () => {
+    test(
+      'should store attribute values after sign up',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'test1\', 1, 1)')
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'test2\', 1, 0)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: {
+            1: 'test value 1',
+            2: 'test value 2',
+          },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.MfaEnroll,
+        })
+
+        const attributeValues = await db.prepare('select * from "user_attribute_value" where "userId" = 1').all() as userAttributeValueModel.Record[]
+
+        expect(attributeValues.length).toBe(2)
+        expect(attributeValues[0]).toStrictEqual({
+          id: 1,
+          userId: 1,
+          userAttributeId: 1,
+          value: 'test value 1',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          deletedAt: null,
+        })
+        expect(attributeValues[1]).toStrictEqual({
+          id: 2,
+          userId: 1,
+          userAttributeId: 2,
+          value: 'test value 2',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          deletedAt: null,
+        })
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'could skip unrequired attribute values',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'test1\', 1, 1)')
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'test2\', 1, 0)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'test value 1' },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.MfaEnroll,
+        })
+
+        const attributeValues = await db.prepare('select * from "user_attribute_value" where "userId" = 1').all() as userAttributeValueModel.Record[]
+
+        expect(attributeValues.length).toBe(1)
+        expect(attributeValues[0]).toStrictEqual({
+          id: 1,
+          userId: 1,
+          userAttributeId: 1,
+          value: 'test value 1',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          deletedAt: null,
+        })
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'could throw error if missing required attribute values',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'test1\', 1, 1)')
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'test2\', 1, 0)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: { 2: 'test value 1' },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toContain('Attribute is required: test1')
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should skip if feature not enabled',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'test1\', 1, 1)')
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'test2\', 1, 0)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: {
+            1: 'test value 1',
+            2: 'test value 2',
+          },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.MfaEnroll,
+        })
+
+        const attributeValues = await db.prepare('select * from "user_attribute_value" where "userId" = 1').all() as userAttributeValueModel.Record[]
+
+        expect(attributeValues.length).toBe(0)
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
   },

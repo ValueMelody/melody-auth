@@ -1,23 +1,13 @@
 exports.up = function (knex) {
   return knex.schema.createTable(
-    'user_attribute',
+    'user_attribute_value',
     function (table) {
       table.increments('id').primary()
-      table.string('name')
+      table.integer('userId')
         .notNullable()
-        .unique()
-      table.smallint('includeInSignUpForm')
+      table.integer('userAttributeId')
         .notNullable()
-        .defaultTo(false)
-      table.smallint('requiredInSignUpForm')
-        .notNullable()
-        .defaultTo(false)
-      table.smallint('includeInIdTokenBody')
-        .notNullable()
-        .defaultTo(false)
-      table.smallint('includeInUserInfo')
-        .notNullable()
-        .defaultTo(false)
+      table.string('value')
       table.string(
         'createdAt',
         19,
@@ -32,10 +22,21 @@ exports.up = function (knex) {
         'deletedAt',
         19,
       ).defaultTo(null)
+      table.foreign('userId').references('id')
+        .inTable('user')
+      table.foreign('userAttributeId').references('id')
+        .inTable('user_attribute')
     },
   )
+    .then(function () {
+      return knex.schema.raw(`
+        CREATE UNIQUE INDEX idx_unique_user_attribute_value
+        ON "user_attribute_value" ("userId", "userAttributeId")
+        WHERE "deletedAt" IS NULL;
+      `)
+    })
 }
 
 exports.down = function (knex) {
-  return knex.schema.dropTable('user_attribute')
+  return knex.schema.dropTable('user_attribute_value')
 }

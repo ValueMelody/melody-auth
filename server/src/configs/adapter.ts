@@ -2,6 +2,7 @@ export enum TableName {
   App = 'app',
   User = 'user',
   UserAttribute = 'user_attribute',
+  UserAttributeValue = 'user_attribute_value',
   UserAppConsent = 'user_app_consent',
   Role = 'role',
   UserRole = 'user_role',

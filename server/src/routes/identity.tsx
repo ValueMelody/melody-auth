@@ -36,6 +36,12 @@ identityRoutes.post(
   identityHandler.postAuthorizePassword,
 )
 
+identityRoutes.get(
+  routeConfig.IdentityRoute.AuthorizeAccount,
+  configMiddleware.enableSignUp,
+  identityHandler.getAuthorizeAccount,
+)
+
 identityRoutes.post(
   routeConfig.IdentityRoute.AuthorizeAccount,
   setupMiddleware.validOrigin,

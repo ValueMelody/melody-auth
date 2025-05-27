@@ -3,7 +3,7 @@ import FieldLabel from './FieldLabel'
 import FieldError from './FieldError'
 import FieldInput from './FieldInput'
 
-const buttonClass = 'absolute ml-[255px] cursor-pointer'
+const buttonClass = 'relative ml-[-25px] cursor-pointer'
 const iconClass = 'w-[18px] h-[18px]'
 
 const EyeIconButton = ({ onClick }: {
