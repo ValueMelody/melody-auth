@@ -40,5 +40,5 @@ export interface GetUserInfoBase {
 
 export interface GetUserInfoRes extends GetUserInfoBase {
   linkedAccount: GetUserInfoBase | null;
-  attributes?: Record<number, string>;
+  attributes?: Record<string, string>;
 }
