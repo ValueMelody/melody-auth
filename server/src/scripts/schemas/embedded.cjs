@@ -32,6 +32,32 @@ const PostSignInReq = {
   ],
 }
 
+const GetSignUpInfoRes = {
+  type: 'object',
+  properties: {
+    userAttributes: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+          includeInSignUpForm: { type: 'boolean' },
+          requiredInSignUpForm: { type: 'boolean' },
+          includeInIdTokenBody: { type: 'boolean' },
+          includeInUserInfo: { type: 'boolean' },
+          createdAt: { type: 'string' },
+          updatedAt: { type: 'string' },
+          deletedAt: {
+            type: 'string', nullable: true, example: null,
+          },
+        },
+      },
+    },
+  },
+  required: ['userAttributes'],
+}
+
 const PostSignUpReq = {
   type: 'object',
   properties: {
@@ -39,6 +65,14 @@ const PostSignUpReq = {
     password: { type: 'string' },
     firstName: { type: 'string' },
     lastName: { type: 'string' },
+    attributes: {
+      type: 'object',
+      additionalProperties: { type: 'string' },
+      example: {
+        1: 'value for attributeId 1',
+        2: 'value for attributeId 2',
+      },
+    },
   },
   required: [
     'email', 'password',
@@ -186,7 +220,9 @@ const GetAppConsentRes = {
           note: { type: 'string' },
           createdAt: { type: 'string' },
           updatedAt: { type: 'string' },
-          deletedAt: { type: 'string' },
+          deletedAt: {
+            type: 'string', nullable: true, example: null,
+          },
           locales: {
             type: 'array',
             items: {
@@ -198,7 +234,9 @@ const GetAppConsentRes = {
                 value: { type: 'string' },
                 createdAt: { type: 'string' },
                 updatedAt: { type: 'string' },
-                deletedAt: { type: 'string' },
+                deletedAt: {
+                  type: 'string', nullable: true, example: null,
+                },
               },
             },
           },
@@ -222,6 +260,7 @@ const ResetPasswordReq = {
 module.exports = {
   PostInitiateReq,
   PostSignInReq,
+  GetSignUpInfoRes,
   PostSignUpReq,
   TokenExchangeReq,
   TokenRefreshReq,

@@ -1,10 +1,12 @@
 import { Context } from 'hono'
+import { env } from 'hono/adapter'
 import {
   typeConfig, errorConfig, messageConfig,
 } from 'configs'
 import { userAttributeModel } from 'models'
 import { userAttributeDto } from 'dtos'
 import { loggerUtil } from 'utils'
+import { userAttributeService } from 'services'
 
 export const getUserAttributes = async (c: Context<typeConfig.Context>): Promise<userAttributeModel.Record[]> => {
   const userAttributes = await userAttributeModel.getAll(c.env.DB)
@@ -86,4 +88,27 @@ export const deleteUserAttributeById = async (
     c.env.DB,
     id,
   )
+}
+
+export const getUserSignUpAttributeValues = async (
+  c: Context<typeConfig.Context>,
+  reqBody: any,
+):
+Promise<Record<number, string>> => {
+  const { ENABLE_USER_ATTRIBUTE: enableUserAttribute } = env(c)
+
+  const attributeValues = {} as Record<number, string>
+  if (enableUserAttribute) {
+    const userAttributes = await userAttributeService.getUserSignUpAttributes(c)
+    for (const attr of userAttributes) {
+      if (attr.requiredInSignUpForm && !reqBody.attributes[String(attr.id)]) {
+        throw new errorConfig.Forbidden(`${messageConfig.RequestError.AttributeIsRequired}: ${attr.name}`)
+      }
+      if (attr.includeInSignUpForm && reqBody.attributes[String(attr.id)]) {
+        attributeValues[attr.id] = reqBody.attributes[attr.id]
+      }
+    }
+  }
+
+  return attributeValues
 }

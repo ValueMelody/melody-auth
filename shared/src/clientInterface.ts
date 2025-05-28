@@ -35,6 +35,7 @@ export interface IdTokenBody {
   last_name: string | null;
   locale: string;
   roles?: string[];
+  attributes?: Record<string, string>;
 }
 
 export interface IdTokenStorage {

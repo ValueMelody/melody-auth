@@ -80,8 +80,9 @@ export const validEmbeddedOrigin = async (
   }
 
   if (
+    origin &&
     requestUtil.stripEndingSlash(serverUrl) !== origin &&
-    (!origin || !origins.includes(origin))
+    !origins.includes(origin)
   ) {
     loggerUtil.triggerLogger(
       c,
