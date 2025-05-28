@@ -661,7 +661,7 @@ describe(
           },
         })
 
-        const attributeValues = await db.prepare('select * from user_attribute_value').all()
+        const attributeValues = await db.prepare('select * from "user_attribute_value" order by id asc').all()
         expect(attributeValues).toStrictEqual([
           {
             id: 1,
@@ -734,7 +734,7 @@ describe(
         )
         const json = await res.json()
 
-        const attributeValues = await db.prepare('select * from user_attribute_value').all()
+        const attributeValues = await db.prepare('select * from user_attribute_value order by id asc').all()
         expect(attributeValues).toStrictEqual([
           {
             id: 1,
