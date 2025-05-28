@@ -661,6 +661,37 @@ describe(
           },
         })
 
+        const attributeValues = await db.prepare('select * from user_attribute_value').all()
+        expect(attributeValues).toStrictEqual([
+          {
+            id: 1,
+            userId: 1,
+            userAttributeId: 1,
+            value: 'test new value 1',
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            deletedAt: null,
+          },
+          {
+            id: 2,
+            userId: 1,
+            userAttributeId: 2,
+            value: 'test value 2',
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            deletedAt: expect.any(String),
+          },
+          {
+            id: 3,
+            userId: 1,
+            userAttributeId: 3,
+            value: 'test value 3',
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            deletedAt: null,
+          },
+        ])
+
         global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
       },
     )
