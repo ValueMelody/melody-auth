@@ -82,7 +82,6 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   const {
     NAMES_IS_REQUIRED: namesIsRequired,
     ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
-    ENABLE_USER_ATTRIBUTE: enableUserAttribute,
   } = env(c)
 
   const reqBody = await c.req.json()
@@ -96,19 +95,6 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     ),
   }
 
-  const attributeValues = {} as Record<number, string>
-  if (enableUserAttribute) {
-    const userAttributes = await userAttributeService.getUserSignUpAttributes(c)
-    for (const attr of userAttributes) {
-      if (attr.requiredInSignUpForm && !reqBody.attributes[String(attr.id)]) {
-        throw new errorConfig.Forbidden(`${messageConfig.RequestError.AttributeIsRequired}: ${attr.name}`)
-      }
-      if (attr.includeInSignUpForm && reqBody.attributes[String(attr.id)]) {
-        attributeValues[attr.id] = reqBody.attributes[attr.id]
-      }
-    }
-  }
-
   const bodyDto = namesIsRequired
     ? new identityDto.PostAuthorizeWithRequiredNamesDto(parsedBody)
     : new identityDto.PostAuthorizeWithNamesDto(parsedBody)
@@ -118,6 +104,11 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     c,
     bodyDto.clientId,
     bodyDto.redirectUri,
+  )
+
+  const attributeValues = await userAttributeService.getUserSignUpAttributeValues(
+    c,
+    reqBody,
   )
 
   const user = await userService.createAccountWithPassword(

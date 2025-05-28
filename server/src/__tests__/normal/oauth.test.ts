@@ -942,6 +942,95 @@ describe(
     )
 
     test(
+      'could get token use auth code with attributes',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+        await insertUsers(db)
+
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInIdTokenBody") values ('test', 1)
+        `)
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInIdTokenBody") values ('test1', 0)
+        `)
+        db.exec(`
+          INSERT INTO "user_attribute_value" ("userId", "userAttributeId", "value") values (1, 1, 'test value')
+        `)
+        db.exec(`
+          INSERT INTO "user_attribute_value" ("userId", "userAttributeId", "value") values (1, 2, 'test value')
+        `)
+
+        const tokenRes = await exchangeWithAuthToken(db)
+        const tokenJson = await tokenRes.json() as { access_token: string; id_token: string }
+
+        const appRecord = await getApp(db)
+
+        const idTokenBody = decode(tokenJson.id_token)
+        expect(idTokenBody.payload).toStrictEqual({
+          sub: '1-1-1-1',
+          azp: appRecord.clientId,
+          aud: appRecord.clientId,
+          iss: 'http://localhost:8787',
+          roles: [],
+          locale: 'en',
+          last_name: null,
+          first_name: null,
+          iat: expect.any(Number),
+          exp: expect.any(Number),
+          email: 'test@email.com',
+          attributes: { test: 'test value' },
+        })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'could get token use auth code without attributes if feature flag is disabled',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInIdTokenBody") values ('test', 1)
+        `)
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInIdTokenBody") values ('test1', 0)
+        `)
+        db.exec(`
+          INSERT INTO "user_attribute_value" ("userId", "userAttributeId", "value") values (1, 1, 'test value')
+        `)
+        db.exec(`
+          INSERT INTO "user_attribute_value" ("userId", "userAttributeId", "value") values (1, 2, 'test value')
+        `)
+
+        const tokenRes = await exchangeWithAuthToken(db)
+        const tokenJson = await tokenRes.json() as { access_token: string; id_token: string }
+
+        const appRecord = await getApp(db)
+
+        const idTokenBody = decode(tokenJson.id_token)
+        expect(idTokenBody.payload).toStrictEqual({
+          sub: '1-1-1-1',
+          azp: appRecord.clientId,
+          aud: appRecord.clientId,
+          iss: 'http://localhost:8787',
+          roles: [],
+          locale: 'en',
+          last_name: null,
+          first_name: null,
+          iat: expect.any(Number),
+          exp: expect.any(Number),
+          email: 'test@email.com',
+        })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
       'should throw error if no jwt private secret',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

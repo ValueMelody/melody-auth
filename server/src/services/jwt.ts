@@ -214,8 +214,8 @@ export const genIdToken = async (
     first_name: authInfo.user.firstName,
     last_name: authInfo.user.lastName,
     attributes,
+    roles,
   }
-  body.roles = roles
 
   const idToken = await signWithKid(
     c,

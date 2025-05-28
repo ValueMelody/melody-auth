@@ -213,12 +213,12 @@ export const handleAuthCodeTokenExchange = async (
       }
     }
 
-
     const { idToken } = await jwtService.genIdToken(
       c,
       currentTimestamp,
       authInfo,
       userRoles,
+      attributes,
     )
     result.id_token = idToken
   }

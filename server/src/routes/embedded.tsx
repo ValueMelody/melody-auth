@@ -42,6 +42,33 @@ embeddedRoutes.post(
 /**
  * @swagger
  * /embedded-auth/v1/{sessionId}/sign-up:
+ *   get:
+ *     summary: Get sign up info, only need to call this endpoint if you enabled user attribute for sign up form
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sign up info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GetSignUpInfoRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.SignUp,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableSignUp,
+  embeddedHandler.getSignUpInfo,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/sign-up:
  *   post:
  *     summary: Sign up using the embedded auth session
  *     tags: [Embedded Auth]

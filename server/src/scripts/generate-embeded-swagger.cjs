@@ -3,6 +3,7 @@ const swaggerJsdoc = require('swagger-jsdoc')
 const {
   PostInitiateReq,
   PostSignInReq,
+  GetSignUpInfoRes,
   PostSignUpReq,
   TokenExchangeReq,
   MfaEnrollmentInfoRes,
@@ -32,6 +33,7 @@ const options = {
       schemas: {
         PostInitiateReq,
         PostSignInReq,
+        GetSignUpInfoRes,
         PostSignUpReq,
         TokenExchangeReq,
         MfaEnrollmentInfoRes,

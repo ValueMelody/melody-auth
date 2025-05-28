@@ -62,6 +62,51 @@
           "password"
         ]
       },
+      "GetSignUpInfoRes": {
+        "type": "object",
+        "properties": {
+          "userAttributes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "includeInSignUpForm": {
+                  "type": "boolean"
+                },
+                "requiredInSignUpForm": {
+                  "type": "boolean"
+                },
+                "includeInIdTokenBody": {
+                  "type": "boolean"
+                },
+                "includeInUserInfo": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "deletedAt": {
+                  "type": "string",
+                  "nullable": true,
+                  "example": null
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "userAttributes"
+        ]
+      },
       "PostSignUpReq": {
         "type": "object",
         "properties": {
@@ -76,6 +121,16 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "1": "value for attributeId 1",
+              "2": "value for attributeId 2"
+            }
           }
         },
         "required": [
@@ -349,7 +404,9 @@
                   "type": "string"
                 },
                 "deletedAt": {
-                  "type": "string"
+                  "type": "string",
+                  "nullable": true,
+                  "example": null
                 },
                 "locales": {
                   "type": "array",
@@ -375,7 +432,9 @@
                         "type": "string"
                       },
                       "deletedAt": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "example": null
                       }
                     }
                   }
@@ -445,6 +504,34 @@
       }
     },
     "/embedded-auth/v1/{sessionId}/sign-up": {
+      "get": {
+        "summary": "Get sign up info, only need to call this endpoint if you enabled user attribute for sign up form",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sign up info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSignUpInfoRes"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "summary": "Sign up using the embedded auth session",
         "tags": [
