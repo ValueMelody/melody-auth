@@ -67,6 +67,15 @@ const UserDetail = {
           },
           nullable: true,
         },
+        attributes: {
+          type: 'object',
+          additionalProperties: { type: 'string' },
+          example: {
+            'attribute name 1': 'value for attribute name 1',
+            'attribute name 2': 'value for attribute name 2',
+          },
+          nullable: true,
+        },
       },
       required: ['roles'],
     },
@@ -103,6 +112,16 @@ const PutUserReq = {
     roles: {
       type: 'array',
       items: { type: 'string' },
+    },
+    attributes: {
+      type: 'object',
+      additionalProperties: {
+        type: 'string', nullable: true,
+      },
+      example: {
+        1: 'value for attributeId 1',
+        2: 'value for attributeId 2',
+      },
     },
   },
 }

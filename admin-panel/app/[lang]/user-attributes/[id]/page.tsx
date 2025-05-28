@@ -69,6 +69,20 @@ const Page = () => {
     router.push(routeTool.Internal.UserAttributes)
   }
 
+  const handleChangeIncludeInSignUpForm = () => {
+    const value = !values.includeInSignUpForm
+    onChange(
+      'includeInSignUpForm',
+      value,
+    )
+    if (!value && values.requiredInSignUpForm) {
+      onChange(
+        'requiredInSignUpForm',
+        false,
+      )
+    }
+  }
+
   if (isLoading) return <LoadingPage />
 
   if (!userAttribute) return null
@@ -113,10 +127,7 @@ const Page = () => {
                 <Switch
                   checked={values.includeInSignUpForm}
                   disabled={!canWriteUserAttribute}
-                  onClick={() => onChange(
-                    'includeInSignUpForm',
-                    !values.includeInSignUpForm,
-                  )}
+                  onClick={handleChangeIncludeInSignUpForm}
                 />
               </TableCell>
             </TableRow>
@@ -125,7 +136,7 @@ const Page = () => {
               <TableCell>
                 <Switch
                   checked={values.requiredInSignUpForm}
-                  disabled={!canWriteUserAttribute}
+                  disabled={!canWriteUserAttribute || !values.includeInSignUpForm}
                   onClick={() => onChange(
                     'requiredInSignUpForm',
                     !values.requiredInSignUpForm,

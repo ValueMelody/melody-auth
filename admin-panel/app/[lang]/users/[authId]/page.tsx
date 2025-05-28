@@ -47,6 +47,7 @@ import {
   useDeleteApiV1UsersByAuthIdSmsMfaMutation,
   useGetApiV1OrgsQuery,
   useGetApiV1RolesQuery,
+  useGetApiV1UserAttributesQuery,
   useGetApiV1UsersByAuthIdConsentedAppsQuery,
   useGetApiV1UsersByAuthIdLockedIpsQuery,
   useGetApiV1UsersByAuthIdPasskeysQuery,
@@ -80,6 +81,7 @@ const Page = () => {
   const [emailResent, setEmailResent] = useState(false)
   const [userRoles, setUserRoles] = useState<string[] | null>([])
   const [orgSlug, setOrgSlug] = useState('')
+  const [attributeValues, setAttributeValues] = useState<Record<string, string>>({})
 
   const [isUnlinking, setIsUnlinking] = useState(false)
   const [isResettingSmsMfa, setIsResettingSmsMfa] = useState(false)
@@ -92,6 +94,7 @@ const Page = () => {
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
   const enablePasskeyEnrollment = !!configs.ALLOW_PASSKEY_ENROLLMENT
   const enableOrg = !!configs.ENABLE_ORG
+  const enableUserAttribute = !!configs.ENABLE_USER_ATTRIBUTE
 
   const {
     data: userData, isLoading: isUserLoading,
@@ -106,6 +109,15 @@ const Page = () => {
     { skip: !enableOrg },
   )
   const orgs = orgsData?.orgs ?? []
+
+  const { data: userAttributesData } = useGetApiV1UserAttributesQuery(
+    undefined,
+    { skip: !enableUserAttribute },
+  )
+  const userAttributes = useMemo(
+    () => userAttributesData?.userAttributes ?? [],
+    [userAttributesData],
+  )
 
   const { data: consentsData } = useGetApiV1UsersByAuthIdConsentedAppsQuery(
     { authId: String(authId) },
@@ -159,9 +171,19 @@ const Page = () => {
           obj.orgSlug = orgSlug
         }
       }
+      if (enableUserAttribute) {
+        const fullAttributeValues: Record<number, string | null> = {}
+        userAttributes.forEach((userAttribute) => {
+          fullAttributeValues[userAttribute.id] = attributeValues[userAttribute.name] || null
+        })
+        obj.attributes = fullAttributeValues
+      }
       return obj
     },
-    [user, userRoles, isActive, firstName, lastName, locale, orgSlug, enableOrg],
+    [
+      user, userRoles, isActive, firstName, lastName, locale, orgSlug,
+      enableOrg, enableUserAttribute, userAttributes, attributeValues,
+    ],
   )
 
   const isSelf = useMemo(
@@ -204,6 +226,7 @@ const Page = () => {
         setUserRoles(user.roles)
         setLocale(user.locale)
         setOrgSlug(user.org?.slug ?? '')
+        setAttributeValues(user.attributes ?? {})
       }
     },
     [user],
@@ -794,6 +817,22 @@ const Page = () => {
                 </TableRow>
               </>
             )}
+            {enableUserAttribute && userAttributes.map((userAttribute) => (
+              <TableRow key={userAttribute.id}>
+                <TableCell>{userAttribute.name}</TableCell>
+                <TableCell>
+                  <Input
+                    disabled={!canWriteUser}
+                    data-testid={userAttribute.name}
+                    onChange={(e) => setAttributeValues({
+                      ...attributeValues,
+                      [userAttribute.name]: e.target.value,
+                    })}
+                    value={attributeValues[userAttribute.name] ?? ''}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
             <TableRow>
               <TableCell>{t('common.createdAt')}</TableCell>
               <TableCell>{user.createdAt} UTC</TableCell>

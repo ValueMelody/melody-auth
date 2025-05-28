@@ -107,6 +107,29 @@ afterEach(async () => {
 
 const BaseRoute = routeConfig.InternalRoute.ApiUsers
 
+const insertUserAttributes = async (db: Database) => {
+  await db.exec(`
+    INSERT INTO user_attribute
+    (name)
+    values ('test 1')
+  `)
+  await db.exec(`
+    INSERT INTO user_attribute
+    (name)
+    values ('test 2')
+  `)
+  await db.exec(`
+    INSERT INTO user_attribute_value
+    ("userId", "userAttributeId", "value")
+    values (1, 1, 'test value 1')
+  `)
+  await db.exec(`
+    INSERT INTO user_attribute_value
+    ("userId", "userAttributeId", "value")
+    values (1, 2, 'test value 2')
+  `)
+}
+
 describe(
   'get all',
   () => {
@@ -300,6 +323,56 @@ describe(
       'should return user by authId 1-1-1-1',
       async () => {
         await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+
+        const json = await res.json() as { user: userModel.Record }
+        expect(json.user).toStrictEqual({
+          ...user1,
+          roles: [],
+        })
+      },
+    )
+
+    test(
+      'should return user with attributes',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        await insertUserAttributes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+
+        const json = await res.json() as { user: userModel.Record }
+        expect(json.user).toStrictEqual({
+          ...user1,
+          roles: [],
+          attributes: {
+            'test 1': 'test value 1',
+            'test 2': 'test value 2',
+          },
+        })
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should not return user with attributes if feature flag is disabled',
+      async () => {
+        await insertUsers(db)
+
+        await insertUserAttributes(db)
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1`,
@@ -530,6 +603,141 @@ describe(
             ...user2,
             ...updateObj,
             isActive: true,
+          },
+        })
+      },
+    )
+
+    test(
+      'should update user attributes',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+        await insertUserAttributes(db)
+
+        await db.exec(`
+          INSERT INTO user_attribute (name)
+          values ('test 3')
+        `)
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 3, 'test value 3')
+        `)
+
+        const updateObj = {
+          locale: 'fr',
+          isActive: false,
+          firstName: 'First',
+          lastName: 'Last',
+          roles: ['test'],
+        }
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              ...updateObj,
+              attributes: {
+                1: 'test new value 1',
+                2: null,
+                3: 'test value 3',
+              },
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        expect(json).toStrictEqual({
+          user: {
+            ...user1,
+            ...updateObj,
+            attributes: {
+              'test 1': 'test new value 1',
+              'test 3': 'test value 3',
+            },
+          },
+        })
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should not update if feature flag is disabled',
+      async () => {
+        await insertUsers(db)
+        await insertUserAttributes(db)
+
+        await db.prepare('insert into user_attribute (name) values (?)').run('test 3')
+        await db.prepare('insert into user_attribute_value ("userId", "userAttributeId", "value") values (?, ?, ?)').run(
+          1,
+          3,
+          'test value 3',
+        )
+
+        const updateObj = {
+          locale: 'fr',
+          isActive: false,
+          firstName: 'First',
+          lastName: 'Last',
+          roles: ['test'],
+        }
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              ...updateObj,
+              attributes: {
+                1: 'test new value 1',
+                2: null,
+                3: 'test value 3',
+              },
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json()
+
+        const attributeValues = await db.prepare('select * from user_attribute_value').all()
+        expect(attributeValues).toStrictEqual([
+          {
+            id: 1,
+            userId: 1,
+            userAttributeId: 1,
+            value: 'test value 1',
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            deletedAt: null,
+          },
+          {
+            id: 2,
+            userId: 1,
+            userAttributeId: 2,
+            value: 'test value 2',
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            deletedAt: null,
+          },
+          {
+            id: 3,
+            userId: 1,
+            userAttributeId: 3,
+            value: 'test value 3',
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            deletedAt: null,
+          },
+        ])
+
+        expect(json).toStrictEqual({
+          user: {
+            ...user1,
+            ...updateObj,
           },
         })
       },

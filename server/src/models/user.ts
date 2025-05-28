@@ -86,6 +86,7 @@ export interface PaginatedApiRecords {
 export interface ApiRecordFull extends ApiRecord {
   roles?: string[];
   org?: orgModel.ApiRecord | null;
+  attributes?: globalThis.Record<string, string>;
 }
 
 export interface Create {
@@ -170,6 +171,7 @@ export const convertToApiRecordFull = (
   enableOrg: boolean,
   roles: string[],
   org: orgModel.Record | null | undefined,
+  attributes: globalThis.Record<string, string> | undefined,
 ): ApiRecordFull => {
   const result: ApiRecordFull = convertToApiRecord(
     record,
@@ -181,6 +183,7 @@ export const convertToApiRecordFull = (
   return {
     ...result,
     roles,
+    attributes,
   }
 }
 

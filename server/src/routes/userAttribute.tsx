@@ -34,7 +34,7 @@ export default userAttributeRoutes
 userAttributeRoutes.get(
   `${BaseRoute}`,
   configMiddleware.enableUserAttribute,
-  authMiddleware.s2sUserAttribute,
+  authMiddleware.s2sReadUserAttribute,
   userAttributeHandler.getUserAttributes,
 )
 
@@ -65,7 +65,7 @@ userAttributeRoutes.get(
 userAttributeRoutes.post(
   `${BaseRoute}`,
   configMiddleware.enableUserAttribute,
-  authMiddleware.s2sUserAttribute,
+  authMiddleware.s2sWriteUserAttribute,
   userAttributeHandler.createUserAttribute,
 )
 
@@ -97,7 +97,7 @@ userAttributeRoutes.post(
 userAttributeRoutes.get(
   `${BaseRoute}/:id`,
   configMiddleware.enableUserAttribute,
-  authMiddleware.s2sUserAttribute,
+  authMiddleware.s2sReadUserAttribute,
   userAttributeHandler.getUserAttribute,
 )
 
@@ -135,7 +135,7 @@ userAttributeRoutes.get(
 userAttributeRoutes.put(
   `${BaseRoute}/:id`,
   configMiddleware.enableUserAttribute,
-  authMiddleware.s2sUserAttribute,
+  authMiddleware.s2sWriteUserAttribute,
   userAttributeHandler.updateUserAttribute,
 )
 
@@ -160,6 +160,6 @@ userAttributeRoutes.put(
 userAttributeRoutes.delete(
   `${BaseRoute}/:id`,
   configMiddleware.enableUserAttribute,
-  authMiddleware.s2sUserAttribute,
+  authMiddleware.s2sWriteUserAttribute,
   userAttributeHandler.deleteUserAttribute,
 )

@@ -80,7 +80,7 @@ describe(
     )
 
     test(
-      'should return all user attributes with root scope',
+      'should return all user attributes with read user scope',
       async () => {
         process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
 
@@ -92,7 +92,7 @@ describe(
             headers: {
               Authorization: `Bearer ${await getS2sToken(
                 db,
-                Scope.Root,
+                Scope.ReadUser,
               )}`,
             },
           },
@@ -119,7 +119,7 @@ describe(
             headers: {
               Authorization: `Bearer ${await getS2sToken(
                 db,
-                Scope.WriteRole,
+                Scope.WriteUser,
               )}`,
             },
           },
@@ -148,7 +148,110 @@ describe(
             headers: {
               Authorization: `Bearer ${await getS2sToken(
                 db,
-                Scope.WriteRole,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toStrictEqual(messageConfig.ConfigError.UserAttributeNotEnabled)
+      },
+    )
+  },
+)
+
+describe(
+  'get attribute',
+  () => {
+    test(
+      'should return user attribute',
+      async () => {
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await createNewUserAttribute()
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { userAttribute: userAttributeModel.Record }
+
+        expect(json.userAttribute).toStrictEqual(newUserAttribute)
+
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should return user attribute with read user scope',
+      async () => {
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await attachIndividualScopes(db)
+        await createNewUserAttribute()
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        const json = await res.json() as { userAttribute: userAttributeModel.Record }
+
+        expect(json.userAttribute).toStrictEqual(newUserAttribute)
+
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await attachIndividualScopes(db)
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          `${BaseRoute}/1`,
+          {},
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
+
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error when ENABLE_USER_ATTRIBUTE is false',
+      async () => {
+        await attachIndividualScopes(db)
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
               )}`,
             },
           },

@@ -1107,6 +1107,9 @@ export type UserDetail = User & {
     name?: string;
     slug?: string;
   } | null;
+  attributes?: {
+    [key: string]: string;
+  } | null;
 };
 export type PutUserReq = {
   firstName?: string;
@@ -1115,6 +1118,9 @@ export type PutUserReq = {
   locale?: string;
   orgSlug?: string;
   roles?: string[];
+  attributes?: {
+    [key: string]: string | null;
+  };
 };
 export type UserConsentedApp = {
   appId: number;
