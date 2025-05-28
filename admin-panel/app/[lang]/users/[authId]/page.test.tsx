@@ -27,6 +27,7 @@ import {
   useGetApiV1UsersByAuthIdPasskeysQuery,
   useGetApiV1OrgsQuery,
   useGetApiV1AppsQuery,
+  useGetApiV1UserAttributesQuery,
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
@@ -89,6 +90,7 @@ vi.mock(
     useGetApiV1OrgsQuery: vi.fn(),
     useGetApiV1AppsQuery: vi.fn(),
     usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation: vi.fn(),
+    useGetApiV1UserAttributesQuery: vi.fn(),
   }),
 )
 
@@ -168,7 +170,14 @@ describe(
       (useGetApiV1UsersByAuthIdPasskeysQuery as Mock).mockReturnValue({ data: { passkeys: [{ id: 1 }] } });
       (useGetApiV1OrgsQuery as Mock).mockReturnValue({ data: { orgs: [] } });
       (useDeleteApiV1UsersByAuthIdAccountLinkingMutation as Mock)
-        .mockReturnValue([mockUnlinkAccount, { isLoading: false }])
+        .mockReturnValue([mockUnlinkAccount, { isLoading: false }]);
+      (useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+        data: {
+          userAttributes: [{
+            id: 1, name: 'test',
+          }],
+        },
+      })
     })
 
     it(
