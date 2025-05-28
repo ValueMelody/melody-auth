@@ -2,6 +2,7 @@ import { Context } from 'hono'
 import {
   ClientType, genRandomString, Role, Scope,
 } from '@melody-auth/shared'
+import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, typeConfig,
   variableConfig,
@@ -272,10 +273,14 @@ export const putUser = async (c: Context<typeConfig.Context>) => {
 
   const authId = c.req.param('authId')
 
+  const { ENABLE_USER_ATTRIBUTE: enableUserAttribute } = env(c)
+
+  const attributeValues = enableUserAttribute ? reqBody.attributes : undefined
   const user = await userService.updateUser(
     c,
     authId,
     bodyDto,
+    attributeValues,
   )
   return c.json({ user })
 }

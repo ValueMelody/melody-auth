@@ -128,8 +128,8 @@
               "type": "string"
             },
             "example": {
-              "1": "value for attributeId 1",
-              "2": "value for attributeId 2"
+              "attribute name 1": "value for attribute name 1",
+              "attribute name 2": "value for attribute name 2"
             }
           }
         },

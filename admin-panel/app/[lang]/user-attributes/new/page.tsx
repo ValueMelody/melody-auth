@@ -39,6 +39,20 @@ const Page = () => {
     }
   }
 
+  const handleUpdateIncludeInSignUpForm = () => {
+    const value = !values.includeInSignUpForm
+    onChange(
+      'includeInSignUpForm',
+      value,
+    )
+    if (!value && values.requiredInSignUpForm) {
+      onChange(
+        'requiredInSignUpForm',
+        false,
+      )
+    }
+  }
+
   return (
     <section>
       <Breadcrumb
@@ -77,10 +91,7 @@ const Page = () => {
               <TableCell>
                 <Switch
                   checked={values.includeInSignUpForm}
-                  onClick={() => onChange(
-                    'includeInSignUpForm',
-                    !values.includeInSignUpForm,
-                  )}
+                  onClick={() => handleUpdateIncludeInSignUpForm()}
                 />
               </TableCell>
             </TableRow>
@@ -89,6 +100,7 @@ const Page = () => {
               <TableCell>
                 <Switch
                   checked={values.requiredInSignUpForm}
+                  disabled={!values.includeInSignUpForm}
                   onClick={() => onChange(
                     'requiredInSignUpForm',
                     !values.requiredInSignUpForm,

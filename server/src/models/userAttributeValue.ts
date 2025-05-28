@@ -19,6 +19,10 @@ export interface Create {
   value: string;
 }
 
+export interface Update {
+  value: string;
+}
+
 const TableName = adapterConfig.TableName.UserAttributeValue
 
 export const create = async (
@@ -35,6 +39,25 @@ export const create = async (
   return true
 }
 
+export const update = async (
+  db: D1Database, id: number, update: Update,
+): Promise<true> => {
+  const updateKeys: (keyof Update)[] = [
+    'value',
+  ]
+  const stmt = dbUtil.d1UpdateQuery(
+    db,
+    TableName,
+    id,
+    updateKeys,
+    update,
+  )
+
+  const result = await dbUtil.d1Run(stmt)
+  if (!result.success) throw new errorConfig.InternalServerError()
+  return true
+}
+
 export const getAllByUserId = async (
   db: D1Database, userId: number,
 ): Promise<Record[]> => {
@@ -42,4 +65,17 @@ export const getAllByUserId = async (
   const stmt = db.prepare(query).bind(userId)
   const { results: userAttributeValues }: { results: Record[] } = await stmt.all()
   return userAttributeValues
+}
+
+export const remove = async (
+  db: D1Database, id: number,
+): Promise<true> => {
+  const stmt = dbUtil.d1SoftDeleteQuery(
+    db,
+    TableName,
+    id,
+  )
+
+  await dbUtil.d1Run(stmt)
+  return true
 }
