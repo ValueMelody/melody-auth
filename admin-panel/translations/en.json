@@ -146,7 +146,9 @@
     "includeInIdTokenBody": "Include in ID Token Body",
     "includeInUserInfo": "Include in User Info",
     "new": "Create a user attribute",
-    "userAttribute": "User Attribute"
+    "userAttribute": "User Attribute",
+    "localeNote": "Name value will be displayed if locale value is empty",
+    "locales": "Locales"
   },
   "roles": {
     "title": "Roles",

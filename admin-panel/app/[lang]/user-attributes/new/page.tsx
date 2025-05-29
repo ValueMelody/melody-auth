@@ -15,10 +15,15 @@ import SubmitError from 'components/SubmitError'
 import { usePostApiV1UserAttributesMutation } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import { Switch } from 'components/ui/switch'
+import LocaleEditor from 'components/LocaleEditor'
+import { configSignal } from 'signals'
+import useSignalValue from 'app/useSignalValue'
 
 const Page = () => {
   const t = useTranslations()
   const router = useRouter()
+
+  const configs = useSignalValue(configSignal)
 
   const {
     values, errors, onChange,
@@ -84,6 +89,20 @@ const Page = () => {
                   value={values.name}
                 />
                 {showErrors && <FieldError error={errors.name} />}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('userAttributes.locales')}</TableCell>
+              <TableCell>
+                <LocaleEditor
+                  description={`* ${t('userAttributes.localeNote')}`}
+                  supportedLocales={configs.SUPPORTED_LOCALES}
+                  values={values.locales}
+                  onChange={(values) => onChange(
+                    'locales',
+                    values,
+                  )}
+                />
               </TableCell>
             </TableRow>
             <TableRow>

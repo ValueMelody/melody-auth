@@ -44,13 +44,52 @@ const createNewUserAttribute = async (token?: string) => await app.request(
   mock(db),
 )
 
+const createNewUserAttribute2 = async (token?: string) => await app.request(
+  BaseRoute,
+  {
+    method: 'POST',
+    body: JSON.stringify({
+      name: 'test name 1',
+      locales: [{
+        locale: 'en', value: 'test name en',
+      }, {
+        locale: 'fr', value: 'test name fr',
+      }],
+      includeInSignUpForm: true,
+      requiredInSignUpForm: true,
+      includeInIdTokenBody: true,
+      includeInUserInfo: true,
+    }),
+    headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
+  },
+  mock(db),
+)
+
 const newUserAttribute = {
   id: 1,
   name: 'test name',
+  locales: [],
   includeInSignUpForm: false,
   requiredInSignUpForm: false,
   includeInIdTokenBody: false,
   includeInUserInfo: false,
+  createdAt: dbTime,
+  updatedAt: dbTime,
+  deletedAt: null,
+}
+
+const newUserAttribute2 = {
+  id: 2,
+  name: 'test name 1',
+  locales: [{
+    locale: 'en', value: 'test name en',
+  }, {
+    locale: 'fr', value: 'test name fr',
+  }],
+  includeInSignUpForm: true,
+  requiredInSignUpForm: true,
+  includeInIdTokenBody: true,
+  includeInUserInfo: true,
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
@@ -65,6 +104,9 @@ describe(
         process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
 
         await createNewUserAttribute()
+
+        await createNewUserAttribute2()
+
         const res = await app.request(
           BaseRoute,
           { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
@@ -72,8 +114,13 @@ describe(
         )
         const json = await res.json() as { userAttributes: userAttributeModel.Record[] }
 
-        expect(json.userAttributes.length).toBe(1)
-        expect(json).toStrictEqual({ userAttributes: [newUserAttribute] })
+        expect(json.userAttributes.length).toBe(2)
+        expect(json).toStrictEqual({
+          userAttributes: [
+            newUserAttribute,
+            newUserAttribute2,
+          ],
+        })
 
         process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
       },
@@ -179,6 +226,16 @@ describe(
 
         expect(json.userAttribute).toStrictEqual(newUserAttribute)
 
+        await createNewUserAttribute2()
+        const res2 = await app.request(
+          `${BaseRoute}/2`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json2 = await res2.json() as { userAttribute: userAttributeModel.Record }
+
+        expect(json2.userAttribute).toStrictEqual(newUserAttribute2)
+
         process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
       },
     )
@@ -276,6 +333,10 @@ describe(
         const json = await res.json()
 
         expect(json).toStrictEqual({ userAttribute: newUserAttribute })
+
+        const res2 = await createNewUserAttribute2()
+        const json2 = await res2.json()
+        expect(json2).toStrictEqual({ userAttribute: newUserAttribute2 })
 
         process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
       },
@@ -429,6 +490,89 @@ describe(
           userAttribute: {
             ...newUserAttribute,
             ...updateObj,
+          },
+        })
+
+        const res2 = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              locales: [{
+                locale: 'en', value: 'test name en 1',
+              }, {
+                locale: 'fr', value: 'test name fr 1',
+              }],
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json2 = await res2.json()
+
+        expect(json2).toStrictEqual({
+          userAttribute: {
+            ...newUserAttribute,
+            ...updateObj,
+            locales: [{
+              locale: 'en', value: 'test name en 1',
+            }, {
+              locale: 'fr', value: 'test name fr 1',
+            }],
+          },
+        })
+
+        const res3 = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              locales: [{
+                locale: 'en', value: 'test name en 2',
+              }, {
+                locale: 'fr', value: 'test name fr 2',
+              }],
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json3 = await res3.json()
+
+        expect(json3).toStrictEqual({
+          userAttribute: {
+            ...newUserAttribute,
+            ...updateObj,
+            locales: [{
+              locale: 'en', value: 'test name en 2',
+            }, {
+              locale: 'fr', value: 'test name fr 2',
+            }],
+          },
+        })
+
+        const res4 = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              locales: [{
+                locale: 'en', value: 'test name en 3',
+              }],
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json4 = await res4.json()
+
+        expect(json4).toStrictEqual({
+          userAttribute: {
+            ...newUserAttribute,
+            ...updateObj,
+            locales: [{
+              locale: 'en', value: 'test name en 3',
+            }],
           },
         })
 

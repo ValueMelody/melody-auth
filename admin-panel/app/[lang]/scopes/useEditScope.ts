@@ -3,7 +3,7 @@ import {
   useMemo, useState,
 } from 'react'
 import { useTranslations } from 'next-intl'
-import { LocaleValues } from './LocaleEditor'
+import { LocaleValues } from '../../../components/LocaleEditor'
 import { ScopeDetail } from 'services/auth/api'
 
 const useEditScope = (scope: ScopeDetail | undefined) => {

@@ -111,7 +111,9 @@ const SignUp = ({
             <Field
               key={attribute.id}
               type='text'
-              label={attribute.name}
+              label={attribute.locales.find((attributeLocale) => {
+                return attributeLocale.locale === String(locale)
+              })?.value ?? attribute.name}
               required={attribute.requiredInSignUpForm}
               error={errors[attribute.id]}
               name={attribute.name}

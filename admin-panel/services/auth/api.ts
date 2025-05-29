@@ -1134,6 +1134,10 @@ export type UserPasskey = {
 export type UserAttribute = {
   id: number;
   name: string;
+  locales?: {
+    locale: string;
+    value: string;
+  }[];
   includeInSignUpForm: boolean;
   requiredInSignUpForm: boolean;
   includeInIdTokenBody: boolean;
@@ -1144,6 +1148,10 @@ export type UserAttribute = {
 };
 export type PostUserAttributeReq = {
   name: string;
+  locales?: {
+    locale: string;
+    value: string;
+  }[];
   includeInSignUpForm: boolean;
   requiredInSignUpForm: boolean;
   includeInIdTokenBody: boolean;
@@ -1151,6 +1159,10 @@ export type PostUserAttributeReq = {
 };
 export type PutUserAttributeReq = {
   name?: string;
+  locales?: {
+    locale: string;
+    value: string;
+  }[];
   includeInSignUpForm?: boolean;
   requiredInSignUpForm?: boolean;
   includeInIdTokenBody?: boolean;

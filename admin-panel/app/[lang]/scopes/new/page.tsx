@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import useEditScope from '../useEditScope'
-import LocaleEditor from '../LocaleEditor'
+import LocaleEditor from 'components/LocaleEditor'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
@@ -121,6 +121,7 @@ const Page = () => {
                 <TableCell>{t('scopes.locales')}</TableCell>
                 <TableCell>
                   <LocaleEditor
+                    description={`* ${t('scopes.localeNote')}`}
                     supportedLocales={configs.SUPPORTED_LOCALES}
                     values={values.locales ?? []}
                     onChange={(locales) => onChange(

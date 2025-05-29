@@ -1,4 +1,3 @@
-import { useTranslations } from 'next-intl'
 import { Input } from 'components/ui/input'
 
 export type LocaleValues = { locale: string; value: string }[]
@@ -8,14 +7,14 @@ const LocaleEditor = ({
   values,
   onChange,
   disabled,
+  description,
 }: {
   onChange: (newLocales: LocaleValues) => void;
   values: LocaleValues;
   supportedLocales: string[];
   disabled?: boolean;
+  description: string;
 }) => {
-  const t = useTranslations()
-
   const handleSetLocale = (
     targetLocale: string, val: string,
   ) => {
@@ -35,7 +34,7 @@ const LocaleEditor = ({
 
   return (
     <section className='flex flex-col gap-4'>
-      <p>* {t('scopes.localeNote')}</p>
+      <p>{description}</p>
       {supportedLocales.map((locale) => (
         <section
           key={locale}
