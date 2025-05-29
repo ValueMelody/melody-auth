@@ -4,6 +4,7 @@ import {
 } from 'react'
 import { useTranslations } from 'next-intl'
 import { UserAttribute } from 'services/auth/api'
+import { LocaleValues } from 'components/LocaleEditor'
 
 const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
   const t = useTranslations()
@@ -13,6 +14,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
   const [requiredInSignUpForm, setRequiredInSignUpForm] = useState(false)
   const [includeInIdTokenBody, setIncludeInIdTokenBody] = useState(false)
   const [includeInUserInfo, setIncludeInUserInfo] = useState(false)
+  const [locales, setLocales] = useState<LocaleValues>([])
 
   useEffect(
     () => {
@@ -21,6 +23,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       setRequiredInSignUpForm(userAttribute?.requiredInSignUpForm ?? false)
       setIncludeInIdTokenBody(userAttribute?.includeInIdTokenBody ?? false)
       setIncludeInUserInfo(userAttribute?.includeInUserInfo ?? false)
+      setLocales(userAttribute?.locales ?? [])
     },
     [userAttribute],
   )
@@ -32,6 +35,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       requiredInSignUpForm,
       includeInIdTokenBody,
       includeInUserInfo,
+      locales,
     }),
     [
       name,
@@ -39,6 +43,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       requiredInSignUpForm,
       includeInIdTokenBody,
       includeInUserInfo,
+      locales,
     ],
   )
 
@@ -48,7 +53,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
   )
 
   const onChange = (
-    key: string, value: string | boolean | string[],
+    key: string, value: string | boolean | string[] | LocaleValues,
   ) => {
     switch (key) {
     case 'name':
@@ -65,6 +70,9 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       break
     case 'includeInUserInfo':
       setIncludeInUserInfo(value as boolean)
+      break
+    case 'locales':
+      setLocales(value as LocaleValues)
       break
     }
   }

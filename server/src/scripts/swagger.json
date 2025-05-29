@@ -814,6 +814,24 @@
           "name": {
             "type": "string"
           },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
+          },
           "includeInSignUpForm": {
             "type": "boolean"
           },
@@ -857,6 +875,24 @@
             "minLength": 1,
             "maxLength": 50
           },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
+          },
           "includeInSignUpForm": {
             "type": "boolean"
           },
@@ -883,6 +919,24 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
           },
           "includeInSignUpForm": {
             "type": "boolean"

@@ -140,7 +140,9 @@
     "includeInIdTokenBody": "Inclure dans le corps du token ID",
     "includeInUserInfo": "Inclure dans l'info utilisateur",
     "new": "Créer un attribut utilisateur",
-    "userAttribute": "Attribut utilisateur"
+    "userAttribute": "Attribut utilisateur",
+    "localeNote": "Le nom sera affiché si la valeur de la langue est vide",
+    "locales": "Langues"
   },
   "roles": {
     "title": "Rôles",

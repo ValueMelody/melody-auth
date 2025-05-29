@@ -3,6 +3,17 @@ const UserAttribute = {
   properties: {
     id: { type: 'number' },
     name: { type: 'string' },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
     includeInSignUpForm: { type: 'boolean' },
     requiredInSignUpForm: { type: 'boolean' },
     includeInIdTokenBody: { type: 'boolean' },
@@ -28,6 +39,17 @@ const PostUserAttributeReq = {
       minLength: 1,
       maxLength: 50,
     },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
     includeInSignUpForm: { type: 'boolean' },
     requiredInSignUpForm: { type: 'boolean' },
     includeInIdTokenBody: { type: 'boolean' },
@@ -43,6 +65,17 @@ const PutUserAttributeReq = {
   type: 'object',
   properties: {
     name: { type: 'string' },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
     includeInSignUpForm: { type: 'boolean' },
     requiredInSignUpForm: { type: 'boolean' },
     includeInIdTokenBody: { type: 'boolean' },

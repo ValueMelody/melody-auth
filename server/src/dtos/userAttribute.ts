@@ -1,10 +1,16 @@
 import {
+  IsArray,
   IsBoolean,
   IsNotEmpty,
   IsOptional,
   IsString,
   Length,
 } from 'class-validator'
+
+interface AttributeLocale {
+  locale: string;
+  value: string;
+}
 
 export class PostUserAttributeDto {
   @IsString()
@@ -14,6 +20,10 @@ export class PostUserAttributeDto {
   )
   @IsNotEmpty()
     name: string
+
+  @IsArray()
+  @IsOptional()
+    locales?: AttributeLocale[]
 
   @IsBoolean()
   @IsNotEmpty()
@@ -32,11 +42,12 @@ export class PostUserAttributeDto {
     includeInUserInfo: boolean
 
   constructor (dto: PostUserAttributeDto) {
-    this.name = dto.name.trim()
+    this.name = dto.name?.trim()
     this.includeInSignUpForm = dto.includeInSignUpForm
     this.requiredInSignUpForm = dto.requiredInSignUpForm
     this.includeInIdTokenBody = dto.includeInIdTokenBody
     this.includeInUserInfo = dto.includeInUserInfo
+    this.locales = dto.locales
   }
 }
 
@@ -48,6 +59,10 @@ export class PutUserAttributeDto {
   )
   @IsOptional()
     name: string
+
+  @IsArray()
+  @IsOptional()
+    locales?: AttributeLocale[]
 
   @IsBoolean()
   @IsOptional()
@@ -66,7 +81,8 @@ export class PutUserAttributeDto {
     includeInUserInfo: boolean
 
   constructor (dto: PutUserAttributeDto) {
-    this.name = dto?.name?.trim()
+    this.name = dto.name?.trim()
+    this.locales = dto.locales
     this.includeInSignUpForm = dto.includeInSignUpForm
     this.requiredInSignUpForm = dto.requiredInSignUpForm
     this.includeInIdTokenBody = dto.includeInIdTokenBody

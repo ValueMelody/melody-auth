@@ -107,6 +107,7 @@ describe(
             {
               id: 1,
               name: 'test',
+              locales: [],
               includeInSignUpForm: true,
               requiredInSignUpForm: false,
               includeInIdTokenBody: false,

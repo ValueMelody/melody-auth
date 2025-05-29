@@ -43,10 +43,20 @@ export const createUserAttribute = async (
   c: Context<typeConfig.Context>,
   dto: userAttributeDto.PostUserAttributeDto,
 ): Promise<userAttributeModel.Record> => {
+  const locales = dto.locales?.reduce(
+    (
+      acc, locale,
+    ) => {
+      acc[locale.locale] = locale.value
+      return acc
+    },
+{} as Record<string, string>,
+  )
   const userAttribute = await userAttributeModel.create(
     c.env.DB,
     {
       name: dto.name,
+      locales: locales ? JSON.stringify(locales) : '',
       includeInSignUpForm: dto.includeInSignUpForm ? 1 : 0,
       requiredInSignUpForm: dto.requiredInSignUpForm ? 1 : 0,
       includeInIdTokenBody: dto.includeInIdTokenBody ? 1 : 0,
@@ -65,16 +75,26 @@ export const updateUserAttribute = async (
   const requiredInSignUpForm = dto.requiredInSignUpForm ? 1 : 0
   const includeInIdTokenBody = dto.includeInIdTokenBody ? 1 : 0
   const includeInUserInfo = dto.includeInUserInfo ? 1 : 0
+  const locales = dto.locales?.reduce(
+    (
+      acc, locale,
+    ) => {
+      acc[locale.locale] = locale.value
+      return acc
+    },
+{} as Record<string, string>,
+  )
 
   const userAttribute = await userAttributeModel.update(
     c.env.DB,
     id,
     {
       name: dto.name,
-      includeInSignUpForm: includeInSignUpForm === undefined ? undefined : includeInSignUpForm,
-      requiredInSignUpForm: requiredInSignUpForm === undefined ? undefined : requiredInSignUpForm,
-      includeInIdTokenBody: includeInIdTokenBody === undefined ? undefined : includeInIdTokenBody,
-      includeInUserInfo: includeInUserInfo === undefined ? undefined : includeInUserInfo,
+      locales: locales ? JSON.stringify(locales) : undefined,
+      includeInSignUpForm: dto.includeInSignUpForm === undefined ? undefined : includeInSignUpForm,
+      requiredInSignUpForm: dto.requiredInSignUpForm === undefined ? undefined : requiredInSignUpForm,
+      includeInIdTokenBody: dto.includeInIdTokenBody === undefined ? undefined : includeInIdTokenBody,
+      includeInUserInfo: dto.includeInUserInfo === undefined ? undefined : includeInUserInfo,
     },
   )
   return userAttribute

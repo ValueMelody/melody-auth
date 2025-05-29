@@ -1,6 +1,8 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import {
+  useLocale, useTranslations,
+} from 'next-intl'
 import { useParams } from 'next/navigation'
 import {
   useEffect, useMemo, useState,
@@ -70,6 +72,7 @@ const Page = () => {
   const configs = useSignalValue(configSignal)
 
   const { userInfo } = useAuth()
+  const appLocale = useLocale()
 
   const t = useTranslations()
   const router = useRouter()
@@ -819,7 +822,9 @@ const Page = () => {
             )}
             {enableUserAttribute && userAttributes.map((userAttribute) => (
               <TableRow key={userAttribute.id}>
-                <TableCell>{userAttribute.name}</TableCell>
+                <TableCell>
+                  {userAttribute.locales?.find((locale) => locale.locale === appLocale)?.value ?? userAttribute.name}
+                </TableCell>
                 <TableCell>
                   <Input
                     disabled={!canWriteUser}

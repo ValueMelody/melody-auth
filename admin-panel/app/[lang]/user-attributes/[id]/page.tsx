@@ -2,7 +2,9 @@
 
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import {
+  useMemo, useState,
+} from 'react'
 import { useAuth } from '@melody-auth/react'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -25,12 +27,17 @@ import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
 import useEditUserAttribute from 'app/[lang]/user-attributes/useEditUserAttribute'
 import { Switch } from 'components/ui/switch'
+import LocaleEditor from 'components/LocaleEditor'
+import { configSignal } from 'signals'
+import useSignalValue from 'app/useSignalValue'
 
 const Page = () => {
   const { id } = useParams()
 
   const t = useTranslations()
   const router = useRouter()
+
+  const configs = useSignalValue(configSignal)
 
   const {
     data, isLoading,
@@ -50,6 +57,22 @@ const Page = () => {
     values, errors, onChange,
   } = useEditUserAttribute(userAttribute)
   const [showErrors, setShowErrors] = useState(false)
+
+  const hasDifferentLocales = useMemo(
+    () => {
+      if (values.locales !== undefined && userAttribute?.locales === undefined) return true
+      if (Array.isArray(values.locales) && Array.isArray(userAttribute?.locales)) {
+        if (values.locales.length !== userAttribute.locales.length) return true
+        if (values.locales.find((valueLocale) => {
+          return userAttribute?.locales?.every((attributeLocale) => {
+            return attributeLocale.locale !== valueLocale.locale || attributeLocale.value !== valueLocale.value
+          })
+        })) return true
+      }
+      return false
+    },
+    [values, userAttribute],
+  )
 
   const handleSave = async () => {
     if (Object.values(errors).some((val) => !!val)) {
@@ -122,6 +145,21 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
+              <TableCell>{t('userAttributes.locales')}</TableCell>
+              <TableCell>
+                <LocaleEditor
+                  description={`* ${t('userAttributes.localeNote')}`}
+                  supportedLocales={configs.SUPPORTED_LOCALES}
+                  values={values.locales}
+                  disabled={!canWriteUserAttribute}
+                  onChange={(values) => onChange(
+                    'locales',
+                    values,
+                  )}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
               <TableCell>{t('userAttributes.includeInSignUpForm')}</TableCell>
               <TableCell>
                 <Switch
@@ -191,7 +229,8 @@ const Page = () => {
               values.includeInSignUpForm === userAttribute.includeInSignUpForm &&
               values.requiredInSignUpForm === userAttribute.requiredInSignUpForm &&
               values.includeInIdTokenBody === userAttribute.includeInIdTokenBody &&
-              values.includeInUserInfo === userAttribute.includeInUserInfo
+              values.includeInUserInfo === userAttribute.includeInUserInfo &&
+              !hasDifferentLocales
             )}
             onClick={handleSave}
           />
