@@ -361,5 +361,253 @@ describe(
         })
       },
     )
+
+    describe(
+      'userAttributes',
+      () => {
+        it(
+          'renders userAttribute fields when userAttributes are provided',
+          () => {
+            const mockUserAttributes = [
+              {
+                id: 1,
+                name: 'department',
+                requiredInSignUpForm: true,
+                locales: [
+                  {
+                    locale: 'en', value: 'Department',
+                  },
+                  {
+                    locale: 'es', value: 'Departamento',
+                  },
+                ],
+              },
+              {
+                id: 2,
+                name: 'phone',
+                requiredInSignUpForm: false,
+                locales: [
+                  {
+                    locale: 'en', value: 'Phone Number',
+                  },
+                ],
+              },
+            ]
+
+            const props = {
+              ...defaultProps,
+              userAttributes: mockUserAttributes,
+              values: {
+                ...defaultProps.values,
+                1: '',
+                2: '',
+              },
+              errors: {
+                ...defaultProps.errors,
+                1: undefined,
+                2: undefined,
+              },
+            }
+
+            const container = setup(props as any)
+
+            const departmentField = container.querySelector('input[name="department"]')
+            expect(departmentField).toBeDefined()
+            const requiredIndicator = container.querySelector('#required-department')
+            expect(requiredIndicator).not.toBeNull()
+
+            const phoneField = container.querySelector('input[name="phone"]')
+            expect(phoneField).toBeDefined()
+            const requiredIndicator2 = container.querySelector('#required-phone')
+            expect(requiredIndicator2).toBeNull()
+
+            // Check labels are displayed correctly
+            expect(container.textContent).toContain('Department')
+            expect(container.textContent).toContain('Phone Number')
+          },
+        )
+
+        it(
+          'does not render userAttribute fields when userAttributes array is empty',
+          () => {
+            const props = {
+              ...defaultProps,
+              userAttributes: [],
+            }
+
+            const container = setup(props)
+
+            // Only standard fields should be present
+            const allInputs = container.querySelectorAll('input')
+            const inputNames = Array.from(allInputs).map((input) => input.getAttribute('name'))
+
+            expect(inputNames).toContain('email')
+            expect(inputNames).toContain('password')
+            expect(inputNames).toContain('confirmPassword')
+            expect(inputNames).toContain('firstName')
+            expect(inputNames).toContain('lastName')
+
+            // Should not contain any custom attribute fields
+            expect(inputNames.length).toBe(5) // email, password, confirmPassword, firstName, lastName
+          },
+        )
+
+        it(
+          'uses fallback name when locale is not found in userAttribute locales',
+          () => {
+            const mockUserAttributes = [
+              {
+                id: 3,
+                name: 'customField',
+                requiredInSignUpForm: true,
+                locales: [
+                  {
+                    locale: 'fr', value: 'Champ Personnalisé',
+                  },
+                ],
+              },
+            ]
+
+            const props = {
+              ...defaultProps,
+              locale: 'en' as any, // English locale, but attribute only has French
+              userAttributes: mockUserAttributes,
+              values: {
+                ...defaultProps.values,
+                3: '',
+              },
+              errors: {
+                ...defaultProps.errors,
+                3: undefined,
+              },
+            }
+
+            const container = setup(props as any)
+
+            // Should fall back to the attribute name since 'en' locale is not found
+            expect(container.textContent).toContain('customField')
+            expect(container.textContent).not.toContain('Champ Personnalisé')
+          },
+        )
+
+        it(
+          'calls onChange with correct attribute id when userAttribute field changes',
+          () => {
+            const mockUserAttributes = [
+              {
+                id: 4,
+                name: 'company',
+                requiredInSignUpForm: true,
+                locales: [
+                  {
+                    locale: 'en', value: 'Company',
+                  },
+                ],
+              },
+            ]
+
+            const props = {
+              ...defaultProps,
+              userAttributes: mockUserAttributes,
+              values: {
+                ...defaultProps.values,
+                4: '',
+              },
+              errors: {
+                ...defaultProps.errors,
+                4: undefined,
+              },
+            }
+
+            const container = setup(props as any)
+
+            const companyField = container.querySelector('input[name="company"]') as HTMLInputElement
+            expect(companyField).toBeDefined()
+
+            fireEvent.input(
+              companyField,
+              { target: { value: 'Acme Corp' } },
+            )
+
+            expect(defaultProps.onChange).toHaveBeenCalledWith(
+              4,
+              'Acme Corp',
+            )
+          },
+        )
+
+        it(
+          'displays userAttribute error message when error is provided',
+          () => {
+            const errorMessage = 'Department is required'
+            const mockUserAttributes = [
+              {
+                id: 5,
+                name: 'department',
+                requiredInSignUpForm: true,
+                locales: [
+                  {
+                    locale: 'en', value: 'Department',
+                  },
+                ],
+              },
+            ]
+
+            const props = {
+              ...defaultProps,
+              userAttributes: mockUserAttributes,
+              values: {
+                ...defaultProps.values,
+                5: '',
+              },
+              errors: {
+                ...defaultProps.errors,
+                5: errorMessage,
+              },
+            }
+
+            const container = setup(props as any)
+            expect(container.textContent).toContain(errorMessage)
+          },
+        )
+
+        it(
+          'renders userAttribute fields with correct values',
+          () => {
+            const mockUserAttributes = [
+              {
+                id: 6,
+                name: 'position',
+                requiredInSignUpForm: false,
+                locales: [
+                  {
+                    locale: 'en', value: 'Position',
+                  },
+                ],
+              },
+            ]
+
+            const props = {
+              ...defaultProps,
+              userAttributes: mockUserAttributes,
+              values: {
+                ...defaultProps.values,
+                6: 'Software Engineer',
+              },
+              errors: {
+                ...defaultProps.errors,
+                6: undefined,
+              },
+            }
+
+            const container = setup(props as any)
+
+            const positionField = container.querySelector('input[name="position"]') as HTMLInputElement
+            expect(positionField).toBeDefined()
+            expect(positionField.value).toBe('Software Engineer')
+          },
+        )
+      },
+    )
   },
 )

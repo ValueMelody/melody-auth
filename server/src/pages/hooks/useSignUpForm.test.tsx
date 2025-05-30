@@ -1,5 +1,5 @@
 import {
-  expect, test, vi,
+  expect, test, vi, describe,
 } from 'vitest'
 import * as React from 'react'
 import {
@@ -502,5 +502,585 @@ test(
     // Cleanup
     fetchSpy.mockRestore()
     handleAuthorizeSpy.mockRestore()
+  },
+)
+
+describe(
+  'custom user attributes',
+  () => {
+    const createMockUserAttribute = (
+      id: number,
+      name: string,
+      requiredInSignUpForm: boolean = false,
+      locale: string = 'en',
+      value: string = '',
+    ): any => ({
+      id,
+      name,
+      requiredInSignUpForm,
+      includeInSignUpForm: true,
+      includeInIdTokenBody: false,
+      includeInUserInfo: false,
+      locales: [
+        {
+          locale,
+          value: value || name.charAt(0).toUpperCase() + name.slice(1),
+        },
+      ],
+      createdAt: '2023-01-01T00:00:00Z',
+      updatedAt: '2023-01-01T00:00:00Z',
+      deletedAt: null,
+    })
+
+    test(
+      'handleChange updates custom attribute values correctly',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+
+        const mockUserAttributes = [
+          createMockUserAttribute(
+            1,
+            'department',
+            true,
+            'en',
+            'Department',
+          ),
+          createMockUserAttribute(
+            2,
+            'phone',
+            false,
+            'en',
+            'Phone Number',
+          ),
+        ]
+
+        const fakeResponse = {
+          ok: true,
+          json: async () => ({ userAttributes: mockUserAttributes }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
+
+        const { result } = renderHook(() =>
+          useSignUpForm({
+            locale: 'en',
+            initialProps: {
+              ...dummyInitialProps,
+              enableUserAttribute: true,
+            },
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Fetch user attributes
+        await act(async () => {
+          result.current.getSignUpInfo()
+          await Promise.resolve()
+        })
+
+        // Update custom attribute values
+        act(() => {
+          result.current.handleChange(
+            1,
+            'Engineering',
+          )
+          result.current.handleChange(
+            2,
+            '123-456-7890',
+          )
+        })
+
+        // Verify onSubmitError is called to reset errors
+        expect(onSubmitError).toHaveBeenCalledWith(null)
+
+        // Verify the values object includes custom attributes
+        expect(result.current.values).toEqual(expect.objectContaining({
+          email: '',
+          password: '',
+          confirmPassword: '',
+          firstName: '',
+          lastName: '',
+          1: 'Engineering',
+          2: '123-456-7890',
+        }))
+
+        // Cleanup
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'validates required custom attributes',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+
+        const mockUserAttributes = [
+          createMockUserAttribute(
+            3,
+            'company',
+            true,
+            'en',
+            'Company',
+          ),
+        ]
+
+        const fakeResponse = {
+          ok: true,
+          json: async () => ({ userAttributes: mockUserAttributes }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
+
+        const { result } = renderHook(() =>
+          useSignUpForm({
+            locale: 'en',
+            initialProps: {
+              ...dummyInitialProps,
+              enableUserAttribute: true,
+            },
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Fetch user attributes
+        await act(async () => {
+          result.current.getSignUpInfo()
+          await Promise.resolve()
+        })
+
+        // Fill in standard required fields but leave custom attribute empty
+        act(() => {
+          result.current.handleChange(
+            'email',
+            'test@example.com',
+          )
+          result.current.handleChange(
+            'password',
+            'Password1!',
+          )
+          result.current.handleChange(
+            'confirmPassword',
+            'Password1!',
+          )
+          result.current.handleChange(
+            'firstName',
+            'John',
+          )
+          result.current.handleChange(
+            'lastName',
+            'Doe',
+          )
+          // Don't set the required custom attribute (id: 3)
+        })
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+
+        act(() => {
+          result.current.handleSubmit(fakeEvent)
+        })
+
+        // Should have validation error for the required custom attribute
+        expect(result.current.errors['3']).toBeDefined()
+        expect(result.current.errors['3']).toContain('required')
+
+        // Cleanup
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'submits custom attributes in form payload',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+
+        const mockUserAttributes = [
+          createMockUserAttribute(
+            4,
+            'department',
+            true,
+            'en',
+            'Department',
+          ),
+          createMockUserAttribute(
+            5,
+            'phone',
+            false,
+            'en',
+            'Phone Number',
+          ),
+        ]
+
+        // Mock getSignUpInfo response
+        const getSignUpInfoResponse = {
+          ok: true,
+          json: async () => ({ userAttributes: mockUserAttributes }),
+        }
+
+        // Mock form submission response
+        const submitResponse = {
+          ok: true,
+          json: async () => ({ status: 'ok' }),
+        }
+
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        )
+          .mockResolvedValueOnce(getSignUpInfoResponse as Response) // First call for getSignUpInfo
+          .mockResolvedValueOnce(submitResponse as Response) // Second call for form submission
+
+        // Spy on handleAuthorizeStep
+        const handleAuthorizeSpy = vi.spyOn(
+          requestModule,
+          'handleAuthorizeStep',
+        ).mockImplementation((
+          response,
+          locale,
+          onSwitchViewFn,
+        ) => {
+          onSwitchViewFn(View.Consent)
+        })
+
+        const { result } = renderHook(() =>
+          useSignUpForm({
+            locale: 'en',
+            initialProps: {
+              ...dummyInitialProps,
+              enableUserAttribute: true,
+            },
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Fetch user attributes first
+        await act(async () => {
+          result.current.getSignUpInfo()
+          await Promise.resolve()
+        })
+
+        // Fill in all fields including custom attributes
+        act(() => {
+          result.current.handleChange(
+            'email',
+            'test@example.com',
+          )
+          result.current.handleChange(
+            'password',
+            'Password1!',
+          )
+          result.current.handleChange(
+            'confirmPassword',
+            'Password1!',
+          )
+          result.current.handleChange(
+            'firstName',
+            'John',
+          )
+          result.current.handleChange(
+            'lastName',
+            'Doe',
+          )
+          result.current.handleChange(
+            4,
+            'Engineering',
+          )
+          result.current.handleChange(
+            5,
+            '123-456-7890',
+          )
+        })
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+
+        await act(async () => {
+          result.current.handleSubmit(fakeEvent)
+          await Promise.resolve()
+        })
+
+        // Verify form submission was made (should be the second fetch call)
+        expect(fetchSpy).toHaveBeenCalledTimes(2)
+        expect(fetchSpy).toHaveBeenNthCalledWith(
+          2,
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          expect.objectContaining({
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }),
+        )
+
+        // Get the actual request body and verify custom attributes are included
+        const submitCall = fetchSpy.mock.calls[1]
+        const requestBody = JSON.parse((submitCall[1] as RequestInit).body as string)
+
+        expect(requestBody).toHaveProperty('attributes')
+        expect(requestBody.attributes).toEqual({
+          4: 'Engineering',
+          5: '123-456-7890',
+        })
+
+        // Verify other standard fields are present
+        expect(requestBody).toHaveProperty(
+          'email',
+          'test@example.com',
+        )
+        expect(requestBody).toHaveProperty(
+          'firstName',
+          'John',
+        )
+        expect(requestBody).toHaveProperty(
+          'lastName',
+          'Doe',
+        )
+
+        // Cleanup
+        fetchSpy.mockRestore()
+        handleAuthorizeSpy.mockRestore()
+      },
+    )
+
+    test(
+      'does not include attributes in submission when no custom attributes exist',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+
+        // Mock successful response
+        const fakeResponse = {
+          ok: true,
+          json: async () => ({ status: 'ok' }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
+
+        // Spy on handleAuthorizeStep
+        const handleAuthorizeSpy = vi.spyOn(
+          requestModule,
+          'handleAuthorizeStep',
+        ).mockImplementation((
+          response,
+          locale,
+          onSwitchViewFn,
+        ) => {
+          onSwitchViewFn(View.Consent)
+        })
+
+        const { result } = renderHook(() =>
+          useSignUpForm({
+            locale: 'en',
+            initialProps: dummyInitialProps,
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Fill in standard fields only (no custom attributes)
+        act(() => {
+          result.current.handleChange(
+            'email',
+            'test@example.com',
+          )
+          result.current.handleChange(
+            'password',
+            'Password1!',
+          )
+          result.current.handleChange(
+            'confirmPassword',
+            'Password1!',
+          )
+          result.current.handleChange(
+            'firstName',
+            'John',
+          )
+          result.current.handleChange(
+            'lastName',
+            'Doe',
+          )
+        })
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+
+        await act(async () => {
+          result.current.handleSubmit(fakeEvent)
+          await Promise.resolve()
+        })
+
+        // Get the actual request body and verify attributes are not included
+        const fetchCall = fetchSpy.mock.calls[0]
+        const requestBody = JSON.parse((fetchCall[1] as RequestInit).body as string)
+
+        expect(requestBody).not.toHaveProperty('attributes')
+
+        // Verify standard fields are present
+        expect(requestBody).toHaveProperty(
+          'email',
+          'test@example.com',
+        )
+        expect(requestBody).toHaveProperty(
+          'firstName',
+          'John',
+        )
+        expect(requestBody).toHaveProperty(
+          'lastName',
+          'Doe',
+        )
+
+        // Cleanup
+        fetchSpy.mockRestore()
+        handleAuthorizeSpy.mockRestore()
+      },
+    )
+
+    test(
+      'getSignUpInfo fetches and sets user attributes',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+
+        const mockUserAttributes = [
+          createMockUserAttribute(
+            6,
+            'position',
+            true,
+            'en',
+            'Position',
+          ),
+          createMockUserAttribute(
+            7,
+            'manager',
+            false,
+            'en',
+            'Manager',
+          ),
+        ]
+
+        const fakeResponse = {
+          ok: true,
+          json: async () => ({ userAttributes: mockUserAttributes }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
+
+        const { result } = renderHook(() =>
+          useSignUpForm({
+            locale: 'en',
+            initialProps: {
+              ...dummyInitialProps,
+              enableUserAttribute: true,
+            },
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        await act(async () => {
+          result.current.getSignUpInfo()
+          await Promise.resolve()
+        })
+
+        // Verify fetch was called
+        expect(fetchSpy).toHaveBeenCalledWith(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          expect.objectContaining({
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }),
+        )
+
+        // Verify userAttributes were set
+        expect(result.current.userAttributes).toEqual(mockUserAttributes)
+
+        // Cleanup
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'getSignUpInfo calls onSubmitError on fetch failure',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+        const fakeError = new Error('Network error')
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValue(fakeError)
+
+        const { result } = renderHook(() =>
+          useSignUpForm({
+            locale: 'en',
+            initialProps: {
+              ...dummyInitialProps,
+              enableUserAttribute: true,
+            },
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        await act(async () => {
+          result.current.getSignUpInfo()
+          await Promise.resolve()
+        })
+
+        expect(onSubmitError).toHaveBeenCalledWith(fakeError)
+
+        // Cleanup
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'getSignUpInfo does not fetch when enableUserAttribute is false',
+      () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        )
+
+        const { result } = renderHook(() =>
+          useSignUpForm({
+            locale: 'en',
+            initialProps: {
+              ...dummyInitialProps,
+              enableUserAttribute: false,
+            },
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        act(() => {
+          result.current.getSignUpInfo()
+        })
+
+        // Verify fetch was not called
+        expect(fetchSpy).not.toHaveBeenCalled()
+
+        // Cleanup
+        fetchSpy.mockRestore()
+      },
+    )
   },
 )

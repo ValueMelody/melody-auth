@@ -1240,5 +1240,366 @@ describe(
         })
       },
     )
+
+    // User Attributes Tests
+    it(
+      'renders user attributes when enabled',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: true,
+        }
+
+        ;(useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+          data: {
+            userAttributes: [
+              {
+                id: 1,
+                name: 'firstName',
+                locales: [
+                  {
+                    locale: 'en', value: 'First Name',
+                  },
+                  {
+                    locale: 'fr', value: 'Prénom',
+                  },
+                ],
+              },
+              {
+                id: 2,
+                name: 'lastName',
+                locales: [],
+              },
+            ],
+          },
+        })
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              attributes: {
+                firstName: 'John',
+                lastName: 'Doe',
+              },
+            },
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const firstNameInput = screen.getByTestId('firstName') as HTMLInputElement
+          const lastNameInput = screen.getByTestId('lastName') as HTMLInputElement
+
+          expect(firstNameInput).toBeInTheDocument()
+          expect(lastNameInput).toBeInTheDocument()
+          expect(firstNameInput.value).toBe('John')
+          expect(lastNameInput.value).toBe('Doe')
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'does not render user attributes when disabled',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: false,
+        }
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('firstName')).not.toBeInTheDocument()
+          expect(screen.queryByTestId('lastName')).not.toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'shows localized attribute names when available',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: true,
+        }
+
+        ;(useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+          data: {
+            userAttributes: [
+              {
+                id: 1,
+                name: 'firstName',
+                locales: [
+                  {
+                    locale: 'en', value: 'First Name',
+                  },
+                  {
+                    locale: 'fr', value: 'Prénom',
+                  },
+                ],
+              },
+            ],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          // Should show the English localized name
+          expect(screen.getByText('First Name')).toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'shows fallback attribute name when localization not available',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: true,
+        }
+
+        ;(useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+          data: {
+            userAttributes: [
+              {
+                id: 1,
+                name: 'customAttribute',
+                locales: [],
+              },
+            ],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          // Should show the attribute name as fallback
+          expect(screen.getByText('customAttribute')).toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'updates attribute values on input change',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: true,
+        }
+
+        ;(useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+          data: {
+            userAttributes: [
+              {
+                id: 1,
+                name: 'firstName',
+                locales: [],
+              },
+            ],
+          },
+        })
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              attributes: { firstName: 'John' },
+            },
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const firstNameInput = screen.getByTestId('firstName') as HTMLInputElement
+
+          fireEvent.change(
+            firstNameInput,
+            { target: { value: 'Jane' } },
+          )
+          expect(firstNameInput.value).toBe('Jane')
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'includes attribute values in update request',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: true,
+        }
+
+        ;(useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+          data: {
+            userAttributes: [
+              {
+                id: 1,
+                name: 'firstName',
+                locales: [],
+              },
+              {
+                id: 2,
+                name: 'lastName',
+                locales: [],
+              },
+            ],
+          },
+        })
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              attributes: {
+                firstName: 'John',
+                lastName: 'Doe',
+              },
+            },
+          },
+        })
+
+        mockUseAuth.mockReturnValue({
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: ['super_admin'],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const firstNameInput = screen.getByTestId('firstName') as HTMLInputElement
+          fireEvent.change(
+            firstNameInput,
+            { target: { value: 'Jane' } },
+          )
+        })
+
+        const saveButton = screen.getByTestId('saveButton')
+        fireEvent.click(saveButton)
+
+        await waitFor(() => {
+          expect(mockUpdate).toHaveBeenLastCalledWith({
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            putUserReq: {
+              attributes: {
+                1: 'Jane',
+                2: 'Doe',
+              },
+            },
+          })
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'disables attribute inputs when user lacks write permission',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: true,
+        }
+
+        ;(useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+          data: {
+            userAttributes: [
+              {
+                id: 1,
+                name: 'firstName',
+                locales: [],
+              },
+            ],
+          },
+        })
+
+        mockUseAuth.mockReturnValue({
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: [], // No write permissions
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const firstNameInput = screen.getByTestId('firstName') as HTMLInputElement
+          expect(firstNameInput).toBeDisabled()
+        })
+
+        // Reset auth mock
+        mockUseAuth.mockReturnValue({
+          userInfo: {
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            roles: ['super_admin'],
+          },
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'handles empty attribute values',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: true,
+        }
+
+        ;(useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+          data: {
+            userAttributes: [
+              {
+                id: 1,
+                name: 'firstName',
+                locales: [],
+              },
+            ],
+          },
+        })
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              attributes: {}, // No attribute values
+            },
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const firstNameInput = screen.getByTestId('firstName') as HTMLInputElement
+          expect(firstNameInput.value).toBe('')
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
   },
 )

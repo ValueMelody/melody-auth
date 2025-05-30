@@ -48,7 +48,7 @@ export const validOrigin = async (
   const origin = c.req.header('origin')
   const { AUTH_SERVER_URL: serverUrl } = env(c)
 
-  if (requestUtil.stripEndingSlash(serverUrl) !== origin) {
+  if (origin && requestUtil.stripEndingSlash(serverUrl) !== origin) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

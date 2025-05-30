@@ -25,12 +25,6 @@ global.process.env = {
   DEV_SMS_RECEIVER: '+14161231234',
 }
 
-const mockMiddleware = async (
-  c: Context, next: Next,
-) => {
-  await next()
-}
-
 vi.mock(
   'ioredis',
   async () => {
@@ -100,12 +94,13 @@ vi.mock(
 vi.mock(
   'middlewares',
   async (importOriginal: Function) => {
-    const origin = await importOriginal() as object
+    const origin = await importOriginal() as {
+      setupMiddleware: object;
+    }
     return {
       ...origin,
       setupMiddleware: {
-        validOrigin: mockMiddleware,
-        validEmbeddedOrigin: mockMiddleware,
+        ...origin.setupMiddleware,
         session: async (
           c: Context, next: Next,
         ) => {

@@ -45,6 +45,7 @@
   - Email Verification
   - Password Reset
   - Role-Based Access Control
+  - User Attribute
   - Account Linking
   - Localization [How to support a new locale](https://auth.valuemelody.com/q_a.html#how-to-support-a-new-locale)
 - <b>Social Sign-In</b>:
@@ -99,6 +100,7 @@
 - View Configurations
 - Manage Users
   - Impersonation [How to allow users with a custom role to perform impersonation](https://auth.valuemelody.com/q_a.html#how-to-allow-users-with-a-custom-role-to-perform-impersonation)
+- Manage User Attributes
 - Manage Apps
   - App Level MFA Config
 - Manage Scopes

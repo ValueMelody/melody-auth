@@ -70,6 +70,13 @@ These screenshots showcase various pages and emails related to identity system a
 
 ![User](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-user.jpeg)
 
+### User Attributes
+![User Attributes](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-user-attributes.jpg)
+
+![User Attribute](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-user-attribute.jpg)
+
+![Create User Attribute](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-user-attribute-create.jpg)
+
 ### Roles
 ![Roles](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-roles.jpeg)
 
