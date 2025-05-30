@@ -51,6 +51,100 @@ const postAuthorizeAccount = async () => {
 }
 
 describe(
+  'get /authorize-account',
+  () => {
+    test(
+      'should get empty user attributes',
+      async () => {
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          { method: 'GET' },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ userAttributes: [] })
+
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should get user attributes',
+      async () => {
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values (\'test\', 1, 1, 1, 1)')
+        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values (\'test2\', 0, 0, 0, 0)')
+        await db.exec('insert into "user_attribute" (name, locales, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values (\'test3\', \'{"en": "test3 en", "fr": "test3 fr"}\', 1, 0, 0, 0)')
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          { method: 'GET' },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          userAttributes: [
+            {
+              id: 1,
+              name: 'test',
+              includeInSignUpForm: true,
+              requiredInSignUpForm: true,
+              includeInIdTokenBody: true,
+              includeInUserInfo: true,
+              locales: [],
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+              deletedAt: null,
+            },
+            {
+              id: 3,
+              name: 'test3',
+              includeInSignUpForm: true,
+              requiredInSignUpForm: false,
+              includeInIdTokenBody: false,
+              includeInUserInfo: false,
+              locales: [
+                {
+                  locale: 'en',
+                  value: 'test3 en',
+                },
+                {
+                  locale: 'fr',
+                  value: 'test3 fr',
+                },
+              ],
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+              deletedAt: null,
+            },
+          ],
+        })
+
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should return empty if feature is disabled',
+      async () => {
+        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values (\'test\', 1, 1, 1, 1)')
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          { method: 'GET' },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ userAttributes: [] })
+      },
+    )
+  },
+)
+
+describe(
   'post /authorize-account',
   () => {
     test(

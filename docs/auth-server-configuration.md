@@ -86,6 +86,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** false
 - **Description:** Toggles the organization feature. If `true`, users can create and manage organizations via the S2S API and admin panel.
 
+### ENABLE_USER_ATTRIBUTE
+- **Default:** false
+- **Description:** Toggles the user attribute feature. If `true`, users can create and manage user attributes via the S2S API and admin panel.
+
 ### BLOCKED_POLICIES
 - **Default:** []
 - **Description:** A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info), preventing end users from triggering them

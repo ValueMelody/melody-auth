@@ -624,6 +624,10 @@ describe(
           INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
           values (1, 3, 'test value 3')
         `)
+        await db.exec(`
+          INSERT INTO user_attribute (name)
+          values ('test 4')
+        `)
 
         const updateObj = {
           locale: 'fr',
@@ -642,6 +646,7 @@ describe(
                 1: 'test new value 1',
                 2: null,
                 3: 'test value 3',
+                4: 'test value 4',
               },
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
@@ -657,6 +662,7 @@ describe(
             attributes: {
               'test 1': 'test new value 1',
               'test 3': 'test value 3',
+              'test 4': 'test value 4',
             },
           },
         })
@@ -686,6 +692,15 @@ describe(
             userId: 1,
             userAttributeId: 3,
             value: 'test value 3',
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            deletedAt: null,
+          },
+          {
+            id: 4,
+            userId: 1,
+            userAttributeId: 4,
+            value: 'test value 4',
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
             deletedAt: null,

@@ -9,7 +9,9 @@ const FieldLabel = ({
       for={`form-${fieldName}`}
     >
       {label}
-      {required && <span className='text-criticalIndicatorColor ml-2'>*</span>}
+      {required && <span
+        id={`required-${fieldName}`}
+        className='text-criticalIndicatorColor ml-2'>*</span>}
     </label>
   )
 }

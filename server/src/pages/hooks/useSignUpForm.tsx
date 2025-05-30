@@ -153,10 +153,10 @@ const useSignUpForm = ({
       setLastName(value as string)
       break
     default:
-      setAttributeValues({
-        ...attributeValues,
+      setAttributeValues((prev) => ({
+        ...prev,
         [name]: value as string,
-      })
+      }))
       break
     }
   }
