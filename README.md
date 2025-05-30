@@ -117,6 +117,7 @@
 - [Next.js Full stack implementation Example](https://github.com/ValueMelody/melody-auth/tree/main/admin-panel)
 - [Next.js Auth.js Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/next-auth-js-example)
 - [React Native Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/react-native-example)
+- [Vanilla JavaScript Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-web-example)
 - [Embedded Auth API Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/embedded-auth)
 
 ## Screenshots
