@@ -3,6 +3,8 @@ Melody Auth supports the following social identity providers out of the box:
 - Google
 - Facebook
 - GitHub
+- Discord
+- Apple
 
 ## Google Sign-In
 1. Set `GOOGLE_AUTH_CLIENT_ID` in `server/wrangler.toml` vars section.

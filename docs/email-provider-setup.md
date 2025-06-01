@@ -1,8 +1,8 @@
 # Email Provider Setup
-Melody Auth relies on an email provider to send password reset links, email verification notices, and email-based MFA codes. This guide explains how to configure either SendGrid, Mailgun, Brevo, or SMTP (Node.js only) depending on your needs.
+Melody Auth relies on an email provider to send password reset links, email verification notices, and email-based MFA codes. This guide explains how to configure either SendGrid, Mailgun, Brevo, Resend, Postmark, or SMTP (Node.js only) depending on your needs.
 
 ## Supported Email Providers
-- **Cloudflare Workers or Node.js**: SendGrid, Mailgun, Resend.com and Brevo
+- **Cloudflare Workers or Node.js**: SendGrid, Mailgun, Brevo, Resend and Postmark
 -	**Node.js (Only)**: SMTP server (in addition to the above)
 
 ## Environment Variables
