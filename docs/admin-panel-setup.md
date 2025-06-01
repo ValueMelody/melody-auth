@@ -16,9 +16,9 @@ cp .env.example .env
 ```
 NEXT_PUBLIC_CLIENT_URI: Set this to the host url of your admin panel app
 NEXT_PUBLIC_SERVER_URI: Set this to the host url of your auth server.
-NEXT_PUBLIC_CLIENT_ID: Client ID for the Admin Panel (SPA) app
-SERVER_CLIENT_ID: Client ID for the Admin Panel (S2S) app
-SERVER_CLIENT_SECRET: Client secret for the Admin Panel (S2S) app
+NEXT_PUBLIC_CLIENT_ID: Client ID for the "Admin Panel (SPA)" app
+SERVER_CLIENT_ID: Client ID for the "Admin Panel (S2S)" app
+SERVER_CLIENT_SECRET: Client secret for the "Admin Panel (S2S)" app
 ```
 
 - For Cloudflare remote/production environment, you can find the necessary information in the Cloudflare dashboard under "Workers & Pages" -> D1 -> Melody Auth database -> app table.
@@ -67,17 +67,17 @@ Steps to Deploy:
 1. Create a new worker named "melody-auth-admin-panel"
 2. Go to "melody-auth-admin-panel" Cloudflare Dashboard -> Settings -> Variables and Secrets, add following secrets
     ```
-    SERVER_CLIENT_ID=[Client ID for the Admin Panel (S2S) app]
-    SERVER_CLIENT_SECRET=[Client secret for the Admin Panel (S2S) app]
+    SERVER_CLIENT_ID=[Client ID for the "Admin Panel (S2S)" app]
+    SERVER_CLIENT_SECRET=[Client secret for the "Admin Panel (S2S)" app]
     ```
 3. In your project directory, under the /admin-panel folder, create an .env file:
     ```
     NEXT_PUBLIC_CLIENT_URI=[The host url of this admin panel worker]
     NEXT_PUBLIC_SERVER_URI=[The host url of your auth server]
-    NEXT_PUBLIC_CLIENT_ID=[Client ID for the Admin Panel (SPA) app]
+    NEXT_PUBLIC_CLIENT_ID=[Client ID for the "Admin Panel (SPA)" app]
     ```
 4. Navigate to "Workers & Pages" -> D1 -> Melody Auth database -> app table 
-    - Update the redirectUris values in Admin Panel (SPA)	entry with the cloudflare  (e.g., https://melody-auth-admin.[your-account-name].workers.dev)
+    - Update the redirectUris values in "Admin Panel (SPA)"	entry with the cloudflare  (e.g., https://melody-auth-admin.[your-account-name].workers.dev)
 
 5. Build the project
     ```

@@ -80,6 +80,7 @@ To set up your local development environment, follow these steps:
 git clone git@github.com:ValueMelody/melody-auth.git
 cd melody-auth/server
 npm install
+
 cp .dev.vars.example .dev.vars
 # Include the required environment variables for any email, SMS, or social sign-in providers you plan to use.
 # Make sure the environment variable "ENVIRONMENT" is set to "dev" for your local environment.
@@ -123,6 +124,7 @@ Begin by setting up your PostgreSQL and Redis servers, and ensure you have the c
 git clone git@github.com:ValueMelody/melody-auth.git
 cd melody-auth/server
 npm install
+
 cp .dev.vars.example .dev.vars
 # Fill in PostgreSQL & Redis connection strings
 # Include the required environment variables for any email, SMS, or social sign-in providers you plan to use.
@@ -158,8 +160,8 @@ npm run node:start
 - Set required env vars in server/.dev.vars
 ```
 cd server
-cp .dev.vars.example .dev.vars
 
+cp .dev.vars.example .dev.vars
 # Enable PostgreSQL & Redis connection strings for docker
 PG_CONNECTION_STRING=postgres://admin:admin@postgres:5432/melody-auth
 REDIS_CONNECTION_STRING=redis://redis:6379
