@@ -135,6 +135,21 @@ export const enableOrg = async (
   await next()
 }
 
+export const enableSamlSp = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_SAML_SP: enabledSamlSp } = env(c)
+  if (!enabledSamlSp) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.SamlSpNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.SamlSpNotEnabled)
+  }
+  await next()
+}
+
 export const enablePasskeyEnrollment = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

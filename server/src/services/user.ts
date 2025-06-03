@@ -679,6 +679,52 @@ export const processOidcAccount = async (
   return user
 }
 
+export interface SamlUser {
+  userId: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+}
+
+export const processSamlAccount = async (
+  c: Context<typeConfig.Context>,
+  samlUser: SamlUser,
+  idpName: string,
+  locale: typeConfig.Locale,
+  org?: string,
+) => {
+  const currentUser = await userModel.getSamlUserById(
+    c.env.DB,
+    samlUser.userId,
+    idpName,
+  )
+  if (currentUser && !currentUser.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
+
+  const user = currentUser ?? await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      orgSlug: org ?? '',
+      email: samlUser.email,
+      socialAccountId: samlUser.userId,
+      socialAccountType: `SAML_${idpName}` as userModel.SocialAccountType,
+      password: null,
+      locale,
+      emailVerified: 0,
+      firstName: samlUser.firstName,
+      lastName: samlUser.lastName,
+    },
+  )
+  return user
+}
+
 export const verifyUserEmail = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostVerifyEmailDto,

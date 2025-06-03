@@ -338,6 +338,19 @@ export const getOidcUserById = async (
   return user ? convertToRecord(user) : null
 }
 
+export const getSamlUserById = async (
+  db: D1Database, userId: string, idpName: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "socialAccountId" = $1 AND "socialAccountType" = $2  AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(
+      userId,
+      `SAML_${idpName}`,
+    )
+  const user = await stmt.first() as Raw | null
+  return user ? convertToRecord(user) : null
+}
+
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
