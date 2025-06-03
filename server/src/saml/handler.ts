@@ -2,9 +2,7 @@ import { Context } from 'hono'
 import {
   errorConfig, messageConfig,
 } from 'configs'
-import {
-  userService,
-} from 'services'
+import { userService } from 'services'
 import * as samlService from 'saml/service'
 
 export const getSamlSpLogin = async (c: Context) => {

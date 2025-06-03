@@ -138,7 +138,7 @@ export const enableOrg = async (
 export const enableSamlSp = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
-  const { ENABLE_SAML_SP: enabledSamlSp } = env(c)
+  const { ENABLE_SAML_SSO_AS_SP: enabledSamlSp } = env(c)
   if (!enabledSamlSp) {
     loggerUtil.triggerLogger(
       c,
