@@ -11,6 +11,7 @@
     "dev:migration:apply": "wrangler d1 migrations apply melody-auth --local",
     "dev:secret:generate": "node ./src/scripts/generate-secret.cjs",
     "dev:secret:clean": "node ./src/scripts/clean-secret.cjs",
+    "dev:saml:start": "vite --port 8787 --config vite-saml.config.ts",
     "node:dev": "vite --port 8787 --config vite-node.config.ts",
     "node:build": "rimraf dist && npm run build && tsc && tsc-alias && node ./src/scripts/node-build-patch.cjs",
     "node:start": "node dist/node.js",
