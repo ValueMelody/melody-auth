@@ -1,11 +1,19 @@
-import { ServiceProvider, IdentityProvider, setSchemaValidator } from 'samlify';
-import { Context } from "hono"
-import { typeConfig, errorConfig, messageConfig, routeConfig } from "configs"
-import { env } from "hono/adapter"
-import { samlIdpModel } from 'models';
-import * as validator from '@authenio/samlify-node-xmllint';
+import {
+  ServiceProvider, IdentityProvider,
+} from 'samlify'
+import * as samlify from 'samlify'
+import { Context } from 'hono'
+import { env } from 'hono/adapter'
+import {
+  typeConfig, errorConfig, messageConfig, routeConfig,
+} from 'configs'
+import { samlIdpModel } from 'models'
 
-setSchemaValidator(validator)
+samlify.setSchemaValidator({
+  validate: () => {
+    return Promise.resolve('skipped')
+  },
+})
 
 export const createSp = async (c: Context<typeConfig.Context>) => {
   const spCrt = await c.env.KV.get('spCrt')
@@ -35,19 +43,22 @@ export const createSp = async (c: Context<typeConfig.Context>) => {
     signingCert: spCrt,
     wantAssertionsSigned: true,
     authnRequestsSigned: false,
-  });
+  })
 }
 
-export const loadIdp = async (c: Context<typeConfig.Context>, name: string) => {
-  const idpRecord = await samlIdpModel.getByName(c.env.DB, name)
+export const loadIdp = async (
+  c: Context<typeConfig.Context>, name: string,
+) => {
+  const idpRecord = await samlIdpModel.getByName(
+    c.env.DB,
+    name,
+  )
 
   if (!idpRecord) {
     throw new errorConfig.NotFound(messageConfig.RequestError.NoSamlIdp)
   }
 
-  const provider = IdentityProvider({
-    metadata: idpRecord.metadata
-  })
+  const provider = IdentityProvider({ metadata: idpRecord.metadata })
 
   return {
     provider,

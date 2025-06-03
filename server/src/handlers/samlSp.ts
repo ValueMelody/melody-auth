@@ -1,40 +1,65 @@
 import { Context } from 'hono'
-import { errorConfig, messageConfig, routeConfig } from 'configs';
-import { identityService, samlService, userService } from 'services';
+import {
+  errorConfig, messageConfig,
+} from 'configs'
+import {
+  samlService, userService,
+} from 'services'
 
 export const getSamlSpLogin = async (c: Context) => {
-  const { name } = c.req.param();
+  const { name } = c.req.param()
 
-  const sp = await samlService.createSp(c);
+  const sp = await samlService.createSp(c)
 
-  const { provider: idp } = await samlService.loadIdp(c, name)
+  const { provider: idp } = await samlService.loadIdp(
+    c,
+    name,
+  )
 
-  const { context } = await sp.createLoginRequest(idp, 'redirect');
-  
+  const { context } = await sp.createLoginRequest(
+    idp,
+    'redirect',
+  )
+
   const url = new URL(context)
-  url.searchParams.set('RelayState', name)
+  url.searchParams.set(
+    'RelayState',
+    name,
+  )
 
-  return c.redirect(url.toString(), 302);
+  return c.redirect(
+    url.toString(),
+    302,
+  )
 }
 
 export const getSamlSpMetadata = async (c: Context) => {
   const sp = await samlService.createSp(c)
-  return c.text(sp.getMetadata(), 200, {
-    'Content-Type': 'application/xml',
-  });
+  return c.text(
+    sp.getMetadata(),
+    200,
+    { 'Content-Type': 'application/xml' },
+  )
 }
 
 export const postSamlSpAcs = async (c: Context) => {
-  const sp = await samlService.createSp(c);
+  const sp = await samlService.createSp(c)
   const body = await c.req.parseBody()
-  const name = body.RelayState as string;
+  const name = body.RelayState as string
 
-  const { provider: idp, record } = await samlService.loadIdp(c, name);
+  const {
+    provider: idp, record,
+  } = await samlService.loadIdp(
+    c,
+    name,
+  )
 
   try {
-    const { extract } = await sp.parseLoginResponse(idp, 'post', {
-      body
-    });
+    const { extract } = await sp.parseLoginResponse(
+      idp,
+      'post',
+      { body },
+    )
 
     const userId = extract.attributes[record.userIdAttribute]
     const email = record.emailAttribute ? extract.attributes[record.emailAttribute] : null
@@ -48,13 +73,21 @@ export const postSamlSpAcs = async (c: Context) => {
       lastName: lastName ?? null,
     }
 
-    const user = await userService.processSamlAccount(c, samlUser, name, 'en')
+    const user = await userService.processSamlAccount(
+      c,
+      samlUser,
+      name,
+      'en',
+    )
 
-    return c.json({
-      user,
-      extract,
-      record
-    }, 200)
+    return c.json(
+      {
+        user,
+        extract,
+        record,
+      },
+      200,
+    )
   } catch (error) {
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidSamlResponse)
   }
