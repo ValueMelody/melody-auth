@@ -11,6 +11,7 @@ import {
   pgAdapter, redisAdapter, smtpAdapter,
 } from 'adapters'
 import { loadRouters } from 'router'
+import samlRoutes from 'saml/route'
 
 const config = toml.parse(readFileSync(
   './wrangler.toml',
@@ -45,6 +46,11 @@ app.use(
     if (process.env.SMTP_CONNECTION_STRING) c.env.SMTP = smtpAdapter.fit()
     await next()
   },
+)
+
+app.route(
+  '/',
+  samlRoutes,
 )
 
 const appWithRouters = loadRouters(app)

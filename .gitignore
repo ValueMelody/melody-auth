@@ -15,6 +15,8 @@ next-env.d.ts
 .env
 .env.local
 *.pem
+*.crt
+*.key
 node_session_secret
 
 coverage/

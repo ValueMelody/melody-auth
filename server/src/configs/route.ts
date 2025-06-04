@@ -9,6 +9,7 @@ export enum InternalRoute {
   ApiOrgs = '/api/v1/orgs',
   ApiLogs = '/api/v1/logs',
   Embedded = '/embedded-auth/v1',
+  SamlSp = '/saml/sp/v1',
 }
 
 export enum OauthRoute {

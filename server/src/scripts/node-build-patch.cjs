@@ -21,8 +21,11 @@ fs.readFile(
     }
 
     const result = data.replace(
-      "import swaggerSpec from '../scripts/swagger.json'",
-      "import swaggerSpec from '../scripts/swagger.json' with { type: 'json' }",
+      "import s2sSwaggerSpec from '../scripts/swagger.json'",
+      "import s2sSwaggerSpec from '../scripts/swagger.json' with { type: 'json' }",
+    ).replace(
+      "import embeddedSwaggerSpec from '../scripts/embedded-swagger.json'",
+      "import embeddedSwaggerSpec from '../scripts/embedded-swagger.json' with { type: 'json' }",
     )
 
     fs.writeFile(

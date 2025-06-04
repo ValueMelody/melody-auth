@@ -86,6 +86,7 @@ export type Bindings = {
   APPLE_AUTH_CLIENT_SECRET: string;
   OIDC_AUTH_PROVIDERS: string[] | undefined;
   EMBEDDED_AUTH_ORIGINS: string[];
+  ENABLE_SAML_SP: boolean;
 };
 
 export type Context = {
