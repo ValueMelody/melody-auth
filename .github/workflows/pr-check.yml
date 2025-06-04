@@ -56,5 +56,6 @@ jobs:
     - run: cd ./admin-panel && npm run test:check
     - run: rm -rf node_modules
     - run: cd ./server && npm run node:build
+    - run: cd ./server && npm run node:start
     - run: cd ./admin-panel && npm run build
     - run: cd ./admin-panel && npm run cf:build
