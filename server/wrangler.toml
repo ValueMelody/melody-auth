@@ -90,6 +90,3 @@ directory = "./dist/static"
 [observability]
 enabled = false # Set to true to enable Cloudflare workers logs. https://developers.cloudflare.com/workers/observability/logs/workers-logs/
 
-# Do not use this environment unless you need to enable SAML SSO
-[env.node_compat]
-compatibility_flags = ["node_compat"]
