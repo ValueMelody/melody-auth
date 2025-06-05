@@ -10,6 +10,7 @@
     "scopes": "Gérer les portées",
     "orgs": "Gérer les organisations",
     "logs": "Gérer les journaux",
+    "samlSso": "Gérer le SAML",
     "dashboard": "Tableau de bord",
     "account": "Compte"
   },
@@ -150,6 +151,13 @@
     "name": "Nom",
     "status": "Statut",
     "new": "Créer un rôle"
+  },
+  "saml": {
+    "title": "SAML",
+    "idp": "IDP",
+    "name": "Nom",
+    "status": "Statut",
+    "new": "Créer un IDP SAML"
   },
   "scopes": {
     "title": "Portées",

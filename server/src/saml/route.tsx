@@ -11,18 +11,18 @@ export default samlRoutes
 
 samlRoutes.get(
   `${SpBaseRoute}/metadata`,
-  configMiddleware.enableSamlSp,
+  configMiddleware.enableSamlAsSp,
   samlHandler.getSamlSpMetadata,
 )
 
 samlRoutes.get(
   `${SpBaseRoute}/:name/login`,
-  configMiddleware.enableSamlSp,
+  configMiddleware.enableSamlAsSp,
   samlHandler.getSamlSpLogin,
 )
 
 samlRoutes.post(
   `${SpBaseRoute}/acs`,
-  configMiddleware.enableSamlSp,
+  configMiddleware.enableSamlAsSp,
   samlHandler.postSamlSpAcs,
 )

@@ -10,6 +10,7 @@
     "scopes": "Manage Scopes",
     "orgs": "Manage Orgs",
     "logs": "Manage Logs",
+    "samlSso": "Manage SAML",
     "dashboard": "Dashboard",
     "account": "Account"
   },
@@ -156,6 +157,18 @@
     "name": "Name",
     "status": "Status",
     "new": "Create a role"
+  },
+  "saml": {
+    "title": "SAML",
+    "idp": "IDP",
+    "name": "Name",
+    "status": "Status",
+    "new": "Create a SAML IDP",
+    "userIdAttribute": "User ID Attribute",
+    "emailAttribute": "Email Attribute",
+    "firstNameAttribute": "First Name Attribute",
+    "lastNameAttribute": "Last Name Attribute",
+    "metadata": "Metadata"
   },
   "scopes": {
     "title": "Scopes",

@@ -25,7 +25,23 @@ export interface Create {
   metadata: string;
 }
 
+export interface Update {
+  name?: string;
+  userIdAttribute?: string;
+  emailAttribute?: string | null;
+  firstNameAttribute?: string | null;
+  lastNameAttribute?: string | null;
+  metadata?: string;
+}
+
 const TableName = adapterConfig.TableName.SamlIdp
+
+export const getAll = async (db: D1Database): Promise<Record[]> => {
+  const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL ORDER BY id ASC`
+  const stmt = db.prepare(query)
+  const { results: idps }: { results: Record[] } = await stmt.all()
+  return idps
+}
 
 export const getById = async (
   db: D1Database,
@@ -73,4 +89,41 @@ export const create = async (
   )
   if (!record) throw new errorConfig.InternalServerError()
   return record
+}
+
+export const update = async (
+  db: D1Database, id: number, update: Update,
+): Promise<Record> => {
+  const updateKeys: (keyof Update)[] = [
+    'userIdAttribute', 'emailAttribute', 'firstNameAttribute', 'lastNameAttribute', 'metadata',
+  ]
+  const stmt = dbUtil.d1UpdateQuery(
+    db,
+    TableName,
+    id,
+    updateKeys,
+    update,
+  )
+
+  const result = await dbUtil.d1Run(stmt)
+  if (!result.success) throw new errorConfig.InternalServerError()
+  const record = await getById(
+    db,
+    id,
+  )
+  if (!record) throw new errorConfig.InternalServerError()
+  return record
+}
+
+export const remove = async (
+  db: D1Database, id: number,
+): Promise<true> => {
+  const stmt = dbUtil.d1SoftDeleteQuery(
+    db,
+    TableName,
+    id,
+  )
+
+  await dbUtil.d1Run(stmt)
+  return true
 }
