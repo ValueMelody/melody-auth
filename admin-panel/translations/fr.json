@@ -10,6 +10,7 @@
     "scopes": "Gérer les portées",
     "orgs": "Gérer les organisations",
     "logs": "Gérer les journaux",
+    "samlSso": "Gérer le SAML",
     "dashboard": "Tableau de bord",
     "account": "Compte"
   },
@@ -150,6 +151,18 @@
     "name": "Nom",
     "status": "Statut",
     "new": "Créer un rôle"
+  },
+  "saml": {
+    "title": "SAML",
+    "idp": "IDP",
+    "name": "Nom",
+    "status": "Statut",
+    "new": "Créer un IDP SAML",
+    "userIdAttribute": "Attribut ID utilisateur",
+    "emailAttribute": "Attribut email",
+    "firstNameAttribute": "Attribut prénom",
+    "lastNameAttribute": "Attribut nom",
+    "metadata": "Métadonnées"
   },
   "scopes": {
     "title": "Portées",

@@ -7,6 +7,7 @@ export const addTagTypes = [
   'Users',
   'User Attributes',
   'Logs',
+  'SAML',
 ] as const
 const injectedRtkApi = api
   .enhanceEndpoints({ addTagTypes })
@@ -531,6 +532,52 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/v1/logs/sign-in/${queryArg.id}` }),
         providesTags: ['Logs'],
       }),
+      getApiV1SamlIdps: build.query<
+        GetApiV1SamlIdpsApiResponse,
+        GetApiV1SamlIdpsApiArg
+      >({
+        query: () => ({ url: '/api/v1/saml/idps' }),
+        providesTags: ['SAML'],
+      }),
+      postApiV1SamlIdps: build.mutation<
+        PostApiV1SamlIdpsApiResponse,
+        PostApiV1SamlIdpsApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/saml/idps',
+          method: 'POST',
+          body: queryArg.postSamlIdpReq,
+        }),
+        invalidatesTags: ['SAML'],
+      }),
+      getApiV1SamlIdpsById: build.query<
+        GetApiV1SamlIdpsByIdApiResponse,
+        GetApiV1SamlIdpsByIdApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/saml/idps/${queryArg.id}` }),
+        providesTags: ['SAML'],
+      }),
+      putApiV1SamlIdpsById: build.mutation<
+        PutApiV1SamlIdpsByIdApiResponse,
+        PutApiV1SamlIdpsByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/saml/idps/${queryArg.id}`,
+          method: 'PUT',
+          body: queryArg.putSamlIdpReq,
+        }),
+        invalidatesTags: ['SAML'],
+      }),
+      deleteApiV1SamlIdpsById: build.mutation<
+        DeleteApiV1SamlIdpsByIdApiResponse,
+        DeleteApiV1SamlIdpsByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/saml/idps/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['SAML'],
+      }),
     }),
     overrideExisting: false,
   })
@@ -939,6 +986,36 @@ export type GetApiV1LogsSignInByIdApiArg = {
   /** The unique ID of the sign-in log */
   id: number;
 };
+export type GetApiV1SamlIdpsApiResponse =
+  /** status 200 A list of SAML IDPs */ {
+    idps?: SamlIdp[];
+  };
+export type GetApiV1SamlIdpsApiArg = void;
+export type PostApiV1SamlIdpsApiResponse = /** status 201 undefined */ {
+  idp?: SamlIdp;
+};
+export type PostApiV1SamlIdpsApiArg = {
+  postSamlIdpReq: PostSamlIdpReq;
+};
+export type GetApiV1SamlIdpsByIdApiResponse = /** status 200 A SAML IDP */ {
+  idp?: SamlIdp;
+};
+export type GetApiV1SamlIdpsByIdApiArg = {
+  id: number;
+};
+export type PutApiV1SamlIdpsByIdApiResponse = /** status 200 undefined */ {
+  idp?: SamlIdp;
+};
+export type PutApiV1SamlIdpsByIdApiArg = {
+  /** The unique ID of the SAML IDP */
+  id: number;
+  putSamlIdpReq: PutSamlIdpReq;
+};
+export type DeleteApiV1SamlIdpsByIdApiResponse = unknown;
+export type DeleteApiV1SamlIdpsByIdApiArg = {
+  /** The unique ID of the SAML IDP */
+  id: number;
+};
 export type Scope = {
   id: number;
   name: string;
@@ -1197,6 +1274,33 @@ export type SignInLog = {
   updatedAt: string;
   deletedAt: string | null;
 };
+export type SamlIdp = {
+  id: number;
+  name: string;
+  userIdAttribute: string;
+  emailAttribute: string | null;
+  firstNameAttribute: string | null;
+  lastNameAttribute: string | null;
+  metadata: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+export type PostSamlIdpReq = {
+  name: string;
+  userIdAttribute: string;
+  emailAttribute: string | null;
+  firstNameAttribute: string | null;
+  lastNameAttribute: string | null;
+  metadata: string;
+};
+export type PutSamlIdpReq = {
+  userIdAttribute?: string;
+  emailAttribute?: string;
+  firstNameAttribute?: string;
+  lastNameAttribute?: string;
+  metadata?: string;
+};
 export const {
   useGetApiV1ScopesQuery,
   useLazyGetApiV1ScopesQuery,
@@ -1275,4 +1379,11 @@ export const {
   useDeleteApiV1LogsSignInMutation,
   useGetApiV1LogsSignInByIdQuery,
   useLazyGetApiV1LogsSignInByIdQuery,
+  useGetApiV1SamlIdpsQuery,
+  useLazyGetApiV1SamlIdpsQuery,
+  usePostApiV1SamlIdpsMutation,
+  useGetApiV1SamlIdpsByIdQuery,
+  useLazyGetApiV1SamlIdpsByIdQuery,
+  usePutApiV1SamlIdpsByIdMutation,
+  useDeleteApiV1SamlIdpsByIdMutation,
 } = injectedRtkApi

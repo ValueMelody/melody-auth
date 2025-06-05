@@ -7,5 +7,6 @@ export enum Internal {
   Scopes = '/scopes',
   Orgs = '/orgs',
   Logs = '/logs',
+  Saml = '/saml',
   Account = '/account',
 }

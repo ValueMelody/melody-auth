@@ -135,7 +135,7 @@ export const enableOrg = async (
   await next()
 }
 
-export const enableSamlSp = async (
+export const enableSamlAsSp = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
   const { ENABLE_SAML_SSO_AS_SP: enabledSamlSp } = env(c)
