@@ -157,7 +157,12 @@
     "idp": "IDP",
     "name": "Nom",
     "status": "Statut",
-    "new": "Créer un IDP SAML"
+    "new": "Créer un IDP SAML",
+    "userIdAttribute": "Attribut ID utilisateur",
+    "emailAttribute": "Attribut email",
+    "firstNameAttribute": "Attribut prénom",
+    "lastNameAttribute": "Attribut nom",
+    "metadata": "Métadonnées"
   },
   "scopes": {
     "title": "Portées",

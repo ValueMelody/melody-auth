@@ -82,6 +82,7 @@ describe(
           ENABLE_USER_ATTRIBUTE: false,
           BLOCKED_POLICIES: [],
           EMBEDDED_AUTH_ORIGINS: [],
+          ENABLE_SAML_SSO_AS_SP: false,
         })
       },
     )
