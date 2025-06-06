@@ -22,7 +22,6 @@ import { appModel } from 'models'
 
 export const parseGetAuthorizeDto = async (
   c: Context<typeConfig.Context>,
-  ignorePolicy: boolean = false,
 ): Promise<{
   queryDto: oauthDto.GetAuthorizeDto;
   app: appModel.Record;
@@ -40,7 +39,7 @@ export const parseGetAuthorizeDto = async (
       c,
       c.req.query('locale'),
     ),
-    policy: ignorePolicy ? undefined : (c.req.query('policy') ?? undefined),
+    policy: c.req.query('policy') ?? undefined,
     org: c.req.query('org') ?? undefined,
   })
   await validateUtil.dto(queryDto)
