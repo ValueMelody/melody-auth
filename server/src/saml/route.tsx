@@ -16,7 +16,7 @@ samlRoutes.get(
 )
 
 samlRoutes.get(
-  `${SpBaseRoute}/:name/login`,
+  `${SpBaseRoute}/login`,
   configMiddleware.enableSamlAsSp,
   samlHandler.getSamlSpLogin,
 )

@@ -20,7 +20,7 @@ import {
   appModel, userModel,
 } from 'models'
 
-const prepareSocialAuthCode = async (
+export const prepareSocialAuthCode = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostAuthorizeSocialSignInDto,
   app: appModel.Record,

@@ -1,12 +1,33 @@
 import { Context } from 'hono'
+import { env } from 'hono/adapter'
+import { genRandomString } from '@melody-auth/shared'
 import {
   errorConfig, messageConfig,
+  routeConfig,
 } from 'configs'
-import { userService } from 'services'
+import {
+  identityService, kvService, userService,
+} from 'services'
 import * as samlService from 'saml/service'
+import {
+  oauthHandler, embeddedHandler,
+} from 'handlers'
+import { oauthDto } from 'dtos'
 
 export const getSamlSpLogin = async (c: Context) => {
-  const { name } = c.req.param()
+  const policy = c.req.query('policy')
+  const {
+    queryDto, app,
+  } = await oauthHandler.parseGetAuthorizeDto(c)
+
+  if (!policy?.startsWith(oauthDto.Policy.SamSso)) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidPolicy)
+  }
+
+  const name = policy.replace(
+    oauthDto.Policy.SamSso,
+    '',
+  )
 
   const sp = await samlService.createSp(c)
 
@@ -20,10 +41,25 @@ export const getSamlSpLogin = async (c: Context) => {
     'redirect',
   )
 
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+
+  const authCode = genRandomString(128)
+  const authCodeBody = {
+    appId: app.id,
+    appName: app.name,
+    request: queryDto,
+  }
+  await kvService.storeEmbeddedSession(
+    c.env.KV,
+    authCode,
+    authCodeBody,
+    codeExpiresIn,
+  )
+
   const url = new URL(context)
   url.searchParams.set(
     'RelayState',
-    name,
+    authCode,
   )
 
   return c.redirect(
@@ -44,7 +80,20 @@ export const getSamlSpMetadata = async (c: Context) => {
 export const postSamlSpAcs = async (c: Context) => {
   const sp = await samlService.createSp(c)
   const body = await c.req.parseBody()
-  const name = body.RelayState as string
+  const sessionId = body.RelayState as string
+
+  const session = await kvService.getEmbeddedSessionBody(
+    c.env.KV,
+    sessionId,
+  )
+  if (!session) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongSessionId)
+  }
+
+  const name = (session.request as oauthDto.GetAuthorizeDto).policy?.replace(
+    oauthDto.Policy.SamSso,
+    '',
+  ) ?? ''
 
   const {
     provider: idp, record,
@@ -79,15 +128,32 @@ export const postSamlSpAcs = async (c: Context) => {
       'en',
     )
 
-    return c.json(
-      {
-        user,
-        extract,
-        record,
-      },
-      200,
+    const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+    const authCodeBody = embeddedHandler.sessionBodyToAuthCodeBody({
+      ...session,
+      user,
+    })
+    await kvService.storeAuthCode(
+      c.env.KV,
+      sessionId,
+      authCodeBody,
+      codeExpiresIn,
     )
+
+    const detail = await identityService.processPostAuthorize(
+      c,
+      identityService.AuthorizeStep.Social,
+      sessionId,
+      authCodeBody,
+    )
+
+    const qs = `?state=${detail.state}&code=${detail.code}&locale=${session.request.locale}`
+    const url = detail.nextPage === routeConfig.View.Consent
+      ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
+      : `${detail.redirectUri}${qs}`
+    return c.redirect(url)
   } catch (error) {
+    console.error(error)
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidSamlResponse)
   }
 }

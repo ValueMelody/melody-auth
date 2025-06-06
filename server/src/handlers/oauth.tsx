@@ -18,8 +18,12 @@ import { PopupRedirect } from 'templates'
 import {
   authCodeHook, clientCredentialsHook,
 } from 'hooks'
+import { appModel } from 'models'
 
-export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<oauthDto.GetAuthorizeDto> => {
+export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<{
+  queryDto: oauthDto.GetAuthorizeDto;
+  app: appModel.Record;
+}> => {
   const queryDto = new oauthDto.GetAuthorizeDto({
     clientId: c.req.query('client_id') ?? '',
     redirectUri: c.req.query('redirect_uri') ?? '',
@@ -51,8 +55,11 @@ export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Prom
   )
 
   return {
-    ...queryDto,
-    scopes: validScopes,
+    queryDto: {
+      ...queryDto,
+      scopes: validScopes,
+    },
+    app,
   }
 }
 
@@ -78,7 +85,7 @@ export const createFullAuthorize = async (
 }
 
 export const getAuthorize = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await parseGetAuthorizeDto(c)
+  const { queryDto } = await parseGetAuthorizeDto(c)
   const stored = sessionService.getAuthInfoSession(
     c,
     queryDto.clientId,
@@ -95,7 +102,11 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       },
     )
 
-    if (!queryDto.policy || queryDto.policy === oauthDto.Policy.SignInOrSignUp) {
+    if (
+      !queryDto.policy ||
+      queryDto.policy === oauthDto.Policy.SignInOrSignUp ||
+      queryDto.policy.startsWith(oauthDto.Policy.SamSso)
+    ) {
       if (queryDto.authorizeMethod === 'popup') {
         return c.html(<PopupRedirect
           code={authCode}
@@ -112,6 +123,11 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   }
 
   const queryString = requestUtil.getQueryString(c)
+
+  if (queryDto.policy?.startsWith(oauthDto.Policy.SamSso)) {
+    return c.redirect(`${routeConfig.InternalRoute.SamlSp}/login?${queryString}`)
+  }
+
   return c.redirect(`${routeConfig.IdentityRoute.AuthorizeView}?${queryString}`)
 }
 

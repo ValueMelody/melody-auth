@@ -21,7 +21,7 @@ import {
 } from 'hooks'
 import { userModel } from 'models'
 
-const sessionBodyToAuthCodeBody = (sessionBody: typeConfig.EmbeddedSessionBody): typeConfig.AuthCodeBody => {
+export const sessionBodyToAuthCodeBody = (sessionBody: typeConfig.EmbeddedSessionBody): typeConfig.AuthCodeBody => {
   if (!sessionBody.user) {
     throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
   }

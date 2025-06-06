@@ -27,6 +27,7 @@ export enum Policy {
   ResetMfa = 'reset_mfa',
   ManagePasskey = 'manage_passkey',
   UpdateInfo = 'update_info',
+  SamSso = 'saml_sso_',
 }
 
 const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())
@@ -81,7 +82,7 @@ export class GetAuthorizeDto extends CoreAuthorizeDto {
   @IsOptional()
     authorizeMethod?: string | undefined
 
-  @IsEnum(Policy)
+  @IsString()
   @IsOptional()
     policy?: string | undefined
 

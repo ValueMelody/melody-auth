@@ -74,6 +74,7 @@ export enum RequestError {
   NoOrg = 'No organization found',
   NoSamlIdp = 'No SAML IDP found',
   InvalidSamlResponse = 'Invalid SAML response',
+  InvalidPolicy = 'Invalid policy',
   NoUserAttribute = 'No user attribute found',
   OrgHasUsers = 'Can not delete organization with users',
   UserDisabled = 'Try to access a disabled account',
