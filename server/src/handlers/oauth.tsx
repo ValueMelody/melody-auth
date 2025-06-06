@@ -20,9 +20,7 @@ import {
 } from 'hooks'
 import { appModel } from 'models'
 
-export const parseGetAuthorizeDto = async (
-  c: Context<typeConfig.Context>,
-): Promise<{
+export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<{
   queryDto: oauthDto.GetAuthorizeDto;
   app: appModel.Record;
 }> => {
