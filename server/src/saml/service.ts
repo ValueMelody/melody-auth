@@ -39,6 +39,7 @@ export const createSp = async (c: Context<typeConfig.Context>) => {
     signingCert: spCrt,
     wantAssertionsSigned: true,
     authnRequestsSigned: false,
+    clockDrifts: [-3000, 0],
   })
 }
 

@@ -111,7 +111,7 @@ const viewRender = async (
 }
 
 export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
-  const queryDto = await oauthHandler.parseGetAuthorizeDto(c)
+  const { queryDto } = await oauthHandler.parseGetAuthorizeDto(c)
 
   const {
     ENABLE_SIGN_UP: allowSignUp,
