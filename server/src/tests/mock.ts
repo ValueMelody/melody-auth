@@ -69,6 +69,16 @@ const kvMock = {
         )
         : null
     }
+    case adapterConfig.BaseKVKey.SamlSpCert:
+      return fs.readFileSync(
+        path.resolve(adapterConfig.FileLocation.NodeSamlSpCert),
+        'utf8',
+      )
+    case adapterConfig.BaseKVKey.SamlSpKey:
+      return fs.readFileSync(
+        path.resolve(adapterConfig.FileLocation.NodeSamlSpKey),
+        'utf8',
+      )
     case adapterConfig.BaseKVKey.SessionSecret:
       return 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     default:
@@ -361,3 +371,26 @@ export const passkeyVerifyMock = {
   },
   type: 'public-key',
 }
+
+export const samlIdpMetaDataMock = `
+<EntityDescriptor entityID="urn:test.com" xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+  <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <KeyDescriptor use="signing">
+      <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <X509Data>
+          <X509Certificate>MIIFJzCCAw+gAwIBAgIUTjMiMp9t/uRczjiXIPdOdXepxBUwDQYJKoZIhvcNAQELBQAwIzEhMB8GA1UEAwwYbWVsb2R5LWF1dGggU0FNTCBzaWduaW5nMB4XDTI1MDYwMTIzMjMxN1oXDTI3MDYwMTIzMjMxN1owIzEhMB8GA1UEAwwYbWVsb2R5LWF1dGggU0FNTCBzaWduaW5nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2Dp+8K6q9+RPMh2qwQSAdi/IX/kVHXXLjPpG5spuCfjgmPwbkBM74h4cMFlFwovwwM6BJpzYnNby5ECfFzJ5nmoNhugygusZSCGWut4HUK3Oda0NSjuU8vSbO3W51/spyQP+D3kb817T4l73v73v3+o9vn6b4pVE8WcrArCrzsA/I5RRKpsr29ngL2hBiaAq/fAWUs+b4MvRSBwfqqEeeA8CLJWNMvw8zToyBLQouXZPmC+LRN8na9qSJxCoOjG15ESBmIIqU+KQuFg2Ve6rvJuTh2YA1CxW9enTvfzOqLcq5/ibGecz00uB34BFPeqcsMbtSxm+KCdYnf/n5TjIGqzkhESEHGHh1DZ/7trEQZLut6vR8Ryje4p6Y5gDUzwIQ5t/kd05PDxkuMsVdQ/RhQv/s/3qZkOUxXAIiucVU/C+27N+8tuHd3AOvGE7CDovKi2XTd+XRsIhe4lM+kI+Jh7T7HF0P3iGJCtBQQf4bwvOb9OyAhQqx9NdEIMHILTs5CCcysu1z8ZEO4jBh8afT/HmSZzTSMtg4lu+zCNnEPLZTrcqD0SuGNTIu8E8MURWyyI7Rr7Rw+MR889mNqGZntkzrN1wPsOrmMwKXeL9/sq4xM3XQU9yNljRiiQiJ/aDhdk0Nq61/lCNvCfImfj0HUHF5BreqH2eFrwHpTD8LqcCAwEAAaNTMFEwHQYDVR0OBBYEFAI92YgdhYIPyUAxDpaqathmiQAbMB8GA1UdIwQYMBaAFAI92YgdhYIPyUAxDpaqathmiQAbMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggIBANOHmQwCXm7bn9Mhy3353HHBnnkbQOWfqad10X/WhmSGTwEMTKkApZoE9qTjMWl1mS327+vV6dLfPz453G/VAHJf9+2QW+EkDaM84/guCv2L2ONMo+4C8yTg/jWeH9IB4OZc7MLuY8Ym4XxFM7+1V+G4mGkSuut+SNLzTf5Vsis3lfH2H0YdFSCsFaj+65uxGUkLhAkvl9wP16dyRumLC/JWwMKAk8EBpw08ae0ItEBmfiSQ9NulWS+eZSRGgjHCg/eT/yrhMf7HxvA4bEQ0EhzhBwHVkBjA9+m6trUvazpc8yyBu7B6cLfZFxyEGIPON5gh9RZb7j3U5j7RHbb4FF8wEL+nhk/M4RR+lpflWJ7dNvfmzVipaDRCbcJXofIvJPmggCICC0930aCJ5T1zuH8OFEAMVvLtPaAA4PTApZtQt/9QoTxuVth5aYod24QvgPyHH0RThXD5OKjzg4E6zkkqwQZw15Vz0Z1HCGzrptrdQbm9HPtjaWcCIjcIeVwJhfQl2Q3+czhtOhZ9VxmKJSm0PdqHCvTpKWvcBTncWORbPqlm0fNEkkY8xzz05CNDR6iw+6ZMX2s1+L2gBTICTAF2DNi/vKQExs2Z5CVBOBCD/KGuCULiPWSavSX2632Fm39FGvaMvoDD2ZDV4iJwPh2UKU0es8Jj0CFjCYjZS2FT</X509Certificate>
+        </X509Data>
+      </KeyInfo>
+    </KeyDescriptor>
+    <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://test.com/samlp/PFBpZxRbQz4EiaVDW07Nc5SpBhK2HumV/logout"/>
+    <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>
+    <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+    <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+    <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://test.com/samlp/PFBpZxRbQz4EiaVDW07Nc5SpBhK2HumV"/>
+    <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="E-Mail Address" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+    <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Given Name" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+    <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Surname" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+    <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" FriendlyName="Name ID" xmlns="urn:oasis:names:tc:SAML:2.0:assertion"/>
+  </IDPSSODescriptor>
+</EntityDescriptor>
+`

@@ -1,23 +1,16 @@
 exports.up = function (knex) {
   return knex.schema.createTable(
-    'user_attribute',
+    'saml_idp',
     function (table) {
       table.increments('id').primary()
       table.string('name')
         .notNullable()
-        .unique()
-      table.smallint('includeInSignUpForm')
+      table.string('userIdAttribute')
         .notNullable()
-        .defaultTo(0)
-      table.smallint('requiredInSignUpForm')
-        .notNullable()
-        .defaultTo(0)
-      table.smallint('includeInIdTokenBody')
-        .notNullable()
-        .defaultTo(0)
-      table.smallint('includeInUserInfo')
-        .notNullable()
-        .defaultTo(0)
+      table.string('emailAttribute')
+      table.string('firstNameAttribute')
+      table.string('lastNameAttribute')
+      table.text('metadata')
       table.string(
         'createdAt',
         19,
@@ -34,8 +27,15 @@ exports.up = function (knex) {
       ).defaultTo(null)
     },
   )
+    .then(function () {
+      return knex.schema.raw(`
+        CREATE UNIQUE INDEX idx_unique_saml_idp_name
+        ON "saml_idp" ("name")
+        WHERE "deletedAt" IS NULL;
+      `)
+    })
 }
 
 exports.down = function (knex) {
-  return knex.schema.dropTable('user_attribute')
+  return knex.schema.dropTable('saml_idp')
 }

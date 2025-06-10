@@ -6,14 +6,15 @@ import { env } from 'hono/adapter'
 import * as validator from '@authenio/samlify-node-xmllint'
 import {
   typeConfig, errorConfig, messageConfig, routeConfig,
+  adapterConfig,
 } from 'configs'
 import { samlIdpModel } from 'models'
 
 setSchemaValidator(validator)
 
 export const createSp = async (c: Context<typeConfig.Context>) => {
-  const spCrt = await c.env.KV.get('spCrt')
-  const spKey = await c.env.KV.get('spKey')
+  const spCrt = await c.env.KV.get(adapterConfig.BaseKVKey.SamlSpCert)
+  const spKey = await c.env.KV.get(adapterConfig.BaseKVKey.SamlSpKey)
 
   if (!spCrt || !spKey) {
     throw new errorConfig.InternalServerError(messageConfig.ConfigError.NoSpSecret)

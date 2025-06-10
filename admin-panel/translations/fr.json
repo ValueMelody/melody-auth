@@ -162,7 +162,7 @@
     "emailAttribute": "Attribut email",
     "firstNameAttribute": "Attribut prénom",
     "lastNameAttribute": "Attribut nom",
-    "metadata": "Métadonnées"
+    "metadata": "Métadonnées (ne supporte pas authnRequestsSigned)"
   },
   "scopes": {
     "title": "Portées",

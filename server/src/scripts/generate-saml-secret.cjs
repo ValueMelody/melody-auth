@@ -1,20 +1,46 @@
 const { execSync } = require('child_process')
+const fs = require('fs')
 
-const CRT_FILE = 'sp.crt'
-const KEY_FILE = 'sp.key'
+const CRT_FILE = 'saml_sp.crt'
+const KEY_FILE = 'saml_sp.key'
+
+const NODE_CRT_FILE = 'node_saml_sp.crt'
+const NODE_KEY_FILE = 'node_saml_sp.key'
+
+const cmd = [
+  'openssl req',
+  '-x509',
+  '-newkey rsa:4096',
+  '-nodes',
+  `-keyout ${KEY_FILE}`,
+  `-out ${CRT_FILE}`,
+  '-days 730',
+  '-subj "/CN=melody-auth SAML signing"',
+].join(' ')
 
 async function generateSamlSecret () {
   const argv = process.argv
-  const isProd = argv[2] === 'prod'
+  const isNode = argv[2] === 'node'
 
-  const configPath = argv[3] || ''
+  execSync(cmd)
 
-  const condition = isProd ? (configPath ? `--config ${configPath} --remote` : '--remote') : '--local'
+  if (isNode) {
+    fs.copyFileSync(
+      CRT_FILE,
+      NODE_CRT_FILE,
+    )
+    fs.copyFileSync(
+      KEY_FILE,
+      NODE_KEY_FILE,
+    )
 
-  execSync(`npx wrangler kv key put spCrt --path=${CRT_FILE} --binding=KV ${condition}`)
-  execSync(`npx wrangler kv key put spKey --path=${KEY_FILE} --binding=KV ${condition}`)
+    console.info('Secrets generated for node env')
+  } else {
+    execSync(`npx wrangler kv key put samlSpCrt --path=${CRT_FILE} --binding=KV --local`)
+    execSync(`npx wrangler kv key put samlSpKey --path=${KEY_FILE} --binding=KV --local`)
 
-  console.info('Secrets generated for CF env')
+    console.info('Secrets generated for CF env')
+  }
 }
 
 generateSamlSecret().catch(console.error)

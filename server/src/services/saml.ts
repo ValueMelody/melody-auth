@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import {
-  errorConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import { samlIdpModel } from 'models'
 import { samlDto } from 'dtos'
@@ -20,7 +20,7 @@ export const getSamlIdpById = async (
     id,
   )
 
-  if (!idp) throw new errorConfig.NotFound()
+  if (!idp) throw new errorConfig.NotFound(messageConfig.RequestError.NoSamlIdp)
 
   return idp
 }

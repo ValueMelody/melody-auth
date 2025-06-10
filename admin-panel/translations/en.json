@@ -168,7 +168,7 @@
     "emailAttribute": "Email Attribute",
     "firstNameAttribute": "First Name Attribute",
     "lastNameAttribute": "Last Name Attribute",
-    "metadata": "Metadata"
+    "metadata": "Metadata (Does not support authnRequestsSigned)"
   },
   "scopes": {
     "title": "Scopes",

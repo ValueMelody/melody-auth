@@ -40,17 +40,27 @@ export const putIdp = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new samlDto.PutSamlIdpDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const idp = await samlService.updateIdp(
+  await samlService.getSamlIdpById(
+    c,
+    id,
+  )
+
+  const newIdp = await samlService.updateIdp(
     c,
     id,
     bodyDto,
   )
 
-  return c.json({ idp })
+  return c.json({ idp: newIdp })
 }
 
 export const deleteIdp = async (c: Context<typeConfig.Context>) => {
   const id = Number(c.req.param('id'))
+
+  await samlService.getSamlIdpById(
+    c,
+    id,
+  )
 
   await samlService.deleteIdp(
     c,
