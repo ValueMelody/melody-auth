@@ -98,6 +98,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** []
 - **Description:** A list of origins that are allowed to use embedded auth APIs.
 
+### ENABLE_SAML_SSO_AS_SP
+- **Default:** false
+- **Description:** Toggles the SAML SSO as a Service Provider (SP) feature. If `true`, users can sign in with configured SAML SSO.
+
 ## Auth Configs
 
 ### AUTHORIZATION_CODE_EXPIRES_IN

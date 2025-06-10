@@ -20,6 +20,9 @@ actions:
   - text: Social Sign-In Provider Setup
     link: /social-sign-in-provider-setup.html
     type: secondary
+  - text: SAML SSO Setup
+    link: /saml-sso-setup.html
+    type: secondary
   - text: Admin Panel Setup
     link: /admin-panel-setup.html
     type: primary

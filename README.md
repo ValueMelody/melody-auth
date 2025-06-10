@@ -55,6 +55,7 @@
   - Discord Sign-In
   - Apple Sign-In
   - OIDC Auth Provider Sign-In
+  - SAML SSO Sign-In (Node.js environment only) [SAML SSO Setup Doc](https://auth.valuemelody.com/saml-sso-setup.html)
 - <b>Multi-Factor Authentication</b> [How to setup MFA](https://auth.valuemelody.com/q_a.html#how-to-setup-mfa)
   - Email MFA
   - OTP MFA
@@ -68,6 +69,7 @@
   - change_email
   - reset_mfa
   - manage_passkey
+  - saml_sso_[idp_name]
 - <b>Organization</b>:
   - Branding config override
   - Organization users
@@ -106,6 +108,7 @@
 - Manage Scopes
 - Manage Roles
 - Manage Organizations
+- Manage SAML SSO IDPs
 - Manage Logs
 - Admin Panel Access Control [Custom Role Access for the Admin Panel](https://auth.valuemelody.com/admin-panel-setup.html#custom-role-access-for-the-admin-panel)
 
