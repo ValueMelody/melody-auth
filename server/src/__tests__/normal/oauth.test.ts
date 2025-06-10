@@ -58,6 +58,23 @@ describe(
     )
 
     test(
+      'should redirect to saml sign in',
+      async () => {
+        const appRecord = await getApp(db)
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=saml_sso_test',
+        )
+        const params = await getAuthorizeParams(appRecord)
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.InternalRoute.SamlSp}/login${params}&policy=saml_sso_test`)
+      },
+    )
+
+    test(
       'should redirect to sign in with org slug',
       async () => {
         const appRecord = await getApp(db)

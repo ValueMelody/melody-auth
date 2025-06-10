@@ -23,6 +23,8 @@ export enum BaseKVKey {
   JwtPrivateSecret = 'jwtPrivateSecret',
   DeprecatedJwtPrivateSecret = 'deprecatedJwtPrivateSecret',
   SessionSecret = 'sessionSecret',
+  SamlSpCert = 'samlSpCrt',
+  SamlSpKey = 'samlSpKey',
   RefreshToken = 'RT',
   AuthCode = 'AC',
   EmbeddedSession = 'ES',
@@ -64,4 +66,6 @@ export enum FileLocation {
   NodePrivateKey = 'node_jwt_private_key.pem',
   NodeDeprecatedPrivateKey = 'node_deprecated_jwt_private_key.pem',
   NodeDeprecatedPublicKey = 'node_deprecated_jwt_public_key.pem',
+  NodeSamlSpCert = 'node_saml_sp.crt',
+  NodeSamlSpKey = 'node_saml_sp.key',
 }

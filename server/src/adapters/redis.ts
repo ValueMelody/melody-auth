@@ -51,6 +51,16 @@ export const fit = () => (
           path.resolve('./node_session_secret'),
           'utf8',
         )
+      case adapterConfig.BaseKVKey.SamlSpCert:
+        return fs.readFileSync(
+          path.resolve(adapterConfig.FileLocation.NodeSamlSpCert),
+          'utf8',
+        )
+      case adapterConfig.BaseKVKey.SamlSpKey:
+        return fs.readFileSync(
+          path.resolve(adapterConfig.FileLocation.NodeSamlSpKey),
+          'utf8',
+        )
       default: {
         const cache = getConnection()
         return cache.get(key)

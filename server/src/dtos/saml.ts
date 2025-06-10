@@ -64,9 +64,9 @@ export class PutSamlIdpDto {
 
   constructor (dto: PutSamlIdpDto) {
     this.userIdAttribute = dto.userIdAttribute?.trim()
-    this.emailAttribute = dto.emailAttribute?.trim()
-    this.firstNameAttribute = dto.firstNameAttribute?.trim()
-    this.lastNameAttribute = dto.lastNameAttribute?.trim()
+    this.emailAttribute = dto.emailAttribute ? dto.emailAttribute.trim() : null
+    this.firstNameAttribute = dto.firstNameAttribute ? dto.firstNameAttribute.trim() : null
+    this.lastNameAttribute = dto.lastNameAttribute ? dto.lastNameAttribute.trim() : null
     this.metadata = dto.metadata?.trim()
   }
 }

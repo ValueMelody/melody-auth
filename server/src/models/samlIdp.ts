@@ -70,7 +70,7 @@ export const getByName = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (name, userIdAttribute, emailAttribute, firstNameAttribute, lastNameAttribute, metadata) values ($1, $2, $3, $4, $5, $6)`
+  const query = `INSERT INTO ${TableName} (name, "userIdAttribute", "emailAttribute", "firstNameAttribute", "lastNameAttribute", metadata) values ($1, $2, $3, $4, $5, $6)`
   const stmt = db.prepare(query).bind(
     create.name,
     create.userIdAttribute,

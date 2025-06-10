@@ -45,6 +45,7 @@ jobs:
     - run: cd ./sdks/angular-sdk && npm run build
     - run: cd ./server && npm run type:check
     - run: cd ./server && npm run node:secret:generate
+    - run: cd ./server && npm run node:saml:secret:generate
     - run: cd ./server && npm run test:check:cf
     - run: cd ./server && npm run test:check:node
     - run: cd ./server && npm run test:check:templates
