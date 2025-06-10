@@ -20,6 +20,9 @@ actions:
   - text: 社交登录提供商设置
     link: /zh/social-sign-in-provider-setup.html
     type: secondary
+  - text: SAML SSO 设置
+    link: /zh/saml-sso-setup.html
+    type: secondary
   - text: 管理面板设置
     link: /zh/admin-panel-setup.html
     type: primary
