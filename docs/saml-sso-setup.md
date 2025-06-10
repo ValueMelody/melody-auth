@@ -2,14 +2,20 @@
 
 SAML SSO is currently supported only in the Node.js environment of Melody Auth.
 
-## 1. Enable SAML SSO in `wrangler.toml`
+## 1. Generate SAML SP certificate and key
+
+```bash
+npm run node:saml:secret:generate
+```
+
+## 2. Enable SAML SSO in `wrangler.toml`
 Ensure that SAML SSO as a Service Provider (SP) is enabled in your server/wrangler.toml configuration file:
 
 ```toml
 ENABLE_SAML_SSO_AS_SP=true
 ```
 
-## 2. Register a SAML Identity Provider (IdP) via Admin Panel
+## 3. Register a SAML Identity Provider (IdP) via Admin Panel
 
 - Go to admin panel
 - Click "Manage SAML"
@@ -17,7 +23,7 @@ ENABLE_SAML_SSO_AS_SP=true
 - Define a unique name for the IDP, and fill in necessary information
 - Click "Save" button
 
-## 3. Trigger Login via SAML SSO in the Frontend
+## 4. Trigger Login via SAML SSO in the Frontend
 
 Use the loginRedirect function provided by your Melody Auth frontend SDK (e.g., @melody-auth/react) to initiate the login process:
 
