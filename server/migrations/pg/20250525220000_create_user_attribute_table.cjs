@@ -8,16 +8,16 @@ exports.up = function (knex) {
         .unique()
       table.smallint('includeInSignUpForm')
         .notNullable()
-        .defaultTo(false)
+        .defaultTo(0)
       table.smallint('requiredInSignUpForm')
         .notNullable()
-        .defaultTo(false)
+        .defaultTo(0)
       table.smallint('includeInIdTokenBody')
         .notNullable()
-        .defaultTo(false)
+        .defaultTo(0)
       table.smallint('includeInUserInfo')
         .notNullable()
-        .defaultTo(false)
+        .defaultTo(0)
       table.string(
         'createdAt',
         19,

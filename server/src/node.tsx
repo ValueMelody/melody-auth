@@ -48,12 +48,12 @@ app.use(
   },
 )
 
-app.route(
+const appWithRouters = loadRouters(app)
+
+appWithRouters.route(
   '/',
   samlRoutes,
 )
-
-const appWithRouters = loadRouters(app)
 
 serve({
   ...appWithRouters,
