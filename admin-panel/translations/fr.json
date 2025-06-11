@@ -196,7 +196,8 @@
     "criticalIndicatorColor": "Couleur de l'indicateur critique",
     "termsLink": "Lien des conditions d'utilisation",
     "privacyPolicyLink": "Lien de la politique de confidentialité",
-    "allowPublicRegistration": "Autoriser l'inscription publique"
+    "allowPublicRegistration": "Autoriser l'inscription publique",
+    "onlyUseForBrandingOverride": "Utiliser uniquement pour la personnalisation (L'utilisateur ne sera pas ajouté à cette organisation après l'inscription)"
   },
   "logs": {
     "title": "Journaux",

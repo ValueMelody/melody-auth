@@ -24,10 +24,15 @@ export class PostOrgDto {
   @IsNotEmpty()
     allowPublicRegistration: boolean
 
+  @IsBoolean()
+  @IsNotEmpty()
+    onlyUseForBrandingOverride: boolean
+
   constructor (dto: PostOrgDto) {
     this.name = dto.name.trim()
     this.slug = dto.slug.trim()
     this.allowPublicRegistration = dto.allowPublicRegistration
+    this.onlyUseForBrandingOverride = dto.onlyUseForBrandingOverride
   }
 }
 
@@ -51,6 +56,10 @@ export class PutOrgDto {
   @IsBoolean()
   @IsOptional()
     allowPublicRegistration: boolean
+
+  @IsBoolean()
+  @IsOptional()
+    onlyUseForBrandingOverride: boolean
 
   @IsString()
   @Length(
@@ -184,6 +193,7 @@ export class PutOrgDto {
     this.name = dto.name?.trim()
     this.slug = dto.slug?.trim()
     this.allowPublicRegistration = dto.allowPublicRegistration
+    this.onlyUseForBrandingOverride = dto.onlyUseForBrandingOverride
     this.companyLogoUrl = dto.companyLogoUrl
     this.companyEmailLogoUrl = dto.companyEmailLogoUrl
     this.fontFamily = dto.fontFamily

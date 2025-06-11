@@ -203,7 +203,8 @@
     "criticalIndicatorColor": "Critical Indicator Color",
     "termsLink": "Terms Link",
     "privacyPolicyLink": "Privacy Policy Link",
-    "allowPublicRegistration": "Allow Public Registration"
+    "allowPublicRegistration": "Allow Public Registration",
+    "onlyUseForBrandingOverride": "Only Use for Branding Override (User won't be added to this org after sign up)"
   },
   "logs": {
     "title": "Logs",

@@ -30,10 +30,12 @@ export interface Common {
 
 export interface Raw extends Common {
   allowPublicRegistration: number;
+  onlyUseForBrandingOverride: number;
 }
 
 export interface Record extends Common {
   allowPublicRegistration: boolean;
+  onlyUseForBrandingOverride: boolean;
 }
 
 export interface ApiRecord {
@@ -46,12 +48,14 @@ export interface Create {
   name: string;
   slug: string;
   allowPublicRegistration: number;
+  onlyUseForBrandingOverride: number;
 }
 
 export interface Update {
   name?: string;
   slug?: string;
   allowPublicRegistration?: number;
+  onlyUseForBrandingOverride?: number;
   companyLogoUrl?: string;
   companyEmailLogoUrl?: string;
   fontFamily?: string;
@@ -78,6 +82,7 @@ export const format = (raw: Raw): Record => {
   return {
     ...raw,
     allowPublicRegistration: !!raw.allowPublicRegistration,
+    onlyUseForBrandingOverride: !!raw.onlyUseForBrandingOverride,
   }
 }
 
@@ -124,11 +129,12 @@ export const getBySlug = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (name, slug, "allowPublicRegistration") values ($1, $2, $3)`
+  const query = `INSERT INTO ${TableName} (name, slug, "allowPublicRegistration", "onlyUseForBrandingOverride") values ($1, $2, $3, $4)`
   const stmt = db.prepare(query).bind(
     create.name,
     create.slug,
     create.allowPublicRegistration,
+    create.onlyUseForBrandingOverride,
   )
   const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
@@ -150,7 +156,7 @@ export const update = async (
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
     'criticalIndicatorColor', 'emailSenderName', 'termsLink', 'privacyPolicyLink',
-    'updatedAt', 'allowPublicRegistration',
+    'updatedAt', 'allowPublicRegistration', 'onlyUseForBrandingOverride',
   ]
 
   const stmt = dbUtil.d1UpdateQuery(

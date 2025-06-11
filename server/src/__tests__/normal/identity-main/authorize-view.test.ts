@@ -252,10 +252,11 @@ describe(
           name, slug, "companyLogoUrl", "layoutColor", "labelColor",
           "primaryButtonColor", "primaryButtonLabelColor", "primaryButtonBorderColor",
           "secondaryButtonColor", "secondaryButtonLabelColor", "secondaryButtonBorderColor",
-          "criticalIndicatorColor", "fontUrl", "fontFamily", "termsLink", "privacyPolicyLink"
+          "criticalIndicatorColor", "fontUrl", "fontFamily", "termsLink", "privacyPolicyLink",
+          "allowPublicRegistration", "onlyUseForBrandingOverride"
         ) values (
           'test', 'default', 'https://test.com', 'red', 'green', 'black', 'gray', 'orange', 'darkred', 'darkgray', 'blue', 'yellow',
-          'http://font.com', 'Arial', 'https://terms.com', 'https://privacy.com'
+          'http://font.com', 'Arial', 'https://terms.com', 'https://privacy.com', 1, 0
         )
       `)
 
@@ -283,6 +284,50 @@ describe(
         expect(html).toContain('--secondary-button-label-color:darkgray')
         expect(html).toContain('--secondary-button-border-color:blue')
         expect(html).toContain('--critical-indicator-color:yellow')
+      },
+    )
+
+    test(
+      'should not override variables using org config if allowPublicRegistration is false',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec(`
+        insert into "org" (
+          name, slug, "companyLogoUrl", "layoutColor", "labelColor",
+          "primaryButtonColor", "primaryButtonLabelColor", "primaryButtonBorderColor",
+          "secondaryButtonColor", "secondaryButtonLabelColor", "secondaryButtonBorderColor",
+          "criticalIndicatorColor", "fontUrl", "fontFamily", "termsLink", "privacyPolicyLink",
+          "allowPublicRegistration", "onlyUseForBrandingOverride"
+        ) values (
+          'test', 'default', 'https://test.com', 'red', 'green', 'black', 'gray', 'orange', 'darkred', 'darkgray', 'blue', 'yellow',
+          'http://font.com', 'Arial', 'https://terms.com', 'https://privacy.com', 0, 0
+        )
+      `)
+
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.IdentityRoute.AuthorizeView,
+          appRecord,
+          '&org=default',
+        )
+
+        const html = await res.text()
+
+        expect(html).toContain(`logoUrl: "${process.env.COMPANY_LOGO_URL}"`)
+        expect(html).toContain(`termsLink: "${process.env.TERMS_LINK}"`)
+        expect(html).toContain(`privacyPolicyLink: "${process.env.PRIVACY_POLICY_LINK}"`)
+        expect(html).toContain(`--layout-color:${variableConfig.DefaultBranding.LayoutColor}`)
+        expect(html).toContain(`--label-color:${variableConfig.DefaultBranding.LabelColor}`)
+        expect(html).toContain(`--font-default:${variableConfig.DefaultBranding.FontFamily}`)
+        expect(html).toContain(`--primary-button-color:${variableConfig.DefaultBranding.PrimaryButtonColor}`)
+        expect(html).toContain(`--primary-button-label-color:${variableConfig.DefaultBranding.PrimaryButtonLabelColor}`)
+        expect(html).toContain(`--primary-button-border-color:${variableConfig.DefaultBranding.PrimaryButtonBorderColor}`)
+        expect(html).toContain(`--secondary-button-color:${variableConfig.DefaultBranding.SecondaryButtonColor}`)
+        expect(html).toContain(`--secondary-button-label-color:${variableConfig.DefaultBranding.SecondaryButtonLabelColor}`)
+        expect(html).toContain(`--secondary-button-border-color:${variableConfig.DefaultBranding.SecondaryButtonBorderColor}`)
+        expect(html).toContain(`--critical-indicator-color:${variableConfig.DefaultBranding.CriticalIndicatorColor}`)
       },
     )
   },

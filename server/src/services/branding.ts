@@ -54,12 +54,14 @@ export const getBranding = async (
 ): Promise<Branding> => {
   const { ENABLE_ORG: enableOrg } = env(c)
 
-  const org = orgSlug && enableOrg
+  const orgData = orgSlug && enableOrg
     ? await orgModel.getBySlug(
       c.env.DB,
       orgSlug,
     )
     : null
+
+  const org = orgData && orgData.allowPublicRegistration ? orgData : null
 
   const defaultBranding = getDefaultBranding(c)
   return {

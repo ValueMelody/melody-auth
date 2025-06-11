@@ -43,6 +43,7 @@ export const createOrg = async (
       name: dto.name,
       slug: dto.slug,
       allowPublicRegistration: dto.allowPublicRegistration ? 1 : 0,
+      onlyUseForBrandingOverride: dto.onlyUseForBrandingOverride ? 1 : 0,
     },
   )
   return org
@@ -54,6 +55,7 @@ export const updateOrg = async (
   dto: orgDto.PutOrgDto,
 ): Promise<orgModel.Record> => {
   const allowPublicRegistration = dto.allowPublicRegistration ? 1 : 0
+  const onlyUseForBrandingOverride = dto.onlyUseForBrandingOverride ? 1 : 0
 
   const org = await orgModel.update(
     c.env.DB,
@@ -62,6 +64,7 @@ export const updateOrg = async (
       name: dto.name,
       slug: dto.slug,
       allowPublicRegistration: dto.allowPublicRegistration === undefined ? undefined : allowPublicRegistration,
+      onlyUseForBrandingOverride: dto.onlyUseForBrandingOverride === undefined ? undefined : onlyUseForBrandingOverride,
       companyLogoUrl: dto.companyLogoUrl,
       companyEmailLogoUrl: dto.companyEmailLogoUrl,
       fontFamily: dto.fontFamily,

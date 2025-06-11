@@ -5,6 +5,7 @@ const Org = {
     name: { type: 'string' },
     slug: { type: 'string' },
     allowPublicRegistration: { type: 'boolean' },
+    onlyUseForBrandingOverride: { type: 'boolean' },
     companyLogoUrl: { type: 'string' },
     companyEmailLogoUrl: { type: 'string' },
     fontFamily: { type: 'string' },
@@ -29,8 +30,8 @@ const Org = {
     },
   },
   required: [
-    'id', 'name', 'slug', 'allowPublicRegistration', 'companyLogoUrl', 'companyEmailLogoUrl',
-    'fontFamily', 'fontUrl', 'layoutColor', 'labelColor',
+    'id', 'name', 'slug', 'allowPublicRegistration', 'onlyUseForBrandingOverride', 'companyLogoUrl',
+    'fontFamily', 'fontUrl', 'layoutColor', 'labelColor', 'companyEmailLogoUrl',
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
     'criticalIndicatorColor', 'emailSenderName', 'termsLink', 'privacyPolicyLink',
@@ -52,6 +53,7 @@ const PutOrgReq = {
       maxLength: 50,
     },
     allowPublicRegistration: { type: 'boolean' },
+    onlyUseForBrandingOverride: { type: 'boolean' },
     companyLogoUrl: {
       type: 'string',
       minLength: 0,
@@ -149,8 +151,9 @@ const PostOrgReq = {
       maxLength: 50,
     },
     allowPublicRegistration: { type: 'boolean' },
+    onlyUseForBrandingOverride: { type: 'boolean' },
   },
-  required: ['name', 'slug', 'allowPublicRegistration'],
+  required: ['name', 'slug', 'allowPublicRegistration', 'onlyUseForBrandingOverride'],
 }
 
 module.exports = {
