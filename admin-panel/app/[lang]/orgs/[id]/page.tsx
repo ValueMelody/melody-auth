@@ -148,6 +148,18 @@ const Page = () => {
             {!!values.allowPublicRegistration && (
               <>
                 <TableRow>
+                  <TableCell>{t('orgs.onlyUseForBrandingOverride')}</TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={values.onlyUseForBrandingOverride}
+                      onClick={() => onChange(
+                        'onlyUseForBrandingOverride',
+                        !values.onlyUseForBrandingOverride,
+                      )}
+                    />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
                   <TableCell>{t('orgs.companyLogoUrl')}</TableCell>
                   <TableCell>
                     <LinkInput

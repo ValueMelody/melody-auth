@@ -34,7 +34,9 @@ afterEach(async () => {
 const BaseRoute = routeConfig.InternalRoute.ApiOrgs
 
 const createNewOrg = async (
-  token?: string, values?: { name?: string; slug?: string; allowPublicRegistration?: boolean },
+  token?: string, values?: {
+    name?: string; slug?: string; allowPublicRegistration?: boolean; onlyUseForBrandingOverride?: boolean;
+  },
 ) => await app.request(
   BaseRoute,
   {
@@ -43,6 +45,7 @@ const createNewOrg = async (
       name: values?.name ?? 'test name',
       slug: values?.slug ?? 'test slug',
       allowPublicRegistration: values?.allowPublicRegistration ?? true,
+      onlyUseForBrandingOverride: values?.onlyUseForBrandingOverride ?? false,
     }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
   },
@@ -60,6 +63,7 @@ const newOrg = {
   name: 'test name',
   slug: 'test slug',
   allowPublicRegistration: true,
+  onlyUseForBrandingOverride: false,
   companyLogoUrl: '',
   companyEmailLogoUrl: '',
   fontFamily: '',
@@ -245,7 +249,7 @@ describe(
     )
 
     test(
-      'should create org with allowPublicRegistration to false',
+      'should create org with allowPublicRegistration to false and onlyUseForBrandingOverride to true',
       async () => {
         global.process.env.ENABLE_ORG = true as unknown as string
 
@@ -257,6 +261,7 @@ describe(
               name: 'test name',
               slug: 'test slug',
               allowPublicRegistration: false,
+              onlyUseForBrandingOverride: true,
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
@@ -268,6 +273,7 @@ describe(
           org: {
             ...newOrg,
             allowPublicRegistration: false,
+            onlyUseForBrandingOverride: true,
           },
         })
 
@@ -382,7 +388,7 @@ describe(
     )
 
     test(
-      'could update org with allowPublicRegistration',
+      'could update org with allowPublicRegistration and onlyUseForBrandingOverride',
       async () => {
         global.process.env.ENABLE_ORG = true as unknown as string
 
@@ -392,7 +398,9 @@ describe(
           `${BaseRoute}/1`,
           {
             method: 'PUT',
-            body: JSON.stringify({ allowPublicRegistration: false }),
+            body: JSON.stringify({
+              allowPublicRegistration: false, onlyUseForBrandingOverride: true,
+            }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
           mock(db),
@@ -403,6 +411,7 @@ describe(
           org: {
             ...newOrg,
             allowPublicRegistration: false,
+            onlyUseForBrandingOverride: true,
           },
         })
 
@@ -410,7 +419,9 @@ describe(
           `${BaseRoute}/1`,
           {
             method: 'PUT',
-            body: JSON.stringify({ allowPublicRegistration: true }),
+            body: JSON.stringify({
+              allowPublicRegistration: true, onlyUseForBrandingOverride: false,
+            }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
           mock(db),
@@ -421,6 +432,7 @@ describe(
           org: {
             ...newOrg,
             allowPublicRegistration: true,
+            onlyUseForBrandingOverride: false,
           },
         })
 

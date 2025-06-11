@@ -99,6 +99,19 @@ const Page = () => {
                 />
               </TableCell>
             </TableRow>
+            <TableRow>
+              <TableCell>{t('orgs.onlyUseForBrandingOverride')}</TableCell>
+              <TableCell>
+                <Switch
+                  data-testid='onlyUseForBrandingOverrideSwitch'
+                  checked={values.onlyUseForBrandingOverride}
+                  onClick={() => onChange(
+                    'onlyUseForBrandingOverride',
+                    !values.onlyUseForBrandingOverride,
+                  )}
+                />
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </section>

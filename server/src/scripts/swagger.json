@@ -277,6 +277,9 @@
           "allowPublicRegistration": {
             "type": "boolean"
           },
+          "onlyUseForBrandingOverride": {
+            "type": "boolean"
+          },
           "companyLogoUrl": {
             "type": "string"
           },
@@ -341,12 +344,13 @@
           "name",
           "slug",
           "allowPublicRegistration",
+          "onlyUseForBrandingOverride",
           "companyLogoUrl",
-          "companyEmailLogoUrl",
           "fontFamily",
           "fontUrl",
           "layoutColor",
           "labelColor",
+          "companyEmailLogoUrl",
           "primaryButtonColor",
           "primaryButtonLabelColor",
           "primaryButtonBorderColor",
@@ -376,6 +380,9 @@
             "maxLength": 50
           },
           "allowPublicRegistration": {
+            "type": "boolean"
+          },
+          "onlyUseForBrandingOverride": {
             "type": "boolean"
           },
           "companyLogoUrl": {
@@ -475,12 +482,16 @@
           },
           "allowPublicRegistration": {
             "type": "boolean"
+          },
+          "onlyUseForBrandingOverride": {
+            "type": "boolean"
           }
         },
         "required": [
           "name",
           "slug",
-          "allowPublicRegistration"
+          "allowPublicRegistration",
+          "onlyUseForBrandingOverride"
         ]
       },
       "App": {

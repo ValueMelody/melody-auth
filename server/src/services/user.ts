@@ -424,7 +424,7 @@ export const createAccountWithPassword = async (
     c.env.DB,
     {
       authId: crypto.randomUUID(),
-      orgSlug: org?.slug && org?.allowPublicRegistration ? org.slug : '',
+      orgSlug: org && org.allowPublicRegistration && !org.onlyUseForBrandingOverride ? org.slug : '',
       email: bodyDto.email,
       socialAccountId: null,
       socialAccountType: null,

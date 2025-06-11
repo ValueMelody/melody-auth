@@ -11,6 +11,7 @@ const useEditOrg = (org: Org | undefined) => {
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [allowPublicRegistration, setAllowPublicRegistration] = useState(true)
+  const [onlyUseForBrandingOverride, setOnlyUseForBrandingOverride] = useState(false)
   const [companyLogoUrl, setCompanyLogoUrl] = useState('')
   const [companyEmailLogoUrl, setCompanyEmailLogoUrl] = useState('')
   const [fontFamily, setFontFamily] = useState('')
@@ -32,6 +33,7 @@ const useEditOrg = (org: Org | undefined) => {
       setName(org?.name ?? '')
       setSlug(org?.slug ?? '')
       setAllowPublicRegistration(org?.allowPublicRegistration ?? true)
+      setOnlyUseForBrandingOverride(org?.onlyUseForBrandingOverride ?? false)
       setCompanyLogoUrl(org?.companyLogoUrl ?? '')
       setCompanyEmailLogoUrl(org?.companyEmailLogoUrl ?? '')
       setFontFamily(org?.fontFamily ?? '')
@@ -56,6 +58,7 @@ const useEditOrg = (org: Org | undefined) => {
       name,
       slug,
       allowPublicRegistration,
+      onlyUseForBrandingOverride,
       companyLogoUrl,
       companyEmailLogoUrl,
       fontFamily,
@@ -76,6 +79,7 @@ const useEditOrg = (org: Org | undefined) => {
       name,
       slug,
       allowPublicRegistration,
+      onlyUseForBrandingOverride,
       companyLogoUrl,
       companyEmailLogoUrl,
       fontFamily,
@@ -114,6 +118,9 @@ const useEditOrg = (org: Org | undefined) => {
       break
     case 'allowPublicRegistration':
       setAllowPublicRegistration(value as boolean)
+      break
+    case 'onlyUseForBrandingOverride':
+      setOnlyUseForBrandingOverride(value as boolean)
       break
     case 'companyLogoUrl':
       setCompanyLogoUrl(value as string)

@@ -1074,6 +1074,7 @@ export type Org = {
   name: string;
   slug: string;
   allowPublicRegistration: boolean;
+  onlyUseForBrandingOverride: boolean;
   companyLogoUrl: string;
   companyEmailLogoUrl: string;
   fontFamily: string;
@@ -1098,11 +1099,13 @@ export type PostOrgReq = {
   name: string;
   slug: string;
   allowPublicRegistration: boolean;
+  onlyUseForBrandingOverride: boolean;
 };
 export type PutOrgReq = {
   name?: string;
   slug?: string;
   allowPublicRegistration?: boolean;
+  onlyUseForBrandingOverride?: boolean;
   companyLogoUrl?: string;
   companyEmailLogoUrl?: string;
   fontFamily?: string;
