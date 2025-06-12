@@ -32,6 +32,7 @@ import Breadcrumb from 'components/Breadcrumb'
 import PageTitle from 'components/PageTitle'
 import LoadingPage from 'components/LoadingPage'
 import { Switch } from 'components/ui/switch'
+import RequiredProperty from 'components/RequiredProperty'
 
 const Page = () => {
   const { id } = useParams()
@@ -104,7 +105,9 @@ const Page = () => {
           </TableHeader>
           <TableBody className='divide-y'>
             <TableRow>
-              <TableCell>{t('orgs.name')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('orgs.name')} />
+              </TableCell>
               <TableCell>
                 <Input
                   data-testid='nameInput'
@@ -119,7 +122,9 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>{t('orgs.slug')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('orgs.slug')} />
+              </TableCell>
               <TableCell>
                 <Input
                   data-testid='slugInput'

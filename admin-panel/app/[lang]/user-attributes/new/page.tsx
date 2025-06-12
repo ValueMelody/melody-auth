@@ -18,6 +18,7 @@ import { Switch } from 'components/ui/switch'
 import LocaleEditor from 'components/LocaleEditor'
 import { configSignal } from 'signals'
 import useSignalValue from 'app/useSignalValue'
+import RequiredProperty from 'components/RequiredProperty'
 
 const Page = () => {
   const t = useTranslations()
@@ -78,7 +79,9 @@ const Page = () => {
           </TableHeader>
           <TableBody className='divide-y'>
             <TableRow>
-              <TableCell>{t('userAttributes.name')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('userAttributes.name')} />
+              </TableCell>
               <TableCell>
                 <Input
                   data-testid='nameInput'

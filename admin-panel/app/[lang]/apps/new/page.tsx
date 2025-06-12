@@ -21,6 +21,7 @@ import {
   useGetApiV1ScopesQuery, usePostApiV1AppsMutation,
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
+import RequiredProperty from 'components/RequiredProperty'
 
 const Page = () => {
   const t = useTranslations()
@@ -99,7 +100,9 @@ const Page = () => {
         </TableHeader>
         <TableBody className='divide-y'>
           <TableRow>
-            <TableCell>{t('apps.name')}</TableCell>
+            <TableCell>
+              <RequiredProperty title={t('apps.name')} />
+            </TableCell>
             <TableCell>
               <Input
                 data-testid='nameInput'
@@ -113,7 +116,9 @@ const Page = () => {
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>{t('apps.type')}</TableCell>
+            <TableCell>
+              <RequiredProperty title={t('apps.type')} />
+            </TableCell>
             <TableCell>
               <ClientTypeSelector
                 value={values.type}
@@ -124,7 +129,9 @@ const Page = () => {
           </TableRow>
           {!!availableScopes.length && (
             <TableRow>
-              <TableCell>{t('apps.scopes')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('apps.scopes')} />
+              </TableCell>
               <TableCell>
                 <ScopesEditor
                   scopes={availableScopes}
