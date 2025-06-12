@@ -422,7 +422,8 @@ Promise<TypedResponse<GetAuthorizeOidcConfigsRes>> => {
       provider.config.clientId &&
       provider.config.authorizeEndpoint &&
       provider.config.tokenEndpoint &&
-      provider.config.jwksEndpoint
+      provider.config.jwksEndpoint &&
+      provider.config.enableSignInButton
   }) ?? []
 
   const codeVerifier = genRandomString(128)

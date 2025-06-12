@@ -13,6 +13,7 @@ import {
   oauthHandler, embeddedHandler,
 } from 'handlers'
 import { oauthDto } from 'dtos'
+import { loggerUtil } from 'utils'
 
 export const getSamlSpLogin = async (c: Context) => {
   const policy = c.req.query('policy')
@@ -21,6 +22,11 @@ export const getSamlSpLogin = async (c: Context) => {
   } = await oauthHandler.parseGetAuthorizeDto(c)
 
   if (!policy?.startsWith(oauthDto.Policy.SamSso)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPolicy,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidPolicy)
   }
 
@@ -153,7 +159,11 @@ export const postSamlSpAcs = async (c: Context) => {
       : `${detail.redirectUri}${qs}`
     return c.redirect(url)
   } catch (error) {
-    console.error(error)
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.RequestError.InvalidSamlResponse,
+    )
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidSamlResponse)
   }
 }

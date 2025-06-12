@@ -24,6 +24,8 @@ interface OIDCProviderConfig {
   authorizeEndpoint: string; // The authorize endpoint for your OIDC Auth provider
   tokenEndpoint: string; // The token endpoint for your OIDC Auth provider
   jwksEndpoint: string; // The jwks endpoint for your OIDC Auth provider
+  enableSignInButton: boolean; // Whether to enable displaying the sign in button for this provider
+  enableSignInRedirect: boolean; // Whether to enable triggering the sign in redirect by policy for this provider
 }
 
 /**
@@ -36,6 +38,8 @@ export const OIDCProviderConfigs: Record<string, OIDCProviderConfig> = Object.fr
     authorizeEndpoint: 'https://dummy.us.auth0.com/authorize',
     tokenEndpoint: 'https://dummy.us.auth0.com/oauth/token',
     jwksEndpoint: 'https://dummy.us.auth0.com/.well-known/jwks.json',
+    enableSignInButton: true,
+    enableSignInRedirect: true,
   },
 })
 
