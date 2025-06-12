@@ -19,6 +19,7 @@ import {
   authCodeHook, clientCredentialsHook,
 } from 'hooks'
 import { appModel } from 'models'
+import { prepareOidcRedirect } from 'services/identity'
 
 export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<{
   queryDto: oauthDto.GetAuthorizeDto;
@@ -105,7 +106,8 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     if (
       !queryDto.policy ||
       queryDto.policy === oauthDto.Policy.SignInOrSignUp ||
-      queryDto.policy.startsWith(oauthDto.Policy.SamSso)
+      queryDto.policy.startsWith(oauthDto.Policy.SamSso) ||
+      queryDto.policy.startsWith(oauthDto.Policy.Oidc)
     ) {
       if (queryDto.authorizeMethod === 'popup') {
         return c.html(<PopupRedirect
@@ -124,8 +126,23 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
 
   const queryString = requestUtil.getQueryString(c)
 
-  if (queryDto.policy?.startsWith(oauthDto.Policy.SamSso)) {
+  const {
+    ENABLE_SAML_SSO_AS_SP: enableSamlSso,
+    OIDC_AUTH_PROVIDERS: oidcAuthProviders,
+  } = env(c)
+
+  if (enableSamlSso && queryDto.policy?.startsWith(oauthDto.Policy.SamSso)) {
     return c.redirect(`${routeConfig.InternalRoute.SamlSp}/login?${queryString}`)
+  }
+
+  if (oidcAuthProviders?.length && queryDto.policy?.startsWith(oauthDto.Policy.Oidc)) {
+    const url = await prepareOidcRedirect(
+      c,
+      queryDto.policy,
+      queryDto,
+    )
+
+    return c.redirect(url)
   }
 
   return c.redirect(`${routeConfig.IdentityRoute.AuthorizeView}?${queryString}`)

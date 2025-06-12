@@ -58,8 +58,75 @@ describe(
     )
 
     test(
+      'should redirect to oidc sign in',
+      async () => {
+        process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
+
+        const appRecord = await getApp(db)
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=oidc_sso_Auth0',
+        )
+        expect(res.status).toBe(302)
+        const redirectUrl = res.headers.get('Location') ?? ''
+        expect(redirectUrl).toContain(`https://dummy.us.auth0.com/authorize?client_id=example&state={"clientId":"${appRecord.clientId}","redirectUri":"http://localhost:3000/en/dashboard","responseType":"code","state":"123","codeChallenge":"ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0","codeChallengeMethod":"s256","locale":"en","policy":"oidc_sso_Auth0","scopes":["openid","profile","offline_access"],"codeVerifier":"`)
+        expect(redirectUrl).toContain('"}&scope=openid&redirect_uri=http://localhost:8787/identity/v1/authorize-oidc/Auth0&response_type=code&code_challenge=')
+        expect(redirectUrl).toContain('&code_challenge_method=S256')
+
+        const params = redirectUrl.split('?')[1].split('&')
+        const state = JSON.parse(params.find((param) => param.startsWith('state='))?.split('=')[1] ?? '{}')
+
+        const kvData = await mockedKV.get(`${adapterConfig.BaseKVKey.OidcCodeVerifier}-${state.codeVerifier}`)
+        expect(kvData).toBe('1')
+
+        process.env.OIDC_AUTH_PROVIDERS = [] as unknown as string
+      },
+    )
+
+    test(
+      'should not redirect to oidc sign in if not enabled',
+      async () => {
+        const appRecord = await getApp(db)
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=oidc_sso_Auth0',
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toContain(routeConfig.IdentityRoute.AuthorizeView)
+      },
+    )
+
+    test(
+      'should throw error if oidc policy is invalid',
+      async () => {
+        process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
+
+        const appRecord = await getApp(db)
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=oidc_sso_auth0',
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
+
+        process.env.OIDC_AUTH_PROVIDERS = [] as unknown as string
+      },
+    )
+
+    test(
       'should redirect to saml sign in',
       async () => {
+        process.env.ENABLE_SAML_SSO_AS_SP = true as unknown as string
+
         const appRecord = await getApp(db)
         const url = routeConfig.OauthRoute.Authorize
         const res = await getSignInRequest(
@@ -71,6 +138,24 @@ describe(
         const params = await getAuthorizeParams(appRecord)
         expect(res.status).toBe(302)
         expect(res.headers.get('Location')).toBe(`${routeConfig.InternalRoute.SamlSp}/login${params}&policy=saml_sso_test`)
+
+        process.env.ENABLE_SAML_SSO_AS_SP = false as unknown as string
+      },
+    )
+
+    test(
+      'should not redirect to saml sign in if not enabled',
+      async () => {
+        const appRecord = await getApp(db)
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=saml_sso_test',
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toContain(routeConfig.IdentityRoute.AuthorizeView)
       },
     )
 

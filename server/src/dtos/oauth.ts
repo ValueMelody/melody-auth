@@ -28,6 +28,7 @@ export enum Policy {
   ManagePasskey = 'manage_passkey',
   UpdateInfo = 'update_info',
   SamSso = 'saml_sso_',
+  Oidc = 'oidc_sso_',
 }
 
 const parseScopes = (scopes: string[]) => scopes.map((s) => s.trim().toLowerCase())

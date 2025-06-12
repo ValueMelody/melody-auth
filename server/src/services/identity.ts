@@ -1,11 +1,14 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { genRandomString } from '@melody-auth/shared'
+import {
+  genCodeChallenge, genRandomString,
+} from '@melody-auth/shared'
 import {
   errorConfig,
   messageConfig,
   routeConfig,
   typeConfig,
+  variableConfig,
 } from 'configs'
 import {
   consentService, passkeyService, sessionService, appService, kvService, mfaService,
@@ -325,4 +328,57 @@ export const processResetPassword = async (
     email,
     locale,
   )
+}
+
+export const prepareOidcRedirect = async (
+  c: Context<typeConfig.Context>,
+  policyName: string,
+  queryDto: oauthDto.GetAuthorizeDto,
+) => {
+  const { OIDC_AUTH_PROVIDERS: oidcAuthProviders } = env(c)
+
+  const providerName = policyName.replace(
+    oauthDto.Policy.Oidc,
+    '',
+  )
+  const config = variableConfig.OIDCProviderConfigs[providerName]
+
+  if (!config || !config.enableSignInRedirect || !oidcAuthProviders?.includes(providerName)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidOidcAuthorizeRequest,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
+  }
+
+  const codeVerifier = genRandomString(128)
+  const codeChallenge = await genCodeChallenge(codeVerifier)
+
+  await kvService.storeOidcCodeVerifier(
+    c.env.KV,
+    codeVerifier,
+  )
+
+  const { AUTH_SERVER_URL: serverUrl } = env(c)
+
+  const socialSignInState = {
+    clientId: queryDto.clientId,
+    redirectUri: queryDto.redirectUri,
+    responseType: queryDto.responseType,
+    state: queryDto.state,
+    codeChallenge: queryDto.codeChallenge,
+    codeChallengeMethod: queryDto.codeChallengeMethod,
+    locale: queryDto.locale,
+    policy: queryDto.policy,
+    org: queryDto.org,
+    scopes: queryDto.scopes,
+  }
+
+  const url = `${config.authorizeEndpoint}?client_id=${config.clientId}&state=${JSON.stringify({
+    ...socialSignInState,
+    codeVerifier,
+  })}&scope=openid&redirect_uri=${serverUrl}${routeConfig.IdentityRoute.AuthorizeOidc}/${providerName}&response_type=code&code_challenge=${codeChallenge}&code_challenge_method=S256`
+
+  return url
 }

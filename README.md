@@ -70,6 +70,7 @@
   - reset_mfa
   - manage_passkey
   - saml_sso_[idp_name]
+  - oidc_sso_[provider_name]
 - <b>Organization</b>:
   - Branding config override
   - Organization users

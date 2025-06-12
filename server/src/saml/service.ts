@@ -9,6 +9,7 @@ import {
   adapterConfig,
 } from 'configs'
 import { samlIdpModel } from 'models'
+import { loggerUtil } from 'utils'
 
 setSchemaValidator(validator)
 
@@ -53,6 +54,11 @@ export const loadIdp = async (
   )
 
   if (!idpRecord) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoSamlIdp,
+    )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoSamlIdp)
   }
 
