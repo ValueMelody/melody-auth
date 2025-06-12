@@ -1,7 +1,5 @@
-const RequiredProperty = ({
-  title,
-}: {
-  title: string
+const RequiredProperty = ({ title }: {
+  title: string;
 }) => {
   return (
     <div className='flex items-center gap-1'>
