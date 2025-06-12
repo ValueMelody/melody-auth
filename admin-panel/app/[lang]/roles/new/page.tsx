@@ -14,6 +14,7 @@ import FieldError from 'components/FieldError'
 import SubmitError from 'components/SubmitError'
 import { usePostApiV1RolesMutation } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
+import RequiredProperty from 'components/RequiredProperty'
 
 const Page = () => {
   const t = useTranslations()
@@ -58,7 +59,9 @@ const Page = () => {
           </TableHeader>
           <TableBody className='divide-y'>
             <TableRow>
-              <TableCell>{t('roles.name')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('roles.name')} />
+              </TableCell>
               <TableCell>
                 <Input
                   data-testid='nameInput'

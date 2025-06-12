@@ -33,6 +33,7 @@ import {
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
 import { Label } from 'components/ui/label'
+import RequiredProperty from 'components/RequiredProperty'
 
 const Page = () => {
   const { id } = useParams()
@@ -137,7 +138,9 @@ const Page = () => {
           </TableHeader>
           <TableBody className='divide-y break-all'>
             <TableRow>
-              <TableCell>{t('apps.name')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('apps.name')} />
+              </TableCell>
               <TableCell>
                 <Input
                   disabled={!canWriteApp}
@@ -190,7 +193,9 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>{t('apps.scopes')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('apps.scopes')} />
+              </TableCell>
               <TableCell>
                 <ScopesEditor
                   disabled={!canWriteApp}
@@ -198,6 +203,7 @@ const Page = () => {
                   value={values.scopes}
                   onToggleScope={handleToggleAppScope}
                 />
+                <FieldError error={errors.scopes} />
               </TableCell>
             </TableRow>
             {app.type === typeTool.ClientType.SPA && (

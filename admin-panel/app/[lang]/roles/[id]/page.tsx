@@ -22,6 +22,8 @@ import {
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
+import RequiredProperty from 'components/RequiredProperty'
+
 const Page = () => {
   const { id } = useParams()
 
@@ -89,7 +91,9 @@ const Page = () => {
           </TableHeader>
           <TableBody className='divide-y'>
             <TableRow>
-              <TableCell>{t('roles.name')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('roles.name')} />
+              </TableCell>
               <TableCell>
                 <Input
                   data-testid='nameInput'

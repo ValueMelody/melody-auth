@@ -18,6 +18,7 @@ import useSignalValue from 'app/useSignalValue'
 import { configSignal } from 'signals'
 import { usePostApiV1ScopesMutation } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
+import RequiredProperty from 'components/RequiredProperty'
 
 const Page = () => {
   const t = useTranslations()
@@ -80,7 +81,9 @@ const Page = () => {
           </TableHeader>
           <TableBody className='divide-y'>
             <TableRow>
-              <TableCell>{t('scopes.name')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('scopes.name')} />
+              </TableCell>
               <TableCell>
                 <Input
                   data-testid='nameInput'
@@ -107,7 +110,9 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>{t('scopes.type')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('scopes.type')} />
+              </TableCell>
               <TableCell>
                 <ClientTypeSelector
                   value={values.type}

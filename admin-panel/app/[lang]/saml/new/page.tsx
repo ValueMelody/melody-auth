@@ -15,6 +15,7 @@ import SubmitError from 'components/SubmitError'
 import { usePostApiV1SamlIdpsMutation } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import { Textarea } from '@/components/ui/textarea'
+import RequiredProperty from 'components/RequiredProperty'
 
 const Page = () => {
   const t = useTranslations()
@@ -66,7 +67,9 @@ const Page = () => {
           </TableHeader>
           <TableBody className='divide-y'>
             <TableRow>
-              <TableCell>{t('saml.name')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('saml.name')} />
+              </TableCell>
               <TableCell>
                 <Input
                   data-testid='nameInput'
@@ -77,7 +80,9 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>{t('saml.userIdAttribute')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('saml.userIdAttribute')} />
+              </TableCell>
               <TableCell>
                 <Input
                   data-testid='userIdAttributeInput'
@@ -130,7 +135,9 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>{t('saml.metadata')}</TableCell>
+              <TableCell>
+                <RequiredProperty title={t('saml.metadata')} />
+              </TableCell>
               <TableCell>
                 <Textarea
                   className='min-h-[400px]'
