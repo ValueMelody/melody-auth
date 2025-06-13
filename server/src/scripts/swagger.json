@@ -1145,6 +1145,9 @@
           "name": {
             "type": "string"
           },
+          "isActive": {
+            "type": "boolean"
+          },
           "userIdAttribute": {
             "type": "string"
           },
@@ -1176,6 +1179,7 @@
         },
         "required": [
           "id",
+          "isActive",
           "name",
           "userIdAttribute",
           "emailAttribute",
@@ -1190,6 +1194,9 @@
       "PutSamlIdpReq": {
         "type": "object",
         "properties": {
+          "isActive": {
+            "type": "boolean"
+          },
           "userIdAttribute": {
             "type": "string"
           },

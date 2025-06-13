@@ -16,6 +16,7 @@ import {
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
+import EntityStatusLabel from 'components/EntityStatusLabel'
 
 const Page = () => {
   const t = useTranslations()
@@ -62,6 +63,7 @@ const Page = () => {
         <TableHeader className='max-md:hidden'>
           <TableRow>
             <TableHead>{t('saml.name')}</TableHead>
+            <TableHead>{t('saml.status')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className='divide-y md:hidden'>
@@ -74,6 +76,7 @@ const Page = () => {
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-2'>
                       {idp.name}
+                      <EntityStatusLabel isEnabled={idp.isActive} />
                     </div>
                   </div>
                   <div className='md:hidden'>
@@ -93,6 +96,9 @@ const Page = () => {
                 <div className='flex items-center gap-2'>
                   {idp.name}
                 </div>
+              </TableCell>
+              <TableCell>
+                <EntityStatusLabel isEnabled={idp.isActive} />
               </TableCell>
               <TableCell>
                 {renderEditButton(idp)}

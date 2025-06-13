@@ -13,6 +13,7 @@ const useEditSaml = (idp: SamlIdp | undefined) => {
   const [firstNameAttribute, setFirstNameAttribute] = useState('')
   const [lastNameAttribute, setLastNameAttribute] = useState('')
   const [metadata, setMetadata] = useState('')
+  const [isActive, setIsActive] = useState(true)
 
   useEffect(
     () => {
@@ -21,15 +22,16 @@ const useEditSaml = (idp: SamlIdp | undefined) => {
       setFirstNameAttribute(idp?.firstNameAttribute ?? '')
       setLastNameAttribute(idp?.lastNameAttribute ?? '')
       setMetadata(idp?.metadata ?? '')
+      setIsActive(idp?.isActive ?? true)
     },
     [idp],
   )
 
   const values = useMemo(
     () => ({
-      userIdAttribute, emailAttribute, firstNameAttribute, lastNameAttribute, metadata,
+      isActive, userIdAttribute, emailAttribute, firstNameAttribute, lastNameAttribute, metadata,
     }),
-    [userIdAttribute, emailAttribute, firstNameAttribute, lastNameAttribute, metadata],
+    [isActive, userIdAttribute, emailAttribute, firstNameAttribute, lastNameAttribute, metadata],
   )
 
   const errors = useMemo(
@@ -41,9 +43,12 @@ const useEditSaml = (idp: SamlIdp | undefined) => {
   )
 
   const onChange = (
-    key: string, value: string | string[],
+    key: string, value: string | string[] | boolean,
   ) => {
     switch (key) {
+    case 'isActive':
+      setIsActive(value as boolean)
+      break
     case 'userIdAttribute':
       setUserIdAttribute(value as string)
       break

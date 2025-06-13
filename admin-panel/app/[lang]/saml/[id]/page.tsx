@@ -21,6 +21,7 @@ import LoadingPage from 'components/LoadingPage'
 import useEditSaml from 'app/[lang]/saml/useEditSaml'
 import { Textarea } from '@/components/ui/textarea'
 import RequiredProperty from 'components/RequiredProperty'
+import { Switch } from '@/components/ui/switch'
 
 const Page = () => {
   const { id } = useParams()
@@ -88,6 +89,18 @@ const Page = () => {
               </TableCell>
               <TableCell>
                 {idp.name}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('saml.isActive')}</TableCell>
+              <TableCell>
+                <Switch
+                  checked={values.isActive}
+                  onCheckedChange={(checked) => onChange(
+                    'isActive',
+                    checked,
+                  )}
+                />
               </TableCell>
             </TableRow>
             <TableRow>
@@ -184,7 +197,8 @@ const Page = () => {
               values.emailAttribute === idp.emailAttribute &&
               values.firstNameAttribute === idp.firstNameAttribute &&
               values.lastNameAttribute === idp.lastNameAttribute &&
-              values.metadata === idp.metadata
+              values.metadata === idp.metadata &&
+              values.isActive === idp.isActive
             )
           }
           onClick={handleSave}

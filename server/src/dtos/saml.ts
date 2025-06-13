@@ -1,5 +1,5 @@
 import {
-  IsNotEmpty, IsOptional, IsString, Length,
+  IsNotEmpty, IsOptional, IsString, Length, IsBoolean,
 } from 'class-validator'
 
 export class PostSamlIdpDto {
@@ -42,6 +42,10 @@ export class PostSamlIdpDto {
 }
 
 export class PutSamlIdpDto {
+  @IsBoolean()
+  @IsOptional()
+    isActive?: boolean
+
   @IsString()
   @IsOptional()
     userIdAttribute?: string
@@ -63,10 +67,11 @@ export class PutSamlIdpDto {
     metadata?: string
 
   constructor (dto: PutSamlIdpDto) {
+    this.isActive = dto.isActive ?? undefined
     this.userIdAttribute = dto.userIdAttribute?.trim()
-    this.emailAttribute = dto.emailAttribute ? dto.emailAttribute.trim() : null
-    this.firstNameAttribute = dto.firstNameAttribute ? dto.firstNameAttribute.trim() : null
-    this.lastNameAttribute = dto.lastNameAttribute ? dto.lastNameAttribute.trim() : null
+    this.emailAttribute = dto.emailAttribute
+    this.firstNameAttribute = dto.firstNameAttribute
+    this.lastNameAttribute = dto.lastNameAttribute
     this.metadata = dto.metadata?.trim()
   }
 }

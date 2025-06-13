@@ -51,6 +51,7 @@ export const updateIdp = async (
       firstNameAttribute: dto.firstNameAttribute,
       lastNameAttribute: dto.lastNameAttribute,
       metadata: dto.metadata,
+      isActive: dto.isActive === undefined ? undefined : (dto.isActive ? 1 : 0),
     },
   )
   return idp

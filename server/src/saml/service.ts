@@ -53,7 +53,7 @@ export const loadIdp = async (
     name,
   )
 
-  if (!idpRecord) {
+  if (!idpRecord || !idpRecord.isActive) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
