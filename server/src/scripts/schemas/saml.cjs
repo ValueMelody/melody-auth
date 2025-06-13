@@ -3,6 +3,7 @@ const SamlIdp = {
   properties: {
     id: { type: 'number' },
     name: { type: 'string' },
+    isActive: { type: 'boolean' },
     userIdAttribute: { type: 'string' },
     emailAttribute: {
       type: 'string', nullable: true,
@@ -21,7 +22,7 @@ const SamlIdp = {
       nullable: true,
     },
   },
-  required: ['id', 'name', 'userIdAttribute', 'emailAttribute', 'firstNameAttribute', 'lastNameAttribute', 'metadata', 'createdAt', 'updatedAt', 'deletedAt'],
+  required: ['id', 'isActive', 'name', 'userIdAttribute', 'emailAttribute', 'firstNameAttribute', 'lastNameAttribute', 'metadata', 'createdAt', 'updatedAt', 'deletedAt'],
 }
 
 const PostSamlIdpReq = {
@@ -50,6 +51,7 @@ const PostSamlIdpReq = {
 const PutSamlIdpReq = {
   type: 'object',
   properties: {
+    isActive: { type: 'boolean' },
     userIdAttribute: { type: 'string' },
     emailAttribute: { type: 'string' },
     firstNameAttribute: { type: 'string' },

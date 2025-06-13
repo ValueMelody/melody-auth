@@ -156,6 +156,7 @@
     "title": "SAML",
     "idp": "IDP",
     "name": "Nom",
+    "isActive": "Actif",
     "status": "Statut",
     "new": "Créer un IDP SAML",
     "userIdAttribute": "Attribut ID utilisateur",

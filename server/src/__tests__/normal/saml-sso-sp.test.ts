@@ -152,6 +152,41 @@ describe(
     )
 
     test(
+      'should throw error if idp is not active',
+      async () => {
+        process.env.ENABLE_SAML_SSO_AS_SP = true as unknown as string
+
+        await db.prepare(`
+          INSERT INTO saml_idp (
+            name,
+            metadata,
+            "userIdAttribute",
+            "isActive"
+          ) VALUES (
+            'test',
+            ?,
+            'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier',
+            0
+          )
+        `).run(samlIdpMetaDataMock)
+
+        const appRecord = await getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${routeConfig.InternalRoute.SamlSp}/login${params}&policy=saml_sso_test`,
+          {},
+          mock(db),
+        )
+
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoSamlIdp)
+
+        process.env.ENABLE_SAML_SSO_AS_SP = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if feature disabled',
       async () => {
         const appRecord = await getApp(db)

@@ -56,6 +56,7 @@ const createNewIdp = async (
 
 const newIdp = {
   id: 1,
+  isActive: true,
   name: 'test name',
   userIdAttribute: 'test userIdAttribute',
   emailAttribute: 'test emailAttribute',
@@ -283,6 +284,7 @@ describe(
           firstNameAttribute: 'test firstNameAttribute 1',
           lastNameAttribute: 'test lastNameAttribute 1',
           metadata: 'test metadata 1',
+          isActive: false,
         }
         const res = await app.request(
           `${BaseRoute}/1`,
@@ -318,6 +320,7 @@ describe(
           {
             method: 'PUT',
             body: JSON.stringify({
+              isActive: true,
               emailAttribute: null,
               firstNameAttribute: null,
               lastNameAttribute: null,
@@ -326,11 +329,13 @@ describe(
           },
           mock(db),
         )
+
         const json = await res.json()
 
         expect(json).toStrictEqual({
           idp: {
             ...newIdp,
+            isActive: true,
             emailAttribute: null,
             firstNameAttribute: null,
             lastNameAttribute: null,

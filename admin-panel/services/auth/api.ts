@@ -1280,6 +1280,7 @@ export type SignInLog = {
 export type SamlIdp = {
   id: number;
   name: string;
+  isActive: boolean;
   userIdAttribute: string;
   emailAttribute: string | null;
   firstNameAttribute: string | null;
@@ -1298,6 +1299,7 @@ export type PostSamlIdpReq = {
   metadata: string;
 };
 export type PutSamlIdpReq = {
+  isActive?: boolean;
   userIdAttribute?: string;
   emailAttribute?: string;
   firstNameAttribute?: string;
