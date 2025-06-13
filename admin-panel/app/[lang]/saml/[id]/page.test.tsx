@@ -15,6 +15,7 @@ import {
 
 const mockSamlIdp = {
   id: '1',
+  isActive: true,
   name: 'Test SAML IdP',
   userIdAttribute: 'uid',
   emailAttribute: 'email',
@@ -112,6 +113,7 @@ describe(
         expect(mockUpdate).toHaveBeenLastCalledWith({
           id: 1,
           putSamlIdpReq: {
+            isActive: true,
             userIdAttribute: 'new_uid',
             emailAttribute: 'new_email',
             firstNameAttribute: 'firstName',

@@ -92,6 +92,7 @@ describe(
 
         expect(mockCreate).toHaveBeenLastCalledWith({
           postSamlIdpReq: {
+            isActive: true,
             name: 'Test SAML IdP',
             userIdAttribute: 'uid',
             emailAttribute: 'email',
