@@ -7,6 +7,7 @@ export enum InternalRoute {
   ApiRoles = '/api/v1/roles',
   ApiScopes = '/api/v1/scopes',
   ApiOrgs = '/api/v1/orgs',
+  ApiOrgGroups = '/api/v1/org-groups',
   ApiSamlIdps = '/api/v1/saml/idps',
   ApiLogs = '/api/v1/logs',
   Embedded = '/embedded-auth/v1',

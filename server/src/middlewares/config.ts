@@ -7,6 +7,7 @@ import {
 } from 'configs'
 import { Policy } from 'dtos/oauth'
 import { loggerUtil } from 'utils'
+import { systemConfig } from 'configs/variable'
 
 export const enableSignUp = async (
   c: Context<typeConfig.Context>, next: Next,
@@ -130,6 +131,31 @@ export const enableOrg = async (
       messageConfig.ConfigError.OrgNotEnabled,
     )
     throw new errorConfig.Forbidden(messageConfig.ConfigError.OrgNotEnabled)
+  }
+
+  await next()
+}
+
+export const enableOrgGroup = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_ORG: enabledOrg } = env(c)
+
+  if (!enabledOrg) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.OrgNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.OrgNotEnabled)
+  }
+
+  if (!systemConfig.enableOrgGroup) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.OrgGroupNotEnabled,
+    )
   }
 
   await next()

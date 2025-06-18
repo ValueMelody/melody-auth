@@ -200,6 +200,13 @@
     "allowPublicRegistration": "Autoriser l'inscription publique",
     "onlyUseForBrandingOverride": "Utiliser uniquement pour la personnalisation (L'utilisateur ne sera pas ajouté à cette organisation après l'inscription)"
   },
+  "orgGroups": {
+    "new": "Créer un groupe d'organisation",
+    "update": "Mettre à jour un groupe d'organisation",
+    "name": "Nom",
+    "cancel": "Annuler",
+    "groups": "Groupes"
+  },
   "logs": {
     "title": "Journaux",
     "receiver": "Destinataire",

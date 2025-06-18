@@ -7,6 +7,7 @@ export enum ConfigError {
   PasswordlessSignInNotEnabled = 'Passwordless sign in is not enabled',
   AppConsentNotEnabled = 'App consent is not enabled',
   OrgNotEnabled = 'Organization is not enabled',
+  OrgGroupNotEnabled = 'Organization group is not enabled',
   UserAttributeNotEnabled = 'User attribute is not enabled',
   PasskeyEnrollmentNotEnabled = 'Passkey enrollment is not enabled or passwordless sign in is enabled',
   GoogleSignInNotEnabled = 'Google id is not configured',
@@ -105,4 +106,6 @@ export enum RequestError {
   impersonateNonSpaApp = 'Impersonate request sent to a non-SPA app',
   deleteBeforeMustBePresent = 'deleteBefore must be present and in utc format',
   AttributeIsRequired = 'Attribute is required',
+  RoleNotFound = 'Role not found',
+  OrgGroupNotFound = 'Organization group not found',
 }

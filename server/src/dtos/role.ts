@@ -16,7 +16,7 @@ export class PostRoleDto {
     note: string
 
   constructor (dto: PostRoleDto) {
-    this.name = dto.name.trim()
+    this.name = dto.name?.trim()
     this.note = dto.note || ''
   }
 }

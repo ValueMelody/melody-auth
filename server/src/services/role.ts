@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import {
-  errorConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
   roleModel, userRoleModel,
@@ -22,7 +22,7 @@ export const getRoleById = async (
     id,
   )
 
-  if (!role) throw new errorConfig.NotFound()
+  if (!role) throw new errorConfig.NotFound(messageConfig.RequestError.RoleNotFound)
 
   return role
 }
