@@ -207,6 +207,13 @@
     "allowPublicRegistration": "Allow Public Registration",
     "onlyUseForBrandingOverride": "Only Use for Branding Override (User won't be added to this org after sign up)"
   },
+  "orgGroups": {
+    "new": "Create an org group",
+    "update": "Update org group",
+    "name": "Name",
+    "cancel": "Cancel",
+    "groups": "Groups"
+  },
   "logs": {
     "title": "Logs",
     "receiver": "Receiver",

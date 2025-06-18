@@ -5,6 +5,9 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { useAuth } from '@melody-auth/react'
 import {
+  EditIcon, TrashIcon,
+} from 'lucide-react'
+import {
   Table,
   TableBody,
   TableCell,
@@ -24,6 +27,7 @@ import DeleteButton from 'components/DeleteButton'
 import { useRouter } from 'i18n/navigation'
 import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
+  useGetApiV1OrgGroupsQuery, useDeleteApiV1OrgGroupsByIdMutation,
 } from 'services/auth/api'
 import ColorInput from 'components/ColorInput'
 import LinkInput from 'components/LinkInput'
@@ -33,6 +37,13 @@ import PageTitle from 'components/PageTitle'
 import LoadingPage from 'components/LoadingPage'
 import { Switch } from 'components/ui/switch'
 import RequiredProperty from 'components/RequiredProperty'
+import { Button } from 'components/ui/button'
+import CreateOrgGroupModal from '@/app/[lang]/orgs/[id]/CreateOrgGroupModal'
+import UpdateOrgGroupModal from '@/app/[lang]/orgs/[id]/UpdateOrgGroupModal'
+import { Badge } from '@/components/ui/badge'
+import ConfirmModal from '@/components/ConfirmModal'
+import useSignalValue from 'app/useSignalValue'
+import { configSignal } from 'signals'
 
 const Page = () => {
   const { id } = useParams()
@@ -40,11 +51,22 @@ const Page = () => {
   const t = useTranslations()
   const router = useRouter()
 
+  const configs = useSignalValue(configSignal)
+  const enableOrgGroup = configs?.ENABLE_ORG_GROUP
+
   const {
     data, isLoading,
   } = useGetApiV1OrgsByIdQuery({ id: Number(id) })
   const [updateOrg, { isLoading: isUpdating }] = usePutApiV1OrgsByIdMutation()
   const [deleteOrg, { isLoading: isDeleting }] = useDeleteApiV1OrgsByIdMutation()
+
+  const [isCreatingOrgGroup, setIsCreatingOrgGroup] = useState(false)
+  const [updatingOrgGroupId, setUpdatingOrgGroupId] = useState<number | null>(null)
+  const [deletingOrgGroupId, setDeletingOrgGroupId] = useState<number | null>(null)
+
+  const { data: orgGroups } = useGetApiV1OrgGroupsQuery({ orgId: Number(id) })
+
+  const [deleteOrgGroup] = useDeleteApiV1OrgGroupsByIdMutation()
 
   const org = data?.org
 
@@ -79,6 +101,14 @@ const Page = () => {
     await deleteOrg({ id: Number(id) })
 
     router.push(routeTool.Internal.Orgs)
+  }
+
+  const handleDeleteOrgGroup = async () => {
+    if (deletingOrgGroupId) {
+      await deleteOrgGroup({ id: deletingOrgGroupId })
+    }
+
+    setDeletingOrgGroupId(null)
   }
 
   if (isLoading) return <LoadingPage />
@@ -412,6 +442,66 @@ const Page = () => {
             className='mb-6'
             title={t('orgs.users')}
           />
+          <CreateOrgGroupModal
+            show={isCreatingOrgGroup}
+            orgId={Number(id)}
+            onClose={() => setIsCreatingOrgGroup(false)}
+          />
+          <UpdateOrgGroupModal
+            id={updatingOrgGroupId ?? 0}
+            show={!!updatingOrgGroupId}
+            initialName={orgGroups?.orgGroups?.find((orgGroup) => orgGroup.id === updatingOrgGroupId)?.name ?? ''}
+            onClose={() => setUpdatingOrgGroupId(null)}
+          />
+          <ConfirmModal
+            show={!!deletingOrgGroupId}
+            title={t(
+              'common.deleteConfirm',
+              { item: orgGroups?.orgGroups?.find((orgGroup) => orgGroup.id === deletingOrgGroupId)?.name ?? '' },
+            )}
+            onClose={() => setDeletingOrgGroupId(null)}
+            onConfirm={handleDeleteOrgGroup}
+            confirmButtonText={t('common.delete')}
+          />
+          {enableOrgGroup && (
+            <section className='mb-6 flex justify-between'>
+              <section className='flex gap-4 items-center'>
+                <p className='text-sm text-gray-500'>{t('orgGroups.groups')}:</p>
+                {orgGroups?.orgGroups?.map((orgGroup) => (
+                  <Badge
+                    key={orgGroup.id}
+                    variant='default'
+                    className='bg-blue-500 text-white cursor-pointer gap-2'
+                  >
+                    {orgGroup.name}
+                    <div>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => setUpdatingOrgGroupId(orgGroup.id)}
+                      >
+                        <EditIcon />
+                      </Button>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => setDeletingOrgGroupId(orgGroup.id)}
+                      >
+                        <TrashIcon />
+                      </Button>
+                    </div>
+                  </Badge>
+                ))}
+              </section>
+              <Button
+                onClick={() => setIsCreatingOrgGroup(true)}
+                size='sm'
+                variant='outline'
+              >
+                {t('orgGroups.new')}
+              </Button>
+            </section>
+          )}
           <UserTable
             orgId={Number(id)}
           />

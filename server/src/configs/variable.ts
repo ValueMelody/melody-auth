@@ -55,4 +55,7 @@ export const SmsMfaConfig = Object.freeze({ CountryCode: '+1' })
 
 export const S2sConfig = Object.freeze({ impersonationRoles: [Role.SuperAdmin] })
 
-export const systemConfig = Object.freeze({ name: 'Melody Auth' })
+export const systemConfig = Object.freeze({
+  name: 'Melody Auth',
+  enableOrgGroup: true,
+})

@@ -10,6 +10,9 @@ const {
   Org, PutOrgReq, PostOrgReq,
 } = require('./schemas/org.cjs')
 const {
+  OrgGroup, PostOrgGroupReq, PutOrgGroupReq,
+} = require('./schemas/orgGroup.cjs')
+const {
   App, AppDetail, PostAppReq, PutAppReq,
 } = require('./schemas/app.cjs')
 const {
@@ -71,6 +74,9 @@ const options = {
         Org,
         PutOrgReq,
         PostOrgReq,
+        OrgGroup,
+        PostOrgGroupReq,
+        PutOrgGroupReq,
         App,
         AppDetail,
         PostAppReq,
@@ -96,6 +102,7 @@ const options = {
     './src/routes/scope.tsx',
     './src/routes/role.tsx',
     './src/routes/org.tsx',
+    './src/routes/orgGroup.tsx',
     './src/routes/app.tsx',
     './src/routes/user.tsx',
     './src/routes/userAttribute.tsx',

@@ -3,6 +3,7 @@ export const addTagTypes = [
   'Scopes',
   'Roles',
   'Orgs',
+  'Org Groups',
   'Apps',
   'Users',
   'User Attributes',
@@ -158,6 +159,48 @@ const injectedRtkApi = api
           },
         }),
         providesTags: ['Orgs'],
+      }),
+      getApiV1OrgGroups: build.query<
+        GetApiV1OrgGroupsApiResponse,
+        GetApiV1OrgGroupsApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/org-groups',
+          params: { org_id: queryArg.orgId },
+        }),
+        providesTags: ['Org Groups'],
+      }),
+      postApiV1OrgGroups: build.mutation<
+        PostApiV1OrgGroupsApiResponse,
+        PostApiV1OrgGroupsApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/org-groups',
+          method: 'POST',
+          body: queryArg.postOrgGroupReq,
+        }),
+        invalidatesTags: ['Org Groups'],
+      }),
+      putApiV1OrgGroupsById: build.mutation<
+        PutApiV1OrgGroupsByIdApiResponse,
+        PutApiV1OrgGroupsByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/org-groups/${queryArg.id}`,
+          method: 'PUT',
+          body: queryArg.putOrgGroupReq,
+        }),
+        invalidatesTags: ['Org Groups'],
+      }),
+      deleteApiV1OrgGroupsById: build.mutation<
+        DeleteApiV1OrgGroupsByIdApiResponse,
+        DeleteApiV1OrgGroupsByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/org-groups/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Org Groups'],
       }),
       getApiV1Apps: build.query<GetApiV1AppsApiResponse, GetApiV1AppsApiArg>({
         query: () => ({ url: '/api/v1/apps' }),
@@ -691,6 +734,33 @@ export type GetApiV1OrgsByIdUsersApiArg = {
   /** Search by name or email */
   search?: string;
 };
+export type GetApiV1OrgGroupsApiResponse =
+  /** status 200 A list of org groups by orgId */ {
+    orgGroups?: OrgGroup[];
+  };
+export type GetApiV1OrgGroupsApiArg = {
+  /** The unique ID of the org */
+  orgId?: number;
+};
+export type PostApiV1OrgGroupsApiResponse = /** status 201 undefined */ {
+  orgGroup?: OrgGroup;
+};
+export type PostApiV1OrgGroupsApiArg = {
+  postOrgGroupReq: PostOrgGroupReq;
+};
+export type PutApiV1OrgGroupsByIdApiResponse = /** status 200 undefined */ {
+  orgGroup?: OrgGroup;
+};
+export type PutApiV1OrgGroupsByIdApiArg = {
+  /** The unique ID of the org group */
+  id: number;
+  putOrgGroupReq: PutOrgGroupReq;
+};
+export type DeleteApiV1OrgGroupsByIdApiResponse = unknown;
+export type DeleteApiV1OrgGroupsByIdApiArg = {
+  /** The unique ID of the org group */
+  id: number;
+};
 export type GetApiV1AppsApiResponse = /** status 200 A list of apps */ {
   apps?: App[];
 };
@@ -1143,6 +1213,21 @@ export type User = {
   updatedAt: string;
   deletedAt: string | null;
 };
+export type OrgGroup = {
+  id: number;
+  orgId: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+export type PostOrgGroupReq = {
+  name: string;
+  orgId: number;
+};
+export type PutOrgGroupReq = {
+  name: string;
+};
 export type App = {
   id: number;
   clientId: string;
@@ -1330,6 +1415,11 @@ export const {
   useDeleteApiV1OrgsByIdMutation,
   useGetApiV1OrgsByIdUsersQuery,
   useLazyGetApiV1OrgsByIdUsersQuery,
+  useGetApiV1OrgGroupsQuery,
+  useLazyGetApiV1OrgGroupsQuery,
+  usePostApiV1OrgGroupsMutation,
+  usePutApiV1OrgGroupsByIdMutation,
+  useDeleteApiV1OrgGroupsByIdMutation,
   useGetApiV1AppsQuery,
   useLazyGetApiV1AppsQuery,
   usePostApiV1AppsMutation,
