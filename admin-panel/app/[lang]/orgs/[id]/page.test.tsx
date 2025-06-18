@@ -10,6 +10,10 @@ import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
   useGetApiV1OrgsByIdUsersQuery,
   useGetApiV1UsersQuery,
+  useGetApiV1OrgGroupsQuery,
+  usePutApiV1OrgGroupsByIdMutation,
+  usePostApiV1OrgGroupsMutation,
+  useDeleteApiV1OrgGroupsByIdMutation,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 
@@ -57,6 +61,10 @@ vi.mock(
     useDeleteApiV1OrgsByIdMutation: vi.fn(),
     useGetApiV1OrgsByIdUsersQuery: vi.fn(),
     useGetApiV1UsersQuery: vi.fn(),
+    useGetApiV1OrgGroupsQuery: vi.fn(),
+    usePostApiV1OrgGroupsMutation: vi.fn(),
+    usePutApiV1OrgGroupsByIdMutation: vi.fn(),
+    useDeleteApiV1OrgGroupsByIdMutation: vi.fn(),
   }),
 )
 
@@ -64,7 +72,9 @@ vi.mock(
   'signals',
   () => ({
     configSignal: {
-      value: { ENABLE_NAMES: true },
+      value: {
+        ENABLE_NAMES: true, ENABLE_ORG_GROUP: false,
+      },
       subscribe: () => () => {},
     },
     errorSignal: {
@@ -102,6 +112,10 @@ describe(
     const mockUpdateOrg = vi.fn()
     const mockDeleteOrg = vi.fn()
 
+    const mockCreateOrgGroup = vi.fn()
+    const mockUpdateOrgGroup = vi.fn()
+    const mockDeleteOrgGroup = vi.fn()
+
     beforeEach(() => {
       vi.mocked(useGetApiV1OrgsByIdQuery).mockReturnValue({
         data: { org: mockOrg },
@@ -127,6 +141,23 @@ describe(
       } as any)
 
       vi.mocked(useGetApiV1UsersQuery).mockReturnValue({ data: users } as any)
+
+      vi.mocked(useGetApiV1OrgGroupsQuery).mockReturnValue({ data: { orgGroups: [] } } as any)
+
+      vi.mocked(usePostApiV1OrgGroupsMutation).mockReturnValue([
+        mockCreateOrgGroup,
+        { isLoading: false },
+      ] as any)
+
+      vi.mocked(usePutApiV1OrgGroupsByIdMutation).mockReturnValue([
+        mockUpdateOrgGroup,
+        { isLoading: false },
+      ] as any)
+
+      vi.mocked(useDeleteApiV1OrgGroupsByIdMutation).mockReturnValue([
+        mockDeleteOrgGroup,
+        { isLoading: false },
+      ] as any)
     })
 
     it(

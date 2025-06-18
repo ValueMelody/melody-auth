@@ -64,7 +64,10 @@ const Page = () => {
   const [updatingOrgGroupId, setUpdatingOrgGroupId] = useState<number | null>(null)
   const [deletingOrgGroupId, setDeletingOrgGroupId] = useState<number | null>(null)
 
-  const { data: orgGroups } = useGetApiV1OrgGroupsQuery({ orgId: Number(id) })
+  const { data: orgGroups } = useGetApiV1OrgGroupsQuery(
+    { orgId: Number(id) },
+    { skip: !enableOrgGroup },
+  )
 
   const [deleteOrgGroup] = useDeleteApiV1OrgGroupsByIdMutation()
 
