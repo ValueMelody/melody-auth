@@ -7,6 +7,7 @@ import { dbUtil } from 'utils'
 export interface Record {
   id: number;
   name: string;
+  orgId: number;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

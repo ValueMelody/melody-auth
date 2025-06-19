@@ -39,8 +39,17 @@ const PutOrgGroupReq = {
   required: ['name'],
 }
 
+const UserOrgGroup = {
+  type: 'object',
+  properties: {
+    orgGroupId: { type: 'number' },
+    orgGroupName: { type: 'string' },
+  },
+}
+
 module.exports = {
   OrgGroup,
   PostOrgGroupReq,
   PutOrgGroupReq,
+  UserOrgGroup,
 }

@@ -12,6 +12,7 @@ export enum TableName {
   ScopeLocale = 'scope_locale',
   Org = 'org',
   OrgGroup = 'org_group',
+  UserOrgGroup = 'user_org_group',
   SamlIdp = 'saml_idp',
   EmailLog = 'email_log',
   SmsLog = 'sms_log',

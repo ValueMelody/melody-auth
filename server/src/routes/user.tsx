@@ -3,7 +3,9 @@ import {
   routeConfig, typeConfig,
 } from 'configs'
 import { userHandler } from 'handlers'
-import { authMiddleware } from 'middlewares'
+import {
+  authMiddleware, configMiddleware,
+} from 'middlewares'
 
 const BaseRoute = routeConfig.InternalRoute.ApiUsers
 const userRoutes = new Hono<typeConfig.Context>()
@@ -631,4 +633,117 @@ userRoutes.post(
   `${BaseRoute}/:authId/impersonation/:appId`,
   authMiddleware.s2sRoot,
   userHandler.impersonateUser,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/org-groups:
+ *   get:
+ *     summary: Get a list of org groups user belongs to
+ *     description: Required scope - read_user, read_org
+ *     tags: [User Org Groups]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       200:
+ *         description: A list of org groups user belongs to
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 orgGroups:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserOrgGroup'
+ */
+userRoutes.get(
+  `${BaseRoute}/:authId/org-groups`,
+  configMiddleware.enableOrgGroup,
+  authMiddleware.s2sReadUser,
+  authMiddleware.s2sReadOrg,
+  userHandler.getUserOrgGroups,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/org-groups/{orgGroupId}:
+ *   post:
+ *     summary: Add an existing org group to a user by authId and orgGroupId
+ *     description: Required scope - write_user, write_org
+ *     tags: [User Org Groups]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *       - in: path
+ *         name: orgGroupId
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The id of the org group
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ */
+userRoutes.post(
+  `${BaseRoute}/:authId/org-groups/:orgGroupId`,
+  configMiddleware.enableOrgGroup,
+  authMiddleware.s2sWriteUser,
+  authMiddleware.s2sWriteOrg,
+  userHandler.postUserOrgGroup,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/{authId}/org-groups/{orgGroupId}:
+ *   delete:
+ *     summary: Delete an existing org group for a user by authId and orgGroupId
+ *     description: Required scope - write_user, write_org
+ *     tags: [User Org Groups]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *       - in: path
+ *         name: orgGroupId
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The id of the org group
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/org-groups/:orgGroupId`,
+  configMiddleware.enableOrgGroup,
+  authMiddleware.s2sWriteUser,
+  authMiddleware.s2sWriteOrg,
+  userHandler.deleteUserOrgGroup,
 )

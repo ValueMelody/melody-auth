@@ -10,6 +10,7 @@ import {
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/16/solid'
 import { useAuth } from '@melody-auth/react'
 import ImpersonationModal from './ImpersonationModal'
+import UserOrgGroupModal from './UserOrgGroupModal'
 import {
   Card, CardHeader, CardTitle, CardContent,
 } from 'components/ui/card'
@@ -59,6 +60,7 @@ import {
   usePostApiV1UsersByAuthIdSmsMfaMutation,
   usePostApiV1UsersByAuthIdVerifyEmailMutation,
   usePutApiV1UsersByAuthIdMutation,
+  useGetApiV1UsersByAuthIdOrgGroupsQuery,
   UserDetail,
 } from 'services/auth/api'
 import ConfirmModal from 'components/ConfirmModal'
@@ -92,11 +94,13 @@ const Page = () => {
   const [isResettingEmailMfa, setIsResettingEmailMfa] = useState(false)
   const [isRemovingPasskey, setIsRemovingPasskey] = useState(false)
   const [showImpersonateModal, setShowImpersonateModal] = useState(false)
+  const [showUserOrgGroupModal, setShowUserOrgGroupModal] = useState(false)
 
   const enableConsent = !!configs.ENABLE_USER_APP_CONSENT
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
   const enablePasskeyEnrollment = !!configs.ALLOW_PASSKEY_ENROLLMENT
   const enableOrg = !!configs.ENABLE_ORG
+  const enableOrgGroup = configs?.ENABLE_ORG_GROUP
   const enableUserAttribute = !!configs.ENABLE_USER_ATTRIBUTE
 
   const {
@@ -112,6 +116,13 @@ const Page = () => {
     { skip: !enableOrg },
   )
   const orgs = orgsData?.orgs ?? []
+
+  const org = orgs.find((org) => org.slug === orgSlug)
+  const { data: userOrgGroupsData } = useGetApiV1UsersByAuthIdOrgGroupsQuery(
+    { authId: String(authId) },
+    { skip: !enableOrgGroup || !org },
+  )
+  const userOrgGroups = userOrgGroupsData?.orgGroups ?? []
 
   const { data: userAttributesData } = useGetApiV1UserAttributesQuery(
     undefined,
@@ -791,6 +802,29 @@ const Page = () => {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                </TableCell>
+              </TableRow>
+            )}
+            {enableOrg && enableOrgGroup && org && (
+              <TableRow>
+                <UserOrgGroupModal
+                  orgId={org.id}
+                  authId={user.authId}
+                  show={showUserOrgGroupModal}
+                  onClose={() => setShowUserOrgGroupModal(false)}
+                />
+                <TableCell>{t('users.orgGroup')}</TableCell>
+                <TableCell>
+                  <div className='flex items-center gap-2'>
+                    {userOrgGroups.map((userOrgGroup) => userOrgGroup.orgGroupName).join(', ')}
+                    <Button
+                      variant='default'
+                      size='sm'
+                      onClick={() => setShowUserOrgGroupModal(true)}
+                    >
+                      {t('users.manageUserOrgGroup')}
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             )}

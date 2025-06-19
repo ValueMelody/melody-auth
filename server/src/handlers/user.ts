@@ -11,6 +11,8 @@ import {
   consentService, appService, roleService,
   emailService, kvService, passkeyService, userService,
   jwtService,
+  orgService,
+  orgGroupService,
 } from 'services'
 import { userDto } from 'dtos'
 import {
@@ -478,4 +480,73 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
     refresh_token_expires_in: refreshTokenExpiresIn,
     refresh_token_expires_on: refreshTokenExpiresAt,
   })
+}
+
+export const getUserOrgGroups = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  const orgGroups = await orgGroupService.getUserOrgGroups(
+    c,
+    user.id,
+  )
+  return c.json({ orgGroups })
+}
+
+export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const orgGroupId = c.req.param('orgGroupId')
+
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  const org = await orgService.getOrgBySlug(
+    c,
+    user.orgSlug,
+  )
+
+  const orgGroup = await orgGroupService.getOrgGroupById(
+    c,
+    Number(orgGroupId),
+  )
+
+  if (!orgGroup || orgGroup.orgId !== org.id) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.OrgGroupNotFound,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.OrgGroupNotFound)
+  }
+
+  await orgGroupService.createUserOrgGroup(
+    c,
+    user.id,
+    orgGroup.id,
+  )
+
+  return c.json({ success: true })
+}
+
+export const deleteUserOrgGroup = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const orgGroupId = c.req.param('orgGroupId')
+
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  await orgGroupService.deleteUserOrgGroup(
+    c,
+    user.id,
+    Number(orgGroupId),
+  )
+
+  return c.json({ success: true })
 }

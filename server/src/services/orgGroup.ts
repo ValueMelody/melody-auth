@@ -1,7 +1,12 @@
 import { Context } from 'hono'
-import { typeConfig } from 'configs'
-import { orgGroupModel } from 'models'
+import {
+  errorConfig, messageConfig, typeConfig,
+} from 'configs'
+import {
+  orgGroupModel, userOrgGroupModel,
+} from 'models'
 import { orgGroupDto } from 'dtos'
+import { loggerUtil } from 'utils'
 
 export const getOrgGroups = async (
   c: Context<typeConfig.Context>,
@@ -13,6 +18,18 @@ export const getOrgGroups = async (
   )
 
   return orgGroups
+}
+
+export const getOrgGroupById = async (
+  c: Context<typeConfig.Context>,
+  orgGroupId: number,
+): Promise<orgGroupModel.Record | null> => {
+  const orgGroup = await orgGroupModel.getById(
+    c.env.DB,
+    orgGroupId,
+  )
+
+  return orgGroup
 }
 
 export const createOrgGroup = async (
@@ -49,4 +66,57 @@ export const deleteOrgGroup = async (
     orgGroupId,
   )
   return true
+}
+
+export const getUserOrgGroups = async (
+  c: Context<typeConfig.Context>, userId: number,
+): Promise<userOrgGroupModel.UserOrgGroup[]> => {
+  const userOrgGroups = await userOrgGroupModel.getAllByUser(
+    c.env.DB,
+    userId,
+  )
+  const orgGroups = userOrgGroups.map((userOrgGroup) => ({
+    orgGroupId: userOrgGroup.orgGroupId,
+    orgGroupName: userOrgGroup.orgGroupName,
+  }))
+  return orgGroups
+}
+
+export const createUserOrgGroup = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+  orgGroupId: number,
+): Promise<true> => {
+  return userOrgGroupModel.create(
+    c.env.DB,
+    {
+      userId, orgGroupId,
+    },
+  )
+}
+
+export const deleteUserOrgGroup = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+  orgGroupId: number,
+): Promise<true> => {
+  const record = await userOrgGroupModel.getByUserAndOrgGroup(
+    c.env.DB,
+    userId,
+    orgGroupId,
+  )
+
+  if (!record) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.OrgGroupNotFound,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.OrgGroupNotFound)
+  }
+
+  return userOrgGroupModel.remove(
+    c.env.DB,
+    record.id,
+  )
 }
