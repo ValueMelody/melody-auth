@@ -521,7 +521,7 @@ export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.OrgGroupNotFound,
     )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.OrgGroupNotFound)
+    throw new errorConfig.NotFound(messageConfig.RequestError.OrgGroupNotFound)
   }
 
   await orgGroupService.createUserOrgGroup(

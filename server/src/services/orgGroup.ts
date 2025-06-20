@@ -112,7 +112,7 @@ export const deleteUserOrgGroup = async (
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.OrgGroupNotFound,
     )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.OrgGroupNotFound)
+    throw new errorConfig.NotFound(messageConfig.RequestError.OrgGroupNotFound)
   }
 
   return userOrgGroupModel.remove(
