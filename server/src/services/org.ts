@@ -33,6 +33,29 @@ export const getOrgById = async (
   return org
 }
 
+export const getOrgBySlug = async (
+  c: Context<typeConfig.Context>,
+  slug: string,
+): Promise<orgModel.Record> => {
+  const org = slug
+    ? await orgModel.getBySlug(
+      c.env.DB,
+      slug,
+    )
+    : null
+
+  if (!org) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoOrg,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
+  }
+
+  return org
+}
+
 export const createOrg = async (
   c: Context<typeConfig.Context>,
   dto: orgDto.PostOrgDto,

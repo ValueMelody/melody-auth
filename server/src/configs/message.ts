@@ -73,6 +73,7 @@ export enum RequestError {
   NoAppleUser = 'No apple user found',
   NoOidcUser = 'No oidc user found',
   NoOrg = 'No organization found',
+  NoOrgGroup = 'No organization group found',
   NoSamlIdp = 'No SAML IDP found',
   InvalidSamlResponse = 'Invalid SAML response',
   InvalidPolicy = 'Invalid policy',

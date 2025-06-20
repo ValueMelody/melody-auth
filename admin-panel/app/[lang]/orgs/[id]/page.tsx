@@ -469,7 +469,9 @@ const Page = () => {
           {enableOrgGroup && (
             <section className='mb-6 flex justify-between'>
               <section className='flex gap-4 items-center'>
-                <p className='text-sm text-gray-500'>{t('orgGroups.groups')}:</p>
+                <p className='text-sm text-gray-500'>
+                  {orgGroups?.orgGroups?.length ? t('orgGroups.groups') : t('orgGroups.noGroups')}
+                </p>
                 {orgGroups?.orgGroups?.map((orgGroup) => (
                   <Badge
                     key={orgGroup.id}

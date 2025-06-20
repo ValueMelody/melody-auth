@@ -42,7 +42,8 @@
     "fieldIsRequired": "This field is required.",
     "deleteConfirm": "Are you sure want to delete {item}",
     "deleteConfirmBtn": "Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "dashboard": {
     "informationConfigs": "Information Configs",
@@ -137,7 +138,10 @@
     "impersonateConsent": "The user has not consented to this app",
     "confirmImpersonate": "Confirm Impersonation",
     "closeImpersonate": "Close",
-    "noOrg": "No Organization"
+    "noOrg": "No Organization",
+    "orgGroup": "Org Group",
+    "manageUserOrgGroup": "Manage User Org Group",
+    "selectOrgGroups": "Select org groups to assign to the user"
   },
   "userAttributes": {
     "title": "User Attributes",
@@ -212,7 +216,8 @@
     "update": "Update org group",
     "name": "Name",
     "cancel": "Cancel",
-    "groups": "Groups"
+    "groups": "Groups:",
+    "noGroups": "No groups yet."
   },
   "logs": {
     "title": "Logs",

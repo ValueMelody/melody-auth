@@ -40,7 +40,8 @@
     "fieldIsRequired": "Ce champ est requis.",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer {item} ?",
     "deleteConfirmBtn": "Supprimer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "close": "Fermer"
   },
   "dashboard": {
     "informationConfigs": "Configurations d'information",
@@ -131,7 +132,10 @@
     "impersonateConsent": "L'utilisateur n'a pas consenti à cette application",
     "confirmImpersonate": "Confirmer l'impersonation",
     "closeImpersonate": "Fermer",
-    "noOrg": "Aucune organisation"
+    "noOrg": "Aucune organisation",
+    "orgGroup": "Groupe d'organisation",
+    "manageUserOrgGroup": "Gérer le groupe d'organisation de l'utilisateur",
+    "selectOrgGroups": "Sélectionner les groupes d'organisation à assigner à l'utilisateur"
   },
   "userAttributes": {
     "title": "Attributs utilisateur",
@@ -205,7 +209,8 @@
     "update": "Mettre à jour un groupe d'organisation",
     "name": "Nom",
     "cancel": "Annuler",
-    "groups": "Groupes"
+    "groups": "Groupes:",
+    "noGroups": "Aucun groupe pour l'instant."
   },
   "logs": {
     "title": "Journaux",
