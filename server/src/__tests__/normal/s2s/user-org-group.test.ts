@@ -1,30 +1,20 @@
 import { Database } from 'better-sqlite3'
-import { Scope } from '@melody-auth/shared'
 import {
-  afterEach, beforeEach, describe, expect, Mock, test,
-  vi,
+  afterEach, beforeEach, describe, expect, test,
 } from 'vitest'
-import { decode } from 'hono/jwt'
-import { exchangeWithAuthToken } from '../oauth.test'
+import { insertUsers } from './user.test'
 import {
-  adapterConfig, localeConfig, messageConfig, routeConfig,
+  messageConfig, routeConfig,
 } from 'configs'
 import app from 'index'
 import {
-  emailLogRecord,
-  emailResponseMock,
-  fetchMock,
   migrate, mock,
   mockedKV,
 } from 'tests/mock'
 import {
   attachIndividualScopes,
-  dbTime, disableUser, enrollEmailMfa, enrollOtpMfa,
-  enrollSmsMfa,
-  getS2sToken,
+  dbTime, getS2sToken,
 } from 'tests/util'
-import { oauthDto } from 'dtos'
-import { insertUsers } from './user.test'
 import { userOrgGroupModel } from 'models'
 
 let db: Database
@@ -117,7 +107,14 @@ describe(
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/org-groups`,
-          { headers: { Authorization: `Bearer ${await getS2sToken(db, 'read_user read_org')}` } },
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                'read_user read_org',
+              )}`,
+            },
+          },
           mock(db),
         )
         const json = await res.json() as { orgGroups: userOrgGroupModel.UserOrgGroup[] }

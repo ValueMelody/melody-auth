@@ -29,6 +29,7 @@ import {
   useGetApiV1AppsQuery,
   useGetApiV1UserAttributesQuery,
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
+  useGetApiV1UsersByAuthIdOrgGroupsQuery,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
@@ -91,6 +92,9 @@ vi.mock(
     useGetApiV1AppsQuery: vi.fn(),
     usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation: vi.fn(),
     useGetApiV1UserAttributesQuery: vi.fn(),
+    useGetApiV1UsersByAuthIdOrgGroupsQuery: vi.fn(),
+    usePostApiV1UsersByAuthIdOrgGroupsMutation: vi.fn(),
+    useDeleteApiV1UsersByAuthIdOrgGroupsMutation: vi.fn(),
   }),
 )
 
@@ -177,7 +181,8 @@ describe(
             id: 1, name: 'test',
           }],
         },
-      })
+      });
+      (useGetApiV1UsersByAuthIdOrgGroupsQuery as Mock).mockReturnValue({ data: { orgGroups: [] } })
     })
 
     it(
