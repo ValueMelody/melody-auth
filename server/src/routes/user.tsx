@@ -637,41 +637,6 @@ userRoutes.post(
 
 /**
  * @swagger
- * /api/v1/users/{authId}/org-groups:
- *   get:
- *     summary: Get a list of org groups user belongs to
- *     description: Required scope - read_user, read_org
- *     tags: [User Org Groups]
- *     parameters:
- *       - in: path
- *         name: authId
- *         required: true
- *         schema:
- *           type: string
- *         description: The authId of the user
- *     responses:
- *       200:
- *         description: A list of org groups user belongs to
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 orgGroups:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/UserOrgGroup'
- */
-userRoutes.get(
-  `${BaseRoute}/:authId/org-groups`,
-  configMiddleware.enableOrgGroup,
-  authMiddleware.s2sReadUser,
-  authMiddleware.s2sReadOrg,
-  userHandler.getUserOrgGroups,
-)
-
-/**
- * @swagger
  * /api/v1/users/{authId}/org-groups/{orgGroupId}:
  *   post:
  *     summary: Add an existing org group to a user by authId and orgGroupId

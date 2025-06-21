@@ -172,6 +172,10 @@ export interface Match {
   value: string;
 }
 
+export interface WhereIn {
+  values: number[];
+}
+
 export interface Sort {
   column: string;
   order: 'ASC' | 'DESC';

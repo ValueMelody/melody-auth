@@ -119,6 +119,8 @@ describe(
           postOrgReq: expect.objectContaining({
             name: newOrg.name,
             slug: newOrg.slug,
+            allowPublicRegistration: true,
+            onlyUseForBrandingOverride: false,
           }),
         })
       },
@@ -176,6 +178,86 @@ describe(
           'aria-checked',
           'false',
         )
+      },
+    )
+
+    it(
+      'toggles onlyUseForBrandingOverride switch',
+      () => {
+        render(<Page />)
+        const toggle = screen.getByTestId('onlyUseForBrandingOverrideSwitch')
+        // Check that initially the switch is off
+        expect(toggle).toHaveAttribute(
+          'aria-checked',
+          'false',
+        )
+        // Toggle the switch
+        fireEvent.click(toggle)
+        // Expect the switch to be on
+        expect(toggle).toHaveAttribute(
+          'aria-checked',
+          'true',
+        )
+        // Toggle again
+        fireEvent.click(toggle)
+        // Expect the switch to be off again
+        expect(toggle).toHaveAttribute(
+          'aria-checked',
+          'false',
+        )
+      },
+    )
+
+    it(
+      'includes switch values in form submission',
+      async () => {
+        const newOrg = {
+          id: 1,
+          name: 'Test Org',
+          slug: 'test-org',
+        }
+
+        mockCreateOrg.mockResolvedValueOnce({ data: { org: newOrg } })
+
+        render(<Page />)
+
+        // Fill in required fields
+        const nameInput = screen.getByTestId('nameInput')
+        const slugInput = screen.getByTestId('slugInput')
+        fireEvent.change(
+          nameInput,
+          { target: { value: newOrg.name } },
+        )
+        fireEvent.change(
+          slugInput,
+          { target: { value: newOrg.slug } },
+        )
+
+        // Toggle switches
+        const allowPublicRegistrationSwitch = screen.getByTestId('allowPublicRegistrationSwitch')
+        const onlyUseForBrandingOverrideSwitch = screen.getByTestId('onlyUseForBrandingOverrideSwitch')
+
+        // allowPublicRegistration starts as true, toggle to false
+        fireEvent.click(allowPublicRegistrationSwitch)
+
+        // onlyUseForBrandingOverride starts as false, toggle to true
+        fireEvent.click(onlyUseForBrandingOverrideSwitch)
+
+        // Submit form
+        const saveButton = screen.getByRole(
+          'button',
+          { name: /save/i },
+        )
+        fireEvent.click(saveButton)
+
+        expect(mockCreateOrg).toHaveBeenCalledWith({
+          postOrgReq: expect.objectContaining({
+            name: newOrg.name,
+            slug: newOrg.slug,
+            allowPublicRegistration: false,
+            onlyUseForBrandingOverride: true,
+          }),
+        })
       },
     )
   },

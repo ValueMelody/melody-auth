@@ -414,6 +414,55 @@ describe(
             slug: 'default',
             id: 1,
           },
+          orgGroups: [],
+        })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return user with org info and org groups',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'test\', \'default\', \'https://google1.com\', \'https://microsoft1.com\')')
+
+        await db.exec('insert into "org_group" (name, "orgId") values (\'test\', 1)')
+        await db.exec('insert into "org_group" (name, "orgId") values (\'test 2\', 1)')
+
+        await insertUsers(db)
+
+        await db.prepare('update "user" set "orgSlug" = ?').run('default')
+
+        await db.prepare('insert into "user_org_group" ("userId", "orgGroupId") values (1, 1)').run()
+        await db.prepare('insert into "user_org_group" ("userId", "orgGroupId") values (1, 2)').run()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+
+        const json = await res.json() as { user: userModel.Record }
+        expect(json.user).toStrictEqual({
+          ...user1,
+          roles: [],
+          org: {
+            name: 'test',
+            slug: 'default',
+            id: 1,
+          },
+          orgGroups: [
+            {
+              name: 'test',
+              id: 1,
+            },
+            {
+              name: 'test 2',
+              id: 2,
+            },
+          ],
         })
 
         global.process.env.ENABLE_ORG = false as unknown as string
@@ -832,6 +881,7 @@ describe(
               slug: 'test',
               id: 1,
             },
+            orgGroups: [],
           },
         })
 
@@ -871,6 +921,7 @@ describe(
             ...user2,
             ...updateObj,
             org: null,
+            orgGroups: [],
           },
         })
 

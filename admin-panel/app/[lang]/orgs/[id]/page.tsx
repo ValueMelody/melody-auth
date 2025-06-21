@@ -27,7 +27,7 @@ import DeleteButton from 'components/DeleteButton'
 import { useRouter } from 'i18n/navigation'
 import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
-  useGetApiV1OrgGroupsQuery, useDeleteApiV1OrgGroupsByIdMutation,
+  useGetApiV1OrgGroupsQuery, useDeleteApiV1OrgGroupsByIdMutation, useGetApiV1OrgGroupsByIdUsersQuery,
 } from 'services/auth/api'
 import ColorInput from 'components/ColorInput'
 import LinkInput from 'components/LinkInput'
@@ -63,6 +63,14 @@ const Page = () => {
   const [isCreatingOrgGroup, setIsCreatingOrgGroup] = useState(false)
   const [updatingOrgGroupId, setUpdatingOrgGroupId] = useState<number | null>(null)
   const [deletingOrgGroupId, setDeletingOrgGroupId] = useState<number | null>(null)
+  const [selectedOrgGroupId, setSelectedOrgGroupId] = useState<number | null>(null)
+
+  const { data: orgGroupUsersData } = useGetApiV1OrgGroupsByIdUsersQuery(
+    { id: selectedOrgGroupId ?? 0 },
+    { skip: !selectedOrgGroupId },
+  )
+
+  const orgGroupUsers = selectedOrgGroupId ? (orgGroupUsersData?.users ?? []) : null
 
   const { data: orgGroups } = useGetApiV1OrgGroupsQuery(
     { orgId: Number(id) },
@@ -475,14 +483,16 @@ const Page = () => {
                 {orgGroups?.orgGroups?.map((orgGroup) => (
                   <Badge
                     key={orgGroup.id}
-                    variant='default'
-                    className='bg-blue-500 text-white cursor-pointer gap-2'
+                    variant={selectedOrgGroupId === orgGroup.id ? 'default' : 'secondary'}
+                    onClick={() => setSelectedOrgGroupId(selectedOrgGroupId === orgGroup.id ? null : orgGroup.id)}
+                    className='cursor-pointer gap-4'
                   >
                     {orgGroup.name}
-                    <div>
+                    <div className='flex gap-2'>
                       <Button
                         variant='ghost'
                         size='sm'
+                        className='p-1'
                         onClick={() => setUpdatingOrgGroupId(orgGroup.id)}
                       >
                         <EditIcon />
@@ -490,6 +500,7 @@ const Page = () => {
                       <Button
                         variant='ghost'
                         size='sm'
+                        className='p-1'
                         onClick={() => setDeletingOrgGroupId(orgGroup.id)}
                       >
                         <TrashIcon />
@@ -509,6 +520,7 @@ const Page = () => {
           )}
           <UserTable
             orgId={Number(id)}
+            loadedUsers={orgGroupUsers}
           />
         </section>
       )}

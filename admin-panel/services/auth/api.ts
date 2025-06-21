@@ -182,6 +182,13 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Org Groups'],
       }),
+      getApiV1OrgGroupsByIdUsers: build.query<
+        GetApiV1OrgGroupsByIdUsersApiResponse,
+        GetApiV1OrgGroupsByIdUsersApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/org-groups/${queryArg.id}/users` }),
+        providesTags: ['Org Groups'],
+      }),
       putApiV1OrgGroupsById: build.mutation<
         PutApiV1OrgGroupsByIdApiResponse,
         PutApiV1OrgGroupsByIdApiArg
@@ -436,13 +443,6 @@ const injectedRtkApi = api
           body: queryArg.body,
         }),
         invalidatesTags: ['Users'],
-      }),
-      getApiV1UsersByAuthIdOrgGroups: build.query<
-        GetApiV1UsersByAuthIdOrgGroupsApiResponse,
-        GetApiV1UsersByAuthIdOrgGroupsApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/org-groups` }),
-        providesTags: ['User Org Groups'],
       }),
       postApiV1UsersByAuthIdOrgGroupsAndOrgGroupId: build.mutation<
         PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiResponse,
@@ -776,6 +776,14 @@ export type PostApiV1OrgGroupsApiResponse = /** status 201 undefined */ {
 export type PostApiV1OrgGroupsApiArg = {
   postOrgGroupReq: PostOrgGroupReq;
 };
+export type GetApiV1OrgGroupsByIdUsersApiResponse =
+  /** status 200 A list of users by orgGroupId */ {
+    users?: User[];
+  };
+export type GetApiV1OrgGroupsByIdUsersApiArg = {
+  /** The unique ID of the org group */
+  id: number;
+};
 export type PutApiV1OrgGroupsByIdApiResponse = /** status 200 undefined */ {
   orgGroup?: OrgGroup;
 };
@@ -975,14 +983,6 @@ export type PostApiV1UsersByAuthIdImpersonationAndAppIdApiArg = {
     /** The access token of the user impersonating, this user must be a super_admin */
     impersonatorToken?: string;
   };
-};
-export type GetApiV1UsersByAuthIdOrgGroupsApiResponse =
-  /** status 200 A list of org groups user belongs to */ {
-    orgGroups?: UserOrgGroup[];
-  };
-export type GetApiV1UsersByAuthIdOrgGroupsApiArg = {
-  /** The authId of the user */
-  authId: string;
 };
 export type PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiResponse =
   /** status 200 undefined */ {
@@ -1328,6 +1328,12 @@ export type UserDetail = User & {
     name?: string;
     slug?: string;
   } | null;
+  orgGroups?:
+    | {
+        id?: number;
+        name?: string;
+      }[]
+    | null;
   attributes?: {
     [key: string]: string;
   } | null;
@@ -1351,10 +1357,6 @@ export type UserPasskey = {
   id: number;
   credentialId: string;
   counter: number;
-};
-export type UserOrgGroup = {
-  orgGroupId?: number;
-  orgGroupName?: string;
 };
 export type UserAttribute = {
   id: number;
@@ -1478,6 +1480,8 @@ export const {
   useGetApiV1OrgGroupsQuery,
   useLazyGetApiV1OrgGroupsQuery,
   usePostApiV1OrgGroupsMutation,
+  useGetApiV1OrgGroupsByIdUsersQuery,
+  useLazyGetApiV1OrgGroupsByIdUsersQuery,
   usePutApiV1OrgGroupsByIdMutation,
   useDeleteApiV1OrgGroupsByIdMutation,
   useGetApiV1AppsQuery,
@@ -1512,8 +1516,6 @@ export const {
   usePostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdMutation,
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
-  useGetApiV1UsersByAuthIdOrgGroupsQuery,
-  useLazyGetApiV1UsersByAuthIdOrgGroupsQuery,
   usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useGetApiV1UserAttributesQuery,

@@ -67,6 +67,17 @@ const UserDetail = {
           },
           nullable: true,
         },
+        orgGroups: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              name: { type: 'string' },
+            },
+          },
+          nullable: true,
+        },
         attributes: {
           type: 'object',
           additionalProperties: { type: 'string' },

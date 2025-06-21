@@ -482,20 +482,6 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
   })
 }
 
-export const getUserOrgGroups = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
-  const user = await userService.getUserByAuthId(
-    c,
-    authId,
-  )
-
-  const orgGroups = await orgGroupService.getUserOrgGroups(
-    c,
-    user.id,
-  )
-  return c.json({ orgGroups })
-}
-
 export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const orgGroupId = c.req.param('orgGroupId')

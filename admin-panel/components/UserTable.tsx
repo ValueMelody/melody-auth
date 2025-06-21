@@ -17,14 +17,19 @@ import IsSelfLabel from 'components/IsSelfLabel'
 import useDebounce from 'hooks/useDebounce'
 import {
   useGetApiV1OrgsByIdUsersQuery, useGetApiV1UsersQuery,
+  User,
 } from 'services/auth/api'
 import LoadingPage from 'components/LoadingPage'
 import { routeTool } from '@/tools'
 
 const PageSize = 20
 
-const UserTable = ({ orgId }: {
+const UserTable = ({
+  orgId,
+  loadedUsers,
+}: {
   orgId: number | null;
+  loadedUsers?: User[] | null;
 }) => {
   const t = useTranslations()
 
@@ -60,7 +65,7 @@ const UserTable = ({ orgId }: {
 
   const data = orgUsersData ?? usersData
 
-  const users = data?.users ?? []
+  const users = loadedUsers ?? data?.users ?? []
   const count = data?.count ?? 0
 
   const totalPages = useMemo(
@@ -86,14 +91,16 @@ const UserTable = ({ orgId }: {
 
   return (
     <section>
-      <header className='mb-6 flex items-center gap-4'>
-        <Input
-          className='w-60'
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('users.search')}
-        />
-      </header>
+      {!loadedUsers && (
+        <header className='mb-6 flex items-center gap-4'>
+          <Input
+            className='w-60'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('users.search')}
+          />
+        </header>
+      )}
       <Table>
         <TableHeader className='md:hidden'>
           <TableRow>
@@ -168,7 +175,7 @@ const UserTable = ({ orgId }: {
           ))}
         </TableBody>
       </Table>
-      {totalPages > 1 && (
+      {!loadedUsers && totalPages > 1 && (
         <Pagination
           className='mt-8'
           currentPage={pageNumber}

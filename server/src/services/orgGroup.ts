@@ -1,9 +1,10 @@
 import { Context } from 'hono'
+import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
-  orgGroupModel, userOrgGroupModel,
+  orgGroupModel, userModel, userOrgGroupModel,
 } from 'models'
 import { orgGroupDto } from 'dtos'
 import { loggerUtil } from 'utils'
@@ -68,20 +69,6 @@ export const deleteOrgGroup = async (
   return true
 }
 
-export const getUserOrgGroups = async (
-  c: Context<typeConfig.Context>, userId: number,
-): Promise<userOrgGroupModel.UserOrgGroup[]> => {
-  const userOrgGroups = await userOrgGroupModel.getAllByUser(
-    c.env.DB,
-    userId,
-  )
-  const orgGroups = userOrgGroups.map((userOrgGroup) => ({
-    orgGroupId: userOrgGroup.orgGroupId,
-    orgGroupName: userOrgGroup.orgGroupName,
-  }))
-  return orgGroups
-}
-
 export const createUserOrgGroup = async (
   c: Context<typeConfig.Context>,
   userId: number,
@@ -119,4 +106,31 @@ export const deleteUserOrgGroup = async (
     c.env.DB,
     record.id,
   )
+}
+
+export const getUsersByOrgGroupId = async (
+  c: Context<typeConfig.Context>,
+  orgGroupId: number,
+): Promise<userModel.ApiRecord[]> => {
+  const userOrgGroups = await userOrgGroupModel.getAllByOrgGroup(
+    c.env.DB,
+    orgGroupId,
+  )
+  const userIds = userOrgGroups.map((userOrgGroup) => userOrgGroup.userId)
+
+  const users = userIds.length
+    ? await userModel.getAll(
+      c.env.DB,
+      { whereIn: { values: userIds } },
+    )
+    : []
+
+  const { ENABLE_NAMES: enableNames } = env(c)
+
+  const result = users.map((user) => userModel.convertToApiRecord(
+    user,
+    enableNames,
+  ))
+
+  return result
 }

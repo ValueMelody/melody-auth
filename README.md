@@ -74,6 +74,7 @@
 - <b>Organization</b>:
   - Branding config override
   - Organization users
+  - Organization groups
 - <b>Mailer Option</b> [Email Provider Setup Doc](https://auth.valuemelody.com/email-provider-setup.html)
   - SendGrid
   - Mailgun

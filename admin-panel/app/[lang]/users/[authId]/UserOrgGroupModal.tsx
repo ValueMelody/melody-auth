@@ -4,9 +4,10 @@ import {
   AlertDialogDescription,
 } from 'components/ui/alert-dialog'
 import {
-  useGetApiV1OrgGroupsQuery, useGetApiV1UsersByAuthIdOrgGroupsQuery,
+  useGetApiV1OrgGroupsQuery,
   usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
+  useGetApiV1UsersByAuthIdQuery,
 } from 'services/auth/api'
 import SubmitError from 'components/SubmitError'
 
@@ -29,9 +30,11 @@ const UserOrgGroupModal = ({
   const { data: orgGroupsData } = useGetApiV1OrgGroupsQuery({ orgId })
   const orgGroups = orgGroupsData?.orgGroups ?? []
 
-  const { data: userOrgGroupsData } = useGetApiV1UsersByAuthIdOrgGroupsQuery({ authId })
-  const userOrgGroups = userOrgGroupsData?.orgGroups ?? []
-  const userOrgGroupIds = userOrgGroups.map((orgGroup) => orgGroup.orgGroupId)
+  const {
+    data: userData, refetch: refetchUser,
+  } = useGetApiV1UsersByAuthIdQuery({ authId: String(authId) })
+  const user = userData?.user
+  const userOrgGroupIds = user?.orgGroups?.map((orgGroup) => orgGroup.id) ?? []
 
   const [postUserOrgGroup, { isLoading: isPostingUserOrgGroup }] =
     usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation()
@@ -46,10 +49,16 @@ const UserOrgGroupModal = ({
       deleteUserOrgGroup({
         authId, orgGroupId,
       })
+        .then(() => {
+          refetchUser()
+        })
     } else {
       postUserOrgGroup({
         authId, orgGroupId,
       })
+        .then(() => {
+          refetchUser()
+        })
     }
   }
 

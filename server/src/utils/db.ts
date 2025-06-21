@@ -22,18 +22,21 @@ export const d1SelectAllQuery = (
     search?: typeConfig.Search;
     match?: typeConfig.Match;
     sort?: typeConfig.Sort;
+    whereIn?: typeConfig.WhereIn;
   },
 ): D1PreparedStatement => {
   const pagination = option?.pagination
   const search = option?.search
   const match = option?.match
   const sort = option?.sort
+  const whereIn = option?.whereIn
 
   let num = 1
   const bind = []
   let matchCondition = ''
   let searchCondition = ''
   let paginatedCondition = ''
+  let inCondition = ''
   let sortCondition = 'ORDER BY id ASC'
 
   if (match) {
@@ -46,6 +49,10 @@ export const d1SelectAllQuery = (
     bind.push(search.value)
   }
 
+  if (whereIn) {
+    inCondition = `AND id IN (${whereIn.values.join(',')})`
+  }
+
   if (pagination) {
     paginatedCondition = `Limit $${num++} OFFSET $${num++}`
     bind.push(pagination.pageSize)
@@ -56,7 +63,7 @@ export const d1SelectAllQuery = (
     sortCondition = `ORDER BY "${sort.column}" ${sort.order}`
   }
 
-  const query = `SELECT * FROM ${tableName} WHERE "deletedAt" IS NULL ${matchCondition} ${searchCondition} ${sortCondition} ${paginatedCondition}`
+  const query = `SELECT * FROM ${tableName} WHERE "deletedAt" IS NULL ${inCondition} ${matchCondition} ${searchCondition} ${sortCondition} ${paginatedCondition}`
 
   const stmt = bind.length
     ? db.prepare(query).bind(...bind)
