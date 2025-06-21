@@ -5,12 +5,14 @@ import {
   errorConfig,
   messageConfig,
   typeConfig,
+  variableConfig,
 } from 'configs'
 import {
   baseDto, identityDto, userDto,
 } from 'dtos'
 import {
-  orgModel, roleModel, userAppConsentModel, userAttributeModel, userAttributeValueModel, userModel, userRoleModel,
+  orgModel, roleModel, userAppConsentModel, userAttributeModel, userAttributeValueModel,
+  userModel, userOrgGroupModel, userRoleModel,
 } from 'models'
 import {
   emailService, jwtService, kvService, roleService,
@@ -236,6 +238,13 @@ export const getUserDetailByAuthId = async (
     )
     : undefined
 
+  const orgGroups = org
+    ? await userOrgGroupModel.getAllByUser(
+      c.env.DB,
+      user.id,
+    )
+    : []
+
   const { ENABLE_USER_ATTRIBUTE: enableUserAttribute } = env(c)
   let attributes: Record<string, string> | undefined
   if (enableUserAttribute) {
@@ -259,6 +268,7 @@ export const getUserDetailByAuthId = async (
     enableOrg,
     roles,
     org,
+    orgGroups,
     attributes,
   )
   return result
@@ -1161,6 +1171,13 @@ export const updateUser = async (
   if (dto.isActive !== undefined) updateObj.isActive = dto.isActive ? 1 : 0
   if (dto.orgSlug !== undefined) updateObj.orgSlug = dto.orgSlug
 
+  if (updateObj.orgSlug && dto.orgSlug !== user.orgSlug && variableConfig.systemConfig.enableOrgGroup) {
+    await userOrgGroupModel.removeByUser(
+      c.env.DB,
+      user.id,
+    )
+  }
+
   const updatedUser = Object.keys(updateObj).length
     ? await userModel.update(
       c.env.DB,
@@ -1212,6 +1229,13 @@ export const updateUser = async (
       updatedUser.orgSlug,
     )
     : undefined
+
+  const orgGroups = org
+    ? await userOrgGroupModel.getAllByUser(
+      c.env.DB,
+      updatedUser.id,
+    )
+    : []
 
   let attributeValuesByAttributeName: Record<string, string> | undefined
   if (attributeValues) {
@@ -1281,6 +1305,7 @@ export const updateUser = async (
     enableOrg,
     roleNames,
     org,
+    orgGroups,
     attributeValuesByAttributeName,
   )
 }

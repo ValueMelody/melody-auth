@@ -12,10 +12,8 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  attachIndividualScopes,
   dbTime, getS2sToken,
 } from 'tests/util'
-import { userOrgGroupModel } from 'models'
 
 let db: Database
 
@@ -44,123 +42,6 @@ const insertOrgGroups = async (db: Database) => {
     values ('org group 2', 1)
   `)
 }
-
-describe(
-  'get user org groups',
-  () => {
-    test(
-      'should return user org groups',
-      async () => {
-        process.env.ENABLE_ORG = true as unknown as string
-
-        await insertUsers(db)
-        await insertOrgGroups(db)
-
-        await db.exec(`
-          INSERT INTO "user_org_group" ("userId", "orgGroupId")
-          values (1, 1)
-        `)
-
-        const res = await app.request(
-          `${BaseRoute}/1-1-1-1/org-groups`,
-          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
-          mock(db),
-        )
-        const json = await res.json() as { orgGroups: userOrgGroupModel.UserOrgGroup[] }
-        expect(json.orgGroups).toStrictEqual([{
-          orgGroupId: 1,
-          orgGroupName: 'org group 1',
-        }])
-
-        process.env.ENABLE_ORG = false as unknown as string
-      },
-    )
-
-    test(
-      'should return empty array if user has no org groups',
-      async () => {
-        process.env.ENABLE_ORG = true as unknown as string
-
-        await insertUsers(db)
-        await insertOrgGroups(db)
-
-        const res = await app.request(
-          `${BaseRoute}/1-1-1-1/org-groups`,
-          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
-          mock(db),
-        )
-        const json = await res.json() as { orgGroups: userOrgGroupModel.UserOrgGroup[] }
-        expect(json.orgGroups).toStrictEqual([])
-
-        process.env.ENABLE_ORG = false as unknown as string
-      },
-    )
-
-    test(
-      'could read with read user and read org scope',
-      async () => {
-        process.env.ENABLE_ORG = true as unknown as string
-
-        await insertUsers(db)
-        await attachIndividualScopes(db)
-        await insertOrgGroups(db)
-
-        const res = await app.request(
-          `${BaseRoute}/1-1-1-1/org-groups`,
-          {
-            headers: {
-              Authorization: `Bearer ${await getS2sToken(
-                db,
-                'read_user read_org',
-              )}`,
-            },
-          },
-          mock(db),
-        )
-        const json = await res.json() as { orgGroups: userOrgGroupModel.UserOrgGroup[] }
-        expect(json.orgGroups).toStrictEqual([])
-
-        process.env.ENABLE_ORG = false as unknown as string
-      },
-    )
-
-    test(
-      'should throw error if user not found',
-      async () => {
-        process.env.ENABLE_ORG = true as unknown as string
-
-        await insertUsers(db)
-        await insertOrgGroups(db)
-
-        const res = await app.request(
-          `${BaseRoute}/1-1-2-1/org-groups`,
-          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
-          mock(db),
-        )
-        expect(res.status).toBe(404)
-        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
-
-        process.env.ENABLE_ORG = false as unknown as string
-      },
-    )
-
-    test(
-      'should throw error if feature flag is disabled',
-      async () => {
-        await insertUsers(db)
-        await insertOrgGroups(db)
-
-        const res = await app.request(
-          `${BaseRoute}/1-1-1-2/org-groups`,
-          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
-          mock(db),
-        )
-        expect(res.status).toBe(400)
-        expect(await res.text()).toBe(messageConfig.ConfigError.OrgNotEnabled)
-      },
-    )
-  },
-)
 
 describe(
   'create user org group',

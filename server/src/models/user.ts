@@ -1,8 +1,11 @@
 import {
   adapterConfig, errorConfig,
   typeConfig,
+  variableConfig,
 } from 'configs'
-import { orgModel } from 'models'
+import {
+  orgModel, userOrgGroupModel,
+} from 'models'
 import { dbUtil } from 'utils'
 
 export enum MfaType {
@@ -86,6 +89,7 @@ export interface PaginatedApiRecords {
 export interface ApiRecordFull extends ApiRecord {
   roles?: string[];
   org?: orgModel.ApiRecord | null;
+  orgGroups?: { id: number; name: string }[];
   attributes?: globalThis.Record<string, string>;
 }
 
@@ -171,6 +175,7 @@ export const convertToApiRecordFull = (
   enableOrg: boolean,
   roles: string[],
   org: orgModel.Record | null | undefined,
+  orgGroups: userOrgGroupModel.RecordWithGroupName[],
   attributes: globalThis.Record<string, string> | undefined,
 ): ApiRecordFull => {
   const result: ApiRecordFull = convertToApiRecord(
@@ -179,7 +184,14 @@ export const convertToApiRecordFull = (
   )
   if (enableOrg) {
     result.org = org ? orgModel.convertToApiRecord(org) : null
+    if (variableConfig.systemConfig.enableOrgGroup) {
+      result.orgGroups = orgGroups.map((orgGroup) => ({
+        id: orgGroup.orgGroupId,
+        name: orgGroup.orgGroupName,
+      }))
+    }
   }
+
   return {
     ...result,
     roles,
@@ -193,6 +205,7 @@ export const getAll = async (
     search?: typeConfig.Search;
     match?: typeConfig.Match;
     pagination?: typeConfig.Pagination;
+    whereIn?: typeConfig.WhereIn;
   },
 ): Promise<Record[]> => {
   const stmt = dbUtil.d1SelectAllQuery(

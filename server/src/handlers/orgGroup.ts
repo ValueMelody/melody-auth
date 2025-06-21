@@ -55,3 +55,13 @@ export const deleteOrgGroup = async (c: Context<typeConfig.Context>) => {
   c.status(204)
   return c.body(null)
 }
+
+export const getUsersByOrgGroupId = async (c: Context<typeConfig.Context>) => {
+  const id = Number(c.req.param('id'))
+
+  const users = await orgGroupService.getUsersByOrgGroupId(
+    c,
+    id,
+  )
+  return c.json({ users })
+}

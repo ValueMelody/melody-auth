@@ -60,7 +60,6 @@ import {
   usePostApiV1UsersByAuthIdSmsMfaMutation,
   usePostApiV1UsersByAuthIdVerifyEmailMutation,
   usePutApiV1UsersByAuthIdMutation,
-  useGetApiV1UsersByAuthIdOrgGroupsQuery,
   UserDetail,
 } from 'services/auth/api'
 import ConfirmModal from 'components/ConfirmModal'
@@ -117,12 +116,7 @@ const Page = () => {
   )
   const orgs = orgsData?.orgs ?? []
 
-  const org = orgs.find((org) => org.slug === orgSlug)
-  const { data: userOrgGroupsData } = useGetApiV1UsersByAuthIdOrgGroupsQuery(
-    { authId: String(authId) },
-    { skip: !enableOrgGroup || !org },
-  )
-  const userOrgGroups = userOrgGroupsData?.orgGroups ?? []
+  const org = orgs.find((org) => org.slug === user?.org?.slug)
 
   const { data: userAttributesData } = useGetApiV1UserAttributesQuery(
     undefined,
@@ -816,10 +810,11 @@ const Page = () => {
                 <TableCell>{t('users.orgGroup')}</TableCell>
                 <TableCell>
                   <div className='flex items-center gap-2'>
-                    {userOrgGroups.map((userOrgGroup) => userOrgGroup.orgGroupName).join(', ')}
+                    {user.orgGroups?.map((orgGroup) => orgGroup.name).join(', ')}
                     <Button
                       variant='default'
                       size='sm'
+                      data-testid='manageUserOrgGroupButton'
                       onClick={() => setShowUserOrgGroupModal(true)}
                     >
                       {t('users.manageUserOrgGroup')}

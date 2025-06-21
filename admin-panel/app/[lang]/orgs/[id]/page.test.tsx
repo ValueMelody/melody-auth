@@ -14,6 +14,7 @@ import {
   usePutApiV1OrgGroupsByIdMutation,
   usePostApiV1OrgGroupsMutation,
   useDeleteApiV1OrgGroupsByIdMutation,
+  useGetApiV1OrgGroupsByIdUsersQuery,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 
@@ -65,6 +66,7 @@ vi.mock(
     usePostApiV1OrgGroupsMutation: vi.fn(),
     usePutApiV1OrgGroupsByIdMutation: vi.fn(),
     useDeleteApiV1OrgGroupsByIdMutation: vi.fn(),
+    useGetApiV1OrgGroupsByIdUsersQuery: vi.fn(),
   }),
 )
 
@@ -73,7 +75,7 @@ vi.mock(
   () => ({
     configSignal: {
       value: {
-        ENABLE_NAMES: true, ENABLE_ORG_GROUP: false,
+        ENABLE_NAMES: true, ENABLE_ORG_GROUP: true,
       },
       subscribe: () => () => {},
     },
@@ -142,7 +144,21 @@ describe(
 
       vi.mocked(useGetApiV1UsersQuery).mockReturnValue({ data: users } as any)
 
-      vi.mocked(useGetApiV1OrgGroupsQuery).mockReturnValue({ data: { orgGroups: [] } } as any)
+      vi.mocked(useGetApiV1OrgGroupsQuery).mockReturnValue({
+        data: {
+          orgGroups: [
+            {
+              id: 1, name: 'Admin Group',
+            },
+            {
+              id: 2, name: 'Manager Group',
+            },
+            {
+              id: 3, name: 'User Group',
+            },
+          ],
+        },
+      } as any)
 
       vi.mocked(usePostApiV1OrgGroupsMutation).mockReturnValue([
         mockCreateOrgGroup,
@@ -158,6 +174,8 @@ describe(
         mockDeleteOrgGroup,
         { isLoading: false },
       ] as any)
+
+      vi.mocked(useGetApiV1OrgGroupsByIdUsersQuery).mockReturnValue({ data: { users: [] } } as any)
     })
 
     it(
@@ -682,6 +700,19 @@ describe(
         } as any)
         const { container } = render(<Page />)
         expect(container.innerHTML).toBe('')
+      },
+    )
+
+    // Org Group Tests
+    it(
+      'renders org groups when enabled',
+      () => {
+        render(<Page />)
+
+        expect(screen.getByText('Admin Group')).toBeInTheDocument()
+        expect(screen.getByText('Manager Group')).toBeInTheDocument()
+        expect(screen.getByText('User Group')).toBeInTheDocument()
+        expect(screen.getByText('orgGroups.new')).toBeInTheDocument()
       },
     )
   },

@@ -3,6 +3,9 @@ import {
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import { Scope } from '@melody-auth/shared'
+import {
+  user1, user2, insertUsers,
+} from './user.test'
 import app from 'index'
 import {
   messageConfig, routeConfig,
@@ -14,7 +17,9 @@ import {
   attachIndividualScopes,
   dbTime, getS2sToken,
 } from 'tests/util'
-import { orgGroupModel } from 'models'
+import {
+  orgGroupModel, userModel,
+} from 'models'
 
 let db: Database
 
@@ -257,6 +262,118 @@ describe(
         expect(checkRes.status).toBe(404)
 
         process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'get users by org group id',
+  () => {
+    test(
+      'should return all users by org group id',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        db.prepare('INSERT INTO org (name, slug) VALUES (?, ?)').run(
+          'test org',
+          'test-org',
+        )
+        await createNewOrgGroup()
+
+        await insertUsers(db)
+
+        await db.exec(`
+          update "user" set "orgSlug" = 'test-org' where id = 1
+        `)
+        await db.exec(`
+          insert into "user_org_group" ("userId", "orgGroupId")
+          values (1, 1)
+        `)
+        await db.exec(`
+          insert into "user_org_group" ("userId", "orgGroupId")
+          values (2, 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1/users`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+
+        expect(json.users.length).toBe(2)
+        expect(json).toStrictEqual({ users: [user1, user2] })
+
+        await db.exec(`
+          delete from "user_org_group" where "userId" = 1
+        `)
+
+        const res1 = await app.request(
+          `${BaseRoute}/1/users`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json() as { users: userModel.Record[] }
+
+        expect(json1.users.length).toBe(1)
+        expect(json1).toStrictEqual({ users: [user2] })
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return with read user and read org scope',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await attachIndividualScopes(db)
+
+        db.prepare('INSERT INTO org (name, slug) VALUES (?, ?)').run(
+          'test org',
+          'test-org',
+        )
+        await createNewOrgGroup()
+
+        const res = await app.request(
+          `${BaseRoute}/1/users`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                'read_user read_org',
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+
+        expect(json.users.length).toBe(0)
+        expect(json).toStrictEqual({ users: [] })
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        const res = await app.request(
+          `${BaseRoute}/1/users`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                'read_user read_org',
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.OrgNotEnabled)
       },
     )
   },

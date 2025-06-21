@@ -10,7 +10,7 @@ export interface Record {
   deletedAt: string | null;
 }
 
-export interface RecordWithAppName extends Record {
+export interface RecordWithGroupName extends Record {
   orgGroupName: string;
 }
 
@@ -40,7 +40,7 @@ export const create = async (
 
 export const getAllByUser = async (
   db: D1Database, userId: number,
-): Promise<RecordWithAppName[]> => {
+): Promise<RecordWithGroupName[]> => {
   const query = `
     SELECT ${TableName}.*, ${adapterConfig.TableName.OrgGroup}.name as "orgGroupName"
     FROM ${TableName} LEFT JOIN ${adapterConfig.TableName.OrgGroup}
@@ -49,7 +49,19 @@ export const getAllByUser = async (
   `
   const stmt = db.prepare(query)
     .bind(userId)
-  const { results: userOrgGroups }: { results: RecordWithAppName[] } = await stmt.all()
+  const { results: userOrgGroups }: { results: RecordWithGroupName[] } = await stmt.all()
+  return userOrgGroups
+}
+
+export const getAllByOrgGroup = async (
+  db: D1Database, orgGroupId: number,
+): Promise<Record[]> => {
+  const query = `
+    SELECT * FROM ${TableName} WHERE "orgGroupId" = $1 AND "deletedAt" IS NULL
+  `
+  const stmt = db.prepare(query)
+    .bind(orgGroupId)
+  const { results: userOrgGroups }: { results: Record[] } = await stmt.all()
   return userOrgGroups
 }
 
@@ -76,6 +88,20 @@ export const remove = async (
     db,
     TableName,
     id,
+  )
+
+  await dbUtil.d1Run(stmt)
+  return true
+}
+
+export const removeByUser = async (
+  db: D1Database, userId: number,
+): Promise<true> => {
+  const stmt = dbUtil.d1SoftDeleteQuery(
+    db,
+    TableName,
+    userId,
+    'userId',
   )
 
   await dbUtil.d1Run(stmt)

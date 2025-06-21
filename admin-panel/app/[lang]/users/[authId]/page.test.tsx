@@ -29,7 +29,10 @@ import {
   useGetApiV1AppsQuery,
   useGetApiV1UserAttributesQuery,
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
-  useGetApiV1UsersByAuthIdOrgGroupsQuery,
+  useGetApiV1OrgGroupsByIdUsersQuery,
+  useGetApiV1OrgGroupsQuery,
+  usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
+  useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
@@ -95,6 +98,10 @@ vi.mock(
     useGetApiV1UsersByAuthIdOrgGroupsQuery: vi.fn(),
     usePostApiV1UsersByAuthIdOrgGroupsMutation: vi.fn(),
     useDeleteApiV1UsersByAuthIdOrgGroupsMutation: vi.fn(),
+    useGetApiV1OrgGroupsByIdUsersQuery: vi.fn(),
+    useGetApiV1OrgGroupsQuery: vi.fn(),
+    usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation: vi.fn(),
+    useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation: vi.fn(),
   }),
 )
 
@@ -133,6 +140,8 @@ const mockUnenrollSmsMfa = vi.fn()
 const mockUnenrollOtpMfa = vi.fn()
 const mockUnlinkAccount = vi.fn()
 const mockDeletePasskey = vi.fn()
+const mockAddOrgGroup = vi.fn()
+const mockDeleteOrgGroup = vi.fn()
 
 describe(
   'user',
@@ -182,7 +191,14 @@ describe(
           }],
         },
       });
-      (useGetApiV1UsersByAuthIdOrgGroupsQuery as Mock).mockReturnValue({ data: { orgGroups: [] } })
+      (useGetApiV1OrgGroupsByIdUsersQuery as Mock).mockReturnValue({ data: { users: [] } });
+      (useGetApiV1OrgGroupsQuery as Mock).mockReturnValue({ data: { orgGroups: [] } });
+      (usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation as Mock).mockReturnValue([
+        mockAddOrgGroup, { isLoading: false },
+      ]);
+      (useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation as Mock).mockReturnValue([
+        mockDeleteOrgGroup, { isLoading: false },
+      ])
     })
 
     it(
@@ -1601,6 +1617,387 @@ describe(
         await waitFor(() => {
           const firstNameInput = screen.getByTestId('firstName') as HTMLInputElement
           expect(firstNameInput.value).toBe('')
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    // Org Group Tests
+    it(
+      'renders org group row when org and org group are enabled and org exists',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: true,
+          ENABLE_ORG_GROUP: true,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                id: 1, name: 'Test Org', slug: 'test-org',
+              },
+              orgGroups: [
+                {
+                  id: 1, name: 'Admin Group',
+                },
+                {
+                  id: 2, name: 'Manager Group',
+                },
+              ],
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [{
+              id: 1, name: 'Test Org', slug: 'test-org',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('users.orgGroup')).toBeInTheDocument()
+          expect(screen.getByText('Admin Group, Manager Group')).toBeInTheDocument()
+          expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'does not render org group row when org is not enabled',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: false,
+          ENABLE_ORG_GROUP: true,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                id: 1, name: 'Test Org', slug: 'test-org',
+              },
+              orgGroups: [{
+                id: 1, name: 'Admin Group',
+              }],
+            },
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.queryByText('users.orgGroup')).not.toBeInTheDocument()
+          expect(screen.queryByText('users.manageUserOrgGroup')).not.toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'does not render org group row when org group is not enabled',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: true,
+          ENABLE_ORG_GROUP: false,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                id: 1, name: 'Test Org', slug: 'test-org',
+              },
+              orgGroups: [{
+                id: 1, name: 'Admin Group',
+              }],
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [{
+              id: 1, name: 'Test Org', slug: 'test-org',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.queryByText('users.orgGroup')).not.toBeInTheDocument()
+          expect(screen.queryByText('users.manageUserOrgGroup')).not.toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'does not render org group row when user has no org',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: true,
+          ENABLE_ORG_GROUP: true,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: null,
+              orgGroups: [],
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({ data: { orgs: [] } })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.queryByText('users.orgGroup')).not.toBeInTheDocument()
+          expect(screen.queryByText('users.manageUserOrgGroup')).not.toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'does not render org group row when org is not found in orgs list',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: true,
+          ENABLE_ORG_GROUP: true,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                id: 1, name: 'Test Org', slug: 'test-org',
+              },
+              orgGroups: [{
+                id: 1, name: 'Admin Group',
+              }],
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [{
+              id: 2, name: 'Different Org', slug: 'different-org',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.queryByText('users.orgGroup')).not.toBeInTheDocument()
+          expect(screen.queryByText('users.manageUserOrgGroup')).not.toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'displays empty org groups correctly',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: true,
+          ENABLE_ORG_GROUP: true,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                id: 1, name: 'Test Org', slug: 'test-org',
+              },
+              orgGroups: [],
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [{
+              id: 1, name: 'Test Org', slug: 'test-org',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('users.orgGroup')).toBeInTheDocument()
+          expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
+          // Should display empty string for empty org groups
+          const orgGroupCell = screen.getByText('users.manageUserOrgGroup').closest('td')
+          expect(orgGroupCell).toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'displays single org group correctly',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: true,
+          ENABLE_ORG_GROUP: true,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                id: 1, name: 'Test Org', slug: 'test-org',
+              },
+              orgGroups: [{
+                id: 1, name: 'Admin Group',
+              }],
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [{
+              id: 1, name: 'Test Org', slug: 'test-org',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('users.orgGroup')).toBeInTheDocument()
+          expect(screen.getByText('Admin Group')).toBeInTheDocument()
+          expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'opens user org group modal when manage button is clicked',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: true,
+          ENABLE_ORG_GROUP: true,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                id: 1, name: 'Test Org', slug: 'test-org',
+              },
+              orgGroups: [{
+                id: 1, name: 'Admin Group',
+              }],
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [{
+              id: 1, name: 'Test Org', slug: 'test-org',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const manageButton = screen.getByTestId('manageUserOrgGroupButton')
+          fireEvent.click(manageButton)
+        })
+
+        await waitFor(() => {
+          expect(screen.queryByText('users.selectOrgGroups')).toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'handles undefined org groups gracefully',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_ORG: true,
+          ENABLE_ORG_GROUP: true,
+        }
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              org: {
+                id: 1, name: 'Test Org', slug: 'test-org',
+              },
+              orgGroups: undefined,
+            },
+          },
+        })
+
+        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+          data: {
+            orgs: [{
+              id: 1, name: 'Test Org', slug: 'test-org',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('users.orgGroup')).toBeInTheDocument()
+          expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
+          // Should not crash with undefined org groups
         })
 
         vi.mocked(configSignal).value = originalConfig

@@ -76,6 +76,41 @@ orgGroupRoutes.post(
 
 /**
  * @swagger
+ * /api/v1/org-groups/{id}/users:
+ *   get:
+ *     summary: Get a list of users by orgGroupId
+ *     description: Required scope - read_user, read_org
+ *     tags: [Org Groups]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the org group
+ *     responses:
+ *       200:
+ *         description: A list of users by orgGroupId
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ */
+orgGroupRoutes.get(
+  `${BaseRoute}/:id/users`,
+  configMiddleware.enableOrgGroup,
+  authMiddleware.s2sReadUser,
+  authMiddleware.s2sReadOrg,
+  orgGroupHandler.getUsersByOrgGroupId,
+)
+
+/**
+ * @swagger
  * /api/v1/org-groups/{id}:
  *   put:
  *     summary: Update an existing org group by ID
