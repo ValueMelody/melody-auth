@@ -15,7 +15,7 @@ TERMS_LINK="" # Display a link to your terms on sign-up page
 PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
 
 # Locale
-SUPPORTED_LOCALES=['en', 'fr']
+SUPPORTED_LOCALES=['en', 'fr'] # There is built-in support for zh as well
 ENABLE_LOCALE_SELECTOR=true # If there is only one SUPPORTED_LOCALE, the locale selector will be disabled regardless of this setting.
 
 # Suppression
