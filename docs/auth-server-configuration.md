@@ -35,7 +35,7 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 
 ### SUPPORTED_LOCALES
 - **Default:** ['en', 'fr']
-- **Description:** Available locales for identity pages and email templates.
+- **Description:** Available locales for identity pages and email templates. Supported locales: ['en', 'fr', 'zh']
 
 ### ENABLE_LOCALE_SELECTOR
 - **Default:** true
