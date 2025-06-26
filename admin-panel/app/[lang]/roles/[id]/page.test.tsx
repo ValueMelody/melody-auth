@@ -12,6 +12,9 @@ import {
   useGetApiV1RolesByIdQuery,
   usePutApiV1RolesByIdMutation,
   useDeleteApiV1RolesByIdMutation,
+  useGetApiV1RolesByIdUsersQuery,
+  useGetApiV1UsersQuery,
+  useGetApiV1OrgsByIdUsersQuery,
 } from 'services/auth/api'
 
 vi.mock(
@@ -43,6 +46,23 @@ vi.mock(
     useGetApiV1RolesByIdQuery: vi.fn(),
     usePutApiV1RolesByIdMutation: vi.fn(),
     useDeleteApiV1RolesByIdMutation: vi.fn(),
+    useGetApiV1RolesByIdUsersQuery: vi.fn(),
+    useGetApiV1UsersQuery: vi.fn(),
+    useGetApiV1OrgsByIdUsersQuery: vi.fn(),
+  }),
+)
+
+vi.mock(
+  'signals',
+  () => ({
+    configSignal: {
+      value: { ENABLE_NAMES: true },
+      subscribe: () => () => {},
+    },
+    errorSignal: {
+      value: '',
+      subscribe: () => () => {},
+    },
   }),
 )
 
@@ -54,7 +74,10 @@ describe(
     beforeEach(() => {
       (useGetApiV1RolesByIdQuery as Mock).mockReturnValue({ data: { role: roles[1] } });
       (usePutApiV1RolesByIdMutation as Mock).mockReturnValue([mockUpdate, { isLoading: false }]);
-      (useDeleteApiV1RolesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }])
+      (useDeleteApiV1RolesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }]);
+      (useGetApiV1RolesByIdUsersQuery as Mock).mockReturnValue({ data: { users: [] } });
+      (useGetApiV1UsersQuery as Mock).mockReturnValue({ data: { users: [] } });
+      (useGetApiV1OrgsByIdUsersQuery as Mock).mockReturnValue({ data: { users: [] } })
     })
 
     it(

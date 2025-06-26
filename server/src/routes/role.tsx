@@ -154,3 +154,37 @@ roleRoutes.delete(
   authMiddleware.s2sWriteRole,
   roleHandler.deleteRole,
 )
+
+/**
+ * @swagger
+ * /api/v1/roles/{id}/users:
+ *   get:
+ *     summary: Get a list of users by roleId
+ *     description: Required scope - read_user, read_role
+ *     tags: [Roles]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the role
+ *     responses:
+ *       200:
+ *         description: A list of users by roleId
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ */
+roleRoutes.get(
+  `${BaseRoute}/:id/users`,
+  authMiddleware.s2sReadUser,
+  authMiddleware.s2sReadRole,
+  roleHandler.getUsersByRoleId,
+)

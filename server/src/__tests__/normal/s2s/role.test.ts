@@ -5,6 +5,9 @@ import { Database } from 'better-sqlite3'
 import {
   Role, Scope,
 } from '@melody-auth/shared'
+import {
+  user1, user2, insertUsers,
+} from './user.test'
 import app from 'index'
 import { routeConfig } from 'configs'
 import {
@@ -14,7 +17,9 @@ import {
   attachIndividualScopes,
   dbTime, getS2sToken, superAdminRole,
 } from 'tests/util'
-import { roleModel } from 'models'
+import {
+  roleModel, userModel,
+} from 'models'
 
 let db: Database
 
@@ -288,6 +293,73 @@ describe(
           mock(db),
         )
         expect(checkRes.status).toBe(404)
+      },
+    )
+  },
+)
+
+describe(
+  'get users by role id',
+  () => {
+    test(
+      'should return all users by role id',
+      async () => {
+        await createNewRole()
+
+        await insertUsers(db)
+
+        await db.exec(`
+          insert into "user_role" ("userId", "roleId")
+          values (1, 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1/users`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+
+        expect(json.users.length).toBe(2)
+        expect(json).toStrictEqual({ users: [user1, user2] })
+
+        await db.exec(`
+          delete from "user_role" where "userId" = 1
+        `)
+
+        const res1 = await app.request(
+          `${BaseRoute}/1/users`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json() as { users: userModel.Record[] }
+
+        expect(json1.users.length).toBe(1)
+        expect(json1).toStrictEqual({ users: [user2] })
+      },
+    )
+
+    test(
+      'should return with read user and read org scope',
+      async () => {
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1/users`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                'read_user read_role',
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+
+        expect(json.users.length).toBe(0)
+        expect(json).toStrictEqual({ users: [] })
       },
     )
   },

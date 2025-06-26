@@ -60,3 +60,13 @@ export const deleteRole = async (c: Context<typeConfig.Context>) => {
   c.status(204)
   return c.body(null)
 }
+
+export const getUsersByRoleId = async (c: Context<typeConfig.Context>) => {
+  const id = Number(c.req.param('id'))
+
+  const users = await roleService.getUsersByRoleId(
+    c,
+    id,
+  )
+  return c.json({ users })
+}

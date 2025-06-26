@@ -1,3 +1,5 @@
 import { typeTool } from 'tools'
 
-export const isSystem = (name: string) => Object.values(typeTool.Scope).some((scope) => scope === name)
+export const isSystemScope = (name: string) => Object.values(typeTool.Scope).some((scope) => scope === name)
+
+export const isSystemRole = (name: string) => name === typeTool.Role.SuperAdmin

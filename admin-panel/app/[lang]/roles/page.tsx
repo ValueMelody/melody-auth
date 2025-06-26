@@ -6,7 +6,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
 import {
-  routeTool, typeTool, accessTool,
+  routeTool, accessTool, dataTool,
 } from 'tools'
 import EditLink from 'components/EditLink'
 import SystemLabel from 'components/SystemLabel'
@@ -16,8 +16,6 @@ import {
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
-
-const isSystem = (name: string) => name === typeTool.Role.SuperAdmin
 
 const Page = () => {
   const t = useTranslations()
@@ -33,15 +31,11 @@ const Page = () => {
   } = useGetApiV1RolesQuery()
   const roles = data?.roles ?? []
 
-  const renderEditButton = (role: Role) => {
-    return isSystem(role.name)
-      ? null
-      : (
-        <EditLink
-          href={`${routeTool.Internal.Roles}/${role.id}`}
-        />
-      )
-  }
+  const renderEditButton = (role: Role) => (
+    <EditLink
+      href={`${routeTool.Internal.Roles}/${role.id}`}
+    />
+  )
 
   if (isLoading) return <LoadingPage />
 
@@ -80,7 +74,7 @@ const Page = () => {
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-2'>
                       {role.name}
-                      {isSystem(role.name) && <SystemLabel />}
+                      {dataTool.isSystemRole(role.name) && <SystemLabel />}
                     </div>
                     <p className='md:hidden'>{role.note}</p>
                   </div>
@@ -100,7 +94,7 @@ const Page = () => {
               <TableCell>
                 <div className='flex items-center gap-2'>
                   {role.name}
-                  {isSystem(role.name) && <SystemLabel />}
+                  {dataTool.isSystemRole(role.name) && <SystemLabel />}
                 </div>
               </TableCell>
               <TableCell>

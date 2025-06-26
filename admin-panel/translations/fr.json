@@ -154,7 +154,8 @@
     "role": "Rôle",
     "name": "Nom",
     "status": "Statut",
-    "new": "Créer un rôle"
+    "new": "Créer un rôle",
+    "users": "Utilisateurs avec ce rôle"
   },
   "saml": {
     "title": "SAML",

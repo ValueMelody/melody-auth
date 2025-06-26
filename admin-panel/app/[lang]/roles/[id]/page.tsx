@@ -10,7 +10,7 @@ import {
 } from 'components/ui/table'
 import { Input } from 'components/ui/input'
 import {
-  routeTool, accessTool,
+  routeTool, accessTool, dataTool,
 } from 'tools'
 import SaveButton from 'components/SaveButton'
 import FieldError from 'components/FieldError'
@@ -19,10 +19,13 @@ import DeleteButton from 'components/DeleteButton'
 import { useRouter } from 'i18n/navigation'
 import {
   useDeleteApiV1RolesByIdMutation, useGetApiV1RolesByIdQuery, usePutApiV1RolesByIdMutation,
+  useGetApiV1RolesByIdUsersQuery,
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
 import RequiredProperty from 'components/RequiredProperty'
+import PageTitle from '@/components/PageTitle'
+import UserTable from '@/components/UserTable'
 
 const Page = () => {
   const { id } = useParams()
@@ -37,12 +40,21 @@ const Page = () => {
   const [deleteRole, { isLoading: isDeleting }] = useDeleteApiV1RolesByIdMutation()
 
   const { userInfo } = useAuth()
+  const canReadUser = accessTool.isAllowedAccess(
+    accessTool.Access.ReadUser,
+    userInfo?.roles,
+  )
+
+  const { data: roleUsers } = useGetApiV1RolesByIdUsersQuery({ id: Number(id) })
+  const users = roleUsers?.users ?? []
+
   const canWriteRole = accessTool.isAllowedAccess(
     accessTool.Access.WriteRole,
     userInfo?.roles,
   )
 
   const role = data?.role
+  const isSystemRole = dataTool.isSystemRole(role?.name ?? '')
 
   const {
     values, errors, onChange,
@@ -97,7 +109,7 @@ const Page = () => {
               <TableCell>
                 <Input
                   data-testid='nameInput'
-                  disabled={!canWriteRole}
+                  disabled={!canWriteRole || isSystemRole}
                   onChange={(e) => onChange(
                     'name',
                     e.target.value,
@@ -112,7 +124,7 @@ const Page = () => {
               <TableCell>
                 <Input
                   data-testid='noteInput'
-                  disabled={!canWriteRole}
+                  disabled={!canWriteRole || isSystemRole}
                   onChange={(e) => onChange(
                     'note',
                     e.target.value,
@@ -133,7 +145,7 @@ const Page = () => {
         </Table>
       </section>
       <SubmitError />
-      {canWriteRole && (
+      {canWriteRole && !isSystemRole && (
         <section className='flex items-center gap-4 mt-8'>
           <SaveButton
             isLoading={isUpdating}
@@ -148,6 +160,18 @@ const Page = () => {
               { item: values.name },
             )}
             onConfirmDelete={handleDelete}
+          />
+        </section>
+      )}
+      {canReadUser && (
+        <section className='mt-12'>
+          <PageTitle
+            className='mb-6'
+            title={t('roles.users')}
+          />
+          <UserTable
+            orgId={null}
+            loadedUsers={users}
           />
         </section>
       )}

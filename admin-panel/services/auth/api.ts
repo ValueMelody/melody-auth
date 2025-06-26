@@ -104,6 +104,13 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Roles'],
       }),
+      getApiV1RolesByIdUsers: build.query<
+        GetApiV1RolesByIdUsersApiResponse,
+        GetApiV1RolesByIdUsersApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/roles/${queryArg.id}/users` }),
+        providesTags: ['Roles'],
+      }),
       getApiV1Orgs: build.query<GetApiV1OrgsApiResponse, GetApiV1OrgsApiArg>({
         query: () => ({ url: '/api/v1/orgs' }),
         providesTags: ['Orgs'],
@@ -715,6 +722,14 @@ export type DeleteApiV1RolesByIdApiArg = {
   /** The unique ID of the role */
   id: number;
 };
+export type GetApiV1RolesByIdUsersApiResponse =
+  /** status 200 A list of users by roleId */ {
+    users?: User[];
+  };
+export type GetApiV1RolesByIdUsersApiArg = {
+  /** The unique ID of the role */
+  id: number;
+};
 export type GetApiV1OrgsApiResponse = /** status 200 A list of orgs */ {
   orgs?: Org[];
 };
@@ -1195,6 +1210,26 @@ export type PutRoleReq = {
   name?: string;
   note?: string;
 };
+export type User = {
+  id: number;
+  authId: string;
+  email: string | null;
+  linkedAuthId?: string | null;
+  socialAccountId: string | null;
+  socialAccountType: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  locale: string;
+  loginCount: number;
+  mfaTypes: string[];
+  emailVerified: boolean;
+  otpVerified: boolean;
+  smsPhoneNumberVerified: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
 export type Org = {
   id: number;
   name: string;
@@ -1248,26 +1283,6 @@ export type PutOrgReq = {
   emailSenderName?: string;
   termsLink?: string;
   privacyPolicyLink?: string;
-};
-export type User = {
-  id: number;
-  authId: string;
-  email: string | null;
-  linkedAuthId?: string | null;
-  socialAccountId: string | null;
-  socialAccountType: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  locale: string;
-  loginCount: number;
-  mfaTypes: string[];
-  emailVerified: boolean;
-  otpVerified: boolean;
-  smsPhoneNumberVerified: boolean;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
 };
 export type OrgGroup = {
   id: number;
@@ -1468,6 +1483,8 @@ export const {
   useLazyGetApiV1RolesByIdQuery,
   usePutApiV1RolesByIdMutation,
   useDeleteApiV1RolesByIdMutation,
+  useGetApiV1RolesByIdUsersQuery,
+  useLazyGetApiV1RolesByIdUsersQuery,
   useGetApiV1OrgsQuery,
   useLazyGetApiV1OrgsQuery,
   usePostApiV1OrgsMutation,
