@@ -48,7 +48,7 @@ const Page = () => {
   const configs = useSignalValue(configSignal)
 
   const isSystem = useMemo(
-    () => scope && dataTool.isSystem(scope.name),
+    () => scope && dataTool.isSystemScope(scope.name),
     [scope],
   )
 

@@ -68,7 +68,7 @@ const Page = () => {
                   <div className='flex flex-col gap-2'>
                     <div className='flex items-center gap-2'>
                       {scope.name}
-                      {dataTool.isSystem(scope.name) && <SystemLabel />}
+                      {dataTool.isSystemScope(scope.name) && <SystemLabel />}
                       <ClientTypeLabel type={scope.type} />
                     </div>
                     {scope.note}
@@ -89,7 +89,7 @@ const Page = () => {
               <TableCell>
                 <div className='flex items-center gap-2'>
                   {scope.name}
-                  {dataTool.isSystem(scope.name) && <SystemLabel />}
+                  {dataTool.isSystemScope(scope.name) && <SystemLabel />}
                 </div>
               </TableCell>
               <TableCell>

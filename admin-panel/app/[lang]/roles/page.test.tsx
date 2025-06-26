@@ -53,7 +53,8 @@ describe(
         expect(rows.length).toBe(4)
         expect(rows[0].querySelector('td')?.innerHTML).toContain(roles[0].name)
         const editLinks = rows[0].querySelector('td')?.getElementsByTagName('a')
-        expect(editLinks?.length).toBe(0)
+        expect(editLinks?.length).toBe(1)
+        expect(editLinks?.[0].getAttribute('href')).toBe('/roles/1')
 
         expect(rows[1].querySelector('td')?.innerHTML).toContain(roles[1].name)
         const editLinks1 = rows[1].querySelector('td')?.getElementsByTagName('a')

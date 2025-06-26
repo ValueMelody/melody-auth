@@ -160,7 +160,8 @@
     "role": "Role",
     "name": "Name",
     "status": "Status",
-    "new": "Create a role"
+    "new": "Create a role",
+    "users": "Users with this role"
   },
   "saml": {
     "title": "SAML",

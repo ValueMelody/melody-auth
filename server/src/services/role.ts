@@ -1,9 +1,10 @@
 import { Context } from 'hono'
+import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
-  roleModel, userRoleModel,
+  roleModel, userModel, userRoleModel,
 } from 'models'
 import { roleDto } from 'dtos'
 
@@ -78,4 +79,31 @@ export const deleteRole = async (
     roleId,
   )
   return true
+}
+
+export const getUsersByRoleId = async (
+  c: Context<typeConfig.Context>,
+  roleId: number,
+): Promise<userModel.ApiRecord[]> => {
+  const userWithRoles = await userRoleModel.getAllByRole(
+    c.env.DB,
+    roleId,
+  )
+  const userIds = userWithRoles.map((userWithRole) => userWithRole.userId)
+
+  const users = userIds.length
+    ? await userModel.getAll(
+      c.env.DB,
+      { whereIn: { values: userIds } },
+    )
+    : []
+
+  const { ENABLE_NAMES: enableNames } = env(c)
+
+  const result = users.map((user) => userModel.convertToApiRecord(
+    user,
+    enableNames,
+  ))
+
+  return result
 }
