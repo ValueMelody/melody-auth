@@ -22,7 +22,6 @@ export default defineConfig({
         'src/adapters',
         'src/node.tsx',
         'src/pages/client.tsx',
-        'src/pages/views',
         'src/scripts',
         'src/configs/type.ts',
       ],

@@ -133,6 +133,19 @@ Run the secret clean script whenever you want to stop verifying tokens signed wi
   -	reset_mfa: Allows users to reset their enrolled MFA (Multi-Factor Authentication) method.
   - manage_passkey: Allows users to manage their passkey. Requires ALLOW_PASSKEY_ENROLLMENT to be set to true in the configuration.
 
+## How to trigger OIDC SSO login redirect via policy in frontend
+- In server/src/configs/variable.ts, set "enableSignInRedirect" of the OIDCProviderConfigs for the provider you want to use to true.
+- Use the loginRedirect function provided by your Melody Auth frontend SDK (e.g., @melody-auth/react) to initiate the login process:
+```
+  const {
+    loginRedirect
+  } = useAuth()
+
+  loginRedirect({
+    policy: 'oidc_sso_[provider_name]' # Replace [provider_name] with the name of the provider you defined in server/src/configs/variable.ts
+  })
+```
+
 ## How to change theme/branding for authorization pages
 - You can change the default theme/branding by setting the `DefaultBranding` variable in server/src/configs/variable.ts.
 - In case you want to use different theme/branding for different clients
