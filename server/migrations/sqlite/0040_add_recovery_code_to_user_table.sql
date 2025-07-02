@@ -1,0 +1,1 @@
+ALTER TABLE user ADD "recoveryCodeHash" text DEFAULT null;

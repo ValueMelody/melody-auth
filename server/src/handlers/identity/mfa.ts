@@ -16,7 +16,7 @@ import {
 } from 'utils'
 import { userModel } from 'models'
 
-const getAuthCodeBody = async (
+export const getAuthCodeBody = async (
   c: Context<typeConfig.Context>, code: string,
 ) => {
   const authCodeStore = await kvService.getAuthCodeBody(

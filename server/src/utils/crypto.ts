@@ -1,4 +1,6 @@
-import { genCodeChallenge } from '@melody-auth/shared'
+import {
+  genCodeChallenge, genRandomString,
+} from '@melody-auth/shared'
 // eslint-disable-next-line import/default
 import bcrypt from 'bcryptjs'
 import base32Encode from 'base32-encode'
@@ -7,6 +9,7 @@ import { env } from 'hono/adapter'
 import { Context } from 'hono'
 import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
 import { typeConfig } from 'configs'
+import { cryptoUtil } from 'utils'
 
 export const genRandom6DigitString = (): string => {
   return (Math.floor(100000 + Math.random() * 900000)).toString()
@@ -25,6 +28,15 @@ export const genOtpSecret = () => {
     'RFC4648',
   )
   return base32Secret
+}
+
+export const genRecoveryCode = async () => {
+  const recoveryCode = genRandomString(24)
+  const recoveryHash = cryptoUtil.bcryptText(recoveryCode)
+  return {
+    recoveryCode,
+    recoveryHash,
+  }
 }
 
 export const genTotp = async (secret: string): Promise<string> => {

@@ -1133,6 +1133,24 @@ export const genUserOtp = async (
   return user
 }
 
+export const genUserRecoveryCode = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+): Promise<{ recoveryCode: string; user: userModel.Record }> => {
+  const {
+    recoveryCode, recoveryHash,
+  } = await cryptoUtil.genRecoveryCode()
+  const user = await userModel.update(
+    c.env.DB,
+    userId,
+    { recoveryCodeHash: recoveryHash },
+  )
+  return {
+    recoveryCode,
+    user,
+  }
+}
+
 export const markOtpAsVerified = async (
   c: Context<typeConfig.Context>,
   userId: number,

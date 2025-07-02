@@ -37,6 +37,7 @@ export interface Common {
   otpSecret: string;
   smsPhoneNumber: string | null;
   linkedAuthId: string | null;
+  recoveryCodeHash: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -126,6 +127,7 @@ export interface Update {
   otpVerified?: number;
   linkedAuthId?: string | null;
   skipPasskeyEnroll?: number;
+  recoveryCodeHash?: string | null;
 }
 
 const TableName = `"${adapterConfig.TableName.User}"`
@@ -403,7 +405,7 @@ export const update = async (
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
     'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
     'smsPhoneNumber', 'smsPhoneNumberVerified', 'email', 'linkedAuthId', 'orgSlug',
-    'skipPasskeyEnroll',
+    'skipPasskeyEnroll', 'recoveryCodeHash',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,
