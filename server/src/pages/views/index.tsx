@@ -8,6 +8,7 @@ import SmsMfa from './SmsMfa'
 import EmailMfa from './EmailMfa'
 import PasswordlessVerify from './PasswordlessVerify'
 import PasskeyEnroll from './PasskeyEnroll'
+import RecoveryCodeEnroll from './RecoveryCodeEnroll'
 import ResetPassword from './ResetPassword'
 import UpdateInfo from './UpdateInfo'
 import ChangePassword from './ChangePassword'
@@ -20,5 +21,5 @@ import VerifyEmail from './VerifyEmail'
 export {
   SignIn, SignUp, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
   PasskeyEnroll, ResetPassword, UpdateInfo, ChangePassword, ResetMfa, ManagePasskey,
-  ChangeEmail, AuthCodeExpired, VerifyEmail, PasswordlessVerify,
+  ChangeEmail, AuthCodeExpired, VerifyEmail, PasswordlessVerify, RecoveryCodeEnroll,
 }

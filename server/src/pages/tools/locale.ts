@@ -280,6 +280,34 @@ export const passkeyEnroll = Object.freeze({
   },
 })
 
+export const recoveryCodeEnroll = Object.freeze({
+  title: {
+    en: 'Recovery Code',
+    fr: 'Code de récupération',
+    zh: '恢复码',
+  },
+  desc: {
+    en: 'Keep a copy of this code in a safe place. It can be used to recover your account if you forget your password.',
+    fr: 'Gardez une copie de ce code dans un endroit sécurisé. Il peut être utilisé pour récupérer votre compte si vous oubliez votre mot de passe.',
+    zh: '将此代码安全地保存在一个安全的地方。它可以在您忘记密码时用于恢复您的账户。',
+  },
+  copy: {
+    en: 'Copy',
+    fr: 'Copier',
+    zh: '复制',
+  },
+  download: {
+    en: 'Download',
+    fr: 'Télécharger',
+    zh: '下载',
+  },
+  continue: {
+    en: 'Continue',
+    fr: 'Continuer',
+    zh: '继续',
+  },
+})
+
 export const passwordlessCode = Object.freeze({
   title: {
     en: 'A verification code has been sent to your email.',

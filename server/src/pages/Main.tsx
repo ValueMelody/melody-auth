@@ -22,6 +22,7 @@ import {
   AuthCodeExpired,
   VerifyEmail,
   PasswordlessVerify,
+  RecoveryCodeEnroll,
 } from 'pages/views'
 import { Layout } from 'pages/blocks'
 import { getLocaleFromParams } from 'pages/tools/param'
@@ -59,6 +60,8 @@ const Main = () => {
         return EmailMfa
       case View.PasskeyEnroll:
         return PasskeyEnroll
+      case View.RecoveryCodeEnroll:
+        return RecoveryCodeEnroll
       case View.ResetPassword:
         return ResetPassword
       case View.UpdateInfo:

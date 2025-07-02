@@ -34,6 +34,7 @@ export enum AuthorizeStep {
   SmsMfa = 5,
   EmailMfa = 6,
   PasskeyEnroll = 7,
+  RecoveryCodeEnroll = 8,
 }
 
 const getNextPageForPolicy = (
@@ -100,6 +101,7 @@ export const processPostAuthorize = async (
   const {
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
     ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
+    ENABLE_RECOVERY_CODE: enableRecoveryCode,
   } = env(c)
 
   const isSocialLogin = !!authCodeBody.user.socialAccountId
@@ -211,7 +213,18 @@ export const processPostAuthorize = async (
     }
   }
 
-  if (step < 8) {
+  const requireRecoveryCodeEnroll =
+    step < 8 &&
+    !isSocialLogin &&
+    enableRecoveryCode &&
+    !authCodeBody.user.recoveryCodeHash
+  if (requireRecoveryCodeEnroll) {
+    return {
+      ...basicInfo, nextPage: routeConfig.View.RecoveryCodeEnroll,
+    }
+  }
+
+  if (step < 9) {
     const nextPage = getNextPageForPolicy(
       c,
       authCodeBody,

@@ -56,6 +56,8 @@ export enum IdentityRoute {
   ProcessPasskeyEnroll = `${InternalRoute.Identity}/process-passkey-enroll`,
   ProcessPasskeyEnrollDecline = `${InternalRoute.Identity}/process-passkey-enroll-decline`,
   AuthorizePasskeyVerify = `${InternalRoute.Identity}/authorize-passkey-verify`,
+  // Process Recovery Code
+  ProcessRecoveryCodeEnroll = `${InternalRoute.Identity}/process-recovery-code-enroll`,
   // Policy
   ChangePassword = `${InternalRoute.Identity}/change-password`,
   ChangeEmailCode = `${InternalRoute.Identity}/change-email-code`,
@@ -81,6 +83,7 @@ export enum View {
   OtpSetup = 'otp_setup',
   OtpMfa = 'opt_mfa',
   PasskeyEnroll = 'passkey_enroll',
+  RecoveryCodeEnroll = 'recovery_code_enroll',
   SignUp = 'sign_up',
   ResetPassword = 'reset_password',
   UpdateInfo = 'update_info',

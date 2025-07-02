@@ -194,6 +194,21 @@ export const enablePasskeyEnrollment = async (
   await next()
 }
 
+export const enableRecoveryCode = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_RECOVERY_CODE: enabledRecoveryCode } = env(c)
+  if (!enabledRecoveryCode) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.RecoveryCodeNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.RecoveryCodeNotEnabled)
+  }
+  await next()
+}
+
 export const enableGoogleSignIn = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

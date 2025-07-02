@@ -253,6 +253,22 @@ identityRoutes.post(
 )
 
 /**
+ * Process Recovery Code
+ * - ProcessRecoveryCodeEnroll
+ */
+identityRoutes.get(
+  routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll,
+  configMiddleware.enableRecoveryCode,
+  identityHandler.getProcessRecoveryCodeEnroll,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll,
+  configMiddleware.enableRecoveryCode,
+  identityHandler.postProcessRecoveryCodeEnroll,
+)
+
+/**
  * Policy
  * - ChangePassword
  * - ChangeEmail
