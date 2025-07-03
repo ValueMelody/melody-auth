@@ -130,6 +130,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     APPLE_AUTH_CLIENT_ID: appleAuthId,
     APPLE_AUTH_CLIENT_SECRET: appleClientSecret,
     ALLOW_PASSKEY_ENROLLMENT: allowPasskeyEnroll,
+    ENABLE_RECOVERY_CODE: enableRecoveryCode,
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
@@ -144,6 +145,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     ? allowPasswordSignIn && !enablePasswordlessSignIn
     : !enablePasswordlessSignIn
   const allowPasskey = allowPasskeyEnroll && !enablePasswordlessSignIn
+  const allowRecoveryCode = enableRecoveryCode && !enablePasswordlessSignIn
   const googleClientId = isBasePolicy ? (googleAuthId ?? '') : ''
   const facebookClientId = isBasePolicy && facebookClientSecret ? (facebookAuthId ?? '') : ''
   const githubClientId = isBasePolicy && githubClientSecret && githubAppName ? (githubAuthId ?? '') : ''
@@ -176,6 +178,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         termsLink: "${branding.termsLink}",
         privacyPolicyLink: "${branding.privacyPolicyLink}",
         allowPasskey: ${allowPasskey.toString()},
+        allowRecoveryCode: ${allowRecoveryCode.toString()},
         enableUserAttribute: ${enableUserAttribute.toString()},
       }
     </script>

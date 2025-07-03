@@ -322,9 +322,10 @@ export const getPasswordlessUserOrCreate = async (
   return newUser
 }
 
-export const verifyPasswordSignIn = async (
+export const verifySignIn = async (
   c: Context<typeConfig.Context>,
-  bodyDto: baseDto.SignInDto,
+  email: string,
+  isValidCredential: (currentUser: userModel.Record) => boolean,
 ): Promise<userModel.Record> => {
   const {
     ACCOUNT_LOCKOUT_THRESHOLD: lockThreshold, ACCOUNT_LOCKOUT_EXPIRES_IN: lockExpiresIn,
@@ -335,7 +336,7 @@ export const verifyPasswordSignIn = async (
   const failedAttempts = lockThreshold
     ? await kvService.getFailedLoginAttemptsByIP(
       c.env.KV,
-      bodyDto.email,
+      email,
       ip,
     )
     : 0
@@ -350,7 +351,7 @@ export const verifyPasswordSignIn = async (
 
   const user = await userModel.getNormalUserByEmail(
     c.env.DB,
-    bodyDto.email,
+    email,
   )
 
   if (!user) {
@@ -362,14 +363,13 @@ export const verifyPasswordSignIn = async (
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
-  if (!user.password || !cryptoUtil.bcryptCompare(
-    bodyDto.password,
-    user.password,
-  )) {
+  const isValid = isValidCredential(user)
+
+  if (!isValid) {
     if (lockThreshold) {
       await kvService.setFailedLoginAttempts(
         c.env.KV,
-        bodyDto.email,
+        email,
         ip,
         failedAttempts + 1,
         lockExpiresIn,
@@ -391,6 +391,42 @@ export const verifyPasswordSignIn = async (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
+  return user
+}
+
+export const verifyPasswordSignIn = async (
+  c: Context<typeConfig.Context>,
+  bodyDto: baseDto.SignInDto,
+): Promise<userModel.Record> => {
+  const user = await verifySignIn(
+    c,
+    bodyDto.email,
+    (currentUser) => {
+      return !!currentUser.password && cryptoUtil.bcryptCompare(
+        bodyDto.password,
+        currentUser.password,
+      )
+    },
+  )
+
+  return user
+}
+
+export const verifyRecoveryCodeSignIn = async (
+  c: Context<typeConfig.Context>,
+  bodyDto: identityDto.PostAuthorizeWithRecoveryCodeDto,
+): Promise<userModel.Record> => {
+  const user = await verifySignIn(
+    c,
+    bodyDto.email,
+    (currentUser) => {
+      return !!currentUser.recoveryCodeHash && cryptoUtil.bcryptCompare(
+        bodyDto.recoveryCode,
+        currentUser.recoveryCodeHash,
+      )
+    },
+  )
+
   return user
 }
 

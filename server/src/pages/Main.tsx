@@ -23,6 +23,7 @@ import {
   VerifyEmail,
   PasswordlessVerify,
   RecoveryCodeEnroll,
+  RecoveryCodeSignIn,
 } from 'pages/views'
 import { Layout } from 'pages/blocks'
 import { getLocaleFromParams } from 'pages/tools/param'
@@ -78,6 +79,8 @@ const Main = () => {
         return AuthCodeExpired
       case View.VerifyEmail:
         return VerifyEmail
+      case View.RecoveryCodeSignIn:
+        return RecoveryCodeSignIn
       case View.SignIn:
       default:
         return SignIn

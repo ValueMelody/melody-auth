@@ -162,6 +162,12 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
   })
   await validateUtil.dto(bodyDto)
 
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
   const {
     user, newCounter, passkeyId,
   } = await passkeyService.processPasskeyVerify(
@@ -174,12 +180,6 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
     c,
     passkeyId,
     newCounter,
-  )
-
-  const app = await appService.verifySPAClientRequest(
-    c,
-    bodyDto.clientId,
-    bodyDto.redirectUri,
   )
 
   const request = new oauthDto.GetAuthorizeDto(bodyDto)

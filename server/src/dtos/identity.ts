@@ -31,6 +31,20 @@ export class PostAuthorizeWithPasswordDto
   }
 }
 
+export class PostAuthorizeWithRecoveryCodeDto extends oauthDto.GetAuthorizeDto {
+  @IsEmail()
+    email: string
+
+  @IsString()
+    recoveryCode: string
+
+  constructor (dto: PostAuthorizeWithRecoveryCodeDto) {
+    super(dto)
+    this.email = dto.email.toLowerCase()
+    this.recoveryCode = dto.recoveryCode
+  }
+}
+
 export class PostAuthorizeWithPasswordlessDto extends oauthDto.GetAuthorizeDto {
   @IsEmail()
     email: string

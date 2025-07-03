@@ -197,8 +197,11 @@ export const enablePasskeyEnrollment = async (
 export const enableRecoveryCode = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
-  const { ENABLE_RECOVERY_CODE: enabledRecoveryCode } = env(c)
-  if (!enabledRecoveryCode) {
+  const {
+    ENABLE_RECOVERY_CODE: enabledRecoveryCode,
+    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+  } = env(c)
+  if (!enabledRecoveryCode || enablePasswordlessSignIn) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Error,

@@ -199,6 +199,12 @@ const SignIn = ({
               onClick={() => onSwitchView(View.SignUp)}
             />
           )}
+          {initialProps.allowRecoveryCode && (
+            <SecondaryButton
+              title={signIn.recoveryCode[locale]}
+              onClick={() => onSwitchView(View.RecoveryCodeSignIn)}
+            />
+          )}
           {initialProps.enablePasswordReset && (
             <SecondaryButton
               title={signIn.passwordReset[locale]}

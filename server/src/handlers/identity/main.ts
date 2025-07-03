@@ -14,7 +14,7 @@ import {
 } from 'dtos'
 import {
   appService, consentService, emailService,
-  identityService, kvService, mfaService, userAttributeService, userService,
+  identityService, kvService, mfaService, sessionService, userAttributeService, userService,
 } from 'services'
 import {
   requestUtil, validateUtil, loggerUtil,
@@ -25,6 +25,7 @@ import {
 import {
   signUpHook, signInHook,
 } from 'hooks'
+import { oauthHandler } from 'handlers'
 
 export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   await signInHook.preSignIn()
@@ -58,6 +59,54 @@ export const postAuthorizePassword = async (c: Context<typeConfig.Context>) => {
   )
 
   await signInHook.postSignIn()
+
+  return c.json(result)
+}
+
+export const postAuthorizeRecoveryCode = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostAuthorizeWithRecoveryCodeDto({
+    ...reqBody,
+    scopes: reqBody.scope ? reqBody.scope.split(' ') : [],
+  })
+  await validateUtil.dto(bodyDto)
+
+  const app = await appService.verifySPAClientRequest(
+    c,
+    bodyDto.clientId,
+    bodyDto.redirectUri,
+  )
+
+  const user = await userService.verifyRecoveryCodeSignIn(
+    c,
+    bodyDto,
+  )
+
+  const authCodeBody = {
+    appId: app.id,
+    appName: app.name,
+    user,
+    request: bodyDto,
+    isFullyAuthorized: true,
+  }
+
+  const authCode = await oauthHandler.createFullAuthorize(
+    c,
+    authCodeBody,
+  )
+
+  sessionService.setAuthInfoSession(
+    c,
+    authCodeBody,
+  )
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.RecoveryCode,
+    authCode,
+    authCodeBody,
+  )
 
   return c.json(result)
 }

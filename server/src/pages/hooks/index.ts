@@ -21,6 +21,7 @@ import useResetMfaForm from './useResetMfaForm'
 import useManagePasskeyForm from './useManagePasskeyForm'
 import useChangeEmailForm from './useChangeEmailForm'
 import useVerifyEmailForm from './useVerifyEmailForm'
+import useRecoveryCodeForm from './useRecoveryCodeForm'
 
 export {
   useInitialProps,
@@ -47,4 +48,5 @@ export {
   useChangeEmailForm,
   useVerifyEmailForm,
   usePasswordlessVerifyForm,
+  useRecoveryCodeForm,
 }

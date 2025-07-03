@@ -29,6 +29,7 @@ export enum IdentityRoute {
   // Identity Main
   AuthorizePassword = `${InternalRoute.Identity}/authorize-password`,
   AuthorizeAccount = `${InternalRoute.Identity}/authorize-account`,
+  AuthorizeRecoveryCode = `${InternalRoute.Identity}/authorize-recovery-code`,
   AppConsent = `${InternalRoute.Identity}/app-consent`,
   Logout = `${InternalRoute.Identity}/logout`,
   // Authorize Social-signin
@@ -83,6 +84,7 @@ export enum View {
   OtpSetup = 'otp_setup',
   OtpMfa = 'opt_mfa',
   PasskeyEnroll = 'passkey_enroll',
+  RecoveryCodeSignIn = 'recovery_code_sign_in',
   RecoveryCodeEnroll = 'recovery_code_enroll',
   SignUp = 'sign_up',
   ResetPassword = 'reset_password',

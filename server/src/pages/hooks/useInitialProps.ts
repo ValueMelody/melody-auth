@@ -11,6 +11,7 @@ export interface InitialProps {
   enablePasswordlessSignIn: boolean;
   enableNames: boolean;
   allowPasskey: boolean;
+  allowRecoveryCode: boolean;
   namesIsRequired: boolean;
   appName: string;
   termsLink: string;
@@ -61,6 +62,7 @@ const useInitialProps = () => {
         privacyPolicyLink: 'privacyPolicyLink' in intialProps ? String(intialProps.privacyPolicyLink) : '',
         appName: 'appName' in intialProps ? String(intialProps.appName) : '',
         allowPasskey: 'allowPasskey' in intialProps ? Boolean(intialProps.allowPasskey) : false,
+        allowRecoveryCode: 'allowRecoveryCode' in intialProps ? Boolean(intialProps.allowRecoveryCode) : false,
       }
     },
     [],
