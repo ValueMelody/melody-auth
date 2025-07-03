@@ -16,6 +16,7 @@ export default identityRoutes
  * - ProcessView
  * - AuthorizePassword
  * - AuthorizeAccount
+ * - AuthorizeRecoveryCode
  * - AppConsent
  * - Logout
  */
@@ -34,6 +35,13 @@ identityRoutes.post(
   setupMiddleware.validOrigin,
   configMiddleware.enablePasswordSignIn,
   identityHandler.postAuthorizePassword,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.AuthorizeRecoveryCode,
+  setupMiddleware.validOrigin,
+  configMiddleware.enableRecoveryCode,
+  identityHandler.postAuthorizeRecoveryCode,
 )
 
 identityRoutes.get(

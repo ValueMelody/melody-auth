@@ -24,6 +24,7 @@ import { oauthDto } from 'dtos'
 export enum AuthorizeStep {
   Account = 0,
   Password = 0,
+  RecoveryCode = 0,
   Passwordless = 0,
   Social = 0,
   PasskeyVerify = 0,

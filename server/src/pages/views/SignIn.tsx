@@ -26,7 +26,8 @@ const SignIn = ({
   })
 
   const {
-    values, errors, handleChange, handleSubmit, handlePasswordlessSignIn, isSubmitting, isPasswordlessSigningIn,
+    values, errors, handleChange, handleSubmit, handlePasswordlessSignIn,
+    isSubmitting, isPasswordlessSigningIn,
   } = useSignInForm({
     locale,
     params,

@@ -37,6 +37,7 @@ describe(
           privacyPolicyLink: '',
           appName: '',
           allowPasskey: false,
+          allowRecoveryCode: false,
           oidcProviders: [],
         })
       },
@@ -66,6 +67,7 @@ describe(
           privacyPolicyLink: 'http://example.com/privacy',
           appName: 'TestApp',
           allowPasskey: true,
+          allowRecoveryCode: true,
         }
 
         const { result } = renderHook(() => useInitialProps())
@@ -90,6 +92,7 @@ describe(
           privacyPolicyLink: 'http://example.com/privacy',
           appName: 'TestApp',
           allowPasskey: true,
+          allowRecoveryCode: true,
           oidcProviders: [],
         })
       },

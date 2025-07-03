@@ -458,6 +458,11 @@ export const signIn = Object.freeze({
     fr: 'Créer un nouveau compte',
     zh: '创建新账户',
   },
+  recoveryCode: {
+    en: 'Having trouble logging in?',
+    fr: 'Vous avez du mal à vous connecter ?',
+    zh: '登录困难？',
+  },
   passwordReset: {
     en: 'Reset password',
     fr: 'Réinitialiser le mot de passe',
@@ -550,6 +555,34 @@ export const signUp = Object.freeze({
     en: 'Privacy Policy',
     fr: 'Politique de confidentialité',
     zh: '隐私政策',
+  },
+})
+
+export const recoveryCodeSignIn = Object.freeze({
+  title: {
+    en: 'Use your recovery code',
+    fr: 'Utilisez votre code de récupération',
+    zh: '使用恢复码',
+  },
+  signIn: {
+    en: 'Back to sign in',
+    fr: 'Retour à la connexion',
+    zh: '返回登录',
+  },
+  email: {
+    en: 'Email',
+    fr: 'Adresse e-mail',
+    zh: '邮箱地址',
+  },
+  recoveryCode: {
+    en: 'Recovery Code',
+    fr: 'Code de récupération',
+    zh: '恢复码',
+  },
+  confirm: {
+    en: 'Confirm',
+    fr: 'Confirmer',
+    zh: '确认',
   },
 })
 
