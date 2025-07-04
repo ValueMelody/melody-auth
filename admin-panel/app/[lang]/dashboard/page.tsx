@@ -71,6 +71,7 @@ const Page = () => {
         'ENFORCE_ONE_MFA_ENROLLMENT',
         'ALLOW_EMAIL_MFA_AS_BACKUP',
         'ALLOW_PASSKEY_ENROLLMENT',
+        'ENABLE_RECOVERY_CODE',
       ],
     },
     {

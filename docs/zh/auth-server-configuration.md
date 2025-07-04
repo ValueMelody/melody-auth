@@ -160,6 +160,10 @@ Melody Auth 提供了一系列可自定义选项，以便您根据实际需求�
 - **默认值：** false
 - **说明：** 是否允许注册 Passkey。若设为 `true`，用户在注册时可设置 Passkey；使用 Passkey 登录时可以跳过密码与 MFA。
 
+### ENABLE_RECOVERY_CODE
+- **默认值：** false
+- **说明：** 是否启用恢复码功能。若设为 `true`，用户在登录时可使用恢复码登录。
+
 
 ## 暴力破解防护配置
 
