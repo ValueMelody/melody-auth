@@ -160,6 +160,9 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** false
 - **Description:** Enables passkey enrollment. If `true`, users can enroll in passkeys during sign-up. By enroll a passkey, a user can bypass password and multi-factor authentication during sign-in.
 
+### ENABLE_RECOVERY_CODE
+- **Default:** false
+- **Description:** Enables recovery code. If `true`, users can sign in with recovery codes during sign-in.
 
 ## Brute-force Configs
 

@@ -62,6 +62,7 @@
   - SMS MFA
   - MFA Self Enrollment
   - Passkey Enrollment
+  - Recovery Code
 - <b>Policy</b> [How to trigger a different policy](https://auth.valuemelody.com/q_a.html#how-to-trigger-a-different-policy)
   - sign_in_or_sign_up
   - update_info

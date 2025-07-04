@@ -83,6 +83,34 @@ describe(
     )
 
     test(
+      'redirect to recovery code enroll if required',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.RecoveryCodeEnroll,
+        })
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+      },
+    )
+
+    test(
       'redirect to otp mfa if required',
       async () => {
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
