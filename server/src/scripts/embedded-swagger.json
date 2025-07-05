@@ -62,6 +62,20 @@
           "password"
         ]
       },
+      "PostSignInWithRecoveryCodeReq": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "recoveryCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "recoveryCode"
+        ]
+      },
       "GetSignUpInfoRes": {
         "type": "object",
         "properties": {
@@ -128,8 +142,8 @@
               "type": "string"
             },
             "example": {
-              "attribute name 1": "value for attribute name 1",
-              "attribute name 2": "value for attribute name 2"
+              "1": "value for attributeId 1",
+              "2": "value for attributeId 2"
             }
           }
         },
@@ -253,6 +267,17 @@
           "allowFallbackToEmailMfa",
           "countryCode",
           "phoneNumber"
+        ]
+      },
+      "RecoveryCodeEnrollRes": {
+        "type": "object",
+        "properties": {
+          "recoveryCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "recoveryCode"
         ]
       },
       "AuthRes": {
@@ -1018,6 +1043,76 @@
         "responses": {
           "200": {
             "description": "a new sms mfa code has been sent to the user"
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/{sessionId}/recovery-code-enroll": {
+      "get": {
+        "summary": "get the recovery code, this is for the first time recovery code enroll",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the recovery code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodeEnrollRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/{sessionId}/recovery-code": {
+      "post": {
+        "summary": "sign in with a recovery code",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostSignInWithRecoveryCodeReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Next step of the auth flow",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            }
           }
         }
       }

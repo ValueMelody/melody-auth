@@ -31,7 +31,9 @@ export class PostAuthorizeWithPasswordDto
   }
 }
 
-export class PostAuthorizeWithRecoveryCodeDto extends oauthDto.GetAuthorizeDto {
+export class PostAuthorizeWithRecoveryCodeDto
+  extends oauthDto.GetAuthorizeDto
+  implements baseDto.SignInWithRecoveryCodeDto {
   @IsEmail()
     email: string
 

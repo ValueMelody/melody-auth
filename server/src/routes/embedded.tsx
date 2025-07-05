@@ -492,6 +492,66 @@ embeddedRoutes.post(
 
 /**
  * @swagger
+ * /embedded-auth/v1/{sessionId}/recovery-code-enroll:
+ *   get:
+ *     summary: get the recovery code, this is for the first time recovery code enroll
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: the recovery code
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RecoveryCodeEnrollRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.RecoveryCodeEnroll,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableRecoveryCode,
+  embeddedHandler.getRecoveryCodeEnroll,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/recovery-code:
+ *   post:
+ *     summary: sign in with a recovery code
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PostSignInWithRecoveryCodeReq'
+ *     responses:
+ *       200:
+ *         description: Next step of the auth flow
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.RecoveryCode,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableRecoveryCode,
+  embeddedHandler.signInWithRecoveryCode,
+)
+
+/**
+ * @swagger
  * /embedded-auth/v1/token-exchange:
  *   post:
  *     summary: Exchange the auth code for access token, refresh token, id token

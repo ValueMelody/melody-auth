@@ -19,6 +19,18 @@ export class SignInDto
     }
 }
 
+export class SignInWithRecoveryCodeDto
+  extends baseDto.SignInWithRecoveryCodeDto {
+  @IsString()
+  @IsNotEmpty()
+    sessionId: string
+
+  constructor (dto: SignInWithRecoveryCodeDto) {
+    super(dto)
+    this.sessionId = dto.sessionId
+  }
+}
+
 export class SignUpDtoWithNames
   extends SignInDto {
   @IsString()

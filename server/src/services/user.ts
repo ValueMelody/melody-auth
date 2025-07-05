@@ -414,7 +414,7 @@ export const verifyPasswordSignIn = async (
 
 export const verifyRecoveryCodeSignIn = async (
   c: Context<typeConfig.Context>,
-  bodyDto: identityDto.PostAuthorizeWithRecoveryCodeDto,
+  bodyDto: baseDto.SignInWithRecoveryCodeDto,
 ): Promise<userModel.Record> => {
   const user = await verifySignIn(
     c,
@@ -1167,24 +1167,6 @@ export const genUserOtp = async (
     { otpSecret },
   )
   return user
-}
-
-export const genUserRecoveryCode = async (
-  c: Context<typeConfig.Context>,
-  userId: number,
-): Promise<{ recoveryCode: string; user: userModel.Record }> => {
-  const {
-    recoveryCode, recoveryHash,
-  } = await cryptoUtil.genRecoveryCode()
-  const user = await userModel.update(
-    c.env.DB,
-    userId,
-    { recoveryCodeHash: recoveryHash },
-  )
-  return {
-    recoveryCode,
-    user,
-  }
 }
 
 export const markOtpAsVerified = async (

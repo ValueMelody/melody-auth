@@ -1,16 +1,14 @@
 import { Context } from 'hono'
-import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
-  kvService, userService,
-} from 'services'
-import { loggerUtil } from 'utils'
+  cryptoUtil, loggerUtil,
+} from 'utils'
+import { userModel } from 'models'
 
 export const getRecoveryCodeEnrollmentInfo = async (
   c: Context<typeConfig.Context>,
-  authCode: string,
   authCodeStore: typeConfig.AuthCodeBody,
 ) => {
   if (authCodeStore.user.recoveryCodeHash) {
@@ -23,23 +21,16 @@ export const getRecoveryCodeEnrollmentInfo = async (
   }
 
   const {
-    recoveryCode, user,
-  } = await userService.genUserRecoveryCode(
-    c,
+    recoveryCode, recoveryHash,
+  } = await cryptoUtil.genRecoveryCode()
+  const user = await userModel.update(
+    c.env.DB,
     authCodeStore.user.id,
+    { recoveryCodeHash: recoveryHash },
   )
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
-  const newAuthCodeStore = {
-    ...authCodeStore,
+  return {
+    recoveryCode,
     user,
   }
-  await kvService.storeAuthCode(
-    c.env.KV,
-    authCode,
-    newAuthCodeStore,
-    codeExpiresIn,
-  )
-
-  return recoveryCode
 }

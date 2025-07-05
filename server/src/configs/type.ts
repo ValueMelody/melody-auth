@@ -123,6 +123,7 @@ export interface EmbeddedSessionBody {
   appId: number;
   appName: string;
   user?: userModel.Record;
+  isFullyAuthorized?: boolean;
   mfa?: AuthCodeBodyMfaConfig;
 }
 

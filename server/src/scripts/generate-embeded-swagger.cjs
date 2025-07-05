@@ -3,6 +3,7 @@ const swaggerJsdoc = require('swagger-jsdoc')
 const {
   PostInitiateReq,
   PostSignInReq,
+  PostSignInWithRecoveryCodeReq,
   GetSignUpInfoRes,
   PostSignUpReq,
   TokenExchangeReq,
@@ -13,6 +14,7 @@ const {
   OtpMfaConfigRes,
   SmsMfaSetupReq,
   SmsMfaConfigRes,
+  RecoveryCodeEnrollRes,
   AuthRes,
   TokenExchangeRes,
   TokenRefreshReq,
@@ -33,6 +35,7 @@ const options = {
       schemas: {
         PostInitiateReq,
         PostSignInReq,
+        PostSignInWithRecoveryCodeReq,
         GetSignUpInfoRes,
         PostSignUpReq,
         TokenExchangeReq,
@@ -43,6 +46,7 @@ const options = {
         OtpMfaConfigRes,
         SmsMfaSetupReq,
         SmsMfaConfigRes,
+        RecoveryCodeEnrollRes,
         AuthRes,
         TokenExchangeRes,
         TokenRefreshReq,
