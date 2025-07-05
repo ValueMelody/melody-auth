@@ -32,6 +32,15 @@ const PostSignInReq = {
   ],
 }
 
+const PostSignInWithRecoveryCodeReq = {
+  type: 'object',
+  properties: {
+    email: { type: 'string' },
+    recoveryCode: { type: 'string' },
+  },
+  required: ['recoveryCode'],
+}
+
 const GetSignUpInfoRes = {
   type: 'object',
   properties: {
@@ -137,6 +146,12 @@ const SmsMfaConfigRes = {
     phoneNumber: { type: 'string' },
   },
   required: ['allowFallbackToEmailMfa', 'countryCode', 'phoneNumber'],
+}
+
+const RecoveryCodeEnrollRes = {
+  type: 'object',
+  properties: { recoveryCode: { type: 'string' } },
+  required: ['recoveryCode'],
 }
 
 const AuthRes = {
@@ -260,6 +275,7 @@ const ResetPasswordReq = {
 module.exports = {
   PostInitiateReq,
   PostSignInReq,
+  PostSignInWithRecoveryCodeReq,
   GetSignUpInfoRes,
   PostSignUpReq,
   TokenExchangeReq,
@@ -271,6 +287,7 @@ module.exports = {
   OtpMfaConfigRes,
   SmsMfaSetupReq,
   SmsMfaConfigRes,
+  RecoveryCodeEnrollRes,
   AuthRes,
   TokenExchangeRes,
   TokenRefreshRes,

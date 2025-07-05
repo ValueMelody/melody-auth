@@ -5,7 +5,8 @@ import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
-  appService, consentService, emailService, identityService, kvService, mfaService, oauthService, scopeService,
+  appService, consentService, emailService, identityService,
+  kvService, mfaService, oauthService, recoveryCodeService, scopeService,
   userAttributeService,
   userService,
 } from 'services'
@@ -101,7 +102,10 @@ const processAuthorizeWithUser = async (
   c: Context<typeConfig.Context>,
   sessionBody: typeConfig.EmbeddedSessionBody,
   user: userModel.Record,
-  bodyDto: embeddedDto.SignInDto | embeddedDto.SignUpDtoWithNames | embeddedDto.SignUpDtoWithRequiredNames,
+  bodyDto: embeddedDto.SignInDto
+    | embeddedDto.SignInWithRecoveryCodeDto
+    | embeddedDto.SignUpDtoWithNames
+    | embeddedDto.SignUpDtoWithRequiredNames,
 ) => {
   const sessionBodyWithUser = {
     ...sessionBody,
@@ -258,6 +262,52 @@ export const signIn = async (c: Context<typeConfig.Context>) => {
   )
 
   await signInHook.postSignIn()
+
+  return c.json({
+    sessionId: bodyDto.sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
+export const signInWithRecoveryCode = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+
+  const reqBody = {
+    ...(await c.req.json()),
+    sessionId,
+  }
+
+  const bodyDto = new embeddedDto.SignInWithRecoveryCodeDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const sessionBody = await kvService.getEmbeddedSessionBody(
+    c.env.KV,
+    bodyDto.sessionId,
+  )
+  if (!sessionBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongSessionId,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
+  }
+
+  const user = await userService.verifyRecoveryCodeSignIn(
+    c,
+    bodyDto,
+  )
+
+  const result = await processAuthorizeWithUser(
+    c,
+    {
+      ...sessionBody,
+      isFullyAuthorized: true,
+    },
+    user,
+    bodyDto,
+  )
 
   return c.json({
     sessionId: bodyDto.sessionId,
@@ -642,6 +692,35 @@ export const postSmsMfa = async (c: Context<typeConfig.Context>) => {
     nextStep: result.nextPage,
     success: !result.nextPage,
   })
+}
+
+export const getRecoveryCodeEnroll = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const {
+    recoveryCode, user,
+  } = await recoveryCodeService.getRecoveryCodeEnrollmentInfo(
+    c,
+    sessionBodyToAuthCodeBody(sessionBody),
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const newAuthCodeStore = {
+    ...sessionBody,
+    user,
+  }
+  await kvService.storeEmbeddedSession(
+    c.env.KV,
+    sessionId,
+    newAuthCodeStore,
+    codeExpiresIn,
+  )
+
+  return c.json({ recoveryCode })
 }
 
 export const resetPassword = async (c: Context<typeConfig.Context>) => {

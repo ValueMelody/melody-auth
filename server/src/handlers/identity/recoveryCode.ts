@@ -1,6 +1,7 @@
 import {
   Context, TypedResponse,
 } from 'hono'
+import { env } from 'hono/adapter'
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
@@ -25,10 +26,23 @@ export const getProcessRecoveryCodeEnroll = async (c: Context<typeConfig.Context
     queryDto.code,
   )
 
-  const recoveryCode = await recoveryCodeService.getRecoveryCodeEnrollmentInfo(
+  const {
+    recoveryCode, user,
+  } = await recoveryCodeService.getRecoveryCodeEnrollmentInfo(
     c,
-    queryDto.code,
     authCodeStore,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const newAuthCodeStore = {
+    ...authCodeStore,
+    user,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    queryDto.code,
+    newAuthCodeStore,
+    codeExpiresIn,
   )
 
   return c.json({ recoveryCode })

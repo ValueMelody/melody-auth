@@ -15,6 +15,19 @@ export class SignInDto {
   }
 }
 
+export class SignInWithRecoveryCodeDto {
+  @IsEmail()
+    email: string
+
+  @IsString()
+    recoveryCode: string
+
+  constructor (dto: SignInWithRecoveryCodeDto) {
+    this.email = dto.email.toLowerCase()
+    this.recoveryCode = dto.recoveryCode
+  }
+}
+
 export class AuthCodeTokenExchangeDto {
   @IsString()
   @IsNotEmpty()
