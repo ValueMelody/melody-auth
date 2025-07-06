@@ -192,11 +192,12 @@ describe(
     test(
       'set passwordless sign in to true should override other features',
       async () => {
-        global.process.env.ENABLE_PASSWORD_RESET = true as unknown as string
-        global.process.env.ENABLE_SIGN_UP = true as unknown as string
-        global.process.env.ENABLE_PASSWORD_SIGN_IN = true as unknown as string
-        global.process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
-        global.process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.ENABLE_PASSWORD_RESET = true as unknown as string
+        process.env.ENABLE_SIGN_UP = true as unknown as string
+        process.env.ENABLE_PASSWORD_SIGN_IN = true as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
 
         const appRecord = await getApp(db)
         const res = await getSignInRequest(
@@ -211,7 +212,15 @@ describe(
         expect(html).toContain('enableSignUp: false')
         expect(html).toContain('enablePasswordSignIn: false')
         expect(html).toContain('allowPasskey: false')
+        expect(html).toContain('allowRecoveryCode: false')
         expect(html).toContain('enablePasswordlessSignIn: true')
+
+        process.env.ENABLE_PASSWORD_RESET = false as unknown as string
+        process.env.ENABLE_SIGN_UP = false as unknown as string
+        process.env.ENABLE_PASSWORD_SIGN_IN = false as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
       },
     )
 

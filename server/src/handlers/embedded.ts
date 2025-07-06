@@ -38,6 +38,26 @@ export const sessionBodyToAuthCodeBody = (sessionBody: typeConfig.EmbeddedSessio
   }
 }
 
+const getSessionBody = async (
+  c: Context<typeConfig.Context>,
+  sessionId: string,
+) => {
+  const sessionBody = await kvService.getEmbeddedSessionBody(
+    c.env.KV,
+    sessionId,
+  )
+  if (!sessionBody) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongSessionId,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
+  }
+
+  return sessionBody
+}
+
 const getSessionBodyWithUser = async (
   c: Context<typeConfig.Context>, sessionId: string,
 ) => {
@@ -160,18 +180,10 @@ export const signUp = async (c: Context<typeConfig.Context>) => {
     : new embeddedDto.SignUpDtoWithNames(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionBody = await kvService.getEmbeddedSessionBody(
-    c.env.KV,
+  const sessionBody = await getSessionBody(
+    c,
     bodyDto.sessionId,
   )
-  if (!sessionBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongSessionId,
-    )
-    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
-  }
 
   const attributeValues = await userAttributeService.getUserSignUpAttributeValues(
     c,
@@ -236,18 +248,10 @@ export const signIn = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.SignInDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionBody = await kvService.getEmbeddedSessionBody(
-    c.env.KV,
+  const sessionBody = await getSessionBody(
+    c,
     bodyDto.sessionId,
   )
-  if (!sessionBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongSessionId,
-    )
-    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
-  }
 
   const user = await userService.verifyPasswordSignIn(
     c,
@@ -281,18 +285,10 @@ export const signInWithRecoveryCode = async (c: Context<typeConfig.Context>) => 
   const bodyDto = new embeddedDto.SignInWithRecoveryCodeDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionBody = await kvService.getEmbeddedSessionBody(
-    c.env.KV,
+  const sessionBody = await getSessionBody(
+    c,
     bodyDto.sessionId,
   )
-  if (!sessionBody) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.WrongSessionId,
-    )
-    throw new errorConfig.NotFound(messageConfig.RequestError.WrongSessionId)
-  }
 
   const user = await userService.verifyRecoveryCodeSignIn(
     c,

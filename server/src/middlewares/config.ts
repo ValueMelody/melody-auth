@@ -419,6 +419,23 @@ export const enableManagePasskeyPolicy = async (
   await next()
 }
 
+export const enableManageRecoveryCodePolicy = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const {
+    BLOCKED_POLICIES: blockedPolicies, ENABLE_RECOVERY_CODE: enableRecoveryCode,
+  } = env(c)
+  if (!enableRecoveryCode || blockedPolicies.includes(Policy.ManageRecoveryCode)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.ManageRecoveryCodePolicyNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.ManageRecoveryCodePolicyNotEnabled)
+  }
+  await next()
+}
+
 export const enableUpdateInfoPolicy = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

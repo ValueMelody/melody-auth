@@ -5,9 +5,9 @@ import {
 import { render } from 'hono/jsx/dom'
 import Main from './Main'
 import {
-  authCodeExpired, changeEmail, changePassword, consent, emailMfa, managePasskey, mfaEnroll,
-  otpMfa, passkeyEnroll, passwordlessCode, resetMfa, resetPassword, signIn, signUp, smsMfa,
-  updateInfo, verifyEmail,
+  authCodeExpired, changeEmail, changePassword, consent, emailMfa, managePasskey, manageRecoveryCode, mfaEnroll,
+  otpMfa, passkeyEnroll, passwordlessCode, recoveryCodeEnroll, recoveryCodeSignIn, resetMfa, resetPassword,
+  signIn, signUp, smsMfa, updateInfo, verifyEmail,
 } from './tools/locale'
 import { typeConfig } from 'configs'
 import * as hooks from 'pages/hooks'
@@ -62,11 +62,14 @@ vi.mock(
         SmsMfa: 'SmsMfa',
         EmailMfa: 'EmailMfa',
         PasskeyEnroll: 'PasskeyEnroll',
+        RecoveryCodeEnroll: 'RecoveryCodeEnroll',
+        RecoveryCodeSignIn: 'RecoveryCodeSignIn',
         ResetPassword: 'ResetPassword',
         UpdateInfo: 'UpdateInfo',
         ChangePassword: 'ChangePassword',
         ResetMfa: 'ResetMfa',
         ManagePasskey: 'ManagePasskey',
+        ManageRecoveryCode: 'ManageRecoveryCode',
         ChangeEmail: 'ChangeEmail',
         AuthCodeExpired: 'AuthCodeExpired',
         VerifyEmail: 'VerifyEmail',
@@ -279,6 +282,24 @@ describe(
     )
 
     it(
+      'renders ManageRecoveryCode view',
+      () => {
+        (hooks.useCurrentView as Mock).mockReturnValue({
+          view: hooks.View.ManageRecoveryCode,
+          handleSwitchView: mockHandleSwitchView,
+        })
+
+        const container = document.getElementById('root')!
+        render(
+          <Main />,
+          container,
+        )
+
+        expect(container.innerHTML).toContain(manageRecoveryCode.title.en)
+      },
+    )
+
+    it(
       'renders ChangeEmail view',
       () => {
         (hooks.useCurrentView as Mock).mockReturnValue({
@@ -455,6 +476,42 @@ describe(
         )
 
         expect(container.innerHTML).toContain(updateInfo.title.en)
+      },
+    )
+
+    it(
+      'renders RecoveryCodeEnroll view',
+      () => {
+        (hooks.useCurrentView as Mock).mockReturnValue({
+          view: hooks.View.RecoveryCodeEnroll,
+          handleSwitchView: mockHandleSwitchView,
+        })
+
+        const container = document.getElementById('root')!
+        render(
+          <Main />,
+          container,
+        )
+
+        expect(container.innerHTML).toContain(recoveryCodeEnroll.title.en)
+      },
+    )
+
+    it(
+      'renders RecoveryCodeSignIn view',
+      () => {
+        (hooks.useCurrentView as Mock).mockReturnValue({
+          view: hooks.View.RecoveryCodeSignIn,
+          handleSwitchView: mockHandleSwitchView,
+        })
+
+        const container = document.getElementById('root')!
+        render(
+          <Main />,
+          container,
+        )
+
+        expect(container.innerHTML).toContain(recoveryCodeSignIn.title.en)
       },
     )
 

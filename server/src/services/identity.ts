@@ -47,6 +47,7 @@ const getNextPageForPolicy = (
       ENABLE_PASSWORD_RESET: enablePasswordReset,
       ENABLE_EMAIL_VERIFICATION: enableEmailVerification,
       ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
+      ENABLE_RECOVERY_CODE: enableRecoveryCode,
     } = env(c)
 
     switch (authCodeBody.request.policy) {
@@ -64,6 +65,10 @@ const getNextPageForPolicy = (
     }
     case oauthDto.Policy.ManagePasskey: {
       if (enablePasskeyEnrollment) nextPage = routeConfig.View.ManagePasskey
+      break
+    }
+    case oauthDto.Policy.ManageRecoveryCode: {
+      if (enableRecoveryCode) nextPage = routeConfig.View.ManageRecoveryCode
       break
     }
     case oauthDto.Policy.UpdateInfo: {

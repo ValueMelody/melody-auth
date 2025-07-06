@@ -65,6 +65,7 @@ export enum IdentityRoute {
   ChangeEmail = `${InternalRoute.Identity}/change-email`,
   ResetMfa = `${InternalRoute.Identity}/reset-mfa`,
   ManagePasskey = `${InternalRoute.Identity}/manage-passkey`,
+  ManageRecoveryCode = `${InternalRoute.Identity}/manage-recovery-code`,
   UpdateInfo = `${InternalRoute.Identity}/update-info`,
   // Other
   VerifyEmailView = `${InternalRoute.Identity}/view/verify-email`,
@@ -92,6 +93,7 @@ export enum View {
   ChangePassword = 'change_password',
   ResetMfa = 'reset_mfa',
   ManagePasskey = 'manage_passkey',
+  ManageRecoveryCode = 'manage_recovery_code',
   ChangeEmail = 'change_email',
   AuthCodeExpired = 'auth_code_expired',
   VerifyEmail = 'verify_email',

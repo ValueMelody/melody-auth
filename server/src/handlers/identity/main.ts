@@ -70,6 +70,7 @@ export const postAuthorizeRecoveryCode = async (c: Context<typeConfig.Context>) 
     ...reqBody,
     scopes: reqBody.scope ? reqBody.scope.split(' ') : [],
   })
+
   await validateUtil.dto(bodyDto)
 
   const app = await appService.verifySPAClientRequest(

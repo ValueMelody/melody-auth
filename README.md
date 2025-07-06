@@ -70,6 +70,7 @@
   - change_email
   - reset_mfa
   - manage_passkey
+  - manage_recovery_code
   - saml_sso_[idp_name] [How to trigger SAML sso login redirect](https://auth.valuemelody.com/saml-sso-setup.html#_4-trigger-login-via-saml-sso-in-the-frontend)
   - oidc_sso_[provider_name] [How to trigger OIDC sso login redirect](https://auth.valuemelody.com/q_a.html#how-to-trigger-oidc-sso-login-redirect-via-policy-in-frontend)
 - <b>Organization</b>:

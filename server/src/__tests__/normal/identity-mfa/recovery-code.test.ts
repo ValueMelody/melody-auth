@@ -203,5 +203,27 @@ describe(
         expect(res.status).toBe(400)
       },
     )
+
+    test(
+      'should throw error if wrong code used',
+      async () => {
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: 'abc', locale: 'en', remember: false,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+      },
+    )
   },
 )
