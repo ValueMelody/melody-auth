@@ -23,6 +23,7 @@ export enum ConfigError {
   ChangeEmailPolicyNotEnabled = 'Change email policy is not enabled or email verification is not enabled',
   ResetMfaPolicyNotEnabled = 'Reset MFA policy is not enabled',
   ManagePasskeyPolicyNotEnabled = 'Manage passkey policy is not enabled or passkey enrollment is not enabled',
+  ManageRecoveryCodePolicyNotEnabled = 'Manage recovery code policy is not enabled or recovery code is not enabled',
   UpdateInfoPolicyNotEnabled = 'Update info policy is not enabled or user names are not enabled',
   EmbeddedAuthFeatureNotEnabled = 'Embedded auth feature is not enabled',
   SamlSpNotEnabled = 'SAML SP feature is not enabled',

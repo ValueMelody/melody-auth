@@ -1,6 +1,6 @@
 import { GetProcessRecoveryCodeEnrollRes } from 'handlers/identity'
 import {
-  PrimaryButton,
+  RecoveryCodeContainer,
   SecondaryButton,
   SubmitError, ViewTitle,
 } from 'pages/components'
@@ -21,31 +21,6 @@ const RecoveryCodeEnroll = ({
   handleContinue,
   submitError,
 }: RecoveryCodeEnrollProps) => {
-  const handleCopyRecoveryCode = async () => {
-    if (!recoveryCodeEnrollInfo?.recoveryCode) return
-    await navigator.clipboard.writeText(recoveryCodeEnrollInfo.recoveryCode)
-  }
-
-  const handleDownloadRecoveryCode = () => {
-    if (!recoveryCodeEnrollInfo?.recoveryCode) return
-
-    const content = `${recoveryCodeEnroll.title[locale]}: ${recoveryCodeEnrollInfo.recoveryCode}\n\n${recoveryCodeEnroll.desc[locale]}`
-    const blob = new Blob(
-      [content],
-      { type: 'text/plain' },
-    )
-    const url = URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'recovery-code-melody-auth.txt'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-
-    URL.revokeObjectURL(url)
-  }
-
   return (
     <>
       <ViewTitle title={recoveryCodeEnroll.title[locale]} />
@@ -53,23 +28,13 @@ const RecoveryCodeEnroll = ({
         <p class='w-(--text-width) text-center'>
           {recoveryCodeEnroll.desc[locale]}
         </p>
-        <p class='w-(--text-width) text-center border border-lightGray p-4 rounded-md'>
-          {recoveryCodeEnrollInfo?.recoveryCode}
-        </p>
-        <section class='flex gap-4'>
-          <PrimaryButton
-            type='button'
-            className='w-full'
-            title={recoveryCodeEnroll.copy[locale]}
-            onClick={handleCopyRecoveryCode}
-          />
-          <PrimaryButton
-            type='button'
-            className='w-full'
-            title={recoveryCodeEnroll.download[locale]}
-            onClick={handleDownloadRecoveryCode}
-          />
-        </section>
+        <RecoveryCodeContainer
+          recoveryCode={recoveryCodeEnrollInfo?.recoveryCode}
+          copyTitle={recoveryCodeEnroll.copy[locale]}
+          downloadTitle={recoveryCodeEnroll.download[locale]}
+          title={recoveryCodeEnroll.title[locale]}
+          desc={recoveryCodeEnroll.desc[locale]}
+        />
         <SecondaryButton
           title={recoveryCodeEnroll.continue[locale]}
           onClick={handleContinue}

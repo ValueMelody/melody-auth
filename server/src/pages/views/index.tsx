@@ -14,6 +14,7 @@ import UpdateInfo from './UpdateInfo'
 import ChangePassword from './ChangePassword'
 import ResetMfa from './ResetMfa'
 import ManagePasskey from './ManagePasskey'
+import ManageRecoveryCode from './ManageRecoveryCode'
 import ChangeEmail from './ChangeEmail'
 import AuthCodeExpired from './AuthCodeExpired'
 import VerifyEmail from './VerifyEmail'
@@ -23,5 +24,5 @@ export {
   SignIn, SignUp, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
   PasskeyEnroll, ResetPassword, UpdateInfo, ChangePassword, ResetMfa, ManagePasskey,
   ChangeEmail, AuthCodeExpired, VerifyEmail, PasswordlessVerify, RecoveryCodeEnroll,
-  RecoveryCodeSignIn,
+  RecoveryCodeSignIn, ManageRecoveryCode,
 }

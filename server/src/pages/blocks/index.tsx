@@ -8,6 +8,7 @@ import Consent from './Consent'
 import EmailMfa from './EmailMfa'
 import Layout from './Layout'
 import ManagePasskey from './ManagePasskey'
+import ManageRecoveryCode from './ManageRecoveryCode'
 import RecoveryCodeEnroll from './RecoveryCodeEnroll'
 import MfaEnroll from './MfaEnroll'
 import OtpMfa from './OtpMfa'
@@ -25,5 +26,5 @@ export {
   ChangePassword, Consent, EmailMfa, Layout, ManagePasskey,
   MfaEnroll, OtpMfa, OtpSetup, PasskeyEnroll, PasswordlessVerify,
   ResetMfa, ResetPassword, SignUp, SignIn, RecoveryCodeEnroll,
-  RecoveryCodeSignIn,
+  RecoveryCodeSignIn, ManageRecoveryCode,
 }

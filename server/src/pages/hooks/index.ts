@@ -19,6 +19,7 @@ import useUpdateInfoForm from './useUpdateInfoForm'
 import useChangePasswordForm from './useChangePasswordForm'
 import useResetMfaForm from './useResetMfaForm'
 import useManagePasskeyForm from './useManagePasskeyForm'
+import useManageRecoveryCodeForm from './useManageRecoveryCodeForm'
 import useChangeEmailForm from './useChangeEmailForm'
 import useVerifyEmailForm from './useVerifyEmailForm'
 import useRecoveryCodeForm from './useRecoveryCodeForm'
@@ -45,6 +46,7 @@ export {
   useChangePasswordForm,
   useResetMfaForm,
   useManagePasskeyForm,
+  useManageRecoveryCodeForm,
   useChangeEmailForm,
   useVerifyEmailForm,
   usePasswordlessVerifyForm,

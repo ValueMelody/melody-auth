@@ -18,6 +18,7 @@ import {
   ChangePassword,
   ResetMfa,
   ManagePasskey,
+  ManageRecoveryCode,
   ChangeEmail,
   AuthCodeExpired,
   VerifyEmail,
@@ -73,6 +74,8 @@ const Main = () => {
         return ResetMfa
       case View.ManagePasskey:
         return ManagePasskey
+      case View.ManageRecoveryCode:
+        return ManageRecoveryCode
       case View.ChangeEmail:
         return ChangeEmail
       case View.AuthCodeExpired:

@@ -34,3 +34,21 @@ export const getRecoveryCodeEnrollmentInfo = async (
     user,
   }
 }
+
+export const regenerateRecoveryCode = async (
+  c: Context<typeConfig.Context>,
+  authCodeStore: typeConfig.AuthCodeBody,
+) => {
+  const {
+    recoveryCode, recoveryHash,
+  } = await cryptoUtil.genRecoveryCode()
+  await userModel.update(
+    c.env.DB,
+    authCodeStore.user.id,
+    { recoveryCodeHash: recoveryHash },
+  )
+
+  return {
+    recoveryCode,
+  }
+}

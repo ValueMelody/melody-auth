@@ -92,6 +92,43 @@ describe(
     )
 
     test(
+      'request with no scopes',
+      async () => {
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+
+        const appRecord = await getApp(db)
+
+        const { res: enrollRes } = await enrollRecoveryCode(db)
+        const enrollJson = await enrollRes.json() as { recoveryCode: string }
+
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          scope: '',
+          email: 'test@email.com',
+          recoveryCode: enrollJson.recoveryCode,
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeRecoveryCode,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        const json = await res.json() as {
+          constraints: {
+            arrayMinSize: string;
+          };
+        }[]
+        expect(json[0].constraints).toStrictEqual({ arrayMinSize: 'scopes must contain at least 1 elements' })
+
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+      },
+    )
+
+    test(
       'could generate session after recovery code verify',
       async () => {
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string

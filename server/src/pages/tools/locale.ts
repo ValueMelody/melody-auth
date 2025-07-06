@@ -201,6 +201,44 @@ export const managePasskey = Object.freeze({
   },
 })
 
+export const manageRecoveryCode = Object.freeze({
+  title: {
+    en: 'Regenerate Recovery Code',
+    fr: 'Régénérer le code de récupération',
+    zh: '重新生成恢复码',
+  },
+  desc: {
+    en: 'Your current recovery code will be replaced with a new one.',
+    fr: 'Votre code de récupération actuel sera remplacé par un nouveau.',
+    zh: '您的当前恢复码将被替换。',
+  },
+  success: {
+    en: 'Recovery code regenerated! Please keep a copy of this code in a safe place.',
+    fr: 'Code de récupération régénéré ! Veuillez garder une copie de ce code dans un endroit sécurisé.',
+    zh: '恢复码已重新生成！请将此代码安全地保存在一个安全的地方。',
+  },
+  regenerate: {
+    en: 'Regenerate',
+    fr: 'Régénérer',
+    zh: '重新生成',
+  },
+  redirect: {
+    en: 'Redirect back',
+    fr: 'Rediriger en arrière',
+    zh: '返回',
+  },
+  copy: {
+    en: 'Copy',
+    fr: 'Copier',
+    zh: '复制',
+  },
+  download: {
+    en: 'Download',
+    fr: 'Télécharger',
+    zh: '下载',
+  },
+})
+
 export const mfaEnroll = Object.freeze({
   title: {
     en: 'Select one of the MFA type',

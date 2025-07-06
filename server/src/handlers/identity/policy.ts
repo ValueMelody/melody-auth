@@ -10,7 +10,7 @@ import {
 import { identityDto } from 'dtos'
 import {
   emailService,
-  kvService, passkeyService, userService,
+  kvService, passkeyService, recoveryCodeService, userService,
 } from 'services'
 import {
   cryptoUtil, validateUtil, loggerUtil,
@@ -293,6 +293,42 @@ export const postManagePasskey = async (c: Context<typeConfig.Context>) => {
       counter: passkeyCounter,
     },
   })
+}
+
+export interface PostManageRecoveryCodeRes {
+  recoveryCode: string;
+}
+export const postManageRecoveryCode = async (
+  c: Context<typeConfig.Context>,
+): Promise<TypedResponse<PostManageRecoveryCodeRes>> => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostProcessDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authInfo = await kvService.getAuthCodeBody(
+    c.env.KV,
+    bodyDto.code,
+  )
+  if (!authInfo) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAuthCode,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
+  }
+  checkAccount(
+    c,
+    authInfo.user,
+  )
+
+  const { recoveryCode } = await recoveryCodeService.regenerateRecoveryCode(
+    c,
+    authInfo,
+  )
+
+  return c.json({ success: true, recoveryCode })
 }
 
 export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {

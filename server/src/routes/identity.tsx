@@ -282,6 +282,7 @@ identityRoutes.post(
  * - ChangeEmail
  * - ResetMfa
  * - ManagePasskey
+ * - ManageRecoveryCode
  * - UpdateInfo
  */
 identityRoutes.post(
@@ -319,6 +320,12 @@ identityRoutes.post(
   routeConfig.IdentityRoute.ManagePasskey,
   configMiddleware.enableManagePasskeyPolicy,
   identityHandler.postManagePasskey,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ManageRecoveryCode,
+  configMiddleware.enableManageRecoveryCodePolicy,
+  identityHandler.postManageRecoveryCode,
 )
 
 identityRoutes.delete(
