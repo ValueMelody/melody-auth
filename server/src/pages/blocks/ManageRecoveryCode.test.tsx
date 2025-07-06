@@ -10,6 +10,32 @@ import {
 import ManageRecoveryCode, { ManageRecoveryCodeProps } from './ManageRecoveryCode'
 import { manageRecoveryCode } from 'pages/tools/locale'
 
+// Mock navigator.clipboard
+const mockWriteText = vi.fn()
+Object.defineProperty(
+  navigator,
+  'clipboard',
+  {
+    value: { writeText: mockWriteText },
+    writable: true,
+  },
+)
+
+// Mock URL methods
+const mockCreateObjectURL = vi.fn()
+const mockRevokeObjectURL = vi.fn()
+Object.defineProperty(
+  global,
+  'URL',
+  {
+    value: {
+      createObjectURL: mockCreateObjectURL,
+      revokeObjectURL: mockRevokeObjectURL,
+    },
+    writable: true,
+  },
+)
+
 describe(
   'ManageRecoveryCode Component',
   () => {

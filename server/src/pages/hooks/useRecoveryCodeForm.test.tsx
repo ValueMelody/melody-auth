@@ -289,6 +289,13 @@ describe(
           clientId: 'test-client-id',
           redirectUri: 'http://localhost:3000/callback',
           locale: 'en',
+          policy: oauthDto.Policy.SignInOrSignUp,
+          scope: 'test-scope',
+          org: 'test-org',
+          responseType: 'code',
+          state: 'test-state',
+          codeChallenge: 'test-code-challenge',
+          codeChallengeMethod: 'test-code-challenge-method',
         })
 
         // Verify parseResponse was called

@@ -298,7 +298,6 @@ test(
       code: 'test-code',
       locale: 'en',
       org: 'test-org',
-      additionalParam: 'test-value',
     })
 
     fetchSpy.mockRestore()
