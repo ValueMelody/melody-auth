@@ -4,6 +4,7 @@ import {
 import { render } from 'hono/jsx/dom'
 import {
   expect, describe, it, beforeEach, vi, beforeAll,
+  Mock,
 } from 'vitest'
 import RecoveryCodeSignIn, { RecoveryCodeSignInProps } from './RecoveryCodeSignIn'
 import { recoveryCodeSignIn } from 'pages/tools/locale'
@@ -49,9 +50,9 @@ describe(
     }
 
     beforeEach(() => {
-      defaultProps.onSubmit.mockReset()
-      defaultProps.onChange.mockReset()
-      defaultProps.onSwitchView.mockReset()
+      (defaultProps.onSubmit as Mock).mockReset();
+      (defaultProps.onChange as Mock).mockReset();
+      (defaultProps.onSwitchView as Mock).mockReset()
     })
 
     it(
@@ -133,7 +134,7 @@ describe(
         const container = setup(props)
         const emailField = container.querySelector('input[name="email"]') as HTMLInputElement
         const recoveryCodeField = container.querySelector('input[name="recoveryCode"]') as HTMLInputElement
-        
+
         expect(emailField.value).toBe('user@example.com')
         expect(recoveryCodeField.value).toBe('XYZ789')
       },
@@ -275,7 +276,7 @@ describe(
           container,
           recoveryCodeSignIn.confirm.en,
         )
-        
+
         expect(confirmButton).toBeDefined()
       },
     )
@@ -292,7 +293,7 @@ describe(
           container,
           recoveryCodeSignIn.confirm.en,
         )
-        
+
         expect(confirmButton).toBeDefined()
         // Button should be in normal state (not loading)
       },
@@ -312,20 +313,26 @@ describe(
       'renders all required form elements',
       () => {
         const container = setup()
-        
+
         // Check form exists
         const form = container.querySelector('form')
         expect(form).toBeDefined()
-        
+
         // Check both input fields exist
         const emailField = container.querySelector('input[name="email"]')
         const recoveryCodeField = container.querySelector('input[name="recoveryCode"]')
         expect(emailField).toBeDefined()
         expect(recoveryCodeField).toBeDefined()
-        
+
         // Check buttons exist
-        const confirmButton = getByText(container, recoveryCodeSignIn.confirm.en)
-        const signInButton = getByText(container, recoveryCodeSignIn.signIn.en)
+        const confirmButton = getByText(
+          container,
+          recoveryCodeSignIn.confirm.en,
+        )
+        const signInButton = getByText(
+          container,
+          recoveryCodeSignIn.signIn.en,
+        )
         expect(confirmButton).toBeDefined()
         expect(signInButton).toBeDefined()
       },
@@ -344,7 +351,7 @@ describe(
         const container = setup(props)
         const emailField = container.querySelector('input[name="email"]') as HTMLInputElement
         const recoveryCodeField = container.querySelector('input[name="recoveryCode"]') as HTMLInputElement
-        
+
         expect(emailField.value).toBe('')
         expect(recoveryCodeField.value).toBe('')
       },
@@ -354,10 +361,10 @@ describe(
       'handles field labels correctly',
       () => {
         const container = setup()
-        
+
         expect(container.textContent).toContain(recoveryCodeSignIn.email.en)
         expect(container.textContent).toContain(recoveryCodeSignIn.recoveryCode.en)
       },
     )
   },
-) 
+)

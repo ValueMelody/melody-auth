@@ -12,21 +12,29 @@ import { recoveryCodeEnroll } from 'pages/tools/locale'
 
 // Mock navigator.clipboard
 const mockWriteText = vi.fn()
-Object.defineProperty(navigator, 'clipboard', {
-  value: { writeText: mockWriteText },
-  writable: true,
-})
+Object.defineProperty(
+  navigator,
+  'clipboard',
+  {
+    value: { writeText: mockWriteText },
+    writable: true,
+  },
+)
 
 // Mock URL methods
 const mockCreateObjectURL = vi.fn()
 const mockRevokeObjectURL = vi.fn()
-Object.defineProperty(global, 'URL', {
-  value: {
-    createObjectURL: mockCreateObjectURL,
-    revokeObjectURL: mockRevokeObjectURL,
+Object.defineProperty(
+  global,
+  'URL',
+  {
+    value: {
+      createObjectURL: mockCreateObjectURL,
+      revokeObjectURL: mockRevokeObjectURL,
+    },
+    writable: true,
   },
-  writable: true,
-})
+)
 
 // Mock document.createElement
 const mockClick = vi.fn()
@@ -39,7 +47,10 @@ document.createElement = vi.fn().mockImplementation((tagName) => {
       click: mockClick,
     }
   }
-  return originalCreateElement.call(document, tagName)
+  return originalCreateElement.call(
+    document,
+    tagName,
+  )
 })
 
 // Mock document.body methods
@@ -51,9 +62,7 @@ describe(
   () => {
     const defaultProps: RecoveryCodeEnrollProps = {
       locale: 'en' as any,
-      recoveryCodeEnrollInfo: {
-        recoveryCode: 'ABC123DEF456',
-      },
+      recoveryCodeEnrollInfo: { recoveryCode: 'ABC123DEF456' },
       submitError: null,
       handleContinue: vi.fn(),
     }
@@ -191,15 +200,13 @@ describe(
         const downloadButton = getByText(
           container,
           recoveryCodeEnroll.download.en,
-        )
-        document.createElement.mockClear()
+        );
+        (document.createElement as Mock).mockClear()
 
         fireEvent.click(downloadButton)
 
         expect(document.createElement).toHaveBeenCalledWith('a')
-        expect(mockCreateObjectURL).toHaveBeenCalledWith(
-          expect.any(Blob)
-        )
+        expect(mockCreateObjectURL).toHaveBeenCalledWith(expect.any(Blob))
         expect(document.body.appendChild).toHaveBeenCalled()
         expect(mockClick).toHaveBeenCalled()
         expect(document.body.removeChild).toHaveBeenCalled()
@@ -254,23 +261,23 @@ describe(
           container,
           recoveryCodeEnroll.download.en,
         )
-        
+
         // Mock Blob constructor
         const mockBlob = vi.fn()
         global.Blob = mockBlob
-        
+
         fireEvent.click(downloadButton)
-        
+
         const expectedContent = `${recoveryCodeEnroll.title.en}: ABC123DEF456\n\n${recoveryCodeEnroll.desc.en}`
-        
+
         expect(mockBlob).toHaveBeenCalledWith(
           [expectedContent],
-          { type: 'text/plain' }
+          { type: 'text/plain' },
         )
-        
+
         // Check that createElement was called for the link
         expect(document.createElement).toHaveBeenCalledWith('a')
       },
     )
   },
-) 
+)

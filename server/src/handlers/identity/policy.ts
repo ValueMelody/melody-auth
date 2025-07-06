@@ -298,9 +298,8 @@ export const postManagePasskey = async (c: Context<typeConfig.Context>) => {
 export interface PostManageRecoveryCodeRes {
   recoveryCode: string;
 }
-export const postManageRecoveryCode = async (
-  c: Context<typeConfig.Context>,
-): Promise<TypedResponse<PostManageRecoveryCodeRes>> => {
+export const postManageRecoveryCode = async (c: Context<typeConfig.Context>)
+: Promise<TypedResponse<PostManageRecoveryCodeRes>> => {
   const reqBody = await c.req.json()
 
   const bodyDto = new identityDto.PostProcessDto(reqBody)
@@ -328,7 +327,9 @@ export const postManageRecoveryCode = async (
     authInfo,
   )
 
-  return c.json({ success: true, recoveryCode })
+  return c.json({
+    success: true, recoveryCode,
+  })
 }
 
 export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {

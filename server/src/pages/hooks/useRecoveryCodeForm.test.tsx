@@ -12,6 +12,7 @@ import { routeConfig } from 'configs'
 import * as requestModule from 'pages/tools/request'
 import * as formModule from 'pages/tools/form'
 import { validateError } from 'pages/tools/locale'
+import { oauthDto } from 'dtos'
 
 // Mock hooks from hono/jsx
 vi.mock(
@@ -28,7 +29,9 @@ vi.mock(
   'pages/tools/request',
   () => ({
     parseResponse: vi.fn((response) => response.json()),
-    parseAuthorizeBaseValues: vi.fn((params, locale) => ({
+    parseAuthorizeBaseValues: vi.fn((
+      params, locale,
+    ) => ({
       clientId: params.clientId,
       redirectUri: params.redirectUri,
       locale,
@@ -42,9 +45,7 @@ vi.mock(
   'pages/tools/form',
   () => ({
     validate: vi.fn(() => ({})),
-    emailField: vi.fn(() => ({
-      required: vi.fn(() => ({ email: 'Email is required' })),
-    })),
+    emailField: vi.fn(() => ({ required: vi.fn(() => ({ email: 'Email is required' })) })),
   }),
 )
 
@@ -52,12 +53,8 @@ vi.mock(
 vi.mock(
   'yup',
   () => ({
-    object: vi.fn(() => ({
-      validate: vi.fn(),
-    })),
-    string: vi.fn(() => ({
-      required: vi.fn(() => ({ recoveryCode: 'Recovery code is required' })),
-    })),
+    object: vi.fn(() => ({ validate: vi.fn() })),
+    string: vi.fn(() => ({ required: vi.fn(() => ({ recoveryCode: 'Recovery code is required' })) })),
   }),
 )
 
@@ -254,6 +251,13 @@ describe(
           clientId: 'test-client-id',
           redirectUri: 'http://localhost:3000/callback',
           locale: 'en',
+          responseType: 'code',
+          state: 'test-state',
+          policy: oauthDto.Policy.SignInOrSignUp,
+          codeChallenge: 'test-code-challenge',
+          codeChallengeMethod: 'test-code-challenge-method',
+          org: 'test-org',
+          scope: 'test-scope',
         })
 
         const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
@@ -460,4 +464,4 @@ describe(
       },
     )
   },
-) 
+)

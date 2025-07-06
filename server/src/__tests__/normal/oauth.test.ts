@@ -348,6 +348,51 @@ describe(
     )
 
     test(
+      'could redirect to sign in for manage recovery code',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        await db.prepare('update "user" set "recoveryCodeHash" = ?').run('123')
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=manage_recovery_code',
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain(`${routeConfig.IdentityRoute.AuthorizeView}`)
+        expect(path).toContain('&policy=manage_recovery_code')
+
+        const res1 = await postSignInRequest(
+          db,
+          appRecord,
+          { policy: 'manage_recovery_code' },
+        )
+        expect(res1.status).toBe(200)
+        const json = await res1.json()
+        expect(json).toStrictEqual({
+          nextPage: routeConfig.View.ManageRecoveryCode,
+          code: expect.any(String),
+          state: '123',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+      },
+    )
+
+    test(
       'could redirect to sign in for reset mfa',
       async () => {
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
@@ -678,6 +723,40 @@ describe(
         expect(path).toContain('&code=')
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'could redirect to manage recovery code through session',
+      async () => {
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        await db.prepare('update "user" set "recoveryCodeHash" = ?').run('123')
+
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const url = routeConfig.OauthRoute.Authorize
+        const res = await getSignInRequest(
+          db,
+          url,
+          appRecord,
+          '&policy=manage_recovery_code',
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain(`${routeConfig.IdentityRoute.ProcessView}`)
+        expect(path).toContain('step=manage_recovery_code')
+        expect(path).toContain('&code=')
+
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
       },
     )
 

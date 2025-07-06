@@ -8,9 +8,7 @@ import {
   Mock,
 } from 'vitest'
 import ManageRecoveryCode, { ManageRecoveryCodeProps } from './ManageRecoveryCode'
-import { manageRecoveryCode, recoveryCodeEnroll } from 'pages/tools/locale'
-
-
+import { manageRecoveryCode } from 'pages/tools/locale'
 
 describe(
   'ManageRecoveryCode Component',
@@ -255,4 +253,4 @@ describe(
       },
     )
   },
-) 
+)

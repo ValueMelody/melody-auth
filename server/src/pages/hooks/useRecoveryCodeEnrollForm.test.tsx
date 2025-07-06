@@ -37,7 +37,9 @@ vi.mock(
   'pages/tools/request',
   () => ({
     parseResponse: vi.fn((response) => response.json()),
-    parseAuthorizeFollowUpValues: vi.fn((params, locale) => ({
+    parseAuthorizeFollowUpValues: vi.fn((
+      params, locale,
+    ) => ({
       code: params.code,
       locale,
       org: params.org,
@@ -267,7 +269,6 @@ test(
       code: 'test-code',
       locale: 'en',
       org: 'test-org',
-      additionalParam: 'test-value',
     })
 
     const { result } = renderHook(() =>
@@ -284,7 +285,9 @@ test(
 
     // Verify that parseAuthorizeFollowUpValues was called with correct parameters
     expect(parseAuthorizeFollowUpValuesSpy).toHaveBeenCalledWith(
-      { code: 'test-code', org: 'test-org' },
+      {
+        code: 'test-code', org: 'test-org',
+      },
       'en',
     )
 
@@ -300,4 +303,4 @@ test(
 
     fetchSpy.mockRestore()
   },
-) 
+)

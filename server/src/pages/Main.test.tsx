@@ -6,8 +6,8 @@ import { render } from 'hono/jsx/dom'
 import Main from './Main'
 import {
   authCodeExpired, changeEmail, changePassword, consent, emailMfa, managePasskey, manageRecoveryCode, mfaEnroll,
-  otpMfa, passkeyEnroll, passwordlessCode, recoveryCodeEnroll, recoveryCodeSignIn, resetMfa, resetPassword, signIn, signUp, smsMfa,
-  updateInfo, verifyEmail,
+  otpMfa, passkeyEnroll, passwordlessCode, recoveryCodeEnroll, recoveryCodeSignIn, resetMfa, resetPassword,
+  signIn, signUp, smsMfa, updateInfo, verifyEmail,
 } from './tools/locale'
 import { typeConfig } from 'configs'
 import * as hooks from 'pages/hooks'

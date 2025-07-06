@@ -1,4 +1,6 @@
-import { manageRecoveryCode, recoveryCodeEnroll } from 'pages/tools/locale'
+import {
+  manageRecoveryCode, recoveryCodeEnroll,
+} from 'pages/tools/locale'
 import {
   ViewTitle, SuccessMessage, SubmitError, PrimaryButton,
   RecoveryCodeContainer,
@@ -34,7 +36,7 @@ const ManageRecoveryCode = ({
         </section>
       )}
       <ViewTitle title={manageRecoveryCode.title[locale]} />
-      <p class="w-(--text-width) text-center">{manageRecoveryCode.desc[locale]}</p>
+      <p class='w-(--text-width) text-center'>{manageRecoveryCode.desc[locale]}</p>
       <div
         className='flex flex-col gap-4'
       >

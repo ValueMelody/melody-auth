@@ -48,7 +48,5 @@ export const regenerateRecoveryCode = async (
     { recoveryCodeHash: recoveryHash },
   )
 
-  return {
-    recoveryCode,
-  }
+  return { recoveryCode }
 }

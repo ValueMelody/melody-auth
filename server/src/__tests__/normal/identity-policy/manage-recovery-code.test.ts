@@ -6,17 +6,15 @@ import app from 'index'
 import {
   migrate, mock,
   mockedKV,
-  passkeyEnrollMock,
 } from 'tests/mock'
 import {
-  adapterConfig, messageConfig, routeConfig,
+  messageConfig, routeConfig,
 } from 'configs'
 import {
   prepareFollowUpBody,
   insertUsers,
 } from 'tests/identity'
 import { Policy } from 'dtos/oauth'
-import { dbTime } from 'tests/util'
 
 let db: Database
 

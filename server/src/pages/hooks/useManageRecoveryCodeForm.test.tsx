@@ -60,9 +60,7 @@ describe(
     test(
       'handleRegenerate updates recoveryCode and successMessage on successful POST',
       async () => {
-        const fakeResponseData = {
-          recoveryCode: 'ABC123-DEF456-GHI789',
-        }
+        const fakeResponseData = { recoveryCode: 'ABC123-DEF456-GHI789' }
         const fakeResponse = {
           ok: true,
           json: async () => fakeResponseData,
@@ -187,10 +185,8 @@ describe(
     test(
       'handleRegenerate with different locale uses correct locale value',
       async () => {
-        const testLocale = 'es'
-        const fakeResponseData = {
-          recoveryCode: 'XYZ789-UVW456-RST123',
-        }
+        const testLocale = 'fr'
+        const fakeResponseData = { recoveryCode: 'XYZ789-UVW456-RST123' }
         const fakeResponse = {
           ok: true,
           json: async () => fakeResponseData,
@@ -236,4 +232,4 @@ describe(
       },
     )
   },
-) 
+)
