@@ -1,5 +1,5 @@
 import {
-  describe, expect, test, vi,
+  describe, expect, test,
 } from 'vitest'
 import { isUtcString } from './time'
 
