@@ -4,7 +4,9 @@ import {
 import { Database } from 'better-sqlite3'
 import { Scope } from '@melody-auth/shared'
 import app from 'index'
-import { routeConfig } from 'configs'
+import {
+  messageConfig, routeConfig,
+} from 'configs'
 import {
   mockedKV,
   migrate,
@@ -405,25 +407,21 @@ describe(
     )
 
     test(
-      'should return 401 when before is not a valid utc string',
+      'should return 400 when before is not a valid utc string',
       async () => {
         await insertEmailLogs()
         await attachIndividualScopes(db)
 
         const res = await app.request(
-          `${BaseRoute}/email?before=2025-01-06T01:02:03`,
+          `${BaseRoute}/email?before=abc`,
           {
-            headers: {
-              Authorization: `Bearer ${await getS2sToken(
-                db,
-                Scope.ReadUser,
-              )}`,
-            },
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
             method: 'DELETE',
           },
           mock(db),
         )
-        expect(res.status).toBe(401)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.deleteBeforeMustBePresent)
       },
     )
   },
@@ -614,25 +612,21 @@ describe(
     )
 
     test(
-      'should return 401 when before is not a valid utc string',
+      'should return 400 when before is not a valid utc string',
       async () => {
         await insertSmsLogs()
         await attachIndividualScopes(db)
 
         const res = await app.request(
-          `${BaseRoute}/sms?before=2025-01-06T01:02:03`,
+          `${BaseRoute}/sms?before=abc`,
           {
-            headers: {
-              Authorization: `Bearer ${await getS2sToken(
-                db,
-                Scope.ReadUser,
-              )}`,
-            },
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
             method: 'DELETE',
           },
           mock(db),
         )
-        expect(res.status).toBe(401)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.deleteBeforeMustBePresent)
       },
     )
   },
@@ -822,25 +816,21 @@ describe(
     )
 
     test(
-      'should return 401 when before is not a valid utc string',
+      'should return 400 when before is not a valid utc string',
       async () => {
         await insertSignInLogs()
         await attachIndividualScopes(db)
 
         const res = await app.request(
-          `${BaseRoute}/sign-in?before=2025-01-06T01:02:03`,
+          `${BaseRoute}/sign-in?before=abc`,
           {
-            headers: {
-              Authorization: `Bearer ${await getS2sToken(
-                db,
-                Scope.ReadUser,
-              )}`,
-            },
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
             method: 'DELETE',
           },
           mock(db),
         )
-        expect(res.status).toBe(401)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.deleteBeforeMustBePresent)
       },
     )
 
