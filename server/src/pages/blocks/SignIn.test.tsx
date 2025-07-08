@@ -729,5 +729,87 @@ describe(
         expect(discordSignIn).toBeNull()
       },
     )
+
+    it(
+      'renders recovery code button when allowRecoveryCode is true',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            allowRecoveryCode: true,
+          },
+        }
+        const container = setup(props)
+
+        const recoveryCodeButton = getByText(
+          container,
+          signIn.recoveryCode.en,
+        )
+        expect(recoveryCodeButton).toBeDefined()
+      },
+    )
+
+    it(
+      'does not render recovery code button when allowRecoveryCode is false',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            allowRecoveryCode: false,
+          },
+        }
+        const container = setup(props)
+
+        const recoveryCodeButton = container.querySelector(`button[title="${signIn.recoveryCode.en}"]`)
+        expect(recoveryCodeButton).toBeNull()
+      },
+    )
+
+    it(
+      'calls onSwitchView with RecoveryCodeSignIn when recovery code button is clicked',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            allowRecoveryCode: true,
+          },
+        }
+        const container = setup(props)
+
+        const recoveryCodeButton = getByText(
+          container,
+          signIn.recoveryCode.en,
+        )
+        fireEvent.click(recoveryCodeButton)
+        expect(defaultProps.onSwitchView).toHaveBeenCalledWith(View.RecoveryCodeSignIn)
+      },
+    )
+
+    it(
+      'does not render bottom section when all options are disabled',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            enableSignUp: false,
+            enablePasswordReset: false,
+            allowRecoveryCode: false,
+          },
+        }
+        const container = setup(props)
+
+        const signUpButton = container.querySelector(`button[title="${signIn.signUp.en}"]`)
+        const resetPasswordButton = container.querySelector(`button[title="${signIn.passwordReset.en}"]`)
+        const recoveryCodeButton = container.querySelector(`button[title="${signIn.recoveryCode.en}"]`)
+
+        expect(signUpButton).toBeNull()
+        expect(resetPasswordButton).toBeNull()
+        expect(recoveryCodeButton).toBeNull()
+      },
+    )
   },
 )

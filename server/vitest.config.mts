@@ -21,7 +21,6 @@ export default defineConfig({
         '**/*.test.tsx',
         'src/adapters',
         'src/node.tsx',
-        'src/pages/client.tsx',
         'src/scripts',
         'src/configs/type.ts',
       ],

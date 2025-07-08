@@ -12,7 +12,7 @@ export const parseResponse = (response: Response) => {
       throw new Error(text)
     })
   }
-  return response.json()
+  return response.json ? response.json() : ''
 }
 
 export const parseAuthorizeBaseValues = (

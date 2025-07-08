@@ -191,7 +191,7 @@ const SignIn = ({
           </section>
         )}
       </form>
-      {(initialProps.enableSignUp || initialProps.enablePasswordReset) && (
+      {(initialProps.enableSignUp || initialProps.allowRecoveryCode || initialProps.enablePasswordReset) && (
         <section className='flex flex-col gap-2'>
           {initialProps.enableSignUp && (
             <SecondaryButton
