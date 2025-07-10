@@ -18,7 +18,9 @@ import {
   cryptoUtil, loggerUtil,
 } from 'utils'
 import { kvService } from 'services'
-import { AuthCodeBody } from 'configs/type'
+import {
+  AuthCodeBody, EmbeddedSessionBodyWithUser,
+} from 'configs/type'
 
 export const createUserPasskey = async (
   c: Context<typeConfig.Context>,
@@ -102,7 +104,7 @@ export const deletePasskey = async (
 
 export const genPasskeyEnrollOptions = async (
   c: Context<typeConfig.Context>,
-  authCodeStore: AuthCodeBody,
+  authCodeStore: AuthCodeBody | EmbeddedSessionBodyWithUser,
 ) => {
   const registrationOptions = await generateRegistrationOptions({
     rpName: '',
@@ -144,7 +146,7 @@ export const genPasskeyVerifyOptions = async (
 
 export const processPasskeyEnroll = async (
   c: Context<typeConfig.Context>,
-  authCodeStore: AuthCodeBody,
+  authCodeStore: AuthCodeBody | EmbeddedSessionBodyWithUser,
   enrollInfo: RegistrationResponseJSON,
 ) => {
   const challenge = await kvService.getPasskeyEnrollChallenge(
@@ -161,14 +163,16 @@ export const processPasskeyEnroll = async (
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
   }
 
-  const { AUTH_SERVER_URL: authServerUrl } = env(c)
+  const {
+    AUTH_SERVER_URL: authServerUrl, EMBEDDED_AUTH_ORIGINS: embeddedAuthOrigins,
+  } = env(c)
 
   let verification
   try {
     verification = await verifyRegistrationResponse({
       response: enrollInfo,
       expectedChallenge: challenge,
-      expectedOrigin: authServerUrl,
+      expectedOrigin: [...embeddedAuthOrigins, authServerUrl],
       expectedRPID: cryptoUtil.getPasskeyRpId(c),
       requireUserVerification: false,
     })
@@ -235,14 +239,16 @@ export const processPasskeyVerify = async (
     user, passkey,
   } = userAndPasskey
 
-  const { AUTH_SERVER_URL: authServerUrl } = env(c)
+  const {
+    AUTH_SERVER_URL: authServerUrl, EMBEDDED_AUTH_ORIGINS: embeddedAuthOrigins,
+  } = env(c)
 
   let verification
   try {
     verification = await verifyAuthenticationResponse({
       response: passkeyInfo,
       expectedChallenge: challenge,
-      expectedOrigin: authServerUrl,
+      expectedOrigin: [...embeddedAuthOrigins, authServerUrl],
       expectedRPID: cryptoUtil.getPasskeyRpId(c),
       credential: {
         id: passkey.credentialId,

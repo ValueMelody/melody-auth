@@ -148,6 +148,409 @@ const SmsMfaConfigRes = {
   required: ['allowFallbackToEmailMfa', 'countryCode', 'phoneNumber'],
 }
 
+const PasskeyEnrollInfoRes = {
+  type: 'object',
+  properties: {
+    enrollOptions: {
+      type: 'object',
+      description: 'PublicKeyCredentialCreationOptions suitable for JSON transmission to navigator.credentials.create()',
+      required: ['rp', 'user', 'challenge', 'pubKeyCredParams'],
+      properties: {
+        rp: {
+          type: 'object',
+          description: 'Relying Party entity',
+          required: ['name'],
+          properties: {
+            name: { type: 'string' },
+            id: { type: 'string' },
+          },
+        },
+        user: {
+          type: 'object',
+          description: 'User entity JSON',
+          required: ['id', 'name', 'displayName'],
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            displayName: { type: 'string' },
+          },
+        },
+        challenge: {
+          type: 'string',
+          format: 'base64url',
+          description: 'Base64URL-encoded challenge',
+        },
+        pubKeyCredParams: {
+          type: 'array',
+          description: 'Public key credential parameters',
+          items: {
+            type: 'object',
+            required: ['type', 'alg'],
+            properties: {
+              type: {
+                type: 'string',
+                enum: ['public-key'],
+              },
+              alg: {
+                type: 'integer',
+                description: 'COSE algorithm identifier',
+              },
+            },
+          },
+        },
+        timeout: {
+          type: 'integer',
+          format: 'int64',
+          description: 'Milliseconds to wait for completion',
+        },
+        excludeCredentials: {
+          type: 'array',
+          description: 'Credentials to exclude',
+          items: {
+            type: 'object',
+            required: ['id', 'type'],
+            properties: {
+              id: {
+                type: 'string', format: 'base64url',
+              },
+              type: {
+                type: 'string', enum: ['public-key'],
+              },
+              transports: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  enum: ['ble', 'cable', 'hybrid', 'internal', 'nfc', 'smart-card', 'usb'],
+                },
+              },
+            },
+          },
+        },
+        authenticatorSelection: {
+          type: 'object',
+          description: 'Authenticator selection criteria',
+          properties: {
+            authenticatorAttachment: {
+              type: 'string',
+              enum: ['platform', 'cross-platform'],
+            },
+            requireResidentKey: { type: 'boolean' },
+            residentKey: {
+              type: 'string',
+              enum: ['discouraged', 'preferred', 'required'],
+            },
+            userVerification: {
+              type: 'string',
+              enum: ['discouraged', 'preferred', 'required'],
+            },
+          },
+        },
+        hints: {
+          type: 'array',
+          description: 'Credential UX hints',
+          items: {
+            type: 'string',
+            enum: ['hybrid', 'security-key', 'client-device'],
+          },
+        },
+        attestation: {
+          type: 'string',
+          enum: ['direct', 'enterprise', 'indirect', 'none'],
+          description: 'Attestation conveyance preference',
+        },
+        attestationFormats: {
+          type: 'array',
+          description: 'Supported attestation formats',
+          items: {
+            type: 'string',
+            enum: ['fido-u2f', 'packed', 'android-safetynet', 'android-key', 'tpm', 'apple', 'none'],
+          },
+        },
+        extensions: {
+          type: 'object',
+          description: 'Authentication extensions inputs',
+          properties: {
+            appid: { type: 'string' },
+            credProps: { type: 'boolean' },
+            hmacCreateSecret: { type: 'boolean' },
+            minPinLength: { type: 'boolean' },
+          },
+        },
+      },
+    },
+  },
+  required: ['enrollOptions'],
+}
+
+const PostPasskeyEnrollReq = {
+  type: 'object',
+  properties: {
+    enrollInfo: {
+      type: 'object',
+      description: 'Registration response JSON from navigator.credentials.create(), with all ArrayBuffers Base64URL-encoded',
+      required: ['id', 'rawId', 'response', 'clientExtensionResults', 'type'],
+      properties: {
+        id: {
+          type: 'string',
+          format: 'base64url',
+          description: 'Base64URL-encoded credential ID',
+        },
+        rawId: {
+          type: 'string',
+          format: 'base64url',
+          description: 'Base64URL-encoded raw credential ID',
+        },
+        response: {
+          type: 'object',
+          description: 'Authenticator attestation response, with all binary fields Base64URL-encoded',
+          required: ['clientDataJSON', 'attestationObject'],
+          properties: {
+            clientDataJSON: {
+              type: 'string',
+              format: 'base64url',
+              description: 'Base64URL-encoded JSON of the clientData',
+            },
+            attestationObject: {
+              type: 'string',
+              format: 'base64url',
+              description: 'Base64URL-encoded CBOR attestation object',
+            },
+            authenticatorData: {
+              type: 'string',
+              format: 'base64url',
+              description: 'Base64URL-encoded authenticatorData (optional)',
+            },
+            transports: {
+              type: 'array',
+              description: 'Supported authenticator transports (optional)',
+              items: {
+                type: 'string',
+                enum: ['ble', 'cable', 'hybrid', 'internal', 'nfc', 'smart-card', 'usb'],
+              },
+            },
+            publicKeyAlgorithm: {
+              type: 'integer',
+              description: 'COSE algorithm identifier (optional)',
+            },
+            publicKey: {
+              type: 'string',
+              format: 'base64url',
+              description: 'Base64URL-encoded raw public key (optional)',
+            },
+          },
+        },
+        authenticatorAttachment: {
+          type: 'string',
+          description: 'Where the credential is stored (optional)',
+          enum: ['platform', 'cross-platform'],
+        },
+        clientExtensionResults: {
+          type: 'object',
+          description: 'Results of any client-side extensions',
+          properties: {
+            appid: {
+              type: 'boolean',
+              description: 'appid extension result (optional)',
+            },
+            credProps: {
+              type: 'object',
+              description: 'credProps extension result (optional)',
+              properties: {
+                rk: {
+                  type: 'boolean',
+                  description: 'Whether the credential is resident-key capable',
+                },
+              },
+            },
+            hmacCreateSecret: {
+              type: 'boolean',
+              description: 'hmacCreateSecret extension result (optional)',
+            },
+          },
+        },
+        type: {
+          type: 'string',
+          description: 'Credential type',
+          enum: ['public-key'],
+        },
+      },
+    },
+  },
+  required: ['enrollInfo'],
+}
+
+const PostPasskeyEnrollDeclineReq = {
+  type: 'object',
+  properties: { remember: { type: 'boolean' } },
+  required: ['remember'],
+}
+
+const PasskeyVerifyInfoRes = {
+  type: 'object',
+  properties: {
+    passkeyOption: {
+      type: 'object',
+      nullable: true,
+      description: 'A variant of PublicKeyCredentialRequestOptions suitable for JSON transmission to the browser to be passed into navigator.credentials.get().',
+      required: ['challenge'],
+      properties: {
+        challenge: {
+          type: 'string',
+          format: 'base64url',
+          description: 'Base64URL-encoded challenge',
+        },
+        timeout: {
+          type: 'integer',
+          format: 'int64',
+          description: 'Milliseconds the caller is willing to wait for the call to complete',
+        },
+        rpId: {
+          type: 'string',
+          description: 'Relying Party identifier',
+        },
+        allowCredentials: {
+          type: 'array',
+          description: 'List of credential descriptors that are allowed for assertion',
+          items: {
+            type: 'object',
+            required: ['id', 'type'],
+            properties: {
+              id: {
+                type: 'string',
+                format: 'base64url',
+                description: 'Base64URL-encoded credential ID',
+              },
+              type: {
+                type: 'string',
+                enum: ['public-key'],
+                description: 'Credential type',
+              },
+              transports: {
+                type: 'array',
+                description: 'Allowed authenticator transports',
+                items: {
+                  type: 'string',
+                  enum: ['ble', 'cable', 'hybrid', 'internal', 'nfc', 'smart-card', 'usb'],
+                },
+              },
+            },
+          },
+        },
+        userVerification: {
+          type: 'string',
+          enum: ['discouraged', 'preferred', 'required'],
+          description: 'User verification requirement',
+        },
+        hints: {
+          type: 'array',
+          description: 'Hints to guide the browser’s authenticator UX',
+          items: {
+            type: 'string',
+            enum: ['hybrid', 'security-key', 'client-device'],
+          },
+        },
+        extensions: {
+          type: 'object',
+          description: 'Authentication extension inputs',
+          properties: {
+            appid: { type: 'string' },
+            credProps: { type: 'boolean' },
+            hmacCreateSecret: { type: 'boolean' },
+            minPinLength: { type: 'boolean' },
+          },
+        },
+      },
+    },
+  },
+  required: ['passkeyOption'],
+}
+
+const PostPasskeyVerifyReq = {
+  type: 'object',
+  properties: {
+    passkeyInfo: {
+      type: 'object',
+      description: 'Authentication response JSON from navigator.credentials.get(), with all ArrayBuffers Base64URL-encoded',
+      required: ['id', 'rawId', 'response', 'clientExtensionResults', 'type'],
+      properties: {
+        id: {
+          type: 'string',
+          format: 'base64url',
+          description: 'Base64URL-encoded credential ID',
+        },
+        rawId: {
+          type: 'string',
+          format: 'base64url',
+          description: 'Base64URL-encoded raw credential ID',
+        },
+        response: {
+          type: 'object',
+          description: 'Authenticator assertion response, with all binary fields Base64URL-encoded',
+          required: ['clientDataJSON', 'authenticatorData', 'signature'],
+          properties: {
+            clientDataJSON: {
+              type: 'string',
+              format: 'base64url',
+              description: 'Base64URL-encoded JSON of the clientData',
+            },
+            authenticatorData: {
+              type: 'string',
+              format: 'base64url',
+              description: 'Base64URL-encoded authenticatorData',
+            },
+            signature: {
+              type: 'string',
+              format: 'base64url',
+              description: 'Base64URL-encoded assertion signature',
+            },
+            userHandle: {
+              type: 'string',
+              format: 'base64url',
+              description: 'Base64URL-encoded user handle (optional)',
+            },
+          },
+        },
+        authenticatorAttachment: {
+          type: 'string',
+          description: 'Where the credential is stored (optional)',
+          enum: ['platform', 'cross-platform'],
+        },
+        clientExtensionResults: {
+          type: 'object',
+          description: 'Results of any client-side extensions',
+          properties: {
+            appid: {
+              type: 'boolean',
+              description: 'appid extension result (optional)',
+            },
+            credProps: {
+              type: 'object',
+              description: 'credProps extension result (optional)',
+              properties: {
+                rk: {
+                  type: 'boolean',
+                  description: 'Whether the credential is resident-key capable',
+                },
+              },
+            },
+            hmacCreateSecret: {
+              type: 'boolean',
+              description: 'hmacCreateSecret extension result (optional)',
+            },
+          },
+        },
+        type: {
+          type: 'string',
+          description: 'Credential type',
+          enum: ['public-key'],
+        },
+      },
+    },
+    email: { type: 'string' },
+  },
+  required: ['passkeyInfo', 'email'],
+}
+
 const RecoveryCodeEnrollRes = {
   type: 'object',
   properties: { recoveryCode: { type: 'string' } },
@@ -287,6 +690,11 @@ module.exports = {
   OtpMfaConfigRes,
   SmsMfaSetupReq,
   SmsMfaConfigRes,
+  PasskeyEnrollInfoRes,
+  PostPasskeyEnrollReq,
+  PostPasskeyEnrollDeclineReq,
+  PasskeyVerifyInfoRes,
+  PostPasskeyVerifyReq,
   RecoveryCodeEnrollRes,
   AuthRes,
   TokenExchangeRes,

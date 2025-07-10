@@ -1,8 +1,13 @@
 import {
+  AuthenticationResponseJSON, RegistrationResponseJSON,
+} from '@simplewebauthn/server'
+import {
   IsNotEmpty,
   IsString,
   Length,
   IsOptional,
+  IsEmail,
+  IsBoolean,
 } from 'class-validator'
 import * as baseDto from 'dtos/base'
 import { userModel } from 'models'
@@ -146,5 +151,37 @@ export class PostMfaEnrollmentDto {
 
   constructor (dto: PostMfaEnrollmentDto) {
     this.type = dto.type
+  }
+}
+
+export class PostProcessPasskeyEnrollDto {
+  @IsNotEmpty()
+    enrollInfo: RegistrationResponseJSON
+
+  constructor (dto: PostProcessPasskeyEnrollDto) {
+    this.enrollInfo = dto.enrollInfo
+  }
+}
+
+export class PostProcessPasskeyEnrollDeclineDto {
+  @IsBoolean()
+    remember: boolean
+
+  constructor (dto: PostProcessPasskeyEnrollDeclineDto) {
+    this.remember = dto.remember
+  }
+}
+
+export class PostPasskeyVerifyDto {
+  @IsNotEmpty()
+    passkeyInfo: AuthenticationResponseJSON
+
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  constructor (dto: PostPasskeyVerifyDto) {
+    this.passkeyInfo = dto.passkeyInfo
+    this.email = dto.email.toLowerCase()
   }
 }
