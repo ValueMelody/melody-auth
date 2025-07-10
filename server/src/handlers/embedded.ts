@@ -6,15 +6,16 @@ import {
 } from 'configs'
 import {
   appService, consentService, emailService, identityService,
-  kvService, mfaService, oauthService, recoveryCodeService, scopeService,
+  kvService, mfaService, oauthService, passkeyService, recoveryCodeService, scopeService,
   userAttributeService,
   userService,
 } from 'services'
 import {
+  baseDto,
   embeddedDto, oauthDto,
 } from 'dtos'
 import {
-  loggerUtil, requestUtil, validateUtil,
+  cryptoUtil, loggerUtil, requestUtil, validateUtil,
 } from 'utils'
 import {
   authCodeHook, signInHook,
@@ -120,12 +121,9 @@ export const initiate = async (c: Context<typeConfig.Context>) => {
 
 const processAuthorizeWithUser = async (
   c: Context<typeConfig.Context>,
+  sessionId: string,
   sessionBody: typeConfig.EmbeddedSessionBody,
   user: userModel.Record,
-  bodyDto: embeddedDto.SignInDto
-    | embeddedDto.SignInWithRecoveryCodeDto
-    | embeddedDto.SignUpDtoWithNames
-    | embeddedDto.SignUpDtoWithRequiredNames,
 ) => {
   const sessionBodyWithUser = {
     ...sessionBody,
@@ -135,7 +133,7 @@ const processAuthorizeWithUser = async (
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
   await kvService.storeEmbeddedSession(
     c.env.KV,
-    bodyDto.sessionId,
+    sessionId,
     sessionBodyWithUser,
     codeExpiresIn,
   )
@@ -143,7 +141,7 @@ const processAuthorizeWithUser = async (
   const result = await identityService.processPostAuthorize(
     c,
     identityService.AuthorizeStep.Password,
-    bodyDto.sessionId,
+    sessionId,
     sessionBodyToAuthCodeBody(sessionBodyWithUser),
   )
 
@@ -221,9 +219,9 @@ export const signUp = async (c: Context<typeConfig.Context>) => {
 
   const result = await processAuthorizeWithUser(
     c,
+    bodyDto.sessionId,
     sessionBody,
     user,
-    bodyDto,
   )
 
   await signUpHook.postSignUp()
@@ -260,9 +258,9 @@ export const signIn = async (c: Context<typeConfig.Context>) => {
 
   const result = await processAuthorizeWithUser(
     c,
+    bodyDto.sessionId,
     sessionBody,
     user,
-    bodyDto,
   )
 
   await signInHook.postSignIn()
@@ -297,12 +295,12 @@ export const signInWithRecoveryCode = async (c: Context<typeConfig.Context>) => 
 
   const result = await processAuthorizeWithUser(
     c,
+    bodyDto.sessionId,
     {
       ...sessionBody,
       isFullyAuthorized: true,
     },
     user,
-    bodyDto,
   )
 
   return c.json({
@@ -681,6 +679,157 @@ export const postSmsMfa = async (c: Context<typeConfig.Context>) => {
     identityService.AuthorizeStep.SmsMfa,
     sessionId,
     sessionBodyToAuthCodeBody(sessionBody),
+  )
+
+  return c.json({
+    sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
+export const getPasskeyEnroll = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const enrollOptions = await passkeyService.genPasskeyEnrollOptions(
+    c,
+    sessionBody,
+  )
+
+  return c.json({ enrollOptions })
+}
+
+export const postPasskeyEnroll = async (c: Context<typeConfig.Context>) => {
+  const bodyDto = new embeddedDto.PostProcessPasskeyEnrollDto(await c.req.json())
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const {
+    passkeyId, passkeyPublickey, passkeyCounter,
+  } = await passkeyService.processPasskeyEnroll(
+    c,
+    sessionBody,
+    bodyDto.enrollInfo,
+  )
+
+  await passkeyService.createUserPasskey(
+    c,
+    sessionBody.user.id,
+    passkeyId,
+    cryptoUtil.uint8ArrayToBase64(passkeyPublickey),
+    passkeyCounter,
+  )
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.PasskeyEnroll,
+    sessionId,
+    sessionBodyToAuthCodeBody(sessionBody),
+  )
+
+  return c.json({
+    sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
+export const postPasskeyEnrollDecline = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new embeddedDto.PostProcessPasskeyEnrollDeclineDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  if (bodyDto.remember) {
+    await userService.skipUserPasskeyEnroll(
+      c,
+      sessionBody.user,
+    )
+  }
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.PasskeyEnroll,
+    sessionId,
+    sessionBodyToAuthCodeBody(sessionBody),
+  )
+
+  return c.json({
+    sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
+export const getPasskeyVerify = async (c: Context<typeConfig.Context>) => {
+  const dto = new baseDto.PasskeyVerifyDto({ email: c.req.query('email') ?? '' })
+  await validateUtil.dto(dto)
+
+  const options = await passkeyService.genPasskeyVerifyOptions(
+    c,
+    dto.email,
+  )
+
+  if (!options) return c.json({ passkeyOption: null })
+
+  await kvService.setPasskeyVerifyChallenge(
+    c.env.KV,
+    dto.email,
+    options.challenge,
+  )
+
+  return c.json({ passkeyOption: options })
+}
+
+export const postPasskeyVerify = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new embeddedDto.PostPasskeyVerifyDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBody(
+    c,
+    sessionId,
+  )
+
+  const {
+    user, newCounter, passkeyId,
+  } = await passkeyService.processPasskeyVerify(
+    c,
+    bodyDto.email,
+    bodyDto.passkeyInfo,
+  )
+
+  await passkeyService.updatePasskeyCounter(
+    c,
+    passkeyId,
+    newCounter,
+  )
+
+  const result = await processAuthorizeWithUser(
+    c,
+    sessionId,
+    {
+      ...sessionBody,
+      isFullyAuthorized: true,
+    },
+    user,
   )
 
   return c.json({

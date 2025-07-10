@@ -57,3 +57,13 @@ export class ResetPasswordDto {
     this.email = dto.email
   }
 }
+
+export class PasskeyVerifyDto {
+  @IsEmail()
+  @IsNotEmpty()
+    email: string
+
+  constructor (dto: PasskeyVerifyDto) {
+    this.email = dto.email.toLowerCase()
+  }
+}

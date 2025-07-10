@@ -492,6 +492,164 @@ embeddedRoutes.post(
 
 /**
  * @swagger
+ * /embedded-auth/v1/{sessionId}/passkey-enroll:
+ *   get:
+ *     summary: get the passkey enroll options
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: the passkey enroll options
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PasskeyEnrollInfoRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.PasskeyEnroll,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  embeddedHandler.getPasskeyEnroll,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/passkey-enroll:
+ *   post:
+ *     summary: enroll a new passkey
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PostPasskeyEnrollReq'
+ *     responses:
+ *       200:
+ *         description: Next step of the auth flow
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.PasskeyEnroll,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  embeddedHandler.postPasskeyEnroll,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/passkey-enroll-decline:
+ *   post:
+ *     summary: decline to enroll a new passkey
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PostPasskeyEnrollDeclineReq'
+ *     responses:
+ *       200:
+ *         description: Next step of the auth flow
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.PasskeyEnrollDecline,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  embeddedHandler.postPasskeyEnrollDecline,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/passkey-verify:
+ *   get:
+ *     summary: Get the passkey verify options for the target email
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: email
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: the passkey verify options
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PasskeyVerifyInfoRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.PasskeyVerify,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  embeddedHandler.getPasskeyVerify,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/passkey-verify:
+ *   post:
+ *     summary: verify a passkey
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PostPasskeyVerifyReq'
+ *     responses:
+ *       200:
+ *         description: Next step of the auth flow
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.PasskeyVerify,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enablePasskeyEnrollment,
+  embeddedHandler.postPasskeyVerify,
+)
+
+/**
+ * @swagger
  * /embedded-auth/v1/{sessionId}/recovery-code-enroll:
  *   get:
  *     summary: get the recovery code, this is for the first time recovery code enroll

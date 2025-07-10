@@ -6,6 +6,7 @@ import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
+  baseDto,
   identityDto, oauthDto,
 } from 'dtos'
 import {
@@ -134,7 +135,7 @@ export interface GetAuthorizePasskeyVerifyRes {
 }
 export const getAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
 : Promise<TypedResponse<GetAuthorizePasskeyVerifyRes>> => {
-  const dto = new identityDto.GetAuthorizePasskeyVerifyDto({ email: c.req.query('email') ?? '' })
+  const dto = new baseDto.PasskeyVerifyDto({ email: c.req.query('email') ?? '' })
   await validateUtil.dto(dto)
 
   const options = await passkeyService.genPasskeyVerifyOptions(
