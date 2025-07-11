@@ -276,6 +276,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },

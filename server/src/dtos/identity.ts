@@ -202,16 +202,6 @@ export class PostProcessPasskeyEnrollDeclineDto extends GetProcessDto {
   }
 }
 
-export class GetAuthorizePasskeyVerifyDto {
-  @IsEmail()
-  @IsNotEmpty()
-    email: string
-
-  constructor (dto: GetAuthorizePasskeyVerifyDto) {
-    this.email = dto.email.toLowerCase()
-  }
-}
-
 export class PostAuthorizePasskeyVerifyDto extends oauthDto.GetAuthorizeDto {
   @IsNotEmpty()
     passkeyInfo: AuthenticationResponseJSON

@@ -123,6 +123,7 @@ describe(
       async () => {
         const { res } = await sendCorrectGetEnrollPasskeyReq()
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.PasskeyEnrollmentNotEnabled)
       },
     )
 
@@ -143,6 +144,7 @@ describe(
         const body = await prepareFollowUpBody(db)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
         const res = await app.request(
           routeConfig.IdentityRoute.ProcessPasskeyEnroll,
           {
@@ -155,6 +157,8 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.PasskeyEnrollmentNotEnabled)
+
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
@@ -277,6 +281,7 @@ describe(
 
         const res = await sendCorrectEnrollPasskeyReq({ code: 'abc' })
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
@@ -436,6 +441,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
@@ -472,6 +478,7 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.PasskeyEnrollmentNotEnabled)
       },
     )
   },
