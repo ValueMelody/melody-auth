@@ -25,6 +25,9 @@ jobs:
       - name: Generate secret
         run: cd ./server && npm run node:secret:generate
 
+      - name: Generate saml secret
+        run: cd ./server && npm run node:saml:secret:generate
+
       - name: Run tests
         run: cd ./server && npm run test:coverage
 
