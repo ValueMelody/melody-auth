@@ -130,6 +130,7 @@ cp .dev.vars.example .dev.vars
 # 确保环境变量 "ENVIRONMENT" 在本地环境中设置为 "dev"。
 
 npm run node:secret:generate
+npm run node:saml:secret:generate
 npm run node:migration:apply
 npm run node:dev
 ```
@@ -171,5 +172,6 @@ REDIS_CONNECTION_STRING=redis://redis:6379
 
 - 运行 docker compose
 ```
+cd devops/docker
 docker-compose up --build
 ```

@@ -131,6 +131,7 @@ cp .dev.vars.example .dev.vars
 # Make sure the environment variable "ENVIRONMENT" is set to "dev" for your local environment.
 
 npm run node:secret:generate
+npm run node:saml:secret:generate
 npm run node:migration:apply
 npm run node:dev
 ```
@@ -172,5 +173,6 @@ REDIS_CONNECTION_STRING=redis://redis:6379
 
 - Run docker compose
 ```
+cd devops/docker
 docker-compose up --build
 ```

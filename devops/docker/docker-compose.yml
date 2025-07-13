@@ -14,12 +14,13 @@ services:
       - "6379:6379"
 
   server:
+    image: melody-auth-server:latest
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ../../
+      dockerfile: devops/docker/Dockerfile.dev
     working_dir: /app/server
     env_file:
-      - ./server/.dev.vars
+      - ../../server/.dev.vars
     ports:
       - "8787:8788"
     depends_on:
