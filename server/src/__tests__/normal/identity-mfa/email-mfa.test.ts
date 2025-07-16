@@ -783,7 +783,6 @@ describe(
     test(
       'should not set remember device cookie when ENABLE_MFA_REMEMBER_DEVICE is false',
       async () => {
-        // Keep MFA remember device feature disabled
         process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
         
         const mockFetch = vi.fn(async () => {
@@ -797,7 +796,6 @@ describe(
         )
         await enrollEmailMfa(db)
 
-        // Complete email MFA flow
         const requestBody = await prepareFollowUpBody(db)
         await app.request(
           routeConfig.IdentityRoute.SendEmailMfa,
@@ -838,6 +836,145 @@ describe(
         expect(setCookieHeader).toBeNull()
 
         global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should bypass email mfa on subsequent login when device is remembered',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const mfaRes = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+        
+        expect(mfaRes.status).toBe(200)
+        const mfaJson = await mfaRes.json() as { code: string }
+
+        const setCookieHeader = mfaRes.headers.get('Set-Cookie')
+        expect(setCookieHeader).toContain('EMRD-1=')
+        
+        const cookieMatch = setCookieHeader?.match(/EMRD-1=([^;]+)/)
+        const cookieValue = cookieMatch?.[1]
+        expect(cookieValue).toBeDefined()
+
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: 'authorization_code',
+              code: mfaJson.code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        global.fetch = fetchMock
+
+        const appRecord = db.prepare('SELECT * FROM app WHERE id = 1').get() as any
+        
+        const secondLoginRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              clientId: appRecord.clientId,
+              redirectUri: 'http://localhost:3000/en/dashboard',
+              responseType: 'code',
+              state: '123',
+              codeChallenge: 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0',
+              codeChallengeMethod: 's256',
+              scope: 'profile openid offline_access',
+              locale: 'en',
+              email: 'test@email.com',
+              password: 'Password1!',
+            }),
+            headers: {
+              'Cookie': `EMRD-1=${cookieValue}`,
+            },
+          },
+          mock(db),
+        )
+
+        expect(secondLoginRes.status).toBe(200)
+        const secondLoginJson = await secondLoginRes.json() as { code: string }
+        expect(secondLoginJson).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const secondTokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: 'authorization_code',
+              code: secondLoginJson.code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        
+        expect(secondTokenRes.status).toBe(200)
+        const secondTokenJson = await secondTokenRes.json()
+        expect(secondTokenJson).toStrictEqual({
+          access_token: expect.any(String),
+          expires_in: 1800,
+          expires_on: expect.any(Number),
+          not_before: expect.any(Number),
+          token_type: 'Bearer',
+          scope: 'profile openid offline_access',
+          refresh_token: expect.any(String),
+          refresh_token_expires_in: 604800,
+          refresh_token_expires_on: expect.any(Number),
+          id_token: expect.any(String),
+        })
+
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
   },
