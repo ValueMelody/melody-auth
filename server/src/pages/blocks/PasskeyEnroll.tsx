@@ -41,12 +41,14 @@ const PasskeyEnroll = ({
         />
       </section>
       <SubmitError error={submitError} />
-      <CheckboxInput
-        id='skipPasskeyEnroll'
-        label={passkeyEnroll.rememberSkip[locale]}
-        checked={rememberSkip}
-        onChange={onRememberSkip}
-      />
+      <div class='flex items-center justify-center w-full'>
+        <CheckboxInput
+          id='skipPasskeyEnroll'
+          label={passkeyEnroll.rememberSkip[locale]}
+          checked={rememberSkip}
+          onChange={onRememberSkip}
+        />
+      </div>
     </>
   )
 }

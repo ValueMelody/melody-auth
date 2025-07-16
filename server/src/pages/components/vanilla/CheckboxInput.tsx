@@ -16,7 +16,7 @@ const CheckboxInput = ({
   }
 
   return (
-    <section className='flex w-(--text-width)'>
+    <section className='flex max-w-(--text-width)'>
       <input
         type='checkbox'
         id={id}
