@@ -202,7 +202,9 @@ describe(
         const props: EmailMfaProps = {
           ...defaultProps,
           // Provide initial value as six empty strings for the CodeInput
-          values: { mfaCode: initialCode, rememberDevice: false },
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         // Get the first input element rendered by CodeInput using its aria-label
@@ -229,7 +231,9 @@ describe(
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
           ...defaultProps,
-          values: { mfaCode: initialCode, rememberDevice: false },
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const secondInput = getByLabelText(
@@ -260,7 +264,10 @@ describe(
       () => {
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
-          ...defaultProps, values: { mfaCode: initialCode, rememberDevice: false },
+          ...defaultProps,
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const secondInput = getByLabelText(
@@ -291,7 +298,10 @@ describe(
       () => {
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
-          ...defaultProps, values: { mfaCode: initialCode, rememberDevice: false },
+          ...defaultProps,
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const firstInput = getByLabelText(
@@ -323,7 +333,9 @@ describe(
         const initialCode = ['1', '', '', '', '', '']
         const props: EmailMfaProps = {
           ...defaultProps,
-          values: { mfaCode: initialCode, rememberDevice: false },
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const firstInput = getByLabelText(
@@ -348,7 +360,9 @@ describe(
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
           ...defaultProps,
-          values: { mfaCode: initialCode, rememberDevice: false },
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         // Get the first input element rendered by CodeInput using its aria-label
@@ -373,7 +387,10 @@ describe(
       () => {
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
-          ...defaultProps, values: { mfaCode: initialCode, rememberDevice: false },
+          ...defaultProps,
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const firstInput = getByLabelText(
