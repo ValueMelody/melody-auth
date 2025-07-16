@@ -14,6 +14,7 @@ import {
 } from 'configs'
 import {
   prepareFollowUpBody, insertUsers,
+  getApp,
 } from 'tests/identity'
 import {
   enrollEmailMfa, enrollOtpMfa,
@@ -907,7 +908,7 @@ describe(
 
         global.fetch = fetchMock
 
-        const appRecord = db.prepare('SELECT * FROM app WHERE id = 1').get() as any
+        const appRecord = await getApp(db)
 
         const secondLoginRes = await app.request(
           routeConfig.IdentityRoute.AuthorizePassword,
@@ -1037,7 +1038,7 @@ describe(
 
         global.fetch = fetchMock
 
-        const appRecord = db.prepare('SELECT * FROM app WHERE id = 1').get() as any
+        const appRecord = await getApp(db)
 
         const secondLoginRes = await app.request(
           routeConfig.IdentityRoute.AuthorizePassword,

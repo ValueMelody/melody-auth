@@ -14,6 +14,7 @@ import {
 import { userModel } from 'models'
 import {
   prepareFollowUpBody, insertUsers,
+  getApp,
 } from 'tests/identity'
 import { enrollOtpMfa } from 'tests/util'
 
@@ -566,7 +567,7 @@ describe(
         )
         expect(tokenRes.status).toBe(200)
 
-        const appRecord = db.prepare('SELECT * FROM app WHERE id = 1').get() as any
+        const appRecord = await getApp(db)
 
         const secondLoginRes = await app.request(
           routeConfig.IdentityRoute.AuthorizePassword,
@@ -680,7 +681,7 @@ describe(
         )
         expect(tokenRes.status).toBe(200)
 
-        const appRecord = db.prepare('SELECT * FROM app WHERE id = 1').get() as any
+        const appRecord = await getApp(db)
 
         const secondLoginRes = await app.request(
           routeConfig.IdentityRoute.AuthorizePassword,
