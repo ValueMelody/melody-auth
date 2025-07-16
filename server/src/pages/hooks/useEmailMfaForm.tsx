@@ -37,8 +37,11 @@ const useEmailMfaForm = ({
   const [resent, setResent] = useState(false)
   const [mfaCode, setMfaCode] = useState<string[]>(new Array(6).fill(''))
   const [touched, setTouched] = useState({ mfaCode: false })
+  const [rememberDevice, setRememberDevice] = useState(false)
 
-  const values = { mfaCode }
+  const values = {
+    mfaCode, rememberDevice,
+  }
 
   const otpMfaSchema = object({ mfaCode: codeField(locale) })
 
@@ -48,10 +51,14 @@ const useEmailMfaForm = ({
   )
 
   const handleChange = (
-    name: 'mfaCode', value: string[],
+    name: 'mfaCode' | 'rememberDevice', value: string[] | boolean,
   ) => {
     onSubmitError(null)
-    setMfaCode(value)
+    if (name === 'mfaCode') {
+      setMfaCode(value as string[])
+    } else {
+      setRememberDevice(value as boolean)
+    }
   }
 
   const sendEmailMfa = useCallback(
@@ -113,6 +120,7 @@ const useEmailMfaForm = ({
               locale,
             ),
             mfaCode: mfaCode.join(''),
+            rememberDevice,
           }),
         },
       )
@@ -131,7 +139,7 @@ const useEmailMfaForm = ({
           setIsSubmitting(false)
         })
     },
-    [errors, setTouched, followUpParams, mfaCode, onSwitchView, locale, onSubmitError],
+    [errors, setTouched, followUpParams, mfaCode, onSwitchView, locale, onSubmitError, rememberDevice],
   )
 
   return {

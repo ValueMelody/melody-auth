@@ -78,6 +78,7 @@ describe(
           ENABLE_SIGN_IN_LOG: false,
           ENABLE_PASSWORD_SIGN_IN: true,
           ENABLE_PASSWORDLESS_SIGN_IN: false,
+          ENABLE_MFA_REMEMBER_DEVICE: false,
           ENABLE_RECOVERY_CODE: false,
           ENABLE_ORG: false,
           ENABLE_ORG_GROUP: true,

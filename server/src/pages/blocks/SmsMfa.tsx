@@ -1,16 +1,19 @@
 import { typeConfig } from 'configs'
 import {
-  ViewTitle, PhoneField, SecondaryButton, CodeInput, SubmitError, PrimaryButton,
+  ViewTitle, PhoneField, SecondaryButton, CodeInput, SubmitError, PrimaryButton, CheckboxInput,
+
 } from 'pages/components'
-import { View } from 'pages/hooks'
+import {
+  InitialProps, View,
+} from 'pages/hooks'
 import { smsMfa } from 'pages/tools/locale'
 
 export interface SmsMfaProps {
   locale: typeConfig.Locale;
   onSwitchView: (view: View) => void;
   onSubmit: (e: Event) => void;
-  onChange: (name: 'phoneNumber' | 'mfaCode', value: string | string[]) => void;
-  values: { phoneNumber: string; mfaCode: string[] | null };
+  onChange: (name: 'phoneNumber' | 'mfaCode' | 'rememberDevice', value: string | string[] | boolean) => void;
+  values: { phoneNumber: string; mfaCode: string[] | null; rememberDevice: boolean };
   errors: { phoneNumber: string | undefined; mfaCode: string | undefined };
   submitError: string | null;
   currentNumber: string | null;
@@ -20,6 +23,7 @@ export interface SmsMfaProps {
   onResend: () => void;
   isSubmitting: boolean;
   isSending: boolean;
+  initialProps: InitialProps;
 }
 
 const SmsMfa = ({
@@ -37,6 +41,7 @@ const SmsMfa = ({
   onResend,
   isSubmitting,
   isSending,
+  initialProps,
 }: SmsMfaProps) => {
   return (
     <>
@@ -82,6 +87,17 @@ const SmsMfa = ({
                   value,
                 )}
               />
+              {initialProps.enableMfaRememberDevice && (
+                <CheckboxInput
+                  id='rememberDevice'
+                  label={smsMfa.rememberDevice[locale]}
+                  checked={values.rememberDevice}
+                  onChange={(value) => onChange(
+                    'rememberDevice',
+                    value,
+                  )}
+                />
+              )}
             </>
           )}
           <SubmitError error={submitError} />

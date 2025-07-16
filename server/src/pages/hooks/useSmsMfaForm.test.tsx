@@ -59,7 +59,7 @@ describe(
         expect(result.current.allowFallbackToEmailMfa).toBe(false)
         expect(result.current.countryCode).toBe('')
         expect(result.current.values).toEqual({
-          phoneNumber: '', mfaCode: null,
+          phoneNumber: '', mfaCode: null, rememberDevice: false,
         })
         // Errors are not shown initially since the touched flags are false.
         expect(result.current.errors).toEqual({
@@ -100,6 +100,41 @@ describe(
         })
         expect(onSubmitError).toHaveBeenCalledWith(null)
         expect(result.current.values.mfaCode).toEqual(['1', '2', '3', '4', '5', '6'])
+      },
+    )
+
+    test(
+      'handleChange updates rememberDevice and resets error',
+      () => {
+        const { result } = renderHook(() =>
+          useSmsMfaForm({
+            locale: dummyLocale,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Initial value should be false
+        expect(result.current.values.rememberDevice).toBe(false)
+
+        act(() => {
+          result.current.handleChange(
+            'rememberDevice',
+            true,
+          )
+        })
+
+        expect(onSubmitError).toHaveBeenCalledWith(null)
+        expect(result.current.values.rememberDevice).toBe(true)
+
+        act(() => {
+          result.current.handleChange(
+            'rememberDevice',
+            false,
+          )
+        })
+
+        expect(onSubmitError).toHaveBeenCalledWith(null)
+        expect(result.current.values.rememberDevice).toBe(false)
       },
     )
 

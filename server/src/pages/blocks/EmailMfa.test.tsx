@@ -1,5 +1,5 @@
 import {
-  getByText, getByLabelText, fireEvent, createEvent,
+  getByText, getByLabelText, fireEvent, createEvent, queryByLabelText,
 } from '@testing-library/dom'
 import {
   expect, describe, it, beforeEach, vi, beforeAll,
@@ -8,6 +8,7 @@ import {
 import { render } from 'hono/jsx/dom'
 import EmailMfa, { EmailMfaProps } from './EmailMfa'
 import { emailMfa } from 'pages/tools/locale'
+import { InitialProps } from 'pages/hooks'
 
 // Unit tests for the EmailMfa Component
 beforeAll(() => {
@@ -26,13 +27,16 @@ describe(
       locale: 'en' as any,
       onSubmit: vi.fn(),
       onChange: vi.fn(),
-      values: { mfaCode: null },
+      values: {
+        mfaCode: null, rememberDevice: false,
+      },
       errors: { mfaCode: undefined },
       submitError: null,
       resent: false,
       sendEmailMfa: vi.fn(),
       isSubmitting: false,
       isSending: false,
+      initialProps: { enableMfaRememberDevice: false } as InitialProps,
     }
 
     const setup = (props: EmailMfaProps = defaultProps) => {
@@ -198,7 +202,9 @@ describe(
         const props: EmailMfaProps = {
           ...defaultProps,
           // Provide initial value as six empty strings for the CodeInput
-          values: { mfaCode: initialCode },
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         // Get the first input element rendered by CodeInput using its aria-label
@@ -225,7 +231,9 @@ describe(
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
           ...defaultProps,
-          values: { mfaCode: initialCode },
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const secondInput = getByLabelText(
@@ -256,7 +264,10 @@ describe(
       () => {
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
-          ...defaultProps, values: { mfaCode: initialCode },
+          ...defaultProps,
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const secondInput = getByLabelText(
@@ -287,7 +298,10 @@ describe(
       () => {
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
-          ...defaultProps, values: { mfaCode: initialCode },
+          ...defaultProps,
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const firstInput = getByLabelText(
@@ -319,7 +333,9 @@ describe(
         const initialCode = ['1', '', '', '', '', '']
         const props: EmailMfaProps = {
           ...defaultProps,
-          values: { mfaCode: initialCode },
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const firstInput = getByLabelText(
@@ -344,7 +360,9 @@ describe(
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
           ...defaultProps,
-          values: { mfaCode: initialCode },
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         // Get the first input element rendered by CodeInput using its aria-label
@@ -369,7 +387,10 @@ describe(
       () => {
         const initialCode = ['', '', '', '', '', '']
         const props: EmailMfaProps = {
-          ...defaultProps, values: { mfaCode: initialCode },
+          ...defaultProps,
+          values: {
+            mfaCode: initialCode, rememberDevice: false,
+          },
         }
         const container = setup(props)
         const firstInput = getByLabelText(
@@ -389,6 +410,58 @@ describe(
           event,
         )
         expect(preventDefaultSpy).toHaveBeenCalled()
+      },
+    )
+
+    it(
+      'renders rememberDevice checkbox when enableMfaRememberDevice is true',
+      () => {
+        const props: EmailMfaProps = {
+          ...defaultProps,
+          initialProps: { enableMfaRememberDevice: true } as InitialProps,
+        }
+        const container = setup(props)
+        const rememberDeviceCheckbox = getByLabelText(
+          container,
+          emailMfa.rememberDevice.en,
+        )
+        expect(rememberDeviceCheckbox).toBeDefined()
+      },
+    )
+
+    it(
+      'does not render rememberDevice checkbox when enableMfaRememberDevice is false',
+      () => {
+        const props: EmailMfaProps = {
+          ...defaultProps,
+          initialProps: { enableMfaRememberDevice: false } as InitialProps,
+        }
+        const container = setup(props)
+        const rememberDeviceCheckbox = queryByLabelText(
+          container,
+          emailMfa.rememberDevice.en,
+        )
+        expect(rememberDeviceCheckbox).toBeNull()
+      },
+    )
+
+    it(
+      'calls onChange with rememberDevice when checkbox is toggled',
+      () => {
+        const props: EmailMfaProps = {
+          ...defaultProps,
+          initialProps: { enableMfaRememberDevice: true } as InitialProps,
+        }
+        const container = setup(props)
+        const rememberDeviceCheckbox = getByLabelText(
+          container,
+          emailMfa.rememberDevice.en,
+        ) as HTMLInputElement
+        fireEvent.click(rememberDeviceCheckbox)
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
+          'rememberDevice',
+          true,
+        )
       },
     )
   },

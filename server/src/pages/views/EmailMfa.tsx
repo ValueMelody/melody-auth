@@ -1,7 +1,7 @@
 import { useEffect } from 'hono/jsx'
 import { typeConfig } from 'configs'
 import {
-  useEmailMfaForm, useSubmitError, View,
+  useEmailMfaForm, useInitialProps, useSubmitError, View,
 } from 'pages/hooks'
 import { EmailMfa as EmailMfaBlock } from 'pages/blocks'
 
@@ -20,6 +20,8 @@ const EmailMfa = ({
     locale,
     onSwitchView,
   })
+
+  const { initialProps } = useInitialProps()
 
   const {
     resent, values, errors, handleChange, sendEmailMfa, handleSubmit, isSubmitting, isSending,
@@ -48,6 +50,7 @@ const EmailMfa = ({
       submitError={submitError}
       isSubmitting={isSubmitting}
       isSending={isSending}
+      initialProps={initialProps}
     />
   )
 }

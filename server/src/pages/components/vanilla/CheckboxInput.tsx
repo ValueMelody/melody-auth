@@ -16,13 +16,14 @@ const CheckboxInput = ({
   }
 
   return (
-    <section className='flex w-full'>
+    <section className='flex max-w-(--text-width)'>
       <input
         type='checkbox'
         id={id}
         checked={checked}
         onChange={handleChange}
-        className='ml-12 mr-2'
+        className='mr-2'
+        aria-label={label}
       />
       <label htmlFor={id}>
         {label}

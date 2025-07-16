@@ -16,6 +16,7 @@ import { userModel } from 'models'
 import {
   prepareFollowUpBody, prepareFollowUpParams, insertUsers,
   getCodeFromParams,
+  getApp,
 } from 'tests/identity'
 import { enrollSmsMfa } from 'tests/util'
 
@@ -1156,6 +1157,504 @@ describe(
         process.env.TWILIO_AUTH_TOKEN = ''
         process.env.TWILIO_SENDER_NUMBER = ''
         global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should set remember device cookie when rememberDevice is true',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+        const reqBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.SetupSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reqBody,
+              phoneNumber: '+6471112222',
+            }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessSmsMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: reqBody.code,
+              locale: 'en',
+              mfaCode,
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toContain('SMRD-1=')
+        expect(setCookieHeader).toContain('HttpOnly')
+        expect(setCookieHeader).toContain('Secure')
+        expect(setCookieHeader).toContain('SameSite=Strict')
+
+        const cookieMatch = setCookieHeader?.match(/SMRD-1=([^;]+)/)
+        const cookieValue = cookieMatch?.[1]
+        expect(cookieValue).toBeDefined()
+        expect(cookieValue?.split('-')).toHaveLength(2)
+        expect(cookieValue?.split('-')[0]).toHaveLength(24)
+        expect(cookieValue?.split('-')[1]).toHaveLength(128)
+
+        const [deviceId, storedCookieValue] = cookieValue!.split('-')
+        const kvKey = `${adapterConfig.BaseKVKey.SmsMfaRememberDevice}-1-${deviceId}`
+        const storedValue = await mockedKV.get(kvKey)
+        expect(storedValue).toBe(storedCookieValue)
+
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should not set remember device cookie when rememberDevice is false',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+        const reqBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.SetupSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reqBody,
+              phoneNumber: '+6471112222',
+            }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessSmsMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: reqBody.code,
+              locale: 'en',
+              mfaCode,
+              rememberDevice: false,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toBeNull()
+
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should not set remember device cookie when ENABLE_MFA_REMEMBER_DEVICE is false',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+        const reqBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.SetupSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reqBody,
+              phoneNumber: '+6471112222',
+            }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessSmsMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: reqBody.code,
+              locale: 'en',
+              mfaCode,
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toBeNull()
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should bypass sms mfa on subsequent login when device is remembered',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+
+        const reqBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.SetupSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reqBody,
+              phoneNumber: '+6471112222',
+            }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const mfaRes = await app.request(
+          routeConfig.IdentityRoute.ProcessSmsMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: reqBody.code,
+              locale: 'en',
+              mfaCode,
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(mfaRes.status).toBe(200)
+        const mfaJson = await mfaRes.json() as { code: string }
+
+        // Extract the remember device cookie
+        const setCookieHeader = mfaRes.headers.get('Set-Cookie')
+        expect(setCookieHeader).toContain('SMRD-1=')
+
+        const cookieMatch = setCookieHeader?.match(/SMRD-1=([^;]+)/)
+        const cookieValue = cookieMatch?.[1]
+        expect(cookieValue).toBeDefined()
+
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: 'authorization_code',
+              code: mfaJson.code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        global.fetch = fetchMock
+
+        const appRecord = await getApp(db)
+
+        const secondLoginRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              clientId: appRecord.clientId,
+              redirectUri: 'http://localhost:3000/en/dashboard',
+              responseType: 'code',
+              state: '123',
+              codeChallenge: 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0',
+              codeChallengeMethod: 's256',
+              scope: 'profile openid offline_access',
+              locale: 'en',
+              email: 'test@email.com',
+              password: 'Password1!',
+            }),
+            headers: { Cookie: `SMRD-1=${cookieValue}` },
+          },
+          mock(db),
+        )
+
+        expect(secondLoginRes.status).toBe(200)
+        const secondLoginJson = await secondLoginRes.json() as { code: string }
+        expect(secondLoginJson).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const secondTokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: 'authorization_code',
+              code: secondLoginJson.code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+
+        expect(secondTokenRes.status).toBe(200)
+        const secondTokenJson = await secondTokenRes.json()
+        expect(secondTokenJson).toStrictEqual({
+          access_token: expect.any(String),
+          expires_in: 1800,
+          expires_on: expect.any(Number),
+          not_before: expect.any(Number),
+          token_type: 'Bearer',
+          scope: 'profile openid offline_access',
+          refresh_token: expect.any(String),
+          refresh_token_expires_in: 604800,
+          refresh_token_expires_on: expect.any(Number),
+          id_token: expect.any(String),
+        })
+
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should not bypass sms mfa when invalid remember device cookie is provided',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+
+        const reqBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.SetupSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reqBody,
+              phoneNumber: '+6471112222',
+            }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const mfaRes = await app.request(
+          routeConfig.IdentityRoute.ProcessSmsMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: reqBody.code,
+              locale: 'en',
+              mfaCode,
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(mfaRes.status).toBe(200)
+        const mfaJson = await mfaRes.json() as { code: string }
+
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: 'authorization_code',
+              code: mfaJson.code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        global.fetch = fetchMock
+
+        const appRecord = await getApp(db)
+
+        const secondLoginRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              clientId: appRecord.clientId,
+              redirectUri: 'http://localhost:3000/en/dashboard',
+              responseType: 'code',
+              state: '123',
+              codeChallenge: 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0',
+              codeChallengeMethod: 's256',
+              scope: 'profile openid offline_access',
+              locale: 'en',
+              email: 'test@email.com',
+              password: 'Password1!',
+            }),
+            headers: { Cookie: 'SMRD-1=invalid-cookie-value-123' },
+          },
+          mock(db),
+        )
+
+        expect(secondLoginRes.status).toBe(200)
+        const secondLoginJson = await secondLoginRes.json() as { code: string }
+        expect(secondLoginJson).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          nextPage: 'sms_mfa',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const secondTokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: 'authorization_code',
+              code: secondLoginJson.code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+
+        expect(secondTokenRes.status).toBe(401)
+        expect(await secondTokenRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
+
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
   },

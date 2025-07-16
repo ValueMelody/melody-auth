@@ -83,7 +83,7 @@ export enum View {
   EmailMfa = 'email_mfa',
   SmsMfa = 'sms_mfa',
   OtpSetup = 'otp_setup',
-  OtpMfa = 'opt_mfa',
+  OtpMfa = 'otp_mfa',
   PasskeyEnroll = 'passkey_enroll',
   RecoveryCodeSignIn = 'recovery_code_sign_in',
   RecoveryCodeEnroll = 'recovery_code_enroll',

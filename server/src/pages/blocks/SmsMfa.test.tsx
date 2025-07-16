@@ -1,5 +1,5 @@
 import {
-  getByText, getByLabelText, fireEvent,
+  getByText, getByLabelText, fireEvent, queryByLabelText,
 } from '@testing-library/dom'
 import { render } from 'hono/jsx/dom'
 import {
@@ -7,7 +7,9 @@ import {
 } from 'vitest'
 import SmsMfa from './SmsMfa'
 import { smsMfa } from 'pages/tools/locale'
-import { View } from 'pages/hooks'
+import {
+  InitialProps, View,
+} from 'pages/hooks'
 
 beforeAll(() => {
   window.addEventListener(
@@ -32,6 +34,7 @@ describe(
       values: {
         phoneNumber: '',
         mfaCode: null as string[] | null,
+        rememberDevice: false,
       },
       errors: {
         phoneNumber: undefined,
@@ -42,6 +45,7 @@ describe(
       countryCode: '+1',
       allowFallbackToEmailMfa: false,
       resent: false,
+      initialProps: { enableMfaRememberDevice: false } as InitialProps,
     }
 
     const setup = (props = defaultProps) => {
@@ -242,6 +246,86 @@ describe(
           ...defaultProps, submitError: errorMessage,
         })
         expect(container.textContent).toContain(errorMessage)
+      },
+    )
+
+    it(
+      'renders rememberDevice checkbox when enableMfaRememberDevice is true and mfaCode is provided',
+      () => {
+        const container = setup({
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: [''],
+          },
+          initialProps: { enableMfaRememberDevice: true } as InitialProps,
+        })
+        const rememberDeviceCheckbox = getByLabelText(
+          container,
+          smsMfa.rememberDevice.en,
+        )
+        expect(rememberDeviceCheckbox).toBeDefined()
+      },
+    )
+
+    it(
+      'does not render rememberDevice checkbox when enableMfaRememberDevice is false',
+      () => {
+        const container = setup({
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: [''],
+          },
+          initialProps: { enableMfaRememberDevice: false } as InitialProps,
+        })
+        const rememberDeviceCheckbox = queryByLabelText(
+          container,
+          smsMfa.rememberDevice.en,
+        )
+        expect(rememberDeviceCheckbox).toBeNull()
+      },
+    )
+
+    it(
+      'does not render rememberDevice checkbox when mfaCode is not provided',
+      () => {
+        const container = setup({
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: null,
+          },
+          initialProps: { enableMfaRememberDevice: true } as InitialProps,
+        })
+        const rememberDeviceCheckbox = queryByLabelText(
+          container,
+          smsMfa.rememberDevice.en,
+        )
+        expect(rememberDeviceCheckbox).toBeNull()
+      },
+    )
+
+    it(
+      'calls onChange with rememberDevice when checkbox is toggled',
+      () => {
+        const container = setup({
+          ...defaultProps,
+          values: {
+            ...defaultProps.values,
+            mfaCode: [''],
+          },
+          initialProps: { enableMfaRememberDevice: true } as InitialProps,
+        })
+        const rememberDeviceCheckbox = getByLabelText(
+          container,
+          smsMfa.rememberDevice.en,
+        ) as HTMLInputElement
+        fireEvent.click(rememberDeviceCheckbox)
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
+          'rememberDevice',
+          true,
+        )
       },
     )
   },

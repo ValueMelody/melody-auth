@@ -3,7 +3,9 @@ import { env } from 'hono/adapter'
 import {
   genCodeChallenge, genRandomString,
 } from '@melody-auth/shared'
+import { getCookie } from 'hono/cookie'
 import {
+  adapterConfig,
   errorConfig,
   messageConfig,
   routeConfig,
@@ -108,6 +110,8 @@ export const processPostAuthorize = async (
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
     ALLOW_PASSKEY_ENROLLMENT: enablePasskeyEnrollment,
     ENABLE_RECOVERY_CODE: enableRecoveryCode,
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice,
   } = env(c)
 
   const isSocialLogin = !!authCodeBody.user.socialAccountId
@@ -178,8 +182,33 @@ export const processPostAuthorize = async (
     }
   }
   if (requireOtpMfa) {
-    return {
-      ...basicInfo, nextPage: routeConfig.View.OtpMfa,
+    if (!enableMfaRememberDevice) {
+      return {
+        ...basicInfo, nextPage: routeConfig.View.OtpMfa,
+      }
+    }
+
+    const cookieKey = adapterConfig.getOtpMfaRememberDeviceCookieKey(authCodeBody.user.id)
+    const cookieValue = getCookie(
+      c,
+      cookieKey,
+    )
+    const isValid = await kvService.verifyOtpMfaRememberDevice(
+      c.env.KV,
+      authCodeBody.user.id,
+      cookieValue,
+    )
+
+    if (isValid) {
+      await kvService.bypassOtpMfa(
+        c.env.KV,
+        authCode,
+        codeExpiresIn,
+      )
+    } else {
+      return {
+        ...basicInfo, nextPage: routeConfig.View.OtpMfa,
+      }
     }
   }
 
@@ -188,8 +217,33 @@ export const processPostAuthorize = async (
     !isSocialLogin &&
     (enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms))
   if (requireSmsMfa) {
-    return {
-      ...basicInfo, nextPage: routeConfig.View.SmsMfa,
+    if (!enableMfaRememberDevice) {
+      return {
+        ...basicInfo, nextPage: routeConfig.View.SmsMfa,
+      }
+    }
+
+    const cookieKey = adapterConfig.getSmsMfaRememberDeviceCookieKey(authCodeBody.user.id)
+    const cookieValue = getCookie(
+      c,
+      cookieKey,
+    )
+    const isValid = await kvService.verifySmsMfaRememberDevice(
+      c.env.KV,
+      authCodeBody.user.id,
+      cookieValue,
+    )
+
+    if (isValid) {
+      await kvService.bypassSmsMfa(
+        c.env.KV,
+        authCode,
+        codeExpiresIn,
+      )
+    } else {
+      return {
+        ...basicInfo, nextPage: routeConfig.View.SmsMfa,
+      }
     }
   }
 
@@ -198,8 +252,33 @@ export const processPostAuthorize = async (
     !isSocialLogin &&
     (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
   if (requireEmailMfa) {
-    return {
-      ...basicInfo, nextPage: routeConfig.View.EmailMfa,
+    if (!enableMfaRememberDevice) {
+      return {
+        ...basicInfo, nextPage: routeConfig.View.EmailMfa,
+      }
+    }
+
+    const cookieKey = adapterConfig.getEmailMfaRememberDeviceCookieKey(authCodeBody.user.id)
+    const cookieValue = getCookie(
+      c,
+      cookieKey,
+    )
+    const isValid = await kvService.verifyEmailMfaRememberDevice(
+      c.env.KV,
+      authCodeBody.user.id,
+      cookieValue,
+    )
+
+    if (isValid) {
+      await kvService.bypassEmailMfa(
+        c.env.KV,
+        authCode,
+        codeExpiresIn,
+      )
+    } else {
+      return {
+        ...basicInfo, nextPage: routeConfig.View.EmailMfa,
+      }
     }
   }
 

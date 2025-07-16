@@ -162,9 +162,14 @@ export class PostAuthorizeMfaDto extends GetProcessDto {
   @IsNotEmpty()
     mfaCode: string
 
+  @IsBoolean()
+  @IsOptional()
+    rememberDevice: boolean
+
   constructor (dto: PostAuthorizeMfaDto) {
     super(dto)
     this.mfaCode = dto.mfaCode
+    this.rememberDevice = dto.rememberDevice
   }
 }
 

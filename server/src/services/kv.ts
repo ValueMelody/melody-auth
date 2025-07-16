@@ -802,3 +802,170 @@ export const setChangeEmailAttempts = async (
     { expirationTtl: 1800 },
   )
 }
+
+const thirtyDaysInSeconds = 2592000
+
+export const storeEmailMfaRememberDevice = async (
+  kv: KVNamespace,
+  userId: number,
+  deviceId: string,
+  cookieValue: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.EmailMfaRememberDevice,
+    String(userId),
+    deviceId,
+  )
+
+  await kv.put(
+    key,
+    cookieValue,
+    { expirationTtl: thirtyDaysInSeconds },
+  )
+}
+
+export const verifyEmailMfaRememberDevice = async (
+  kv: KVNamespace,
+  userId: number,
+  cookieValue?: string,
+) => {
+  if (!cookieValue) return false
+
+  const [deviceId, cookieCode] = cookieValue.split('-')
+  if (!deviceId || !cookieCode) return false
+
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.EmailMfaRememberDevice,
+    String(userId),
+    deviceId,
+  )
+  const storedCode = await kv.get(key)
+  const isValid = storedCode && storedCode === cookieCode
+  return isValid
+}
+
+export const bypassEmailMfa = async (
+  kv: KVNamespace,
+  authCode: string,
+  expiresIn: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.EmailMfaCode,
+    authCode,
+  )
+  await kv.put(
+    key,
+    '1',
+    { expirationTtl: expiresIn },
+  )
+}
+
+export const storeOtpMfaRememberDevice = async (
+  kv: KVNamespace,
+  userId: number,
+  deviceId: string,
+  cookieValue: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.OtpMfaRememberDevice,
+    String(userId),
+    deviceId,
+  )
+
+  await kv.put(
+    key,
+    cookieValue,
+    { expirationTtl: thirtyDaysInSeconds },
+  )
+}
+
+export const verifyOtpMfaRememberDevice = async (
+  kv: KVNamespace,
+  userId: number,
+  cookieValue?: string,
+) => {
+  if (!cookieValue) return false
+
+  const [deviceId, cookieCode] = cookieValue.split('-')
+  if (!deviceId || !cookieCode) return false
+
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.OtpMfaRememberDevice,
+    String(userId),
+    deviceId,
+  )
+  const storedCode = await kv.get(key)
+  const isValid = storedCode && storedCode === cookieCode
+  return isValid
+}
+
+export const bypassOtpMfa = async (
+  kv: KVNamespace,
+  authCode: string,
+  expiresIn: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.OtpMfaCode,
+    authCode,
+  )
+  await kv.put(
+    key,
+    '1',
+    { expirationTtl: expiresIn },
+  )
+}
+
+export const storeSmsMfaRememberDevice = async (
+  kv: KVNamespace,
+  userId: number,
+  deviceId: string,
+  cookieValue: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.SmsMfaRememberDevice,
+    String(userId),
+    deviceId,
+  )
+
+  await kv.put(
+    key,
+    cookieValue,
+    { expirationTtl: thirtyDaysInSeconds },
+  )
+}
+
+export const verifySmsMfaRememberDevice = async (
+  kv: KVNamespace,
+  userId: number,
+  cookieValue?: string,
+) => {
+  if (!cookieValue) return false
+
+  const [deviceId, cookieCode] = cookieValue.split('-')
+  if (!deviceId || !cookieCode) return false
+
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.SmsMfaRememberDevice,
+    String(userId),
+    deviceId,
+  )
+  const storedCode = await kv.get(key)
+  const isValid = storedCode && storedCode === cookieCode
+  return isValid
+}
+
+export const bypassSmsMfa = async (
+  kv: KVNamespace,
+  authCode: string,
+  expiresIn: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.SmsMfaCode,
+    authCode,
+  )
+  await kv.put(
+    key,
+    '1',
+    { expirationTtl: expiresIn },
+  )
+}
