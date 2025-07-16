@@ -59,7 +59,7 @@ describe(
         expect(result.current.allowFallbackToEmailMfa).toBe(false)
         expect(result.current.countryCode).toBe('')
         expect(result.current.values).toEqual({
-          phoneNumber: '', mfaCode: null,
+          phoneNumber: '', mfaCode: null, rememberDevice: false,
         })
         // Errors are not shown initially since the touched flags are false.
         expect(result.current.errors).toEqual({

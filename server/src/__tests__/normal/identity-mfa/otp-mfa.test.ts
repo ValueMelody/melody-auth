@@ -365,5 +365,150 @@ describe(
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
       },
     )
+
+    test(
+      'should set remember device cookie when rememberDevice is true',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const body = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        const token = authenticator.generate(currentUser.otpSecret)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessOtpMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              mfaCode: token,
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toContain('OMRD-1=')
+        expect(setCookieHeader).toContain('HttpOnly')
+        expect(setCookieHeader).toContain('Secure')
+        expect(setCookieHeader).toContain('SameSite=Strict')
+
+        const cookieMatch = setCookieHeader?.match(/OMRD-1=([^;]+)/)
+        const cookieValue = cookieMatch?.[1]
+        expect(cookieValue).toBeDefined()
+        expect(cookieValue?.split('-')).toHaveLength(2)
+        expect(cookieValue?.split('-')[0]).toHaveLength(24)
+        expect(cookieValue?.split('-')[1]).toHaveLength(128)
+
+        const [deviceId, storedCookieValue] = cookieValue!.split('-')
+        const kvKey = `${adapterConfig.BaseKVKey.OtpMfaRememberDevice}-1-${deviceId}`
+        const storedValue = await mockedKV.get(kvKey)
+        expect(storedValue).toBe(storedCookieValue)
+
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+      },
+    )
+
+    test(
+      'should not set remember device cookie when rememberDevice is false',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const body = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        const token = authenticator.generate(currentUser.otpSecret)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessOtpMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              mfaCode: token,
+              rememberDevice: false,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toBeNull()
+
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+      },
+    )
+
+    test(
+      'should not set remember device cookie when ENABLE_MFA_REMEMBER_DEVICE is false',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const body = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        const token = authenticator.generate(currentUser.otpSecret)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessOtpMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              mfaCode: token,
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toBeNull()
+      },
+    )
   },
 )

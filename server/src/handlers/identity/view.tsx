@@ -136,6 +136,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
     OIDC_AUTH_PROVIDERS: oidcAuthProviders,
     ENABLE_USER_ATTRIBUTE: enableUserAttribute,
+    ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice,
   } = env(c)
 
   const isBasePolicy = !queryDto.policy || queryDto.policy === oauthDto.Policy.SignInOrSignUp
@@ -167,6 +168,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         enableSignUp: ${enableSignUp.toString()},
         enablePasswordSignIn: ${enablePasswordSignIn.toString()},
         enablePasswordlessSignIn: ${enablePasswordlessSignIn.toString()},
+        enableMfaRememberDevice: ${enableMfaRememberDevice.toString()},
         googleClientId: "${googleClientId}",
         facebookClientId: "${facebookClientId}",
         githubClientId: "${githubClientId}",

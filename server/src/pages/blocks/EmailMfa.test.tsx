@@ -8,6 +8,7 @@ import {
 import { render } from 'hono/jsx/dom'
 import EmailMfa, { EmailMfaProps } from './EmailMfa'
 import { emailMfa } from 'pages/tools/locale'
+import { InitialProps } from 'pages/hooks'
 
 // Unit tests for the EmailMfa Component
 beforeAll(() => {
@@ -26,13 +27,16 @@ describe(
       locale: 'en' as any,
       onSubmit: vi.fn(),
       onChange: vi.fn(),
-      values: { mfaCode: null },
+      values: { mfaCode: null, rememberDevice: false },
       errors: { mfaCode: undefined },
       submitError: null,
       resent: false,
       sendEmailMfa: vi.fn(),
       isSubmitting: false,
       isSending: false,
+      initialProps: {
+        enableMfaRememberDevice: false,
+      } as InitialProps,
     }
 
     const setup = (props: EmailMfaProps = defaultProps) => {

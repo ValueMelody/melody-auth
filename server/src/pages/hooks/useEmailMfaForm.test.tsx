@@ -39,7 +39,7 @@ test(
         onSwitchView,
       }))
 
-    expect(result.current.values).toEqual({ mfaCode: new Array(6).fill('') })
+    expect(result.current.values).toEqual({ mfaCode: new Array(6).fill(''), rememberDevice: false })
     expect(result.current.resent).toBe(false)
     // Since the "touched" flag is false, errors should be undefined.
     expect(result.current.errors).toEqual({ mfaCode: undefined })

@@ -1,6 +1,7 @@
 import { useEffect } from 'hono/jsx'
 import {
   useSubmitError, View, useOtpMfaForm,
+  useInitialProps,
 } from 'pages/hooks'
 import { typeConfig } from 'configs'
 import { OtpMfa as OtpMfaBlock } from 'pages/blocks'
@@ -20,6 +21,8 @@ const OtpMfa = ({
     locale,
     onSwitchView,
   })
+
+  const { initialProps } = useInitialProps()
 
   const {
     allowFallbackToEmailMfa,
@@ -53,6 +56,7 @@ const OtpMfa = ({
       values={values}
       errors={errors}
       isVerifyingMfa={isVerifyingMfa}
+      initialProps={initialProps}
     />
   )
 }

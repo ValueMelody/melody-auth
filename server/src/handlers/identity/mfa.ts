@@ -3,6 +3,7 @@ import {
 } from 'hono'
 import { env } from 'hono/adapter'
 import {
+  adapterConfig,
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
@@ -15,6 +16,9 @@ import {
   validateUtil, loggerUtil,
 } from 'utils'
 import { userModel } from 'models'
+import { genRandomString } from '@melody-auth/shared'
+import { setCookie } from 'hono/cookie'
+import { BaseKVKey } from 'configs/adapter'
 
 export const getAuthCodeBody = async (
   c: Context<typeConfig.Context>, code: string,
@@ -132,6 +136,29 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.mfaCode,
   )
 
+  const { ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice } = env(c)
+
+  if (bodyDto.rememberDevice && enableMfaRememberDevice) {
+    const deviceId = genRandomString(24)
+    const cookieValue = genRandomString(128)
+
+    const cookieKey = adapterConfig.getEmailMfaRememberDeviceCookieKey(authCodeStore.user.id)
+    setCookie(c, cookieKey, `${deviceId}-${cookieValue}`, {
+      httpOnly: true,
+      secure: true,
+      path: '/',
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      sameSite: 'strict',
+    })
+
+    await kvService.storeEmailMfaRememberDevice(
+      c.env.KV,
+      authCodeStore.user.id,
+      deviceId,
+      cookieValue,
+    )
+  }
+
   return c.json(await identityService.processPostAuthorize(
     c,
     identityService.AuthorizeStep.EmailMfa,
@@ -226,6 +253,29 @@ export const postProcessSmsMfa = async (c: Context<typeConfig.Context>) => {
     bodyDto.mfaCode,
   )
 
+  const { ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice } = env(c)
+
+  if (bodyDto.rememberDevice && enableMfaRememberDevice) {
+    const deviceId = genRandomString(24)
+    const cookieValue = genRandomString(128)
+
+    const cookieKey = adapterConfig.getSmsMfaRememberDeviceCookieKey(authCodeStore.user.id)
+    setCookie(c, cookieKey, `${deviceId}-${cookieValue}`, {
+      httpOnly: true,
+      secure: true,
+      path: '/',
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      sameSite: 'strict',
+    })
+
+    await kvService.storeSmsMfaRememberDevice(
+      c.env.KV,
+      authCodeStore.user.id,
+      deviceId,
+      cookieValue,
+    )
+  }
+
   return c.json(await identityService.processPostAuthorize(
     c,
     identityService.AuthorizeStep.SmsMfa,
@@ -312,6 +362,29 @@ export const postProcessOtpMfa = async (c: Context<typeConfig.Context>) => {
     authCodeStore,
     bodyDto.mfaCode,
   )
+
+  const { ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice } = env(c)
+
+  if (bodyDto.rememberDevice && enableMfaRememberDevice) {
+    const deviceId = genRandomString(24)
+    const cookieValue = genRandomString(128)
+
+    const cookieKey = adapterConfig.getOtpMfaRememberDeviceCookieKey(authCodeStore.user.id)
+    setCookie(c, cookieKey, `${deviceId}-${cookieValue}`, {
+      httpOnly: true,
+      secure: true,
+      path: '/',
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      sameSite: 'strict',
+    })
+
+    await kvService.storeOtpMfaRememberDevice(
+      c.env.KV,
+      authCodeStore.user.id,
+      deviceId,
+      cookieValue,
+    )
+  }
 
   return c.json(await identityService.processPostAuthorize(
     c,

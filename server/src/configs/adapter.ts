@@ -31,6 +31,9 @@ export enum BaseKVKey {
   AuthCode = 'AC',
   EmbeddedSession = 'ES',
   EmailMfaCode = 'EMC',
+  EmailMfaRememberDevice = 'EMRD',
+  OtpMfaRememberDevice = 'OMRD',
+  SmsMfaRememberDevice = 'SMRD',
   OtpMfaCode = 'OMC',
   SmsMfaCode = 'SMC',
   PasswordlessCode = 'PLC',
@@ -61,6 +64,18 @@ export enum SessionKey {
 
 export const getAuthInfoSessionKeyByClientId = (clientId: string) => {
   return `${SessionKey.AuthInfo}-${clientId}`
+}
+
+export const getEmailMfaRememberDeviceCookieKey = (userId: number) => {
+  return `${BaseKVKey.EmailMfaRememberDevice}-${userId}`
+}
+
+export const getOtpMfaRememberDeviceCookieKey = (userId: number) => {
+  return `${BaseKVKey.OtpMfaRememberDevice}-${userId}`
+}
+
+export const getSmsMfaRememberDeviceCookieKey = (userId: number) => {
+  return `${BaseKVKey.SmsMfaRememberDevice}-${userId}`
 }
 
 export enum FileLocation {

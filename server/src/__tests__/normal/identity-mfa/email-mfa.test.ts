@@ -639,5 +639,206 @@ describe(
         expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
       },
     )
+
+    test(
+      'should set remember device cookie when rememberDevice is true',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+        
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+        
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toContain('EMRD-1=')
+        expect(setCookieHeader).toContain('HttpOnly')
+        expect(setCookieHeader).toContain('Secure')
+        expect(setCookieHeader).toContain('SameSite=Strict')
+
+        const cookieMatch = setCookieHeader?.match(/EMRD-1=([^;]+)/)
+        const cookieValue = cookieMatch?.[1]
+        expect(cookieValue).toBeDefined()
+        expect(cookieValue?.split('-')).toHaveLength(2)
+        expect(cookieValue?.split('-')[0]).toHaveLength(24)
+        expect(cookieValue?.split('-')[1]).toHaveLength(128)
+
+        const [deviceId, storedCookieValue] = cookieValue!.split('-')
+        const kvKey = `${adapterConfig.BaseKVKey.EmailMfaRememberDevice}-1-${deviceId}`
+        const storedValue = await mockedKV.get(kvKey)
+        expect(storedValue).toBe(storedCookieValue)
+
+        global.fetch = fetchMock
+
+        
+
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+      },
+    )
+
+    test(
+      'should not set remember device cookie when rememberDevice is false',
+      async () => {
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
+        
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              rememberDevice: false,
+            }),
+          },
+          mock(db),
+        )
+        
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toBeNull()
+
+        global.fetch = fetchMock
+        
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+      },
+    )
+
+    test(
+      'should not set remember device cookie when ENABLE_MFA_REMEMBER_DEVICE is false',
+      async () => {
+        // Keep MFA remember device feature disabled
+        process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+        
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+
+        // Complete email MFA flow
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              rememberDevice: true,
+            }),
+          },
+          mock(db),
+        )
+        
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toBeNull()
+
+        global.fetch = fetchMock
+      },
+    )
   },
 )

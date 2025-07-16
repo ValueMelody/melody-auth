@@ -7,7 +7,7 @@ import {
 } from 'vitest'
 import OtpMfa from './OtpMfa'
 import { otpMfa } from 'pages/tools/locale'
-import { View } from 'pages/hooks'
+import { InitialProps, View } from 'pages/hooks'
 
 describe(
   'OtpMfa Component',
@@ -19,9 +19,12 @@ describe(
       submitError: null as string | null,
       allowFallbackToEmailMfa: true,
       onSwitchView: vi.fn(),
-      values: { mfaCode: [] },
+      values: { mfaCode: [], rememberDevice: false },
       errors: { mfaCode: undefined },
       isVerifyingMfa: false,
+      initialProps: {
+        enableMfaRememberDevice: false,
+      } as InitialProps,
     }
 
     const setup = (props = defaultProps) => {

@@ -50,6 +50,7 @@ ENFORCE_ONE_MFA_ENROLLMENT=['otp', 'email'] # Enforce one MFA type from the list
 ALLOW_EMAIL_MFA_AS_BACKUP=true
 ALLOW_PASSKEY_ENROLLMENT=false
 ENABLE_RECOVERY_CODE=false
+ENABLE_MFA_REMEMBER_DEVICE=false # If true, the user can bypass MFA by remembering the device for 30 days.
 
 # Brute-force
 UNLOCK_ACCOUNT_VIA_PASSWORD_RESET=true

@@ -7,7 +7,7 @@ import {
 } from 'vitest'
 import SmsMfa from './SmsMfa'
 import { smsMfa } from 'pages/tools/locale'
-import { View } from 'pages/hooks'
+import { InitialProps, View } from 'pages/hooks'
 
 beforeAll(() => {
   window.addEventListener(
@@ -32,6 +32,7 @@ describe(
       values: {
         phoneNumber: '',
         mfaCode: null as string[] | null,
+        rememberDevice: false,
       },
       errors: {
         phoneNumber: undefined,
@@ -42,6 +43,9 @@ describe(
       countryCode: '+1',
       allowFallbackToEmailMfa: false,
       resent: false,
+      initialProps: {
+        enableMfaRememberDevice: false,
+      } as InitialProps,
     }
 
     const setup = (props = defaultProps) => {

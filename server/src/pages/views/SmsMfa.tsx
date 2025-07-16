@@ -2,6 +2,7 @@ import { useEffect } from 'hono/jsx'
 import { typeConfig } from 'configs'
 import {
   useSubmitError, useSmsMfaForm, View,
+  useInitialProps,
 } from 'pages/hooks'
 import { SmsMfa as SmsMfaBlock } from 'pages/blocks'
 export interface SmsMfaProps {
@@ -19,6 +20,8 @@ const SmsMfa = ({
     locale,
     onSwitchView,
   })
+
+  const { initialProps } = useInitialProps()
 
   const {
     getSmsMfaInfo,
@@ -62,6 +65,7 @@ const SmsMfa = ({
       onResend={handleResend}
       isSubmitting={isSubmitting}
       isSending={isSending}
+      initialProps={initialProps}
     />
   )
 }

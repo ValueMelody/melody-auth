@@ -47,7 +47,7 @@ test(
     expect(result.current.otpUri).toBe('')
     expect(result.current.otpSecret).toBe('')
     expect(result.current.allowFallbackToEmailMfa).toBe(false)
-    expect(result.current.values).toEqual({ mfaCode: new Array(6).fill('') })
+    expect(result.current.values).toEqual({ mfaCode: new Array(6).fill(''), rememberDevice: false })
     // Since the field has not been touched, errors should be undefined.
     expect(result.current.errors).toEqual({ mfaCode: undefined })
     expect(typeof result.current.getOtpSetupInfo).toBe('function')

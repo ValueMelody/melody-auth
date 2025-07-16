@@ -143,6 +143,11 @@ export const emailMfa = Object.freeze({
     fr: 'Nouveau code envoyé.',
     zh: '新验证码已发送。',
   },
+  rememberDevice: {
+    en: 'Remember this device for 30 days.',
+    fr: 'Se souvenir de ce dispositif pour 30 jours.',
+    zh: '记住此设备30天。',
+  },
 })
 
 export const layout = Object.freeze({
@@ -292,6 +297,11 @@ export const otpMfa = Object.freeze({
     en: 'Receive MFA Code by Email',
     fr: 'Recevoir le code MFA par e-mail',
     zh: '通过邮箱接收验证码',
+  },
+  rememberDevice: {
+    en: 'Remember this device for 30 days.',
+    fr: 'Se souvenir de ce dispositif pour 30 jours.',
+    zh: '记住此设备30天。',
   },
 })
 
@@ -664,6 +674,11 @@ export const smsMfa = Object.freeze({
     en: 'Receive MFA Code by Email',
     fr: 'Recevoir le code MFA par e-mail',
     zh: '通过邮箱接收验证码',
+  },
+  rememberDevice: {
+    en: 'Remember this device for 30 days.',
+    fr: 'Se souvenir de ce dispositif pour 30 jours.',
+    zh: '记住此设备30天。',
   },
 })
 

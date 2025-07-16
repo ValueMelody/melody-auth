@@ -45,6 +45,7 @@ const useSmsMfaForm = ({
   const [phoneNumber, setPhoneNumber] = useState('')
   const [mfaCode, setMfaCode] = useState<string[] | null>(null)
   const [resent, setResent] = useState(false)
+  const [rememberDevice, setRememberDevice] = useState(false)
 
   const [touched, setTouched] = useState({
     phoneNumber: false,
@@ -54,6 +55,7 @@ const useSmsMfaForm = ({
   const values = {
     phoneNumber,
     mfaCode,
+    rememberDevice,
   }
 
   const smsMfaSchema = object({
@@ -81,7 +83,7 @@ const useSmsMfaForm = ({
   )
 
   const handleChange = (
-    name: 'phoneNumber' | 'mfaCode', value: string | string[],
+    name: 'phoneNumber' | 'mfaCode' | 'rememberDevice', value: string | string[] | boolean,
   ) => {
     onSubmitError(null)
     switch (name) {
@@ -90,6 +92,9 @@ const useSmsMfaForm = ({
       break
     case 'mfaCode':
       setMfaCode(value as string[])
+      break
+    case 'rememberDevice':
+      setRememberDevice(value as boolean)
       break
     }
   }
@@ -238,6 +243,7 @@ const useSmsMfaForm = ({
                 locale,
               ),
               mfaCode: mfaCode.join(''),
+              rememberDevice,
             }),
           },
         )
@@ -259,7 +265,7 @@ const useSmsMfaForm = ({
     },
     [
       errors, setTouched, followUpParams, mfaCode, onSwitchView, locale,
-      onSubmitError, requestSetupMfa,
+      onSubmitError, requestSetupMfa, rememberDevice,
     ],
   )
 
