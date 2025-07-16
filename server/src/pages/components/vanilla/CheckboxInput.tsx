@@ -23,6 +23,7 @@ const CheckboxInput = ({
         checked={checked}
         onChange={handleChange}
         className='mr-2'
+        aria-label={label}
       />
       <label htmlFor={id}>
         {label}

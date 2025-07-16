@@ -2,9 +2,11 @@ import {
   SecondaryButton, PrimaryButton, SubmitError, CodeInput, ViewTitle, CheckboxInput,
 } from 'pages/components'
 
-import { emailMfa, otpMfa } from 'pages/tools/locale'
+import { otpMfa } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
-import { InitialProps, View } from 'pages/hooks'
+import {
+  InitialProps, View,
+} from 'pages/hooks'
 
 export interface OtpMfaProps {
   locale: typeConfig.Locale;

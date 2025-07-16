@@ -3,6 +3,7 @@ import { env } from 'hono/adapter'
 import {
   genCodeChallenge, genRandomString,
 } from '@melody-auth/shared'
+import { getCookie } from 'hono/cookie'
 import {
   adapterConfig,
   errorConfig,
@@ -21,9 +22,6 @@ import {
   loggerUtil, requestUtil,
 } from 'utils'
 import { oauthDto } from 'dtos'
-import { getCookie } from 'hono/cookie'
-import { BaseKVKey } from 'configs/adapter'
-import { kv } from 'tests/mock'
 
 export enum AuthorizeStep {
   Account = 0,
@@ -191,7 +189,10 @@ export const processPostAuthorize = async (
     }
 
     const cookieKey = adapterConfig.getOtpMfaRememberDeviceCookieKey(authCodeBody.user.id)
-    const cookieValue = getCookie(c, cookieKey)
+    const cookieValue = getCookie(
+      c,
+      cookieKey,
+    )
     const isValid = await kvService.verifyOtpMfaRememberDevice(
       c.env.KV,
       authCodeBody.user.id,
@@ -223,7 +224,10 @@ export const processPostAuthorize = async (
     }
 
     const cookieKey = adapterConfig.getSmsMfaRememberDeviceCookieKey(authCodeBody.user.id)
-    const cookieValue = getCookie(c, cookieKey)
+    const cookieValue = getCookie(
+      c,
+      cookieKey,
+    )
     const isValid = await kvService.verifySmsMfaRememberDevice(
       c.env.KV,
       authCodeBody.user.id,
@@ -255,7 +259,10 @@ export const processPostAuthorize = async (
     }
 
     const cookieKey = adapterConfig.getEmailMfaRememberDeviceCookieKey(authCodeBody.user.id)
-    const cookieValue = getCookie(c, cookieKey)
+    const cookieValue = getCookie(
+      c,
+      cookieKey,
+    )
     const isValid = await kvService.verifyEmailMfaRememberDevice(
       c.env.KV,
       authCodeBody.user.id,

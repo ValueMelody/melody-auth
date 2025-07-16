@@ -47,7 +47,9 @@ test(
     expect(result.current.otpUri).toBe('')
     expect(result.current.otpSecret).toBe('')
     expect(result.current.allowFallbackToEmailMfa).toBe(false)
-    expect(result.current.values).toEqual({ mfaCode: new Array(6).fill(''), rememberDevice: false })
+    expect(result.current.values).toEqual({
+      mfaCode: new Array(6).fill(''), rememberDevice: false,
+    })
     // Since the field has not been touched, errors should be undefined.
     expect(result.current.errors).toEqual({ mfaCode: undefined })
     expect(typeof result.current.getOtpSetupInfo).toBe('function')
@@ -76,6 +78,41 @@ test(
 
     expect(onSubmitError).toHaveBeenCalledWith(null)
     expect(result.current.values.mfaCode).toEqual(['1', '2', '3', '4', '5', '6'])
+  },
+)
+
+test(
+  'handleChange updates rememberDevice and resets onSubmitError',
+  () => {
+    const onSubmitError = vi.fn()
+    const onSwitchView = vi.fn()
+    const { result } = renderHook(() =>
+      useOtpMfaForm({
+        locale: 'en', onSubmitError, onSwitchView,
+      }))
+
+    // Initial value should be false
+    expect(result.current.values.rememberDevice).toBe(false)
+
+    act(() => {
+      result.current.handleChange(
+        'rememberDevice',
+        true,
+      )
+    })
+
+    expect(onSubmitError).toHaveBeenCalledWith(null)
+    expect(result.current.values.rememberDevice).toBe(true)
+
+    act(() => {
+      result.current.handleChange(
+        'rememberDevice',
+        false,
+      )
+    })
+
+    expect(onSubmitError).toHaveBeenCalledWith(null)
+    expect(result.current.values.rememberDevice).toBe(false)
   },
 )
 

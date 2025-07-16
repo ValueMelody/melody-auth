@@ -1,5 +1,5 @@
 import {
-  getByText, getByLabelText, fireEvent, queryByText,
+  getByText, getByLabelText, fireEvent, queryByText, queryByLabelText,
 } from '@testing-library/dom'
 import { render } from 'hono/jsx/dom'
 import {
@@ -7,7 +7,9 @@ import {
 } from 'vitest'
 import OtpMfa from './OtpMfa'
 import { otpMfa } from 'pages/tools/locale'
-import { InitialProps, View } from 'pages/hooks'
+import {
+  InitialProps, View,
+} from 'pages/hooks'
 
 describe(
   'OtpMfa Component',
@@ -19,12 +21,12 @@ describe(
       submitError: null as string | null,
       allowFallbackToEmailMfa: true,
       onSwitchView: vi.fn(),
-      values: { mfaCode: [], rememberDevice: false },
+      values: {
+        mfaCode: [], rememberDevice: false,
+      },
       errors: { mfaCode: undefined },
       isVerifyingMfa: false,
-      initialProps: {
-        enableMfaRememberDevice: false,
-      } as InitialProps,
+      initialProps: { enableMfaRememberDevice: false } as InitialProps,
     }
 
     const setup = (props = defaultProps) => {
@@ -138,6 +140,58 @@ describe(
         }
         const container = setup(props)
         expect(container.textContent).toContain(errorMessage)
+      },
+    )
+
+    it(
+      'renders rememberDevice checkbox when enableMfaRememberDevice is true',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: { enableMfaRememberDevice: true } as InitialProps,
+        }
+        const container = setup(props)
+        const rememberDeviceCheckbox = getByLabelText(
+          container,
+          otpMfa.rememberDevice.en,
+        )
+        expect(rememberDeviceCheckbox).toBeDefined()
+      },
+    )
+
+    it(
+      'does not render rememberDevice checkbox when enableMfaRememberDevice is false',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: { enableMfaRememberDevice: false } as InitialProps,
+        }
+        const container = setup(props)
+        const rememberDeviceCheckbox = queryByLabelText(
+          container,
+          otpMfa.rememberDevice.en,
+        )
+        expect(rememberDeviceCheckbox).toBeNull()
+      },
+    )
+
+    it(
+      'calls onChange with rememberDevice when checkbox is toggled',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: { enableMfaRememberDevice: true } as InitialProps,
+        }
+        const container = setup(props)
+        const rememberDeviceCheckbox = getByLabelText(
+          container,
+          otpMfa.rememberDevice.en,
+        ) as HTMLInputElement
+        fireEvent.click(rememberDeviceCheckbox)
+        expect(defaultProps.onChange).toHaveBeenCalledWith(
+          'rememberDevice',
+          true,
+        )
       },
     )
   },

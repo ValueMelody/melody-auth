@@ -563,7 +563,7 @@ const AuthRes = {
     sessionId: { type: 'string' },
     nextStep: {
       type: 'string',
-      enum: ['consent', 'mfa_enroll', 'email_mfa', 'sms_mfa', 'otp_setup', 'opt_mfa', 'passkey_enroll'],
+      enum: ['consent', 'mfa_enroll', 'email_mfa', 'sms_mfa', 'otp_setup', 'otp_mfa', 'passkey_enroll'],
     },
     success: { type: 'boolean' },
   },

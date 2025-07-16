@@ -104,6 +104,41 @@ describe(
     )
 
     test(
+      'handleChange updates rememberDevice and resets error',
+      () => {
+        const { result } = renderHook(() =>
+          useSmsMfaForm({
+            locale: dummyLocale,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        // Initial value should be false
+        expect(result.current.values.rememberDevice).toBe(false)
+
+        act(() => {
+          result.current.handleChange(
+            'rememberDevice',
+            true,
+          )
+        })
+
+        expect(onSubmitError).toHaveBeenCalledWith(null)
+        expect(result.current.values.rememberDevice).toBe(true)
+
+        act(() => {
+          result.current.handleChange(
+            'rememberDevice',
+            false,
+          )
+        })
+
+        expect(onSubmitError).toHaveBeenCalledWith(null)
+        expect(result.current.values.rememberDevice).toBe(false)
+      },
+    )
+
+    test(
       'getSmsMfaInfo updates state on successful fetch',
       async () => {
         const fakeResponseData = {

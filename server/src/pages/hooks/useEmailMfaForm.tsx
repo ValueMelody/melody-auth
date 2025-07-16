@@ -39,7 +39,9 @@ const useEmailMfaForm = ({
   const [touched, setTouched] = useState({ mfaCode: false })
   const [rememberDevice, setRememberDevice] = useState(false)
 
-  const values = { mfaCode, rememberDevice }
+  const values = {
+    mfaCode, rememberDevice,
+  }
 
   const otpMfaSchema = object({ mfaCode: codeField(locale) })
 
@@ -137,7 +139,7 @@ const useEmailMfaForm = ({
           setIsSubmitting(false)
         })
     },
-    [errors, setTouched, followUpParams, mfaCode, onSwitchView, locale, onSubmitError],
+    [errors, setTouched, followUpParams, mfaCode, onSwitchView, locale, onSubmitError, rememberDevice],
   )
 
   return {

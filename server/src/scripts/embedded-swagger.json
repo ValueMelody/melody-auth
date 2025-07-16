@@ -856,7 +856,7 @@
               "email_mfa",
               "sms_mfa",
               "otp_setup",
-              "opt_mfa",
+              "otp_mfa",
               "passkey_enroll"
             ]
           },

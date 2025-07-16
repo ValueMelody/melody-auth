@@ -39,7 +39,9 @@ test(
         onSwitchView,
       }))
 
-    expect(result.current.values).toEqual({ mfaCode: new Array(6).fill(''), rememberDevice: false })
+    expect(result.current.values).toEqual({
+      mfaCode: new Array(6).fill(''), rememberDevice: false,
+    })
     expect(result.current.resent).toBe(false)
     // Since the "touched" flag is false, errors should be undefined.
     expect(result.current.errors).toEqual({ mfaCode: undefined })
@@ -67,6 +69,43 @@ test(
 
     expect(onSubmitError).toHaveBeenCalledWith(null)
     expect(result.current.values.mfaCode).toEqual(['1', '2', '3', '4', '5', '6'])
+  },
+)
+
+test(
+  'handleChange updates rememberDevice and resets onSubmitError',
+  () => {
+    const onSubmitError = vi.fn()
+    const onSwitchView = vi.fn()
+    const { result } = renderHook(() =>
+      useEmailMfaForm({
+        locale: 'en',
+        onSubmitError,
+        onSwitchView,
+      }))
+
+    // Initial value should be false
+    expect(result.current.values.rememberDevice).toBe(false)
+
+    act(() => {
+      result.current.handleChange(
+        'rememberDevice',
+        true,
+      )
+    })
+
+    expect(onSubmitError).toHaveBeenCalledWith(null)
+    expect(result.current.values.rememberDevice).toBe(true)
+
+    act(() => {
+      result.current.handleChange(
+        'rememberDevice',
+        false,
+      )
+    })
+
+    expect(onSubmitError).toHaveBeenCalledWith(null)
+    expect(result.current.values.rememberDevice).toBe(false)
   },
 )
 

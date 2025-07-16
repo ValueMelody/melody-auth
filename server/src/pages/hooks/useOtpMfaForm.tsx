@@ -45,7 +45,9 @@ const useOtpMfaForm = ({
   const [touched, setTouched] = useState({ mfaCode: false })
   const [rememberDevice, setRememberDevice] = useState(false)
 
-  const values = { mfaCode, rememberDevice }
+  const values = {
+    mfaCode, rememberDevice,
+  }
 
   const otpMfaSchema = object({ mfaCode: codeField(locale) })
 

@@ -164,6 +164,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** false
 - **Description:** Enables recovery code. If `true`, users can sign in with recovery codes during sign-in.
 
+### ENABLE_MFA_REMEMBER_DEVICE
+- **Default:** false
+- **Description:** Enables MFA remember device. If `true`, users can bypass MFA by remembering the device for 30 days.
+
 ## Brute-force Configs
 
 ### ACCOUNT_LOCKOUT_EXPIRES_IN

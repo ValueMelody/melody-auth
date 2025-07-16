@@ -1,9 +1,11 @@
 import { typeConfig } from 'configs'
 import {
   ViewTitle, PhoneField, SecondaryButton, CodeInput, SubmitError, PrimaryButton, CheckboxInput,
-  
+
 } from 'pages/components'
-import { InitialProps, View } from 'pages/hooks'
+import {
+  InitialProps, View,
+} from 'pages/hooks'
 import { smsMfa } from 'pages/tools/locale'
 
 export interface SmsMfaProps {
