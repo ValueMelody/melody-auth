@@ -1,0 +1,71 @@
+{
+  "name": "@melody-auth/nextjs",
+  "version": "0.1.0",
+  "description": "Melody Auth SDK for Next.js applications",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./middleware": {
+      "types": "./dist/middleware/index.d.ts",
+      "import": "./dist/middleware/index.js",
+      "require": "./dist/middleware/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@melody-auth/react": "^1.0.10",
+    "@melody-auth/shared": "^1.0.6",
+    "@melody-auth/web": "^1.0.4",
+    "cookies-next": "^4.1.1",
+    "jose": "^5.2.0"
+  },
+  "peerDependencies": {
+    "next": ">=13.0.0",
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@testing-library/react": "^14.2.1",
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.56",
+    "next": "^14.1.0",
+    "rollup": "^4.10.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/melodyauth/melodyauth.git"
+  },
+  "keywords": [
+    "melody",
+    "auth",
+    "authentication",
+    "oauth",
+    "openid",
+    "nextjs",
+    "react",
+    "ssr",
+    "server-side"
+  ],
+  "author": "Melody Auth",
+  "license": "MIT"
+}
