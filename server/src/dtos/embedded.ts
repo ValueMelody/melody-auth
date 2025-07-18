@@ -129,8 +129,13 @@ export class MfaDto {
   @IsNotEmpty()
     mfaCode: string
 
+  @IsBoolean()
+  @IsOptional()
+    rememberDevice: boolean
+
   constructor (dto: MfaDto) {
     this.mfaCode = dto.mfaCode
+    this.rememberDevice = dto.rememberDevice ?? false
   }
 }
 
