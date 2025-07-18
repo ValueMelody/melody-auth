@@ -389,7 +389,10 @@ describe(
             sessionId,
           ),
           {
-            method: 'POST', body: JSON.stringify({ mfaCode, rememberDevice: true }),
+            method: 'POST',
+            body: JSON.stringify({
+              mfaCode, rememberDevice: true,
+            }),
           },
           mock(db),
         )
@@ -474,7 +477,10 @@ describe(
             sessionId,
           ),
           {
-            method: 'POST', body: JSON.stringify({ mfaCode, rememberDevice: false }),
+            method: 'POST',
+            body: JSON.stringify({
+              mfaCode, rememberDevice: false,
+            }),
           },
           mock(db),
         )
@@ -544,7 +550,10 @@ describe(
             sessionId,
           ),
           {
-            method: 'POST', body: JSON.stringify({ mfaCode, rememberDevice: true }),
+            method: 'POST',
+            body: JSON.stringify({
+              mfaCode, rememberDevice: true,
+            }),
           },
           mock(db),
         )

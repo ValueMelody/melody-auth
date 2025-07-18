@@ -2,10 +2,7 @@ import {
   Context, TypedResponse,
 } from 'hono'
 import { env } from 'hono/adapter'
-import { genRandomString } from '@melody-auth/shared'
-import { setCookie } from 'hono/cookie'
 import {
-  adapterConfig,
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
@@ -136,7 +133,9 @@ export const postProcessEmailMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   await mfaService.rememberEmailMfaDevice(
-    c, bodyDto.rememberDevice, authCodeStore.user.id
+    c,
+    bodyDto.rememberDevice,
+    authCodeStore.user.id,
   )
 
   return c.json(await identityService.processPostAuthorize(
@@ -234,7 +233,9 @@ export const postProcessSmsMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   await mfaService.rememberSmsMfaDevice(
-    c, bodyDto.rememberDevice, authCodeStore.user.id
+    c,
+    bodyDto.rememberDevice,
+    authCodeStore.user.id,
   )
 
   return c.json(await identityService.processPostAuthorize(
@@ -325,7 +326,9 @@ export const postProcessOtpMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   await mfaService.rememberOtpMfaDevice(
-    c, bodyDto.rememberDevice, authCodeStore.user.id
+    c,
+    bodyDto.rememberDevice,
+    authCodeStore.user.id,
   )
 
   return c.json(await identityService.processPostAuthorize(

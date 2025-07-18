@@ -765,9 +765,7 @@ describe(
           ),
           {
             method: 'POST',
-            body: JSON.stringify({
-              mfaCode,
-            }),
+            body: JSON.stringify({ mfaCode }),
           },
           mock(db),
         )

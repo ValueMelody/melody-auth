@@ -508,7 +508,9 @@ export const postEmailMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   await mfaService.rememberEmailMfaDevice(
-    c, bodyDto.rememberDevice, sessionBody.user.id
+    c,
+    bodyDto.rememberDevice,
+    sessionBody.user.id,
   )
 
   const result = await identityService.processPostAuthorize(
@@ -593,7 +595,9 @@ export const postOtpMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   await mfaService.rememberOtpMfaDevice(
-    c, bodyDto.rememberDevice, sessionBody.user.id
+    c,
+    bodyDto.rememberDevice,
+    sessionBody.user.id,
   )
 
   const result = await identityService.processPostAuthorize(
@@ -683,7 +687,9 @@ export const postSmsMfa = async (c: Context<typeConfig.Context>) => {
   )
 
   await mfaService.rememberSmsMfaDevice(
-    c, bodyDto.rememberDevice, sessionBody.user.id
+    c,
+    bodyDto.rememberDevice,
+    sessionBody.user.id,
   )
 
   const result = await identityService.processPostAuthorize(

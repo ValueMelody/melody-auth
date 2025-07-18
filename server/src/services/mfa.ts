@@ -1,5 +1,7 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { genRandomString } from '@melody-auth/shared'
+import { setCookie } from 'hono/cookie'
 import {
   adapterConfig,
   errorConfig, messageConfig, typeConfig, variableConfig,
@@ -13,8 +15,6 @@ import {
 import {
   requestUtil, loggerUtil,
 } from 'utils'
-import { genRandomString } from '@melody-auth/shared'
-import { setCookie } from 'hono/cookie'
 
 export interface MfaConfig {
   requireEmailMfa: boolean;
