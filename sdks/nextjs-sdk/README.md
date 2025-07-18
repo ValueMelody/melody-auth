@@ -4,12 +4,11 @@ Next.js SDK for Melody Auth - A complete authentication solution with server-sid
 
 ## Features
 
-- 🍪 Cookie-based token storage with automatic chunking for large tokens
-- 🔒 Server-side authentication support
-- 🚀 Next.js middleware integration
-- 🎣 React hooks for client-side auth
-- 🔄 Automatic token refresh
-- 📱 SSR and CSR compatible
+- Cookie-based token storage
+- Server-side authentication support
+- Next.js middleware integration
+- Automatic token refresh
+- SSR and CSR compatible
 
 ## Installation
 
@@ -46,6 +45,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ```
 
 ### 2. Middleware Setup
+
+> [!warn] Need to use cookie storage for middleware.
 
 ```ts
 // middleware.ts
@@ -197,33 +198,6 @@ The SDK automatically handles large tokens by splitting them across multiple coo
 - Chunks are automatically reassembled on read
 - Old chunks are cleaned up on update
 
-## Best Practices
-
-1. **Use Cookie Storage for SSR**: Always use `storage="cookie"` for server-side rendering support.
-
-2. **Secure Cookies**: In production, ensure cookies are secure:
-   ```tsx
-   cookieOptions={{
-     httpOnly: true,
-     secure: true,
-     sameSite: 'lax',
-   }}
-   ```
-
-3. **Token Refresh**: The SDK automatically refreshes tokens, but you can manually refresh:
-   ```tsx
-   const { refreshSession } = useNextAuth();
-   await refreshSession();
-   ```
-
-4. **Error Handling**: Always handle auth errors gracefully:
-   ```tsx
-   try {
-     await loginRedirect();
-   } catch (error) {
-     console.error('Login failed:', error);
-   }
-   ```
 
 ## License
 
