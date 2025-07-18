@@ -207,6 +207,9 @@
         "properties": {
           "mfaCode": {
             "type": "string"
+          },
+          "rememberDevice": {
+            "type": "boolean"
           }
         },
         "required": [
