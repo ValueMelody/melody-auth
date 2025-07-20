@@ -15,13 +15,13 @@ export const checkStorage = <T extends StorageType>(storageKey?: T, options?: T 
   switch (storageKey) {
     case 'sessionStorage':
       storage = window.sessionStorage;
-      break; // FIX: Add break to prevent fall-through
+      break;
     case 'localStorage':
       storage = window.localStorage;
-      break; // FIX: Add break to prevent fall-through
+      break;
     case 'cookieStorage':
       storage = new CookieStorage(options);
-      break; // FIX: Add break to prevent fall-through
+      break;
     default:
       storage = window.localStorage;
   }
