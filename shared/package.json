@@ -18,6 +18,7 @@
     "test:coverage": "vitest run . --coverage"
   },
   "devDependencies": {
+    "@types/node": "^24.0.15",
     "@vitest/coverage-v8": "^3.1.1",
     "jsdom": "^26.1.0",
     "vitest": "^3.1.1"

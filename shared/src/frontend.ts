@@ -2,9 +2,29 @@ import { StorageKey } from './enum.js'
 import {
   RefreshTokenStorage, AccessTokenStorage, IdTokenStorage,
 } from './clientInterface.js'
+import { AuthStorage, CookieOptions, CookieStorage, StorageType } from './storage.js'
 
-export const checkStorage = (storageKey?: 'sessionStorage' | 'localStorage') => {
-  const storage = storageKey === 'sessionStorage' ? window.sessionStorage : window.localStorage
+/**
+ * Checks for stored authentication tokens in the specified storage mechanism.
+ * @param storageKey - The type of storage to use (sessionStorage, localStorage, or cookieStorage)
+ * @param options - Cookie options (only applicable when storageKey is 'cookieStorage')
+ * @returns An object containing the stored refresh token and ID token (if any)
+ */
+export const checkStorage = <T extends StorageType>(storageKey?: T, options?: T extends 'cookieStorage' ? Partial<CookieOptions> : undefined) => {
+  let storage: AuthStorage;
+  switch (storageKey) {
+    case 'sessionStorage':
+      storage = window.sessionStorage;
+      break; // FIX: Add break to prevent fall-through
+    case 'localStorage':
+      storage = window.localStorage;
+      break; // FIX: Add break to prevent fall-through
+    case 'cookieStorage':
+      storage = new CookieStorage(options);
+      break; // FIX: Add break to prevent fall-through
+    default:
+      storage = window.localStorage;
+  }
   const storedRefreshToken = storage.getItem(StorageKey.RefreshToken)
   const storedIdToken = storage.getItem(StorageKey.IdToken)
 
