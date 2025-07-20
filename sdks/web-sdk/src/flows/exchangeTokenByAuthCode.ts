@@ -1,5 +1,7 @@
 import {
   ProviderConfig, AccessTokenStorage, RefreshTokenStorage, SessionStorageKey, StorageKey, IdTokenStorage,
+  AuthStorage,
+  getStorage,
 } from '@melody-auth/shared'
 import { postTokenByAuthCode } from '../requests'
 
@@ -65,7 +67,7 @@ export const exchangeTokenByAuthCode = async (
       expiresOn: result.expires_on,
     }
 
-    const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
+    const storage: AuthStorage = getStorage(config.storage);
     let refreshTokenStorage: RefreshTokenStorage | null = null
     if (result.refresh_token) {
       refreshTokenStorage = {

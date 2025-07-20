@@ -1,4 +1,6 @@
 import {
+  AuthStorage,
+  getStorage,
   ProviderConfig, StorageKey,
 } from '@melody-auth/shared'
 import { postLogout } from '../requests'
@@ -25,7 +27,7 @@ export const logout = async (
     }
   }
 
-  const storage = config.storage === 'sessionStorage' ? window.sessionStorage : window.localStorage
+  const storage: AuthStorage = getStorage(config.storage);
 
   storage.removeItem(StorageKey.RefreshToken)
   storage.removeItem(StorageKey.IdToken)
