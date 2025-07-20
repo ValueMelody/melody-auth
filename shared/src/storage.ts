@@ -5,6 +5,7 @@
 export interface AuthStorage {
   getItem: (key: string) => string | null;
   setItem: (key: string, value: string) => void;
+  removeItem?: (key: string) => void;
 }
 
 /**
@@ -47,7 +48,7 @@ export interface CookieOptions {
  */
 export class CookieStorage {
   private options: CookieOptions;
-  
+
   /**
    * Creates a new CookieStorage instance.
    * @param options - Optional cookie configuration overrides
@@ -72,7 +73,7 @@ export class CookieStorage {
   getItem = (key: string): string | null => {
     return this.options.cookieGetter(key, this.options);
   }
-  
+
   /**
    * Stores a value in cookie storage.
    * @param key - The cookie name
@@ -80,6 +81,10 @@ export class CookieStorage {
    */
   setItem = (key: string, value: string) => {
     this.options.cookieSetter(key, value, this.options);
+  }
+
+  removeItem = (key: string): void => {
+    this.setItem(key, '');
   }
 };
 
@@ -152,5 +157,18 @@ export function defaultCookieSetter(key: string, value: string, options: CookieO
   } else {
     // Neither browser nor server environment available
     console.warn('Unable to set cookie: no document or response object available');
+  }
+}
+
+export function getStorage(storageType?: StorageType): AuthStorage {
+  switch (storageType) {
+    case 'sessionStorage':
+      return window.sessionStorage;
+    case 'localStorage':
+      return window.localStorage;
+    case 'cookieStorage':
+      return new CookieStorage();
+    default:
+      return window.localStorage;
   }
 }

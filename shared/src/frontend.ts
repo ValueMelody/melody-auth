@@ -2,29 +2,16 @@ import { StorageKey } from './enum.js'
 import {
   RefreshTokenStorage, AccessTokenStorage, IdTokenStorage,
 } from './clientInterface.js'
-import { AuthStorage, CookieOptions, CookieStorage, StorageType } from './storage.js'
+import { AuthStorage, getStorage, StorageType } from './storage.js'
 
 /**
  * Checks for stored authentication tokens in the specified storage mechanism.
- * @param storageKey - The type of storage to use (sessionStorage, localStorage, or cookieStorage)
+ * @param storageType - The type of storage to use (sessionStorage, localStorage, or cookieStorage)
  * @param options - Cookie options (only applicable when storageKey is 'cookieStorage')
  * @returns An object containing the stored refresh token and ID token (if any)
  */
-export const checkStorage = <T extends StorageType>(storageKey?: T, options?: T extends 'cookieStorage' ? Partial<CookieOptions> : undefined) => {
-  let storage: AuthStorage;
-  switch (storageKey) {
-    case 'sessionStorage':
-      storage = window.sessionStorage;
-      break;
-    case 'localStorage':
-      storage = window.localStorage;
-      break;
-    case 'cookieStorage':
-      storage = new CookieStorage(options);
-      break;
-    default:
-      storage = window.localStorage;
-  }
+export const checkStorage = (storageType?: StorageType) => {
+  const storage: AuthStorage = getStorage(storageType);
   const storedRefreshToken = storage.getItem(StorageKey.RefreshToken)
   const storedIdToken = storage.getItem(StorageKey.IdToken)
 
@@ -42,7 +29,7 @@ export const loadRefreshTokenStorageFromParams = (storageType?: 'sessionStorage'
       expiresOn: parseInt(params.refresh_token_expires_on),
       expiresIn: parseInt(params.refresh_token_expires_in),
     }
-    const storage = storageType === 'sessionStorage' ? window.sessionStorage : window.localStorage
+    const storage: AuthStorage = getStorage(storageType);
     storage.setItem(
       StorageKey.RefreshToken,
       JSON.stringify(refreshTokenStorage),
