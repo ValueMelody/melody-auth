@@ -67,7 +67,7 @@ export const exchangeTokenByAuthCode = async (
       expiresOn: result.expires_on,
     }
 
-    const storage: AuthStorage = getStorage(config.storage);
+    const storage: AuthStorage = getStorage(config.storage)
     let refreshTokenStorage: RefreshTokenStorage | null = null
     if (result.refresh_token) {
       refreshTokenStorage = {

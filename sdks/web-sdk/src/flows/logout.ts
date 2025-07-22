@@ -27,7 +27,7 @@ export const logout = async (
     }
   }
 
-  const storage: AuthStorage = getStorage(config.storage);
+  const storage: AuthStorage = getStorage(config.storage)
 
   storage.removeItem(StorageKey.RefreshToken)
   storage.removeItem(StorageKey.IdToken)

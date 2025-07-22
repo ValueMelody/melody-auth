@@ -47,13 +47,13 @@ export interface CookieOptions {
  * Works in both browser and server (SSR) environments.
  */
 export class CookieStorage {
-  private options: CookieOptions;
+  private options: CookieOptions
 
   /**
    * Creates a new CookieStorage instance.
    * @param options - Optional cookie configuration overrides
    */
-  constructor(options: Partial<CookieOptions> = {}) {
+  constructor (options: Partial<CookieOptions> = {}) {
     this.options = {
       // httpOnly defaults to true for server environments, but has no effect in browsers
       httpOnly: true,
@@ -63,15 +63,19 @@ export class CookieStorage {
       cookieGetter: defaultCookieGetter,
       cookieSetter: defaultCookieSetter,
       ...options,
-    };
+    }
   }
+
   /**
    * Retrieves a value from cookie storage.
    * @param key - The cookie name
    * @returns The cookie value or null if not found
    */
   getItem = (key: string): string | null => {
-    return this.options.cookieGetter(key, this.options);
+    return this.options.cookieGetter(
+      key,
+      this.options,
+    )
   }
 
   /**
@@ -79,12 +83,21 @@ export class CookieStorage {
    * @param key - The cookie name
    * @param value - The value to store
    */
-  setItem = (key: string, value: string) => {
-    this.options.cookieSetter(key, value, this.options);
+  setItem = (
+    key: string, value: string,
+  ) => {
+    this.options.cookieSetter(
+      key,
+      value,
+      this.options,
+    )
   }
 
   removeItem = (key: string): void => {
-    this.setItem(key, '');
+    this.setItem(
+      key,
+      '',
+    )
   }
 };
 
@@ -94,26 +107,33 @@ export class CookieStorage {
  * @param options - Cookie options including request object for SSR
  * @returns The cookie value or null if not found
  */
-export function defaultCookieGetter(key: string, options: CookieOptions): string | null {
+export function defaultCookieGetter (
+  key: string, options: CookieOptions,
+): string | null {
   if (typeof document !== 'undefined' && document) {
-    const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
-      const [k, v] = cookie.split('=');
-      acc[k] = decodeURIComponent(v);
-      return acc;
-    }, {} as Record<string, string>);
-    return cookies[key] || null;
+    const cookies = document.cookie.split('; ').reduce(
+      (
+        acc, cookie,
+      ) => {
+        const [k, v] = cookie.split('=')
+        acc[k] = decodeURIComponent(v)
+        return acc
+      },
+{} as Record<string, string>,
+    )
+    return cookies[key] || null
   } else if (options.request) {
-    const cookies = options.request.headers.get('cookie');
+    const cookies = options.request.headers.get('cookie')
     if (cookies) {
-      const cookieMap = Object.fromEntries(cookies.split('; ').map(cookie => {
-        const [k, v] = cookie.split('=');
-        return [k, decodeURIComponent(v)];
-      }));
-      return cookieMap[key] || null;
+      const cookieMap = Object.fromEntries(cookies.split('; ').map((cookie) => {
+        const [k, v] = cookie.split('=')
+        return [k, decodeURIComponent(v)]
+      }))
+      return cookieMap[key] || null
     }
   }
-  console.warn('Unable to get cookie: no document or request object available');
-  return null;
+  console.warn('Unable to get cookie: no document or request object available')
+  return null
 }
 
 /**
@@ -122,53 +142,58 @@ export function defaultCookieGetter(key: string, options: CookieOptions): string
  * @param value - The value to store
  * @param options - Cookie options including response object for SSR
  */
-export function defaultCookieSetter(key: string, value: string, options: CookieOptions): void {
+export function defaultCookieSetter (
+  key: string, value: string, options: CookieOptions,
+): void {
   if (typeof document !== 'undefined' && document) {
     // Browser environment
-    const cookieParts = [`${key}=${encodeURIComponent(value)}`];
+    const cookieParts = [`${key}=${encodeURIComponent(value)}`]
 
     // Add optional cookie attributes
-    if (options.path) cookieParts.push(`Path=${options.path}`);
-    if (options.domain) cookieParts.push(`Domain=${options.domain}`);
-    if (options.maxAge !== undefined) cookieParts.push(`Max-Age=${options.maxAge}`);
-    if (options.secure) cookieParts.push('Secure');
+    if (options.path) cookieParts.push(`Path=${options.path}`)
+    if (options.domain) cookieParts.push(`Domain=${options.domain}`)
+    if (options.maxAge !== undefined) cookieParts.push(`Max-Age=${options.maxAge}`)
+    if (options.secure) cookieParts.push('Secure')
     // Note: HttpOnly cannot be set via JavaScript in browsers - it's a server-only flag
     // This option is ignored in browser context but kept for API consistency
-    if (options.sameSite) cookieParts.push(`SameSite=${options.sameSite}`);
+    if (options.sameSite) cookieParts.push(`SameSite=${options.sameSite}`)
 
-    document.cookie = cookieParts.join('; ');
+    document.cookie = cookieParts.join('; ')
   } else if (options.response) {
     // Server environment (Node.js/Edge runtime)
-    const cookieParts = [`${key}=${encodeURIComponent(value)}`];
+    const cookieParts = [`${key}=${encodeURIComponent(value)}`]
 
     // Add optional cookie attributes
-    if (options.path) cookieParts.push(`Path=${options.path}`);
-    if (options.domain) cookieParts.push(`Domain=${options.domain}`);
-    if (options.maxAge !== undefined) cookieParts.push(`Max-Age=${options.maxAge}`);
-    if (options.secure) cookieParts.push('Secure');
-    if (options.httpOnly) cookieParts.push('HttpOnly');
-    if (options.sameSite) cookieParts.push(`SameSite=${options.sameSite}`);
+    if (options.path) cookieParts.push(`Path=${options.path}`)
+    if (options.domain) cookieParts.push(`Domain=${options.domain}`)
+    if (options.maxAge !== undefined) cookieParts.push(`Max-Age=${options.maxAge}`)
+    if (options.secure) cookieParts.push('Secure')
+    if (options.httpOnly) cookieParts.push('HttpOnly')
+    if (options.sameSite) cookieParts.push(`SameSite=${options.sameSite}`)
 
-    const cookieValue = cookieParts.join('; ');
+    const cookieValue = cookieParts.join('; ')
 
     // Set the cookie header on the response
     // Each cookie needs its own Set-Cookie header
-    options.response.headers.append('Set-Cookie', cookieValue);
+    options.response.headers.append(
+      'Set-Cookie',
+      cookieValue,
+    )
   } else {
     // Neither browser nor server environment available
-    console.warn('Unable to set cookie: no document or response object available');
+    console.warn('Unable to set cookie: no document or response object available')
   }
 }
 
-export function getStorage(storageType?: StorageType): AuthStorage {
+export function getStorage (storageType?: StorageType): AuthStorage {
   switch (storageType) {
-    case 'sessionStorage':
-      return window.sessionStorage;
-    case 'localStorage':
-      return window.localStorage;
-    case 'cookieStorage':
-      return new CookieStorage();
-    default:
-      return window.localStorage;
+  case 'sessionStorage':
+    return window.sessionStorage
+  case 'localStorage':
+    return window.localStorage
+  case 'cookieStorage':
+    return new CookieStorage()
+  default:
+    return window.localStorage
   }
 }

@@ -2,7 +2,9 @@ import { StorageKey } from './enum.js'
 import {
   RefreshTokenStorage, AccessTokenStorage, IdTokenStorage,
 } from './clientInterface.js'
-import { AuthStorage, getStorage, StorageType } from './storage.js'
+import {
+  AuthStorage, getStorage, StorageType,
+} from './storage.js'
 
 /**
  * Checks for stored authentication tokens in the specified storage mechanism.
@@ -11,7 +13,7 @@ import { AuthStorage, getStorage, StorageType } from './storage.js'
  * @returns An object containing the stored refresh token and ID token (if any)
  */
 export const checkStorage = (storageType?: StorageType) => {
-  const storage: AuthStorage = getStorage(storageType);
+  const storage: AuthStorage = getStorage(storageType)
   const storedRefreshToken = storage.getItem(StorageKey.RefreshToken)
   const storedIdToken = storage.getItem(StorageKey.IdToken)
 
@@ -29,7 +31,7 @@ export const loadRefreshTokenStorageFromParams = (storageType?: 'sessionStorage'
       expiresOn: parseInt(params.refresh_token_expires_on),
       expiresIn: parseInt(params.refresh_token_expires_in),
     }
-    const storage: AuthStorage = getStorage(storageType);
+    const storage: AuthStorage = getStorage(storageType)
     storage.setItem(
       StorageKey.RefreshToken,
       JSON.stringify(refreshTokenStorage),
