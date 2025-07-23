@@ -13,7 +13,7 @@ export enum Scope {
   ReadApp = 'read_app',
   WriteApp = 'write_app',
   ReadRole = 'read_role',
-  WriteRole= 'write_role',
+  WriteRole = 'write_role',
   ReadScope = 'read_scope',
   WriteScope = 'write_scope',
   ReadOrg = 'read_org',
@@ -29,7 +29,17 @@ export enum SessionStorageKey {
   CodeVerifier = 'melody-auth-code-verifier',
 }
 
+/**
+ * Storage keys for authentication tokens.
+ */
 export enum StorageKey {
   RefreshToken = 'melody-auth-refresh-token',
   IdToken = 'melody-auth-id-token',
+  /**
+   * Access token storage key.
+   * Note: This should only be used with full-stack frameworks (e.g., Next.js)
+   * where you need to access the AccessToken through cookies from the request object.
+   * In typical browser scenarios, access tokens are kept in memory for security.
+   */
+  AccessToken = 'melody-auth-access-token',
 }
