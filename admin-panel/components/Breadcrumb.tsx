@@ -1,16 +1,12 @@
-import { useTranslations } from 'next-intl'
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from 'components/ui/breadcrumb'
-import { routeTool } from 'tools'
 import { useRouter } from 'i18n/navigation'
 import { SidebarTrigger } from 'components/ui/sidebar'
-import classNames from 'classnames'
 
 const ShadcnBreadcrumb = ({
   parent,
@@ -29,7 +25,9 @@ const ShadcnBreadcrumb = ({
   const router = useRouter()
   return (
     <section className='flex items-center gap-3 mb-8'>
-      <SidebarTrigger variant='outline' className='sm:hidden scale-100' />
+      <SidebarTrigger
+        variant='outline'
+        className='sm:hidden scale-100' />
       <Breadcrumb>
         <BreadcrumbList>
           {parent && (

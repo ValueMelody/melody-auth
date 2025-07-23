@@ -5,9 +5,7 @@ import {
   vi,
   beforeEach,
 } from 'vitest'
-import {
-  screen,
-} from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import Page from './page'
 import { configSignal } from 'signals'
 import { render } from 'vitest.setup'

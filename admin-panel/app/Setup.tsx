@@ -3,7 +3,6 @@
 import {
   PropsWithChildren, useEffect,
   useMemo,
-  useState,
 } from 'react'
 import {
   AuthProvider, useAuth,
@@ -19,9 +18,15 @@ import {
 import {
   Provider, useDispatch, useSelector,
 } from 'react-redux'
-import { useIsMobile } from '@/hooks/useIsMobile'
+import {
+  Building2, ChevronsUpDown, CircleUser, FileCode, Globe, IdCard, LayoutDashboard,
+  ScrollText, Shapes, Tags, UsersRound, Workflow,
+} from 'lucide-react'
 import useSignalValue from './useSignalValue'
-import { Link, usePathname as useI18nPathname } from 'i18n/navigation'
+import { useIsMobile } from '@/hooks/useIsMobile'
+import {
+  Link, usePathname as useI18nPathname,
+} from 'i18n/navigation'
 import { Alert } from 'components/ui/alert'
 import { Button } from 'components/ui/button'
 import { Spinner } from 'components/ui/spinner'
@@ -43,10 +48,9 @@ import {
   Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu,
   SidebarMenuButton, SidebarMenuItem, SidebarProvider,
 } from 'components/ui/sidebar'
-import { Building2, ChevronsUpDown, CircleUser, FileCode, Globe, IdCard, LayoutDashboard, ScrollText, Shapes, Tags, UsersRound, Workflow } from 'lucide-react'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
-  DropdownMenuSeparator, DropdownMenuTrigger
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from 'components/ui/dropdown-menu'
 
 const locale = typeof localStorage !== 'undefined' && localStorage.getItem('Locale')
@@ -196,11 +200,13 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
 
   return (
     <>
-      <Sidebar collapsible='icon' variant='floating'>
+      <Sidebar
+        collapsible='icon'
+        variant='floating'>
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <div className="flex items-center">
+              <div className='flex items-center mt-2'>
                 <img
                   src='https://valuemelody.com/logo.svg'
                   className='mr-3 h-6'

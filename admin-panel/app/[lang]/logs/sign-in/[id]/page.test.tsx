@@ -1,9 +1,7 @@
 import {
   describe, it, expect, vi, beforeEach,
 } from 'vitest'
-import {
-  screen,
-} from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import Page from 'app/[lang]/logs/sign-in/[id]/page'
 import { useGetApiV1LogsSignInByIdQuery } from 'services/auth/api'
 import { render } from 'vitest.setup'

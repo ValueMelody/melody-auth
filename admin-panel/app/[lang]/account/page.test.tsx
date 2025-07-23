@@ -5,13 +5,13 @@ import {
   screen, fireEvent,
 } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { render } from 'vitest.setup'
 
 // Import the modules to mock
 import { useAuth } from '@melody-auth/react'
 import {
   useTranslations, useLocale,
 } from 'next-intl'
+import { render } from 'vitest.setup'
 import Page from 'app/[lang]/account/page'
 import useSignalValue from 'app/useSignalValue'
 

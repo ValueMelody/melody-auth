@@ -119,9 +119,7 @@ const Page = () => {
   return (
     <section>
       <Breadcrumb
-        page={{
-          label: t('layout.dashboard'),
-        }}
+        page={{ label: t('layout.dashboard') }}
       />
       {links && (
         <>
