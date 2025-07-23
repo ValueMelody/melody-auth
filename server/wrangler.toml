@@ -27,12 +27,12 @@ NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
 ENABLE_EMAIL_VERIFICATION=true # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. If true, on user sign-up, the email verification email will be sent.
 REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL=false # If both ENABLE_EMAIL_VERIFICATION and REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL are true, on user sign-up, the welcome email will be sent instead of the email verification email.
-ENABLE_ORG=false
-ENABLE_USER_ATTRIBUTE=false
+ENABLE_ORG=true
+ENABLE_USER_ATTRIBUTE=true
 BLOCKED_POLICIES=[] # A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info), preventing end users from triggering them
 ENABLE_PASSWORDLESS_SIGN_IN=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. Setting this option to true will automatically override ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT, ENABLE_RECOVERY_CODE to false. Also, make sure to disable email MFA in order to use this feature.
 EMBEDDED_AUTH_ORIGINS=[] # List of origins that are allowed to use embedded auth APIs.
-ENABLE_SAML_SSO_AS_SP=false # Experimental feature, only support in Node.js environment
+ENABLE_SAML_SSO_AS_SP=true # Experimental feature, only support in Node.js environment
 
 # Auth
 AUTHORIZATION_CODE_EXPIRES_IN=300
@@ -72,9 +72,9 @@ SMS_MFA_MESSAGE_THRESHOLD=5 # Maximum number of SMS MFA message requests allowed
 
 # Log
 LOG_LEVEL="silent" # Set the log level to silent, info, warn, or error. If environment is set to dev, the log level always defaults to info, regardless of this value.
-ENABLE_EMAIL_LOG=false # Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
-ENABLE_SMS_LOG=false # Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler
-ENABLE_SIGN_IN_LOG=false # Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.
+ENABLE_EMAIL_LOG=true # Specify whether email should be logged. If enabled, ensure that you implement your own email log cleanup scheduler.
+ENABLE_SMS_LOG=true # Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler
+ENABLE_SIGN_IN_LOG=true # Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.
 
 [[kv_namespaces]]
 binding = "KV"

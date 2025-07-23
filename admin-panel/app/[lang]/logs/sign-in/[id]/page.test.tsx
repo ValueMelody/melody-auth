@@ -2,10 +2,11 @@ import {
   describe, it, expect, vi, beforeEach,
 } from 'vitest'
 import {
-  render, screen,
+  screen,
 } from '@testing-library/react'
 import Page from 'app/[lang]/logs/sign-in/[id]/page'
 import { useGetApiV1LogsSignInByIdQuery } from 'services/auth/api'
+import { render } from 'vitest.setup'
 
 // Mock the required hooks and modules
 vi.mock(

@@ -6,11 +6,11 @@ import {
   beforeEach,
 } from 'vitest'
 import {
-  render,
   screen,
 } from '@testing-library/react'
 import Page from 'app/[lang]/logs/sms/[id]/page'
 import { useGetApiV1LogsSmsByIdQuery } from 'services/auth/api'
+import { render } from 'vitest.setup'
 
 // Mock the required hooks and modules
 vi.mock(

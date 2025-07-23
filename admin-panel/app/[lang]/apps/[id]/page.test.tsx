@@ -318,7 +318,7 @@ describe(
         const { container } = render(<Page />)
 
         // Should render nothing
-        expect(container.firstChild).toBeNull()
+        expect(container.firstChild?.firstChild).toBeNull()
 
         // Verify none of the main elements are present
         expect(screen.queryByTestId('nameInput')).not.toBeInTheDocument()

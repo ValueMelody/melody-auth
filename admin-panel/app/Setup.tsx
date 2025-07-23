@@ -3,6 +3,7 @@
 import {
   PropsWithChildren, useEffect,
   useMemo,
+  useState,
 } from 'react'
 import {
   AuthProvider, useAuth,
@@ -18,12 +19,9 @@ import {
 import {
   Provider, useDispatch, useSelector,
 } from 'react-redux'
-import { twMerge } from 'tailwind-merge'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import useSignalValue from './useSignalValue'
-import { Link } from 'i18n/navigation'
-import {
-  NavigationMenu, NavigationMenuItem, navigationMenuTriggerStyle, NavigationMenuList,
-} from 'components/ui/navigation-menu'
+import { Link, usePathname as useI18nPathname } from 'i18n/navigation'
 import { Alert } from 'components/ui/alert'
 import { Button } from 'components/ui/button'
 import { Spinner } from 'components/ui/spinner'
@@ -41,6 +39,15 @@ import {
 } from 'stores'
 import { appSlice } from 'stores/app'
 import LoadingPage from 'components/LoadingPage'
+import {
+  Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu,
+  SidebarMenuButton, SidebarMenuItem, SidebarProvider,
+} from 'components/ui/sidebar'
+import { Building2, ChevronsUpDown, CircleUser, FileCode, Globe, IdCard, LayoutDashboard, ScrollText, Shapes, Tags, UsersRound, Workflow } from 'lucide-react'
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger
+} from 'components/ui/dropdown-menu'
 
 const locale = typeof localStorage !== 'undefined' && localStorage.getItem('Locale')
 
@@ -137,6 +144,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
   } = useAuth()
 
   const nextRouter = useRouter()
+  const pathname = useI18nPathname()
 
   const configs = useSignalValue(configSignal)
   const showLogs = (
@@ -157,6 +165,8 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
     accessTool.Access.ManageSamlSso,
     userInfo?.roles,
   )
+
+  const isMobile = useIsMobile()
 
   const supportedLocales = useMemo(
     () => {
@@ -186,158 +196,231 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
 
   return (
     <>
-      <NavigationMenu className='w-full max-h-20 min-h-20 max-md:min-h-40 max-md:max-h-40 py-4'>
-        <NavigationMenuList className='flex-wrap justify-start'>
-          <NavigationMenuItem>
-            <Link
-              href={routeTool.Internal.Dashboard}
-              className={twMerge(
-                navigationMenuTriggerStyle(),
-                'flex items-center',
-              )}
+      <Sidebar collapsible='icon' variant='floating'>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <div className="flex items-center">
+                <img
+                  src='https://valuemelody.com/logo.svg'
+                  className='mr-3 h-6'
+                />
+                <span className='self-center whitespace-nowrap text-medium font-semibold dark:text-white'>
+                  {t('layout.brand')}
+                </span>
+              </div>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent className='p-2 mt-4'>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === routeTool.Internal.Dashboard}
+              >
+                <Link
+                  href={routeTool.Internal.Dashboard}
+                >
+                  <LayoutDashboard />
+                  {t('layout.dashboard')}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {accessTool.isAllowedAccess(
+              accessTool.Access.ReadUser,
+              userInfo?.roles,
+            ) && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === routeTool.Internal.Users}
+                >
+                  <Link
+                    href={routeTool.Internal.Users}
+                  >
+                    <UsersRound />
+                    {t('layout.users')}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {showUserAttribute && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === routeTool.Internal.UserAttributes}
+                >
+                  <Link
+                    href={routeTool.Internal.UserAttributes}
+                  >
+                    <Tags />
+                    {t('layout.userAttributes')}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {accessTool.isAllowedAccess(
+              accessTool.Access.ReadRole,
+              userInfo?.roles,
+            ) && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === routeTool.Internal.Roles}
+                >
+                  <Link
+                    href={routeTool.Internal.Roles}
+                  >
+                    <IdCard />
+                    {t('layout.roles')}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {accessTool.isAllowedAccess(
+              accessTool.Access.ReadApp,
+              userInfo?.roles,
+            ) && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === routeTool.Internal.Apps}
+                >
+                  <Link
+                    href={routeTool.Internal.Apps}
+                  >
+                    <Workflow />
+                    {t('layout.apps')}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {accessTool.isAllowedAccess(
+              accessTool.Access.ReadScope,
+              userInfo?.roles,
+            ) && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === routeTool.Internal.Scopes}
+                >
+                  <Link
+                    href={routeTool.Internal.Scopes}
+                  >
+                    <Shapes />
+                    {t('layout.scopes')}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {!!showOrg && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === routeTool.Internal.Orgs}
+                >
+                  <Link
+                    href={routeTool.Internal.Orgs}
+                  >
+                    <Building2 />
+                    {t('layout.orgs')}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {!!showSamlSso && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === routeTool.Internal.Saml}
+                >
+                  <Link
+                    href={routeTool.Internal.Saml}
+                  >
+                    <FileCode />
+                    {t('layout.samlSso')}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {!!showLogs && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === routeTool.Internal.Logs}
+                >
+                  <Link
+                    href={routeTool.Internal.Logs}
+                  >
+                    <ScrollText />
+                    {t('layout.logs')}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuButton
+                size='lg'
+                data-testid='userInfoDropdown'
+                className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+              >
+                <div className='grid flex-1 text-left text-sm leading-tight'>
+                  {(userInfo?.firstName || userInfo?.lastName) && (
+                    <span className='truncate font-semibold'>{`${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`}</span>
+                  )}
+                  <span className='truncate text-xs'>{userInfo?.email}</span>
+                </div>
+                <ChevronsUpDown className='ml-auto size-4' />
+              </SidebarMenuButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className='w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg'
+              side={isMobile ? 'bottom' : 'right'}
+              align='end'
+              sideOffset={4}
             >
-              <img
-                src='https://valuemelody.com/logo.svg'
-                className='mr-3 h-6 sm:h-9'
-              />
-              <span className='self-center whitespace-nowrap text-medium font-semibold dark:text-white'>
-                {t('layout.brand')}
-              </span>
-            </Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link
-              href={routeTool.Internal.Dashboard}
-              className={navigationMenuTriggerStyle()}
-            >
-              {t('layout.dashboard')}
-            </Link>
-          </NavigationMenuItem>
-          {accessTool.isAllowedAccess(
-            accessTool.Access.ReadUser,
-            userInfo?.roles,
-          ) && (
-            <NavigationMenuItem>
-              <Link
-                href={routeTool.Internal.Users}
-                className={navigationMenuTriggerStyle()}
-              >
-                {t('layout.users')}
-              </Link>
-            </NavigationMenuItem>
-          )}
-          {showUserAttribute && (
-            <NavigationMenuItem>
-              <Link
-                href={routeTool.Internal.UserAttributes}
-                className={navigationMenuTriggerStyle()}
-              >
-                {t('layout.userAttributes')}
-              </Link>
-            </NavigationMenuItem>
-          )}
-          {accessTool.isAllowedAccess(
-            accessTool.Access.ReadRole,
-            userInfo?.roles,
-          ) && (
-            <NavigationMenuItem>
-              <Link
-                href={routeTool.Internal.Roles}
-                className={navigationMenuTriggerStyle()}
-              >
-                {t('layout.roles')}
-              </Link>
-            </NavigationMenuItem>
-          )}
-          {accessTool.isAllowedAccess(
-            accessTool.Access.ReadApp,
-            userInfo?.roles,
-          ) && (
-            <NavigationMenuItem>
-              <Link
-                href={routeTool.Internal.Apps}
-                className={navigationMenuTriggerStyle()}
-              >
-                {t('layout.apps')}
-              </Link>
-            </NavigationMenuItem>
-          )}
-          {accessTool.isAllowedAccess(
-            accessTool.Access.ReadScope,
-            userInfo?.roles,
-          ) && (
-            <NavigationMenuItem>
-              <Link
-                href={routeTool.Internal.Scopes}
-                className={navigationMenuTriggerStyle()}
-              >
-                {t('layout.scopes')}
-              </Link>
-            </NavigationMenuItem>
-          )}
-          {!!showOrg && (
-            <NavigationMenuItem>
-              <Link
-                href={routeTool.Internal.Orgs}
-                className={navigationMenuTriggerStyle()}
-              >
-                {t('layout.orgs')}
-              </Link>
-            </NavigationMenuItem>
-          )}
-          {!!showLogs && (
-            <NavigationMenuItem>
-              <Link
-                href={routeTool.Internal.Logs}
-                className={navigationMenuTriggerStyle()}
-              >
-                {t('layout.logs')}
-              </Link>
-            </NavigationMenuItem>
-          )}
-          {showSamlSso && (
-            <NavigationMenuItem>
-              <Link
-                href={routeTool.Internal.Saml}
-                className={navigationMenuTriggerStyle()}
-              >
-                {t('layout.samlSso')}
-              </Link>
-            </NavigationMenuItem>
-          )}
-          <NavigationMenuItem>
-            <Link
-              href={routeTool.Internal.Account}
-              className={navigationMenuTriggerStyle()}
-            >
-              {t('layout.account')}
-            </Link>
-          </NavigationMenuItem>
-          {supportedLocales.includes(otherLocale) && (
-            <NavigationMenuItem>
-              <NextLink
-                href={`/${otherLocale}${routeTool.Internal.Dashboard}`}
-                className={navigationMenuTriggerStyle()}
-              >
-                {otherLocale.toUpperCase()}
-              </NextLink>
-            </NavigationMenuItem>
-          )}
-          <NavigationMenuItem>
-            <Button
-              variant='link'
-              onClick={handleLogout}
-              className='flex items-center gap-2'
-            >
-              <ArrowRightEndOnRectangleIcon className='w-6 h-6' /> {t('layout.logout')}
-            </Button>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={routeTool.Internal.Account}
+                  >
+                    <CircleUser />
+                    {t('layout.account')}
+                  </Link>
+                </DropdownMenuItem>
+                {supportedLocales.includes(otherLocale) && (
+                  <DropdownMenuItem asChild>
+                    <NextLink
+                      href={`/${otherLocale}${routeTool.Internal.Dashboard}`}
+                    >
+                      <Globe />
+                      {otherLocale.toUpperCase()}
+                    </NextLink>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <a
+                  onClick={handleLogout}
+                  className='flex items-center gap-2 cursor-pointer'
+                >
+                  <ArrowRightEndOnRectangleIcon className='w-4 h-4' /> {t('layout.logout')}
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarFooter>
+      </Sidebar>
       {
         configs
           ? (
-            <section className='p-6'>
+            <section className='w-full p-6'>
               {children}
             </section>
           )
@@ -376,9 +459,11 @@ const Setup = ({ children } : PropsWithChildren) => {
         }}
       >
         <AuthSetup>
-          <LayoutSetup>
-            {children}
-          </LayoutSetup>
+          <SidebarProvider>
+            <LayoutSetup>
+              {children}
+            </LayoutSetup>
+          </SidebarProvider>
         </AuthSetup>
       </AuthProvider>
     </Provider>

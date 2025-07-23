@@ -155,7 +155,7 @@ describe(
         const { container } = render(<Page />)
 
         // Verify component renders nothing
-        expect(container.firstChild).toBeNull()
+        expect(container.firstChild?.firstChild).toBeNull()
       },
     )
 

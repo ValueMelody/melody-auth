@@ -50,7 +50,6 @@ const Page = () => {
   return (
     <section>
       <Breadcrumb
-        className='mb-8'
         page={{ label: t('saml.new') }}
         parent={{
           label: t('saml.title'),

@@ -2,9 +2,10 @@ import {
   describe, it, expect, beforeEach, vi,
 } from 'vitest'
 import {
-  render, screen, fireEvent,
+  screen, fireEvent,
 } from '@testing-library/react'
 import '@testing-library/jest-dom'
+import { render } from 'vitest.setup'
 
 // Import the modules to mock
 import { useAuth } from '@melody-auth/react'

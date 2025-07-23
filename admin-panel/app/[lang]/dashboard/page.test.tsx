@@ -6,11 +6,11 @@ import {
   beforeEach,
 } from 'vitest'
 import {
-  render,
   screen,
 } from '@testing-library/react'
 import Page from './page'
 import { configSignal } from 'signals'
+import { render } from 'vitest.setup'
 
 // Mock the required modules
 vi.mock(

@@ -9,11 +9,13 @@ import {
 } from 'components/ui/breadcrumb'
 import { routeTool } from 'tools'
 import { useRouter } from 'i18n/navigation'
+import { SidebarTrigger } from 'components/ui/sidebar'
+import classNames from 'classnames'
 
 const ShadcnBreadcrumb = ({
   parent,
   page,
-  className,
+  action,
 }: {
   parent?: {
     label: string;
@@ -22,43 +24,40 @@ const ShadcnBreadcrumb = ({
   page?: {
     label: string;
   };
-  className?: string;
+  action?: React.ReactNode;
 }) => {
-  const t = useTranslations()
   const router = useRouter()
   return (
-    <Breadcrumb className={className}>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink
-            className='cursor-pointer'
-            onClick={() => {
-              router.push(routeTool.Internal.Dashboard)
-            }}>{t('layout.dashboard')}</BreadcrumbLink>
-        </BreadcrumbItem>
+    <section className='flex items-center gap-3 mb-8'>
+      <SidebarTrigger variant='outline' className='sm:hidden scale-100' />
+      <Breadcrumb>
+        <BreadcrumbList>
+          {parent && (
+            <>
+              <BreadcrumbItem className='cursor-pointer'>
+                <BreadcrumbLink
+                  onClick={() => {
+                    router.push(parent.href)
+                  }}
+                >
+                  {parent.label}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+            </>
+          )}
 
-        {parent && (
-          <>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem className='cursor-pointer'>
-              <BreadcrumbLink
-                onClick={() => {
-                  router.push(parent.href)
-                }}>{parent.label}</BreadcrumbLink>
-            </BreadcrumbItem>
-          </>
-        )}
-
-        {page && (
-          <>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{page.label}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </>
-        )}
-      </BreadcrumbList>
-    </Breadcrumb>
+          {page && (
+            <>
+              <h1 className='text-2xl font-bold tracking-tight leading-none'>
+                {page.label}
+              </h1>
+            </>
+          )}
+        </BreadcrumbList>
+      </Breadcrumb>
+      {action}
+    </section>
   )
 }
 

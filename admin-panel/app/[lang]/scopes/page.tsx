@@ -36,16 +36,14 @@ const Page = () => {
 
   return (
     <section>
-      <div className='mb-8 flex items-center gap-8'>
-        <Breadcrumb
-          page={{ label: t('scopes.title') }}
-        />
-        {canWriteScope && (
+      <Breadcrumb
+        page={{ label: t('scopes.title') }}
+        action={canWriteScope && (
           <CreateButton
             href={`${routeTool.Internal.Scopes}/new`}
           />
         )}
-      </div>
+      />
       <Table>
         <TableHeader className='md:hidden'>
           <TableRow>
