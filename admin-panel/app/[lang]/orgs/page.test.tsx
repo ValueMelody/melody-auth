@@ -1,11 +1,10 @@
 import {
   describe, it, expect, vi, beforeEach,
 } from 'vitest'
-import {
-  render, screen,
-} from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import Page from 'app/[lang]/orgs/page'
 import { useGetApiV1OrgsQuery } from 'services/auth/api'
+import { render } from 'vitest.setup'
 
 vi.mock(
   'services/auth/api',

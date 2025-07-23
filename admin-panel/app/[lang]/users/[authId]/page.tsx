@@ -459,12 +459,11 @@ const Page = () => {
   return (
     <section>
       <Breadcrumb
-        page={{ label: t('users.user') }}
+        page={{ label: user.email || user.authId }}
         parent={{
           label: t('users.title'),
           href: routeTool.Internal.Users,
         }}
-        className='mb-8'
       />
       <section>
         <Table>

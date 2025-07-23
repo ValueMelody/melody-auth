@@ -47,16 +47,14 @@ const Page = () => {
 
   return (
     <section>
-      <div className='mb-8 flex items-center gap-8'>
-        <Breadcrumb
-          page={{ label: t('orgs.title') }}
-        />
-        {canWriteOrg && (
+      <Breadcrumb
+        page={{ label: t('orgs.title') }}
+        action={canWriteOrg && (
           <CreateButton
             href={`${routeTool.Internal.Orgs}/new`}
           />
         )}
-      </div>
+      />
       <Table>
         <TableHeader className='md:hidden'>
           <TableRow>

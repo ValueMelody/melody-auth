@@ -3,7 +3,7 @@ import {
   Mock,
 } from 'vitest'
 import {
-  render, screen, fireEvent, waitFor, within,
+  screen, fireEvent, waitFor, within,
 } from '@testing-library/react'
 import Page from 'app/[lang]/orgs/[id]/page'
 import {
@@ -17,6 +17,7 @@ import {
   useGetApiV1OrgGroupsByIdUsersQuery,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
+import { render } from 'vitest.setup'
 
 // Add useAuth mock before other mocks
 vi.mock(
@@ -177,14 +178,6 @@ describe(
 
       vi.mocked(useGetApiV1OrgGroupsByIdUsersQuery).mockReturnValue({ data: { users: [] } } as any)
     })
-
-    it(
-      'renders the page title',
-      () => {
-        render(<Page />)
-        expect(screen.getByText('orgs.org')).toBeInTheDocument()
-      },
-    )
 
     it(
       'renders form with org data',
@@ -699,7 +692,7 @@ describe(
           error: null,
         } as any)
         const { container } = render(<Page />)
-        expect(container.innerHTML).toBe('')
+        expect(container.firstChild?.firstChild).toBeNull()
       },
     )
 

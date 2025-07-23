@@ -182,7 +182,7 @@ describe(
 
     it(
       'handles logout click',
-      () => {
+      async () => {
         configSignal.value = {} as any
         vi.mocked(useAuth).mockReturnValue({
           isAuthenticating: false,
@@ -204,7 +204,12 @@ describe(
           locale='en'
           messages={{}}><Setup>Test</Setup></NextIntlClientProvider>)
 
-        const logoutButton = screen.getByText('layout.logout')
+        // First, click on the dropdown trigger to open the menu
+        const dropdownTrigger = screen.getByTestId('userInfoDropdown')
+        fireEvent.pointerDown(dropdownTrigger)
+
+        // Wait for the logout menu item to appear and then click it
+        const logoutButton = await screen.findByText('layout.logout')
         fireEvent.click(logoutButton)
 
         expect(mockLogoutRedirect).toHaveBeenCalledWith({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })

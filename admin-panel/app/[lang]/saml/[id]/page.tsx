@@ -67,8 +67,7 @@ const Page = () => {
   return (
     <section>
       <Breadcrumb
-        className='mb-8'
-        page={{ label: t('saml.idp') }}
+        page={{ label: idp.name }}
         parent={{
           href: routeTool.Internal.Saml,
           label: t('saml.title'),
