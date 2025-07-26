@@ -20,7 +20,8 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "test": "vitest"
+    "test": "vitest",
+    "type:check": "tsc --noEmit"
   },
   "dependencies": {
     "@melody-auth/react": "^1.0.10",
@@ -53,7 +54,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/melodyauth/melodyauth.git"
+    "url": "https://github.com/ValueMelody/melody-auth.git"
   },
   "keywords": [
     "melody",
@@ -66,6 +67,5 @@
     "ssr",
     "server-side"
   ],
-  "author": "Melody Auth",
   "license": "MIT"
 }
