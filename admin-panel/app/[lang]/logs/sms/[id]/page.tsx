@@ -30,7 +30,6 @@ const Page = () => {
           href: routeTool.Internal.Logs,
           label: t('logs.title'),
         }}
-        className='mb-8'
         page={{ label: t('logs.smsLog') }}
       />
       <section>

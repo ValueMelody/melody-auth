@@ -119,7 +119,7 @@ const Page = () => {
   return (
     <section>
       <Breadcrumb
-        className='mb-8'
+        page={{ label: t('layout.dashboard') }}
       />
       {links && (
         <>

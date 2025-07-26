@@ -113,7 +113,10 @@ const PostMfaEnrollmentReq = {
 
 const MfaCodeReq = {
   type: 'object',
-  properties: { mfaCode: { type: 'string' } },
+  properties: {
+    mfaCode: { type: 'string' },
+    rememberDevice: { type: 'boolean' },
+  },
   required: ['mfaCode'],
 }
 

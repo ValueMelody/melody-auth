@@ -174,7 +174,7 @@ const Page = () => {
   if (isEmailLoading || isSmsLoading || isSignInLoading) return <LoadingPage />
 
   return (
-    <section className='flex flex-col gap-8'>
+    <section className='flex flex-col'>
       <CleanAlert
         show={!!cleanTarget}
         onCancel={() => setCleanTarget('')}
@@ -184,7 +184,7 @@ const Page = () => {
         page={{ label: t('logs.title') }}
       />
       {configs.ENABLE_EMAIL_LOG && (
-        <section className='flex flex-col'>
+        <section className='flex flex-col mt-8'>
           <header className='flex gap-8 items-center mb-6'>
             <PageTitle
               title={t('logs.emailLogs')}
@@ -239,7 +239,7 @@ const Page = () => {
         </section>
       )}
       {configs.ENABLE_SMS_LOG && (
-        <section className='flex flex-col'>
+        <section className='flex flex-col mt-8'>
           <header className='flex gap-8 items-center mb-6'>
             <PageTitle
               title={t('logs.smsLogs')}
@@ -294,7 +294,7 @@ const Page = () => {
         </section>
       )}
       {configs.ENABLE_SIGN_IN_LOG && (
-        <section className='flex flex-col'>
+        <section className='flex flex-col mt-8'>
           <header className='flex gap-8 items-center mb-6'>
             <PageTitle
               title={t('logs.signInLogs')}

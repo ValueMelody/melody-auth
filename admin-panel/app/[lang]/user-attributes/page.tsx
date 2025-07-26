@@ -34,16 +34,14 @@ const Page = () => {
 
   return (
     <section>
-      <div className='mb-8 flex items-center gap-8'>
-        <Breadcrumb
-          page={{ label: t('userAttributes.title') }}
-        />
-        {canWriteUserAttribute && (
+      <Breadcrumb
+        page={{ label: t('userAttributes.title') }}
+        action={canWriteUserAttribute && (
           <CreateButton
             href={`${routeTool.Internal.UserAttributes}/new`}
           />
         )}
-      </div>
+      />
       <Table>
         <TableHeader className='md:hidden'>
           <TableRow>

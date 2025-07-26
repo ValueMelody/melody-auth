@@ -86,8 +86,7 @@ const Page = () => {
   return (
     <section>
       <Breadcrumb
-        className='mb-8'
-        page={{ label: t('roles.role') }}
+        page={{ label: role.name }}
         parent={{
           href: routeTool.Internal.Roles,
           label: t('roles.title'),

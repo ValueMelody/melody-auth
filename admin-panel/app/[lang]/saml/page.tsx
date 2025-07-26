@@ -44,16 +44,14 @@ const Page = () => {
 
   return (
     <section>
-      <div className='mb-8 flex items-center gap-8'>
-        <Breadcrumb
-          page={{ label: t('saml.title') }}
-        />
-        {canWriteRole && (
+      <Breadcrumb
+        page={{ label: t('saml.title') }}
+        action={canWriteRole && (
           <CreateButton
             href={`${routeTool.Internal.Saml}/new`}
           />
         )}
-      </div>
+      />
       <Table>
         <TableHeader className='md:hidden'>
           <TableRow>

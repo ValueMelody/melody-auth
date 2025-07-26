@@ -6,12 +6,12 @@ import {
   beforeEach,
 } from 'vitest'
 import {
-  render,
   screen,
   fireEvent,
 } from '@testing-library/react'
 import Page from 'app/[lang]/orgs/new/page'
 import { usePostApiV1OrgsMutation } from 'services/auth/api'
+import { render } from 'vitest.setup'
 
 // Mock the required hooks and modules
 vi.mock(

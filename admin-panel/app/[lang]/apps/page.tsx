@@ -35,16 +35,14 @@ const Page = () => {
 
   return (
     <section>
-      <div className='mb-8 flex items-center gap-8'>
-        <Breadcrumb
-          page={{ label: t('apps.title') }}
-        />
-        {canWriteApp && (
+      <Breadcrumb
+        page={{ label: t('apps.title') }}
+        action={canWriteApp && (
           <CreateButton
             href={`${routeTool.Internal.Apps}/new`}
           />
         )}
-      </div>
+      />
       <Table className='break-all'>
         <TableHeader className='md:hidden'>
           <TableRow>

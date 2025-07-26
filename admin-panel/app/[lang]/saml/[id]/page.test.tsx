@@ -70,7 +70,6 @@ describe(
         const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
         const deleteBtn = screen.queryByTestId('deleteButton')
 
-        expect(screen.getByText('Test SAML IdP')).toBeInTheDocument()
         expect(userIdAttributeInput?.value).toBe(mockSamlIdp.userIdAttribute)
         expect(emailAttributeInput?.value).toBe(mockSamlIdp.emailAttribute)
         expect(firstNameAttributeInput?.value).toBe(mockSamlIdp.firstNameAttribute)

@@ -1,6 +1,9 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { genRandomString } from '@melody-auth/shared'
+import { setCookie } from 'hono/cookie'
 import {
+  adapterConfig,
   errorConfig, messageConfig, typeConfig, variableConfig,
 } from 'configs'
 import {
@@ -571,4 +574,106 @@ export const processMfaEnrollment = async (
   )
 
   return user
+}
+
+export const rememberEmailMfaDevice = async (
+  c: Context<typeConfig.Context>,
+  rememberDevice: boolean,
+  userId: number,
+) => {
+  const { ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice } = env(c)
+
+  if (rememberDevice && enableMfaRememberDevice) {
+    const deviceId = genRandomString(24)
+    const cookieValue = genRandomString(128)
+
+    const cookieKey = adapterConfig.getEmailMfaRememberDeviceCookieKey(userId)
+    setCookie(
+      c,
+      cookieKey,
+      `${deviceId}-${cookieValue}`,
+      {
+        httpOnly: true,
+        secure: true,
+        path: '/',
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        sameSite: 'strict',
+      },
+    )
+
+    await kvService.storeEmailMfaRememberDevice(
+      c.env.KV,
+      userId,
+      deviceId,
+      cookieValue,
+    )
+  }
+}
+
+export const rememberSmsMfaDevice = async (
+  c: Context<typeConfig.Context>,
+  rememberDevice: boolean,
+  userId: number,
+) => {
+  const { ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice } = env(c)
+
+  if (rememberDevice && enableMfaRememberDevice) {
+    const deviceId = genRandomString(24)
+    const cookieValue = genRandomString(128)
+
+    const cookieKey = adapterConfig.getSmsMfaRememberDeviceCookieKey(userId)
+    setCookie(
+      c,
+      cookieKey,
+      `${deviceId}-${cookieValue}`,
+      {
+        httpOnly: true,
+        secure: true,
+        path: '/',
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        sameSite: 'strict',
+      },
+    )
+
+    await kvService.storeSmsMfaRememberDevice(
+      c.env.KV,
+      userId,
+      deviceId,
+      cookieValue,
+    )
+  }
+}
+
+export const rememberOtpMfaDevice = async (
+  c: Context<typeConfig.Context>,
+  rememberDevice: boolean,
+  userId: number,
+) => {
+  const { ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice } = env(c)
+
+  if (rememberDevice && enableMfaRememberDevice) {
+    const deviceId = genRandomString(24)
+    const cookieValue = genRandomString(128)
+
+    const cookieKey = adapterConfig.getOtpMfaRememberDeviceCookieKey(userId)
+    setCookie(
+      c,
+      cookieKey,
+      `${deviceId}-${cookieValue}`,
+      {
+        httpOnly: true,
+        secure: true,
+        path: '/',
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        sameSite: 'strict',
+      },
+    )
+
+    await kvService.storeOtpMfaRememberDevice(
+      c.env.KV,
+      userId,
+      deviceId,
+      cookieValue,
+    )
+  }
 }

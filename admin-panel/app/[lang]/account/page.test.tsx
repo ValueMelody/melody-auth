@@ -2,7 +2,7 @@ import {
   describe, it, expect, beforeEach, vi,
 } from 'vitest'
 import {
-  render, screen, fireEvent,
+  screen, fireEvent,
 } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
@@ -11,6 +11,7 @@ import { useAuth } from '@melody-auth/react'
 import {
   useTranslations, useLocale,
 } from 'next-intl'
+import { render } from 'vitest.setup'
 import Page from 'app/[lang]/account/page'
 import useSignalValue from 'app/useSignalValue'
 

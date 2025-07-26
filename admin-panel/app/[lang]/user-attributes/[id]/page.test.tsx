@@ -429,7 +429,7 @@ describe(
         })
 
         const { container } = render(<Page />)
-        expect(container.firstChild).toBeNull()
+        expect(container.firstChild?.firstChild).toBeNull()
       },
     )
   },

@@ -8,7 +8,7 @@ const Page = () => {
   const t = useTranslations()
 
   return (
-    <section className='flex flex-col gap-8'>
+    <section className='flex flex-col'>
       <Breadcrumb
         page={{ label: t('users.title') }}
       />

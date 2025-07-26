@@ -122,8 +122,7 @@ const Page = () => {
   return (
     <section>
       <Breadcrumb
-        className='mb-8'
-        page={{ label: t('scopes.scope') }}
+        page={{ label: scope.name }}
         parent={{
           href: routeTool.Internal.Scopes,
           label: t('scopes.title'),
