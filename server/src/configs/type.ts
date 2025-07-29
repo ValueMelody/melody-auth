@@ -89,6 +89,7 @@ export type Bindings = {
   OIDC_AUTH_PROVIDERS: string[] | undefined;
   EMBEDDED_AUTH_ORIGINS: string[];
   ENABLE_SAML_SP: boolean;
+  ENABLE_APP_BANNER: boolean;
 };
 
 export type Context = {

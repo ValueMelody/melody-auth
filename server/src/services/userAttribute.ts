@@ -50,7 +50,7 @@ export const createUserAttribute = async (
       acc[locale.locale] = locale.value
       return acc
     },
-{} as Record<string, string>,
+    {} as Record<string, string>,
   )
   const userAttribute = await userAttributeModel.create(
     c.env.DB,

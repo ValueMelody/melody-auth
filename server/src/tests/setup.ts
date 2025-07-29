@@ -50,6 +50,14 @@ vi.mock(
         implementation: () => Math.random,
       })
       db.public.registerFunction({
+        name: 'group_concat',
+        args: [pgMem.DataType.integer],
+        returns: pgMem.DataType.text,
+        implementation: (ids: number[]) => {
+          return ids.join(',')
+        },
+      })
+      db.public.registerFunction({
         name: 'md5',
         args: [pgMem.DataType.text],
         returns: pgMem.DataType.text,

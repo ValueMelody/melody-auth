@@ -4,6 +4,7 @@ export enum InternalRoute {
   ApiUsers = '/api/v1/users',
   ApiUserAttributes = '/api/v1/user-attributes',
   ApiApps = '/api/v1/apps',
+  ApiAppBanners = '/api/v1/app-banners',
   ApiRoles = '/api/v1/roles',
   ApiScopes = '/api/v1/scopes',
   ApiOrgs = '/api/v1/orgs',

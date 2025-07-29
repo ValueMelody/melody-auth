@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsNotEmpty, IsOptional, IsString, Length,
@@ -89,5 +90,55 @@ export class PutAppDto {
     this.requireOtpMfa = dto.requireOtpMfa
     this.requireSmsMfa = dto.requireSmsMfa
     this.allowEmailMfaAsBackup = dto.allowEmailMfaAsBackup
+  }
+}
+
+export interface BannerLocale {
+  locale: string;
+  value: string;
+}
+
+export class PostAppBannerDto {
+  @IsString()
+  @IsNotEmpty()
+    type: string
+
+  @IsString()
+  @IsOptional()
+    text?: string
+
+  @IsArray()
+  @IsOptional()
+    locales?: BannerLocale[]
+
+  constructor (dto: PostAppBannerDto) {
+    this.type = dto.type
+    this.text = dto.text
+    this.locales = dto.locales
+  }
+}
+
+export class PutAppBannerDto {
+  @IsString()
+  @IsOptional()
+    type?: string
+
+  @IsString()
+  @IsOptional()
+    text?: string
+
+  @IsArray()
+  @IsOptional()
+    locales?: BannerLocale[]
+
+  @IsBoolean()
+  @IsOptional()
+    isActive?: boolean
+
+  constructor (dto: PutAppBannerDto) {
+    this.type = dto.type
+    this.text = dto.text
+    this.locales = dto.locales
+    this.isActive = dto.isActive
   }
 }

@@ -1,5 +1,7 @@
 export enum TableName {
   App = 'app',
+  Banner = 'banner',
+  AppBanner = 'app_banner',
   User = 'user',
   UserAttribute = 'user_attribute',
   UserAttributeValue = 'user_attribute_value',
