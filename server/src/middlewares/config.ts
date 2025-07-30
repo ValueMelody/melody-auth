@@ -161,6 +161,23 @@ export const enableOrgGroup = async (
   await next()
 }
 
+export const enableAppBanner = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ENABLE_APP_BANNER: enabledAppBanner } = env(c)
+
+  if (!enabledAppBanner) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.AppBannerNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.AppBannerNotEnabled)
+  }
+
+  await next()
+}
+
 export const enableSamlAsSp = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

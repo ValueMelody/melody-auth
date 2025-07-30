@@ -1,4 +1,6 @@
 export * as appModel from 'models/app'
+export * as appBannerModel from 'models/appBanner'
+export * as bannerModel from 'models/banner'
 export * as userModel from 'models/user'
 export * as userAttributeModel from 'models/userAttribute'
 export * as userAttributeValueModel from 'models/userAttributeValue'
