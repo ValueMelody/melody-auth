@@ -4,7 +4,10 @@ exports.up = function (knex) {
       'banner',
       function (table) {
         table.increments('id').primary()
-        table.string('type', 10)
+        table.string(
+          'type',
+          10,
+        )
           .notNullable()
         table.string('text')
         table.text('locales')
@@ -47,8 +50,10 @@ exports.up = function (knex) {
           'deletedAt',
           19,
         ).defaultTo(null)
-        table.foreign('bannerId').references('id').inTable('banner')
-        table.foreign('appId').references('id').inTable('app')
+        table.foreign('bannerId').references('id')
+          .inTable('banner')
+        table.foreign('appId').references('id')
+          .inTable('app')
       },
     )
 }

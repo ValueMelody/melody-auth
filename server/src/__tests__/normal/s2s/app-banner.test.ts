@@ -759,6 +759,64 @@ describe(
           },
         })
 
+        const res5 = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ appIds: [1] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json5 = await res5.json()
+
+        expect(json5).toStrictEqual({
+          appBanner: {
+            id: 1,
+            type: 'error',
+            text: 'This is a error banner 2',
+            locales: [{
+              locale: 'en', value: 'This is an error banner 1 en',
+            }, {
+              locale: 'fr', value: 'This is an error banner 1 fr',
+            }],
+            appIds: [1],
+            isActive: true,
+            createdAt: dbTime,
+            updatedAt: dbTime,
+            deletedAt: null,
+          },
+        })
+
+        const res6 = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ appIds: [2] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json6 = await res6.json()
+
+        expect(json6).toStrictEqual({
+          appBanner: {
+            id: 1,
+            type: 'error',
+            text: 'This is a error banner 2',
+            locales: [{
+              locale: 'en', value: 'This is an error banner 1 en',
+            }, {
+              locale: 'fr', value: 'This is an error banner 1 fr',
+            }],
+            appIds: [2],
+            isActive: true,
+            createdAt: dbTime,
+            updatedAt: dbTime,
+            deletedAt: null,
+          },
+        })
+
         process.env.ENABLE_APP_BANNER = false as unknown as string
       },
     )

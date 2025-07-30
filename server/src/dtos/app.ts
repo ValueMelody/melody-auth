@@ -131,6 +131,10 @@ export class PutAppBannerDto {
   @IsOptional()
     locales?: BannerLocale[]
 
+  @IsArray()
+  @IsOptional()
+    appIds?: number[]
+
   @IsBoolean()
   @IsOptional()
     isActive?: boolean
@@ -140,5 +144,6 @@ export class PutAppBannerDto {
     this.text = dto.text
     this.locales = dto.locales
     this.isActive = dto.isActive
+    this.appIds = dto.appIds
   }
 }

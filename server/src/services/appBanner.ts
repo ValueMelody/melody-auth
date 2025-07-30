@@ -2,26 +2,37 @@ import { Context } from 'hono'
 import {
   typeConfig, messageConfig, errorConfig,
 } from 'configs'
-import { bannerModel } from 'models'
+import {
+  bannerModel, appBannerModel,
+} from 'models'
 import { appDto } from 'dtos'
 import { loggerUtil } from 'utils'
 
-export const getAppBanners = async (c: Context<typeConfig.Context>): Promise<bannerModel.Record[]> => {
-  const appBanners = await bannerModel.getAll(c.env.DB)
+export const getAppBanners = async (c: Context<typeConfig.Context>): Promise<bannerModel.ApiRecord[]> => {
+  const banners = await bannerModel.getAll(c.env.DB)
+  const appBanners = await appBannerModel.getAll(c.env.DB)
 
-  return appBanners
+  const results: bannerModel.ApiRecord[] = banners.map((banner) => {
+    const contained = appBanners.filter((appBanner) => appBanner.bannerId === banner.id)
+    return {
+      ...banner,
+      appIds: contained.map((appBanner) => appBanner.appId),
+    }
+  })
+
+  return results
 }
 
 export const getAppBannerById = async (
   c: Context<typeConfig.Context>,
   id: number,
-): Promise<bannerModel.Record> => {
-  const appBanner = await bannerModel.getById(
+): Promise<bannerModel.ApiRecord> => {
+  const banner = await bannerModel.getById(
     c.env.DB,
     id,
   )
 
-  if (!appBanner) {
+  if (!banner) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -29,13 +40,22 @@ export const getAppBannerById = async (
     )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoAppBanner)
   }
-  return appBanner
+
+  const appBanners = await appBannerModel.getAllByBannerId(
+    c.env.DB,
+    id,
+  )
+
+  return {
+    ...banner,
+    appIds: appBanners.map((appBanner) => appBanner.appId),
+  }
 }
 
 export const createAppBanner = async (
   c: Context<typeConfig.Context>,
   dto: appDto.PostAppBannerDto,
-): Promise<bannerModel.Record> => {
+): Promise<bannerModel.ApiRecord> => {
   const locales = dto.locales?.reduce(
     (
       acc, locale,
@@ -54,14 +74,17 @@ export const createAppBanner = async (
     },
   )
 
-  return appBanner
+  return {
+    ...appBanner,
+    appIds: [],
+  }
 }
 
 export const updateAppBanner = async (
   c: Context<typeConfig.Context>,
   id: number,
   dto: appDto.PutAppBannerDto,
-): Promise<bannerModel.Record> => {
+): Promise<bannerModel.ApiRecord> => {
   const locales = dto.locales?.reduce(
     (
       acc, locale,
@@ -82,13 +105,56 @@ export const updateAppBanner = async (
       isActive: dto.isActive === undefined ? undefined : (dto.isActive ? 1 : 0),
     },
   )
-  return appBanner
+
+  const appBanners = await appBannerModel.getAllByBannerId(
+    c.env.DB,
+    id,
+  )
+
+  if (!dto.appIds) {
+    return {
+      ...appBanner,
+      appIds: appBanners.map((appBanner) => appBanner.appId),
+    }
+  }
+
+  const recordsToDelete = appBanners.filter((appBanner) => !dto.appIds?.includes(appBanner.appId))
+  const appIdsToCreate = dto.appIds?.filter((appId) => !appBanners.some((appBanner) => appBanner.appId === appId))
+
+  if (recordsToDelete.length > 0) {
+    for (const record of recordsToDelete) {
+      await appBannerModel.removeByBannerId(
+        c.env.DB,
+        record.id,
+      )
+    }
+  }
+
+  if (appIdsToCreate?.length > 0) {
+    for (const appId of appIdsToCreate) {
+      await appBannerModel.create(
+        c.env.DB,
+        {
+          bannerId: id, appId,
+        },
+      )
+    }
+  }
+
+  return {
+    ...appBanner,
+    appIds: dto.appIds,
+  }
 }
 
 export const deleteAppBannerById = async (
   c: Context<typeConfig.Context>,
   id: number,
 ): Promise<void> => {
+  await appBannerModel.removeByBannerId(
+    c.env.DB,
+    id,
+  )
   await bannerModel.remove(
     c.env.DB,
     id,

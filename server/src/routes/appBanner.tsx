@@ -11,7 +11,6 @@ const BaseRoute = routeConfig.InternalRoute.ApiAppBanners
 const appBannerRoutes = new Hono<typeConfig.Context>()
 export default appBannerRoutes
 
-
 /**
  * @swagger
  * /api/v1/app-banners:
@@ -137,7 +136,6 @@ appBannerRoutes.put(
   authMiddleware.s2sWriteApp,
   appBannerHandler.putAppBanner,
 )
-
 
 /**
  * @swagger

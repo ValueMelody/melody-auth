@@ -14,7 +14,6 @@ export interface Common {
 
 export interface Raw extends Common {
   locales: string;
-  appIds: string;
   isActive: number;
 }
 
@@ -23,8 +22,11 @@ export interface Record extends Common {
     locale: string;
     value: string;
   }[];
-  appIds: number[];
   isActive: boolean;
+}
+
+export interface ApiRecord extends Record {
+  appIds: number[];
 }
 
 export interface Create {
@@ -50,29 +52,17 @@ export const format = (raw: Raw): Record => {
     locale,
     value: localeJson[locale],
   }))
-  console.log(raw)
-  const appIds = raw.appIds ? raw.appIds.split(',').map(Number) : []
+
   return {
     ...raw,
     locales,
-    appIds,
     isActive: !!raw.isActive,
   }
 }
 
 export const getAll = async (db: D1Database): Promise<Record[]> => {
-  const query = `
-    SELECT ${TableName}.id, ${TableName}.type, ${TableName}.text, ${TableName}.locales, ${TableName}."isActive",
-    ${TableName}."createdAt", ${TableName}."updatedAt", ${TableName}."deletedAt",
-    GROUP_CONCAT(${adapterConfig.TableName.AppBanner}."appId") as "appIds"
-    FROM ${TableName}
-    LEFT JOIN ${adapterConfig.TableName.AppBanner}
-      ON ${TableName}.id = ${adapterConfig.TableName.AppBanner}."bannerId"
-      AND ${adapterConfig.TableName.AppBanner}."deletedAt" IS NULL
-    WHERE ${TableName}."deletedAt" IS NULL
-    GROUP BY ${TableName}.id
-    ORDER BY ${TableName}.id ASC
-  `
+  const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL ORDER BY id ASC`
+
   const stmt = db.prepare(query)
   const { results: banners }: { results: Raw[] } = await stmt.all()
   return banners.map((banner) => format(banner))
@@ -82,17 +72,7 @@ export const getById = async (
   db: D1Database,
   id: number,
 ): Promise<Record | null> => {
-  const query = `
-    SELECT ${TableName}.id, ${TableName}.type, ${TableName}.text, ${TableName}.locales, ${TableName}."isActive",
-    ${TableName}."createdAt", ${TableName}."updatedAt", ${TableName}."deletedAt",
-    GROUP_CONCAT(${adapterConfig.TableName.AppBanner}."appId") as "appIds"
-    FROM ${TableName}
-    LEFT JOIN ${adapterConfig.TableName.AppBanner}
-      ON ${adapterConfig.TableName.AppBanner}."bannerId" = ${TableName}.id
-      AND ${adapterConfig.TableName.AppBanner}."deletedAt" IS NULL
-    WHERE ${TableName}."deletedAt" IS NULL AND ${TableName}.id = $1
-    GROUP BY ${TableName}.id
-  `
+  const query = `SELECT * FROM ${TableName} WHERE id = $1 AND "deletedAt" IS NULL`
   const stmt = db.prepare(query)
     .bind(id)
   const banner = await stmt.first() as Raw | null
@@ -155,14 +135,5 @@ export const remove = async (
   )
 
   await dbUtil.d1Run(stmt1)
-
-  const stmt2 = dbUtil.d1SoftDeleteQuery(
-    db,
-    adapterConfig.TableName.AppBanner,
-    id,
-    'bannerId',
-  )
-  await dbUtil.d1Run(stmt2)
-
   return true
 }
