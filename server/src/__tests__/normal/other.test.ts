@@ -86,6 +86,7 @@ describe(
           BLOCKED_POLICIES: [],
           EMBEDDED_AUTH_ORIGINS: [],
           ENABLE_SAML_SSO_AS_SP: false,
+          ENABLE_APP_BANNER: false,
         })
       },
     )

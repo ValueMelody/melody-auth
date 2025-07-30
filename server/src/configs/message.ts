@@ -6,6 +6,7 @@ export enum ConfigError {
   PasswordResetNotEnabled = 'Password reset is not enabled or passwordless sign in is enabled',
   PasswordlessSignInNotEnabled = 'Passwordless sign in is not enabled',
   AppConsentNotEnabled = 'App consent is not enabled',
+  AppBannerNotEnabled = 'App banner is not enabled',
   OrgNotEnabled = 'Organization is not enabled',
   OrgGroupNotEnabled = 'Organization group is not enabled',
   UserAttributeNotEnabled = 'User attribute is not enabled',
@@ -112,4 +113,5 @@ export enum RequestError {
   AttributeIsRequired = 'Attribute is required',
   RoleNotFound = 'Role not found',
   OrgGroupNotFound = 'Organization group not found',
+  NoAppBanner = 'No app banner found',
 }

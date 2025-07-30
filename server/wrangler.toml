@@ -33,6 +33,7 @@ BLOCKED_POLICIES=[] # A list of policy names that should be blocked (change_pass
 ENABLE_PASSWORDLESS_SIGN_IN=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. Setting this option to true will automatically override ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT, ENABLE_RECOVERY_CODE to false. Also, make sure to disable email MFA in order to use this feature.
 EMBEDDED_AUTH_ORIGINS=[] # List of origins that are allowed to use embedded auth APIs.
 ENABLE_SAML_SSO_AS_SP=false # Experimental feature, only support in Node.js environment
+ENABLE_APP_BANNER=false # Dev only, do not use. Enable the feature to display banners on the sign-in page of apps
 
 # Auth
 AUTHORIZATION_CODE_EXPIRES_IN=300

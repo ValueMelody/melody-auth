@@ -67,6 +67,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ENABLE_USER_ATTRIBUTE: environment.ENABLE_USER_ATTRIBUTE,
     EMBEDDED_AUTH_ORIGINS: environment.EMBEDDED_AUTH_ORIGINS,
     ENABLE_SAML_SSO_AS_SP: environment.ENABLE_SAML_SSO_AS_SP,
+    ENABLE_APP_BANNER: environment.ENABLE_APP_BANNER,
   }
 
   return c.json({ configs })
