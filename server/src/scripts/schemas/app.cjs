@@ -98,6 +98,90 @@ const PutAppReq = {
   },
 }
 
+const AppBanner = {
+  type: 'object',
+  properties: {
+    id: { type: 'number' },
+    type: { type: 'string' },
+    text: { type: 'string' },
+    isActive: { type: 'boolean' },
+    appIds: {
+      type: 'array',
+      items: { type: 'number' },
+    },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
+    createdAt: { type: 'string' },
+    updatedAt: { type: 'string' },
+    deletedAt: {
+      type: 'string',
+      nullable: true,
+    },
+  },
+  required: [
+    'id', 'type', 'text', 'isActive', 'appIds', 'locales', 'createdAt', 'updatedAt', 'deletedAt',
+  ],
+}
+
+const PostAppBannerReq = {
+  type: 'object',
+  properties: {
+    type: { type: 'string' },
+    text: { type: 'string' },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
+  },
+  required: ['type'],
+}
+
+const PutAppBannerReq = {
+  type: 'object',
+  properties: {
+    type: { type: 'string' },
+    text: { type: 'string' },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
+    appIds: {
+      type: 'array',
+      items: { type: 'number' },
+    },
+    isActive: { type: 'boolean' },
+  },
+}
+
 module.exports = {
-  App, AppDetail, PostAppReq, PutAppReq,
+  App,
+  AppDetail,
+  PostAppReq,
+  PutAppReq,
+  AppBanner,
+  PostAppBannerReq,
+  PutAppBannerReq,
 }

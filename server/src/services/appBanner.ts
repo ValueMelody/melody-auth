@@ -123,7 +123,7 @@ export const updateAppBanner = async (
 
   if (recordsToDelete.length > 0) {
     for (const record of recordsToDelete) {
-      await appBannerModel.removeByBannerId(
+      await appBannerModel.remove(
         c.env.DB,
         record.id,
       )

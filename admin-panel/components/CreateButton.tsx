@@ -3,8 +3,11 @@ import { useTranslations } from 'next-intl'
 import { Link } from 'i18n/navigation'
 import { Button } from 'components/ui/button'
 
-const CreateButton = ({ href }: {
+const CreateButton = ({
+  href, 'data-testid': testId,
+}: {
   href: string;
+  ['data-testid']?: string;
 }) => {
   const t = useTranslations()
 
@@ -12,7 +15,7 @@ const CreateButton = ({ href }: {
     <Button
       variant='outline'
       size='sm'
-      data-testid='createButton'
+      data-testid={testId ?? 'createButton'}
       asChild
     >
       <Link href={href}>

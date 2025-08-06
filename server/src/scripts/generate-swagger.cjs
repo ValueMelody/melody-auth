@@ -13,7 +13,8 @@ const {
   OrgGroup, PostOrgGroupReq, PutOrgGroupReq,
 } = require('./schemas/orgGroup.cjs')
 const {
-  App, AppDetail, PostAppReq, PutAppReq,
+  App, AppDetail, PostAppReq, PutAppReq, AppBanner,
+  PostAppBannerReq, PutAppBannerReq,
 } = require('./schemas/app.cjs')
 const {
   User, UserDetail, PutUserReq,
@@ -79,6 +80,9 @@ const options = {
         PutOrgGroupReq,
         App,
         AppDetail,
+        AppBanner,
+        PostAppBannerReq,
+        PutAppBannerReq,
         PostAppReq,
         PutAppReq,
         User,
@@ -104,6 +108,7 @@ const options = {
     './src/routes/org.tsx',
     './src/routes/orgGroup.tsx',
     './src/routes/app.tsx',
+    './src/routes/appBanner.tsx',
     './src/routes/user.tsx',
     './src/routes/userAttribute.tsx',
     './src/routes/log.tsx',
