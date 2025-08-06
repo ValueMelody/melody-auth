@@ -47,6 +47,7 @@ const Page = () => {
         'REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL',
         'ENABLE_PASSWORD_RESET',
         'ENABLE_USER_APP_CONSENT',
+        'ENABLE_APP_BANNER',
         'ENABLE_ORG',
         'BLOCKED_POLICIES',
       ],

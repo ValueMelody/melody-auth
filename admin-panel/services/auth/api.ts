@@ -5,6 +5,7 @@ export const addTagTypes = [
   'Orgs',
   'Org Groups',
   'Apps',
+  'App Banners',
   'Users',
   'User Org Groups',
   'User Attributes',
@@ -259,6 +260,52 @@ const injectedRtkApi = api
           method: 'DELETE',
         }),
         invalidatesTags: ['Apps'],
+      }),
+      getApiV1AppBanners: build.query<
+        GetApiV1AppBannersApiResponse,
+        GetApiV1AppBannersApiArg
+      >({
+        query: () => ({ url: '/api/v1/app-banners' }),
+        providesTags: ['App Banners'],
+      }),
+      postApiV1AppBanners: build.mutation<
+        PostApiV1AppBannersApiResponse,
+        PostApiV1AppBannersApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/app-banners',
+          method: 'POST',
+          body: queryArg.postAppBannerReq,
+        }),
+        invalidatesTags: ['App Banners'],
+      }),
+      getApiV1AppBannersById: build.query<
+        GetApiV1AppBannersByIdApiResponse,
+        GetApiV1AppBannersByIdApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/app-banners/${queryArg.id}` }),
+        providesTags: ['App Banners'],
+      }),
+      putApiV1AppBannersById: build.mutation<
+        PutApiV1AppBannersByIdApiResponse,
+        PutApiV1AppBannersByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/app-banners/${queryArg.id}`,
+          method: 'PUT',
+          body: queryArg.putAppBannerReq,
+        }),
+        invalidatesTags: ['App Banners'],
+      }),
+      deleteApiV1AppBannersById: build.mutation<
+        DeleteApiV1AppBannersByIdApiResponse,
+        DeleteApiV1AppBannersByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/app-banners/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['App Banners'],
       }),
       getApiV1Users: build.query<GetApiV1UsersApiResponse, GetApiV1UsersApiArg>({
         query: (queryArg) => ({
@@ -843,6 +890,38 @@ export type DeleteApiV1AppsByIdApiArg = {
   /** The unique ID of the app */
   id: number;
 };
+export type GetApiV1AppBannersApiResponse =
+  /** status 200 A list of app banners */ {
+    appBanners?: AppBanner[];
+  };
+export type GetApiV1AppBannersApiArg = void;
+export type PostApiV1AppBannersApiResponse = /** status 201 undefined */ {
+  appBanner?: AppBanner;
+};
+export type PostApiV1AppBannersApiArg = {
+  postAppBannerReq: PostAppBannerReq;
+};
+export type GetApiV1AppBannersByIdApiResponse =
+  /** status 200 A single app banner object */ {
+    appBanner?: AppBanner;
+  };
+export type GetApiV1AppBannersByIdApiArg = {
+  /** The unique ID of the app banner */
+  id: number;
+};
+export type PutApiV1AppBannersByIdApiResponse = /** status 200 undefined */ {
+  appBanner?: AppBanner;
+};
+export type PutApiV1AppBannersByIdApiArg = {
+  /** The unique ID of the app banner */
+  id: number;
+  putAppBannerReq: PutAppBannerReq;
+};
+export type DeleteApiV1AppBannersByIdApiResponse = unknown;
+export type DeleteApiV1AppBannersByIdApiArg = {
+  /** The unique ID of the app banner */
+  id: number;
+};
 export type GetApiV1UsersApiResponse = /** status 200 A list of users */ {
   users?: User[];
   /** Total number of users matching the query */
@@ -1336,6 +1415,38 @@ export type PutAppReq = {
   requireSmsMfa?: boolean;
   allowEmailMfaAsBackup?: boolean;
 };
+export type AppBanner = {
+  id: number;
+  type: string;
+  text: string;
+  isActive: boolean;
+  appIds: number[];
+  locales: {
+    locale: string;
+    value: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+export type PostAppBannerReq = {
+  type: string;
+  text?: string;
+  locales?: {
+    locale: string;
+    value: string;
+  }[];
+};
+export type PutAppBannerReq = {
+  type?: string;
+  text?: string;
+  locales?: {
+    locale: string;
+    value: string;
+  }[];
+  appIds?: number[];
+  isActive?: boolean;
+};
 export type UserDetail = User & {
   roles: string[] | null;
   org?: {
@@ -1508,6 +1619,13 @@ export const {
   useLazyGetApiV1AppsByIdQuery,
   usePutApiV1AppsByIdMutation,
   useDeleteApiV1AppsByIdMutation,
+  useGetApiV1AppBannersQuery,
+  useLazyGetApiV1AppBannersQuery,
+  usePostApiV1AppBannersMutation,
+  useGetApiV1AppBannersByIdQuery,
+  useLazyGetApiV1AppBannersByIdQuery,
+  usePutApiV1AppBannersByIdMutation,
+  useDeleteApiV1AppBannersByIdMutation,
   useGetApiV1UsersQuery,
   useLazyGetApiV1UsersQuery,
   useGetApiV1UsersByAuthIdQuery,
