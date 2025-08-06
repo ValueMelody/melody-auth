@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,6 +13,7 @@ const ShadcnBreadcrumb = ({
   parent,
   page,
   action,
+  className,
 }: {
   parent?: {
     label: string;
@@ -21,10 +23,15 @@ const ShadcnBreadcrumb = ({
     label: string;
   };
   action?: React.ReactNode;
+  className?: string;
 }) => {
   const router = useRouter()
   return (
-    <section className='flex items-center gap-3 mb-8'>
+    <section
+      className={classNames(
+        'flex items-center gap-3 mb-8',
+        className,
+      )}>
       <SidebarTrigger
         variant='outline'
         className='sm:hidden scale-100' />

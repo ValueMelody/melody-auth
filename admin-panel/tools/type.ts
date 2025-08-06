@@ -23,3 +23,10 @@ export enum ClientType {
   SPA = 'spa',
   S2S = 's2s',
 }
+
+export enum BannerType {
+  ERROR = 'error',
+  INFO = 'info',
+  WARNING = 'warning',
+  SUCCESS = 'success',
+}

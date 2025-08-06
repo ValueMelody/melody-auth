@@ -652,6 +652,138 @@
           }
         ]
       },
+      "AppBanner": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "appIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "text",
+          "isActive",
+          "appIds",
+          "locales",
+          "createdAt",
+          "updatedAt",
+          "deletedAt"
+        ]
+      },
+      "PostAppBannerReq": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "PutAppBannerReq": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "locales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
+          },
+          "appIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
       "PostAppReq": {
         "type": "object",
         "properties": {
@@ -2274,6 +2406,172 @@
               "type": "number"
             },
             "description": "The unique ID of the app"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation with no content to return"
+          }
+        }
+      }
+    },
+    "/api/v1/app-banners": {
+      "get": {
+        "summary": "Get a list of app banners",
+        "description": "Required scope - read_app",
+        "tags": [
+          "App Banners"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of app banners",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appBanners": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AppBanner"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new app banner",
+        "description": "Required scope - write_app",
+        "tags": [
+          "App Banners"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostAppBannerReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appBanner": {
+                      "$ref": "#/components/schemas/AppBanner"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-banners/{id}": {
+      "get": {
+        "summary": "Get a single app banner by ID",
+        "description": "Required scope - read_app",
+        "tags": [
+          "App Banners"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the app banner"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single app banner object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appBanner": {
+                      "$ref": "#/components/schemas/AppBanner"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing app banner by ID",
+        "description": "Required scope - write_app",
+        "tags": [
+          "App Banners"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the app banner"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutAppBannerReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appBanner": {
+                      "$ref": "#/components/schemas/AppBanner"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an existing app banner by ID",
+        "description": "Required scope - write_app",
+        "tags": [
+          "App Banners"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "description": "The unique ID of the app banner"
           }
         ],
         "responses": {
