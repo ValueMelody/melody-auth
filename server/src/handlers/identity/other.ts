@@ -5,6 +5,7 @@ import {
   baseDto, identityDto,
 } from 'dtos'
 import {
+  appBannerService,
   identityService,
   kvService,
   userService,
@@ -76,4 +77,15 @@ export const postResetPassword = async (c: Context<typeConfig.Context>) => {
   }
 
   return c.json({ success: true })
+}
+
+export const getAppBanners = async (c: Context<typeConfig.Context>) => {
+  const bodyDto = new baseDto.GetAppBannersDto({ clientId: c.req.query('client_id') ?? '' })
+
+  const banners = await appBannerService.getBannersByClientId(
+    c,
+    bodyDto.clientId,
+  )
+
+  return c.json({ banners })
 }

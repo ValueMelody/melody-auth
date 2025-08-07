@@ -74,6 +74,7 @@ export enum IdentityRoute {
   ResetPasswordCode = `${InternalRoute.Identity}/reset-password-code`,
   ResetPassword = `${InternalRoute.Identity}/reset-password`,
   AuthCodeExpiredView = `${InternalRoute.Identity}/view/auth-code-expired`,
+  AppBanners = `${InternalRoute.Identity}/app-banners`,
 }
 
 export enum View {

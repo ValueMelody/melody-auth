@@ -1,6 +1,7 @@
 import {
   ViewTitle, PasswordField, PrimaryButton, SubmitError, SecondaryButton,
   GoogleSignIn, FacebookSignIn, GithubSignIn, DiscordSignIn, OidcSignIn, AppleSignIn,
+  Banner,
 } from 'pages/components'
 import { typeConfig } from 'configs'
 import {
@@ -9,6 +10,7 @@ import {
 import { signIn } from 'pages/tools/locale'
 import { AuthorizeParams } from 'pages/tools/param'
 import EmailField from 'pages/components/vanilla/EmailField'
+import { bannerModel } from 'models'
 
 export interface SignInProps {
   locale: typeConfig.Locale;
@@ -36,6 +38,7 @@ export interface SignInProps {
   isSubmitting: boolean;
   isVerifyingPasskey: boolean;
   isPasswordlessSigningIn: boolean;
+  appBanners: bannerModel.Record[];
 }
 
 const SignIn = ({
@@ -58,10 +61,18 @@ const SignIn = ({
   isSubmitting,
   isVerifyingPasskey,
   isPasswordlessSigningIn,
+  appBanners,
 }: SignInProps) => {
   return (
     <>
       <ViewTitle title={signIn.title[locale]} />
+      {appBanners.map((banner) => (
+        <Banner
+          key={banner.id}
+          type={banner.type}
+          text={banner.locales.find((bannerLocale) => bannerLocale.locale === locale)?.value || banner.text}
+        />
+      ))}
       <form
         autoComplete='on'
         onSubmit={onSubmit}

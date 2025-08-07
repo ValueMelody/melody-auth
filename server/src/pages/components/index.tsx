@@ -1,4 +1,5 @@
 import LocaleSelector from 'pages/components/vanilla/LocaleSelector'
+import Banner from 'pages/components/vanilla/Banner'
 import PrimaryButton from 'pages/components/vanilla/PrimaryButton'
 import SecondaryButton from 'pages/components/vanilla/SecondaryButton'
 import ViewTitle from 'pages/components/vanilla/ViewTitle'
@@ -22,5 +23,5 @@ export {
   LocaleSelector, PrimaryButton, SecondaryButton, ViewTitle, Field, PasswordField,
   GoogleSignIn, FacebookSignIn, GithubSignIn, DiscordSignIn, AppleSignIn, OidcSignIn,
   SubmitError, CodeInput, PhoneField, CheckboxInput, SuccessMessage, Spinner,
-  RecoveryCodeContainer,
+  RecoveryCodeContainer, Banner,
 }

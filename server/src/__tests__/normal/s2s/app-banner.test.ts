@@ -28,7 +28,7 @@ afterEach(async () => {
 
 const BaseRoute = routeConfig.InternalRoute.ApiAppBanners
 
-const insertAppBanner = async () => {
+export const insertAppBanner = async (db: Database) => {
   await db.prepare('INSERT INTO "banner" (type, text, locales) values (?, ?, ?)').run(
     'info',
     'This is a info banner',
@@ -69,7 +69,7 @@ describe(
       async () => {
         process.env.ENABLE_APP_BANNER = true as unknown as string
 
-        await insertAppBanner()
+        await insertAppBanner(db)
 
         const res = await app.request(
           BaseRoute,
@@ -130,7 +130,7 @@ describe(
         process.env.ENABLE_APP_BANNER = true as unknown as string
 
         await attachIndividualScopes(db)
-        await insertAppBanner()
+        await insertAppBanner(db)
         const res = await app.request(
           BaseRoute,
           {
@@ -418,7 +418,7 @@ describe(
       async () => {
         process.env.ENABLE_APP_BANNER = true as unknown as string
 
-        await insertAppBanner()
+        await insertAppBanner(db)
         const res = await app.request(
           `${BaseRoute}/1`,
           { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
@@ -489,7 +489,7 @@ describe(
         process.env.ENABLE_APP_BANNER = true as unknown as string
 
         await attachIndividualScopes(db)
-        await insertAppBanner()
+        await insertAppBanner(db)
         const res = await app.request(
           `${BaseRoute}/1`,
           {
@@ -583,7 +583,7 @@ describe(
       'should delete app banner',
       async () => {
         process.env.ENABLE_APP_BANNER = true as unknown as string
-        await insertAppBanner()
+        await insertAppBanner(db)
         const res = await app.request(
           `${BaseRoute}/1`,
           {
@@ -630,7 +630,7 @@ describe(
       async () => {
         process.env.ENABLE_APP_BANNER = true as unknown as string
 
-        await insertAppBanner()
+        await insertAppBanner(db)
         const updateObj = {
           type: 'error',
           text: 'This is a error banner 1',
@@ -825,7 +825,7 @@ describe(
       'should throw error when ENABLE_USER_ATTRIBUTE is false',
       async () => {
         await attachIndividualScopes(db)
-        await insertAppBanner()
+        await insertAppBanner(db)
         const res = await app.request(
           `${BaseRoute}/1`,
           {

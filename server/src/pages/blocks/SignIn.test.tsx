@@ -27,6 +27,7 @@ describe(
   () => {
     const defaultProps = {
       locale: 'en' as any,
+      appBanners: [],
       onSubmit: vi.fn((e: Event) => e.preventDefault()),
       onChange: vi.fn(),
       values: {
@@ -809,6 +810,332 @@ describe(
         expect(signUpButton).toBeNull()
         expect(resetPasswordButton).toBeNull()
         expect(recoveryCodeButton).toBeNull()
+      },
+    )
+
+    describe(
+      'Banner rendering',
+      () => {
+        it(
+          'renders no banners when appBanners array is empty',
+          () => {
+            const props = {
+              ...defaultProps,
+              appBanners: [],
+            }
+            const container = setup(props)
+
+            const banners = container.querySelectorAll('[role="alert"]')
+            expect(banners.length).toBe(0)
+          },
+        )
+
+        it(
+          'renders single banner with correct content',
+          () => {
+            const mockBanner = {
+              id: 1,
+              type: 'info',
+              text: 'Default banner text',
+              locales: [
+                {
+                  locale: 'en', value: 'Welcome to our service!',
+                },
+                {
+                  locale: 'fr', value: 'Bienvenue dans notre service!',
+                },
+              ],
+              createdAt: '2023-01-01T00:00:00Z',
+              updatedAt: '2023-01-01T00:00:00Z',
+              deletedAt: null,
+              isActive: true,
+            }
+
+            const props = {
+              ...defaultProps,
+              appBanners: [mockBanner],
+            }
+            const container = setup(props as any)
+
+            const banners = container.querySelectorAll('[role="alert"]')
+            expect(banners.length).toBe(1)
+            expect(banners[0].textContent).toContain('Welcome to our service!')
+            expect(banners[0].className).toContain('text-blue-500')
+          },
+        )
+
+        it(
+          'renders multiple banners in correct order',
+          () => {
+            const mockBanners = [
+              {
+                id: 1,
+                type: 'info',
+                text: 'Info banner',
+                locales: [{
+                  locale: 'en', value: 'Information message',
+                }],
+                createdAt: '2023-01-01T00:00:00Z',
+                updatedAt: '2023-01-01T00:00:00Z',
+                deletedAt: null,
+                isActive: true,
+              },
+              {
+                id: 2,
+                type: 'warning',
+                text: 'Warning banner',
+                locales: [{
+                  locale: 'en', value: 'Warning message',
+                }],
+                createdAt: '2023-01-01T00:00:00Z',
+                updatedAt: '2023-01-01T00:00:00Z',
+                deletedAt: null,
+                isActive: true,
+              },
+              {
+                id: 3,
+                type: 'error',
+                text: 'Error banner',
+                locales: [{
+                  locale: 'en', value: 'Error message',
+                }],
+                createdAt: '2023-01-01T00:00:00Z',
+                updatedAt: '2023-01-01T00:00:00Z',
+                deletedAt: null,
+                isActive: true,
+              },
+            ]
+
+            const props = {
+              ...defaultProps,
+              appBanners: mockBanners,
+            }
+            const container = setup(props as any)
+
+            const banners = container.querySelectorAll('[role="alert"]')
+            expect(banners.length).toBe(3)
+
+            // Check order and content
+            expect(banners[0].textContent).toContain('Information message')
+            expect(banners[0].className).toContain('text-blue-500')
+
+            expect(banners[1].textContent).toContain('Warning message')
+            expect(banners[1].className).toContain('text-yellow-500')
+
+            expect(banners[2].textContent).toContain('Error message')
+            expect(banners[2].className).toContain('text-red-500')
+          },
+        )
+
+        it(
+          'renders banner with localized content for current locale',
+          () => {
+            const mockBanner = {
+              id: 1,
+              type: 'success',
+              text: 'Default text',
+              locales: [
+                {
+                  locale: 'en', value: 'English success message',
+                },
+                {
+                  locale: 'fr', value: 'Message de succès en français',
+                },
+                {
+                  locale: 'es', value: 'Mensaje de éxito en español',
+                },
+              ],
+              createdAt: '2023-01-01T00:00:00Z',
+              updatedAt: '2023-01-01T00:00:00Z',
+              deletedAt: null,
+              isActive: true,
+            }
+
+            const props = {
+              ...defaultProps,
+              locale: 'fr' as any,
+              appBanners: [mockBanner],
+            }
+            const container = setup(props as any)
+
+            const banner = container.querySelector('[role="alert"]')
+            expect(banner).not.toBeNull()
+            expect(banner?.textContent).toContain('Message de succès en français')
+            expect(banner?.className).toContain('text-green-500')
+          },
+        )
+
+        it(
+          'falls back to default text when locale not found',
+          () => {
+            const mockBanner = {
+              id: 1,
+              type: 'info',
+              text: 'Default fallback text',
+              locales: [
+                {
+                  locale: 'fr', value: 'Texte en français',
+                },
+                {
+                  locale: 'es', value: 'Texto en español',
+                },
+              ],
+              createdAt: '2023-01-01T00:00:00Z',
+              updatedAt: '2023-01-01T00:00:00Z',
+              deletedAt: null,
+              isActive: true,
+            }
+
+            const props = {
+              ...defaultProps,
+              locale: 'en' as any, // English not available in locales
+              appBanners: [mockBanner],
+            }
+            const container = setup(props as any)
+
+            const banner = container.querySelector('[role="alert"]')
+            expect(banner).not.toBeNull()
+            expect(banner?.textContent).toContain('Default fallback text')
+          },
+        )
+
+        it(
+          'renders banner with empty locales array using default text',
+          () => {
+            const mockBanner = {
+              id: 1,
+              type: 'warning',
+              text: 'Default warning text',
+              locales: [],
+              createdAt: '2023-01-01T00:00:00Z',
+              updatedAt: '2023-01-01T00:00:00Z',
+              deletedAt: null,
+              isActive: true,
+            }
+
+            const props = {
+              ...defaultProps,
+              appBanners: [mockBanner],
+            }
+            const container = setup(props as any)
+
+            const banner = container.querySelector('[role="alert"]')
+            expect(banner).not.toBeNull()
+            expect(banner?.textContent).toContain('Default warning text')
+            expect(banner?.className).toContain('text-yellow-500')
+          },
+        )
+
+        it(
+          'renders banners with different types showing correct styling',
+          () => {
+            const mockBanners = [
+              {
+                id: 1,
+                type: 'info',
+                text: 'Info text',
+                locales: [{
+                  locale: 'en', value: 'Info message',
+                }],
+                createdAt: '2023-01-01T00:00:00Z',
+                updatedAt: '2023-01-01T00:00:00Z',
+                deletedAt: null,
+                isActive: true,
+              },
+              {
+                id: 2,
+                type: 'warning',
+                text: 'Warning text',
+                locales: [{
+                  locale: 'en', value: 'Warning message',
+                }],
+                createdAt: '2023-01-01T00:00:00Z',
+                updatedAt: '2023-01-01T00:00:00Z',
+                deletedAt: null,
+                isActive: true,
+              },
+              {
+                id: 3,
+                type: 'error',
+                text: 'Error text',
+                locales: [{
+                  locale: 'en', value: 'Error message',
+                }],
+                createdAt: '2023-01-01T00:00:00Z',
+                updatedAt: '2023-01-01T00:00:00Z',
+                deletedAt: null,
+                isActive: true,
+              },
+              {
+                id: 4,
+                type: 'success',
+                text: 'Success text',
+                locales: [{
+                  locale: 'en', value: 'Success message',
+                }],
+                createdAt: '2023-01-01T00:00:00Z',
+                updatedAt: '2023-01-01T00:00:00Z',
+                deletedAt: null,
+                isActive: true,
+              },
+            ]
+
+            const props = {
+              ...defaultProps,
+              appBanners: mockBanners,
+            }
+            const container = setup(props as any)
+
+            const banners = container.querySelectorAll('[role="alert"]')
+            expect(banners.length).toBe(4)
+
+            // Check each banner type has correct styling
+            expect(banners[0].className).toContain('text-blue-500') // info
+            expect(banners[1].className).toContain('text-yellow-500') // warning
+            expect(banners[2].className).toContain('text-red-500') // error
+            expect(banners[3].className).toContain('text-green-500') // success
+
+            // Check icons are present
+            expect(container.querySelector('.lucide-info')).not.toBeNull()
+            expect(container.querySelector('.lucide-triangle-alert')).not.toBeNull()
+            expect(container.querySelector('.lucide-circle-x')).not.toBeNull()
+            expect(container.querySelector('.lucide-circle-check')).not.toBeNull()
+          },
+        )
+
+        it(
+          'renders banner with unknown type without specific styling',
+          () => {
+            const mockBanner = {
+              id: 1,
+              type: 'custom-type',
+              text: 'Custom banner text',
+              locales: [{
+                locale: 'en', value: 'Custom message',
+              }],
+              createdAt: '2023-01-01T00:00:00Z',
+              updatedAt: '2023-01-01T00:00:00Z',
+              deletedAt: null,
+              isActive: true,
+            }
+
+            const props = {
+              ...defaultProps,
+              appBanners: [mockBanner],
+            }
+            const container = setup(props as any)
+
+            const banner = container.querySelector('[role="alert"]')
+            expect(banner).not.toBeNull()
+            expect(banner?.textContent).toContain('Custom message')
+
+            // Should not have any specific color class
+            expect(banner?.className).not.toContain('text-blue-500')
+            expect(banner?.className).not.toContain('text-yellow-500')
+            expect(banner?.className).not.toContain('text-red-500')
+            expect(banner?.className).not.toContain('text-green-500')
+          },
+        )
       },
     )
   },
