@@ -1,5 +1,6 @@
 import useInitialProps from './useInitialProps'
 import type { InitialProps } from './useInitialProps'
+import useAppBanners from './useAppBanners'
 import useLocale from './useLocale'
 import useCurrentView, { View } from './useCurrentView'
 import useSignInForm from './useSignInForm'
@@ -27,6 +28,7 @@ import useRecoveryCodeForm from './useRecoveryCodeForm'
 export {
   useInitialProps,
   InitialProps,
+  useAppBanners,
   useLocale,
   useCurrentView,
   View,

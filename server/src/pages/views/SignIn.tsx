@@ -2,6 +2,7 @@ import { typeConfig } from 'configs'
 import {
   View, useSubmitError, useSignInForm,
   useInitialProps, usePasskeyVerifyForm,
+  useAppBanners,
 } from 'pages/hooks'
 import { getAuthorizeParams } from 'pages/tools/param'
 import { SignIn as SignInBlock } from 'pages/blocks'
@@ -49,6 +50,11 @@ const SignIn = ({
     onSwitchView,
   })
 
+  const { appBanners } = useAppBanners({
+    initialProps,
+    params,
+  })
+
   const shouldLoadPasskeyInfo = initialProps.allowPasskey && passkeyOption === null
 
   return (
@@ -72,6 +78,7 @@ const SignIn = ({
       isSubmitting={isSubmitting}
       isVerifyingPasskey={isVerifyingPasskey}
       isPasswordlessSigningIn={isPasswordlessSigningIn}
+      appBanners={appBanners}
     />
   )
 }

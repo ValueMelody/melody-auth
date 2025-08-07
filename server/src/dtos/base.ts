@@ -67,3 +67,13 @@ export class PasskeyVerifyDto {
     this.email = dto.email.toLowerCase()
   }
 }
+
+export class GetAppBannersDto {
+  @IsString()
+  @IsNotEmpty()
+    clientId: string
+
+  constructor (dto: GetAppBannersDto) {
+    this.clientId = dto.clientId
+  }
+}

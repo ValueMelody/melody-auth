@@ -1,9 +1,11 @@
 import { Context } from 'hono'
+import { ClientType } from '@melody-auth/shared'
 import {
   typeConfig, messageConfig, errorConfig,
 } from 'configs'
 import {
   bannerModel, appBannerModel,
+  appModel,
 } from 'models'
 import { appDto } from 'dtos'
 import { loggerUtil } from 'utils'
@@ -21,6 +23,35 @@ export const getAppBanners = async (c: Context<typeConfig.Context>): Promise<ban
   })
 
   return results
+}
+
+export const getBannersByClientId = async (
+  c: Context<typeConfig.Context>,
+  clientId: string,
+): Promise<bannerModel.Record[]> => {
+  const app = await appModel.getByClientId(
+    c.env.DB,
+    clientId,
+  )
+
+  if (!app || app.type !== ClientType.SPA) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoSpaAppFound,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoSpaAppFound)
+  }
+
+  const appBanners = await appBannerModel.getAllByAppId(
+    c.env.DB,
+    app.id,
+  )
+  const bannerIds = appBanners.map((appBanner) => appBanner.bannerId)
+  const banners = await bannerModel.getAll(c.env.DB)
+
+  const activeBanners = banners.filter((banner) => banner.isActive && bannerIds.includes(banner.id))
+  return activeBanners
 }
 
 export const getAppBannerById = async (
