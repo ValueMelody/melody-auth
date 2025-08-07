@@ -52,6 +52,16 @@ export const getAllByBannerId = async (
   return appBanners
 }
 
+export const getAllByAppId = async (
+  db: D1Database, appId: number,
+): Promise<Record[]> => {
+  const query = `SELECT * FROM ${TableName} WHERE "deletedAt" IS NULL AND "appId" = $1 ORDER BY id ASC`
+
+  const stmt = db.prepare(query).bind(appId)
+  const { results: appBanners }: { results: Record[] } = await stmt.all()
+  return appBanners
+}
+
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {

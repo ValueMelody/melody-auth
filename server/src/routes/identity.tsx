@@ -345,6 +345,7 @@ identityRoutes.post(
  * - VerifyEmail
  * - ResetPassword
  * - AuthCodeExpired
+ * - AppBanners
  */
 
 identityRoutes.get(
@@ -377,4 +378,10 @@ identityRoutes.post(
 identityRoutes.get(
   routeConfig.IdentityRoute.AuthCodeExpiredView,
   identityHandler.getAuthCodeExpiredView,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AppBanners,
+  configMiddleware.enableAppBanner,
+  identityHandler.getAppBanners,
 )

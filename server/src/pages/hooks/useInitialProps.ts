@@ -24,6 +24,7 @@ export interface InitialProps {
   appleClientId: string;
   oidcProviders: string[];
   enableUserAttribute: boolean;
+  enableAppBanner: boolean;
 }
 
 const useInitialProps = () => {
@@ -57,6 +58,7 @@ const useInitialProps = () => {
         enablePasswordSignIn: 'enablePasswordSignIn' in intialProps ? Boolean(intialProps.enablePasswordSignIn) : false,
         enablePasswordlessSignIn: 'enablePasswordlessSignIn' in intialProps ? Boolean(intialProps.enablePasswordlessSignIn) : false,
         enableMfaRememberDevice: 'enableMfaRememberDevice' in intialProps ? Boolean(intialProps.enableMfaRememberDevice) : false,
+        enableAppBanner: 'enableAppBanner' in intialProps ? Boolean(intialProps.enableAppBanner) : false,
         enableNames: 'enableNames' in intialProps ? Boolean(intialProps.enableNames) : false,
         namesIsRequired: 'namesIsRequired' in intialProps ? Boolean(intialProps.namesIsRequired) : false,
         enableUserAttribute: 'enableUserAttribute' in intialProps ? Boolean(intialProps.enableUserAttribute) : false,
