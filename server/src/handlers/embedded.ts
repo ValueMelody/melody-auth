@@ -5,6 +5,7 @@ import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
+  appBannerService,
   appService, consentService, emailService, identityService,
   kvService, mfaService, oauthService, passkeyService, recoveryCodeService, scopeService,
   userAttributeService,
@@ -884,6 +885,21 @@ export const getRecoveryCodeEnroll = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.json({ recoveryCode })
+}
+
+export const getAppBanners = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBody(
+    c,
+    sessionId,
+  )
+
+  const banners = await appBannerService.getBannersByClientId(
+    c,
+    sessionBody.request.clientId,
+  )
+
+  return c.json({ banners })
 }
 
 export const resetPassword = async (c: Context<typeConfig.Context>) => {

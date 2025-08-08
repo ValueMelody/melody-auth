@@ -94,6 +94,10 @@ Melody Auth 提供了一系列可自定义选项，以便您根据实际需求�
 - **默认值：** []
 - **说明：** 阻止指定策略（change_password、change_email、reset_mfa、manage_passkey、update_info）的触发，防止终端用户执行相应操作。
 
+### ENABLE_APP_BANNER
+- **默认值：** false
+- **说明：** 是否启用应用横幅功能。若设为 `true`，用户可在登录页面看到配置的应用横幅。
+
 ### EMBEDDED_AUTH_ORIGINS
 - **默认值：** []
 - **说明：** 允许使用嵌入式认证 API 的前端应用源列表。
