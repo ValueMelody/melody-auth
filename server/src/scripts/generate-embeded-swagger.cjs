@@ -1,6 +1,8 @@
 const fs = require('fs')
 const swaggerJsdoc = require('swagger-jsdoc')
 const {
+  AppBannersRes,
+  Banner,
   PostInitiateReq,
   PostSignInReq,
   PostSignInWithRecoveryCodeReq,
@@ -38,6 +40,8 @@ const options = {
     },
     components: {
       schemas: {
+        AppBannersRes,
+        Banner,
         PostInitiateReq,
         PostSignInReq,
         PostSignInWithRecoveryCodeReq,
