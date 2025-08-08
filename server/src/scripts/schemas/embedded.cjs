@@ -1,3 +1,5 @@
+const { Banner } = require('./app.cjs')
+
 const PostInitiateReq = {
   type: 'object',
   properties: {
@@ -669,6 +671,16 @@ const GetAppConsentRes = {
   required: ['scopes', 'appName'],
 }
 
+const AppBannersRes = {
+  type: 'object',
+  properties: {
+    banners: {
+      type: 'array', items: { $ref: '#/components/schemas/Banner' },
+    },
+  },
+  required: ['banners'],
+}
+
 const ResetPasswordReq = {
   type: 'object',
   properties: {
@@ -679,6 +691,8 @@ const ResetPasswordReq = {
 }
 
 module.exports = {
+  AppBannersRes,
+  Banner,
   PostInitiateReq,
   PostSignInReq,
   PostSignInWithRecoveryCodeReq,

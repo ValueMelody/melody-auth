@@ -98,17 +98,13 @@ const PutAppReq = {
   },
 }
 
-const AppBanner = {
+const Banner = {
   type: 'object',
   properties: {
     id: { type: 'number' },
     type: { type: 'string' },
     text: { type: 'string' },
     isActive: { type: 'boolean' },
-    appIds: {
-      type: 'array',
-      items: { type: 'number' },
-    },
     locales: {
       type: 'array',
       items: {
@@ -128,7 +124,23 @@ const AppBanner = {
     },
   },
   required: [
-    'id', 'type', 'text', 'isActive', 'appIds', 'locales', 'createdAt', 'updatedAt', 'deletedAt',
+    'id', 'type', 'text', 'isActive', 'locales', 'createdAt', 'updatedAt', 'deletedAt',
+  ],
+}
+
+const AppBanner = {
+  allOf: [
+    { $ref: '#/components/schemas/Banner' },
+    {
+      type: 'object',
+      properties: {
+        appIds: {
+          type: 'array',
+          items: { type: 'number' },
+        },
+      },
+      required: ['appIds'],
+    },
   ],
 }
 
@@ -181,6 +193,7 @@ module.exports = {
   AppDetail,
   PostAppReq,
   PutAppReq,
+  Banner,
   AppBanner,
   PostAppBannerReq,
   PutAppBannerReq,

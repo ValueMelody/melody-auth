@@ -94,6 +94,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** []
 - **Description:** A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info), preventing end users from triggering them
 
+### ENABLE_APP_BANNER
+- **Default:** false
+- **Description:** Toggles the app banner feature. If `true`, users can see configured app banners on the sign-in page.
+
 ### EMBEDDED_AUTH_ORIGINS
 - **Default:** []
 - **Description:** A list of origins that are allowed to use embedded auth APIs.

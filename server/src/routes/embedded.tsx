@@ -710,6 +710,33 @@ embeddedRoutes.post(
 
 /**
  * @swagger
+ * /embedded-auth/v1/{sessionId}/app-banners:
+ *   get:
+ *     summary: get the app banners
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: the app banners
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AppBannersRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.AppBanners,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableAppBanner,
+  embeddedHandler.getAppBanners,
+)
+
+/**
+ * @swagger
  * /embedded-auth/v1/token-exchange:
  *   post:
  *     summary: Exchange the auth code for access token, refresh token, id token

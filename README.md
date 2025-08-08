@@ -110,6 +110,7 @@
 - Manage User Attributes
 - Manage Apps
   - App Level MFA Config
+  - App Banner Config
 - Manage Scopes
 - Manage Roles
 - Manage Organizations
