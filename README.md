@@ -110,7 +110,7 @@
 - Manage User Attributes
 - Manage Apps
   - App Level MFA Config
-  - App Banner Config
+  - [App Banner Config](https://auth.valuemelody.com/app-banners.html)
 - Manage Scopes
 - Manage Roles
 - Manage Organizations
