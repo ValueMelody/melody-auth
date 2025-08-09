@@ -9,6 +9,7 @@ import { banners } from 'tests/bannerMock'
 import {
   useGetApiV1AppsQuery, useGetApiV1AppBannersQuery,
 } from 'services/auth/api'
+import { configSignal } from 'signals'
 
 vi.mock(
   'services/auth/api',
@@ -47,6 +48,8 @@ describe(
   'Page Component',
   () => {
     beforeEach(() => {
+      // Ensure app banner feature is enabled during tests
+      configSignal.value = { ENABLE_APP_BANNER: true } as any
       (useGetApiV1AppsQuery as Mock).mockReturnValue({ data: { apps } });
       (useGetApiV1AppBannersQuery as Mock).mockReturnValue({ data: { appBanners: banners } })
     })

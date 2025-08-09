@@ -19,13 +19,60 @@ export default defineUserConfig({
 
   theme: defaultTheme({
     logo: 'https://valuemelody.com/logo.svg',
-    navbar: [],
     locales: {
       '/': {
         lang: 'en-US',
+        navbar: [
+          {
+            text: 'Additional Features',
+            children: [
+              {
+                text: 'App Banners',
+                link: '/app-banners.md',
+              },
+            ],
+          },
+          {
+            text: 'API Swaggers',
+            children: [
+              {
+                text: 'S2S API',
+                link: 'https://auth-server.valuemelody.com/api/v1/swagger',
+              },
+              {
+                text: 'Embedded Auth API',
+                link: 'https://auth-server.valuemelody.com/api/v1/embedded-swagger',
+              },
+            ],
+          },
+        ],
       },
       '/zh/': {
         lang: 'zh-CN',
+        navbar: [
+          {
+            text: '其他功能',
+            children: [
+              {
+                text: '应用横幅',
+                link: '/zh/app-banners.md',
+              },
+            ],
+          },
+          {
+            text: 'API 文档',
+            children: [
+              {
+                text: 'S2S API',
+                link: 'https://auth-server.valuemelody.com/api/v1/swagger',
+              },
+              {
+                text: 'Embedded Auth API',
+                link: 'https://auth-server.valuemelody.com/api/v1/embedded-swagger',
+              },
+            ],
+          },
+        ],
       },
     },
   }),

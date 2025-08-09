@@ -38,14 +38,8 @@ actions:
   - text: 嵌入式认证 API
     link: /zh/embedded-auth-api.html
     type: secondary
-  - text: 嵌入式认证 API Swagger
-    link: https://auth-server.valuemelody.com/api/v1/embedded-swagger
-    type: secondary
   - text: 服务器间认证 API
     link: /zh/s2s-api.html
-    type: secondary
-  - text: 服务器间认证 API Swagger
-    link: https://auth-server.valuemelody.com/api/v1/swagger
     type: secondary
   - text: 部署流水线
     link: /zh/deployment-pipelines.html

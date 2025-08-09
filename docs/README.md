@@ -38,14 +38,8 @@ actions:
   - text: Embedded Auth API
     link: /embedded-auth-api.html
     type: secondary
-  - text: Embedded Auth API Swagger
-    link: https://auth-server.valuemelody.com/api/v1/embedded-swagger
-    type: secondary
   - text: S2S API
     link: /s2s-api.html
-    type: secondary
-  - text: S2S API Swagger
-    link: https://auth-server.valuemelody.com/api/v1/swagger
     type: secondary
   - text: Deployment Pipelines
     link: /deployment-pipelines.html
