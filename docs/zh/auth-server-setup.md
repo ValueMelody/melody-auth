@@ -105,7 +105,7 @@ npm run dev:start
 5. 应用 D1 迁移：  
   针对新环境的 D1 资源执行迁移命令：
     ```
-    wrangler d1 migrations apply [d1 name for your new environment] --remote
+    wrangler d1 migrations apply [d1 name for your new environment] --remote --config [envName].wrangler.toml
     ```
 6. 部署 Worker：  
   使用新环境名称构建并部署 Worker：

@@ -106,7 +106,7 @@ When managing several remote environments (e.g., dev, demo, QA, staging, product
 5. Apply D1 Migrations:  
   Execute the D1 migration command for your new environment's D1 resource:
     ```
-    wrangler d1 migrations apply [d1 name for your new environment] --remote
+    wrangler d1 migrations apply [d1 name for your new environment] --remote --config [envName].wrangler.toml
     ```
 6. Deploy the Worker:  
   Build and deploy your Worker with the new environment's name:
