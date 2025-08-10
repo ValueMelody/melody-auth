@@ -6,41 +6,6 @@ actions:
   - text: GitHub
     link: https://github.com/ValueMelody/melody-auth
     type: primary
-  - text: 认证服务器设置
-    link: /zh/auth-server-setup.html
-  - text: 认证服务器配置
-    link: /zh/auth-server-configuration.html
-    type: primary
-  - text: 邮箱提供商设置
-    link: /zh/email-provider-setup.html
-    type: primary
-  - text: 短信提供商设置
-    link: /zh/sms-provider-setup.html
-    type: secondary
-  - text: 社交登录提供商设置
-    link: /zh/social-sign-in-provider-setup.html
-    type: secondary
-  - text: SAML SSO 设置
-    link: /zh/saml-sso-setup.html
-    type: secondary
-  - text: 管理面板设置
-    link: /zh/admin-panel-setup.html
-    type: primary
-  - text: React SDK
-    link: /zh/react-sdk.html
-    type: secondary
-  - text: Angular SDK
-    link: /zh/angular-sdk.html
-    type: secondary
-  - text: Vue SDK
-    link: /zh/vue-sdk.html
-    type: secondary
-  - text: 嵌入式认证 API
-    link: /zh/embedded-auth-api.html
-    type: secondary
-  - text: 服务器间认证 API
-    link: /zh/s2s-api.html
-    type: secondary
   - text: 部署流水线
     link: /zh/deployment-pipelines.html
     type: secondary
