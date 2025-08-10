@@ -17,13 +17,15 @@
   - [S2S API Doc](https://auth.valuemelody.com/s2s-api.html)
 - **Admin Panel** for managing resources (also serves as a full-stack implementation example)
   - [Admin Panel Setup Doc](https://auth.valuemelody.com/admin-panel-setup.html)
-- **React/Angular/Vue SDK** to seamlessly integrate PKCE-based authentication into your frontend application.
+- **React/Angular/Vue/Web SDK** to seamlessly integrate PKCE-based authentication into your frontend application.
   - [React NPM Package](https://www.npmjs.com/package/@melody-auth/react)
   - [React SDK Doc](https://auth.valuemelody.com/react-sdk.html)
   - [Angular NPM Package](https://www.npmjs.com/package/@melody-auth/angular)
   - [Angular SDK Doc](https://auth.valuemelody.com/angular-sdk.html)
   - [Vue NPM Package](https://www.npmjs.com/package/@melody-auth/vue)
   - [Vue SDK Doc](https://auth.valuemelody.com/vue-sdk.html)
+  - [Web NPM Package](https://www.npmjs.com/package/@melody-auth/web)
+  - [Web SDK Doc](https://auth.valuemelody.com/web-sdk.html)
 - **Embedded Auth API** for embedding authentication flows directly within your application.
   - [Embedded Auth API Doc](https://auth.valuemelody.com/embedded-auth-api.html)
   - [Embedded Auth API Swagger](https://auth-server.valuemelody.com/api/v1/embedded-swagger)

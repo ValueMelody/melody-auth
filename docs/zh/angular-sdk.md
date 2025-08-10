@@ -271,3 +271,7 @@ const userInfo = await this.authService.acquireUserInfo()
 ```
 <div>{{ authService.logoutError }}</div>
 ```
+
+## 示例应用
+
+使用 Angular SDK 的示例应用：`https://github.com/ValueMelody/melody-auth-examples/tree/main/angular-example`。

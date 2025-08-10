@@ -442,3 +442,7 @@ export class AuthActionsComponent {
   constructor (private authService: AuthService) {}
 }
 ```
+
+## Example app
+
+See the minimal Angular example using the Angular SDK: `https://github.com/ValueMelody/melody-auth-examples/tree/main/angular-example`.
