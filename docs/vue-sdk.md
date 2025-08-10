@@ -377,3 +377,7 @@ const { logoutError } = useAuth()
   </div>
 </template>
 ```
+
+## Example app
+
+See the minimal Vite example using the Vue SDK: `https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-vue-example`.

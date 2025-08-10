@@ -55,6 +55,7 @@ export default defineUserConfig({
               { text: 'React SDK', link: '/react-sdk.html' },
               { text: 'Angular SDK', link: '/angular-sdk.html' },
               { text: 'Vue SDK', link: '/vue-sdk.html' },
+              { text: 'Web SDK', link: '/web-sdk.html' },
             ],
           },
           {
@@ -115,6 +116,7 @@ export default defineUserConfig({
               { text: 'React SDK', link: '/zh/react-sdk.html' },
               { text: 'Angular SDK', link: '/zh/angular-sdk.html' },
               { text: 'Vue SDK', link: '/zh/vue-sdk.html' },
+              { text: 'Web SDK', link: '/zh/web-sdk.html' },
             ],
           },
           {
