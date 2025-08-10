@@ -335,3 +335,7 @@ export default function Home () {
   if (logoutError) return <Alert />
 }
 ```
+
+## 示例应用
+
+使用 React SDK 的示例应用：`https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-react-demo`。

@@ -25,9 +25,9 @@ ENABLE_APP_BANNER=true
 2. 访问 **Banners** 管理部分
 3. 根据需要创建、编辑或删除横幅
 
-## S2S API
+## 服务间认证 API
 
-你也可以使用 S2S API 以编程方式管理应用横幅。
+你也可以使用 服务间认证 API 以编程方式管理应用横幅。
 
 ```
 GET /api/v1/app-banners: 获取横幅列表
@@ -37,7 +37,7 @@ PUT /api/v1/app-banners/{id}: 根据 ID 更新横幅
 DELETE /api/v1/app-banners/{id}: 根据 ID 删除横幅
 ```
 
-## Embedded Auth API
+## 嵌入式认证 API
 
 对于嵌入式认证流程，可以调用以下接口获取当前会话需要显示的横幅列表：
 
