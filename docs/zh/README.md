@@ -6,12 +6,6 @@ actions:
   - text: GitHub
     link: https://github.com/ValueMelody/melody-auth
     type: primary
-  - text: 部署流水线
-    link: /zh/deployment-pipelines.html
-    type: secondary
-  - text: 常见问题
-    link: /zh/q&a.html
-    type: secondary
   - text: 截图
     link: /zh/screenshots.html
     type: secondary
