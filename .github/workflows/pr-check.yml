@@ -1,59 +1,210 @@
-name: pr-check CI
+name: PR Check CI
 
 on:
   workflow_dispatch: {}
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  check:
+  root:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.17.0]
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run docs:build
-    - run: cd ./admin-panel && npm ci
-    - run: cd ./server && npm ci
-    - run: cd ./shared && npm ci
-    - run: cd ./sdks/web-sdk && npm ci
-    - run: cd ./sdks/react-sdk && npm ci
-    - run: cd ./sdks/vue-sdk && npm ci
-    - run: cd ./sdks/angular-sdk && npm ci
-    - run: npm run lint:check
-    - run: cd ./shared && npm run type:check
-    - run: cd ./shared && npm run test:check
-    - run: cd ./shared && npm run build
-    - run: cd ./sdks/web-sdk && npm run type:check
-    - run: cd ./sdks/web-sdk && npm run test:check
-    - run: cd ./sdks/web-sdk && npm run build
-    - run: cd ./sdks/react-sdk && npm run type:check
-    - run: cd ./sdks/react-sdk && npm run test:check
-    - run: cd ./sdks/react-sdk && npm run build
-    - run: cd ./sdks/vue-sdk && npm run type:check
-    - run: cd ./sdks/vue-sdk && npm run test:check
-    - run: cd ./sdks/vue-sdk && npm run build
-    - run: cd ./sdks/angular-sdk && npm run type:check
-    - run: cd ./sdks/angular-sdk && npm run test:check
-    - run: cd ./sdks/angular-sdk && npm run build
-    - run: cd ./server && npm run type:check
-    - run: cd ./server && npm run node:secret:generate
-    - run: cd ./server && npm run node:saml:secret:generate
-    - run: cd ./server && npm run test:check:cf
-    - run: cd ./server && npm run test:check:node
-    - run: cd ./server && npm run node:secret:generate
-    - run: cd ./server && npm run test:check:cf-key-rotate
-    - run: cd ./server && npm run test:check:node-key-rotate
-    - run: cd ./admin-panel && npm run type:check
-    - run: cd ./admin-panel && npm run test:check
-    - run: rm -rf node_modules
-    - run: cd ./server && npm run node:build
-    - run: cd ./admin-panel && npm run build
-    - run: cd ./admin-panel && npm run cf:build
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Build documentation
+        run: npm run docs:build
+
+      - name: Run linting
+        run: npm run lint:check
+
+  shared:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./shared
+        run: npm ci
+
+      - name: Check and build shared package
+        working-directory: ./shared
+        run: |
+          npm run type:check
+          npm run test:check
+          npm run build
+
+  web-sdk:
+    runs-on: ubuntu-latest
+    needs: shared
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./sdks/web-sdk
+        run: npm ci
+
+      - name: Check and build web SDK
+        working-directory: ./sdks/web-sdk
+        run: |
+          npm run type:check
+          npm run test:check
+          npm run build
+
+  react-sdk:
+    runs-on: ubuntu-latest
+    needs: shared
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./sdks/react-sdk
+        run: npm ci
+
+      - name: Check and build React SDK
+        working-directory: ./sdks/react-sdk
+        run: |
+          npm run type:check
+          npm run test:check
+          npm run build
+
+  vue-sdk:
+    runs-on: ubuntu-latest
+    needs: shared
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./sdks/vue-sdk
+        run: npm ci
+
+      - name: Check and build Vue SDK
+        working-directory: ./sdks/vue-sdk
+        run: |
+          npm run type:check
+          npm run test:check
+          npm run build
+
+  angular-sdk:
+    runs-on: ubuntu-latest
+    needs: shared
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./sdks/angular-sdk
+        run: npm ci
+
+      - name: Check and build Angular SDK
+        working-directory: ./sdks/angular-sdk
+        run: |
+          npm run type:check
+          npm run test:check
+          npm run build
+
+  server:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Check and test server
+        working-directory: ./server
+        run: |
+          npm run type:check
+          npm run node:secret:generate
+          npm run node:saml:secret:generate
+          npm run test:check:cf
+          npm run test:check:node
+          npm run node:secret:generate
+          npm run test:check:cf-key-rotate
+          npm run test:check:node-key-rotate
+
+      - name: Build server
+        working-directory: ./server
+        run: npm run node:build
+
+  admin-panel:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./admin-panel
+        run: npm ci
+
+      - name: Check and test admin panel
+        working-directory: ./admin-panel
+        run: |
+          npm run type:check
+          npm run test:check
+
+      - name: Build admin panel
+        working-directory: ./admin-panel
+        run: |
+          npm run build
+          npm run cf:build
