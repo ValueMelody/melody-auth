@@ -1,4 +1,4 @@
-name: PR Check CI
+name: pr-check CI
 
 on:
   workflow_dispatch: {}
