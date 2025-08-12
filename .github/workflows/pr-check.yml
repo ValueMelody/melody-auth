@@ -24,6 +24,29 @@ jobs:
       - name: Build documentation
         run: npm run docs:build
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install all dependencies
+        run: |
+          npm ci
+          npm ci --prefix ./admin-panel
+          npm ci --prefix ./server
+          npm ci --prefix ./shared
+          npm ci --prefix ./sdks/web-sdk
+          npm ci --prefix ./sdks/react-sdk
+          npm ci --prefix ./sdks/vue-sdk
+          npm ci --prefix ./sdks/angular-sdk
+
       - name: Run linting
         run: npm run lint:check
 
