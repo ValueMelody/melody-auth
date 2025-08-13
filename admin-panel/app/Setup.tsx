@@ -375,11 +375,12 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
                 data-testid='userInfoDropdown'
                 className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
               >
-                <div className='grid flex-1 text-left text-sm leading-tight'>
+                <div className='grid text-left text-sm leading-tight'>
                   {(userInfo?.firstName || userInfo?.lastName) && (
                     <span className='truncate font-semibold'>{`${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`}</span>
                   )}
                   <span className='truncate text-xs'>{userInfo?.email}</span>
+                  <span className='truncate text-xs'>{userInfo?.roles.join(', ')}</span>
                 </div>
                 <ChevronsUpDown className='ml-auto size-4' />
               </SidebarMenuButton>
