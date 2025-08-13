@@ -380,6 +380,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
                     <span className='truncate font-semibold'>{`${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`}</span>
                   )}
                   <span className='truncate text-xs'>{userInfo?.email}</span>
+                  <span className='truncate text-xs'>{userInfo?.roles.join(', ')}</span>
                 </div>
                 <ChevronsUpDown className='ml-auto size-4' />
               </SidebarMenuButton>
