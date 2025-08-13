@@ -85,6 +85,7 @@
     "scopes": "Portées",
     "redirectUris": "URIs de redirection",
     "urlFormat": "* Fournissez l’URL complète y compris le protocole.",
+    "secretNote": "Veuillez enregistrer ce secret. Vous ne pourrez plus y accéder.",
     "appLevelMfa": "MFA par application",
     "useSystemMfaConfig": "Utiliser les configurations MFA du système",
     "requireEmailMfa": "Exiger MFA par e-mail",

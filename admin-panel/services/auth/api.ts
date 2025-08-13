@@ -864,7 +864,7 @@ export type GetApiV1AppsApiResponse = /** status 200 A list of apps */ {
 };
 export type GetApiV1AppsApiArg = void;
 export type PostApiV1AppsApiResponse = /** status 201 undefined */ {
-  app?: AppDetail;
+  app?: CreatedAppDetail;
 };
 export type PostApiV1AppsApiArg = {
   postAppReq: PostAppReq;
@@ -1384,7 +1384,6 @@ export type App = {
   name: string;
   isActive: boolean;
   type: 'spa' | 's2s';
-  secret: string;
   redirectUris: string[];
   useSystemMfaConfig: boolean;
   requireEmailMfa: boolean;
@@ -1397,6 +1396,9 @@ export type App = {
 };
 export type AppDetail = App & {
   scopes: string[];
+};
+export type CreatedAppDetail = AppDetail & {
+  secret: string;
 };
 export type PostAppReq = {
   name: string;
@@ -1415,12 +1417,11 @@ export type PutAppReq = {
   requireSmsMfa?: boolean;
   allowEmailMfaAsBackup?: boolean;
 };
-export type AppBanner = {
+export type Banner = {
   id: number;
   type: string;
   text: string;
   isActive: boolean;
-  appIds: number[];
   locales: {
     locale: string;
     value: string;
@@ -1428,6 +1429,9 @@ export type AppBanner = {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+};
+export type AppBanner = Banner & {
+  appIds: number[];
 };
 export type PostAppBannerReq = {
   type: string;

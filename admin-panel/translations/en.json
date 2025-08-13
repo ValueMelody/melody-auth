@@ -87,6 +87,7 @@
     "scopes": "Scopes",
     "redirectUris": "Redirect URIs",
     "urlFormat": "* Provide full url including protocol",
+    "secretNote": "Please save this secret. You will not be able to access it again.",
     "appLevelMfa": "App Level MFA",
     "useSystemMfaConfig": "Use System MFA Config",
     "requireEmailMfa": "Require Email MFA",

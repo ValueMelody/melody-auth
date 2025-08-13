@@ -46,7 +46,6 @@ const createNewApp = async (token?: string) => await app.request(
 const newApp = {
   id: 3,
   clientId: expect.any(String),
-  secret: expect.any(String),
   type: 'spa',
   isActive: true,
   name: 'test name',
@@ -240,7 +239,11 @@ describe(
         const res = await createNewApp()
         const json = await res.json()
 
-        expect(json).toStrictEqual({ app: newApp })
+        expect(json).toStrictEqual({
+          app: {
+            ...newApp, secret: expect.any(String),
+          },
+        })
       },
     )
 
@@ -255,7 +258,11 @@ describe(
         const res = await createNewApp(token)
         const json = await res.json()
 
-        expect(json).toStrictEqual({ app: newApp })
+        expect(json).toStrictEqual({
+          app: {
+            ...newApp, secret: expect.any(String),
+          },
+        })
       },
     )
 
@@ -288,6 +295,7 @@ describe(
           app: {
             ...newApp,
             scopes: [],
+            secret: expect.any(String),
           },
         })
       },

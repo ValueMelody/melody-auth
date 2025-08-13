@@ -28,8 +28,12 @@ const Page = () => {
     data, isLoading,
   } = useGetApiV1AppsQuery()
 
-  const { data: appBannersData } = useGetApiV1AppBannersQuery()
   const configs = useSignalValue(configSignal)
+
+  const { data: appBannersData } = useGetApiV1AppBannersQuery(
+    undefined,
+    { skip: !configs.ENABLE_APP_BANNER },
+  )
 
   const { userInfo } = useAuth()
   const canWriteApp = accessTool.isAllowedAccess(

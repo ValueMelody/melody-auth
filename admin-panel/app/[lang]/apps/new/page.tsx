@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import useEditApp from '../useEditApp'
 import RedirectUriEditor from '../RedirectUriEditor'
 import {
@@ -22,10 +23,13 @@ import {
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import RequiredProperty from 'components/RequiredProperty'
+import { appSlice } from 'stores/app'
 
 const Page = () => {
   const t = useTranslations()
   const router = useRouter()
+
+  const dispatch = useDispatch()
 
   const {
     values, errors, onChange,
@@ -77,6 +81,7 @@ const Page = () => {
     })
 
     if (res.data?.app?.id) {
+      dispatch(appSlice.actions.storeCreatedApp(res.data.app))
       router.push(`${routeTool.Internal.Apps}/${res.data.app.id}`)
     }
   }

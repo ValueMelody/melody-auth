@@ -22,7 +22,6 @@ export const superAdminRole = {
 export const adminSpaApp = {
   id: 1,
   clientId: expect.any(String),
-  secret: expect.any(String),
   type: 'spa',
   isActive: true,
   name: 'Admin Panel (SPA)',
@@ -43,7 +42,6 @@ export const adminSpaApp = {
 export const adminS2sApp = {
   id: 2,
   clientId: expect.any(String),
-  secret: expect.any(String),
   type: 's2s',
   isActive: true,
   name: 'Admin Panel (S2S)',

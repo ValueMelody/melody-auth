@@ -197,28 +197,6 @@ describe(
     )
 
     it(
-      'toggles client secret visibility',
-      async () => {
-        render(<Page />)
-
-        const secretCell = screen.getByText('*****')
-        const toggleButton = secretCell.parentElement?.querySelector('button')
-        expect(toggleButton).toBeInTheDocument()
-
-        // Initially secret is hidden
-        expect(screen.queryByText(apps[0].secret)).not.toBeInTheDocument()
-
-        // Show secret
-        fireEvent.click(toggleButton!)
-        expect(screen.getByText(apps[0].secret)).toBeInTheDocument()
-
-        // Hide secret again
-        fireEvent.click(toggleButton!)
-        expect(screen.queryByText(apps[0].secret)).not.toBeInTheDocument()
-      },
-    )
-
-    it(
       'prevents save when there are validation errors',
       async () => {
         render(<Page />)
