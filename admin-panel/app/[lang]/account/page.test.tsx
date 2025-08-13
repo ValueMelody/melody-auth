@@ -45,13 +45,16 @@ describe(
 
       // Setup default mock implementations
       vi.mocked(useAuth).mockReturnValue({ loginRedirect: mockLoginRedirect } as any)
-      vi.mocked(useSignalValue).mockReturnValue({ ALLOW_PASSKEY_ENROLLMENT: true })
+      vi.mocked(useSignalValue).mockReturnValue({
+        ALLOW_PASSKEY_ENROLLMENT: true,
+        ENABLE_RECOVERY_CODE: true,
+      })
       vi.mocked(useTranslations).mockReturnValue(vi.fn((key: string) => key) as any)
       vi.mocked(useLocale).mockReturnValue('en')
     })
 
     it(
-      'renders all buttons when passkey enrollment is allowed',
+      'renders all buttons',
       () => {
         render(<Page />)
 
@@ -60,17 +63,22 @@ describe(
         expect(screen.getByText('account.changeEmail')).toBeInTheDocument()
         expect(screen.getByText('account.resetMfa')).toBeInTheDocument()
         expect(screen.getByText('account.managePasskey')).toBeInTheDocument()
+        expect(screen.getByText('account.manageRecoveryCode')).toBeInTheDocument()
       },
     )
 
     it(
       'hides passkey button when enrollment is not allowed',
       () => {
-        vi.mocked(useSignalValue).mockReturnValue({ ALLOW_PASSKEY_ENROLLMENT: false })
+        vi.mocked(useSignalValue).mockReturnValue({
+          ALLOW_PASSKEY_ENROLLMENT: false,
+          ENABLE_RECOVERY_CODE: false,
+        })
 
         render(<Page />)
 
         expect(screen.queryByText('account.managePasskey')).not.toBeInTheDocument()
+        expect(screen.queryByText('account.manageRecoveryCode')).not.toBeInTheDocument()
       },
     )
 
@@ -223,6 +231,21 @@ describe(
         expect(mockLoginRedirect).toHaveBeenCalledWith({
           locale: 'en',
           policy: 'manage_passkey',
+          org: 'default',
+        })
+      },
+    )
+
+    it(
+      'calls loginRedirect with correct parameters when manage recovery code is clicked',
+      () => {
+        render(<Page />)
+
+        fireEvent.click(screen.getByText('account.manageRecoveryCode'))
+
+        expect(mockLoginRedirect).toHaveBeenCalledWith({
+          locale: 'en',
+          policy: 'manage_recovery_code',
           org: 'default',
         })
       },

@@ -15,9 +15,12 @@
     "account": "Compte"
   },
   "account": {
+    "updateInfo": "Mettre à jour les informations",
     "changePassword": "Changer le mot de passe",
     "changeEmail": "Changer l'email",
-    "resetMfa": "Réinitialiser MFA"
+    "resetMfa": "Réinitialiser MFA",
+    "managePasskey": "Gérer le passkey",
+    "manageRecoveryCode": "Gérer le code de récupération"
   },
   "common": {
     "enable": "Activer",
