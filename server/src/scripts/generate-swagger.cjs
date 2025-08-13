@@ -13,8 +13,8 @@ const {
   OrgGroup, PostOrgGroupReq, PutOrgGroupReq,
 } = require('./schemas/orgGroup.cjs')
 const {
-  App, AppDetail, PostAppReq, PutAppReq, AppBanner,
-  PostAppBannerReq, PutAppBannerReq,
+  App, AppDetail, CreatedAppDetail, PostAppReq, PutAppReq,
+  Banner, AppBanner, PostAppBannerReq, PutAppBannerReq,
 } = require('./schemas/app.cjs')
 const {
   User, UserDetail, PutUserReq,
@@ -80,6 +80,8 @@ const options = {
         PutOrgGroupReq,
         App,
         AppDetail,
+        Banner,
+        CreatedAppDetail,
         AppBanner,
         PostAppBannerReq,
         PutAppBannerReq,

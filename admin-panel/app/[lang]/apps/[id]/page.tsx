@@ -2,19 +2,14 @@
 
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
-import {
-  useMemo, useState,
-} from 'react'
-import {
-  EyeIcon, EyeSlashIcon,
-} from '@heroicons/react/16/solid'
+import { useMemo } from 'react'
 import { useAuth } from '@melody-auth/react'
+import { useSelector } from 'react-redux'
 import RedirectUriEditor from '../RedirectUriEditor'
 import useEditApp from '../useEditApp'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
-import { Button } from 'components/ui/button'
 import { Input } from 'components/ui/input'
 import { Switch } from 'components/ui/switch'
 import {
@@ -28,18 +23,22 @@ import SaveButton from 'components/SaveButton'
 import DeleteButton from 'components/DeleteButton'
 import { useRouter } from 'i18n/navigation'
 import {
-  useDeleteApiV1AppsByIdMutation, useGetApiV1AppsByIdQuery, useGetApiV1ScopesQuery, usePutApiV1AppsByIdMutation,
+  useDeleteApiV1AppsByIdMutation, useGetApiV1AppsByIdQuery, useGetApiV1ScopesQuery,
+  usePutApiV1AppsByIdMutation,
 } from 'services/auth/api'
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
 import { Label } from 'components/ui/label'
 import RequiredProperty from 'components/RequiredProperty'
+import { RootState } from 'stores'
+import { Alert } from '@/components/ui/alert'
 
 const Page = () => {
   const { id } = useParams()
   const router = useRouter()
-
   const t = useTranslations()
+
+  const createdApp = useSelector((state: RootState) => state.app.createdApp)
 
   const {
     data: appData, isLoading: isAppLoading,
@@ -49,8 +48,6 @@ const Page = () => {
   const { data: scopesData } = useGetApiV1ScopesQuery()
   const scopes = scopesData?.scopes ?? []
   const availableScopes = scopes.filter((scope) => scope.type === app?.type)
-
-  const [showSecret, setShowSecret] = useState(false)
 
   const [updateApp, { isLoading: isUpdating }] = usePutApiV1AppsByIdMutation()
   const [deleteApp, { isLoading: isDeleting }] = useDeleteApiV1AppsByIdMutation()
@@ -82,10 +79,6 @@ const Page = () => {
     },
     [app, values],
   )
-
-  const toggleSecret = () => {
-    setShowSecret(!showSecret)
-  }
 
   const handleDelete = async () => {
     await deleteApp({ id: Number(id) })
@@ -157,20 +150,23 @@ const Page = () => {
               <TableCell>{t('apps.clientId')}</TableCell>
               <TableCell>{app.clientId}</TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell>{t('apps.clientSecret')}</TableCell>
-              <TableCell className='break-all'>
-                <div className='flex items-center gap-4'>
-                  {showSecret ? app.secret : '*****'}
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    onClick={toggleSecret}>
-                    {showSecret ? <EyeSlashIcon className='w-4 h-4' /> : <EyeIcon className='w-4 h-4' />}
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+            {app.type === typeTool.ClientType.S2S && (
+              <TableRow>
+                <TableCell>{t('apps.clientSecret')}</TableCell>
+                <TableCell className='break-all'>
+                  <div className='flex items-center gap-4'>
+                    {createdApp?.id === Number(id) ? createdApp.secret : '*****'}
+                  </div>
+                  {createdApp?.id === Number(id) && (
+                    <Alert
+                      variant='warning'
+                      className='mt-2'>
+                      {t('apps.secretNote')}
+                    </Alert>
+                  )}
+                </TableCell>
+              </TableRow>
+            )}
             <TableRow>
               <TableCell>{t('apps.status')}</TableCell>
               <TableCell>

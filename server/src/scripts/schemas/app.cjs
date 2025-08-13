@@ -9,7 +9,6 @@ const App = {
       type: 'string',
       enum: ['spa', 's2s'],
     },
-    secret: { type: 'string' },
     redirectUris: {
       type: 'array',
       items: { type: 'string' },
@@ -27,7 +26,7 @@ const App = {
     },
   },
   required: [
-    'id', 'clientId', 'name', 'isActive', 'type', 'secret', 'redirectUris',
+    'id', 'clientId', 'name', 'isActive', 'type', 'redirectUris',
     'useSystemMfaConfig', 'requireEmailMfa', 'requireOtpMfa', 'requireSmsMfa',
     'allowEmailMfaAsBackup', 'createdAt', 'updatedAt', 'deletedAt',
   ],
@@ -45,6 +44,17 @@ const AppDetail = {
         },
       },
       required: ['scopes'],
+    },
+  ],
+}
+
+const CreatedAppDetail = {
+  allOf: [
+    { $ref: '#/components/schemas/AppDetail' },
+    {
+      type: 'object',
+      properties: { secret: { type: 'string' } },
+      required: ['secret'],
     },
   ],
 }
@@ -191,6 +201,7 @@ const PutAppBannerReq = {
 module.exports = {
   App,
   AppDetail,
+  CreatedAppDetail,
   PostAppReq,
   PutAppReq,
   Banner,
