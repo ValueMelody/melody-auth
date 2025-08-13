@@ -19,7 +19,8 @@
     "changePassword": "Change Password",
     "changeEmail": "Change Email",
     "resetMfa": "Reset MFA",
-    "managePasskey": "Manage Passkey"
+    "managePasskey": "Manage Passkey",
+    "manageRecoveryCode": "Manage Recovery Code"
   },
   "common": {
     "enable": "Enable",

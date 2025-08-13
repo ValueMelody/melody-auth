@@ -47,6 +47,12 @@ const Page = () => {
     })
   }
 
+  const handleManageRecoveryCode = () => {
+    loginRedirect({
+      locale: locale || undefined, policy: 'manage_recovery_code', org: 'default',
+    })
+  }
+
   return (
     <section className='flex flex-col'>
       <Breadcrumb
@@ -68,6 +74,11 @@ const Page = () => {
         {configs.ALLOW_PASSKEY_ENROLLMENT && (
           <Button onClick={handleManagePasskey}>
             {t('account.managePasskey')}
+          </Button>
+        )}
+        {configs.ENABLE_RECOVERY_CODE && (
+          <Button onClick={handleManageRecoveryCode}>
+            {t('account.manageRecoveryCode')}
           </Button>
         )}
       </section>
