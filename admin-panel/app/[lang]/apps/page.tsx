@@ -152,11 +152,9 @@ const Page = () => {
                           <EntityStatusLabel isEnabled={banner.isActive} />
                         </div>
                       </div>
-                      {canWriteApp && (
-                        <EditLink
-                          href={`${routeTool.Internal.Apps}/banners/${banner.id}`}
-                        />
-                      )}
+                      <EditLink
+                        href={`${routeTool.Internal.Apps}/banners/${banner.id}`}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
