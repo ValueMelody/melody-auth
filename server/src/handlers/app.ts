@@ -3,10 +3,18 @@ import { typeConfig } from 'configs'
 import { appService } from 'services'
 import { validateUtil } from 'utils'
 import { appDto } from 'dtos'
+import { appModel } from 'models'
+
+const removeAppSecret = (app: appModel.Record) => {
+  const {
+    secret, ...rest // eslint-disable-line @typescript-eslint/no-unused-vars
+  } = app
+  return rest
+}
 
 export const getApps = async (c: Context<typeConfig.Context>) => {
   const apps = await appService.getApps(c)
-  return c.json({ apps })
+  return c.json({ apps: apps.map(removeAppSecret) })
 }
 
 export const getApp = async (c: Context<typeConfig.Context>) => {
@@ -15,7 +23,7 @@ export const getApp = async (c: Context<typeConfig.Context>) => {
     c,
     id,
   )
-  return c.json({ app })
+  return c.json({ app: removeAppSecret(app) })
 }
 
 export const postApp = async (c: Context<typeConfig.Context>) => {
@@ -44,7 +52,7 @@ export const putApp = async (c: Context<typeConfig.Context>) => {
     Number(id),
     bodyDto,
   )
-  return c.json({ app })
+  return c.json({ app: removeAppSecret(app) })
 }
 
 export const deleteApp = async (c: Context<typeConfig.Context>) => {

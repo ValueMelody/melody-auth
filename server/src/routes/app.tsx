@@ -87,7 +87,7 @@ appRoutes.get(
  *               type: object
  *               properties:
  *                 app:
- *                   $ref: '#/components/schemas/AppDetail'
+ *                   $ref: '#/components/schemas/CreatedAppDetail'
  */
 appRoutes.post(
   `${BaseRoute}`,

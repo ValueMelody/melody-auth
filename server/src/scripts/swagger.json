@@ -578,9 +578,6 @@
               "s2s"
             ]
           },
-          "secret": {
-            "type": "string"
-          },
           "redirectUris": {
             "type": "array",
             "items": {
@@ -619,7 +616,6 @@
           "name",
           "isActive",
           "type",
-          "secret",
           "redirectUris",
           "useSystemMfaConfig",
           "requireEmailMfa",
@@ -652,7 +648,7 @@
           }
         ]
       },
-      "AppBanner": {
+      "Banner": {
         "type": "object",
         "properties": {
           "id": {
@@ -666,12 +662,6 @@
           },
           "isActive": {
             "type": "boolean"
-          },
-          "appIds": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
           },
           "locales": {
             "type": "array",
@@ -707,11 +697,49 @@
           "type",
           "text",
           "isActive",
-          "appIds",
           "locales",
           "createdAt",
           "updatedAt",
           "deletedAt"
+        ]
+      },
+      "CreatedAppDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppDetail"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "secret": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "secret"
+            ]
+          }
+        ]
+      },
+      "AppBanner": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Banner"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "appIds": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "appIds"
+            ]
+          }
         ]
       },
       "PostAppBannerReq": {
@@ -2301,7 +2329,7 @@
                   "type": "object",
                   "properties": {
                     "app": {
-                      "$ref": "#/components/schemas/AppDetail"
+                      "$ref": "#/components/schemas/CreatedAppDetail"
                     }
                   }
                 }
