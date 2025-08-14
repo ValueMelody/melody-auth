@@ -182,6 +182,7 @@ const Page = () => {
               <TableCell>{t('orgs.allowPublicRegistration')}</TableCell>
               <TableCell>
                 <Switch
+                  disabled={!canWriteOrg}
                   checked={values.allowPublicRegistration}
                   onClick={() => onChange(
                     'allowPublicRegistration',
@@ -196,6 +197,7 @@ const Page = () => {
                   <TableCell>{t('orgs.onlyUseForBrandingOverride')}</TableCell>
                   <TableCell>
                     <Switch
+                      disabled={!canWriteOrg}
                       checked={values.onlyUseForBrandingOverride}
                       onClick={() => onChange(
                         'onlyUseForBrandingOverride',
@@ -487,34 +489,38 @@ const Page = () => {
                     className='cursor-pointer gap-4'
                   >
                     {orgGroup.name}
-                    <div className='flex gap-2'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className='p-1'
-                        onClick={() => setUpdatingOrgGroupId(orgGroup.id)}
-                      >
-                        <EditIcon />
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className='p-1'
-                        onClick={() => setDeletingOrgGroupId(orgGroup.id)}
-                      >
-                        <TrashIcon />
-                      </Button>
-                    </div>
+                    {canWriteOrg && (
+                      <div className='flex gap-2'>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='p-1'
+                          onClick={() => setUpdatingOrgGroupId(orgGroup.id)}
+                        >
+                          <EditIcon />
+                        </Button>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='p-1'
+                          onClick={() => setDeletingOrgGroupId(orgGroup.id)}
+                        >
+                          <TrashIcon />
+                        </Button>
+                      </div>
+                    )}
                   </Badge>
                 ))}
               </section>
-              <Button
-                onClick={() => setIsCreatingOrgGroup(true)}
-                size='sm'
-                variant='outline'
-              >
-                {t('orgGroups.new')}
-              </Button>
+              {canWriteOrg && (
+                <Button
+                  onClick={() => setIsCreatingOrgGroup(true)}
+                  size='sm'
+                  variant='outline'
+                >
+                  {t('orgGroups.new')}
+                </Button>
+              )}
             </section>
           )}
           <UserTable
