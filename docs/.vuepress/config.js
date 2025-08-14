@@ -55,12 +55,24 @@ export default defineUserConfig({
                 text: 'Additional Features',
                 children: [
                   {
+                    text: 'User Attributes',
+                    link: '/user-attributes.md',
+                  },
+                  {
                     text: 'App Banners',
                     link: '/app-banners.md',
                   },
                   {
+                    text: 'Organization Groups',
+                    link: '/org-groups.md',
+                  },
+                  {
                     text: 'Impersonation',
                     link: '/impersonation.md',
+                  },
+                  {
+                    text: 'Log Management',
+                    link: '/log-management.md',
                   },
                 ],
               },
@@ -161,8 +173,11 @@ export default defineUserConfig({
               {
                 text: '其他功能',
                 children: [
+                  { text: '用户属性', link: '/zh/user-attributes.md' },
                   { text: '应用横幅', link: '/zh/app-banners.md' },
+                  { text: '组织分组', link: '/zh/org-groups.md' },
                   { text: '模拟登录', link: '/zh/impersonation.md' },
+                  { text: '日志管理', link: '/zh/log-management.md' },
                 ],
               },
               {
