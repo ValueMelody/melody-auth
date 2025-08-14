@@ -21,6 +21,7 @@ export enum Access {
 
 export const AllowedRoles = [
   typeTool.Role.SuperAdmin,
+  typeTool.Role.Visitor,
 ]
 
 export const RoleAccesses = {
@@ -41,6 +42,15 @@ export const RoleAccesses = {
     Access.WriteLog,
     Access.Impersonation,
     Access.ManageSamlSso,
+  ],
+  [typeTool.Role.Visitor]: [
+    Access.ReadUser,
+    Access.ReadUserAttribute,
+    Access.ReadRole,
+    Access.ReadApp,
+    Access.ReadScope,
+    Access.ReadOrg,
+    Access.ReadLog,
   ],
 }
 

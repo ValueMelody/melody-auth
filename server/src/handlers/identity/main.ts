@@ -209,7 +209,7 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
     authCodeBody,
   )
 
-  await signUpHook.postSignUp()
+  await signUpHook.postSignUp(c, user)
 
   return c.json(result)
 }

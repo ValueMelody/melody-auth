@@ -17,6 +17,7 @@ export enum Scope {
 
 export enum Role {
   SuperAdmin = 'super_admin',
+  Visitor = 'visitor',
 }
 
 export enum ClientType {
