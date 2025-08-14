@@ -111,8 +111,8 @@
 - [Admin Panel Access Control](https://auth.valuemelody.com/admin-panel-setup.html#custom-role-access-for-the-admin-panel)
 
 ## Demo & Examples
+- [Demo Site](https://auth-demo.valuemelody.com)
 - [Vite React Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-react-demo)
-  - [Demo Site: Password Sign-in/Sign-up with OTP MFA and Passkey enrollment](https://auth-demo.valuemelody.com)
 - [Angular Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/angular-example)
 - [Vite Vue Example](https://github.com/ValueMelody/melody-auth-examples/tree/main/vite-vue-example)
 - [Next.js Full stack implementation Example](https://github.com/ValueMelody/melody-auth/tree/main/admin-panel)

@@ -94,7 +94,7 @@ npm run dev:start
 1. 资源预配：  
   在 Cloudflare 控制台为新环境创建 Worker、D1 和 KV 资源。
 2. 复制配置文件：  
-  复制现有 toml 文件（如 `server/wrangler.toml` 或 `server/demo.wrangler.toml`），并重命名为类似 `[envName].wrangler.toml`。
+  复制server/wrangler.toml文件，并重命名为类似 `[envName].wrangler.toml`。
 3. 更新资源标识：  
   编辑新的 `[envName].wrangler.toml` 文件，将资源名称、KV ID 和 D1 ID 替换为新环境对应的值。
 4. 生成 Secrets：  

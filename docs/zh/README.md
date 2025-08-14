@@ -9,7 +9,7 @@ actions:
   - text: 截图
     link: /zh/screenshots.html
     type: secondary
-  - text: 演示 [OTP MFA&Passkey 注册]
+  - text: 演示
     link: https://auth-demo.valuemelody.com
     type: secondary
   - text: 更新日志
