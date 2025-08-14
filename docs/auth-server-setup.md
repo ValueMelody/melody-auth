@@ -95,7 +95,7 @@ When managing several remote environments (e.g., dev, demo, QA, staging, product
 1. Provision Resources:  
   Create the Worker, D1, and KV resources for your new environment via the Cloudflare dashboard.
 2. Duplicate the Configuration File:  
-  Copy an existing toml file (such as server/wrangler.toml or server/demo.wrangler.toml) and rename it to something like [envName].wrangler.toml.
+  Copy server/wrangler.toml and rename it to something like [envName].wrangler.toml.
 3. Update Resource Identifiers:  
   Edit your new [envName].wrangler.toml file to replace the resource names, KV ID, and D1 ID with those corresponding to your newly created resources.
 4. Generate Secrets:  

@@ -9,7 +9,7 @@ actions:
   - text: Screenshots
     link: /screenshots.html
     type: secondary
-  - text: Demo [OTP MFA&Passkey Enrollment]
+  - text: Demo
     link: https://auth-demo.valuemelody.com
     type: secondary
   - text: Changelog
