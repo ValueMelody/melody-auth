@@ -322,11 +322,76 @@ describe(
 
         it(
           'updates type value through BannerTypeSelector onChange',
-          () => {
+          async () => {
             render(<Page />)
 
-            const typeLabel = screen.getByText('apps.bannerType')
-            expect(typeLabel).toBeInTheDocument()
+            const bannerTypeSelect = screen.getByTestId('bannerTypeSelect')
+            const textInput = screen.getByTestId('textInput')
+            const saveBtn = screen.getByTestId('saveButton')
+
+            // Fill in required text field
+            fireEvent.change(
+              textInput,
+              { target: { value: 'Test Banner Text' } },
+            )
+
+            // Change banner type from default to 'warning'
+            fireEvent.click(bannerTypeSelect)
+            const warningOption = screen.getByTestId('bannerTypeSelect-warningOption')
+            fireEvent.click(warningOption)
+
+            // Submit the form
+            fireEvent.click(saveBtn)
+
+            // Wait for the API call and verify the type was included
+            await waitFor(() => {
+              expect(mockCreate).toHaveBeenCalledWith({
+                postAppBannerReq: expect.objectContaining({
+                  type: 'warning',
+                  text: 'Test Banner Text',
+                }),
+              })
+            })
+          },
+        )
+
+        it(
+          'changes type to all available options',
+          async () => {
+            render(<Page />)
+
+            const bannerTypeSelect = screen.getByTestId('bannerTypeSelect')
+            const textInput = screen.getByTestId('textInput')
+            const saveBtn = screen.getByTestId('saveButton')
+
+            // Fill in required text field
+            fireEvent.change(
+              textInput,
+              { target: { value: 'Test Banner' } },
+            )
+
+            // Test changing to 'error' type
+            fireEvent.click(bannerTypeSelect)
+            const errorOption = screen.getByTestId('bannerTypeSelect-errorOption')
+            fireEvent.click(errorOption)
+
+            fireEvent.click(saveBtn)
+            await waitFor(() => {
+              expect(mockCreate).toHaveBeenCalledWith({ postAppBannerReq: expect.objectContaining({ type: 'error' }) })
+            })
+
+            // Clear mock for next test
+            mockCreate.mockClear()
+
+            // Test changing to 'success' type
+            fireEvent.click(bannerTypeSelect)
+            const successOption = screen.getByTestId('bannerTypeSelect-successOption')
+            fireEvent.click(successOption)
+
+            fireEvent.click(saveBtn)
+            await waitFor(() => {
+              expect(mockCreate).toHaveBeenCalledWith({ postAppBannerReq: expect.objectContaining({ type: 'success' }) })
+            })
           },
         )
       },

@@ -158,6 +158,20 @@ describe(
             })
           },
         )
+
+        it(
+          'calls loginRedirect with undefined locale when manage recovery code is clicked',
+          () => {
+            render(<Page />)
+            fireEvent.click(screen.getByText('account.manageRecoveryCode'))
+
+            expect(mockLoginRedirect).toHaveBeenCalledWith({
+              locale: undefined,
+              policy: 'manage_recovery_code',
+              org: 'default',
+            })
+          },
+        )
       },
     )
 

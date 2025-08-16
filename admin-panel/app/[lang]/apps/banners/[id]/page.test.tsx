@@ -697,6 +697,105 @@ describe(
         )
 
         it(
+          'updates banner type and sends only changed type field',
+          async () => {
+            render(<Page />)
+            const bannerTypeSelect = screen.getByTestId('bannerTypeSelect')
+            const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+            // Initially save button should be disabled (no changes)
+            expect(saveBtn?.disabled).toBe(true)
+
+            // Change banner type from 'info' to 'warning'
+            fireEvent.click(bannerTypeSelect)
+            const warningOption = screen.getByTestId('bannerTypeSelect-warningOption')
+            fireEvent.click(warningOption)
+
+            // Save button should now be enabled
+            expect(saveBtn?.disabled).toBe(false)
+
+            // Click save
+            fireEvent.click(saveBtn)
+
+            // Verify only type field is sent in the update request
+            expect(mockUpdate).toHaveBeenCalledWith({
+              id: 1,
+              putAppBannerReq: { type: 'warning' },
+            })
+          },
+        )
+
+        it(
+          'updates banner type along with other changed fields',
+          async () => {
+            render(<Page />)
+            const bannerTypeSelect = screen.getByTestId('bannerTypeSelect')
+            const textInput = screen.queryByTestId('textInput') as HTMLInputElement
+            const statusInput = screen.queryByTestId('statusInput') as HTMLInputElement
+            const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+            // Change multiple fields: type, text, and status
+            fireEvent.click(bannerTypeSelect)
+            const errorOption = screen.getByTestId('bannerTypeSelect-errorOption')
+            fireEvent.click(errorOption)
+
+            fireEvent.change(
+              textInput,
+              { target: { value: 'Updated banner text' } },
+            )
+
+            fireEvent.click(statusInput)
+
+            // Click save
+            fireEvent.click(saveBtn)
+
+            // Verify all changed fields are sent in the update request
+            expect(mockUpdate).toHaveBeenCalledWith({
+              id: 1,
+              putAppBannerReq: {
+                type: 'error',
+                text: 'Updated banner text',
+                isActive: false,
+              },
+            })
+          },
+        )
+
+        it(
+          'can change banner type to all available options',
+          async () => {
+            render(<Page />)
+            const bannerTypeSelect = screen.getByTestId('bannerTypeSelect')
+            const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+            // Test changing to 'success' type
+            fireEvent.click(bannerTypeSelect)
+            const successOption = screen.getByTestId('bannerTypeSelect-successOption')
+            fireEvent.click(successOption)
+
+            fireEvent.click(saveBtn)
+            expect(mockUpdate).toHaveBeenCalledWith({
+              id: 1,
+              putAppBannerReq: { type: 'success' },
+            })
+
+            // Reset mock for next test
+            mockUpdate.mockClear()
+
+            // Test changing to 'error' type
+            fireEvent.click(bannerTypeSelect)
+            const errorOption = screen.getByTestId('bannerTypeSelect-errorOption')
+            fireEvent.click(errorOption)
+
+            fireEvent.click(saveBtn)
+            expect(mockUpdate).toHaveBeenCalledWith({
+              id: 1,
+              putAppBannerReq: { type: 'error' },
+            })
+          },
+        )
+
+        it(
           'handles undefined appIds when adding app',
           async () => {
             const bannerWithoutApps = {
