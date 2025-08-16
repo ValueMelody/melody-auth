@@ -31,7 +31,7 @@ export default defineUserConfig({
               { text: 'Email Provider Setup', link: '/email-provider-setup.html' },
               { text: 'SMS Provider Setup', link: '/sms-provider-setup.html' },
               {
-                text: 'Identity Providers',
+                text: 'External Identity Providers',
                 children: [
                   { text: 'Social Sign-In Provider Setup', link: '/social-sign-in-provider-setup.html' },
                   { text: 'OIDC SSO Setup', link: '/oidc-sso-setup.html' },
@@ -46,9 +46,12 @@ export default defineUserConfig({
               {
                 text: 'Main Features',
                 children: [
+                  { text: 'Authentication', link: '/authentication.md' },
                   { text: 'JWT & JWKS', link: '/jwt-and-jwks.md' },
                   { text: 'Multi-Factor Authentication', link: '/mfa-setup.md' },
+                  { text: 'Role-Based Access Control', link: '/rbac.md' },
                   { text: 'Policies', link: '/policies.md' },
+                  { text: 'Organizations', link: '/organizations.md' },
                 ],
               },
               {
@@ -150,7 +153,7 @@ export default defineUserConfig({
               { text: '邮箱提供商设置', link: '/zh/email-provider-setup.html' },
               { text: '短信提供商设置', link: '/zh/sms-provider-setup.html' },
               {
-                text: '身份提供商',
+                text: '外部身份提供商',
                 children: [
                   { text: '社交登录提供商设置', link: '/zh/social-sign-in-provider-setup.html' },
                   { text: 'OIDC SSO 设置', link: '/zh/oidc-sso-setup.html' },
@@ -165,9 +168,12 @@ export default defineUserConfig({
               {
                 text: '主要功能',
                 children: [
+                  { text: '身份认证', link: '/zh/authentication.md' },
                   { text: 'JWT & JWKS', link: '/zh/jwt-and-jwks.md' },
                   { text: '多重认证(MFA)', link: '/zh/mfa-setup.md' },
+                  { text: '角色权限控制(RBAC)', link: '/zh/rbac.md' },
                   { text: '策略(policy)', link: '/zh/policies.md' },
+                  { text: '组织(organization)', link: '/zh/organizations.md' },
                 ],
               },
               {
