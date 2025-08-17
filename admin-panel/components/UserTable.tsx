@@ -20,7 +20,9 @@ import {
   User,
 } from 'services/auth/api'
 import LoadingPage from 'components/LoadingPage'
-import { routeTool } from '@/tools'
+import {
+  accessTool, routeTool,
+} from 'tools'
 
 const PageSize = 20
 
@@ -39,6 +41,11 @@ const UserTable = ({
   const [pageNumber, setPageNumber] = useState(1)
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search)
+
+  const canWriteUser = accessTool.isAllowedAccess(
+    accessTool.Access.WriteUser,
+    userInfo?.roles,
+  )
 
   const {
     data: usersData, isLoading: isUsersLoading,
@@ -139,6 +146,7 @@ const UserTable = ({
                     )}
                   </section>
                   <EditLink
+                    viewOnly={!canWriteUser}
                     href={`${routeTool.Internal.Users}/${user.authId}`}
                   />
                 </section>
@@ -168,6 +176,7 @@ const UserTable = ({
               )}
               <TableCell>
                 <EditLink
+                  viewOnly={!canWriteUser}
                   href={`${routeTool.Internal.Users}/${user.authId}`}
                 />
               </TableCell>

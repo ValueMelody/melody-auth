@@ -209,6 +209,11 @@ const Page = () => {
     userInfo?.roles,
   )
 
+  const canWriteOrg = accessTool.isAllowedAccess(
+    accessTool.Access.WriteOrg,
+    userInfo?.roles,
+  )
+
   const handleDelete = async () => {
     await deleteUser({ authId: String(authId) })
     router.push(routeTool.Internal.Users)
@@ -672,6 +677,7 @@ const Page = () => {
                 {configs.SUPPORTED_LOCALES.length > 1 && (
                   <Select
                     value={locale}
+                    disabled={!canWriteUser}
                     onValueChange={(val) => setLocale(val)}
                   >
                     <SelectTrigger
@@ -772,6 +778,7 @@ const Page = () => {
                   <Select
                     value={orgSlug || NO_ORG_SLUG}
                     onValueChange={setOrgSlug}
+                    disabled={!canWriteUser}
                   >
                     <SelectTrigger data-testid='orgSelect'>
                       <SelectValue data-testid='orgSelectValue' />
@@ -810,14 +817,16 @@ const Page = () => {
                 <TableCell>
                   <div className='flex items-center gap-2'>
                     {user.orgGroups?.map((orgGroup) => orgGroup.name).join(', ')}
-                    <Button
-                      variant='default'
-                      size='sm'
-                      data-testid='manageUserOrgGroupButton'
-                      onClick={() => setShowUserOrgGroupModal(true)}
-                    >
-                      {t('users.manageUserOrgGroup')}
-                    </Button>
+                    {canWriteUser && canWriteOrg && (
+                      <Button
+                        variant='default'
+                        size='sm'
+                        data-testid='manageUserOrgGroupButton'
+                        onClick={() => setShowUserOrgGroupModal(true)}
+                      >
+                        {t('users.manageUserOrgGroup')}
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

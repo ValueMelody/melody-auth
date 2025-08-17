@@ -72,6 +72,7 @@ const Page = () => {
                     {scope.note}
                   </div>
                   <EditLink
+                    viewOnly={!canWriteScope}
                     href={`${routeTool.Internal.Scopes}/${scope.id}`}
                   />
                 </div>
@@ -98,6 +99,7 @@ const Page = () => {
               </TableCell>
               <TableCell>
                 <EditLink
+                  viewOnly={!canWriteScope}
                   href={`${routeTool.Internal.Scopes}/${scope.id}`}
                 />
               </TableCell>

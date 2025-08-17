@@ -33,6 +33,7 @@ const Page = () => {
 
   const renderEditButton = (role: Role) => (
     <EditLink
+      viewOnly={!canWriteRole}
       href={`${routeTool.Internal.Roles}/${role.id}`}
     />
   )
