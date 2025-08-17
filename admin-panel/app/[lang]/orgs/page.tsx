@@ -38,6 +38,7 @@ const Page = () => {
   const renderEditButton = (org: Org) => {
     return (
       <EditLink
+        viewOnly={!canWriteOrg}
         href={`${routeTool.Internal.Orgs}/${org.id}`}
       />
     )

@@ -1,9 +1,14 @@
-import { PencilSquareIcon } from '@heroicons/react/16/solid'
+import {
+  EyeIcon, PencilSquareIcon,
+} from '@heroicons/react/16/solid'
 import { Link } from 'i18n/navigation'
 import { Button } from 'components/ui/button'
 
-const EditLink = ({ href }: {
+const EditLink = ({
+  href, viewOnly,
+}: {
   href: string;
+  viewOnly?: boolean;
 }) => {
   return (
     <Button
@@ -13,7 +18,7 @@ const EditLink = ({ href }: {
       data-testid='editLink'
     >
       <Link href={href}>
-        <PencilSquareIcon className='w-4 h-4' />
+        {viewOnly ? <EyeIcon className='w-4 h-4' /> : <PencilSquareIcon className='w-4 h-4' />}
       </Link>
     </Button>
   )

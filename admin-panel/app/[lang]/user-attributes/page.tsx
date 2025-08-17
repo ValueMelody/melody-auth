@@ -70,6 +70,7 @@ const Page = () => {
                     </div>
                   </div>
                   <EditLink
+                    viewOnly={!canWriteUserAttribute}
                     href={`${routeTool.Internal.UserAttributes}/${userAttribute.id}`}
                   />
                 </div>
@@ -117,6 +118,7 @@ const Page = () => {
               </TableCell>
               <TableCell>
                 <EditLink
+                  viewOnly={!canWriteUserAttribute}
                   href={`${routeTool.Internal.UserAttributes}/${userAttribute.id}`}
                 />
               </TableCell>

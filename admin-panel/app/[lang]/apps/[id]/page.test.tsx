@@ -4,6 +4,7 @@ import {
 import {
   describe, it, expect, vi, beforeEach, Mock,
 } from 'vitest'
+import { useSelector } from 'react-redux'
 import Page from 'app/[lang]/apps/[id]/page'
 import { scopes } from 'tests/scopeMock'
 import { render } from 'vitest.setup'
@@ -53,6 +54,17 @@ vi.mock(
   }),
 )
 
+vi.mock(
+  'react-redux',
+  async () => {
+    const actual = await vi.importActual('react-redux')
+    return {
+      ...actual,
+      useSelector: vi.fn(),
+    }
+  },
+)
+
 const mockUpdate = vi.fn()
 const mockDelete = vi.fn()
 
@@ -63,7 +75,8 @@ describe(
       (useGetApiV1AppsByIdQuery as Mock).mockReturnValue({ data: { app: apps[0] } });
       (usePutApiV1AppsByIdMutation as Mock).mockReturnValue([mockUpdate, { isLoading: false }]);
       (useDeleteApiV1AppsByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }]);
-      (useGetApiV1ScopesQuery as Mock).mockReturnValue({ data: { scopes } })
+      (useGetApiV1ScopesQuery as Mock).mockReturnValue({ data: { scopes } });
+      (useSelector as unknown as Mock).mockReturnValue(null)
     })
 
     it(
@@ -363,7 +376,8 @@ describe(
       (useGetApiV1AppsByIdQuery as Mock).mockReturnValue({ data: { app: apps[1] } });
       (usePutApiV1AppsByIdMutation as Mock).mockReturnValue([mockUpdate, { isLoading: false }]);
       (useDeleteApiV1AppsByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }]);
-      (useGetApiV1ScopesQuery as Mock).mockReturnValue({ data: { scopes } })
+      (useGetApiV1ScopesQuery as Mock).mockReturnValue({ data: { scopes } });
+      (useSelector as unknown as Mock).mockReturnValue(null)
       mockNav = {
         id: '2',
         push: vi.fn(),
@@ -442,6 +456,64 @@ describe(
         fireEvent.click(screen.queryByTestId('confirmButton') as HTMLButtonElement)
 
         expect(mockDelete).toHaveBeenLastCalledWith({ id: 2 })
+      },
+    )
+
+    it(
+      'shows alert message when createdApp id matches current app id',
+      async () => {
+        // Mock createdApp in Redux state with matching id
+        const createdAppMock = {
+          id: 2,
+          secret: 'test-secret-value',
+        };
+        (useSelector as unknown as Mock).mockReturnValue(createdAppMock)
+
+        render(<Page />)
+
+        // Verify the secret is displayed instead of asterisks
+        expect(screen.getByText('test-secret-value')).toBeInTheDocument()
+        expect(screen.queryByText('*****')).not.toBeInTheDocument()
+
+        // Verify the alert is displayed
+        expect(screen.getByText('apps.secretNote')).toBeInTheDocument()
+      },
+    )
+
+    it(
+      'does not show alert when createdApp id does not match current app id',
+      async () => {
+        // Mock createdApp in Redux state with different id
+        const createdAppMock = {
+          id: 999,
+          secret: 'test-secret-value',
+        };
+        (useSelector as unknown as Mock).mockReturnValue(createdAppMock)
+
+        render(<Page />)
+
+        // Verify asterisks are displayed instead of secret
+        expect(screen.getByText('*****')).toBeInTheDocument()
+        expect(screen.queryByText('test-secret-value')).not.toBeInTheDocument()
+
+        // Verify the alert is not displayed
+        expect(screen.queryByText('apps.secretNote')).not.toBeInTheDocument()
+      },
+    )
+
+    it(
+      'does not show alert when createdApp is null',
+      async () => {
+        // Mock createdApp as null
+        (useSelector as unknown as Mock).mockReturnValue(null)
+
+        render(<Page />)
+
+        // Verify asterisks are displayed
+        expect(screen.getByText('*****')).toBeInTheDocument()
+
+        // Verify the alert is not displayed
+        expect(screen.queryByText('apps.secretNote')).not.toBeInTheDocument()
       },
     )
   },

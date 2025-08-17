@@ -85,6 +85,7 @@ const Page = () => {
                     </div>
                   </div>
                   <EditLink
+                    viewOnly={!canWriteApp}
                     href={`${routeTool.Internal.Apps}/${app.id}`}
                   />
                 </div>
@@ -107,6 +108,7 @@ const Page = () => {
               </TableCell>
               <TableCell>
                 <EditLink
+                  viewOnly={!canWriteApp}
                   href={`${routeTool.Internal.Apps}/${app.id}`}
                 />
               </TableCell>
@@ -153,6 +155,7 @@ const Page = () => {
                         </div>
                       </div>
                       <EditLink
+                        viewOnly={!canWriteApp}
                         href={`${routeTool.Internal.Apps}/banners/${banner.id}`}
                       />
                     </div>
@@ -174,6 +177,7 @@ const Page = () => {
                   </TableCell>
                   <TableCell>
                     <EditLink
+                      viewOnly={!canWriteApp}
                       href={`${routeTool.Internal.Apps}/banners/${banner.id}`}
                     />
                   </TableCell>
