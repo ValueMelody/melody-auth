@@ -50,7 +50,7 @@ const Page = () => {
       <Breadcrumb
         page={{ label: t('apps.newBanner') }}
         parent={{
-          href: routeTool.Internal.Scopes,
+          href: routeTool.Internal.Apps,
           label: t('apps.title'),
         }}
       />
