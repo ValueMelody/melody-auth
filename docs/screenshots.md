@@ -63,12 +63,12 @@ These screenshots showcase various pages and emails related to identity system a
 ## Admin Panel Pages
 
 ### Dashboard
-![Dashboard](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-dashboard.jpeg)
+![Dashboard](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-dashboard.jpg)
 
 ### Users
-![Users](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-users.jpeg)
+![Users](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-users.jpg)
 
-![User](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-user.jpeg)
+![User](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-user.jpg)
 
 ### User Attributes
 ![User Attributes](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-user-attributes.jpg)
@@ -78,41 +78,52 @@ These screenshots showcase various pages and emails related to identity system a
 ![Create User Attribute](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-user-attribute-create.jpg)
 
 ### Roles
-![Roles](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-roles.jpeg)
+![Roles](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-roles.jpg)
 
-![Role](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-role.jpeg)
+![Role](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-role.jpg)
 
-![Create Role](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-role-create.jpeg)
+![Create Role](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-role-create.jpg)
 
 ### Apps
-![Apps](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-apps.jpeg)
+![Apps](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-apps.jpg)
 
-![App](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-app.jpeg)
+![App](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-app.jpg)
 
-![Create App](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-app-create.jpeg)
+![Create App](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-app-create.jpg)
+
+![App Banner](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-app-banner.jpg)
+
+![App Banner Create](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-app-banner-create.jpg)
 
 ### Scopes
-![Scopes](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-scopes.jpeg)
+![Scopes](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-scopes.jpg)
 
-![Scope](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-scope.jpeg)
+![Scope](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-scope.jpg)
 
-![Create Scope](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-scope-create.jpeg)
+![Create Scope](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-scope-create.jpg)
 
 ### Orgs
-![Orgs](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-orgs.jpeg)
+![Orgs](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-orgs.jpg)
 
-![Org](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-org.jpeg)
+![Org](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-org.jpg)
 
-![Create Org](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-org-create.jpeg)
+![Create Org](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-org-create.jpg)
+
+### SAML
+![SAMLs](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-samls.jpg)
+
+![SAML](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-saml.jpg)
+
+![Create SAML](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-saml-create.jpg)
 
 ### Logs
-![Logs](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-logs.jpeg)
+![Logs](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-logs.jpg)
 
-![Email Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-email-log.jpeg)
+![Email Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-email-log.jpg)
 
-![Sms Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-sms-log.jpeg)
+![Sms Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-sms-log.jpg)
 
-![Sign-in Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-sign-in-log.jpeg)
+![Sign-in Log](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-sign-in-log.jpg)
 
 ### Account
-![Account](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-account.jpeg)
+![Account](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/admin-panel-account.jpg)
