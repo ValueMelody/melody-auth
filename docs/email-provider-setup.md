@@ -5,6 +5,12 @@ Melody Auth relies on an email provider to send password reset links, email veri
 - **Cloudflare Workers or Node.js**: SendGrid, Mailgun, Brevo, Resend and Postmark
 -	**Node.js (Only)**: SMTP server (in addition to the above)
 
+## Set your email provider name
+In your `server/wrangler.toml` file, set the `EMAIL_PROVIDER_NAME` variable to the name of your email provider. Available options are 'smtp', 'sendgrid', 'mailgun', 'brevo', 'resend', 'postmark'
+```toml
+EMAIL_PROVIDER_NAME="smtp"
+```
+
 ## Environment Variables
 Use the table below to configure your chosen email provider. Some variables are required only if you’re using a specific provider (e.g., SendGrid).
 
@@ -35,13 +41,16 @@ Use the table below to configure your chosen email provider. Some variables are 
   - Prevents emailing real users during testing.
 
 ## Priority Between Providers
-- Node.js Environment
-  - If SMTP_CONNECTION_STRING is defined, SMTP will always be used—regardless of SendGrid, Mailgun, Brevo, Resend or Postmark settings.
-  - Otherwise, if more than one API key and sender address are provided (SendGrid, Mailgun, Brevo, Resend, Postmark), SendGrid is used first, then Mailgun, Brevo, Resend and finally Postmark.
+- If EMAIL_PROVIDER_NAME is set to a valid provider name, that provider will be used.
 
-- Cloudflare Environment
-  - SMTP settings are ignored.
-  - If you set up multiple providers (SendGrid, Mailgun, Brevo, Resend, Postmark), SendGrid takes priority, followed by Mailgun, Brevo, Resend and then Postmark.
+- If EMAIL_PROVIDER_NAME is not set or set to an invalid provider name:
+  - Node.js Environment
+    - If SMTP_CONNECTION_STRING is defined, SMTP will always be used—regardless of SendGrid, Mailgun, Brevo, Resend or Postmark settings.
+    - Otherwise, if more than one API key and sender address are provided (SendGrid, Mailgun, Brevo, Resend, Postmark), SendGrid is used first, then Mailgun, Brevo, Resend and finally Postmark.
+
+  - Cloudflare Environment
+    - SMTP settings are ignored.
+    - If you set up multiple providers (SendGrid, Mailgun, Brevo, Resend, Postmark), SendGrid takes priority, followed by Mailgun, Brevo, Resend and then Postmark.
 
 ## Cloudflare Remote/Production Configuration
 1. Navigate to the Cloudflare dashboard -> Go to "Workers & Pages"

@@ -58,6 +58,25 @@ const checkEmailSetup = (c: Context<typeConfig.Context>) => {
 
 const buildMailer = (context: Context<typeConfig.Context>): IMailer => {
   const vars = env(context)
+
+  const { EMAIL_PROVIDER_NAME: emailProviderName } = vars
+  switch (emailProviderName) {
+  case 'smtp':
+    return new SmtpMailer({ context })
+  case 'sendgrid':
+    return new SendgridMailer({ context })
+  case 'mailgun':
+    return new MailgunMailer({ context })
+  case 'brevo':
+    return new BrevoMailer({ context })
+  case 'resend':
+    return new ResendMailer({ context })
+  case 'postmark':
+    return new PostmarkMailer({ context })
+  }
+
+  // Keep legacy way below for backward compatibility
+
   if (context.env.SMTP) {
     return new SmtpMailer({ context })
   }

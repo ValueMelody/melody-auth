@@ -31,7 +31,7 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Description:** URL of your Privacy Policy. If set, a link to this policy is shown on the sign-up page.
 
 
-## Locale Configs
+## System Configs
 
 ### SUPPORTED_LOCALES
 - **Default:** ['en', 'fr']
@@ -40,6 +40,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 ### ENABLE_LOCALE_SELECTOR
 - **Default:** true
 - **Description:** Determines whether users can switch locales on identity pages. If only one locale is in `SUPPORTED_LOCALES`, the selector is hidden.
+
+### EMAIL_PROVIDER_NAME
+- **Default:** ""
+- **Description:** The name of your email provider. Available options are 'smtp', 'sendgrid', 'mailgun', 'brevo', 'resend', 'postmark'
 
 
 ## Suppression Configs
