@@ -530,3 +530,258 @@ describe(
     )
   },
 )
+
+describe(
+  'post /reset-password-code with EMAIL_PROVIDER_NAME',
+  () => {
+    test(
+      'should use SMTP when EMAIL_PROVIDER_NAME=smtp',
+      async () => {
+        process.env.EMAIL_PROVIDER_NAME = 'smtp'
+        process.env.MAILGUN_API_KEY = 'abc'
+        process.env.MAILGUN_SENDER_ADDRESS = 'app@valuemelody.com'
+        process.env.BREVO_API_KEY = 'abc'
+        process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const sendEmailMock = vi.fn(async () => {
+          return Promise.resolve({ accepted: ['test@email.com'] })
+        })
+
+        await insertUsers(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ResetPasswordCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'test@email.com',
+              password: 'Password1!',
+            }),
+          },
+          {
+            ...mock(db),
+            SMTP: { init: () => ({ sendMail: sendEmailMock }) },
+          },
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+        expect(code.length).toBe(6)
+
+        expect(sendEmailMock).toBeCalledTimes(1)
+        const callArgs = sendEmailMock.mock.calls[0] as any[]
+        const body = (callArgs[0] as unknown as { html: string }).html
+        expect(body).toContain(code)
+
+        process.env.EMAIL_PROVIDER_NAME = ''
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+      },
+    )
+
+    test(
+      'should use SendGrid when EMAIL_PROVIDER_NAME=sendgrid',
+      async () => {
+        process.env.EMAIL_PROVIDER_NAME = 'sendgrid'
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+        // Set other providers to ensure EMAIL_PROVIDER_NAME takes precedence
+        process.env.MAILGUN_API_KEY = 'abc'
+        process.env.MAILGUN_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const {
+          res, code,
+        } = await sendCorrectResetPasswordCodeReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(code.length).toBe(6)
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.sendgrid.com/v3/mail/send')
+        expect(body).toContain(code)
+        expect(body).toContain('"personalizations":[{"to":[{"email":"test@email.com"}]}]')
+        global.fetch = fetchMock
+
+        process.env.EMAIL_PROVIDER_NAME = ''
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+      },
+    )
+
+    test(
+      'should use Mailgun when EMAIL_PROVIDER_NAME=mailgun',
+      async () => {
+        process.env.EMAIL_PROVIDER_NAME = 'mailgun'
+        process.env.MAILGUN_API_KEY = 'abc'
+        process.env.MAILGUN_SENDER_ADDRESS = 'app@valuemelody.com'
+        // Set other providers to ensure EMAIL_PROVIDER_NAME takes precedence
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const {
+          res, code,
+        } = await sendCorrectResetPasswordCodeReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(code.length).toBe(6)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: FormData }).body
+        expect(callArgs[0]).toBe('https://api.mailgun.net/v3/valuemelody.com/messages')
+        expect(body.get('html')).toContain(code)
+        expect(body.get('to')).toContain('test@email.com')
+
+        global.fetch = fetchMock
+
+        process.env.EMAIL_PROVIDER_NAME = ''
+        process.env.MAILGUN_API_KEY = ''
+        process.env.MAILGUN_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+      },
+    )
+
+    test(
+      'should use Brevo when EMAIL_PROVIDER_NAME=brevo',
+      async () => {
+        process.env.EMAIL_PROVIDER_NAME = 'brevo'
+        process.env.BREVO_API_KEY = 'abc'
+        process.env.BREVO_SENDER_ADDRESS = 'app@valuemelody.com'
+        // Set other providers to ensure EMAIL_PROVIDER_NAME takes precedence
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const {
+          res, code,
+        } = await sendCorrectResetPasswordCodeReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(code.length).toBe(6)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.brevo.com/v3/smtp/email')
+        expect(body).toContain(code)
+        expect(body).toContain('"to":[{"email":"test@email.com"}]')
+
+        global.fetch = fetchMock
+
+        process.env.EMAIL_PROVIDER_NAME = ''
+        process.env.BREVO_API_KEY = ''
+        process.env.BREVO_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+      },
+    )
+
+    test(
+      'should use Resend when EMAIL_PROVIDER_NAME=resend',
+      async () => {
+        process.env.EMAIL_PROVIDER_NAME = 'resend'
+        process.env.RESEND_API_KEY = 're_2232323'
+        process.env.RESEND_SENDER_ADDRESS = 'app@valuemelody.com'
+        // Set other providers to ensure EMAIL_PROVIDER_NAME takes precedence
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const {
+          res, code,
+        } = await sendCorrectResetPasswordCodeReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(code.length).toBe(6)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.resend.com/emails')
+        expect(body).toContain(code)
+        expect(body).toContain('"to":["test@email.com"]')
+
+        global.fetch = fetchMock
+
+        process.env.EMAIL_PROVIDER_NAME = ''
+        process.env.RESEND_API_KEY = ''
+        process.env.RESEND_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+      },
+    )
+
+    test(
+      'should use Postmark when EMAIL_PROVIDER_NAME=postmark',
+      async () => {
+        process.env.EMAIL_PROVIDER_NAME = 'postmark'
+        process.env.POSTMARK_API_KEY = 'abc'
+        process.env.POSTMARK_SENDER_ADDRESS = 'app@valuemelody.com'
+        // Set other providers to ensure EMAIL_PROVIDER_NAME takes precedence
+        process.env.SENDGRID_API_KEY = 'abc'
+        process.env.SENDGRID_SENDER_ADDRESS = 'app@valuemelody.com'
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        const {
+          res, code,
+        } = await sendCorrectResetPasswordCodeReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+        expect(code.length).toBe(6)
+
+        expect(mockFetch).toBeCalledTimes(1)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(callArgs[0]).toBe('https://api.postmarkapp.com/email')
+        expect(body).toContain(code)
+        expect(body).toContain('"To":"test@email.com"')
+
+        global.fetch = fetchMock
+
+        process.env.EMAIL_PROVIDER_NAME = ''
+        process.env.POSTMARK_API_KEY = ''
+        process.env.POSTMARK_SENDER_ADDRESS = ''
+        process.env.SENDGRID_API_KEY = ''
+        process.env.SENDGRID_SENDER_ADDRESS = ''
+      },
+    )
+  },
+)

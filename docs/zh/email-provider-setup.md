@@ -5,6 +5,12 @@ Melody Auth 依赖邮件服务商来发送密码重置链接、邮箱验证通�
 - **Cloudflare Workers 或 Node.js**：SendGrid、Mailgun、Brevo、Resend 和 Postmark
 - **仅限 Node.js**：SMTP 服务器（除以上服务商外的额外选项）
 
+## 设置邮件服务商名称
+在您的 `server/wrangler.toml` 文件中，设置 `EMAIL_PROVIDER_NAME` 变量为您的邮件服务商名称。可用选项为 'smtp', 'sendgrid', 'mailgun', 'brevo', 'resend', 'postmark'
+```toml
+EMAIL_PROVIDER_NAME="smtp"
+```
+
 ## 环境变量
 使用下表配置您选择的邮件服务商。某些变量仅在使用特定服务商时为必填（例如 SendGrid）。
 
@@ -35,13 +41,16 @@ Melody Auth 依赖邮件服务商来发送密码重置链接、邮箱验证通�
   - 避免在测试时向真实用户发送邮件。
 
 ## 服务商优先级
-- **Node.js 环境**
-  - 如果定义了 `SMTP_CONNECTION_STRING`，则始终使用 SMTP 发送邮件，而不考虑 SendGrid、Mailgun、Brevo、Resend 或 Postmark 设置。
-  - 否则，如果同时配置了多个 API Key 和发件人地址，将按 SendGrid → Mailgun → Brevo → Resend → Postmark 的顺序选择可用服务商。
+- 如果 EMAIL_PROVIDER_NAME 设置为有效服务商名称，则使用该服务商发送邮件。
 
-- **Cloudflare 环境**
-  - 忽略所有 SMTP 设置。
-  - 如果同时配置了多个服务商，将按 SendGrid → Mailgun → Brevo → Resend → Postmark 的顺序选择可用服务商。
+- 如果 EMAIL_PROVIDER_NAME 未设置或设置为无效服务商名称：
+  - **Node.js 环境**
+    - 如果定义了 `SMTP_CONNECTION_STRING`，则始终使用 SMTP 发送邮件，而不考虑 SendGrid、Mailgun、Brevo、Resend 或 Postmark 设置。
+    - 否则，如果同时配置了多个 API Key 和发件人地址，将按 SendGrid → Mailgun → Brevo → Resend → Postmark 的顺序选择可用服务商。
+
+  - **Cloudflare 环境**
+    - 忽略所有 SMTP 设置。
+    - 如果同时配置了多个服务商，将按 SendGrid → Mailgun → Brevo → Resend → Postmark 的顺序选择可用服务商。
 
 ## Cloudflare 远程 / 生产环境配置
 1. 进入 Cloudflare Dashboard → **Workers & Pages**。

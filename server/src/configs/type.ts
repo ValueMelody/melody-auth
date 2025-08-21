@@ -90,6 +90,7 @@ export type Bindings = {
   EMBEDDED_AUTH_ORIGINS: string[];
   ENABLE_SAML_SP: boolean;
   ENABLE_APP_BANNER: boolean;
+  EMAIL_PROVIDER_NAME: string;
 };
 
 export type Context = {
