@@ -31,7 +31,7 @@ Melody Auth 提供了一系列可自定义选项，以便您根据实际需求�
 - **说明：** 您的隐私政策链接。如果设置，则在注册页面会显示该链接。
 
 
-## 语言相关配置
+## 系统配置
 
 ### SUPPORTED_LOCALES
 - **默认值：** ['en', 'fr']
@@ -40,6 +40,10 @@ Melody Auth 提供了一系列可自定义选项，以便您根据实际需求�
 ### ENABLE_LOCALE_SELECTOR
 - **默认值：** true
 - **说明：** 是否允许用户在身份验证页面切换语言。如果 `SUPPORTED_LOCALES` 只包含一种语言，则语言选择器会被隐藏。
+
+### EMAIL_PROVIDER_NAME
+- **默认值：** ""
+- **说明：** 邮件服务商名称。可用选项为 'smtp', 'sendgrid', 'mailgun', 'brevo', 'resend', 'postmark'
 
 
 ## 功能开关配置
