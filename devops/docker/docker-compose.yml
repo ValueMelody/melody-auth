@@ -1,3 +1,4 @@
+name: melody-auth-dev
 services:
   postgres:
     image: postgres:15
