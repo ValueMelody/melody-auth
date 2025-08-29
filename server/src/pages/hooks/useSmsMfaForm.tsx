@@ -11,6 +11,7 @@ import {
 } from 'pages/tools/form'
 import {
   routeConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 import { GetProcessSmsMfaRes } from 'handlers/identity/mfa'
 import {
@@ -67,7 +68,7 @@ const useSmsMfaForm = ({
           function (value) {
             if (!value) return false
             const fullNumber = countryCode + value.trim()
-            const regex = /^\+[1-9]\d{1,14}$/
+            const regex = variableConfig.SmsMfaConfig.validationRegex
             return regex.test(fullNumber)
           },
         )
