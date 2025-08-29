@@ -49,9 +49,13 @@ export const SocialSignInConfig = Object.freeze({
   AppleScope: 'name email',
 })
 
-// Prefix of the phone number to be used for SMS MFA.
-// For example, if you are based in the United States, you should set this to "+1".
-export const SmsMfaConfig = Object.freeze({ CountryCode: '+1' })
+export const SmsMfaConfig = Object.freeze({
+  // Prefix of the phone number to be used for SMS MFA.
+  // For example, if you are based in the United States, you should set this to "+1".
+  CountryCode: '+1',
+  // For validation error message, update server/src/pages/tools/locale.ts validateError.wrongPhoneFormat accordingly
+  validationRegex: /^\+[1-9]\d{1,14}$/,
+})
 
 export const S2sConfig = Object.freeze({ impersonationRoles: [Role.SuperAdmin] })
 
