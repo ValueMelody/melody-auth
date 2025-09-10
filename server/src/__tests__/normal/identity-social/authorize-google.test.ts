@@ -32,7 +32,9 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const prepareRequest = async (emailVerified: boolean) => {
+const prepareRequest = async (
+  emailVerified: boolean, orgSlug?: string,
+) => {
   const publicKey = await mockedKV.get(adapterConfig.BaseKVKey.JwtPublicSecret)
   const jwk = await cryptoUtil.secretToJwk(publicKey ?? '')
   const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
@@ -56,6 +58,7 @@ const prepareRequest = async (emailVerified: boolean) => {
       method: 'POST',
       body: JSON.stringify({
         ...(await postAuthorizeBody(appRecord)),
+        org: orgSlug,
         credential,
       }),
     },
@@ -64,8 +67,13 @@ const prepareRequest = async (emailVerified: boolean) => {
   return res
 }
 
-const postGoogleRequest = async (emailVerified: boolean) => {
-  const res = await prepareRequest(emailVerified)
+const postGoogleRequest = async (
+  emailVerified: boolean, orgSlug?: string,
+) => {
+  const res = await prepareRequest(
+    emailVerified,
+    orgSlug,
+  )
 
   const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
   expect(users.length).toBe(1)
@@ -234,6 +242,69 @@ describe(
         await postGoogleRequest(true)
         await postGoogleRequest(false)
         global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
+      },
+    )
+
+    test(
+      'should sign in with google account and store org slug',
+      async () => {
+        process.env.GOOGLE_AUTH_CLIENT_ID = '123'
+        process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 1, 0)')
+
+        await postGoogleRequest(
+          true,
+          'default',
+        )
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.orgSlug).toBe('default')
+
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should not store org slug after sign up if allowPublicRegistration is false',
+      async () => {
+        process.env.GOOGLE_AUTH_CLIENT_ID = '123'
+        process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 0, 0)')
+
+        await postGoogleRequest(
+          true,
+          'default',
+        )
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.orgSlug).toBe('')
+
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should not store org slug after sign up if allowPublicRegistration is true and onlyUseForBrandingOverride is true',
+      async () => {
+        process.env.GOOGLE_AUTH_CLIENT_ID = '123'
+        process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 1, 1)')
+
+        await postGoogleRequest(
+          true,
+          'default',
+        )
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.orgSlug).toBe('')
+
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
+        global.process.env.ENABLE_ORG = false as unknown as string
       },
     )
   },

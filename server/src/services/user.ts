@@ -274,6 +274,18 @@ export const getUserDetailByAuthId = async (
   return result
 }
 
+export const getOrgForCreation = async (
+  c: Context<typeConfig.Context>, orgSlug: string | null | undefined,
+) => {
+  const org = orgSlug
+    ? await orgModel.getBySlug(
+      c.env.DB,
+      orgSlug,
+    )
+    : null
+  return org && org.allowPublicRegistration && !org.onlyUseForBrandingOverride ? org : null
+}
+
 export const getPasswordlessUserOrCreate = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostAuthorizeWithPasswordlessDto,
@@ -296,12 +308,10 @@ export const getPasswordlessUserOrCreate = async (
     }
   }
 
-  const org = bodyDto.org
-    ? await orgModel.getBySlug(
-      c.env.DB,
-      bodyDto.org,
-    )
-    : null
+  const org = await getOrgForCreation(
+    c,
+    bodyDto.org,
+  )
 
   const newUser = await userModel.create(
     c.env.DB,
@@ -457,12 +467,10 @@ export const createAccountWithPassword = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.EmailTaken)
   }
 
-  const org = bodyDto.org
-    ? await orgModel.getBySlug(
-      c.env.DB,
-      bodyDto.org,
-    )
-    : null
+  const org = await getOrgForCreation(
+    c,
+    bodyDto.org,
+  )
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
@@ -470,7 +478,7 @@ export const createAccountWithPassword = async (
     c.env.DB,
     {
       authId: crypto.randomUUID(),
-      orgSlug: org && org.allowPublicRegistration && !org.onlyUseForBrandingOverride ? org.slug : '',
+      orgSlug: org?.slug ?? '',
       email: bodyDto.email,
       socialAccountId: null,
       socialAccountType: null,
@@ -513,12 +521,17 @@ export const processGoogleAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
+
   const user = currentUser ?? await userModel.create(
     c.env.DB,
     {
       authId: crypto.randomUUID(),
       email: googleUser.email,
-      orgSlug: org ?? '',
+      orgSlug: orgRecord?.slug ?? '',
       socialAccountId: googleUser.id,
       socialAccountType: userModel.SocialAccountType.Google,
       password: null,
@@ -557,12 +570,17 @@ export const processFacebookAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
+
   const user = currentUser ?? await userModel.create(
     c.env.DB,
     {
       authId: crypto.randomUUID(),
       email: null,
-      orgSlug: org ?? '',
+      orgSlug: orgRecord?.slug ?? '',
       socialAccountId: facebookUser.id,
       socialAccountType: userModel.SocialAccountType.Facebook,
       password: null,
@@ -594,11 +612,16 @@ export const processGithubAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
+
   const user = currentUser ?? await userModel.create(
     c.env.DB,
     {
       authId: crypto.randomUUID(),
-      orgSlug: org ?? '',
+      orgSlug: orgRecord?.slug ?? '',
       email: githubUser.email,
       socialAccountId: githubUser.id,
       socialAccountType: userModel.SocialAccountType.GitHub,
@@ -631,11 +654,16 @@ export const processDiscordAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
+
   const user = currentUser ?? await userModel.create(
     c.env.DB,
     {
       authId: crypto.randomUUID(),
-      orgSlug: org ?? '',
+      orgSlug: orgRecord?.slug ?? '',
       email: discordUser.email,
       socialAccountId: discordUser.id,
       socialAccountType: userModel.SocialAccountType.Discord,
@@ -668,11 +696,16 @@ export const processAppleAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
+
   const user = currentUser ?? await userModel.create(
     c.env.DB,
     {
       authId: crypto.randomUUID(),
-      orgSlug: org ?? '',
+      orgSlug: orgRecord?.slug ?? '',
       email: appleUser.email,
       socialAccountId: appleUser.id,
       socialAccountType: userModel.SocialAccountType.Apple,
@@ -707,11 +740,16 @@ export const processOidcAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
+
   const user = currentUser ?? await userModel.create(
     c.env.DB,
     {
       authId: crypto.randomUUID(),
-      orgSlug: org ?? '',
+      orgSlug: orgRecord?.slug ?? '',
       email: null,
       socialAccountId: oidcUser.id,
       socialAccountType: provider as userModel.SocialAccountType,
@@ -753,11 +791,16 @@ export const processSamlAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
+
   const user = currentUser ?? await userModel.create(
     c.env.DB,
     {
       authId: crypto.randomUUID(),
-      orgSlug: org ?? '',
+      orgSlug: orgRecord?.slug ?? '',
       email: samlUser.email,
       socialAccountId: samlUser.userId,
       socialAccountType: `SAML_${idpName}` as userModel.SocialAccountType,
