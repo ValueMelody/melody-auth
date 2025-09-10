@@ -45,7 +45,7 @@ describe(
       return Promise.resolve({ ok: false })
     })
 
-    const prepareRequest = async (cred?: string) => {
+    const prepareRequest = async (cred?: string, orgSlug?: string) => {
       global.fetch = mockAppleFetch as Mock
       const credential = cred ?? 'aaa'
 
@@ -55,6 +55,7 @@ describe(
         ...requestBody,
         scopes: requestBody.scope.split(' ') ?? [],
         locale: 'en',
+        org: orgSlug,
       }))
 
       const params = new URLSearchParams()
@@ -80,8 +81,8 @@ describe(
       return res
     }
 
-    const getAppleRequest = async () => {
-      const res = await prepareRequest()
+    const getAppleRequest = async (orgSlug?: string) => {
+      const res = await prepareRequest(undefined, orgSlug)
       expect(res.status).toBe(302)
 
       const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
@@ -272,6 +273,66 @@ describe(
         expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
         global.process.env.APPLE_AUTH_CLIENT_ID = ''
         global.process.env.APPLE_AUTH_CLIENT_SECRET = ''
+      },
+    )
+
+    test(
+      'could store org slug after sign up',
+      async () => {
+        process.env.APPLE_AUTH_CLIENT_ID = '123'
+        process.env.APPLE_AUTH_CLIENT_SECRET = 'abc'
+        process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 1, 0)')
+
+        await getAppleRequest('default')
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.orgSlug).toBe('default')
+
+        process.env.APPLE_AUTH_CLIENT_ID = ''
+        process.env.APPLE_AUTH_CLIENT_SECRET = ''
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should not store org slug after sign up if allowPublicRegistration is false',
+      async () => {
+        process.env.APPLE_AUTH_CLIENT_ID = '123'
+        process.env.APPLE_AUTH_CLIENT_SECRET = 'abc'
+        process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 0, 0)')
+
+        await getAppleRequest('default')
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.orgSlug).toBe('')
+
+        process.env.APPLE_AUTH_CLIENT_ID = ''
+        process.env.APPLE_AUTH_CLIENT_SECRET = ''
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should not store org slug after sign up if allowPublicRegistration is true and onlyUseForBrandingOverride is true',
+      async () => {
+        process.env.APPLE_AUTH_CLIENT_ID = '123'
+        process.env.APPLE_AUTH_CLIENT_SECRET = 'abc'
+        process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 1, 1)')
+
+        await getAppleRequest('default')
+
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(currentUser.orgSlug).toBe('')
+
+        process.env.APPLE_AUTH_CLIENT_ID = ''
+        process.env.APPLE_AUTH_CLIENT_SECRET = ''
+        process.env.ENABLE_ORG = false as unknown as string
       },
     )
   },
