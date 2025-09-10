@@ -146,9 +146,11 @@ describe(
 
         const appRecord = await getApp(db)
 
-        await db.prepare('INSERT INTO "org" (name, slug) VALUES (?, ?)').run(
+        await db.prepare('INSERT INTO "org" (name, slug, "allowPublicRegistration", "onlyUseForBrandingOverride") VALUES (?, ?, ?, ?)').run(
           'test',
           'test',
+          1,
+          0,
         )
 
         const body = {
