@@ -274,7 +274,9 @@ export const getUserDetailByAuthId = async (
   return result
 }
 
-export const getOrgForCreation = async (c: Context<typeConfig.Context>, orgSlug: string | null | undefined) => {
+export const getOrgForCreation = async (
+  c: Context<typeConfig.Context>, orgSlug: string | null | undefined,
+) => {
   const org = orgSlug
     ? await orgModel.getBySlug(
       c.env.DB,
@@ -306,7 +308,10 @@ export const getPasswordlessUserOrCreate = async (
     }
   }
 
-  const org = await getOrgForCreation(c, bodyDto.org)
+  const org = await getOrgForCreation(
+    c,
+    bodyDto.org,
+  )
 
   const newUser = await userModel.create(
     c.env.DB,
@@ -462,7 +467,10 @@ export const createAccountWithPassword = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.EmailTaken)
   }
 
-  const org = await getOrgForCreation(c, bodyDto.org)
+  const org = await getOrgForCreation(
+    c,
+    bodyDto.org,
+  )
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
@@ -513,7 +521,10 @@ export const processGoogleAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
-  const orgRecord = await getOrgForCreation(c, org)
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -559,7 +570,10 @@ export const processFacebookAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
-  const orgRecord = await getOrgForCreation(c, org)
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -598,7 +612,10 @@ export const processGithubAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
-  const orgRecord = await getOrgForCreation(c, org)
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -637,7 +654,10 @@ export const processDiscordAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
-  const orgRecord = await getOrgForCreation(c, org)
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -676,7 +696,10 @@ export const processAppleAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
-  const orgRecord = await getOrgForCreation(c, org)
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -717,7 +740,10 @@ export const processOidcAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
-  const orgRecord = await getOrgForCreation(c, org)
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,
@@ -765,7 +791,10 @@ export const processSamlAccount = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
-  const orgRecord = await getOrgForCreation(c, org)
+  const orgRecord = await getOrgForCreation(
+    c,
+    org,
+  )
 
   const user = currentUser ?? await userModel.create(
     c.env.DB,

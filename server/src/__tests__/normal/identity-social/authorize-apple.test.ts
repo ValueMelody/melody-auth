@@ -45,7 +45,9 @@ describe(
       return Promise.resolve({ ok: false })
     })
 
-    const prepareRequest = async (cred?: string, orgSlug?: string) => {
+    const prepareRequest = async (
+      cred?: string, orgSlug?: string,
+    ) => {
       global.fetch = mockAppleFetch as Mock
       const credential = cred ?? 'aaa'
 
@@ -82,7 +84,10 @@ describe(
     }
 
     const getAppleRequest = async (orgSlug?: string) => {
-      const res = await prepareRequest(undefined, orgSlug)
+      const res = await prepareRequest(
+        undefined,
+        orgSlug,
+      )
       expect(res.status).toBe(302)
 
       const users = await db.prepare('select * from "user"').all() as userModel.Raw[]

@@ -32,7 +32,9 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const prepareRequest = async (emailVerified: boolean, orgSlug?: string) => {
+const prepareRequest = async (
+  emailVerified: boolean, orgSlug?: string,
+) => {
   const publicKey = await mockedKV.get(adapterConfig.BaseKVKey.JwtPublicSecret)
   const jwk = await cryptoUtil.secretToJwk(publicKey ?? '')
   const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
@@ -65,8 +67,13 @@ const prepareRequest = async (emailVerified: boolean, orgSlug?: string) => {
   return res
 }
 
-const postGoogleRequest = async (emailVerified: boolean, orgSlug?: string) => {
-  const res = await prepareRequest(emailVerified, orgSlug)
+const postGoogleRequest = async (
+  emailVerified: boolean, orgSlug?: string,
+) => {
+  const res = await prepareRequest(
+    emailVerified,
+    orgSlug,
+  )
 
   const users = await db.prepare('select * from "user"').all() as userModel.Raw[]
   expect(users.length).toBe(1)
@@ -246,7 +253,10 @@ describe(
 
         db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 1, 0)')
 
-        await postGoogleRequest(true, 'default')
+        await postGoogleRequest(
+          true,
+          'default',
+        )
 
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         expect(currentUser.orgSlug).toBe('default')
@@ -264,7 +274,10 @@ describe(
 
         db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 0, 0)')
 
-        await postGoogleRequest(true, 'default')
+        await postGoogleRequest(
+          true,
+          'default',
+        )
 
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         expect(currentUser.orgSlug).toBe('')
@@ -282,7 +295,10 @@ describe(
 
         db.exec('insert into "org" (name, slug, "companyEmailLogoUrl", "allowPublicRegistration", "onlyUseForBrandingOverride") values (\'test\', \'default\', \'https://test_logo.com\', 1, 1)')
 
-        await postGoogleRequest(true, 'default')
+        await postGoogleRequest(
+          true,
+          'default',
+        )
 
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
         expect(currentUser.orgSlug).toBe('')
