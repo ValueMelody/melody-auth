@@ -160,16 +160,17 @@ export function createMelodyAuthMiddleware (config: MelodyAuthMiddlewareConfig) 
     try {
       // Get tokens from cookies
       const idTokenStr = storage.getItem(StorageKey.IdToken)
-      const accessTokenStr = storage.getItem('melody-auth-access-token')
+      const accessTokenStr = storage.getItem(StorageKey.AccessToken)
 
-      if (!idTokenStr || !accessTokenStr) {
+      // Access token is required, ID token is optional (depends on openid scope)
+      if (!accessTokenStr) {
         return redirectToLogin(
           request,
           config.redirectPath,
         )
       }
 
-      const idTokenStorage: IdTokenStorage = JSON.parse(idTokenStr)
+      const idTokenStorage: IdTokenStorage | null = idTokenStr ? JSON.parse(idTokenStr) : null
       const accessTokenStorage: AccessTokenStorage = JSON.parse(accessTokenStr)
 
       // Validate tokens
@@ -181,30 +182,55 @@ export function createMelodyAuthMiddleware (config: MelodyAuthMiddlewareConfig) 
         idTokenStorage,
       )
 
-      if (!hasValidIdToken || !hasValidAccessToken) {
+      // Access token is required, ID token is optional
+      if (!hasValidAccessToken) {
         return redirectToLogin(
           request,
           config.redirectPath,
         )
       }
 
-      // Verify JWT signature
-      const publicKey = await getPublicKey(config)
-      const { payload } = await jwtVerify(
-        idTokenStorage.idToken,
-        publicKey,
-      )
+      // If ID token exists, it must be valid
+      if (idTokenStorage && !hasValidIdToken) {
+        return redirectToLogin(
+          request,
+          config.redirectPath,
+        )
+      }
+
+      // Verify JWT signature if ID token exists and public key is configured
+      let userId: string | undefined
+      let account: any | undefined
+
+      if (idTokenStorage && (config.publicKey || config.jwksUri)) {
+        const publicKey = await getPublicKey(config)
+        const { payload } = await jwtVerify(
+          idTokenStorage.idToken,
+          publicKey,
+        )
+        userId = payload.sub
+        account = payload
+      } else if (idTokenStorage) {
+        // If no public key configured but ID token exists, use the stored account info
+        userId = idTokenStorage.account.sub
+        account = idTokenStorage.account
+      }
 
       // Add auth info to request headers
       const response = NextResponse.next()
-      response.headers.set(
-        'x-auth-user-id',
-payload.sub!,
-      )
-      response.headers.set(
-        'x-auth-account',
-        JSON.stringify(payload),
-      )
+
+      // Only set user ID and account if we have ID token info
+      if (userId && account) {
+        response.headers.set(
+          'x-auth-user-id',
+          userId,
+        )
+        response.headers.set(
+          'x-auth-account',
+          JSON.stringify(account),
+        )
+      }
+
       response.headers.set(
         'x-auth-access-token',
         accessTokenStorage.accessToken,
@@ -282,11 +308,12 @@ export function withAuth (
     const accountStr = authResponse.headers.get('x-auth-account')
     const accessToken = authResponse.headers.get('x-auth-access-token')
 
-    if (userId && accountStr && accessToken) {
+    // Access token is required, user info is optional
+    if (accessToken) {
       const authenticatedRequest = request as AuthenticatedRequest
       authenticatedRequest.auth = {
-        userId,
-        account: JSON.parse(accountStr),
+        userId: userId || 'unknown',
+        account: accountStr ? JSON.parse(accountStr) : {},
         accessToken,
       }
 

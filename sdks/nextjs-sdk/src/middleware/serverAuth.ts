@@ -28,16 +28,16 @@ export interface ServerAuthOptions {
  * Authenticated user session information
  */
 export interface AuthSession {
-  /** User ID from the JWT subject claim */
-  userId: string;
+  /** User ID from the JWT subject claim (if ID token available) */
+  userId?: string;
   /** User email (if available in JWT claims) */
   email?: string;
-  /** Full JWT payload with all claims */
-  account: any;
+  /** Full JWT payload with all claims (if ID token available) */
+  account?: any;
   /** Access token for API calls */
   accessToken: string;
-  /** ID token (JWT) */
-  idToken: string;
+  /** ID token (JWT) - only present if openid scope was requested */
+  idToken?: string;
   /** Always true for authenticated sessions */
   isAuthenticated: boolean;
 }
@@ -69,15 +69,16 @@ export async function getServerSession (options: ServerAuthOptions): Promise<Aut
   try {
     // Get tokens from cookies
     const idTokenStr = storage.getItem(StorageKey.IdToken)
-    const accessTokenStr = storage.getItem('melody-auth-access-token')
+    const accessTokenStr = storage.getItem(StorageKey.AccessToken)
     const refreshTokenStr = storage.getItem(StorageKey.RefreshToken)
 
-    if (!idTokenStr) {
+    // Access token is required for authentication
+    if (!accessTokenStr) {
       return null
     }
 
-    const idTokenStorage: IdTokenStorage = JSON.parse(idTokenStr)
-    const accessTokenStorage: AccessTokenStorage | null = accessTokenStr ? JSON.parse(accessTokenStr) : null
+    const idTokenStorage: IdTokenStorage | null = idTokenStr ? JSON.parse(idTokenStr) : null
+    const accessTokenStorage: AccessTokenStorage = JSON.parse(accessTokenStr)
     const refreshTokenStorage: RefreshTokenStorage | null = refreshTokenStr ? JSON.parse(refreshTokenStr) : null
 
     // Check token validity
@@ -109,16 +110,16 @@ export async function getServerSession (options: ServerAuthOptions): Promise<Aut
         }
 
         storage.setItem(
-          'melody-auth-access-token',
+          StorageKey.AccessToken,
           JSON.stringify(newAccessTokenStorage),
         )
 
         return {
-          userId: idTokenStorage.account.sub,
-          email: idTokenStorage.account.email ?? undefined,
-          account: idTokenStorage.account,
+          userId: idTokenStorage?.account.sub,
+          email: idTokenStorage?.account.email ?? undefined,
+          account: idTokenStorage?.account,
           accessToken: newTokens.accessToken,
-          idToken: idTokenStorage.idToken,
+          idToken: idTokenStorage?.idToken,
           isAuthenticated: true,
         }
       } catch (error) {
@@ -130,16 +131,22 @@ export async function getServerSession (options: ServerAuthOptions): Promise<Aut
       }
     }
 
-    if (!hasValidIdToken) {
+    // Access token is required, ID token is optional
+    if (!hasValidAccessToken) {
+      return null
+    }
+
+    // If ID token exists, it must be valid
+    if (idTokenStorage && !hasValidIdToken) {
       return null
     }
 
     return {
-      userId: idTokenStorage.account.sub,
-      email: idTokenStorage.account.email ?? undefined,
-      account: idTokenStorage.account,
-      accessToken: accessTokenStorage?.accessToken || '',
-      idToken: idTokenStorage.idToken,
+      userId: idTokenStorage?.account.sub,
+      email: idTokenStorage?.account.email ?? undefined,
+      account: idTokenStorage?.account,
+      accessToken: accessTokenStorage.accessToken,
+      idToken: idTokenStorage?.idToken,
       isAuthenticated: true,
     }
   } catch (error) {
