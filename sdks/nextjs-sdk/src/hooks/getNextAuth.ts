@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/named -- cache is available in React 18.3+
 import { cache } from 'react'
 import {
   getServerSession, AuthSession, ServerAuthOptions,

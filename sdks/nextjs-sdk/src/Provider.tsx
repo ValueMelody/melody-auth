@@ -1,11 +1,11 @@
 import { ReactNode } from 'react'
+import { AuthProvider as ReactAuthProvider } from '@melody-auth/react'
 import {
-  AuthProvider as ReactAuthProvider, ProviderProps as ReactProviderProps,
-} from '@melody-auth/react'
-import { StorageType } from '@melody-auth/shared'
+  ProviderConfig, StorageType,
+} from '@melody-auth/shared'
 import { CookieOptions } from './storage/index'
 
-export interface NextAuthProviderProps extends Omit<ReactProviderProps, 'serverUri' | 'storage'> {
+export interface NextAuthProviderProps extends Omit<ProviderConfig, 'serverUri' | 'storage'> {
   children: ReactNode;
   serverUrl: string;
   storage?: StorageType;
@@ -22,7 +22,7 @@ export const NextAuthProvider = ({
     ...config,
     serverUri: serverUrl,
     storage,
-  } as ReactProviderProps
+  } as ProviderConfig
 
   return (
     <ReactAuthProvider {...reactConfig}>

@@ -57,7 +57,10 @@ const JWKS_CACHE_DURATION = 24 * 60 * 60 * 1000 // 24 hours
 async function importJWKKey (jwk: any): Promise<CryptoKey> {
   // First try to import directly as JWK
   if (jwk.n && jwk.e) {
-    const key = await importJWK(jwk, 'RS256')
+    const key = await importJWK(
+      jwk,
+      'RS256',
+    )
     return key as CryptoKey
   }
 
@@ -65,7 +68,10 @@ async function importJWKKey (jwk: any): Promise<CryptoKey> {
   if (jwk.x5c && jwk.x5c[0]) {
     // x5c[0] contains the base64-encoded X.509 certificate
     const certPEM = `-----BEGIN CERTIFICATE-----\n${jwk.x5c[0]}\n-----END CERTIFICATE-----`
-    const key = await importX509(certPEM, 'RS256')
+    const key = await importX509(
+      certPEM,
+      'RS256',
+    )
     return key as CryptoKey
   }
 
