@@ -48,6 +48,7 @@ jobs:
           npm ci --prefix ./sdks/angular-sdk
           npm ci --prefix ./sdks/nextjs-sdk
 
+
       - name: Run linting
         run: npm run lint:check
 
