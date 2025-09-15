@@ -1,6 +1,8 @@
-import { CookieStorage } from '../storage/cookieStorage';
-import { StorageKey, isValidTokens, IdTokenStorage, AccessTokenStorage, RefreshTokenStorage } from '@melody-auth/shared';
-import { exchangeTokenByRefreshToken } from '@melody-auth/web';
+import {
+  StorageKey, isValidTokens, IdTokenStorage, AccessTokenStorage, RefreshTokenStorage,
+} from '@melody-auth/shared'
+import { exchangeTokenByRefreshToken } from '@melody-auth/web'
+import { CookieStorage } from '../storage/cookieAdapter'
 
 /**
  * Configuration options for server-side authentication
@@ -43,10 +45,10 @@ export interface AuthSession {
 /**
  * Retrieves the current user session from cookies
  * Automatically refreshes expired access tokens if a valid refresh token exists
- * 
+ *
  * @param options - Server authentication options
  * @returns AuthSession if authenticated, null otherwise
- * 
+ *
  * @example
  * ```ts
  * // In a Server Component or Route Handler
@@ -55,37 +57,37 @@ export interface AuthSession {
  *   serverUrl: process.env.MELODY_SERVER_URL!,
  *   redirectUri: process.env.MELODY_REDIRECT_URI!
  * });
- * 
+ *
  * if (!session) {
  *   redirect('/login');
  * }
  * ```
  */
-export async function getServerSession(options: ServerAuthOptions): Promise<AuthSession | null> {
-  const storage = new CookieStorage({
-    ...options.cookieOptions,
-  });
+export async function getServerSession (options: ServerAuthOptions): Promise<AuthSession | null> {
+  const storage = new CookieStorage({ ...options.cookieOptions })
 
   try {
     // Get tokens from cookies
-    const idTokenStr = storage.getItem(StorageKey.IdToken);
-    const accessTokenStr = storage.getItem('melody-auth-access-token');
-    const refreshTokenStr = storage.getItem(StorageKey.RefreshToken);
+    const idTokenStr = storage.getItem(StorageKey.IdToken)
+    const accessTokenStr = storage.getItem('melody-auth-access-token')
+    const refreshTokenStr = storage.getItem(StorageKey.RefreshToken)
 
     if (!idTokenStr) {
-      return null;
+      return null
     }
 
-    const idTokenStorage: IdTokenStorage = JSON.parse(idTokenStr);
-    const accessTokenStorage: AccessTokenStorage | null = accessTokenStr ? JSON.parse(accessTokenStr) : null;
-    const refreshTokenStorage: RefreshTokenStorage | null = refreshTokenStr ? JSON.parse(refreshTokenStr) : null;
+    const idTokenStorage: IdTokenStorage = JSON.parse(idTokenStr)
+    const accessTokenStorage: AccessTokenStorage | null = accessTokenStr ? JSON.parse(accessTokenStr) : null
+    const refreshTokenStorage: RefreshTokenStorage | null = refreshTokenStr ? JSON.parse(refreshTokenStr) : null
 
     // Check token validity
-    const { hasValidIdToken, hasValidAccessToken, hasValidRefreshToken } = isValidTokens(
+    const {
+      hasValidIdToken, hasValidAccessToken, hasValidRefreshToken,
+    } = isValidTokens(
       accessTokenStorage,
       refreshTokenStorage,
-      idTokenStorage
-    );
+      idTokenStorage,
+    )
 
     // If access token is expired but refresh token is valid, try to refresh
     if (!hasValidAccessToken && hasValidRefreshToken && refreshTokenStorage) {
@@ -96,17 +98,20 @@ export async function getServerSession(options: ServerAuthOptions): Promise<Auth
             serverUri: options.serverUrl,
             redirectUri: options.redirectUri,
           },
-          refreshTokenStorage.refreshToken
-        );
+          refreshTokenStorage.refreshToken,
+        )
 
         // Update storage with new tokens
         const newAccessTokenStorage: AccessTokenStorage = {
           accessToken: newTokens.accessToken,
           expiresIn: newTokens.expiresIn,
           expiresOn: newTokens.expiresOn,
-        };
+        }
 
-        storage.setItem('melody-auth-access-token', JSON.stringify(newAccessTokenStorage));
+        storage.setItem(
+          'melody-auth-access-token',
+          JSON.stringify(newAccessTokenStorage),
+        )
 
         return {
           userId: idTokenStorage.account.sub,
@@ -115,15 +120,18 @@ export async function getServerSession(options: ServerAuthOptions): Promise<Auth
           accessToken: newTokens.accessToken,
           idToken: idTokenStorage.idToken,
           isAuthenticated: true,
-        };
+        }
       } catch (error) {
-        console.error('Failed to refresh token:', error);
-        return null;
+        console.error(
+          'Failed to refresh token:',
+          error,
+        )
+        return null
       }
     }
 
     if (!hasValidIdToken) {
-      return null;
+      return null
     }
 
     return {
@@ -133,22 +141,25 @@ export async function getServerSession(options: ServerAuthOptions): Promise<Auth
       accessToken: accessTokenStorage?.accessToken || '',
       idToken: idTokenStorage.idToken,
       isAuthenticated: true,
-    };
+    }
   } catch (error) {
-    console.error('Error getting server session:', error);
-    return null;
+    console.error(
+      'Error getting server session:',
+      error,
+    )
+    return null
   }
 }
 
 /**
  * Ensures the user is authenticated, throws an error if not
  * Useful for protecting API routes or server actions
- * 
+ *
  * @param options - Server authentication options
  * @param redirectTo - Path to suggest for redirection (default: '/login')
  * @returns AuthSession (never null)
  * @throws Error if user is not authenticated
- * 
+ *
  * @example
  * ```ts
  * // In an API route
@@ -159,15 +170,15 @@ export async function getServerSession(options: ServerAuthOptions): Promise<Auth
  * }
  * ```
  */
-export async function requireAuth(
+export async function requireAuth (
   options: ServerAuthOptions,
-  redirectTo = '/login'
+  redirectTo = '/login',
 ): Promise<AuthSession> {
-  const session = await getServerSession(options);
-  
+  const session = await getServerSession(options)
+
   if (!session) {
-    throw new Error(`Unauthorized: Please login at ${redirectTo}`);
+    throw new Error(`Unauthorized: Please login at ${redirectTo}`)
   }
-  
-  return session;
+
+  return session
 }

@@ -21,11 +21,12 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "test": "vitest",
+    "test:check": "vitest run",
     "type:check": "tsc --noEmit"
   },
   "dependencies": {
     "@melody-auth/react": "^1.0.10",
-    "@melody-auth/shared": "^1.0.6",
+    "@melody-auth/shared": "^1.0.11",
     "@melody-auth/web": "^1.0.4",
     "cookies-next": "^4.1.1",
     "jose": "^5.2.0"
