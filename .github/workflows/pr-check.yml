@@ -46,6 +46,7 @@ jobs:
           npm ci --prefix ./sdks/react-sdk
           npm ci --prefix ./sdks/vue-sdk
           npm ci --prefix ./sdks/angular-sdk
+          npm ci --prefix ./sdks/nextjs-sdk
 
       - name: Run linting
         run: npm run lint:check
@@ -160,6 +161,29 @@ jobs:
 
       - name: Check and build Angular SDK
         working-directory: ./sdks/angular-sdk
+        run: |
+          npm run type:check
+          npm run test:check
+          npm run build
+
+  nextjs-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./sdks/nextjs-sdk
+        run: npm ci
+
+      - name: Check and build Next.js SDK
+        working-directory: ./sdks/nextjs-sdk
         run: |
           npm run type:check
           npm run test:check
