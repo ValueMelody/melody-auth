@@ -42,8 +42,6 @@ function shouldUseSecureCookies (request?: NextRequest): boolean {
 export interface CookieOptions {
   request?: NextRequest;
   response?: NextResponse;
-  req?: NextRequest; // Legacy support
-  res?: NextResponse; // Legacy support
   httpOnly?: boolean;
   secure?: boolean;
   sameSite?: 'lax' | 'strict' | 'none';
@@ -60,7 +58,7 @@ export class CookieStorage {
   private storage: SharedCookieStorage
 
   constructor (options: CookieOptions = {}) {
-    const isSecure = options.secure ?? shouldUseSecureCookies(options.request || options.req)
+    const isSecure = options.secure ?? shouldUseSecureCookies(options.request)
 
     // Create shared storage with Next.js specific cookie handlers
     this.storage = new SharedCookieStorage({
@@ -71,8 +69,8 @@ export class CookieStorage {
       domain: options.domain,
       maxAge: options.maxAge,
       cookieGetter: (key: string) => {
-        const req = options.request || options.req
-        const res = options.response || options.res
+        const req = options.request
+        const res = options.response
         return getCookie(
           key,
           {
@@ -83,8 +81,8 @@ export class CookieStorage {
       cookieSetter: (
         key: string, value: string,
       ) => {
-        const req = options.request || options.req
-        const res = options.response || options.res
+        const req = options.request
+        const res = options.response
         if (value === '') {
           deleteCookie(
             key,

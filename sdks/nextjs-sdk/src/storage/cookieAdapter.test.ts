@@ -64,7 +64,7 @@ describe(
             vi.mocked(cookiesNext.getCookie).mockReturnValue('value')
 
             const storage = new CookieStorage({
-              req: mockReq, res: mockRes,
+              request: mockReq, response: mockRes,
             })
             storage.getItem('test-key')
 
@@ -165,7 +165,7 @@ describe(
             const mockRes = {} as any
 
             const storage = new CookieStorage({
-              req: mockReq, res: mockRes,
+              request: mockReq, response: mockRes,
             })
             storage.removeItem('test-key')
 
