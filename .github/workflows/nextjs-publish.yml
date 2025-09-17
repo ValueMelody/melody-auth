@@ -1,0 +1,29 @@
+name: nextjs-sdk publish CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Install dependencies
+      run: cd sdks/nextjs-sdk && npm ci
+
+    - name: Build nextjs-sdk package
+      run: cd sdks/nextjs-sdk && npm run build
+
+    - name: Publish to npm
+      run: cd sdks/nextjs-sdk && npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

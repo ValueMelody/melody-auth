@@ -1,11 +1,12 @@
 import { GetUserInfoRes } from './serverInterface.js'
+import { StorageType } from './storage.js'
 
 export interface ProviderConfig {
   serverUri: string;
   clientId: string;
   redirectUri: string;
   scopes?: string[];
-  storage?: 'sessionStorage' | 'localStorage';
+  storage?: StorageType;
   onLoginSuccess?: (attributes: { state?: string; locale?: string }) => void;
 }
 

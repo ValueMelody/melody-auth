@@ -23,7 +23,7 @@ export const checkStorage = (storageType?: StorageType) => {
   }
 }
 
-export const loadRefreshTokenStorageFromParams = (storageType?: 'sessionStorage' | 'localStorage'): RefreshTokenStorage | null => {
+export const loadRefreshTokenStorageFromParams = (storageType?: StorageType): RefreshTokenStorage | null => {
   const params = getParams()
   if (params.refresh_token && params.refresh_token_expires_on && params.refresh_token_expires_in) {
     const refreshTokenStorage = {
