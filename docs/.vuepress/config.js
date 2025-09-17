@@ -99,7 +99,7 @@ export default defineUserConfig({
                 text: 'Frontend SDKs',
                 children: [
                   { text: 'React SDK', link: '/react-sdk.html' },
-                  { text: 'Next.js SDK', link: '/nextjs-sdk.html' },
+                  // { text: 'Next.js SDK', link: '/nextjs-sdk.html' },
                   { text: 'Angular SDK', link: '/angular-sdk.html' },
                   { text: 'Vue SDK', link: '/vue-sdk.html' },
                   { text: 'Web SDK', link: '/web-sdk.html' },
@@ -204,7 +204,7 @@ export default defineUserConfig({
                 text: '前端 SDK',
                 children: [
                   { text: 'React SDK', link: '/zh/react-sdk.html' },
-                  { text: 'Next.js SDK', link: '/zh/nextjs-sdk.html' },
+                  // { text: 'Next.js SDK', link: '/zh/nextjs-sdk.html' },
                   { text: 'Angular SDK', link: '/zh/angular-sdk.html' },
                   { text: 'Vue SDK', link: '/zh/vue-sdk.html' },
                   { text: 'Web SDK', link: '/zh/web-sdk.html' },

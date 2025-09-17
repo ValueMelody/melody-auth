@@ -2,6 +2,9 @@
   "name": "@melody-auth/nextjs",
   "version": "0.1.0",
   "description": "Melody Auth SDK for Next.js applications",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -25,8 +28,8 @@
     "type:check": "tsc --noEmit"
   },
   "dependencies": {
-    "@melody-auth/react": "^1.0.10",
-    "@melody-auth/shared": "^1.0.11",
+    "@melody-auth/react": "^1.0.11",
+    "@melody-auth/shared": "^1.0.12",
     "@melody-auth/web": "^1.0.4",
     "cookies-next": "^4.1.1",
     "jose": "^5.2.0"
