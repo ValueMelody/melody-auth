@@ -2,6 +2,9 @@
   "name": "@melody-auth/nextjs",
   "version": "0.1.0",
   "description": "Melody Auth SDK for Next.js applications",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
