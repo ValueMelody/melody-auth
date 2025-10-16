@@ -6,7 +6,7 @@ import {
 import {
   orgModel, userOrgGroupModel, userOrgModel,
 } from 'models'
-import { dbUtil, timeUtil } from 'utils'
+import { dbUtil } from 'utils'
 
 export enum MfaType {
   Otp = 'otp',
@@ -389,12 +389,18 @@ export const create = async (
   if (!record) throw new errorConfig.InternalServerError()
 
   if (create.orgSlug) {
-    const orgRecord = await orgModel.getBySlug(db, create.orgSlug)
+    const orgRecord = await orgModel.getBySlug(
+      db,
+      create.orgSlug,
+    )
     if (!orgRecord) throw new errorConfig.InternalServerError()
-    await userOrgModel.create(db, {
-      userId: id,
-      orgId: orgRecord.id,
-    })
+    await userOrgModel.create(
+      db,
+      {
+        userId: id,
+        orgId: orgRecord.id,
+      },
+    )
   }
 
   return record
@@ -433,25 +439,42 @@ export const update = async (
   )
   if (!record) throw new errorConfig.InternalServerError()
 
-  const setToNoOrg = update.orgSlug && update.orgSlug.trim() === ""
+  const setToNoOrg = update.orgSlug && update.orgSlug.trim() === ''
   if (setToNoOrg) {
-    const currentRecord = await userOrgModel.getByUser(db, id)
+    const currentRecord = await userOrgModel.getByUser(
+      db,
+      id,
+    )
     if (currentRecord) {
-      await userOrgModel.remove(db, currentRecord.id)
+      await userOrgModel.remove(
+        db,
+        currentRecord.id,
+      )
     }
   } else if (update.orgSlug) {
-    const orgRecord = await orgModel.getBySlug(db, update.orgSlug)
+    const orgRecord = await orgModel.getBySlug(
+      db,
+      update.orgSlug,
+    )
     if (!orgRecord) throw new errorConfig.InternalServerError()
-    const currentRecord = await userOrgModel.getByUser(db, id)
+    const currentRecord = await userOrgModel.getByUser(
+      db,
+      id,
+    )
     if (!currentRecord) {
-      await userOrgModel.create(db, {
-        userId: id,
-        orgId: orgRecord.id,
-      })
+      await userOrgModel.create(
+        db,
+        {
+          userId: id,
+          orgId: orgRecord.id,
+        },
+      )
     } else if (currentRecord.orgId !== orgRecord.id) {
-      await userOrgModel.update(db, currentRecord.id, {
-        orgId: orgRecord.id,
-      })
+      await userOrgModel.update(
+        db,
+        currentRecord.id,
+        { orgId: orgRecord.id },
+      )
     }
   }
 

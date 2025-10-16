@@ -36,20 +36,30 @@ exports.up = function (knex) {
     })
     .then(async function () {
       const users = await knex('user')
-        .select('id', 'orgSlug')
-        .where('orgSlug', '!=', '')
+        .select(
+          'id',
+          'orgSlug',
+        )
+        .where(
+          'orgSlug',
+          '!=',
+          '',
+        )
         .whereNotNull('orgSlug')
         .whereNull('deletedAt')
 
       const orgs = await knex('org')
-        .select('id', 'slug')
+        .select(
+          'id',
+          'slug',
+        )
         .whereNull('deletedAt')
 
-      const orgMap = new Map(orgs.map(org => [org.slug, org.id]))
+      const orgMap = new Map(orgs.map((org) => [org.slug, org.id]))
 
       const timestamp = knex.raw("to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS')")
       const insertData = []
-      
+
       for (const user of users) {
         const orgId = orgMap.get(user.orgSlug)
         if (orgId) {
@@ -57,7 +67,7 @@ exports.up = function (knex) {
             userId: user.id,
             orgId,
             createdAt: timestamp,
-            updatedAt: timestamp
+            updatedAt: timestamp,
           })
         }
       }
@@ -71,4 +81,3 @@ exports.up = function (knex) {
 exports.down = function (knex) {
   return knex.schema.dropTable('user_org')
 }
-

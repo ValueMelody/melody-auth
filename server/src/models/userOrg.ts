@@ -1,6 +1,4 @@
-import {
-  adapterConfig, errorConfig,
-} from 'configs'
+import { adapterConfig } from 'configs'
 import { dbUtil } from 'utils'
 
 export interface Record {
