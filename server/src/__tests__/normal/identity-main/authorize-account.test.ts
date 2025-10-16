@@ -272,7 +272,7 @@ describe(
         expect(emailBody).not.toContain(process.env.COMPANY_LOGO_URL)
         expect(emailBody).not.toContain(process.env.COMPANY_EMAIL_LOGO_URL)
 
-        const currentUserOrg = await db.prepare('select * from "user_org" where "userId" = 1').get() as userOrgModel.Raw
+        const currentUserOrg = await db.prepare('select * from "user_org" where "userId" = 1').get() as userOrgModel.Record
         expect(currentUserOrg.orgId).toBe(1)
 
         process.env.ENABLE_ORG = false as unknown as string

@@ -12,7 +12,7 @@ import {
 import app from 'index'
 import {
   userAppConsentModel, userModel,
-  userPasskeyModel,
+  userPasskeyModel, userOrgModel,
 } from 'models'
 import {
   emailLogRecord,
@@ -890,7 +890,7 @@ describe(
           },
         })
 
-        const currentUserOrg = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Raw
+        const currentUserOrg = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
         expect(currentUserOrg.orgId).toBe(1)
 
         const res1 = await app.request(
@@ -920,7 +920,7 @@ describe(
           },
         })
 
-        const currentUserOrg1 = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Raw
+        const currentUserOrg1 = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
         expect(currentUserOrg1.orgId).toBe(2)
 
         const res2 = await app.request(
@@ -946,7 +946,7 @@ describe(
           },
         })
 
-        const currentUserOrg2 = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Raw
+        const currentUserOrg2 = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
         expect(currentUserOrg2.deletedAt).not.toBeNull()
 
         process.env.ENABLE_ORG = false as unknown as string
