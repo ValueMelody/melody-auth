@@ -12,7 +12,7 @@ import {
 import app from 'index'
 import {
   userAppConsentModel, userModel,
-  userPasskeyModel,
+  userPasskeyModel, userOrgModel,
 } from 'models'
 import {
   emailLogRecord,
@@ -851,6 +851,11 @@ describe(
           'test',
         )
 
+        await db.prepare('insert into "org" (name, slug) values (?, ?)').run(
+          'test1',
+          'test1',
+        )
+
         const updateObj = {
           locale: 'fr',
           isActive: false,
@@ -884,6 +889,65 @@ describe(
             orgGroups: [],
           },
         })
+
+        const currentUserOrg = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
+        expect(currentUserOrg.orgId).toBe(1)
+
+        const res1 = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              ...updateObj,
+              orgSlug: 'test1',
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json1 = await res1.json()
+
+        expect(json1).toStrictEqual({
+          user: {
+            ...user2,
+            ...updateObj,
+            org: {
+              name: 'test1',
+              slug: 'test1',
+              id: 2,
+            },
+            orgGroups: [],
+          },
+        })
+
+        const currentUserOrg1 = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
+        expect(currentUserOrg1.orgId).toBe(2)
+
+        const res2 = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              ...updateObj,
+              orgSlug: ' ',
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json2 = await res2.json()
+
+        expect(json2).toStrictEqual({
+          user: {
+            ...user2,
+            ...updateObj,
+            org: null,
+            orgGroups: [],
+          },
+        })
+
+        const currentUserOrg2 = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
+        expect(currentUserOrg2.deletedAt).not.toBeNull()
 
         process.env.ENABLE_ORG = false as unknown as string
       },

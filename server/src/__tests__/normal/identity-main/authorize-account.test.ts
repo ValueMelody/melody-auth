@@ -18,7 +18,7 @@ import {
   postAuthorizeBody,
 } from 'tests/identity'
 import {
-  userAttributeValueModel, userModel,
+  userAttributeValueModel, userModel, userOrgModel,
 } from 'models'
 
 let db: Database
@@ -271,6 +271,9 @@ describe(
         expect(emailBody).toContain('https://test_logo.com')
         expect(emailBody).not.toContain(process.env.COMPANY_LOGO_URL)
         expect(emailBody).not.toContain(process.env.COMPANY_EMAIL_LOGO_URL)
+
+        const currentUserOrg = await db.prepare('select * from "user_org" where "userId" = 1').get() as userOrgModel.Record
+        expect(currentUserOrg.orgId).toBe(1)
 
         process.env.ENABLE_ORG = false as unknown as string
       },

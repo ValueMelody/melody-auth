@@ -4,7 +4,7 @@ import {
   variableConfig,
 } from 'configs'
 import {
-  orgModel, userOrgGroupModel,
+  orgModel, userOrgGroupModel, userOrgModel,
 } from 'models'
 import { dbUtil } from 'utils'
 
@@ -387,6 +387,22 @@ export const create = async (
     id,
   )
   if (!record) throw new errorConfig.InternalServerError()
+
+  if (create.orgSlug) {
+    const orgRecord = await orgModel.getBySlug(
+      db,
+      create.orgSlug,
+    )
+    if (!orgRecord) throw new errorConfig.InternalServerError()
+    await userOrgModel.create(
+      db,
+      {
+        userId: id,
+        orgId: orgRecord.id,
+      },
+    )
+  }
+
   return record
 }
 
@@ -422,6 +438,46 @@ export const update = async (
     id,
   )
   if (!record) throw new errorConfig.InternalServerError()
+
+  const setToNoOrg = update.orgSlug && update.orgSlug.trim() === ''
+  if (setToNoOrg) {
+    const currentRecord = await userOrgModel.getByUser(
+      db,
+      id,
+    )
+    if (currentRecord) {
+      await userOrgModel.remove(
+        db,
+        currentRecord.id,
+      )
+    }
+  } else if (update.orgSlug) {
+    const orgRecord = await orgModel.getBySlug(
+      db,
+      update.orgSlug,
+    )
+    if (!orgRecord) throw new errorConfig.InternalServerError()
+    const currentRecord = await userOrgModel.getByUser(
+      db,
+      id,
+    )
+    if (!currentRecord) {
+      await userOrgModel.create(
+        db,
+        {
+          userId: id,
+          orgId: orgRecord.id,
+        },
+      )
+    } else if (currentRecord.orgId !== orgRecord.id) {
+      await userOrgModel.update(
+        db,
+        currentRecord.id,
+        { orgId: orgRecord.id },
+      )
+    }
+  }
+
   return record
 }
 
