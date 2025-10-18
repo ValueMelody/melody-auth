@@ -2277,9 +2277,9 @@ describe(
 
         await insertUsers(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\')')
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org3\', \'org3\', \'https://google3.com\', \'https://microsoft3.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\', 0)')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org3\', \'org3\', \'https://google3.com\', \'https://microsoft3.com\', 0)')
 
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 2)')
@@ -2313,7 +2313,7 @@ describe(
 
         await insertUsers(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/orgs`,
@@ -2334,7 +2334,7 @@ describe(
 
         await insertUsers(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
         await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\', 1)')
 
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
@@ -2383,7 +2383,7 @@ describe(
         await insertUsers(db)
         await attachIndividualScopes(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
 
         // Test with only read_user scope (missing read_org)
@@ -2420,7 +2420,7 @@ describe(
 
         await insertUsers(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
 
         const res = await app.request(
@@ -2444,9 +2444,9 @@ describe(
 
         await insertUsers(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\')')
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org3\', \'org3\', \'https://google3.com\', \'https://microsoft3.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\', 0)')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org3\', \'org3\', \'https://google3.com\', \'https://microsoft3.com\', 0)')
 
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
 
@@ -2491,8 +2491,8 @@ describe(
 
         await insertUsers(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\', 0)')
 
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
 
@@ -2537,8 +2537,8 @@ describe(
 
         await insertUsers(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\', 0)')
 
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
         await db.exec('insert into "user_org" ("userId", "orgId") values (1, 2)')
@@ -2597,7 +2597,7 @@ describe(
         await insertUsers(db)
         await attachIndividualScopes(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
 
         // Test with only write_user scope (missing write_org)
         const res = await app.request(
@@ -2655,7 +2655,7 @@ describe(
 
         await insertUsers(db)
 
-        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
 
         const res = await app.request(
           `${BaseRoute}/1-1-1-1/orgs`,
