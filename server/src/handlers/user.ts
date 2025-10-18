@@ -536,3 +536,32 @@ export const deleteUserOrgGroup = async (c: Context<typeConfig.Context>) => {
 
   return c.json({ success: true })
 }
+
+export const getUserOrgs = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+  const orgs = await orgService.getUserOrgs(
+    c,
+    user.id,
+  )
+  return c.json({ orgs })
+}
+
+export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const reqBody = await c.req.json()
+  const orgIds = reqBody.orgs
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+  await orgService.updateUserOrgs(
+    c,
+    user.id,
+    orgIds,
+  )
+  return c.json({ success: true })
+}

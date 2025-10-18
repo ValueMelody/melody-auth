@@ -12,7 +12,7 @@ import {
 import app from 'index'
 import {
   userAppConsentModel, userModel,
-  userPasskeyModel, userOrgModel,
+  userPasskeyModel, userOrgModel, orgModel,
 } from 'models'
 import {
   emailLogRecord,
@@ -2262,6 +2262,411 @@ describe(
 
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'get user orgs',
+  () => {
+    test(
+      'should return user orgs',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org3\', \'org3\', \'https://google3.com\', \'https://microsoft3.com\')')
+
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 2)')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { orgs: orgModel.Record[] }
+        expect(json.orgs.length).toBe(2)
+        expect(json.orgs[0]).toMatchObject({
+          id: 1,
+          name: 'org1',
+          slug: 'org1',
+        })
+        expect(json.orgs[1]).toMatchObject({
+          id: 2,
+          name: 'org2',
+          slug: 'org2',
+        })
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return empty array if user has no orgs',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { orgs: orgModel.Record[] }
+        expect(json.orgs.length).toBe(0)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should filter out branding-only orgs',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\', 1)')
+
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 2)')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { orgs: orgModel.Record[] }
+        expect(json.orgs.length).toBe(1)
+        expect(json.orgs[0]).toMatchObject({
+          id: 1,
+          name: 'org1',
+          slug: 'org1',
+        })
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if user not found',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-3/orgs`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+        await insertUsers(db)
+        await attachIndividualScopes(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
+
+        // Test with only read_user scope (missing read_org)
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        // Test with no authorization
+        const res1 = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {},
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return 404 when org feature is not enabled',
+      async () => {
+        process.env.ENABLE_ORG = false as unknown as string
+
+        await insertUsers(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+      },
+    )
+  },
+)
+
+describe(
+  'post user orgs',
+  () => {
+    test(
+      'should update user orgs',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org3\', \'org3\', \'https://google3.com\', \'https://microsoft3.com\')')
+
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ orgs: [2, 3] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        const getUserOrgsRes = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await getUserOrgsRes.json() as { orgs: orgModel.Record[] }
+        expect(json.orgs.length).toBe(2)
+        expect(json.orgs[0]).toMatchObject({
+          id: 2,
+          name: 'org2',
+          slug: 'org2',
+        })
+        expect(json.orgs[1]).toMatchObject({
+          id: 3,
+          name: 'org3',
+          slug: 'org3',
+        })
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should add new orgs while keeping existing ones',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\')')
+
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ orgs: [1, 2] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        const getUserOrgsRes = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await getUserOrgsRes.json() as { orgs: orgModel.Record[] }
+        expect(json.orgs.length).toBe(2)
+        expect(json.orgs[0]).toMatchObject({
+          id: 1,
+          name: 'org1',
+          slug: 'org1',
+        })
+        expect(json.orgs[1]).toMatchObject({
+          id: 2,
+          name: 'org2',
+          slug: 'org2',
+        })
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should remove all orgs if empty array provided',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\')')
+
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 1)')
+        await db.exec('insert into "user_org" ("userId", "orgId") values (1, 2)')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ orgs: [] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        const getUserOrgsRes = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await getUserOrgsRes.json() as { orgs: orgModel.Record[] }
+        expect(json.orgs.length).toBe(0)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if user not found',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-3/orgs`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ orgs: [1] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoUser)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+        await insertUsers(db)
+        await attachIndividualScopes(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+
+        // Test with only write_user scope (missing write_org)
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ orgs: [1] }),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        // Test with read_user scope (wrong permission level)
+        const res1 = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ orgs: [1] }),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
+
+        // Test with no authorization
+        const res2 = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ orgs: [1] }),
+          },
+          mock(db),
+        )
+        expect(res2.status).toBe(401)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return 404 when org feature is not enabled',
+      async () => {
+        process.env.ENABLE_ORG = false as unknown as string
+
+        await insertUsers(db)
+
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\')')
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/orgs`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ orgs: [1] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
       },
     )
   },

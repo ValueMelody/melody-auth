@@ -2,7 +2,9 @@ import { Context } from 'hono'
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
-import { orgModel } from 'models'
+import {
+  orgModel, userOrgModel,
+} from 'models'
 import { orgDto } from 'dtos'
 import { loggerUtil } from 'utils'
 
@@ -117,5 +119,55 @@ export const deleteOrg = async (
     c.env.DB,
     orgId,
   )
+  return true
+}
+
+export const getUserOrgs = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+): Promise<orgModel.Record[]> => {
+  const userOrgs = await userOrgModel.getAllByUser(
+    c.env.DB,
+    userId,
+  )
+  const orgIds = userOrgs.map((userOrg) => userOrg.orgId)
+
+  const orgs = await orgModel.getAll(c.env.DB)
+
+  const includedOrgs = orgs.filter((org) => !org.onlyUseForBrandingOverride && orgIds.includes(org.id))
+
+  return includedOrgs
+}
+
+export const updateUserOrgs = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+  orgIds: number[],
+): Promise<true> => {
+  const userOrgs = await userOrgModel.getAllByUser(
+    c.env.DB,
+    userId,
+  )
+  const existingOrgIds = userOrgs.map((userOrg) => userOrg.orgId)
+  const orgsToCreate = orgIds.filter((orgId) => !existingOrgIds.includes(orgId))
+  const orgsToDelete = existingOrgIds.filter((orgId) => !orgIds.includes(orgId))
+
+  for (const orgId of orgsToCreate) {
+    await userOrgModel.create(
+      c.env.DB,
+      {
+        userId, orgId,
+      },
+    )
+  }
+  for (const orgId of orgsToDelete) {
+    const matchedUserOrg = userOrgs.find((userOrg) => userOrg.orgId === orgId)
+    if (matchedUserOrg) {
+      await userOrgModel.remove(
+        c.env.DB,
+        matchedUserOrg.id,
+      )
+    }
+  }
   return true
 }
