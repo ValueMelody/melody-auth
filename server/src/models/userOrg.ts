@@ -33,6 +33,16 @@ export const getByUser = async (
   return userOrg
 }
 
+export const getAllByUser = async (
+  db: D1Database, userId: number,
+): Promise<Record[]> => {
+  const query = `SELECT * FROM ${TableName} WHERE "userId" = $1 AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(userId)
+  const { results: userOrgs }: { results: Record[] } = await stmt.all()
+  return userOrgs
+}
+
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<true> => {
