@@ -33,6 +33,19 @@ export const getByUser = async (
   return userOrg
 }
 
+export const getByUserAndOrg = async (
+  db: D1Database, userId: number, orgId: number,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "userId" = $1 AND "orgId" = $2 AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(
+      userId,
+      orgId,
+    )
+  const userOrg = await stmt.first() as Record | null
+  return userOrg
+}
+
 export const getAllByUser = async (
   db: D1Database, userId: number,
 ): Promise<Record[]> => {

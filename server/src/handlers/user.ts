@@ -563,5 +563,20 @@ export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
     user.id,
     orgIds,
   )
+
+  if (user.orgSlug.trim()) {
+    const org = await orgService.getOrgBySlug(
+      c,
+      user.orgSlug,
+    )
+    if (!orgIds.includes(org.id)) {
+      await userService.updateUser(
+        c,
+        authId,
+        { orgSlug: ' ' },
+      )
+    }
+  }
+
   return c.json({ success: true })
 }
