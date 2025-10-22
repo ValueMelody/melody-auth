@@ -23,16 +23,6 @@ export interface Update {
 
 const TableName = adapterConfig.TableName.UserOrg
 
-export const getByUser = async (
-  db: D1Database, userId: number,
-): Promise<Record | null> => {
-  const query = `SELECT * FROM ${TableName} WHERE "userId" = $1 AND "deletedAt" IS NULL`
-  const stmt = db.prepare(query)
-    .bind(userId)
-  const userOrg = await stmt.first() as Record | null
-  return userOrg
-}
-
 export const getByUserAndOrg = async (
   db: D1Database, userId: number, orgId: number,
 ): Promise<Record | null> => {
