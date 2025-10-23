@@ -4,7 +4,8 @@ Organizations in Melody Auth provide:
 
 - **User Management**: Organize users into separate organizational contexts
 - **Registration Control**: Organizations can enable or disable public user registration
-- **User Association**: Users can be members of specific organizations
+- **User Association**: Users can be members of multiple organizations
+- **Active Organization**: Users can only be in one active organization at a time
 - **Custom Branding**: Each organization can show different visual identity to users  
 [Per-Organization Branding](/branding.html#per-organization-branding)
 - **Flexible Configuration**: Control whether users join organizations or just see custom branding
@@ -61,6 +62,17 @@ DELETE /api/v1/orgs/{id}: Delete organization
 GET /api/v1/orgs/{id}/users: Get all users in an organization
 ```
 
+### User Orgs Management Endpoints
+```http
+GET /api/v1/users/{authId}/orgs: Get all organizations for a user
+POST /api/v1/users/{authId}/orgs: Update user's organizations
+```
+
+### Set user's active organization
+```http
+PUT /api/v1/users/{authId}: set orgSlug to the org slug of an organization that the user already belongs to
+```
+
 ## Registration Flow scenarios
 
 ### Scenario 1: Open Organization with User Membership
@@ -68,7 +80,7 @@ GET /api/v1/orgs/{id}/users: Get all users in an organization
 allowPublicRegistration: true
 onlyUseForBrandingOverride: false
 ```
-**Result**: Users can sign up and automatically become organization members. They appear in the organization's user list and are managed within the organization.
+**Result**: Users can sign up and automatically become organization members. They appear in the organization's user list and are managed within the organization. The org becomes the user's active organization.
 
 ### Scenario 2: Branding-Only (No User Membership)
 ```

@@ -12,7 +12,7 @@ import {
 import app from 'index'
 import {
   userAppConsentModel, userModel,
-  userPasskeyModel, userOrgModel, orgModel,
+  userPasskeyModel, orgModel,
 } from 'models'
 import {
   emailLogRecord,
@@ -856,6 +856,16 @@ describe(
           'test1',
         )
 
+        await db.prepare('insert into "user_org" ("userId", "orgId") values (?, ?)').run(
+          2,
+          1,
+        )
+
+        await db.prepare('insert into "user_org" ("userId", "orgId") values (?, ?)').run(
+          2,
+          2,
+        )
+
         const updateObj = {
           locale: 'fr',
           isActive: false,
@@ -890,9 +900,6 @@ describe(
           },
         })
 
-        const currentUserOrg = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
-        expect(currentUserOrg.orgId).toBe(1)
-
         const res1 = await app.request(
           `${BaseRoute}/1-1-1-2`,
           {
@@ -920,9 +927,6 @@ describe(
           },
         })
 
-        const currentUserOrg1 = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
-        expect(currentUserOrg1.orgId).toBe(2)
-
         const res2 = await app.request(
           `${BaseRoute}/1-1-1-2`,
           {
@@ -946,8 +950,45 @@ describe(
           },
         })
 
-        const currentUserOrg2 = await db.prepare('select * from "user_org" where "userId" = 2').get() as userOrgModel.Record
-        expect(currentUserOrg2.deletedAt).not.toBeNull()
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'throw error if switch to an org that the user is not in',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+        await db.prepare('insert into role (name) values (?)').run('test')
+
+        await db.prepare('insert into "org" (name, slug) values (?, ?)').run(
+          'test',
+          'test',
+        )
+
+        const updateObj = {
+          locale: 'fr',
+          isActive: false,
+          firstName: 'First',
+          lastName: 'Last',
+          roles: ['test'],
+        }
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              ...updateObj,
+              orgSlug: 'test',
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserNotInOrg)
 
         process.env.ENABLE_ORG = false as unknown as string
       },

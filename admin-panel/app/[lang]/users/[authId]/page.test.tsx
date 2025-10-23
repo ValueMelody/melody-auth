@@ -33,6 +33,8 @@ import {
   useGetApiV1OrgGroupsQuery,
   usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
+  useGetApiV1UsersByAuthIdOrgsQuery,
+  usePostApiV1UsersByAuthIdOrgsMutation,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
@@ -102,6 +104,8 @@ vi.mock(
     useGetApiV1OrgGroupsQuery: vi.fn(),
     usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation: vi.fn(),
     useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation: vi.fn(),
+    useGetApiV1UsersByAuthIdOrgsQuery: vi.fn(),
+    usePostApiV1UsersByAuthIdOrgsMutation: vi.fn(),
   }),
 )
 
@@ -142,6 +146,7 @@ const mockUnlinkAccount = vi.fn()
 const mockDeletePasskey = vi.fn()
 const mockAddOrgGroup = vi.fn()
 const mockDeleteOrgGroup = vi.fn()
+const mockPostUserOrgs = vi.fn()
 
 describe(
   'user',
@@ -198,6 +203,10 @@ describe(
       ]);
       (useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation as Mock).mockReturnValue([
         mockDeleteOrgGroup, { isLoading: false },
+      ]);
+      (useGetApiV1UsersByAuthIdOrgsQuery as Mock).mockReturnValue({ data: { orgs: [] } });
+      (usePostApiV1UsersByAuthIdOrgsMutation as Mock).mockReturnValue([
+        mockPostUserOrgs, { isLoading: false },
       ])
     })
 
@@ -375,7 +384,7 @@ describe(
             },
           },
         });
-        (useGetApiV1OrgsQuery as Mock).mockReturnValue({
+        (useGetApiV1UsersByAuthIdOrgsQuery as Mock).mockReturnValue({
           data: {
             orgs: [{
               id: 1, name: 'Test Organization', slug: 'test',
@@ -386,7 +395,7 @@ describe(
         render(<Page />)
 
         await waitFor(() => {
-          expect(screen.getByText('Test Organization')).toBeInTheDocument()
+          expect(screen.getAllByText('Test Organization').length).toBe(2)
         })
       },
     )
@@ -1142,7 +1151,7 @@ describe(
           },
         })
 
-        ;(useGetApiV1OrgsQuery as Mock).mockReturnValue({
+        ;(useGetApiV1UsersByAuthIdOrgsQuery as Mock).mockReturnValue({
           data: {
             orgs: [
               {

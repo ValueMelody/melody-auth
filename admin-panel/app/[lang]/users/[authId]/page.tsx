@@ -10,6 +10,7 @@ import {
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/16/solid'
 import { useAuth } from '@melody-auth/react'
 import ImpersonationModal from './ImpersonationModal'
+import UserOrgsModal from './UserOrgsModal'
 import UserOrgGroupModal from './UserOrgGroupModal'
 import {
   Card, CardHeader, CardTitle, CardContent,
@@ -53,6 +54,7 @@ import {
   useGetApiV1UserAttributesQuery,
   useGetApiV1UsersByAuthIdConsentedAppsQuery,
   useGetApiV1UsersByAuthIdLockedIpsQuery,
+  useGetApiV1UsersByAuthIdOrgsQuery,
   useGetApiV1UsersByAuthIdPasskeysQuery,
   useGetApiV1UsersByAuthIdQuery,
   usePostApiV1UsersByAuthIdEmailMfaMutation,
@@ -94,6 +96,7 @@ const Page = () => {
   const [isRemovingPasskey, setIsRemovingPasskey] = useState(false)
   const [showImpersonateModal, setShowImpersonateModal] = useState(false)
   const [showUserOrgGroupModal, setShowUserOrgGroupModal] = useState(false)
+  const [showUserOrgsModal, setShowUserOrgsModal] = useState(false)
 
   const enableConsent = !!configs.ENABLE_USER_APP_CONSENT
   const enableAccountLock = !!configs.ACCOUNT_LOCKOUT_THRESHOLD
@@ -117,6 +120,12 @@ const Page = () => {
   const orgs = orgsData?.orgs ?? []
 
   const org = orgs.find((org) => org.slug === user?.org?.slug)
+
+  const { data: userOrgsData } = useGetApiV1UsersByAuthIdOrgsQuery(
+    { authId: String(authId) },
+    { skip: !enableOrg },
+  )
+  const userOrgs = userOrgsData?.orgs ?? []
 
   const { data: userAttributesData } = useGetApiV1UserAttributesQuery(
     undefined,
@@ -773,6 +782,31 @@ const Page = () => {
             </TableRow>
             {enableOrg && (
               <TableRow>
+                <UserOrgsModal
+                  authId={user.authId}
+                  show={showUserOrgsModal}
+                  onClose={() => setShowUserOrgsModal(false)}
+                />
+                <TableCell>{t('users.allOrgs')}</TableCell>
+                <TableCell>
+                  <div className='flex items-center gap-2'>
+                    {userOrgs?.map((org) => org.name).join(', ')}
+                    {canWriteUser && canWriteOrg && (
+                      <Button
+                        variant='default'
+                        size='sm'
+                        data-testid='manageAllOrgsButton'
+                        onClick={() => setShowUserOrgsModal(true)}
+                      >
+                        {t('users.manageUserOrgs')}
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+            {enableOrg && (
+              <TableRow>
                 <TableCell>{t('users.org')}</TableCell>
                 <TableCell>
                   <Select
@@ -791,7 +825,7 @@ const Page = () => {
                         >
                           {t('users.noOrg')}
                         </SelectItem>
-                        {orgs.map((org) => (
+                        {userOrgs.map((org) => (
                           <SelectItem
                             key={org.id}
                             value={org.slug}

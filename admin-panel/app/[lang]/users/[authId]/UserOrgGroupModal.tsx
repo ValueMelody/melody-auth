@@ -75,7 +75,7 @@ const UserOrgGroupModal = ({
               key={orgGroup.id}
               className='flex items-center gap-2'>
               <Checkbox
-                data-testid='scopeInput'
+                data-testid='orgGroupInput'
                 id={`orgGroup-${orgGroup.id}`}
                 onClick={() => handleToggleOrgGroup(orgGroup.id)}
                 checked={userOrgGroupIds.includes(orgGroup.id)}

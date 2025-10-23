@@ -136,7 +136,7 @@ describe(
           expect(screen.getByText('Manager Group')).toBeInTheDocument()
           expect(screen.getByText('User Group')).toBeInTheDocument()
 
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
           expect(checkboxes).toHaveLength(3)
         })
       },
@@ -153,7 +153,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
 
           // Admin Group (id: 1) - should be checked
           expect(checkboxes[0]).toHaveAttribute(
@@ -187,7 +187,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
 
           // Click on User Group (id: 3) which is not assigned
           fireEvent.click(checkboxes[2])
@@ -214,7 +214,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
 
           // Click on Admin Group (id: 1) which is assigned
           fireEvent.click(checkboxes[0])
@@ -246,7 +246,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
           checkboxes.forEach((checkbox) => {
             expect(checkbox).toBeDisabled()
           })
@@ -270,7 +270,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
           checkboxes.forEach((checkbox) => {
             expect(checkbox).toBeDisabled()
           })
@@ -311,7 +311,7 @@ describe(
 
         await waitFor(() => {
           expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
-          expect(screen.queryAllByTestId('scopeInput')).toHaveLength(0)
+          expect(screen.queryAllByTestId('orgGroupInput')).toHaveLength(0)
         })
       },
     )
@@ -330,7 +330,7 @@ describe(
 
         await waitFor(() => {
           expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
-          expect(screen.queryAllByTestId('scopeInput')).toHaveLength(0)
+          expect(screen.queryAllByTestId('orgGroupInput')).toHaveLength(0)
         })
       },
     )
@@ -355,7 +355,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
           checkboxes.forEach((checkbox) => {
             expect(checkbox).toHaveAttribute(
               'aria-checked',
@@ -386,7 +386,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
           checkboxes.forEach((checkbox) => {
             expect(checkbox).toHaveAttribute(
               'aria-checked',
@@ -413,7 +413,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
           checkboxes.forEach((checkbox) => {
             expect(checkbox).toHaveAttribute(
               'aria-checked',
@@ -463,7 +463,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
 
           // Click on User Group (id: 3) which is not assigned
           fireEvent.click(checkboxes[2])
@@ -490,7 +490,7 @@ describe(
         />)
 
         await waitFor(() => {
-          const checkboxes = screen.getAllByTestId('scopeInput')
+          const checkboxes = screen.getAllByTestId('orgGroupInput')
 
           // Click on Admin Group (id: 1) which is assigned
           fireEvent.click(checkboxes[0])

@@ -12,7 +12,7 @@ import {
 } from 'dtos'
 import {
   orgModel, roleModel, userAppConsentModel, userAttributeModel, userAttributeValueModel,
-  userModel, userOrgGroupModel, userRoleModel,
+  userModel, userOrgGroupModel, userOrgModel, userRoleModel,
 } from 'models'
 import {
   emailService, jwtService, kvService, roleService,
@@ -1250,7 +1250,22 @@ export const updateUser = async (
   if (dto.isActive !== undefined) updateObj.isActive = dto.isActive ? 1 : 0
   if (dto.orgSlug !== undefined) updateObj.orgSlug = dto.orgSlug
 
-  if (updateObj.orgSlug && dto.orgSlug !== user.orgSlug && variableConfig.systemConfig.enableOrgGroup) {
+  if (updateObj.orgSlug?.trim()) {
+    const org = await orgModel.getBySlug(
+      c.env.DB,
+      updateObj.orgSlug,
+    )
+    const userInOrg = org?.id && await userOrgModel.getByUserAndOrg(
+      c.env.DB,
+      user.id,
+      org.id,
+    )
+    if (!userInOrg) {
+      throw new errorConfig.Forbidden(messageConfig.RequestError.UserNotInOrg)
+    }
+  }
+
+  if (variableConfig.systemConfig.enableOrgGroup && updateObj.orgSlug && dto.orgSlug !== user.orgSlug) {
     await userOrgGroupModel.removeByUser(
       c.env.DB,
       user.id,

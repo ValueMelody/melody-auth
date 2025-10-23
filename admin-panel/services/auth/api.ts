@@ -518,6 +518,24 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['User Org Groups'],
       }),
+      getApiV1UsersByAuthIdOrgs: build.query<
+        GetApiV1UsersByAuthIdOrgsApiResponse,
+        GetApiV1UsersByAuthIdOrgsApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/orgs` }),
+        providesTags: ['Users'],
+      }),
+      postApiV1UsersByAuthIdOrgs: build.mutation<
+        PostApiV1UsersByAuthIdOrgsApiResponse,
+        PostApiV1UsersByAuthIdOrgsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/users/${queryArg.authId}/orgs`,
+          method: 'POST',
+          body: queryArg.body,
+        }),
+        invalidatesTags: ['Users'],
+      }),
       getApiV1UserAttributes: build.query<
         GetApiV1UserAttributesApiResponse,
         GetApiV1UserAttributesApiArg
@@ -1098,6 +1116,26 @@ export type DeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiArg = {
   /** The id of the org group */
   orgGroupId: number;
 };
+export type GetApiV1UsersByAuthIdOrgsApiResponse =
+  /** status 200 A list of orgs */ {
+    orgs?: Org[];
+  };
+export type GetApiV1UsersByAuthIdOrgsApiArg = {
+  /** The authId of the user */
+  authId: string;
+};
+export type PostApiV1UsersByAuthIdOrgsApiResponse =
+  /** status 200 undefined */ {
+    success?: boolean;
+  };
+export type PostApiV1UsersByAuthIdOrgsApiArg = {
+  /** The authId of the user */
+  authId: string;
+  body: {
+    /** The ids of the orgs */
+    orgs?: number[];
+  };
+};
 export type GetApiV1UserAttributesApiResponse =
   /** status 200 A list of user attributes */ {
     userAttributes?: UserAttribute[];
@@ -1657,6 +1695,9 @@ export const {
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
   usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
+  useGetApiV1UsersByAuthIdOrgsQuery,
+  useLazyGetApiV1UsersByAuthIdOrgsQuery,
+  usePostApiV1UsersByAuthIdOrgsMutation,
   useGetApiV1UserAttributesQuery,
   useLazyGetApiV1UserAttributesQuery,
   usePostApiV1UserAttributesMutation,

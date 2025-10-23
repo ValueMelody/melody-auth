@@ -4,7 +4,8 @@ Melody Auth 中的组织功能提供：
 
 - **用户管理**：将用户组织到不同的组织上下文中
 - **注册控制**：组织可以启用或禁用公开用户注册
-- **用户关联**：用户可以成为特定组织的成员
+- **用户关联**：用户可以成为多个组织的成员
+- **活跃组织**：用户只能在一个活跃组织中
 - **自定义Branding**：每个组织可以向用户展示不同的视觉标识  
 [按组织自定义Branding](/zh/branding.html#per-organization-branding)
 - **灵活配置**：可控制用户是否加入组织，或仅看到自定义Branding
@@ -59,6 +60,17 @@ POST /api/v1/orgs: 创建新组织
 PUT /api/v1/orgs/{id}: 更新组织设置
 DELETE /api/v1/orgs/{id}: 删除组织
 GET /api/v1/orgs/{id}/users: 获取组织内所有用户
+```
+
+### 用户组织管理 API
+```http
+GET /api/v1/users/{authId}/orgs: 获取用户所有组织
+POST /api/v1/users/{authId}/orgs: 更新用户组织
+```
+
+### 设置用户活跃组织
+```http
+PUT /api/v1/users/{authId}: 将orgSlug设置为该用户已加入的组织slug
 ```
 
 ## 注册流程场景
