@@ -186,6 +186,29 @@ export const getUsers = async (
   }
 }
 
+export const getOrgAllUsers = async (
+  c: Context<typeConfig.Context>,
+  pagination: typeConfig.Pagination | undefined,
+  orgId: number,
+): Promise<userModel.PaginatedApiRecords> => {
+  const { ENABLE_NAMES: enableNames } = env(c)
+
+  const users = await userModel.getAllByOrg(
+    c.env.DB,
+    orgId,
+    enableNames,
+    pagination,
+  )
+
+  const count = await userModel.countAllByOrg(
+    c.env.DB,
+    orgId,
+  )
+  return {
+    users, count,
+  }
+}
+
 export const getUserByAuthId = async (
   c: Context<typeConfig.Context>,
   authId: string,

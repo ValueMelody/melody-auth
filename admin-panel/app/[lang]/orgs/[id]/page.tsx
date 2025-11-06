@@ -54,6 +54,8 @@ const Page = () => {
   const configs = useSignalValue(configSignal)
   const enableOrgGroup = configs?.ENABLE_ORG_GROUP
 
+  const [isViewingAllUsers, setIsViewingAllUsers] = useState(false)
+
   const {
     data, isLoading,
   } = useGetApiV1OrgsByIdQuery({ id: Number(id) })
@@ -67,7 +69,7 @@ const Page = () => {
 
   const { data: orgGroupUsersData } = useGetApiV1OrgGroupsByIdUsersQuery(
     { id: selectedOrgGroupId ?? 0 },
-    { skip: !selectedOrgGroupId },
+    { skip: !selectedOrgGroupId || isViewingAllUsers },
   )
 
   const orgGroupUsers = selectedOrgGroupId ? (orgGroupUsersData?.users ?? []) : null
@@ -112,6 +114,10 @@ const Page = () => {
     await deleteOrg({ id: Number(id) })
 
     router.push(routeTool.Internal.Orgs)
+  }
+
+  const switchUserView = () => {
+    setIsViewingAllUsers(!isViewingAllUsers)
   }
 
   const handleDeleteOrgGroup = async () => {
@@ -450,10 +456,17 @@ const Page = () => {
       )}
       {canReadUser && (
         <section className='mt-12'>
-          <PageTitle
-            className='mb-6'
-            title={t('orgs.users')}
-          />
+          <div className='flex items-center gap-4 mb-6'>
+            <PageTitle
+              title={isViewingAllUsers ? t('orgs.allUsers') : t('orgs.users')}
+            />
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={switchUserView}>
+              {isViewingAllUsers ? t('orgs.viewActiveUsers') : t('orgs.viewAllUsers')}
+            </Button>
+          </div>
           <CreateOrgGroupModal
             show={isCreatingOrgGroup}
             orgId={Number(id)}
@@ -475,7 +488,7 @@ const Page = () => {
             onConfirm={handleDeleteOrgGroup}
             confirmButtonText={t('common.delete')}
           />
-          {enableOrgGroup && (
+          {enableOrgGroup && !isViewingAllUsers && (
             <section className='mb-6 flex justify-between'>
               <section className='flex gap-4 items-center'>
                 <p className='text-sm text-gray-500'>
@@ -526,6 +539,7 @@ const Page = () => {
           <UserTable
             orgId={Number(id)}
             loadedUsers={orgGroupUsers}
+            isViewingAllUsers={isViewingAllUsers}
           />
         </section>
       )}

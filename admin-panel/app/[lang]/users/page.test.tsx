@@ -7,7 +7,7 @@ import {
 import { render } from '../../../vitest.setup'
 import Page from 'app/[lang]/users/page'
 import {
-  useGetApiV1OrgsByIdUsersQuery, useGetApiV1UsersQuery,
+  useGetApiV1OrgsByIdUsersQuery, useGetApiV1UsersQuery, useGetApiV1OrgsByIdAllUsersQuery,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 
@@ -16,6 +16,7 @@ vi.mock(
   () => ({
     useGetApiV1UsersQuery: vi.fn(),
     useGetApiV1OrgsByIdUsersQuery: vi.fn(),
+    useGetApiV1OrgsByIdAllUsersQuery: vi.fn(),
   }),
 )
 
@@ -61,7 +62,8 @@ describe(
           count: 30,
         },
       });
-      (useGetApiV1OrgsByIdUsersQuery as Mock).mockReturnValue({ data: undefined })
+      (useGetApiV1OrgsByIdUsersQuery as Mock).mockReturnValue({ data: undefined });
+      (useGetApiV1OrgsByIdAllUsersQuery as Mock).mockReturnValue({ data: undefined })
     })
 
     it(

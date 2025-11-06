@@ -166,7 +166,7 @@ orgRoutes.delete(
  * @swagger
  * /api/v1/orgs/{id}/users:
  *   get:
- *     summary: Get a list of users for an org
+ *     summary: Get a list of users currently active in one organization
  *     description: Required scopes - read_org, read_user
  *     tags: [Orgs]
  *     parameters:
@@ -193,7 +193,7 @@ orgRoutes.delete(
  *         description: Search by name or email
  *     responses:
  *       200:
- *         description: A list of users
+ *         description: A list of active users in this org
  *         content:
  *           application/json:
  *             schema:
@@ -212,5 +212,53 @@ orgRoutes.get(
   configMiddleware.enableOrg,
   authMiddleware.s2sReadOrg,
   authMiddleware.s2sReadUser,
-  orgHandler.getOrgUsers,
+  orgHandler.getOrgActiveUsers,
+)
+
+/**
+ * @swagger
+ * /api/v1/orgs/{id}/all-users:
+ *   get:
+ *     summary: Get a list of all users in one organization
+ *     description: Required scopes - read_org, read_user
+ *     tags: [Orgs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the org
+ *       - in: query
+ *         name: page_size
+ *         schema:
+ *           type: integer
+ *         description: Number of users to return per page
+ *       - in: query
+ *         name: page_number
+ *         schema:
+ *           type: integer
+ *         description: Page number to return
+ *     responses:
+ *       200:
+ *         description: A list of all users in this org
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 count:
+ *                   type: integer
+ *                   description: Total number of users matching the query
+ */
+orgRoutes.get(
+  `${BaseRoute}/:id/all-users`,
+  configMiddleware.enableOrg,
+  authMiddleware.s2sReadOrg,
+  authMiddleware.s2sReadUser,
+  orgHandler.getOrgAllUsers,
 )

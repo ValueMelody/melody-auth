@@ -244,6 +244,54 @@ export const count = async (
   return Number(result.count)
 }
 
+export const getAllByOrg = async (
+  db: D1Database,
+  orgId: number,
+  enableNames: boolean,
+  pagination?: typeConfig.Pagination,
+) => {
+  let paginatedCondition = ''
+
+  const bind = [orgId]
+  if (pagination) {
+    paginatedCondition = 'Limit $2 OFFSET $3'
+    bind.push(pagination.pageSize)
+    bind.push((pagination.pageNumber - 1) * pagination.pageSize)
+  }
+
+  const query = `
+    SELECT ${TableName}.*
+    FROM ${adapterConfig.TableName.UserOrg} LEFT JOIN ${TableName}
+      ON ${adapterConfig.TableName.UserOrg}."userId" = ${TableName}.id
+    WHERE ${adapterConfig.TableName.UserOrg}."orgId" = $1 AND ${adapterConfig.TableName.UserOrg}."deletedAt" IS NULL AND ${TableName}."deletedAt" IS NULL
+    ${paginatedCondition}
+  `
+
+  const stmt = db.prepare(query)
+    .bind(...bind)
+  const { results: users }: { results: Raw[] } = await stmt.all()
+  return users.map((user) => convertToApiRecord(
+    convertToRecord(user),
+    enableNames,
+  ))
+}
+
+export const countAllByOrg = async (
+  db: D1Database,
+  orgId: number,
+) => {
+  const query = `
+    SELECT COUNT(*) as count
+    FROM ${adapterConfig.TableName.UserOrg} LEFT JOIN ${TableName}
+      ON ${adapterConfig.TableName.UserOrg}."userId" = ${TableName}.id
+    WHERE ${adapterConfig.TableName.UserOrg}."orgId" = $1 AND ${adapterConfig.TableName.UserOrg}."deletedAt" IS NULL AND ${TableName}."deletedAt" IS NULL
+  `
+  const stmt = db.prepare(query)
+    .bind(orgId)
+  const result = await stmt.first() as { count: number }
+  return Number(result.count)
+}
+
 export const getById = async (
   db: D1Database,
   id: number,
