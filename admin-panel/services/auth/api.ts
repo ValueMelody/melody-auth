@@ -169,6 +169,20 @@ const injectedRtkApi = api
         }),
         providesTags: ['Orgs'],
       }),
+      getApiV1OrgsByIdAllUsers: build.query<
+        GetApiV1OrgsByIdAllUsersApiResponse,
+        GetApiV1OrgsByIdAllUsersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/orgs/${queryArg.id}/all-users`,
+          params: {
+            page_size: queryArg.pageSize,
+            page_number: queryArg.pageNumber,
+            search: queryArg.search,
+          },
+        }),
+        providesTags: ['Orgs'],
+      }),
       getApiV1OrgGroups: build.query<
         GetApiV1OrgGroupsApiResponse,
         GetApiV1OrgGroupsApiArg
@@ -827,12 +841,28 @@ export type DeleteApiV1OrgsByIdApiArg = {
   id: number;
 };
 export type GetApiV1OrgsByIdUsersApiResponse =
-  /** status 200 A list of users */ {
+  /** status 200 A list of active users in this org */ {
     users?: User[];
     /** Total number of users matching the query */
     count?: number;
   };
 export type GetApiV1OrgsByIdUsersApiArg = {
+  /** The unique ID of the org */
+  id: number;
+  /** Number of users to return per page */
+  pageSize?: number;
+  /** Page number to return */
+  pageNumber?: number;
+  /** Search by name or email */
+  search?: string;
+};
+export type GetApiV1OrgsByIdAllUsersApiResponse =
+  /** status 200 A list of all users in this org */ {
+    users?: User[];
+    /** Total number of users matching the query */
+    count?: number;
+  };
+export type GetApiV1OrgsByIdAllUsersApiArg = {
   /** The unique ID of the org */
   id: number;
   /** Number of users to return per page */
@@ -1647,6 +1677,8 @@ export const {
   useDeleteApiV1OrgsByIdMutation,
   useGetApiV1OrgsByIdUsersQuery,
   useLazyGetApiV1OrgsByIdUsersQuery,
+  useGetApiV1OrgsByIdAllUsersQuery,
+  useLazyGetApiV1OrgsByIdAllUsersQuery,
   useGetApiV1OrgGroupsQuery,
   useLazyGetApiV1OrgGroupsQuery,
   usePostApiV1OrgGroupsMutation,

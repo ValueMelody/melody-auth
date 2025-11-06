@@ -17,7 +17,7 @@ import IsSelfLabel from 'components/IsSelfLabel'
 import useDebounce from 'hooks/useDebounce'
 import {
   useGetApiV1OrgsByIdUsersQuery, useGetApiV1UsersQuery,
-  User,
+  User, useGetApiV1OrgsByIdAllUsersQuery,
 } from 'services/auth/api'
 import LoadingPage from 'components/LoadingPage'
 import {
@@ -29,9 +29,11 @@ const PageSize = 20
 const UserTable = ({
   orgId,
   loadedUsers,
+  isViewingAllUsers = false,
 }: {
   orgId: number | null;
   loadedUsers?: User[] | null;
+  isViewingAllUsers?: boolean;
 }) => {
   const t = useTranslations()
 
@@ -67,10 +69,21 @@ const UserTable = ({
       pageNumber,
       search: debouncedSearch || undefined,
     },
-    { skip: !orgId },
+    { skip: !orgId || isViewingAllUsers },
   )
 
-  const data = orgUsersData ?? usersData
+  const { data: orgAllUsersData } = useGetApiV1OrgsByIdAllUsersQuery(
+    {
+      id: Number(orgId),
+      pageSize: PageSize,
+      pageNumber,
+    },
+    { skip: !orgId || !isViewingAllUsers },
+  )
+
+  const data = orgId
+    ? (isViewingAllUsers ? orgAllUsersData : orgUsersData)
+    : usersData
 
   const users = loadedUsers ?? data?.users ?? []
   const count = data?.count ?? 0
@@ -98,7 +111,7 @@ const UserTable = ({
 
   return (
     <section>
-      {!loadedUsers && (
+      {!loadedUsers && !isViewingAllUsers && (
         <header className='mb-6 flex items-center gap-4'>
           <Input
             className='w-60'

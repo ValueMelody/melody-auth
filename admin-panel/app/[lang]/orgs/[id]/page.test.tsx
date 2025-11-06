@@ -9,6 +9,7 @@ import Page from 'app/[lang]/orgs/[id]/page'
 import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
   useGetApiV1OrgsByIdUsersQuery,
+  useGetApiV1OrgsByIdAllUsersQuery,
   useGetApiV1UsersQuery,
   useGetApiV1OrgGroupsQuery,
   usePutApiV1OrgGroupsByIdMutation,
@@ -62,6 +63,7 @@ vi.mock(
     usePutApiV1OrgsByIdMutation: vi.fn(),
     useDeleteApiV1OrgsByIdMutation: vi.fn(),
     useGetApiV1OrgsByIdUsersQuery: vi.fn(),
+    useGetApiV1OrgsByIdAllUsersQuery: vi.fn(),
     useGetApiV1UsersQuery: vi.fn(),
     useGetApiV1OrgGroupsQuery: vi.fn(),
     usePostApiV1OrgGroupsMutation: vi.fn(),
@@ -137,6 +139,13 @@ describe(
       ] as any)
 
       vi.mocked(useGetApiV1OrgsByIdUsersQuery).mockReturnValue({
+        data: {
+          users,
+          count: 30,
+        },
+      } as any)
+
+      vi.mocked(useGetApiV1OrgsByIdAllUsersQuery).mockReturnValue({
         data: {
           users,
           count: 30,

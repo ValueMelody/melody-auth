@@ -104,8 +104,13 @@ export const deleteOrg = async (c: Context<typeConfig.Context>) => {
   return c.body(null)
 }
 
-export const getOrgUsers = async (c: Context<typeConfig.Context>) => {
+export const getOrgActiveUsers = async (c: Context<typeConfig.Context>) => {
   const orgId = Number(c.req.param('id'))
+
+  await orgService.getOrgById(
+    c,
+    orgId,
+  )
 
   const {
     page_size: pageSize,
@@ -122,6 +127,33 @@ export const getOrgUsers = async (c: Context<typeConfig.Context>) => {
   const result = await userService.getUsers(
     c,
     search || undefined,
+    pagination,
+    orgId,
+  )
+  return c.json(result)
+}
+
+export const getOrgAllUsers = async (c: Context<typeConfig.Context>) => {
+  const orgId = Number(c.req.param('id'))
+
+  await orgService.getOrgById(
+    c,
+    orgId,
+  )
+
+  const {
+    page_size: pageSize,
+    page_number: pageNumber,
+  } = c.req.query()
+  const pagination = pageSize && pageNumber
+    ? new PaginationDto({
+      pageSize: Number(pageSize),
+      pageNumber: Number(pageNumber),
+    })
+    : undefined
+
+  const result = await userService.getOrgAllUsers(
+    c,
     pagination,
     orgId,
   )

@@ -710,10 +710,10 @@ describe(
 )
 
 describe(
-  'get all',
+  'get all active users',
   () => {
     test(
-      'should return all users',
+      'should return all active users',
       async () => {
         process.env.ENABLE_ORG = true as unknown as string
 
@@ -980,6 +980,283 @@ describe(
 
         const res1 = await app.request(
           `${BaseRoute}/1/users`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadOrg,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
+
+        const res2 = await app.request(
+          BaseRoute,
+          {},
+          mock(db),
+        )
+        expect(res2.status).toBe(401)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+  },
+)
+
+describe(
+  'get all users',
+  () => {
+    test(
+      'should return all users in org',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+        await createNewOrg()
+
+        // Insert user_org records to associate users with org
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (1, 1)
+        `)
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (2, 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1/all-users`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+        expect(json.users.length).toBe(2)
+        expect(json.users[0].id).toBe(user1.id)
+        expect(json.users[1].id).toBe(user2.id)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should only get users from queried org',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+        await createNewOrg()
+
+        // Only user 1 is associated with org 1
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (1, 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1/all-users`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+        expect(json.users.length).toBe(1)
+        expect(json.users[0].id).toBe(user1.id)
+
+        // Create second org
+        await db.exec(`
+          INSERT INTO "org" ("name", "slug") VALUES ('test name2', 'test slug2')
+        `)
+
+        const res1 = await app.request(
+          `${BaseRoute}/2/all-users`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json() as { users: userModel.Record[] }
+        expect(json1.users).toStrictEqual([])
+
+        // Non-existent org should return 404
+        const res2 = await app.request(
+          `${BaseRoute}/3/all-users`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res2.status).toBe(404)
+        expect(await res2.text()).toStrictEqual(messageConfig.RequestError.NoOrg)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'could get users by pagination',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+        await createNewOrg()
+        await db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-3', 'en', 'test2@email.com', null, null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'first', 'last')
+        `)
+        await db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-4', 'en', 'test3@email.com', null, null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'another', 'one')
+        `)
+        await db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-5', 'en', 'test4@email.com', null, null, '$2a$10$Pv1pI5pskwwUXA9hiu3k5.E0Lk6x8PxAyIAhJz3nBZTRkGZTxfPyy', 'other', 'name')
+        `)
+
+        // Insert user_org records for all 5 users
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (1, 1)
+        `)
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (2, 1)
+        `)
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (3, 1)
+        `)
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (4, 1)
+        `)
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (5, 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1/all-users?page_size=2&page_number=1`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+        expect(json.users.length).toBe(2)
+        expect(json.users[0].id).toBe(1)
+        expect(json.users[1].id).toBe(2)
+
+        const res1 = await app.request(
+          `${BaseRoute}/1/all-users?page_size=2&page_number=2`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json1 = await res1.json() as { users: userModel.Record[] }
+        expect(json1.users.length).toBe(2)
+        expect(json1.users[0].id).toBe(3)
+        expect(json1.users[1].id).toBe(4)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should return all users with read_user and read_org scope',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+        await createNewOrg()
+        await attachIndividualScopes(db)
+
+        // Insert user_org records
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (1, 1)
+        `)
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (2, 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1/all-users`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                `${Scope.ReadUser} ${Scope.ReadOrg}`,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        const json = await res.json() as { users: userModel.Record[] }
+        expect(json.users.length).toBe(2)
+        expect(json.users[0].id).toBe(user1.id)
+        expect(json.users[1].id).toBe(user2.id)
+
+        process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if feature not enabled',
+      async () => {
+        await insertUsers(db)
+        await createNewOrg()
+        await attachIndividualScopes(db)
+
+        await db.exec(`
+          INSERT INTO "org" ("name", "slug") VALUES ('test name1', 'test slug1')
+        `)
+
+        // Insert user_org records
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (1, 1)
+        `)
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (2, 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1/all-users`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                `${Scope.ReadUser} ${Scope.ReadOrg}`,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toStrictEqual(messageConfig.ConfigError.OrgNotEnabled)
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+
+        await insertUsers(db)
+        await attachIndividualScopes(db)
+        await createNewOrg()
+
+        // Insert user_org records
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (1, 1)
+        `)
+        await db.exec(`
+          INSERT INTO "user_org" ("userId", "orgId") VALUES (2, 1)
+        `)
+
+        const res = await app.request(
+          `${BaseRoute}/1/all-users`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          `${BaseRoute}/1/all-users`,
           {
             headers: {
               Authorization: `Bearer ${await getS2sToken(

@@ -15,6 +15,7 @@ import {
   useGetApiV1RolesByIdUsersQuery,
   useGetApiV1UsersQuery,
   useGetApiV1OrgsByIdUsersQuery,
+  useGetApiV1OrgsByIdAllUsersQuery,
 } from 'services/auth/api'
 
 vi.mock(
@@ -49,6 +50,7 @@ vi.mock(
     useGetApiV1RolesByIdUsersQuery: vi.fn(),
     useGetApiV1UsersQuery: vi.fn(),
     useGetApiV1OrgsByIdUsersQuery: vi.fn(),
+    useGetApiV1OrgsByIdAllUsersQuery: vi.fn(),
   }),
 )
 
@@ -77,7 +79,8 @@ describe(
       (useDeleteApiV1RolesByIdMutation as Mock).mockReturnValue([mockDelete, { isLoading: false }]);
       (useGetApiV1RolesByIdUsersQuery as Mock).mockReturnValue({ data: { users: [] } });
       (useGetApiV1UsersQuery as Mock).mockReturnValue({ data: { users: [] } });
-      (useGetApiV1OrgsByIdUsersQuery as Mock).mockReturnValue({ data: { users: [] } })
+      (useGetApiV1OrgsByIdUsersQuery as Mock).mockReturnValue({ data: { users: [] } });
+      (useGetApiV1OrgsByIdAllUsersQuery as Mock).mockReturnValue({ data: { users: [] } })
     })
 
     it(

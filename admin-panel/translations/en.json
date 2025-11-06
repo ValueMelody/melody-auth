@@ -206,7 +206,10 @@
   "orgs": {
     "title": "Orgs",
     "org": "Org",
-    "users": "Users in this org",
+    "users": "Users currently active in this org",
+    "allUsers": "All users in this org",
+    "viewAllUsers": "View all users in this org",
+    "viewActiveUsers": "View users currently active in this org",
     "name": "Name",
     "slug": "Slug",
     "status": "Status",

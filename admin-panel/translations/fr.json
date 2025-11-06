@@ -202,7 +202,10 @@
   "orgs": {
     "title": "Organisations",
     "org": "Organisation",
-    "users": "Utilisateurs dans cette organisation",
+    "users": "Utilisateurs actuellement actifs dans cette organisation",
+    "allUsers": "Tous les utilisateurs de cette organisation",
+    "viewAllUsers": "Voir tous les utilisateurs de cette organisation",
+    "viewActiveUsers": "Voir les utilisateurs actuellement actifs dans cette organisation",
     "name": "Nom",
     "status": "Statut",
     "new": "Créer une organisation",
