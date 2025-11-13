@@ -48,9 +48,9 @@ const UserOrgGroupModal = ({
     <AlertDialog open={show}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{t('users.manageUserOrgGroup')}</AlertDialogTitle>
+          <AlertDialogTitle>{t('users.manageUserAllOrgs')}</AlertDialogTitle>
         </AlertDialogHeader>
-        <AlertDialogDescription>{t('users.selectOrgGroups')}</AlertDialogDescription>
+        <AlertDialogDescription>{t('users.selectUserOrgs')}</AlertDialogDescription>
         <section className='flex max-md:flex-col gap-6 max-md:gap-2 flex-wrap'>
           {orgs.map((org) => (
             <div

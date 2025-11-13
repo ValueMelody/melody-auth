@@ -154,7 +154,9 @@
     "noOrg": "Aucune organisation active",
     "orgGroup": "Groupe d'organisation",
     "manageUserOrgGroup": "Gérer le groupe d'organisation de l'utilisateur",
-    "selectOrgGroups": "Sélectionner les groupes d'organisation à assigner à l'utilisateur"
+    "selectOrgGroups": "Sélectionner les groupes d'organisation à assigner à l'utilisateur",
+    "manageUserAllOrgs": "Gérer les organisations de l'utilisateur",
+    "selectUserOrgs": "Sélectionner les organisations à assigner à l'utilisateur"
   },
   "userAttributes": {
     "title": "Attributs utilisateur",

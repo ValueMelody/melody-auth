@@ -158,7 +158,9 @@
     "noOrg": "No active organization",
     "orgGroup": "Org Group",
     "manageUserOrgGroup": "Manage User Org Group",
-    "selectOrgGroups": "Select org groups to assign to the user"
+    "selectOrgGroups": "Select org groups to assign to the user",
+    "manageUserAllOrgs": "Manage User Organizations",
+    "selectUserOrgs": "Select organizations to assign to the user"
   },
   "userAttributes": {
     "title": "User Attributes",
