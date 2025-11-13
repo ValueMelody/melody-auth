@@ -89,8 +89,8 @@ describe(
         />)
 
         await waitFor(() => {
-          expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
-          expect(screen.getByText('users.selectOrgGroups')).toBeInTheDocument()
+          expect(screen.getByText('users.manageUserAllOrgs')).toBeInTheDocument()
+          expect(screen.getByText('users.selectUserOrgs')).toBeInTheDocument()
         })
       },
     )
@@ -104,8 +104,8 @@ describe(
           onClose={mockOnClose}
         />)
 
-        expect(screen.queryByText('users.manageUserOrgGroup')).not.toBeInTheDocument()
-        expect(screen.queryByText('users.selectOrgGroups')).not.toBeInTheDocument()
+        expect(screen.queryByText('users.manageUserAllOrgs')).not.toBeInTheDocument()
+        expect(screen.queryByText('users.selectUserOrgs')).not.toBeInTheDocument()
       },
     )
 
@@ -289,7 +289,7 @@ describe(
         />)
 
         await waitFor(() => {
-          expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
+          expect(screen.getByText('users.manageUserAllOrgs')).toBeInTheDocument()
           expect(screen.queryAllByTestId('orgInput')).toHaveLength(0)
         })
       },
@@ -307,7 +307,7 @@ describe(
         />)
 
         await waitFor(() => {
-          expect(screen.getByText('users.manageUserOrgGroup')).toBeInTheDocument()
+          expect(screen.getByText('users.manageUserAllOrgs')).toBeInTheDocument()
           expect(screen.queryAllByTestId('orgInput')).toHaveLength(0)
         })
       },
