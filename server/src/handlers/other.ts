@@ -63,6 +63,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ENABLE_MFA_REMEMBER_DEVICE: environment.ENABLE_MFA_REMEMBER_DEVICE,
     ENABLE_RECOVERY_CODE: environment.ENABLE_RECOVERY_CODE,
     ENABLE_ORG: environment.ENABLE_ORG,
+    ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: environment.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN,
     ENABLE_ORG_GROUP: variableConfig.systemConfig.enableOrgGroup,
     ENABLE_USER_ATTRIBUTE: environment.ENABLE_USER_ATTRIBUTE,
     EMBEDDED_AUTH_ORIGINS: environment.EMBEDDED_AUTH_ORIGINS,

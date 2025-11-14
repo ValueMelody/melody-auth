@@ -738,6 +738,19 @@ export const verifyEmail = Object.freeze({
   },
 })
 
+export const switchOrg = Object.freeze({
+  title: {
+    en: 'Switch Organization',
+    fr: 'Changer d\'organisation',
+    zh: '切换组织',
+  },
+  confirm: {
+    en: 'Confirm',
+    fr: 'Confirmer',
+    zh: '确认',
+  },
+})
+
 export const requestError = Object.freeze({
   authFailed: {
     en: 'Authentication Failed.',

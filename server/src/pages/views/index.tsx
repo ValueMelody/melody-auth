@@ -19,10 +19,11 @@ import ChangeEmail from './ChangeEmail'
 import AuthCodeExpired from './AuthCodeExpired'
 import VerifyEmail from './VerifyEmail'
 import RecoveryCodeSignIn from './RecoveryCodeSignIn'
+import SwitchOrg from './SwitchOrg'
 
 export {
   SignIn, SignUp, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
   PasskeyEnroll, ResetPassword, UpdateInfo, ChangePassword, ResetMfa, ManagePasskey,
   ChangeEmail, AuthCodeExpired, VerifyEmail, PasswordlessVerify, RecoveryCodeEnroll,
-  RecoveryCodeSignIn, ManageRecoveryCode,
+  RecoveryCodeSignIn, ManageRecoveryCode, SwitchOrg,
 }

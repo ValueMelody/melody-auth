@@ -370,6 +370,21 @@ export const enableMfaEnroll = async (
   await next()
 }
 
+export const enableSwitchOrg = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: enableSwitchOrg } = env(c)
+  if (!enableSwitchOrg) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.SwitchOrgNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.SwitchOrgNotEnabled)
+  }
+  await next()
+}
+
 export const enableChangePasswordPolicy = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {

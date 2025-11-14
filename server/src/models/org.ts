@@ -3,6 +3,13 @@ import {
 } from 'configs'
 import { dbUtil } from 'utils'
 
+export interface AuthInfo {
+  id: number;
+  name: string;
+  slug: string;
+  companyLogoUrl: string;
+}
+
 export interface Common {
   id: number;
   name: string;

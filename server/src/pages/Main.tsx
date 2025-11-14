@@ -25,6 +25,7 @@ import {
   PasswordlessVerify,
   RecoveryCodeEnroll,
   RecoveryCodeSignIn,
+  SwitchOrg,
 } from 'pages/views'
 import { Layout } from 'pages/blocks'
 import { getLocaleFromParams } from 'pages/tools/param'
@@ -64,6 +65,8 @@ const Main = () => {
         return PasskeyEnroll
       case View.RecoveryCodeEnroll:
         return RecoveryCodeEnroll
+      case View.SwitchOrg:
+        return SwitchOrg
       case View.ResetPassword:
         return ResetPassword
       case View.UpdateInfo:

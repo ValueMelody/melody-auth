@@ -1,5 +1,6 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
+import { getAuthCodeBody } from './mfa'
 import { typeConfig } from 'configs'
 import {
   baseDto, identityDto,
@@ -8,11 +9,13 @@ import {
   appBannerService,
   identityService,
   kvService,
+  orgService,
   userService,
 } from 'services'
 import {
   requestUtil, validateUtil,
 } from 'utils'
+import { orgModel } from 'models'
 
 export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
@@ -88,4 +91,79 @@ export const getAppBanners = async (c: Context<typeConfig.Context>) => {
   )
 
   return c.json({ banners })
+}
+
+export interface GetProcessSwitchOrgRes {
+  orgs: orgModel.AuthInfo[];
+  activeOrgSlug: string;
+}
+export const getProcessSwitchOrg = async (c: Context<typeConfig.Context>) => {
+  const queryDto = await identityDto.parseGetProcess(c)
+  await validateUtil.dto(queryDto)
+
+  const authCodeStore = await getAuthCodeBody(
+    c,
+    queryDto.code,
+  )
+
+  const orgs = await orgService.getUserOrgs(
+    c,
+    authCodeStore.user.id,
+  )
+  const authOrgInfos = orgs.map((org) => ({
+    id: org.id,
+    name: org.name,
+    slug: org.slug,
+    companyLogoUrl: org.companyLogoUrl,
+  }))
+
+  return c.json({
+    orgs: authOrgInfos, activeOrgSlug: authCodeStore.user.orgSlug,
+  })
+}
+
+export const postProcessSwitchOrg = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostProcessOrgSwitchDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await getAuthCodeBody(
+    c,
+    bodyDto.code,
+  )
+
+  if (authCodeStore.user.orgSlug === bodyDto.org) {
+    return c.json(await identityService.processPostAuthorize(
+      c,
+      identityService.AuthorizeStep.SwitchOrg,
+      bodyDto.code,
+      authCodeStore,
+    ))
+  }
+
+  const user = await orgService.switchUserOrg(
+    c,
+    authCodeStore,
+    bodyDto.org,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const newAuthCodeStore = {
+    ...authCodeStore,
+    user,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    bodyDto.code,
+    newAuthCodeStore,
+    codeExpiresIn,
+  )
+
+  return c.json(await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.SwitchOrg,
+    bodyDto.code,
+    newAuthCodeStore,
+  ))
 }
