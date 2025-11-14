@@ -81,7 +81,7 @@ describe(
           ENABLE_MFA_REMEMBER_DEVICE: false,
           ENABLE_RECOVERY_CODE: false,
           ENABLE_ORG: false,
-          ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: true,
+          ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: false,
           ENABLE_ORG_GROUP: true,
           ENABLE_USER_ATTRIBUTE: false,
           BLOCKED_POLICIES: [],
