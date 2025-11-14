@@ -72,6 +72,7 @@ export type Bindings = {
   TERMS_LINK: string;
   PRIVACY_POLICY_LINK: string;
   ENABLE_ORG: boolean;
+  ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: boolean;
   ENABLE_USER_ATTRIBUTE: boolean;
   ENABLE_EMAIL_LOG: boolean;
   ENABLE_SMS_LOG: boolean;

@@ -38,6 +38,7 @@ export enum AuthorizeStep {
   EmailMfa = 6,
   PasskeyEnroll = 7,
   RecoveryCodeEnroll = 8,
+  SwitchOrg = 9,
 }
 
 const getNextPageForPolicy = (
@@ -112,6 +113,7 @@ export const processPostAuthorize = async (
     ENABLE_RECOVERY_CODE: enableRecoveryCode,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
     ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice,
+    ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: allowSwitchOrg,
   } = env(c)
 
   const isSocialLogin = !!authCodeBody.user.socialAccountId
@@ -309,7 +311,14 @@ export const processPostAuthorize = async (
     }
   }
 
-  if (step < 9) {
+  const requireSwitchOrg = step < 9 && allowSwitchOrg
+  if (requireSwitchOrg) {
+    return {
+      ...basicInfo, nextPage: routeConfig.View.SwitchOrg,
+    }
+  }
+
+  if (step < 10) {
     const nextPage = getNextPageForPolicy(
       c,
       authCodeBody,

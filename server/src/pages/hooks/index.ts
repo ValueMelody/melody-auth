@@ -24,6 +24,7 @@ import useManageRecoveryCodeForm from './useManageRecoveryCodeForm'
 import useChangeEmailForm from './useChangeEmailForm'
 import useVerifyEmailForm from './useVerifyEmailForm'
 import useRecoveryCodeForm from './useRecoveryCodeForm'
+import useSwitchOrgForm from './useSwitchOrgForm'
 
 export {
   useInitialProps,
@@ -53,4 +54,5 @@ export {
   useVerifyEmailForm,
   usePasswordlessVerifyForm,
   useRecoveryCodeForm,
+  useSwitchOrgForm,
 }

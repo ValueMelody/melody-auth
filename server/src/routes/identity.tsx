@@ -277,6 +277,21 @@ identityRoutes.post(
 )
 
 /**
+ * Process Switch Org
+ * - ProcessSwitchOrg
+ */
+identityRoutes.get(
+  routeConfig.IdentityRoute.ProcessSwitchOrg,
+  configMiddleware.enableSwitchOrg,
+  identityHandler.getProcessSwitchOrg,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ProcessSwitchOrg,
+  configMiddleware.enableSwitchOrg,
+  identityHandler.postProcessSwitchOrg,
+)
+/**
  * Policy
  * - ChangePassword
  * - ChangeEmail

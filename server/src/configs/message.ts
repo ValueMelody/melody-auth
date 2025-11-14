@@ -8,6 +8,7 @@ export enum ConfigError {
   AppConsentNotEnabled = 'App consent is not enabled',
   AppBannerNotEnabled = 'App banner is not enabled',
   OrgNotEnabled = 'Organization is not enabled',
+  SwitchOrgNotEnabled = 'Switch org is not enabled',
   OrgGroupNotEnabled = 'Organization group is not enabled',
   UserAttributeNotEnabled = 'User attribute is not enabled',
   PasskeyEnrollmentNotEnabled = 'Passkey enrollment is not enabled or passwordless sign in is enabled',

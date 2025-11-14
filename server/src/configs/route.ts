@@ -60,6 +60,8 @@ export enum IdentityRoute {
   AuthorizePasskeyVerify = `${InternalRoute.Identity}/authorize-passkey-verify`,
   // Process Recovery Code
   ProcessRecoveryCodeEnroll = `${InternalRoute.Identity}/process-recovery-code-enroll`,
+  // Process Switch Org
+  ProcessSwitchOrg = `${InternalRoute.Identity}/process-switch-org`,
   // Policy
   ChangePassword = `${InternalRoute.Identity}/change-password`,
   ChangeEmailCode = `${InternalRoute.Identity}/change-email-code`,
@@ -89,6 +91,7 @@ export enum View {
   PasskeyEnroll = 'passkey_enroll',
   RecoveryCodeSignIn = 'recovery_code_sign_in',
   RecoveryCodeEnroll = 'recovery_code_enroll',
+  SwitchOrg = 'switch_org',
   SignUp = 'sign_up',
   ResetPassword = 'reset_password',
   UpdateInfo = 'update_info',

@@ -157,6 +157,17 @@ export class PostProcessMfaEnrollDto extends GetProcessDto {
   }
 }
 
+export class PostProcessOrgSwitchDto extends GetProcessDto {
+  @IsString()
+  @IsNotEmpty()
+    org: string
+
+  constructor (dto: PostProcessOrgSwitchDto) {
+    super(dto)
+    this.org = dto.org
+  }
+}
+
 export class PostAuthorizeMfaDto extends GetProcessDto {
   @IsString()
   @IsNotEmpty()

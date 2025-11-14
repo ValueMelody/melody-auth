@@ -3,7 +3,7 @@ import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
-  orgModel, userOrgModel,
+  orgModel, userOrgModel, userModel,
 } from 'models'
 import { orgDto } from 'dtos'
 import { loggerUtil } from 'utils'
@@ -170,4 +170,34 @@ export const updateUserOrgs = async (
     }
   }
   return true
+}
+
+export const switchUserOrg = async (
+  c: Context<typeConfig.Context>,
+  authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
+  orgSlug: string,
+) => {
+  const userOrgs = await getUserOrgs(
+    c,
+    authCodeStore.user.id,
+  )
+
+  const matchedOrg = userOrgs.find((userOrg) => userOrg.slug === orgSlug)
+
+  if (!matchedOrg) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoOrg,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
+  }
+
+  const user = await userModel.update(
+    c.env.DB,
+    authCodeStore.user.id,
+    { orgSlug: matchedOrg.slug },
+  )
+
+  return user
 }

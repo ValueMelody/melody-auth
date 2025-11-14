@@ -20,11 +20,12 @@ import ResetPassword from './ResetPassword'
 import SignUp from './SignUp'
 import SignIn from './SignIn'
 import RecoveryCodeSignIn from './RecoveryCodeSignIn'
+import SwitchOrg from './SwitchOrg'
 
 export {
   VerifyEmail, UpdateInfo, SmsMfa, AuthCodeExpired, ChangeEmail,
   ChangePassword, Consent, EmailMfa, Layout, ManagePasskey,
   MfaEnroll, OtpMfa, OtpSetup, PasskeyEnroll, PasswordlessVerify,
   ResetMfa, ResetPassword, SignUp, SignIn, RecoveryCodeEnroll,
-  RecoveryCodeSignIn, ManageRecoveryCode,
+  RecoveryCodeSignIn, ManageRecoveryCode, SwitchOrg,
 }
