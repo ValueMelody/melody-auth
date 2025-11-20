@@ -710,6 +710,68 @@ embeddedRoutes.post(
 
 /**
  * @swagger
+ * /embedded-auth/v1/{sessionId}/switch-org:
+ *   get:
+ *     summary: Get user orgs
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User orgs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserOrgsRes'
+ */
+embeddedRoutes.get(
+  routeConfig.EmbeddedRoute.UserOrgs,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableOrg,
+  configMiddleware.enableUserSwitchOrg,
+  embeddedHandler.getUserOrgs,
+)
+
+/**
+ * @swagger
+ * /embedded-auth/v1/{sessionId}/switch-org:
+ *   post:
+ *     summary: Switch user org
+ *     tags: [Embedded Auth]
+ *     parameters:
+ *       - name: sessionId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PostProcessSwitchOrgReq'
+ *     responses:
+ *       200:
+ *         description: Next step of the auth flow
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthRes'
+ */
+embeddedRoutes.post(
+  routeConfig.EmbeddedRoute.UserOrgs,
+  setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableOrg,
+  configMiddleware.enableUserSwitchOrg,
+  embeddedHandler.postUserOrgs,
+)
+
+/**
+ * @swagger
  * /embedded-auth/v1/{sessionId}/app-banners:
  *   get:
  *     summary: get the app banners

@@ -7,7 +7,7 @@ import {
 import {
   appBannerService,
   appService, consentService, emailService, identityService,
-  kvService, mfaService, oauthService, passkeyService, recoveryCodeService, scopeService,
+  kvService, mfaService, oauthService, orgService, passkeyService, recoveryCodeService, scopeService,
   userAttributeService,
   userService,
 } from 'services'
@@ -849,6 +849,72 @@ export const postPasskeyVerify = async (c: Context<typeConfig.Context>) => {
       isFullyAuthorized: true,
     },
     user,
+  )
+
+  return c.json({
+    sessionId,
+    nextStep: result.nextPage,
+    success: !result.nextPage,
+  })
+}
+
+export const getUserOrgs = async (c: Context<typeConfig.Context>) => {
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const orgs = await orgService.getUserOrgs(
+    c,
+    sessionBody.user.id,
+  )
+
+  const authOrgInfos = orgs.map((org) => ({
+    id: org.id,
+    name: org.name,
+    slug: org.slug,
+    companyLogoUrl: org.companyLogoUrl,
+  }))
+
+  return c.json({
+    orgs: authOrgInfos, activeOrgSlug: sessionBody.user.orgSlug,
+  })
+}
+
+export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
+  const bodyDto = new embeddedDto.PostSwitchUserOrgDto(await c.req.json())
+  await validateUtil.dto(bodyDto)
+
+  const sessionId = c.req.param('sessionId')
+  const sessionBody = await getSessionBodyWithUser(
+    c,
+    sessionId,
+  )
+
+  const user = await orgService.switchUserOrg(
+    c,
+    sessionBody,
+    bodyDto.org,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const newSessionBody = {
+    ...sessionBody,
+    user,
+  }
+  await kvService.storeEmbeddedSession(
+    c.env.KV,
+    sessionId,
+    newSessionBody,
+    codeExpiresIn,
+  )
+
+  const result = await identityService.processPostAuthorize(
+    c,
+    identityService.AuthorizeStep.SwitchOrg,
+    sessionId,
+    sessionBodyToAuthCodeBody(newSessionBody),
   )
 
   return c.json({

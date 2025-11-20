@@ -113,6 +113,7 @@ export const processPostAuthorize = async (
     ENABLE_RECOVERY_CODE: enableRecoveryCode,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
     ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice,
+    ENABLE_ORG: enableOrg,
     ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: allowSwitchOrg,
   } = env(c)
 
@@ -311,7 +312,7 @@ export const processPostAuthorize = async (
     }
   }
 
-  const requireSwitchOrg = step < 9 && allowSwitchOrg
+  const requireSwitchOrg = step < 9 && enableOrg && allowSwitchOrg
   if (requireSwitchOrg) {
     return {
       ...basicInfo, nextPage: routeConfig.View.SwitchOrg,

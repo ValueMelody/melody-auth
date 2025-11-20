@@ -121,6 +121,7 @@ export enum EmbeddedRoute {
   PasskeyEnrollDecline = `${InternalRoute.Embedded}/:sessionId/passkey-enroll-decline`,
   PasskeyVerify = `${InternalRoute.Embedded}/:sessionId/passkey-verify`,
   RecoveryCodeEnroll = `${InternalRoute.Embedded}/:sessionId/recovery-code-enroll`,
+  UserOrgs = `${InternalRoute.Embedded}/:sessionId/user-orgs`,
   RecoveryCode = `${InternalRoute.Embedded}/:sessionId/recovery-code`,
   AppBanners = `${InternalRoute.Embedded}/:sessionId/app-banners`,
   TokenExchange = `${InternalRoute.Embedded}/token-exchange`,

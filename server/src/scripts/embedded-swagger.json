@@ -1123,6 +1123,49 @@
         "required": [
           "email"
         ]
+      },
+      "UserOrgsRes": {
+        "type": "object",
+        "properties": {
+          "orgs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "companyLogoUrl": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "activeOrgSlug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "orgs",
+          "activeOrgSlug"
+        ]
+      },
+      "PostProcessSwitchOrgReq": {
+        "type": "object",
+        "properties": {
+          "org": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "org"
+        ]
       }
     }
   },
@@ -1917,6 +1960,74 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/PostSignInWithRecoveryCodeReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Next step of the auth flow",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embedded-auth/v1/{sessionId}/switch-org": {
+      "get": {
+        "summary": "Get user orgs",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User orgs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOrgsRes"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Switch user org",
+        "tags": [
+          "Embedded Auth"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostProcessSwitchOrgReq"
               }
             }
           }

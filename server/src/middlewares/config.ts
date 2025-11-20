@@ -136,6 +136,21 @@ export const enableOrg = async (
   await next()
 }
 
+export const enableUserSwitchOrg = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: enabledUserSwitchOrg } = env(c)
+  if (!enabledUserSwitchOrg) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.SwitchOrgNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.SwitchOrgNotEnabled)
+  }
+  await next()
+}
+
 export const enableOrgGroup = async (
   c: Context<typeConfig.Context>, next: Next,
 ) => {
