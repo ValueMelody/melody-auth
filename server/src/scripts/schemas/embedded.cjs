@@ -556,6 +556,32 @@ const PostPasskeyVerifyReq = {
   required: ['passkeyInfo', 'email'],
 }
 
+const UserOrgsRes = {
+  type: 'object',
+  properties: {
+    orgs: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+          slug: { type: 'string' },
+          companyLogoUrl: { type: 'string' },
+        },
+      },
+    },
+    activeOrgSlug: { type: 'string' },
+  },
+  required: ['orgs', 'activeOrgSlug'],
+}
+
+const PostProcessSwitchOrgReq = {
+  type: 'object',
+  properties: { org: { type: 'string' } },
+  required: ['org'],
+}
+
 const RecoveryCodeEnrollRes = {
   type: 'object',
   properties: { recoveryCode: { type: 'string' } },
@@ -719,4 +745,6 @@ module.exports = {
   SignOutReq,
   GetAppConsentRes,
   ResetPasswordReq,
+  UserOrgsRes,
+  PostProcessSwitchOrgReq,
 }

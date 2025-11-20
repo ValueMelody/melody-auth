@@ -29,6 +29,8 @@ const {
   SignOutReq,
   GetAppConsentRes,
   ResetPasswordReq,
+  UserOrgsRes,
+  PostProcessSwitchOrgReq,
 } = require('./schemas/embedded.cjs')
 
 const options = {
@@ -68,6 +70,8 @@ const options = {
         SignOutReq,
         GetAppConsentRes,
         ResetPasswordReq,
+        UserOrgsRes,
+        PostProcessSwitchOrgReq,
       },
     },
   },

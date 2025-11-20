@@ -190,3 +190,13 @@ export class PostPasskeyVerifyDto {
     this.email = dto.email.toLowerCase()
   }
 }
+
+export class PostSwitchUserOrgDto {
+  @IsString()
+  @IsNotEmpty()
+    org: string
+
+  constructor (dto: PostSwitchUserOrgDto) {
+    this.org = dto.org
+  }
+}

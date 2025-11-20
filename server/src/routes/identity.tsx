@@ -282,12 +282,14 @@ identityRoutes.post(
  */
 identityRoutes.get(
   routeConfig.IdentityRoute.ProcessSwitchOrg,
+  configMiddleware.enableOrg,
   configMiddleware.enableSwitchOrg,
   identityHandler.getProcessSwitchOrg,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ProcessSwitchOrg,
+  configMiddleware.enableOrg,
   configMiddleware.enableSwitchOrg,
   identityHandler.postProcessSwitchOrg,
 )
