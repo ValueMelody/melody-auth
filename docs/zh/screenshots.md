@@ -33,6 +33,9 @@
 
 ![邮件 MFA 邮件](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/email_mfa_email.jpeg)
 
+### 切换组织
+![切换组织](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/switch_org.jpeg)
+
 ### 邮件验证
 ![邮件验证邮件](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/email_verification_email.jpeg)
 

@@ -90,6 +90,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** false
 - **Description:** Toggles the organization feature. If `true`, users can create and manage organizations via the S2S API and admin panel.
 
+### ALLOW_USER_SWITCH_ORG_ON_SIGN_IN
+- **Default:** false
+- **Description:** Allow users to switch their active organization during sign-in when they belong to multiple organizations.
+
 ### ENABLE_USER_ATTRIBUTE
 - **Default:** false
 - **Description:** Toggles the user attribute feature. If `true`, users can create and manage user attributes via the S2S API and admin panel.
