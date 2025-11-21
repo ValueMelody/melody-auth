@@ -33,6 +33,9 @@ These screenshots showcase various pages and emails related to identity system a
 
 ![Email MFA Email](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/email_mfa_email.jpeg)
 
+### Switch Org
+![Switch Org](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/switch_org.jpeg)
+
 ### Email Verification
 ![Email Verification Email](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/screenshots/email_verification_email.jpeg)
 
