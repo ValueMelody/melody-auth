@@ -13,9 +13,7 @@ import { switchOrg } from 'pages/tools/locale'
 // Mock useState from hono/jsx to use React's useState for proper state management in tests
 vi.mock(
   'hono/jsx',
-  () => ({
-    useState: React.useState,
-  }),
+  () => ({ useState: React.useState }),
 )
 
 // Fake orgs for testing
@@ -224,6 +222,57 @@ describe(
           switchOrg.confirm.en,
         )
         expect(confirmButton).toBeNull()
+      },
+    )
+
+    it(
+      'calls onSwitchOrg with correct org slug when confirm button is clicked after selection',
+      () => {
+        const container = setup()
+        const org2Button = getByText(
+          container,
+          'Organization 2',
+        )
+        fireEvent.click(org2Button)
+
+        const confirmButton = getByText(
+          container,
+          switchOrg.confirm.en,
+        )
+        fireEvent.click(confirmButton)
+
+        expect(defaultProps.onSwitchOrg).toHaveBeenCalledWith('org2')
+      },
+    )
+
+    it(
+      'allows switching between different organizations before confirming',
+      () => {
+        const container = setup()
+
+        // Click on org2
+        const org2Button = getByText(
+          container,
+          'Organization 2',
+        )
+        fireEvent.click(org2Button)
+
+        // Click on org3
+        const org3Button = getByText(
+          container,
+          'Organization 3',
+        )
+        fireEvent.click(org3Button)
+
+        // Confirm the selection
+        const confirmButton = getByText(
+          container,
+          switchOrg.confirm.en,
+        )
+        fireEvent.click(confirmButton)
+
+        // Should be called with the last selected org
+        expect(defaultProps.onSwitchOrg).toHaveBeenCalledWith('org3')
       },
     )
   },
