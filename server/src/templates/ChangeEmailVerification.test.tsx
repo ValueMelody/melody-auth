@@ -4,7 +4,7 @@ import {
 import { JSDOM } from 'jsdom'
 import ChangeEmailVerification from './ChangeEmailVerification'
 import {
-  localeConfig, typeConfig,
+  localeConfig, typeConfig, variableConfig,
 } from 'configs'
 
 const mockProps = {
@@ -69,7 +69,11 @@ describe(
         expect(paragraph).toBeTruthy()
 
         // Verify that the paragraph contains the localized description
-        expect(paragraph?.textContent).toContain(localeConfig.changeEmailVerificationEmail.desc[mockProps.locale])
+        expect(paragraph?.textContent)
+          .toContain(localeConfig.changeEmailVerificationEmail.desc[mockProps.locale].replace(
+            '{{expiresIn}}',
+            String(variableConfig.systemConfig.changeEmailVerificationCodeExpiresIn / 3600),
+          ))
 
         // Check that the verification code is rendered in the <span>
         const span = paragraph?.querySelector('span')
@@ -93,7 +97,10 @@ describe(
         // Verify description and verification code.
         const paragraph = Array.from(document.querySelectorAll('p')).find((p) => p.querySelector('span'))
         expect(paragraph).toBeTruthy()
-        expect(paragraph?.textContent).toContain(localeConfig.changeEmailVerificationEmail.desc[propsFr.locale])
+        expect(paragraph?.textContent).toContain(localeConfig.changeEmailVerificationEmail.desc[propsFr.locale].replace(
+          '{{expiresIn}}',
+          String(variableConfig.systemConfig.changeEmailVerificationCodeExpiresIn / 3600),
+        ))
         const span = paragraph?.querySelector('span')
         expect(span?.textContent).toBe(propsFr.verificationCode)
       },

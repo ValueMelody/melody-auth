@@ -30,9 +30,9 @@ export const emailVerificationEmail = Object.freeze({
     zh: '感谢您的注册！请使用以下验证码验证您的邮箱地址：',
   },
   expiry: {
-    en: 'This link will expire after 2 hours',
-    fr: 'Ce lien expirera après 2 heures',
-    zh: '此链接将在 2 小时后过期',
+    en: 'This link will expire after {{expiresIn}} hours',
+    fr: 'Ce lien expirera après {{expiresIn}} heures',
+    zh: '此链接将在 {{expiresIn}} 小时后过期',
   },
   verify: {
     en: 'Verify your email',
@@ -71,9 +71,9 @@ export const passwordResetEmail = Object.freeze({
     zh: '重置您的密码',
   },
   desc: {
-    en: 'Here is your reset code, this code will be expired after 2 hour',
-    fr: 'Voici votre code de réinitialisation. Ce code expirera après 2 heures.',
-    zh: '这是您的重置码，将在 2 小时后过期',
+    en: 'Here is your reset code, this code will be expired after {{expiresIn}} hours',
+    fr: 'Voici votre code de réinitialisation. Ce code expirera après {{expiresIn}} heures.',
+    zh: '这是您的重置码，将在 {{expiresIn}} 小时后过期',
   },
 })
 
@@ -89,9 +89,9 @@ export const changeEmailVerificationEmail = Object.freeze({
     zh: '验证您的邮箱',
   },
   desc: {
-    en: 'Here is your verification code, this code will be expired after 2 hours',
-    fr: 'Voici votre code de vérification, ce code expirera après 2 heures',
-    zh: '这是您的验证码，将在 2 小时后过期',
+    en: 'Here is your verification code, this code will be expired after {{expiresIn}} hours',
+    fr: 'Voici votre code de vérification, ce code expirera après {{expiresIn}} heures',
+    zh: '这是您的验证码，将在 {{expiresIn}} 小时后过期',
   },
 })
 
@@ -107,9 +107,9 @@ export const emailMfaEmail = Object.freeze({
     zh: '账户验证码',
   },
   desc: {
-    en: 'Here is your MFA code, this code will be expired after 5 minutes',
-    fr: 'Voici votre code MFA. Ce code expirera après 5 minutes.',
-    zh: '这是您的验证码，将在 5 分钟内过期',
+    en: 'Here is your MFA code, this code will be expired after {{expiresIn}} minutes',
+    fr: 'Voici votre code MFA. Ce code expirera après {{expiresIn}} minutes.',
+    zh: '这是您的验证码，将在 {{expiresIn}} 分钟内过期',
   },
 })
 

@@ -5,6 +5,7 @@ import { JSDOM } from 'jsdom'
 import EmailMfa from './EmailMfa'
 import {
   localeConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 
 const mockProps = {
@@ -69,7 +70,10 @@ describe(
         expect(paragraph).toBeTruthy()
 
         // Verify the paragraph contains the localized description text.
-        expect(paragraph?.textContent).toContain(localeConfig.emailMfaEmail.desc[mockProps.locale])
+        expect(paragraph?.textContent).toContain(localeConfig.emailMfaEmail.desc[mockProps.locale].replace(
+          '{{expiresIn}}',
+          String(variableConfig.systemConfig.emailMfaCodeExpiresIn / 60),
+        ))
 
         // Check that the MFA code is rendered in the <span>.
         const span = paragraph?.querySelector('span')
@@ -93,7 +97,10 @@ describe(
         // Verify description and MFA code.
         const paragraph = Array.from(document.querySelectorAll('p')).find((p) => p.querySelector('span'))
         expect(paragraph).toBeTruthy()
-        expect(paragraph?.textContent).toContain(localeConfig.emailMfaEmail.desc[propsFr.locale])
+        expect(paragraph?.textContent).toContain(localeConfig.emailMfaEmail.desc[propsFr.locale].replace(
+          '{{expiresIn}}',
+          String(variableConfig.systemConfig.emailMfaCodeExpiresIn / 60),
+        ))
         const span = paragraph?.querySelector('span')
         expect(span?.textContent).toBe(propsFr.mfaCode)
       },
