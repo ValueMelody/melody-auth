@@ -3,6 +3,7 @@ import {
   errorConfig, adapterConfig,
   typeConfig,
   messageConfig,
+  variableConfig,
 } from 'configs'
 import {
   cryptoUtil, loggerUtil,
@@ -257,7 +258,6 @@ export const storeSmsMfaCode = async (
   kv: KVNamespace,
   authCode: string,
   mfaCode: string,
-  expiresIn: number,
 ) => {
   await kv.put(
     adapterConfig.getKVKey(
@@ -265,7 +265,7 @@ export const storeSmsMfaCode = async (
       authCode,
     ),
     mfaCode,
-    { expirationTtl: expiresIn },
+    { expirationTtl: variableConfig.systemConfig.smsMfaCodeExpiresIn },
   )
 }
 
@@ -273,7 +273,6 @@ export const storeEmailMfaCode = async (
   kv: KVNamespace,
   authCode: string,
   mfaCode: string,
-  expiresIn: number,
 ) => {
   await kv.put(
     adapterConfig.getKVKey(
@@ -281,7 +280,7 @@ export const storeEmailMfaCode = async (
       authCode,
     ),
     mfaCode,
-    { expirationTtl: expiresIn },
+    { expirationTtl: variableConfig.systemConfig.emailMfaCodeExpiresIn },
   )
 }
 
@@ -394,7 +393,7 @@ export const storeEmailVerificationCode = async (
       String(userId),
     ),
     code,
-    { expirationTtl: 7200 },
+    { expirationTtl: variableConfig.systemConfig.emailVerificationCodeExpiresIn },
   )
 }
 
@@ -424,7 +423,7 @@ export const storePasswordResetCode = async (
       String(userId),
     ),
     code,
-    { expirationTtl: 7200 },
+    { expirationTtl: variableConfig.systemConfig.passwordResetCodeExpiresIn },
   )
 }
 
@@ -754,7 +753,7 @@ export const storeChangeEmailCode = async (
       email,
     ),
     code,
-    { expirationTtl: 7200 },
+    { expirationTtl: variableConfig.systemConfig.changeEmailVerificationCodeExpiresIn },
   )
 }
 

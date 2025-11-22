@@ -1,6 +1,7 @@
 import {
   localeConfig, routeConfig,
   typeConfig,
+  variableConfig,
 } from 'configs'
 import Layout, { Branding } from 'templates/components/Layout'
 import { requestUtil } from 'utils'
@@ -68,7 +69,12 @@ const EmailVerification = ({
               </tr>
               <tr>
                 <td align='center'>
-                  <p style='margin: 0;'>{localeConfig.emailVerificationEmail.expiry[locale]}</p>
+                  <p style='margin: 0;'>
+                    {localeConfig.emailVerificationEmail.expiry[locale].replace(
+                      '{{expiresIn}}',
+                      String(variableConfig.systemConfig.emailVerificationCodeExpiresIn / 3600),
+                    )}
+                  </p>
                 </td>
               </tr>
             </table>

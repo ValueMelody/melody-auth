@@ -5,6 +5,7 @@ import { JSDOM } from 'jsdom'
 import EmailVerification from './EmailVerification'
 import {
   localeConfig, routeConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 import { requestUtil } from 'utils'
 
@@ -112,7 +113,10 @@ describe(
         const { document } = renderAndParse()
         // The expiry text should be rendered in a <p> element.
         const expiryParagraph = Array.from(document.querySelectorAll('p')).find((p) => {
-          return p.textContent?.trim() === localeConfig.emailVerificationEmail.expiry[mockProps.locale]
+          return p.textContent?.trim() === localeConfig.emailVerificationEmail.expiry[mockProps.locale].replace(
+            '{{expiresIn}}',
+            String(variableConfig.systemConfig.emailVerificationCodeExpiresIn / 3600),
+          )
         })
         expect(expiryParagraph).toBeTruthy()
       },
@@ -152,7 +156,10 @@ describe(
 
         // Verify expiry text.
         const expiryParagraph = Array.from(document.querySelectorAll('p')).find((p) => {
-          return p.textContent?.trim() === localeConfig.emailVerificationEmail.expiry[propsFr.locale]
+          return p.textContent?.trim() === localeConfig.emailVerificationEmail.expiry[propsFr.locale].replace(
+            '{{expiresIn}}',
+            String(variableConfig.systemConfig.emailVerificationCodeExpiresIn / 3600),
+          )
         })
         expect(expiryParagraph).toBeTruthy()
       },

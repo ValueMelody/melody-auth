@@ -1,5 +1,6 @@
 import {
   localeConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 import Layout, { Branding } from 'templates/components/Layout'
 
@@ -36,7 +37,10 @@ const EmailMfa = ({
               <tr>
                 <td align='center'>
                   <p style='margin: 0; padding-bottom: 10px;'>
-                    {localeConfig.emailMfaEmail.desc[locale]}:&nbsp;
+                    {localeConfig.emailMfaEmail.desc[locale].replace(
+                      '{{expiresIn}}',
+                      String(variableConfig.systemConfig.emailMfaCodeExpiresIn / 60),
+                    )}:&nbsp;
                     <span style='font-size: 20px; font-weight: bold;'>{mfaCode}</span>
                   </p>
                 </td>

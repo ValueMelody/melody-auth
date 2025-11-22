@@ -128,9 +128,9 @@ export const handleSendEmailMfa = async (
   isPasswordlessCode: boolean = false,
 ) => {
   const {
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
     EMAIL_MFA_EMAIL_THRESHOLD: threshold,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
   } = env(c)
 
   const { requireEmailMfa: enableEmailMfa } = getAuthorizeMfaConfig(
@@ -204,7 +204,6 @@ export const handleSendEmailMfa = async (
         c.env.KV,
         authCode,
         mfaCode,
-        codeExpiresIn,
       )
     }
   }
@@ -374,10 +373,7 @@ export const handleSendSmsMfa = async (
   authCodeBody: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
   locale: typeConfig.Locale,
 ): Promise<true> => {
-  const {
-    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
-    SMS_MFA_MESSAGE_THRESHOLD: threshold,
-  } = env(c)
+  const { SMS_MFA_MESSAGE_THRESHOLD: threshold } = env(c)
 
   const { requireSmsMfa: enableSmsMfa } = getAuthorizeMfaConfig(
     c,
@@ -430,7 +426,6 @@ export const handleSendSmsMfa = async (
       c.env.KV,
       authCode,
       mfaCode,
-      codeExpiresIn,
     )
   }
 

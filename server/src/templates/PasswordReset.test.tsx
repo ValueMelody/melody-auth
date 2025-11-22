@@ -5,6 +5,7 @@ import { JSDOM } from 'jsdom'
 import PasswordReset from './PasswordReset'
 import {
   localeConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 
 const mockProps = {
@@ -69,7 +70,10 @@ describe(
         expect(paragraph).toBeTruthy()
 
         // Check that the paragraph contains the localized description text.
-        expect(paragraph?.textContent).toContain(localeConfig.passwordResetEmail.desc[mockProps.locale])
+        expect(paragraph?.textContent).toContain(localeConfig.passwordResetEmail.desc[mockProps.locale].replace(
+          '{{expiresIn}}',
+          String(variableConfig.systemConfig.passwordResetCodeExpiresIn / 3600),
+        ))
 
         // Check that the reset code is rendered in the <span>.
         const span = paragraph?.querySelector('span')
@@ -89,7 +93,10 @@ describe(
         expect(header?.textContent).toBe(localeConfig.passwordResetEmail.title[propsFr.locale])
 
         const paragraph = document.querySelector('p')
-        expect(paragraph?.textContent).toContain(localeConfig.passwordResetEmail.desc[propsFr.locale])
+        expect(paragraph?.textContent).toContain(localeConfig.passwordResetEmail.desc[propsFr.locale].replace(
+          '{{expiresIn}}',
+          String(variableConfig.systemConfig.passwordResetCodeExpiresIn / 3600),
+        ))
 
         const span = paragraph?.querySelector('span')
         expect(span?.textContent).toBe(mockProps.resetCode)

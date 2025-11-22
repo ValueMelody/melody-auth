@@ -1,5 +1,6 @@
 import {
   localeConfig, typeConfig,
+  variableConfig,
 } from 'configs'
 import Layout, { Branding } from 'templates/components/Layout'
 
@@ -36,7 +37,10 @@ const PasswordReset = ({
               <tr>
                 <td align='center'>
                   <p style='margin: 0; padding-bottom: 10px;'>
-                    {localeConfig.passwordResetEmail.desc[locale]}:&nbsp;
+                    {localeConfig.passwordResetEmail.desc[locale].replace(
+                      '{{expiresIn}}',
+                      String(variableConfig.systemConfig.passwordResetCodeExpiresIn / 3600),
+                    )}:&nbsp;
                     <span style='font-size: 20px; font-weight: bold;'>{resetCode}</span>
                   </p>
                 </td>
