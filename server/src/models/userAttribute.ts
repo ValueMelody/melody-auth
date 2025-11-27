@@ -17,6 +17,7 @@ export interface Raw extends Common {
   requiredInSignUpForm: number;
   includeInIdTokenBody: number;
   includeInUserInfo: number;
+  unique: number;
 }
 
 export interface Record extends Common {
@@ -28,6 +29,7 @@ export interface Record extends Common {
   requiredInSignUpForm: boolean;
   includeInIdTokenBody: boolean;
   includeInUserInfo: boolean;
+  unique: boolean;
 }
 
 export interface Create {
@@ -37,6 +39,7 @@ export interface Create {
   requiredInSignUpForm: number;
   includeInIdTokenBody: number;
   includeInUserInfo: number;
+  unique: number;
 }
 
 export interface Update {
@@ -46,6 +49,7 @@ export interface Update {
   requiredInSignUpForm?: number;
   includeInIdTokenBody?: number;
   includeInUserInfo?: number;
+  unique?: number;
 }
 
 const TableName = adapterConfig.TableName.UserAttribute
@@ -63,6 +67,7 @@ export const format = (raw: Raw): Record => {
     requiredInSignUpForm: !!raw.requiredInSignUpForm,
     includeInIdTokenBody: !!raw.includeInIdTokenBody,
     includeInUserInfo: !!raw.includeInUserInfo,
+    unique: !!raw.unique,
   }
 }
 
@@ -88,7 +93,7 @@ export const getAll = async (db: D1Database): Promise<Record[]> => {
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO "${TableName}" (name, locales, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values ($1, $2, $3, $4, $5, $6)`
+  const query = `INSERT INTO "${TableName}" (name, locales, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique") values ($1, $2, $3, $4, $5, $6, $7)`
   const stmt = db.prepare(query).bind(
     create.name,
     create.locales,
@@ -96,6 +101,7 @@ export const create = async (
     create.requiredInSignUpForm,
     create.includeInIdTokenBody,
     create.includeInUserInfo,
+    create.unique,
   )
   const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
@@ -114,6 +120,7 @@ export const update = async (
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
     'name', 'locales', 'includeInSignUpForm', 'requiredInSignUpForm', 'includeInIdTokenBody', 'includeInUserInfo',
+    'unique',
   ]
 
   const stmt = dbUtil.d1UpdateQuery(

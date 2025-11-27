@@ -79,6 +79,43 @@ const sendSignUpRequest = async (
   }
 }
 
+const sendSignUpRequestWithoutInsertUsers = async (
+  db: Database,
+  sessionId: string,
+  {
+    email,
+    password,
+    firstName,
+    lastName,
+    attributes,
+  }: {
+    email?: string;
+    password?: string;
+    firstName?: string;
+    lastName?: string;
+    attributes?: Record<number, string>;
+  },
+) => {
+  const res = await app.request(
+    routeConfig.EmbeddedRoute.SignUp.replace(
+      ':sessionId',
+      sessionId,
+    ),
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+        firstName,
+        lastName,
+        attributes,
+      }),
+    },
+    mock(db),
+  )
+  return res
+}
+
 describe(
   'get sign up info',
   () => {
@@ -89,10 +126,10 @@ describe(
         process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
 
         db.exec(`
-      INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values ('test', 1, 0, 0, 0)
+      INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique") values ('test', 1, 0, 0, 0, 0)
     `)
         db.exec(`
-      INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values ('test1', 0, 0, 0, 0)
+      INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique") values ('test1', 0, 0, 0, 0, 0)
     `)
 
         const res = await app.request(
@@ -112,6 +149,7 @@ describe(
               requiredInSignUpForm: false,
               includeInIdTokenBody: false,
               includeInUserInfo: false,
+              unique: false,
               createdAt: expect.any(String),
               updatedAt: expect.any(String),
               deletedAt: null,
@@ -505,6 +543,334 @@ describe(
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should successfully create user with unique attribute value',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a unique attribute
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('employee_id', 1, 1, 1)
+        `)
+
+        const {
+          res, sessionId,
+        } = await sendSignUpRequest(
+          db,
+          {
+            email: 'test1@email.com',
+            password: 'Password1!',
+            attributes: { 1: 'EMP001' },
+          },
+        )
+
+        expect(res.status).toBe(200)
+
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          sessionId,
+          success: true,
+        })
+
+        const attributeValues = await db.prepare('select * from "user_attribute_value" where "userId" = 2').all() as userAttributeValueModel.Record[]
+
+        expect(attributeValues.length).toBe(1)
+        expect(attributeValues[0]).toStrictEqual({
+          id: 1,
+          userId: 2,
+          userAttributeId: 1,
+          value: 'EMP001',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          deletedAt: null,
+        })
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail to create user with duplicate unique attribute value',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a unique attribute
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('employee_id', 1, 1, 1)
+        `)
+
+        const appRecord = await getApp(db)
+        const initiateRes = await sendInitiateRequest(
+          db,
+          appRecord,
+        )
+        const { sessionId } = await initiateRes.json() as { sessionId: string }
+        await insertUsers(db)
+
+        // Create first user with employee_id = 'EMP001'
+        const res1 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test1@email.com',
+            password: 'Password1!',
+            attributes: { 1: 'EMP001' },
+          },
+        )
+
+        expect(res1.status).toBe(200)
+
+        // Try to create second user with same employee_id = 'EMP001'
+        const res2 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test2@email.com',
+            password: 'Password1!',
+            attributes: { 1: 'EMP001' },
+          },
+        )
+
+        expect(res2.status).toBe(400)
+        expect(await res2.text()).toBe('Duplicate value "EMP001" for attribute "employee_id"')
+
+        // Verify only one user was created (plus the one from insertUsers)
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(2)
+
+        // Verify only one attribute value exists
+        const attributeValues = await db.prepare('select * from "user_attribute_value"').all() as userAttributeValueModel.Record[]
+        expect(attributeValues.length).toBe(1)
+        expect(attributeValues[0].value).toBe('EMP001')
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should allow multiple users with same non-unique attribute value',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a non-unique attribute
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('department', 1, 1, 0)
+        `)
+
+        const appRecord = await getApp(db)
+        const initiateRes = await sendInitiateRequest(
+          db,
+          appRecord,
+        )
+        const { sessionId } = await initiateRes.json() as { sessionId: string }
+        await insertUsers(db)
+
+        // Create first user with department = 'Engineering'
+        const res1 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test1@email.com',
+            password: 'Password1!',
+            attributes: { 1: 'Engineering' },
+          },
+        )
+
+        expect(res1.status).toBe(200)
+
+        // Create second user with same department = 'Engineering'
+        const res2 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test2@email.com',
+            password: 'Password1!',
+            attributes: { 1: 'Engineering' },
+          },
+        )
+
+        expect(res2.status).toBe(200)
+
+        // Verify both users were created (plus the one from insertUsers)
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(3)
+
+        // Verify both attribute values exist with same value
+        const attributeValues = await db.prepare('select * from "user_attribute_value"').all() as userAttributeValueModel.Record[]
+        expect(attributeValues.length).toBe(2)
+        expect(attributeValues[0].value).toBe('Engineering')
+        expect(attributeValues[1].value).toBe('Engineering')
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should handle mixed unique and non-unique attributes correctly',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a unique attribute and a non-unique attribute
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('employee_id', 1, 1, 1)
+        `)
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('department', 1, 1, 0)
+        `)
+
+        const appRecord = await getApp(db)
+        const initiateRes = await sendInitiateRequest(
+          db,
+          appRecord,
+        )
+        const { sessionId } = await initiateRes.json() as { sessionId: string }
+        await insertUsers(db)
+
+        // Create first user
+        const res1 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test1@email.com',
+            password: 'Password1!',
+            attributes: {
+              1: 'EMP001',
+              2: 'Engineering',
+            },
+          },
+        )
+
+        expect(res1.status).toBe(200)
+
+        // Create second user with different employee_id but same department
+        const res2 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test2@email.com',
+            password: 'Password1!',
+            attributes: {
+              1: 'EMP002',
+              2: 'Engineering',
+            },
+          },
+        )
+
+        expect(res2.status).toBe(200)
+
+        // Try to create third user with duplicate employee_id
+        const res3 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test3@email.com',
+            password: 'Password1!',
+            attributes: {
+              1: 'EMP001',
+              2: 'Sales',
+            },
+          },
+        )
+
+        expect(res3.status).toBe(400)
+        expect(await res3.text()).toBe('Duplicate value "EMP001" for attribute "employee_id"')
+
+        // Verify only two users were created (plus the one from insertUsers)
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(3)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should allow same user to keep their unique attribute value',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a unique attribute
+        db.exec(`
+          INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('employee_id', 1, 1, 1)
+        `)
+
+        const appRecord = await getApp(db)
+        const initiateRes = await sendInitiateRequest(
+          db,
+          appRecord,
+        )
+        const { sessionId } = await initiateRes.json() as { sessionId: string }
+        await insertUsers(db)
+
+        // Create first user with employee_id = 'EMP001'
+        const res1 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test1@email.com',
+            password: 'Password1!',
+            attributes: { 1: 'EMP001' },
+          },
+        )
+
+        expect(res1.status).toBe(200)
+
+        // Create second user with different employee_id = 'EMP002'
+        const res2 = await sendSignUpRequestWithoutInsertUsers(
+          db,
+          sessionId,
+          {
+            email: 'test2@email.com',
+            password: 'Password1!',
+            attributes: { 1: 'EMP002' },
+          },
+        )
+
+        expect(res2.status).toBe(200)
+
+        // Verify both users were created
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(3)
+
+        // Verify both attribute values exist
+        const attributeValues = await db.prepare('select * from "user_attribute_value"').all() as userAttributeValueModel.Record[]
+        expect(attributeValues.length).toBe(2)
+        expect(attributeValues[0].value).toBe('EMP001')
+        expect(attributeValues[1].value).toBe('EMP002')
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
       },
     )
   },

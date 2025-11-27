@@ -822,6 +822,11 @@ export const requestError = Object.freeze({
     fr: 'Code invalide.',
     zh: '无效的验证码。',
   },
+  uniqueAttributeAlreadyExists: {
+    en: 'Duplicate value "{{attributeValue}}" for attribute "{{attributeName}}".',
+    fr: 'Valeur dupliquée "{{attributeValue}}" pour l\'attribut "{{attributeName}}".',
+    zh: '值 "{{attributeValue}}" 已用于属性 "{{attributeName}}"。',
+  },
 })
 
 export const validateError = Object.freeze({

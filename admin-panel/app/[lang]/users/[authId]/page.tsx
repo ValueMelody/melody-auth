@@ -897,15 +897,20 @@ const Page = () => {
                   {userAttribute.locales?.find((locale) => locale.locale === appLocale)?.value ?? userAttribute.name}
                 </TableCell>
                 <TableCell>
-                  <Input
-                    disabled={!canWriteUser}
-                    data-testid={userAttribute.name}
-                    onChange={(e) => setAttributeValues({
-                      ...attributeValues,
-                      [userAttribute.name]: e.target.value,
-                    })}
-                    value={attributeValues[userAttribute.name] ?? ''}
-                  />
+                  <div className='flex flex-col gap-2'>
+                    <Input
+                      disabled={!canWriteUser}
+                      data-testid={userAttribute.name}
+                      onChange={(e) => setAttributeValues({
+                        ...attributeValues,
+                        [userAttribute.name]: e.target.value,
+                      })}
+                      value={attributeValues[userAttribute.name] ?? ''}
+                    />
+                    {userAttribute.unique && (
+                      <p>{t('users.uniqueAttribute')}</p>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

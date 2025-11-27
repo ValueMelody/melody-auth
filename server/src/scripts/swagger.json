@@ -1092,6 +1092,9 @@
           "includeInUserInfo": {
             "type": "boolean"
           },
+          "unique": {
+            "type": "boolean"
+          },
           "createdAt": {
             "type": "string"
           },
@@ -1108,6 +1111,7 @@
           "name",
           "includeInSignUpForm",
           "requiredInSignUpForm",
+          "unique",
           "includeInIdTokenBody",
           "includeInUserInfo",
           "createdAt",
@@ -1152,6 +1156,9 @@
           },
           "includeInUserInfo": {
             "type": "boolean"
+          },
+          "unique": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -1159,7 +1166,8 @@
           "includeInSignUpForm",
           "requiredInSignUpForm",
           "includeInIdTokenBody",
-          "includeInUserInfo"
+          "includeInUserInfo",
+          "unique"
         ]
       },
       "PutUserAttributeReq": {
@@ -1196,6 +1204,9 @@
             "type": "boolean"
           },
           "includeInUserInfo": {
+            "type": "boolean"
+          },
+          "unique": {
             "type": "boolean"
           }
         }

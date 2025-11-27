@@ -156,15 +156,19 @@
     "manageUserOrgGroup": "Gérer le groupe d'organisation de l'utilisateur",
     "selectOrgGroups": "Sélectionner les groupes d'organisation à assigner à l'utilisateur",
     "manageUserAllOrgs": "Gérer les organisations de l'utilisateur",
-    "selectUserOrgs": "Sélectionner les organisations à assigner à l'utilisateur"
+    "selectUserOrgs": "Sélectionner les organisations à assigner à l'utilisateur",
+    "uniqueAttribute": "* Attribut unique"
   },
   "userAttributes": {
     "title": "Attributs utilisateur",
     "name": "Nom",
     "includeInSignUpForm": "Inclure dans le formulaire d'inscription",
     "requiredInSignUpForm": "Requis dans le formulaire d'inscription",
+    "requiredAttributeNote": "* Le système ne va pas appliquer de contrainte de requis au niveau du schéma de la base de données, et ne va pas vérifier les valeurs existantes dans la base de données.",
     "includeInIdTokenBody": "Inclure dans le corps du token ID",
     "includeInUserInfo": "Inclure dans l'info utilisateur",
+    "uniqueAttribute": "Unique",
+    "uniqueAttributeNote": "* Le système ne va pas appliquer de contrainte d'unicité au niveau du schéma de la base de données, et ne va pas vérifier les valeurs existantes dans la base de données.",
     "new": "Créer un attribut utilisateur",
     "userAttribute": "Attribut utilisateur",
     "localeNote": "Le nom sera affiché si la valeur de la langue est vide",

@@ -72,7 +72,7 @@ describe(
           row, index,
         ) => {
           expect(row.querySelectorAll('td')[0]?.innerHTML).toContain(userAttributes[index].name)
-          const editLink = row.querySelectorAll('td')[5]?.getElementsByTagName('a')
+          const editLink = row.querySelectorAll('td')[6]?.getElementsByTagName('a')
           expect(editLink[0].getAttribute('href')).toBe(`/user-attributes/${userAttributes[index].id}`)
         })
 

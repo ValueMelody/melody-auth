@@ -174,14 +174,17 @@ const Page = () => {
             <TableRow>
               <TableCell>{t('userAttributes.requiredInSignUpForm')}</TableCell>
               <TableCell>
-                <Switch
-                  checked={values.requiredInSignUpForm}
-                  disabled={!canWriteUserAttribute || !values.includeInSignUpForm}
-                  onClick={() => onChange(
-                    'requiredInSignUpForm',
-                    !values.requiredInSignUpForm,
-                  )}
-                />
+                <div className='flex items-center gap-4'>
+                  <Switch
+                    checked={values.requiredInSignUpForm}
+                    disabled={!canWriteUserAttribute || !values.includeInSignUpForm}
+                    onClick={() => onChange(
+                      'requiredInSignUpForm',
+                      !values.requiredInSignUpForm,
+                    )}
+                  />
+                  <p>{t('userAttributes.requiredAttributeNote')}</p>
+                </div>
               </TableCell>
             </TableRow>
             <TableRow>
@@ -211,6 +214,22 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
+              <TableCell>{t('userAttributes.uniqueAttribute')}</TableCell>
+              <TableCell>
+                <div className='flex items-center gap-4'>
+                  <Switch
+                    checked={values.unique}
+                    disabled={!canWriteUserAttribute}
+                    onClick={() => onChange(
+                      'unique',
+                      !values.unique,
+                    )}
+                  />
+                  <p>{t('userAttributes.uniqueAttributeNote')}</p>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
               <TableCell>{t('common.createdAt')}</TableCell>
               <TableCell>{userAttribute.createdAt} UTC</TableCell>
             </TableRow>
@@ -232,6 +251,7 @@ const Page = () => {
               values.requiredInSignUpForm === userAttribute.requiredInSignUpForm &&
               values.includeInIdTokenBody === userAttribute.includeInIdTokenBody &&
               values.includeInUserInfo === userAttribute.includeInUserInfo &&
+              values.unique === userAttribute.unique &&
               !hasDifferentLocales
             )}
             onClick={handleSave}

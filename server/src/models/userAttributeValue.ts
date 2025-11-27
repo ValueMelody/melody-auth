@@ -67,6 +67,19 @@ export const getAllByUserId = async (
   return userAttributeValues
 }
 
+export const getByAttributeIdAndValue = async (
+  db: D1Database, attributeId: number, value: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "userAttributeId" = $1 AND "value" = $2 AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query).bind(
+    attributeId,
+    value,
+  )
+
+  const userAttributeValue = await stmt.first() as Record | null
+  return userAttributeValue
+}
+
 export const remove = async (
   db: D1Database, id: number,
 ): Promise<true> => {

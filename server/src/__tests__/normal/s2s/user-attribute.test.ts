@@ -38,6 +38,7 @@ const createNewUserAttribute = async (token?: string) => await app.request(
       requiredInSignUpForm: false,
       includeInIdTokenBody: false,
       includeInUserInfo: false,
+      unique: false,
     }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
   },
@@ -59,6 +60,7 @@ const createNewUserAttribute2 = async (token?: string) => await app.request(
       requiredInSignUpForm: true,
       includeInIdTokenBody: true,
       includeInUserInfo: true,
+      unique: true,
     }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
   },
@@ -73,6 +75,7 @@ const newUserAttribute = {
   requiredInSignUpForm: false,
   includeInIdTokenBody: false,
   includeInUserInfo: false,
+  unique: false,
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
@@ -90,6 +93,7 @@ const newUserAttribute2 = {
   requiredInSignUpForm: true,
   includeInIdTokenBody: true,
   includeInUserInfo: true,
+  unique: true,
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
@@ -370,6 +374,7 @@ describe(
               requiredInSignUpForm: true,
               includeInIdTokenBody: true,
               includeInUserInfo: true,
+              unique: true,
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
@@ -385,6 +390,7 @@ describe(
             requiredInSignUpForm: true,
             includeInIdTokenBody: true,
             includeInUserInfo: true,
+            unique: true,
           },
         })
 
@@ -407,6 +413,7 @@ describe(
               requiredInSignUpForm: false,
               includeInIdTokenBody: true,
               includeInUserInfo: false,
+              unique: false,
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
@@ -422,6 +429,7 @@ describe(
             requiredInSignUpForm: false,
             includeInIdTokenBody: true,
             includeInUserInfo: false,
+            unique: false,
           },
         })
 
@@ -474,6 +482,7 @@ describe(
           requiredInSignUpForm: true,
           includeInIdTokenBody: true,
           includeInUserInfo: true,
+          unique: true,
         }
         const res = await app.request(
           `${BaseRoute}/1`,

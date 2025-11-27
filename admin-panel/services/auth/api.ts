@@ -178,7 +178,6 @@ const injectedRtkApi = api
           params: {
             page_size: queryArg.pageSize,
             page_number: queryArg.pageNumber,
-            search: queryArg.search,
           },
         }),
         providesTags: ['Orgs'],
@@ -869,8 +868,6 @@ export type GetApiV1OrgsByIdAllUsersApiArg = {
   pageSize?: number;
   /** Page number to return */
   pageNumber?: number;
-  /** Search by name or email */
-  search?: string;
 };
 export type GetApiV1OrgGroupsApiResponse =
   /** status 200 A list of org groups by orgId */ {
@@ -1567,6 +1564,7 @@ export type UserAttribute = {
   requiredInSignUpForm: boolean;
   includeInIdTokenBody: boolean;
   includeInUserInfo: boolean;
+  unique: boolean;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -1581,6 +1579,7 @@ export type PostUserAttributeReq = {
   requiredInSignUpForm: boolean;
   includeInIdTokenBody: boolean;
   includeInUserInfo: boolean;
+  unique: boolean;
 };
 export type PutUserAttributeReq = {
   name?: string;
@@ -1592,6 +1591,7 @@ export type PutUserAttributeReq = {
   requiredInSignUpForm?: boolean;
   includeInIdTokenBody?: boolean;
   includeInUserInfo?: boolean;
+  unique?: boolean;
 };
 export type EmailLog = {
   id: number;

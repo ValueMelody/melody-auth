@@ -116,4 +116,5 @@ export enum RequestError {
   RoleNotFound = 'Role not found',
   OrgGroupNotFound = 'Organization group not found',
   NoAppBanner = 'No app banner found',
+  UniqueAttributeAlreadyExists = 'Duplicate value "{{attributeValue}}" for attribute "{{attributeName}}"',
 }

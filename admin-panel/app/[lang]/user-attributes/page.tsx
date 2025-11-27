@@ -56,6 +56,7 @@ const Page = () => {
             <TableHead>{t('userAttributes.requiredInSignUpForm')}</TableHead>
             <TableHead>{t('userAttributes.includeInIdTokenBody')}</TableHead>
             <TableHead>{t('userAttributes.includeInUserInfo')}</TableHead>
+            <TableHead>{t('userAttributes.uniqueAttribute')}</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
@@ -89,6 +90,9 @@ const Page = () => {
                   {userAttribute.includeInUserInfo && (
                     <Badge>{t('userAttributes.includeInUserInfo')}</Badge>
                   )}
+                  {userAttribute.unique && (
+                    <Badge>{t('userAttributes.uniqueAttribute')}</Badge>
+                  )}
                 </div>
               </TableCell>
             </TableRow>
@@ -115,6 +119,9 @@ const Page = () => {
               </TableCell>
               <TableCell>
                 <ConfigBooleanValue config={userAttribute.includeInUserInfo} />
+              </TableCell>
+              <TableCell>
+                <ConfigBooleanValue config={userAttribute.unique} />
               </TableCell>
               <TableCell>
                 <EditLink

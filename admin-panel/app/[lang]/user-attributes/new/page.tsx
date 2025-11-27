@@ -119,14 +119,17 @@ const Page = () => {
             <TableRow>
               <TableCell>{t('userAttributes.requiredInSignUpForm')}</TableCell>
               <TableCell>
-                <Switch
-                  checked={values.requiredInSignUpForm}
-                  disabled={!values.includeInSignUpForm}
-                  onClick={() => onChange(
-                    'requiredInSignUpForm',
-                    !values.requiredInSignUpForm,
-                  )}
-                />
+                <div className='flex items-center gap-4'>
+                  <Switch
+                    checked={values.requiredInSignUpForm}
+                    disabled={!values.includeInSignUpForm}
+                    onClick={() => onChange(
+                      'requiredInSignUpForm',
+                      !values.requiredInSignUpForm,
+                    )}
+                  />
+                  <p>{t('userAttributes.requiredAttributeNote')}</p>
+                </div>
               </TableCell>
             </TableRow>
             <TableRow>
@@ -151,6 +154,21 @@ const Page = () => {
                     !values.includeInUserInfo,
                   )}
                 />
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('userAttributes.uniqueAttribute')}</TableCell>
+              <TableCell>
+                <div className='flex items-center gap-4'>
+                  <Switch
+                    checked={values.unique}
+                    onClick={() => onChange(
+                      'unique',
+                      !values.unique,
+                    )}
+                  />
+                  <p>{t('userAttributes.uniqueAttributeNote')}</p>
+                </div>
               </TableCell>
             </TableRow>
           </TableBody>

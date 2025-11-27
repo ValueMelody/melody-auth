@@ -18,6 +18,7 @@ const UserAttribute = {
     requiredInSignUpForm: { type: 'boolean' },
     includeInIdTokenBody: { type: 'boolean' },
     includeInUserInfo: { type: 'boolean' },
+    unique: { type: 'boolean' },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },
     deletedAt: {
@@ -26,7 +27,7 @@ const UserAttribute = {
     },
   },
   required: [
-    'id', 'name', 'includeInSignUpForm', 'requiredInSignUpForm',
+    'id', 'name', 'includeInSignUpForm', 'requiredInSignUpForm', 'unique',
     'includeInIdTokenBody', 'includeInUserInfo', 'createdAt', 'updatedAt', 'deletedAt',
   ],
 }
@@ -54,10 +55,11 @@ const PostUserAttributeReq = {
     requiredInSignUpForm: { type: 'boolean' },
     includeInIdTokenBody: { type: 'boolean' },
     includeInUserInfo: { type: 'boolean' },
+    unique: { type: 'boolean' },
   },
   required: [
     'name', 'includeInSignUpForm', 'requiredInSignUpForm',
-    'includeInIdTokenBody', 'includeInUserInfo',
+    'includeInIdTokenBody', 'includeInUserInfo', 'unique',
   ],
 }
 
@@ -80,6 +82,7 @@ const PutUserAttributeReq = {
     requiredInSignUpForm: { type: 'boolean' },
     includeInIdTokenBody: { type: 'boolean' },
     includeInUserInfo: { type: 'boolean' },
+    unique: { type: 'boolean' },
   },
 }
 

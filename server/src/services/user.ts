@@ -118,6 +118,41 @@ export const getUserInfo = async (
   return result
 }
 
+const checkUniqueAttribute = async (
+  c: Context<typeConfig.Context>,
+  userAttribute: userAttributeModel.Record,
+  value: string,
+) => {
+  if (!userAttribute.unique) return
+  const userAttributeValue = await userAttributeValueModel.getByAttributeIdAndValue(
+    c.env.DB,
+    userAttribute.id,
+    value,
+  )
+  if (userAttributeValue) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UniqueAttributeAlreadyExists
+        .replace(
+          '{{attributeValue}}',
+          value,
+        ).replace(
+          '{{attributeName}}',
+          userAttribute.name,
+        ),
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UniqueAttributeAlreadyExists
+      .replace(
+        '{{attributeValue}}',
+        value,
+      ).replace(
+        '{{attributeName}}',
+        userAttribute.name,
+      ))
+  }
+}
+
 export const getUsers = async (
   c: Context<typeConfig.Context>,
   search: string | undefined,
@@ -494,6 +529,26 @@ export const createAccountWithPassword = async (
     c,
     bodyDto.org,
   )
+
+  for (const [userAttributeId, value] of Object.entries(attributeValues)) {
+    const userAttribute = await userAttributeModel.getById(
+      c.env.DB,
+      Number(userAttributeId),
+    )
+    if (!userAttribute || !userAttribute.includeInSignUpForm) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.NoUserAttribute,
+      )
+      throw new errorConfig.NotFound(messageConfig.RequestError.NoUserAttribute)
+    }
+    await checkUniqueAttribute(
+      c,
+      userAttribute,
+      value,
+    )
+  }
 
   const password = await cryptoUtil.bcryptText(bodyDto.password)
 
@@ -1365,7 +1420,7 @@ export const updateUser = async (
     const attributeValuesToUpdate: { id: number; data: userAttributeValueModel.Update }[] = []
     const attributeValueIdsToDelete: number[] = []
 
-    userAttributes.forEach((userAttribute) => {
+    for (const userAttribute of userAttributes) {
       const newValue = attributeValues[userAttribute.id]
       const oldValue = userAttributeValues.find((userAttributeValue) => {
         return userAttributeValue.userAttributeId === userAttribute.id
@@ -1373,15 +1428,25 @@ export const updateUser = async (
       if (!newValue && oldValue) {
         attributeValueIdsToDelete.push(oldValue.id)
       } else if (newValue && !oldValue) {
+        await checkUniqueAttribute(
+          c,
+          userAttribute,
+          newValue,
+        )
         attributeValuesToCreate.push({
           userId: updatedUser.id, userAttributeId: userAttribute.id, value: newValue,
         })
-      } else if (newValue && oldValue) {
+      } else if (newValue && oldValue && newValue !== oldValue.value) {
+        await checkUniqueAttribute(
+          c,
+          userAttribute,
+          newValue,
+        )
         attributeValuesToUpdate.push({
           id: oldValue.id, data: { value: newValue },
         })
       }
-    })
+    }
 
     for (const attributeValueId of attributeValueIdsToDelete) {
       await userAttributeValueModel.remove(

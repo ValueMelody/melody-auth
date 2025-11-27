@@ -61,6 +61,27 @@ const useSubmitError = ({
         msg = requestError.requireNewEmail[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.WrongMfaCode) !== -1) {
         msg = requestError.wrongCode[locale]
+      } else if (errorString.indexOf('Duplicate value') !== -1) {
+        // Parse the error string to extract attribute value and name
+        // Format: Duplicate value "123" for attribute "unique"
+        const valueMatch = errorString.match(/Duplicate value "([^"]+)"/)
+        const attributeMatch = errorString.match(/for attribute "([^"]+)"/)
+
+        if (valueMatch && attributeMatch) {
+          const attributeValue = valueMatch[1]
+          const attributeName = attributeMatch[1]
+          msg = requestError.uniqueAttributeAlreadyExists[locale]
+            .replace(
+              '{{attributeValue}}',
+              attributeValue,
+            )
+            .replace(
+              '{{attributeName}}',
+              attributeName,
+            )
+        } else {
+          msg = errorString
+        }
       } else if (errorString.indexOf(messageConfig.RequestError.WrongAuthCode) !== -1) {
         const currentUrl = new URL(window.location.href)
         const newUrl = new URL(`${window.location.origin}${routeConfig.IdentityRoute.AuthCodeExpiredView}`)
