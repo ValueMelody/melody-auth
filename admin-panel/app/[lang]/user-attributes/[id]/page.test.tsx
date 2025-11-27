@@ -22,6 +22,7 @@ const mockUserAttribute = {
   requiredInSignUpForm: false,
   includeInIdTokenBody: true,
   includeInUserInfo: false,
+  unique: false,
   locales: [
     {
       locale: 'en', value: 'First Name',
@@ -155,6 +156,7 @@ describe(
             requiredInSignUpForm: false,
             includeInIdTokenBody: true,
             includeInUserInfo: false,
+            unique: false,
             locales: [
               {
                 locale: 'en', value: 'First Name',
@@ -188,6 +190,7 @@ describe(
             requiredInSignUpForm: false,
             includeInIdTokenBody: false,
             includeInUserInfo: false,
+            unique: false,
             locales: [
               {
                 locale: 'en', value: 'First Name',
@@ -221,6 +224,7 @@ describe(
             requiredInSignUpForm: false,
             includeInIdTokenBody: true,
             includeInUserInfo: true,
+            unique: false,
             locales: [
               {
                 locale: 'en', value: 'First Name',
@@ -322,6 +326,7 @@ describe(
               requiredInSignUpForm: false,
               includeInIdTokenBody: true,
               includeInUserInfo: false,
+              unique: false,
               locales: [
                 {
                   locale: 'en', value: 'Updated First Name',

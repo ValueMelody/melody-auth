@@ -58,7 +58,7 @@ describe(
 
         expect(nameInput?.value).toBe('')
         expect(saveBtn).toBeInTheDocument()
-        expect(switches.length).toBe(4) // All boolean switches
+        expect(switches.length).toBe(5) // All boolean switches
 
         // Check default switch states
         switches.forEach((switchElement) => {
@@ -90,6 +90,7 @@ describe(
             requiredInSignUpForm: false,
             includeInIdTokenBody: false,
             includeInUserInfo: false,
+            unique: false,
           },
         })
       },
@@ -124,6 +125,7 @@ describe(
             requiredInSignUpForm: true,
             includeInIdTokenBody: true,
             includeInUserInfo: true,
+            unique: true,
           },
         })
       },
@@ -195,6 +197,7 @@ describe(
             requiredInSignUpForm: false,
             includeInIdTokenBody: false,
             includeInUserInfo: false,
+            unique: false,
           },
         })
       },
@@ -251,6 +254,7 @@ describe(
               requiredInSignUpForm: false,
               includeInIdTokenBody: false,
               includeInUserInfo: false,
+              unique: false,
             },
           })
         } else {
@@ -265,6 +269,7 @@ describe(
               requiredInSignUpForm: false,
               includeInIdTokenBody: false,
               includeInUserInfo: false,
+              unique: false,
             },
           })
         }
