@@ -61,6 +61,7 @@ export const createUserAttribute = async (
       requiredInSignUpForm: dto.requiredInSignUpForm ? 1 : 0,
       includeInIdTokenBody: dto.includeInIdTokenBody ? 1 : 0,
       includeInUserInfo: dto.includeInUserInfo ? 1 : 0,
+      unique: dto.unique ? 1 : 0,
     },
   )
   return userAttribute
@@ -75,6 +76,7 @@ export const updateUserAttribute = async (
   const requiredInSignUpForm = dto.requiredInSignUpForm ? 1 : 0
   const includeInIdTokenBody = dto.includeInIdTokenBody ? 1 : 0
   const includeInUserInfo = dto.includeInUserInfo ? 1 : 0
+  const unique = dto.unique ? 1 : 0
   const locales = dto.locales?.reduce(
     (
       acc, locale,
@@ -95,6 +97,7 @@ export const updateUserAttribute = async (
       requiredInSignUpForm: dto.requiredInSignUpForm === undefined ? undefined : requiredInSignUpForm,
       includeInIdTokenBody: dto.includeInIdTokenBody === undefined ? undefined : includeInIdTokenBody,
       includeInUserInfo: dto.includeInUserInfo === undefined ? undefined : includeInUserInfo,
+      unique: dto.unique === undefined ? undefined : unique,
     },
   )
   return userAttribute

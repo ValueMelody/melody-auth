@@ -257,5 +257,54 @@ describe(
         expect(result.current.submitError).toBe(requestError.authFailed.en)
       },
     )
+
+    test(
+      'handles duplicate attribute value error with correct parsing',
+      () => {
+        const { result } = renderHook(() =>
+          useSubmitError({
+            onSwitchView, locale,
+          }))
+
+        act(() => {
+          result.current.handleSubmitError('Duplicate value "EMP001" for attribute "employee_id"')
+        })
+
+        expect(result.current.submitError).toBe('Duplicate value "EMP001" for attribute "employee_id".')
+      },
+    )
+
+    test(
+      'handles duplicate attribute value error with different values',
+      () => {
+        const { result } = renderHook(() =>
+          useSubmitError({
+            onSwitchView, locale,
+          }))
+
+        act(() => {
+          result.current.handleSubmitError('Duplicate value "user@example.com" for attribute "email"')
+        })
+
+        expect(result.current.submitError).toBe('Duplicate value "user@example.com" for attribute "email".')
+      },
+    )
+
+    test(
+      'handles malformed duplicate attribute error without proper format',
+      () => {
+        const { result } = renderHook(() =>
+          useSubmitError({
+            onSwitchView, locale,
+          }))
+
+        act(() => {
+          result.current.handleSubmitError('Duplicate value without proper format')
+        })
+
+        // Should return the raw error string when parsing fails
+        expect(result.current.submitError).toBe('Duplicate value without proper format')
+      },
+    )
   },
 )

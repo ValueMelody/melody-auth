@@ -160,15 +160,19 @@
     "manageUserOrgGroup": "Manage User Org Group",
     "selectOrgGroups": "Select org groups to assign to the user",
     "manageUserAllOrgs": "Manage User Organizations",
-    "selectUserOrgs": "Select organizations to assign to the user"
+    "selectUserOrgs": "Select organizations to assign to the user",
+    "uniqueAttribute": "* Unique Attribute"
   },
   "userAttributes": {
     "title": "User Attributes",
     "name": "Name",
     "includeInSignUpForm": "Include in Sign Up Form",
     "requiredInSignUpForm": "Required in Sign Up Form",
+    "requiredAttributeNote": "* The system won't apply any required constraint at database schema level, and won't verify any existing values in the database.",
     "includeInIdTokenBody": "Include in ID Token Body",
     "includeInUserInfo": "Include in User Info",
+    "uniqueAttribute": "Unique",
+    "uniqueAttributeNote": "* The system won't apply any uniqueness constraint at database schema level, and won't verify any existing values in the database.",
     "new": "Create an user attribute",
     "userAttribute": "User Attribute",
     "localeNote": "Name value will be displayed if locale value is empty",

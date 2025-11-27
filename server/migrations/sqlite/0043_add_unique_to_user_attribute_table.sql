@@ -1,0 +1,1 @@
+ALTER TABLE user_attribute ADD "unique" integer NOT NULL DEFAULT 0;

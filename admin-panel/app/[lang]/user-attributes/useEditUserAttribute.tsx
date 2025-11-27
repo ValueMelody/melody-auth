@@ -14,6 +14,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
   const [requiredInSignUpForm, setRequiredInSignUpForm] = useState(false)
   const [includeInIdTokenBody, setIncludeInIdTokenBody] = useState(false)
   const [includeInUserInfo, setIncludeInUserInfo] = useState(false)
+  const [unique, setUnique] = useState(false)
   const [locales, setLocales] = useState<LocaleValues>([])
 
   useEffect(
@@ -23,6 +24,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       setRequiredInSignUpForm(userAttribute?.requiredInSignUpForm ?? false)
       setIncludeInIdTokenBody(userAttribute?.includeInIdTokenBody ?? false)
       setIncludeInUserInfo(userAttribute?.includeInUserInfo ?? false)
+      setUnique(userAttribute?.unique ?? false)
       setLocales(userAttribute?.locales ?? [])
     },
     [userAttribute],
@@ -35,6 +37,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       requiredInSignUpForm,
       includeInIdTokenBody,
       includeInUserInfo,
+      unique,
       locales,
     }),
     [
@@ -43,6 +46,7 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       requiredInSignUpForm,
       includeInIdTokenBody,
       includeInUserInfo,
+      unique,
       locales,
     ],
   )
@@ -70,6 +74,9 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       break
     case 'includeInUserInfo':
       setIncludeInUserInfo(value as boolean)
+      break
+    case 'unique':
+      setUnique(value as boolean)
       break
     case 'locales':
       setLocales(value as LocaleValues)

@@ -75,9 +75,9 @@ describe(
       async () => {
         process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
 
-        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values (\'test\', 1, 1, 1, 1)')
-        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values (\'test2\', 0, 0, 0, 0)')
-        await db.exec('insert into "user_attribute" (name, locales, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values (\'test3\', \'{"en": "test3 en", "fr": "test3 fr"}\', 1, 0, 0, 0)')
+        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique") values (\'test\', 1, 1, 1, 1, 1)')
+        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique") values (\'test2\', 0, 0, 0, 0, 0)')
+        await db.exec('insert into "user_attribute" (name, locales, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique") values (\'test3\', \'{"en": "test3 en", "fr": "test3 fr"}\', 1, 0, 0, 0, 0)')
 
         const res = await app.request(
           routeConfig.IdentityRoute.AuthorizeAccount,
@@ -94,6 +94,7 @@ describe(
               requiredInSignUpForm: true,
               includeInIdTokenBody: true,
               includeInUserInfo: true,
+              unique: true,
               locales: [],
               createdAt: expect.any(String),
               updatedAt: expect.any(String),
@@ -106,6 +107,7 @@ describe(
               requiredInSignUpForm: false,
               includeInIdTokenBody: false,
               includeInUserInfo: false,
+              unique: false,
               locales: [
                 {
                   locale: 'en',
@@ -898,6 +900,265 @@ describe(
         expect(attributeValues.length).toBe(0)
 
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should successfully create user with unique attribute value',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a unique attribute
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values (\'employee_id\', 1, 1, 1)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'EMP001' },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.MfaEnroll,
+        })
+
+        const attributeValues = await db.prepare('select * from "user_attribute_value" where "userId" = 1').all() as userAttributeValueModel.Record[]
+
+        expect(attributeValues.length).toBe(1)
+        expect(attributeValues[0]).toStrictEqual({
+          id: 1,
+          userId: 1,
+          userAttributeId: 1,
+          value: 'EMP001',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          deletedAt: null,
+        })
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail to create user with duplicate unique attribute value',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a unique attribute
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values (\'employee_id\', 1, 1, 1)')
+
+        // Create first user with employee_id = 'EMP001'
+        const appRecord = await getApp(db)
+        const body1 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test1@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'EMP001' },
+        }
+
+        const res1 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body1),
+          },
+          mock(db),
+        )
+
+        expect(res1.status).toBe(200)
+
+        // Try to create second user with same employee_id = 'EMP001'
+        const body2 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test2@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'EMP001' },
+        }
+
+        const res2 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body2),
+          },
+          mock(db),
+        )
+
+        expect(res2.status).toBe(400)
+        expect(await res2.text()).toBe('Duplicate value "EMP001" for attribute "employee_id"')
+
+        // Verify only one user was created
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(1)
+
+        // Verify only one attribute value exists
+        const attributeValues = await db.prepare('select * from "user_attribute_value"').all() as userAttributeValueModel.Record[]
+        expect(attributeValues.length).toBe(1)
+        expect(attributeValues[0].value).toBe('EMP001')
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should allow multiple users with same non-unique attribute value',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a non-unique attribute
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values (\'department\', 1, 1, 0)')
+
+        // Create first user with department = 'Engineering'
+        const appRecord = await getApp(db)
+        const body1 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test1@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'Engineering' },
+        }
+
+        const res1 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body1),
+          },
+          mock(db),
+        )
+
+        expect(res1.status).toBe(200)
+
+        // Create second user with same department = 'Engineering'
+        const body2 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test2@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'Engineering' },
+        }
+
+        const res2 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body2),
+          },
+          mock(db),
+        )
+
+        expect(res2.status).toBe(200)
+
+        // Verify both users were created
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(2)
+
+        // Verify both attribute values exist with same value
+        const attributeValues = await db.prepare('select * from "user_attribute_value"').all() as userAttributeValueModel.Record[]
+        expect(attributeValues.length).toBe(2)
+        expect(attributeValues[0].value).toBe('Engineering')
+        expect(attributeValues[1].value).toBe('Engineering')
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should handle mixed unique and non-unique attributes correctly',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create a unique attribute and a non-unique attribute
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values (\'employee_id\', 1, 1, 1)')
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values (\'department\', 1, 1, 0)')
+
+        // Create first user
+        const appRecord = await getApp(db)
+        const body1 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test1@email.com',
+          password: 'Password1!',
+          attributes: {
+            1: 'EMP001',
+            2: 'Engineering',
+          },
+        }
+
+        const res1 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body1),
+          },
+          mock(db),
+        )
+
+        expect(res1.status).toBe(200)
+
+        // Create second user with different employee_id but same department
+        const body2 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test2@email.com',
+          password: 'Password1!',
+          attributes: {
+            1: 'EMP002',
+            2: 'Engineering',
+          },
+        }
+
+        const res2 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body2),
+          },
+          mock(db),
+        )
+
+        expect(res2.status).toBe(200)
+
+        // Try to create third user with duplicate employee_id
+        const body3 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test3@email.com',
+          password: 'Password1!',
+          attributes: {
+            1: 'EMP001',
+            2: 'Sales',
+          },
+        }
+
+        const res3 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body3),
+          },
+          mock(db),
+        )
+
+        expect(res3.status).toBe(400)
+        expect(await res3.text()).toBe('Duplicate value "EMP001" for attribute "employee_id"')
+
+        // Verify only two users were created
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(2)
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
       },
     )
   },

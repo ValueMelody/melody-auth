@@ -839,6 +839,235 @@ describe(
     )
 
     test(
+      'should fail to update user with duplicate unique attribute value',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create a unique attribute
+        await db.exec(`
+          INSERT INTO user_attribute (name, "unique")
+          values ('employee_id', 1)
+        `)
+
+        // User 1 has employee_id = 'EMP001'
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, 'EMP001')
+        `)
+
+        // User 2 has employee_id = 'EMP002'
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (2, 1, 'EMP002')
+        `)
+
+        // Try to update user 2's employee_id to 'EMP001' (which is already used by user 1)
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'EMP001' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe('Duplicate value "EMP001" for attribute "employee_id"')
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should successfully update user with same unique attribute value (no change)',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create a unique attribute
+        await db.exec(`
+          INSERT INTO user_attribute (name, "unique")
+          values ('employee_id', 1)
+        `)
+
+        // User 1 has employee_id = 'EMP001'
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, 'EMP001')
+        `)
+
+        // Update user 1's employee_id to the same value 'EMP001'
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'EMP001' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should successfully update user with new unique attribute value',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create a unique attribute
+        await db.exec(`
+          INSERT INTO user_attribute (name, "unique")
+          values ('employee_id', 1)
+        `)
+
+        // User 1 has employee_id = 'EMP001'
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, 'EMP001')
+        `)
+
+        // User 2 has employee_id = 'EMP002'
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (2, 1, 'EMP002')
+        `)
+
+        // Update user 2's employee_id to 'EMP003' (new unique value)
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'EMP003' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should successfully create new unique attribute value for user',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create a unique attribute
+        await db.exec(`
+          INSERT INTO user_attribute (name, "unique")
+          values ('employee_id', 1)
+        `)
+
+        // User 1 has employee_id = 'EMP001'
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, 'EMP001')
+        `)
+
+        // User 2 doesn't have employee_id yet, add it with a unique value
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'EMP002' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail to create new unique attribute value with duplicate',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create a unique attribute
+        await db.exec(`
+          INSERT INTO user_attribute (name, "unique")
+          values ('employee_id', 1)
+        `)
+
+        // User 1 has employee_id = 'EMP001'
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, 'EMP001')
+        `)
+
+        // Try to add employee_id = 'EMP001' to user 2 (duplicate)
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'EMP001' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe('Duplicate value "EMP001" for attribute "employee_id"')
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should allow non-unique attributes to have duplicate values',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create a non-unique attribute
+        await db.exec(`
+          INSERT INTO user_attribute (name, "unique")
+          values ('department', 0)
+        `)
+
+        // User 1 has department = 'Engineering'
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, 'Engineering')
+        `)
+
+        // User 2 can also have department = 'Engineering'
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'Engineering' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
       'should update user and get org info',
       async () => {
         process.env.ENABLE_ORG = true as unknown as string
