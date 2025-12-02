@@ -167,3 +167,39 @@ export const postProcessSwitchOrg = async (c: Context<typeConfig.Context>) => {
     newAuthCodeStore,
   ))
 }
+
+export const postChangeOrg = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new identityDto.PostProcessOrgSwitchDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const authCodeStore = await getAuthCodeBody(
+    c,
+    bodyDto.code,
+  )
+
+  if (authCodeStore.user.orgSlug === bodyDto.org) {
+    return c.json({ success: true })
+  }
+
+  const user = await orgService.switchUserOrg(
+    c,
+    authCodeStore,
+    bodyDto.org,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const newAuthCodeStore = {
+    ...authCodeStore,
+    user,
+  }
+  await kvService.storeAuthCode(
+    c.env.KV,
+    bodyDto.code,
+    newAuthCodeStore,
+    codeExpiresIn,
+  )
+
+  return c.json({ success: true })
+}

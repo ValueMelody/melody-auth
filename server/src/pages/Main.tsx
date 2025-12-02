@@ -26,6 +26,7 @@ import {
   RecoveryCodeEnroll,
   RecoveryCodeSignIn,
   SwitchOrg,
+  ChangeOrg,
 } from 'pages/views'
 import { Layout } from 'pages/blocks'
 import { getLocaleFromParams } from 'pages/tools/param'
@@ -81,6 +82,8 @@ const Main = () => {
         return ManageRecoveryCode
       case View.ChangeEmail:
         return ChangeEmail
+      case View.ChangeOrg:
+        return ChangeOrg
       case View.AuthCodeExpired:
         return AuthCodeExpired
       case View.VerifyEmail:

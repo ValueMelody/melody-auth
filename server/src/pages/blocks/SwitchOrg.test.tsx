@@ -217,5 +217,221 @@ describe(
         expect(confirmButton).toBeNull()
       },
     )
+
+    it(
+      'renders success message when success prop is true',
+      () => {
+        const props = {
+          ...defaultProps, success: true,
+        }
+        const container = setup(props)
+        const successMessage = getByText(
+          container,
+          switchOrg.success.en,
+        )
+        expect(successMessage).toBeDefined()
+      },
+    )
+
+    it(
+      'does not render success message when success prop is false',
+      () => {
+        const props = {
+          ...defaultProps, success: false,
+        }
+        const container = setup(props)
+        const successMessage = queryByText(
+          container,
+          switchOrg.success.en,
+        )
+        expect(successMessage).toBeNull()
+      },
+    )
+
+    it(
+      'does not render success message when success prop is undefined',
+      () => {
+        const container = setup()
+        const successMessage = queryByText(
+          container,
+          switchOrg.success.en,
+        )
+        expect(successMessage).toBeNull()
+      },
+    )
+
+    it(
+      'calls resetSuccess when clicking on a different org while success is true',
+      () => {
+        const resetSuccessMock = vi.fn()
+        const props = {
+          ...defaultProps,
+          success: true,
+          resetSuccess: resetSuccessMock,
+        }
+        const container = setup(props)
+        const org2Button = getByText(
+          container,
+          'Organization 2',
+        )
+        fireEvent.click(org2Button)
+
+        expect(resetSuccessMock).toHaveBeenCalledTimes(1)
+      },
+    )
+
+    it(
+      'does not call resetSuccess when clicking on the same org',
+      () => {
+        const resetSuccessMock = vi.fn()
+        const props = {
+          ...defaultProps,
+          success: true,
+          resetSuccess: resetSuccessMock,
+        }
+        const container = setup(props)
+        const org1Button = getByText(
+          container,
+          'Organization 1',
+        )
+        fireEvent.click(org1Button)
+
+        expect(resetSuccessMock).not.toHaveBeenCalled()
+      },
+    )
+
+    it(
+      'does not call resetSuccess when clicking on a different org while success is false',
+      () => {
+        const resetSuccessMock = vi.fn()
+        const props = {
+          ...defaultProps,
+          success: false,
+          resetSuccess: resetSuccessMock,
+        }
+        const container = setup(props)
+        const org2Button = getByText(
+          container,
+          'Organization 2',
+        )
+        fireEvent.click(org2Button)
+
+        expect(resetSuccessMock).not.toHaveBeenCalled()
+      },
+    )
+
+    it(
+      'does not throw error when resetSuccess is not provided',
+      () => {
+        const props = {
+          ...defaultProps,
+          success: true,
+        }
+        const container = setup(props)
+        const org2Button = getByText(
+          container,
+          'Organization 2',
+        )
+
+        expect(() => fireEvent.click(org2Button)).not.toThrow()
+      },
+    )
+
+    it(
+      'renders redirect link when redirectUri is provided',
+      () => {
+        const redirectUri = 'https://example.com/redirect'
+        const props = {
+          ...defaultProps, redirectUri,
+        }
+        const container = setup(props)
+        const redirectLink = getByText(
+          container,
+          switchOrg.redirect.en,
+        )
+        expect(redirectLink).toBeDefined()
+        expect(redirectLink.tagName).toBe('A')
+        expect(redirectLink.getAttribute('href')).toBe(redirectUri)
+      },
+    )
+
+    it(
+      'does not render redirect link when redirectUri is not provided',
+      () => {
+        const container = setup()
+        const redirectLink = queryByText(
+          container,
+          switchOrg.redirect.en,
+        )
+        expect(redirectLink).toBeNull()
+      },
+    )
+
+    it(
+      'does not render redirect link when redirectUri is empty string',
+      () => {
+        const props = {
+          ...defaultProps, redirectUri: '',
+        }
+        const container = setup(props)
+        const redirectLink = queryByText(
+          container,
+          switchOrg.redirect.en,
+        )
+        expect(redirectLink).toBeNull()
+      },
+    )
+
+    it(
+      'renders redirect link with correct CSS class',
+      () => {
+        const redirectUri = 'https://example.com/redirect'
+        const props = {
+          ...defaultProps, redirectUri,
+        }
+        const container = setup(props)
+        const redirectLink = getByText(
+          container,
+          switchOrg.redirect.en,
+        )
+        expect(redirectLink.classList.contains('button-secondary')).toBe(true)
+        expect(redirectLink.classList.contains('mt-6')).toBe(true)
+      },
+    )
+
+    it(
+      'renders all elements correctly when all optional props are provided',
+      () => {
+        const props = {
+          ...defaultProps,
+          success: true,
+          resetSuccess: vi.fn(),
+          redirectUri: 'https://example.com/redirect',
+          submitError: 'Test error message',
+        }
+        const container = setup(props)
+
+        // Check success message
+        expect(getByText(
+          container,
+          switchOrg.success.en,
+        )).toBeDefined()
+
+        // Check redirect link
+        expect(getByText(
+          container,
+          switchOrg.redirect.en,
+        )).toBeDefined()
+
+        // Check error message
+        expect(container.textContent).toContain('Test error message')
+
+        // Check title
+        expect(getByText(
+          container,
+          switchOrg.title.en,
+        )).toBeDefined()
+      },
+    )
   },
 )

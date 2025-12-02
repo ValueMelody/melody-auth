@@ -293,6 +293,7 @@ identityRoutes.post(
   configMiddleware.enableSwitchOrg,
   identityHandler.postProcessSwitchOrg,
 )
+
 /**
  * Policy
  * - ChangePassword
@@ -301,6 +302,7 @@ identityRoutes.post(
  * - ManagePasskey
  * - ManageRecoveryCode
  * - UpdateInfo
+ * - ChangeOrg
  */
 identityRoutes.post(
   routeConfig.IdentityRoute.ChangePassword,
@@ -355,6 +357,20 @@ identityRoutes.post(
   routeConfig.IdentityRoute.UpdateInfo,
   configMiddleware.enableUpdateInfoPolicy,
   identityHandler.postUpdateInfo,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.ChangeOrg,
+  configMiddleware.enableOrg,
+  configMiddleware.enableChangeOrgPolicy,
+  identityHandler.getProcessSwitchOrg,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.ChangeOrg,
+  configMiddleware.enableOrg,
+  configMiddleware.enableChangeOrgPolicy,
+  identityHandler.postChangeOrg,
 )
 
 /**

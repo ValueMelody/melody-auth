@@ -27,6 +27,7 @@ export enum ConfigError {
   ManagePasskeyPolicyNotEnabled = 'Manage passkey policy is not enabled or passkey enrollment is not enabled',
   ManageRecoveryCodePolicyNotEnabled = 'Manage recovery code policy is not enabled or recovery code is not enabled',
   UpdateInfoPolicyNotEnabled = 'Update info policy is not enabled or user names are not enabled',
+  ChangeOrgPolicyNotEnabled = 'Change org policy is not enabled',
   EmbeddedAuthFeatureNotEnabled = 'Embedded auth feature is not enabled',
   SamlSpNotEnabled = 'SAML SP feature is not enabled',
   NoSpSecret = 'SAML SP secret is not configured',

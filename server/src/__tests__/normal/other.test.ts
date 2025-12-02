@@ -84,7 +84,7 @@ describe(
           ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: false,
           ENABLE_ORG_GROUP: true,
           ENABLE_USER_ATTRIBUTE: false,
-          BLOCKED_POLICIES: [],
+          BLOCKED_POLICIES: ['change_org'],
           EMBEDDED_AUTH_ORIGINS: [],
           ENABLE_SAML_SSO_AS_SP: false,
           ENABLE_APP_BANNER: false,

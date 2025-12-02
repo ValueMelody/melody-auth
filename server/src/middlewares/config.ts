@@ -499,3 +499,18 @@ export const enableUpdateInfoPolicy = async (
   }
   await next()
 }
+
+export const enableChangeOrgPolicy = async (
+  c: Context<typeConfig.Context>, next: Next,
+) => {
+  const { BLOCKED_POLICIES: blockedPolicies } = env(c)
+  if (blockedPolicies.includes(Policy.ChangeOrg)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.ConfigError.ChangeOrgPolicyNotEnabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.ConfigError.ChangeOrgPolicyNotEnabled)
+  }
+  await next()
+}

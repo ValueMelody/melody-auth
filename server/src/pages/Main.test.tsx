@@ -7,7 +7,7 @@ import Main from './Main'
 import {
   authCodeExpired, changeEmail, changePassword, consent, emailMfa, managePasskey, manageRecoveryCode, mfaEnroll,
   otpMfa, passkeyEnroll, passwordlessCode, recoveryCodeEnroll, recoveryCodeSignIn, resetMfa, resetPassword,
-  signIn, signUp, smsMfa, updateInfo, verifyEmail,
+  signIn, signUp, smsMfa, updateInfo, verifyEmail, switchOrg,
 } from './tools/locale'
 import { typeConfig } from 'configs'
 import * as hooks from 'pages/hooks'
@@ -52,6 +52,37 @@ vi.mock(
         submitError: null,
         handleSubmitError: vi.fn(),
       }),
+      useChangeOrgForm: vi.fn().mockReturnValue({
+        orgs: [
+          {
+            slug: 'org1', name: 'Organization 1',
+          },
+          {
+            slug: 'org2', name: 'Organization 2',
+          },
+        ],
+        activeOrgSlug: 'org1',
+        getUserOrgsInfo: vi.fn(),
+        handleSwitchOrg: vi.fn(),
+        isSwitching: false,
+        success: false,
+        resetSuccess: vi.fn(),
+        redirectUri: '',
+      }),
+      useSwitchOrgForm: vi.fn().mockReturnValue({
+        orgs: [
+          {
+            slug: 'org1', name: 'Organization 1',
+          },
+          {
+            slug: 'org2', name: 'Organization 2',
+          },
+        ],
+        activeOrgSlug: 'org1',
+        getUserOrgsInfo: vi.fn(),
+        handleSwitchOrg: vi.fn(),
+        isSwitching: false,
+      }),
       View: {
         SignIn: 'SignIn',
         SignUp: 'SignUp',
@@ -74,6 +105,8 @@ vi.mock(
         AuthCodeExpired: 'AuthCodeExpired',
         VerifyEmail: 'VerifyEmail',
         PasswordlessVerify: 'PasswordlessVerify',
+        SwitchOrg: 'SwitchOrg',
+        ChangeOrg: 'ChangeOrg',
       },
     }
   },
@@ -85,6 +118,9 @@ describe(
     const mockHandleSwitchLocale = vi.fn()
     const mockHandleSwitchView = vi.fn()
     const mockHandleSubmitError = vi.fn()
+    const mockGetUserOrgsInfo = vi.fn()
+    const mockHandleSwitchOrg = vi.fn()
+    const mockResetSuccess = vi.fn()
 
     const mockInitialProps = {
       enableLocaleSelector: true,
@@ -106,6 +142,39 @@ describe(
       oidcProviders: [],
     }
 
+    const mockChangeOrgForm = {
+      orgs: [
+        {
+          slug: 'org1', name: 'Organization 1',
+        },
+        {
+          slug: 'org2', name: 'Organization 2',
+        },
+      ],
+      activeOrgSlug: 'org1',
+      getUserOrgsInfo: mockGetUserOrgsInfo,
+      handleSwitchOrg: mockHandleSwitchOrg,
+      isSwitching: false,
+      success: false,
+      resetSuccess: mockResetSuccess,
+      redirectUri: '',
+    }
+
+    const mockSwitchOrgForm = {
+      orgs: [
+        {
+          slug: 'org1', name: 'Organization 1',
+        },
+        {
+          slug: 'org2', name: 'Organization 2',
+        },
+      ],
+      activeOrgSlug: 'org1',
+      getUserOrgsInfo: mockGetUserOrgsInfo,
+      handleSwitchOrg: mockHandleSwitchOrg,
+      isSwitching: false,
+    }
+
     beforeEach(() => {
       vi.clearAllMocks();
 
@@ -122,7 +191,9 @@ describe(
       (hooks.useSubmitError as Mock).mockReturnValue({
         submitError: null,
         handleSubmitError: mockHandleSubmitError,
-      })
+      });
+      (hooks.useChangeOrgForm as Mock).mockReturnValue(mockChangeOrgForm);
+      (hooks.useSwitchOrgForm as Mock).mockReturnValue(mockSwitchOrgForm)
 
       document.body.innerHTML = '<div id="root"></div>'
     })
@@ -512,6 +583,42 @@ describe(
         )
 
         expect(container.innerHTML).toContain(recoveryCodeSignIn.title.en)
+      },
+    )
+
+    it(
+      'renders ChangeOrg view',
+      () => {
+        (hooks.useCurrentView as Mock).mockReturnValue({
+          view: hooks.View.ChangeOrg,
+          handleSwitchView: mockHandleSwitchView,
+        })
+
+        const container = document.getElementById('root')!
+        render(
+          <Main />,
+          container,
+        )
+
+        expect(container.innerHTML).toContain(switchOrg.title.en)
+      },
+    )
+
+    it(
+      'renders SwitchOrg view',
+      () => {
+        (hooks.useCurrentView as Mock).mockReturnValue({
+          view: hooks.View.SwitchOrg,
+          handleSwitchView: mockHandleSwitchView,
+        })
+
+        const container = document.getElementById('root')!
+        render(
+          <Main />,
+          container,
+        )
+
+        expect(container.innerHTML).toContain(switchOrg.title.en)
       },
     )
 

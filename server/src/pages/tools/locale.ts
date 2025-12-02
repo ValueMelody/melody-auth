@@ -749,6 +749,16 @@ export const switchOrg = Object.freeze({
     fr: 'Confirmer',
     zh: '确认',
   },
+  success: {
+    en: 'Organization changed successfully!',
+    fr: 'Organisation changée avec succès !',
+    zh: '组织切换成功！',
+  },
+  redirect: {
+    en: 'Redirect back',
+    fr: 'Rediriger en arrière',
+    zh: '返回',
+  },
 })
 
 export const requestError = Object.freeze({
