@@ -4,8 +4,8 @@ import {
   SubmitError, ViewTitle,
   SecondaryButton,
   PrimaryButton,
+  SuccessMessage,
 } from 'pages/components'
-
 import { switchOrg } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 
@@ -16,6 +16,9 @@ export interface SwitchOrgProps {
   onSwitchOrg: (orgSlug: string) => void;
   submitError: string | null;
   isSwitching: boolean;
+  success?: boolean;
+  resetSuccess?: () => void;
+  redirectUri?: string;
 }
 
 const CheckIcon = () => (
@@ -40,11 +43,27 @@ const SwitchOrg = ({
   onSwitchOrg,
   submitError,
   isSwitching,
+  success,
+  resetSuccess,
+  redirectUri,
 }: SwitchOrgProps) => {
   const [activeSlug, setActiveSlug] = useState(activeOrgSlug)
 
+  const handleClickOrg = (orgSlug: string) => {
+    if (activeSlug === orgSlug) { return }
+    if (resetSuccess && success) { resetSuccess() }
+    setActiveSlug(orgSlug)
+  }
+
   return (
     <>
+      {success && (
+        <div className='flex justify-center w-full'>
+          <SuccessMessage
+            message={switchOrg.success[locale]}
+          />
+        </div>
+      )}
       <ViewTitle title={switchOrg.title[locale]} />
       <section class='flex flex-col justify-around w-full gap-4 mt-4'>
         {orgs?.map((org) => (
@@ -57,7 +76,7 @@ const SwitchOrg = ({
                 {activeSlug === org.slug && <CheckIcon />}
               </div>
             )}
-            onClick={() => setActiveSlug(org.slug)}
+            onClick={() => handleClickOrg(org.slug)}
             disabled={isSwitching}
           />
         ))}
@@ -70,6 +89,14 @@ const SwitchOrg = ({
         />
       )}
       <SubmitError error={submitError} />
+      {redirectUri && (
+        <a
+          class='button-secondary mt-6'
+          href={redirectUri}
+        >
+          {switchOrg.redirect[locale]}
+        </a>
+      )}
     </>
   )
 }

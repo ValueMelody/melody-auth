@@ -38,6 +38,7 @@ Note: All front-end SDKs that expose `loginRedirect` accept an optional `policy`
 - `change_password`: Allows users to change their password (for password-based users only). Requires `ENABLE_PASSWORD_RESET=true`.
 - `change_email`: Allows users to change their email address (for password-based users only). Requires `ENABLE_EMAIL_VERIFICATION=true`.
 - `reset_mfa`: Allows users to reset their enrolled MFA (Multi-Factor Authentication) method.
+- `change_org`: Allows users to change their organization. Requires `ENABLE_ORG=true`, and remove `change_org` from `BLOCKED_POLICIES`.
 - `manage_passkey`: Allows users to manage their passkey. Requires `ALLOW_PASSKEY_ENROLLMENT=true`.
 - `manage_recovery_code`: Allows users to manage their recovery code.
 - `saml_sso_[idp_name]`: Allows users to sign in via SAML SSO.

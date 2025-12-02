@@ -27,6 +27,7 @@ export enum Policy {
   ResetMfa = 'reset_mfa',
   ManagePasskey = 'manage_passkey',
   UpdateInfo = 'update_info',
+  ChangeOrg = 'change_org',
   ManageRecoveryCode = 'manage_recovery_code',
   SamSso = 'saml_sso_',
   Oidc = 'oidc_sso_',

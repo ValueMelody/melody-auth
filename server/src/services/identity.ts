@@ -78,6 +78,10 @@ const getNextPageForPolicy = (
       nextPage = routeConfig.View.UpdateInfo
       break
     }
+    case oauthDto.Policy.ChangeOrg: {
+      nextPage = routeConfig.View.ChangeOrg
+      break
+    }
     }
   }
 

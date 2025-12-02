@@ -70,6 +70,7 @@ export enum IdentityRoute {
   ManagePasskey = `${InternalRoute.Identity}/manage-passkey`,
   ManageRecoveryCode = `${InternalRoute.Identity}/manage-recovery-code`,
   UpdateInfo = `${InternalRoute.Identity}/update-info`,
+  ChangeOrg = `${InternalRoute.Identity}/change-org`,
   // Other
   VerifyEmailView = `${InternalRoute.Identity}/view/verify-email`,
   VerifyEmail = `${InternalRoute.Identity}/verify-email`,
@@ -102,6 +103,7 @@ export enum View {
   ChangeEmail = 'change_email',
   AuthCodeExpired = 'auth_code_expired',
   VerifyEmail = 'verify_email',
+  ChangeOrg = 'change_org',
 }
 
 export enum EmbeddedRoute {

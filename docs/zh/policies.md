@@ -38,6 +38,7 @@ Policies 允许你在不更改应用逻辑的情况下，将用户路由到不�
 - `change_password`：允许用户更改密码（仅限基于密码的用户）。需要 `ENABLE_PASSWORD_RESET=true`。
 - `change_email`：允许用户更改邮箱地址（仅限基于密码的用户）。需要 `ENABLE_EMAIL_VERIFICATION=true`。
 - `reset_mfa`：允许用户重置已注册的 MFA（多因素认证）方法。
+- `change_org`：允许用户更改其组织。需要 `ENABLE_ORG=true`, 并从 `BLOCKED_POLICIES` 中移除 `change_org`。
 - `manage_passkey`：允许用户管理其 passkey。需要 `ALLOW_PASSKEY_ENROLLMENT=true`。
 - `manage_recovery_code`：允许用户管理其恢复代码。
 - `saml_sso_[idp_name]`：允许用户通过 SAML SSO 登录。
