@@ -1,0 +1,32 @@
+{
+  "firstRun": "2025-12-30T02:59:57.009Z",
+  "lastRun": "2025-12-30T03:36:12.788Z",
+  "attempts": 3,
+  "lastError": null,
+  "reResearched": false,
+  "history": [
+    {
+      "timestamp": "2025-12-30T02:59:57.009Z",
+      "attempt": 1,
+      "reResearched": false
+    },
+    {
+      "timestamp": "2025-12-30T03:08:12.066Z",
+      "attempt": 2,
+      "reResearched": false
+    },
+    {
+      "timestamp": "2025-12-30T03:36:12.788Z",
+      "attempt": 3,
+      "reResearched": false
+    }
+  ],
+  "errorHistory": [
+    {
+      "timestamp": "2025-12-30T03:08:11.061Z",
+      "attempt": 1,
+      "message": "Claude exited with code 1",
+      "stack": "Error: Claude exited with code 1\n    at ChildProcess.<anonymous> (/home/pedro/storage/www/claudiomiro/src/services/claude-executor.js:193:24)\n    at ChildProcess.emit (node:events:524:28)"
+    }
+  ]
+}

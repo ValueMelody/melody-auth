@@ -1,0 +1,106 @@
+[
+  {
+    "id": 1,
+    "category": "Scope & Requirements",
+    "title": "Initial Implementation Scope",
+    "context": "The CLAUDE-VUE-REWRITE.md spec describes a full migration (96-164 hours) including:\n- Auth UI: 24 pages, 20+ components, 30+ hooks, 4 languages\n- Admin Panel: 15+ pages, UI components, RTK Query → TanStack Query migration\n\nYour request says 'create 2 new Vue static projects' which could mean different scopes.",
+    "ambiguity": "It's unclear whether you want just project scaffolding, full implementation, or something in between.",
+    "question": "What scope should the initial implementation cover?",
+    "options": [
+      {
+        "key": "a",
+        "label": "Scaffolding only",
+        "description": "Create project structure, configure Vite/Tailwind/vue-i18n/Pinia, add placeholder files. No actual page implementation."
+      },
+      {
+        "key": "b",
+        "label": "Scaffolding + Core patterns",
+        "description": "Full scaffolding plus 2-3 example pages (SignIn, Dashboard) with all patterns established (API calls, composables, stores)."
+      },
+      {
+        "key": "c",
+        "label": "Full implementation",
+        "description": "Port all 24 Auth UI pages and 15+ Admin Panel pages with all components, composables, and translations."
+      }
+    ],
+    "currentPatterns": "Existing Auth UI: server/src/pages/views/ (24 files), Admin Panel: admin-panel/app/[lang]/ (29 page files)"
+  },
+  {
+    "id": 2,
+    "category": "Architecture & Approach",
+    "title": "Project Location & Structure",
+    "context": "Current root structure:\n- server/ (Hono API + current Auth UI pages)\n- admin-panel/ (Next.js admin)\n- sdks/ (client SDKs)\n- shared/ (shared types)\n- docs/ (documentation)\n\nThe spec offers 3 deployment options:\n- Option A: Separate builds (auth.foo.com, admin.foo.com)\n- Option B: Single static build\n- Option C: Monorepo with shared components in packages/",
+    "ambiguity": "Where should the new Vue projects be created and should they share a common package?",
+    "question": "Where should the Vue projects be located?",
+    "options": [
+      {
+        "key": "a",
+        "label": "Root level (Option A)",
+        "description": "Create auth-ui/ and admin-panel-vue/ in root alongside existing folders. Independent projects, no shared package."
+      },
+      {
+        "key": "b",
+        "label": "Monorepo packages (Option C)",
+        "description": "Create packages/auth-ui/, packages/admin-ui/, and packages/ui/ (shared Vue components). Requires workspace setup."
+      },
+      {
+        "key": "c",
+        "label": "Replace existing",
+        "description": "Create auth-ui/ in root and convert admin-panel/ in-place from Next.js to Vue."
+      }
+    ],
+    "currentPatterns": "Root package.json is minimal (lint, docs), no workspaces configured"
+  },
+  {
+    "id": 3,
+    "category": "Technical Details",
+    "title": "Admin Panel Component Library",
+    "context": "Current admin-panel uses shadcn/ui (Radix-based React components):\n- 20+ UI components in admin-panel/components/ui/\n- Built on @radix-ui/react-* primitives\n\nFor Vue, there's an official shadcn-vue port using Radix Vue primitives.",
+    "ambiguity": "Should we use the official shadcn-vue CLI/components or manually create Vue equivalents?",
+    "question": "How should the Admin Panel UI components be implemented?",
+    "options": [
+      {
+        "key": "a",
+        "label": "Use shadcn-vue CLI (Recommended)",
+        "description": "Install shadcn-vue and use CLI to add components. Matches existing patterns, well-maintained, TypeScript support."
+      },
+      {
+        "key": "b",
+        "label": "Manual Vue components",
+        "description": "Create custom Vue components from scratch. More control but more work and potential inconsistencies."
+      },
+      {
+        "key": "c",
+        "label": "Use alternative library",
+        "description": "Use a different Vue component library (PrimeVue, Vuetify, Naive UI, etc.)."
+      }
+    ],
+    "currentPatterns": "Current React components: admin-panel/components/ui/ (button, card, input, select, table, etc.)"
+  },
+  {
+    "id": 4,
+    "category": "Deployment & Integration",
+    "title": "API URL Configuration",
+    "context": "Current setup:\n- Auth UI pages are server-rendered from Hono (same origin as API)\n- Admin Panel uses NEXT_PUBLIC_SERVER_URI=http://localhost:8788\n\nAs static SPAs, both Vue apps need to call the Hono API server.",
+    "ambiguity": "How should the Vue apps be configured to call the API server during development and production?",
+    "question": "How should API URLs be configured for the Vue apps?",
+    "options": [
+      {
+        "key": "a",
+        "label": "Environment variable (Recommended)",
+        "description": "Use VITE_API_URL env var. Allows different URLs for dev (localhost:8788) and prod (api.example.com)."
+      },
+      {
+        "key": "b",
+        "label": "Relative URLs + proxy",
+        "description": "Use relative API paths (/api/*) and configure Vite proxy for dev. Requires same-origin deployment in prod."
+      },
+      {
+        "key": "c",
+        "label": "Hardcoded base URL",
+        "description": "Hardcode the API URL in the code. Simple but inflexible for different environments."
+      }
+    ],
+    "currentPatterns": "Admin uses: NEXT_PUBLIC_SERVER_URI in .env, Server runs on: localhost:8788"
+  }
+]

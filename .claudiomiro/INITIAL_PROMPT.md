@@ -1,0 +1,1 @@
+create 2 new vue static projects based on /home/pedro/storage/www/goauth.me/CLAUDE-VUE-REWRITE.md

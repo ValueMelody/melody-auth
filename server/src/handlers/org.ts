@@ -159,3 +159,11 @@ export const getOrgAllUsers = async (c: Context<typeConfig.Context>) => {
   )
   return c.json(result)
 }
+
+export const verifyCustomDomain = async (c: Context<typeConfig.Context>) => {
+  const orgId = Number(c.req.param('id'))
+
+  const org = await orgService.verifyCustomDomain(c, orgId)
+
+  return c.json({ org })
+}

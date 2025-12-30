@@ -240,7 +240,7 @@ export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
       c.req.query('locale'),
     ),
     id: c.req.query('id') ?? '',
-    org: c.req.query('org'),
+    org: c.req.query('org') ?? c.get('detectedOrgSlug'),
   })
 
   await validateUtil.dto(queryDto)
@@ -280,7 +280,7 @@ export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => 
       c.req.query('locale'),
     ),
     redirect_uri: c.req.query('redirect_uri'),
-    org: c.req.query('org'),
+    org: c.req.query('org') ?? c.get('detectedOrgSlug'),
   })
 
   const {

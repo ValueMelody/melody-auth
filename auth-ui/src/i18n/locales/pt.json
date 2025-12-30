@@ -1,0 +1,218 @@
+{
+  "authCodeExpired": {
+    "msg": "Seu estado de login expirou. Por favor, tente iniciar a autenticacao novamente.",
+    "redirect": "Voltar"
+  },
+  "changeEmail": {
+    "success": "E-mail atualizado!",
+    "title": "Alterar seu e-mail",
+    "email": "Endereco de E-mail",
+    "confirm": "Confirmar",
+    "redirect": "Voltar",
+    "sendCode": "Enviar Codigo de Verificacao",
+    "code": "Codigo de Verificacao",
+    "resend": "Reenviar novo codigo",
+    "resent": "Novo codigo enviado."
+  },
+  "changePassword": {
+    "title": "Atualizar sua senha",
+    "success": "Senha atualizada!",
+    "newPassword": "Nova Senha",
+    "confirmNewPassword": "Confirmar Nova Senha",
+    "confirm": "Confirmar",
+    "redirect": "Voltar"
+  },
+  "consent": {
+    "title": "Autorizar Aplicativo",
+    "requestAccess": "esta solicitando acesso a sua conta.",
+    "accept": "Aceitar",
+    "decline": "Recusar"
+  },
+  "emailMfa": {
+    "title": "Um codigo de verificacao foi enviado para seu e-mail.",
+    "verify": "Verificar",
+    "code": "Digite seu codigo de verificacao aqui",
+    "resend": "Reenviar novo codigo",
+    "resent": "Novo codigo enviado.",
+    "rememberDevice": "Lembrar este dispositivo por 30 dias."
+  },
+  "layout": {
+    "poweredByAuth": "Desenvolvido por GoAuth"
+  },
+  "managePasskey": {
+    "title": "Gerenciar Passkey",
+    "active": "Chave Ativa",
+    "loginCount": "Contagem de logins",
+    "remove": "Remover",
+    "enroll": "Cadastrar",
+    "redirect": "Voltar",
+    "removeSuccess": "Passkey removida!",
+    "noPasskey": "Nenhuma passkey encontrada",
+    "enrollSuccess": "Passkey cadastrada!"
+  },
+  "manageRecoveryCode": {
+    "title": "Regenerar Codigo de Recuperacao",
+    "desc": "Seu codigo de recuperacao atual sera substituido por um novo.",
+    "success": "Codigo de recuperacao regenerado! Por favor, guarde uma copia deste codigo em um lugar seguro.",
+    "regenerate": "Regenerar",
+    "redirect": "Voltar",
+    "copy": "Copiar",
+    "download": "Baixar"
+  },
+  "mfaEnroll": {
+    "title": "Selecione um tipo de MFA",
+    "email": "E-mail",
+    "otp": "Autenticador",
+    "sms": "SMS"
+  },
+  "otpMfa": {
+    "setup": "Use seu aplicativo autenticador para escanear a imagem abaixo:",
+    "manual": "Nao consegue escanear?",
+    "yourKey": "Use a seguinte chave de configuracao para configurar manualmente seu aplicativo autenticador.",
+    "code": "Digite o codigo gerado pelo seu aplicativo autenticador",
+    "verify": "Verificar",
+    "switchToEmail": "Receber codigo MFA por e-mail",
+    "rememberDevice": "Lembrar este dispositivo por 30 dias."
+  },
+  "passkeyEnroll": {
+    "title": "Cadastre uma Passkey para um processo de login mais rapido e seguro",
+    "enroll": "Cadastrar",
+    "skip": "Pular",
+    "rememberSkip": "Nao perguntar novamente"
+  },
+  "recoveryCodeEnroll": {
+    "title": "Codigo de Recuperacao",
+    "desc": "Guarde uma copia deste codigo em um lugar seguro. Ele pode ser usado para recuperar sua conta se voce esquecer sua senha.",
+    "copy": "Copiar",
+    "download": "Baixar",
+    "continue": "Continuar"
+  },
+  "passwordlessCode": {
+    "title": "Um codigo de verificacao foi enviado para seu e-mail.",
+    "verify": "Verificar",
+    "code": "Digite seu codigo de verificacao aqui",
+    "resend": "Reenviar novo codigo",
+    "resent": "Novo codigo enviado."
+  },
+  "resetMfa": {
+    "title": "Redefinir seu MFA",
+    "success": "Redefinicao realizada com sucesso!",
+    "desc": "Seu metodo atual de Autenticacao Multifator (MFA) sera redefinido. Apos esta redefinicao, voce precisara configurar o MFA novamente para garantir acesso seguro continuo a sua conta.",
+    "confirm": "Confirmar",
+    "redirect": "Voltar"
+  },
+  "resetPassword": {
+    "title": "Redefinir sua senha",
+    "success": "Senha redefinida com sucesso!",
+    "signIn": "Entrar",
+    "backSignIn": "Voltar para login",
+    "desc": "Digite seu endereco de e-mail, enviaremos um codigo de redefinicao por e-mail",
+    "email": "Endereco de E-mail",
+    "code": "Codigo",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "send": "Enviar",
+    "reset": "Redefinir",
+    "resend": "Reenviar novo codigo",
+    "resent": "Novo codigo enviado."
+  },
+  "signIn": {
+    "title": "Autenticacao",
+    "email": "E-mail",
+    "password": "Senha",
+    "submit": "Entrar",
+    "signUp": "Criar uma nova conta",
+    "recoveryCode": "Esta com problemas para entrar?",
+    "passwordReset": "Redefinir senha",
+    "githubSignIn": "Entrar com GitHub",
+    "discordSignIn": "Entrar com Discord",
+    "oidcSignIn": "Entrar com ",
+    "continue": "Continuar",
+    "withPasskey": "Entrar com Passkey"
+  },
+  "signUp": {
+    "title": "Criar uma conta",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "firstName": "Nome",
+    "lastName": "Sobrenome",
+    "signUp": "Confirmar",
+    "signIn": "Ja tem uma conta? Entre",
+    "bySignUp": "Ao se cadastrar, voce concorda com nossos",
+    "linkConnect": "e",
+    "terms": "Termos de Servico",
+    "privacyPolicy": "Politica de Privacidade"
+  },
+  "recoveryCodeSignIn": {
+    "title": "Use seu codigo de recuperacao",
+    "signIn": "Voltar para login",
+    "email": "E-mail",
+    "recoveryCode": "Codigo de Recuperacao",
+    "confirm": "Confirmar"
+  },
+  "smsMfa": {
+    "title": "Verificacao por SMS",
+    "phoneNumber": "Numero de Telefone",
+    "code": "Codigo de Verificacao",
+    "sendCode": "Enviar codigo",
+    "verify": "Verificar",
+    "resend": "Reenviar novo codigo",
+    "resent": "Novo codigo enviado.",
+    "switchToEmail": "Receber codigo MFA por e-mail",
+    "rememberDevice": "Lembrar este dispositivo por 30 dias."
+  },
+  "updateInfo": {
+    "title": "Atualizar suas informacoes",
+    "firstName": "Nome",
+    "lastName": "Sobrenome",
+    "success": "Informacoes atualizadas!",
+    "confirm": "Confirmar",
+    "redirect": "Voltar"
+  },
+  "verifyEmail": {
+    "title": "Verifique seu e-mail",
+    "desc": "Digite o codigo de verificacao recebido por e-mail",
+    "verify": "Verificar",
+    "success": "Verificacao realizada com sucesso! Voce pode fechar esta pagina agora."
+  },
+  "switchOrg": {
+    "title": "Trocar Organizacao",
+    "confirm": "Confirmar",
+    "success": "Organizacao alterada com sucesso!",
+    "redirect": "Voltar"
+  },
+  "requestError": {
+    "authFailed": "Falha na autenticacao.",
+    "noUser": "Nenhum usuario encontrado.",
+    "disabledUser": "Esta conta foi desativada.",
+    "accountLocked": "Conta temporariamente bloqueada devido a muitas tentativas de login falhas.",
+    "requireNewPassword": "Sua nova senha nao pode ser igual a senha antiga.",
+    "requireNewEmail": "Seu novo e-mail nao pode ser igual ao e-mail antigo.",
+    "emailAlreadyVerified": "O endereco de e-mail ja foi verificado.",
+    "optMfaLocked": "Muitas tentativas de verificacao OTP falhas. Por favor, tente novamente apos 30 minutos.",
+    "smsMfaLocked": "Muitas tentativas de verificacao por SMS. Por favor, tente novamente apos 30 minutos.",
+    "emailMfaLocked": "Muitas tentativas de verificacao por e-mail. Por favor, tente novamente apos 30 minutos.",
+    "passwordResetLocked": "Muitas solicitacoes de redefinicao de senha. Por favor, tente novamente amanha.",
+    "changeEmailLocked": "Muitas solicitacoes de codigo de alteracao de e-mail. Por favor, tente novamente apos 30 minutos.",
+    "emailTaken": "O endereco de e-mail ja esta em uso.",
+    "wrongCode": "Codigo invalido.",
+    "uniqueAttributeAlreadyExists": "Valor duplicado \"{{attributeValue}}\" para o atributo \"{{attributeName}}\"."
+  },
+  "validateError": {
+    "passwordIsRequired": "Senha e obrigatoria!",
+    "fieldIsRequired": "Este campo e obrigatorio!",
+    "passwordFormat": "A senha deve ter pelo menos 8 caracteres, conter pelo menos uma letra maiuscula, uma minuscula, um numero e um caractere especial.",
+    "phoneNumberIsRequired": "Numero de telefone e obrigatorio!",
+    "wrongPhoneFormat": "O formato deve ser um numero de ate quinze digitos comecando com \"+\" e o codigo do pais.",
+    "emailIsRequired": "E-mail e obrigatorio!",
+    "wrongEmailFormat": "Formato de e-mail invalido.",
+    "isNotEmail": "Formato de e-mail invalido.",
+    "isWeakPassword": "A senha deve ter pelo menos 8 caracteres, conter pelo menos uma letra maiuscula, uma minuscula, um numero e um caractere especial.",
+    "passwordNotMatch": "A senha e a confirmacao de senha nao coincidem.",
+    "firstNameIsEmpty": "O nome nao pode estar vazio.",
+    "lastNameIsEmpty": "O sobrenome nao pode estar vazio.",
+    "otpCodeLengthIssue": "O codigo OTP deve conter apenas 6 digitos numericos.",
+    "verificationCodeLengthIssue": "O codigo de verificacao deve conter apenas 6 caracteres."
+  }
+}

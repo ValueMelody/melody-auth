@@ -118,4 +118,6 @@ export enum RequestError {
   OrgGroupNotFound = 'Organization group not found',
   NoAppBanner = 'No app banner found',
   UniqueAttributeAlreadyExists = 'Duplicate value "{{attributeValue}}" for attribute "{{attributeName}}"',
+  NoCustomDomain = 'Custom domain is not configured for this organization',
+  DomainVerificationFailed = 'Domain verification failed. Please check your DNS TXT record.',
 }

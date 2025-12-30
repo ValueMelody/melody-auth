@@ -135,7 +135,7 @@ export const parseGetProcess = async (c: Context<typeConfig.Context>) => {
       c,
       c.req.query('locale'),
     ),
-    org: c.req.query('org'),
+    org: c.req.query('org') ?? c.get('detectedOrgSlug'),
   })
   await validateUtil.dto(queryDto)
   return queryDto

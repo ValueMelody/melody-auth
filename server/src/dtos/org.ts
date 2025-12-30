@@ -189,6 +189,14 @@ export class PutOrgDto {
   @IsOptional()
     privacyPolicyLink: string
 
+  @IsString()
+  @Length(
+    0,
+    255,
+  )
+  @IsOptional()
+    customDomain: string | null
+
   constructor (dto: PutOrgDto) {
     this.name = dto.name?.trim()
     this.slug = dto.slug?.trim()
@@ -210,5 +218,6 @@ export class PutOrgDto {
     this.emailSenderName = dto.emailSenderName
     this.termsLink = dto.termsLink
     this.privacyPolicyLink = dto.privacyPolicyLink
+    this.customDomain = dto.customDomain?.trim()?.toLowerCase() || null
   }
 }

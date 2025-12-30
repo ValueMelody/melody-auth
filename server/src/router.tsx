@@ -33,6 +33,7 @@ export const loadRouters = (app: Hono<typeConfig.Context>) => {
     },
     cors(),
     setupMiddleware.session,
+    setupMiddleware.detectOrgFromHost,
   )
 
   app.route(

@@ -1,0 +1,19 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#145DA0",
+        "activityBar.foreground": "#0C2D48",
+        "activityBar.inactiveForeground": "#252a2f",
+        "activityBar.activeBorder": "#eba25f",
+        "activityBar.activeBackground": "#B1D4E0",
+        "activityBar.border": "#B1D4E0",
+        "titleBar.activeBackground": "#145DA0",
+        "titleBar.activeForeground": "#0C2D48",
+        "titleBar.inactiveBackground": "#2b5c8a",
+        "titleBar.inactiveForeground": "#252a2f",
+        "titleBar.border": "#B1D4E0",
+        "statusBar.background": "#145DA0",
+        "statusBar.foreground": "#0C2D48",
+        "statusBar.border": "#B1D4E0"
+    },
+    "postman.settings.dotenv-detection-notification-visibility": false
+}

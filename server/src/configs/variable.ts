@@ -60,7 +60,7 @@ export const SmsMfaConfig = Object.freeze({
 export const S2sConfig = Object.freeze({ impersonationRoles: [Role.SuperAdmin] })
 
 export const systemConfig = Object.freeze({
-  name: 'Melody Auth',
+  name: 'GoAuth',
   enableOrgGroup: true,
   emailVerificationCodeExpiresIn: 7200, // must be x * 3600 (in seconds)
   passwordResetCodeExpiresIn: 7200, // must be x * 3600 (in seconds)

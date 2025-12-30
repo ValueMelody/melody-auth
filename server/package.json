@@ -4,11 +4,11 @@
   "scripts": {
     "build": "vite build --mode client && vite build",
     "prod:deploy": "npm run build && wrangler deploy --minify src/index.tsx",
-    "prod:migration:apply": "wrangler d1 migrations apply melody-auth --remote",
+    "prod:migration:apply": "wrangler d1 migrations apply goauth-me --remote",
     "prod:secret:generate": "node ./src/scripts/generate-secret.cjs prod",
     "prod:secret:clean": "node ./src/scripts/clean-secret.cjs prod",
     "dev:start": "vite --port 8787",
-    "dev:migration:apply": "wrangler d1 migrations apply melody-auth --local",
+    "dev:migration:apply": "wrangler d1 migrations apply goauth-me --local",
     "dev:secret:generate": "node ./src/scripts/generate-secret.cjs",
     "dev:saml:secret:generate": "node ./src/scripts/generate-saml-secret.cjs",
     "dev:secret:clean": "node ./src/scripts/clean-secret.cjs",

@@ -1,0 +1,218 @@
+{
+  "authCodeExpired": {
+    "msg": "Votre etat de connexion a expire. Veuillez reessayer d'initialiser l'authentification.",
+    "redirect": "Rediriger en arriere"
+  },
+  "changeEmail": {
+    "success": "Adresse e-mail mise a jour !",
+    "title": "Changer votre adresse e-mail",
+    "email": "Adresse e-mail",
+    "confirm": "Confirmer",
+    "redirect": "Retourner en arriere",
+    "sendCode": "Envoyer le code de verification",
+    "code": "Code de verification",
+    "resend": "Renvoyer un nouveau code",
+    "resent": "Nouveau code envoye."
+  },
+  "changePassword": {
+    "title": "Mettez a jour votre mot de passe",
+    "success": "Mot de passe mis a jour !",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmez le nouveau mot de passe",
+    "confirm": "Confirmer",
+    "redirect": "Rediriger en arriere"
+  },
+  "consent": {
+    "title": "Autoriser l'application",
+    "requestAccess": "demande l'acces a votre compte.",
+    "accept": "Accepter",
+    "decline": "Refuser"
+  },
+  "emailMfa": {
+    "title": "Un code de verification a ete envoye a votre adresse e-mail.",
+    "verify": "Verifier",
+    "code": "Entrez votre code de verification ici",
+    "resend": "Renvoyer un nouveau code",
+    "resent": "Nouveau code envoye.",
+    "rememberDevice": "Se souvenir de ce dispositif pour 30 jours."
+  },
+  "layout": {
+    "poweredByAuth": "Propulse par GoAuth"
+  },
+  "managePasskey": {
+    "title": "Gerer Passkey",
+    "active": "Cle active",
+    "loginCount": "Compteur de connexion",
+    "remove": "Supprimer",
+    "enroll": "Enregistrer",
+    "redirect": "Rediriger en arriere",
+    "removeSuccess": "Passkey supprime !",
+    "noPasskey": "Aucun Passkey trouve",
+    "enrollSuccess": "Passkey enregistre !"
+  },
+  "manageRecoveryCode": {
+    "title": "Regenerer le code de recuperation",
+    "desc": "Votre code de recuperation actuel sera remplace par un nouveau.",
+    "success": "Code de recuperation regenere ! Veuillez garder une copie de ce code dans un endroit securise.",
+    "regenerate": "Regenerer",
+    "redirect": "Rediriger en arriere",
+    "copy": "Copier",
+    "download": "Telecharger"
+  },
+  "mfaEnroll": {
+    "title": "Selectionnez un type de MFA",
+    "email": "E-mail",
+    "otp": "Authentificateur",
+    "sms": "message texte"
+  },
+  "otpMfa": {
+    "setup": "Utilisez votre application d'authentification pour scanner l'image ci-dessous :",
+    "manual": "Impossible de scanner ?",
+    "yourKey": "Utilisez le code suivant pour configurer manuellement votre application d'authentification.",
+    "code": "Entrez le code genere par votre application d'authentification",
+    "verify": "Verifier",
+    "switchToEmail": "Recevoir le code MFA par e-mail",
+    "rememberDevice": "Se souvenir de ce dispositif pour 30 jours."
+  },
+  "passkeyEnroll": {
+    "title": "Enregistrer Passkey pour un processus de connexion plus rapide et plus securise",
+    "enroll": "Enregistrer",
+    "skip": "Passer",
+    "rememberSkip": "Ne pas demander a nouveau"
+  },
+  "recoveryCodeEnroll": {
+    "title": "Code de recuperation",
+    "desc": "Gardez une copie de ce code dans un endroit securise. Il peut etre utilise pour recuperer votre compte si vous oubliez votre mot de passe.",
+    "copy": "Copier",
+    "download": "Telecharger",
+    "continue": "Continuer"
+  },
+  "passwordlessCode": {
+    "title": "Un code de verification a ete envoye a votre adresse e-mail.",
+    "verify": "Verifier",
+    "code": "Entrez votre code de verification ici",
+    "resend": "Renvoyer un nouveau code",
+    "resent": "Nouveau code envoye."
+  },
+  "resetMfa": {
+    "title": "Reinitialisez votre MFA",
+    "success": "Reinitialisation reussie!",
+    "desc": "Votre methode actuelle d'authentification multifactorielle (MFA) sera reinitialisee. Apres cette reinitialisation, vous devrez configurer a nouveau votre MFA pour garantir un acces securise continu a votre compte.",
+    "confirm": "Confirmer",
+    "redirect": "Rediriger en arriere"
+  },
+  "resetPassword": {
+    "title": "Reinitialiser votre mot de passe",
+    "success": "Reinitialisation du mot de passe reussie !",
+    "signIn": "Se connecter",
+    "backSignIn": "Retour a la connexion",
+    "desc": "Entrez votre adresse e-mail, nous vous enverrons un code de reinitialisation par e-mail.",
+    "email": "Adresse e-mail",
+    "code": "Code",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "send": "Envoyer",
+    "reset": "Reinitialiser",
+    "resend": "Renvoyer un nouveau code",
+    "resent": "Nouveau code envoye."
+  },
+  "signIn": {
+    "title": "Authentification",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "signUp": "Creer un nouveau compte",
+    "recoveryCode": "Vous avez du mal a vous connecter ?",
+    "passwordReset": "Reinitialiser le mot de passe",
+    "githubSignIn": "Se connecter avec GitHub",
+    "discordSignIn": "Se connecter avec Discord",
+    "oidcSignIn": "Se connecter avec ",
+    "continue": "Continuer",
+    "withPasskey": "Se connecter avec Passkey"
+  },
+  "signUp": {
+    "title": "Creer un compte",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "firstName": "Prenom",
+    "lastName": "Nom",
+    "signUp": "Confirmer",
+    "signIn": "Vous avez deja un compte ? Connectez-vous.",
+    "bySignUp": "En vous inscrivant, vous acceptez nos",
+    "linkConnect": "et",
+    "terms": "Conditions d'utilisation",
+    "privacyPolicy": "Politique de confidentialite"
+  },
+  "recoveryCodeSignIn": {
+    "title": "Utilisez votre code de recuperation",
+    "signIn": "Retour a la connexion",
+    "email": "Adresse e-mail",
+    "recoveryCode": "Code de recuperation",
+    "confirm": "Confirmer"
+  },
+  "smsMfa": {
+    "title": "Verification par SMS",
+    "phoneNumber": "Numero de telephone",
+    "code": "Code de verification",
+    "sendCode": "Envoyer le code",
+    "verify": "Verifier",
+    "resend": "Renvoyer un nouveau code",
+    "resent": "Nouveau code envoye.",
+    "switchToEmail": "Recevoir le code MFA par e-mail",
+    "rememberDevice": "Se souvenir de ce dispositif pour 30 jours."
+  },
+  "updateInfo": {
+    "title": "Mettre a jour vos informations",
+    "firstName": "Prenom",
+    "lastName": "Nom",
+    "success": "Informations mises a jour !",
+    "confirm": "Confirmer",
+    "redirect": "Rediriger en arriere"
+  },
+  "verifyEmail": {
+    "title": "Verifiez votre e-mail",
+    "desc": "Entrez le code de verification recu par e-mail",
+    "verify": "Verifier",
+    "success": "Verification reussie ! Vous pouvez fermer cette page maintenant."
+  },
+  "switchOrg": {
+    "title": "Changer d'organisation",
+    "confirm": "Confirmer",
+    "success": "Organisation changee avec succes !",
+    "redirect": "Rediriger en arriere"
+  },
+  "requestError": {
+    "authFailed": "Echec de l'authentification.",
+    "noUser": "Aucun utilisateur trouve.",
+    "disabledUser": "Ce compte a ete desactive.",
+    "accountLocked": "Compte temporairement bloque en raison de trop nombreuses tentatives de connexion echouees.",
+    "requireNewPassword": "Votre nouveau mot de passe ne peut pas etre identique a l'ancien mot de passe.",
+    "requireNewEmail": "Votre nouvelle adresse e-mail ne peut pas etre identique a l'ancienne adresse e-mail.",
+    "emailAlreadyVerified": "L'adresse e-mail est deja verifiee.",
+    "optMfaLocked": "Nombre trop eleve de tentatives echouees de verification OTP. Veuillez reessayer dans 30 minutes.",
+    "smsMfaLocked": "Trop de tentatives de verification par SMS. Veuillez reessayer dans 30 minutes.",
+    "emailMfaLocked": "Trop de tentatives de verification par email. Veuillez reessayer dans 30 minutes.",
+    "passwordResetLocked": "Trop de demandes de reinitialisation de mot de passe. Veuillez reessayer demain.",
+    "changeEmailLocked": "Trop de demandes de modification de code de changement d'adresse e-mail. Veuillez reessayer dans 30 minutes.",
+    "emailTaken": "Cette adresse e-mail est deja utilisee.",
+    "wrongCode": "Code invalide.",
+    "uniqueAttributeAlreadyExists": "Valeur dupliquee \"{{attributeValue}}\" pour l'attribut \"{{attributeName}}\"."
+  },
+  "validateError": {
+    "passwordIsRequired": "Le mot de passe est requis !",
+    "fieldIsRequired": "Ce champ est requis !",
+    "passwordFormat": "Le mot de passe doit contenir au moins 8 caracteres, une majuscule, une minuscule, un chiffre et un caractere special.",
+    "phoneNumberIsRequired": "Le numero de telephone est requis !",
+    "wrongPhoneFormat": "Le format doit etre un numero de maximum quinze chiffres commencant par un '+' avec l'indicatif du pays.",
+    "emailIsRequired": "L'adresse e-mail est requise !",
+    "wrongEmailFormat": "Format d'e-mail incorrect.",
+    "isNotEmail": "Format d'e-mail incorrect.",
+    "isWeakPassword": "Le mot de passe doit contenir au moins 8 caracteres, une majuscule, une minuscule, un chiffre et un caractere special.",
+    "passwordNotMatch": "Le mot de passe et la confirmation ne correspondent pas.",
+    "firstNameIsEmpty": "Le prenom ne peut pas etre vide.",
+    "lastNameIsEmpty": "Le nom de famille ne peut pas etre vide.",
+    "otpCodeLengthIssue": "Le code OTP ne peut etre compose que de 6 chiffres.",
+    "verificationCodeLengthIssue": "Le code de verification doit contenir 6 caracteres."
+  }
+}

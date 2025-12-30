@@ -1,4 +1,4 @@
-name = "melody-auth"
+name = "goauth-me"
 compatibility_date = "2025-01-01"
 keep_vars = true
 
@@ -8,14 +8,14 @@ keep_vars = true
 [vars]
 
 # Information
-COMPANY_LOGO_URL="https://valuemelody.com/logo.svg"
-COMPANY_EMAIL_LOGO_URL="https://valuemelody.com/logo.jpg" # be aware that svg format might not be supported in some email clients
-EMAIL_SENDER_NAME="Melody Auth"
+COMPANY_LOGO_URL="/logo.png"
+COMPANY_EMAIL_LOGO_URL="/logo.png" # For production, use full URL like https://auth.goauth.me/logo.png
+EMAIL_SENDER_NAME="GoAuth"
 TERMS_LINK="" # Display a link to your terms on sign-up page
 PRIVACY_POLICY_LINK="" # Display a link to your privacy policy on sign-up page
 
 # System
-SUPPORTED_LOCALES=['en', 'fr'] # There is built-in support for zh as well
+SUPPORTED_LOCALES=['en', 'pt', 'fr'] # There is built-in support for zh as well
 ENABLE_LOCALE_SELECTOR=true # If there is only one SUPPORTED_LOCALE, the locale selector will be disabled regardless of this setting.
 # EMAIL_PROVIDER_NAME="" # The name of your email provider. Available options are 'smtp', 'sendgrid', 'mailgun', 'brevo', 'resend', 'postmark'
 
@@ -26,9 +26,9 @@ ENABLE_PASSWORD_RESET=true # Please set up your mailer first https://auth.valuem
 ENABLE_NAMES=true
 NAMES_IS_REQUIRED=false
 ENABLE_USER_APP_CONSENT=true
-ENABLE_EMAIL_VERIFICATION=true # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. If true, on user sign-up, the email verification email will be sent.
+ENABLE_EMAIL_VERIFICATION=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. If true, on user sign-up, the email verification email will be sent.
 REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL=false # If both ENABLE_EMAIL_VERIFICATION and REPLACE_EMAIL_VERIFICATION_WITH_WELCOME_EMAIL are true, on user sign-up, the welcome email will be sent instead of the email verification email.
-ENABLE_ORG=false
+ENABLE_ORG=true
 ALLOW_USER_SWITCH_ORG_ON_SIGN_IN=false
 ENABLE_USER_ATTRIBUTE=false
 BLOCKED_POLICIES=["change_org"] # A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info, change_org), preventing end users from triggering them
@@ -49,7 +49,7 @@ SERVER_SESSION_EXPIRES_IN=1800 # Set to 0 to disable session
 OTP_MFA_IS_REQUIRED=false
 EMAIL_MFA_IS_REQUIRED=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html
 SMS_MFA_IS_REQUIRED=false # Please set up your sms provider first https://auth.valuemelody.com/sms-provider-setup.html
-ENFORCE_ONE_MFA_ENROLLMENT=['otp', 'email'] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
+ENFORCE_ONE_MFA_ENROLLMENT=[] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 ALLOW_EMAIL_MFA_AS_BACKUP=true
 ALLOW_PASSKEY_ENROLLMENT=false
 ENABLE_RECOVERY_CODE=false
@@ -81,12 +81,12 @@ ENABLE_SIGN_IN_LOG=false # Specify whether the user’s sign-in IP (only applica
 
 [[kv_namespaces]]
 binding = "KV"
-id = "7d9be060a7bc48919251b37caa7e1fcd" # Replace with your own KV ID
+id = "00000000000000000000000000000000" # PLACEHOLDER for local dev - Replace with your Cloudflare KV namespace ID for production
 
 [[d1_databases]]
 binding = "DB"
-database_name = "melody-auth"
-database_id = "8dc67df2-771d-4e73-9c16-d04341b9740e" # Replace with your own D1 ID
+database_name = "goauth-me"
+database_id = "00000000-0000-0000-0000-000000000000" # PLACEHOLDER for local dev - Replace with your Cloudflare D1 database ID for production
 migrations_dir = "./migrations/sqlite"
 
 [assets]

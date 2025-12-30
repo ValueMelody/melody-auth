@@ -262,3 +262,35 @@ orgRoutes.get(
   authMiddleware.s2sReadUser,
   orgHandler.getOrgAllUsers,
 )
+
+/**
+ * @swagger
+ * /api/v1/orgs/{id}/verify-domain:
+ *   post:
+ *     summary: Verify custom domain ownership via DNS TXT record
+ *     description: Required scope - write_org
+ *     tags: [Orgs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The unique ID of the org
+ *     responses:
+ *       200:
+ *         description: Domain verification result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 org:
+ *                   $ref: '#/components/schemas/Org'
+ */
+orgRoutes.post(
+  `${BaseRoute}/:id/verify-domain`,
+  configMiddleware.enableOrg,
+  authMiddleware.s2sWriteOrg,
+  orgHandler.verifyCustomDomain,
+)

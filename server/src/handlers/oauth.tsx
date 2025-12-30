@@ -39,7 +39,7 @@ export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Prom
       c.req.query('locale'),
     ),
     policy: c.req.query('policy') ?? undefined,
-    org: c.req.query('org') ?? undefined,
+    org: c.req.query('org') ?? c.get('detectedOrgSlug') ?? undefined,
   })
   await validateUtil.dto(queryDto)
 

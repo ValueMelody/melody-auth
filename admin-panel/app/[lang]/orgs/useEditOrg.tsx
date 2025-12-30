@@ -27,6 +27,7 @@ const useEditOrg = (org: Org | undefined) => {
   const [criticalIndicatorColor, setCriticalIndicatorColor] = useState('')
   const [termsLink, setTermsLink] = useState('')
   const [privacyPolicyLink, setPrivacyPolicyLink] = useState('')
+  const [customDomain, setCustomDomain] = useState('')
 
   useEffect(
     () => {
@@ -49,6 +50,7 @@ const useEditOrg = (org: Org | undefined) => {
       setCriticalIndicatorColor(org?.criticalIndicatorColor ?? '')
       setTermsLink(org?.termsLink ?? '')
       setPrivacyPolicyLink(org?.privacyPolicyLink ?? '')
+      setCustomDomain(org?.customDomain ?? '')
     },
     [org],
   )
@@ -74,6 +76,7 @@ const useEditOrg = (org: Org | undefined) => {
       criticalIndicatorColor,
       termsLink,
       privacyPolicyLink,
+      customDomain,
     }),
     [
       name,
@@ -95,6 +98,7 @@ const useEditOrg = (org: Org | undefined) => {
       criticalIndicatorColor,
       termsLink,
       privacyPolicyLink,
+      customDomain,
     ],
   )
 
@@ -166,6 +170,9 @@ const useEditOrg = (org: Org | undefined) => {
       break
     case 'privacyPolicyLink':
       setPrivacyPolicyLink(value as string)
+      break
+    case 'customDomain':
+      setCustomDomain(value as string)
       break
     }
   }

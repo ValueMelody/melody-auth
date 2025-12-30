@@ -30,6 +30,8 @@ export interface Common {
   emailSenderName: string;
   termsLink: string;
   privacyPolicyLink: string;
+  customDomain: string | null;
+  customDomainVerificationToken: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -38,11 +40,13 @@ export interface Common {
 export interface Raw extends Common {
   allowPublicRegistration: number;
   onlyUseForBrandingOverride: number;
+  customDomainVerified: number;
 }
 
 export interface Record extends Common {
   allowPublicRegistration: boolean;
   onlyUseForBrandingOverride: boolean;
+  customDomainVerified: boolean;
 }
 
 export interface ApiRecord {
@@ -79,6 +83,9 @@ export interface Update {
   emailSenderName?: string;
   termsLink?: string;
   privacyPolicyLink?: string;
+  customDomain?: string | null;
+  customDomainVerified?: number;
+  customDomainVerificationToken?: string | null;
   updatedAt?: string;
   deletedAt?: string | null;
 }
@@ -90,6 +97,7 @@ export const format = (raw: Raw): Record => {
     ...raw,
     allowPublicRegistration: !!raw.allowPublicRegistration,
     onlyUseForBrandingOverride: !!raw.onlyUseForBrandingOverride,
+    customDomainVerified: !!raw.customDomainVerified,
   }
 }
 
@@ -129,8 +137,20 @@ export const getBySlug = async (
 
   const stmt = db.prepare(query)
     .bind(slug)
-  const org = await stmt.first() as Record | null
-  return org
+  const org = await stmt.first() as Raw | null
+  return org ? format(org) : null
+}
+
+export const getByCustomDomain = async (
+  db: D1Database,
+  customDomain: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "customDomain" = $1 AND "customDomainVerified" = 1 AND "deletedAt" IS NULL`
+
+  const stmt = db.prepare(query)
+    .bind(customDomain)
+  const org = await stmt.first() as Raw | null
+  return org ? format(org) : null
 }
 
 export const create = async (
@@ -163,6 +183,7 @@ export const update = async (
     'primaryButtonColor', 'primaryButtonLabelColor', 'primaryButtonBorderColor',
     'secondaryButtonColor', 'secondaryButtonLabelColor', 'secondaryButtonBorderColor',
     'criticalIndicatorColor', 'emailSenderName', 'termsLink', 'privacyPolicyLink',
+    'customDomain', 'customDomainVerified', 'customDomainVerificationToken',
     'updatedAt', 'allowPublicRegistration', 'onlyUseForBrandingOverride',
   ]
 

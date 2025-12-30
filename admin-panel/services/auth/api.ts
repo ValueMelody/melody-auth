@@ -182,6 +182,16 @@ const injectedRtkApi = api
         }),
         providesTags: ['Orgs'],
       }),
+      postApiV1OrgsByIdVerifyDomain: build.mutation<
+        PostApiV1OrgsByIdVerifyDomainApiResponse,
+        PostApiV1OrgsByIdVerifyDomainApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/orgs/${queryArg.id}/verify-domain`,
+          method: 'POST',
+        }),
+        invalidatesTags: ['Orgs'],
+      }),
       getApiV1OrgGroups: build.query<
         GetApiV1OrgGroupsApiResponse,
         GetApiV1OrgGroupsApiArg
@@ -869,6 +879,14 @@ export type GetApiV1OrgsByIdAllUsersApiArg = {
   /** Page number to return */
   pageNumber?: number;
 };
+export type PostApiV1OrgsByIdVerifyDomainApiResponse =
+  /** status 200 Domain verification result */ {
+    org?: Org;
+  };
+export type PostApiV1OrgsByIdVerifyDomainApiArg = {
+  /** The unique ID of the org */
+  id: number;
+};
 export type GetApiV1OrgGroupsApiResponse =
   /** status 200 A list of org groups by orgId */ {
     orgGroups?: OrgGroup[];
@@ -1396,6 +1414,9 @@ export type Org = {
   emailSenderName: string;
   termsLink: string;
   privacyPolicyLink: string;
+  customDomain: string | null;
+  customDomainVerified: boolean;
+  customDomainVerificationToken: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -1427,6 +1448,7 @@ export type PutOrgReq = {
   emailSenderName?: string;
   termsLink?: string;
   privacyPolicyLink?: string;
+  customDomain?: string | null;
 };
 export type OrgGroup = {
   id: number;
@@ -1679,6 +1701,7 @@ export const {
   useLazyGetApiV1OrgsByIdUsersQuery,
   useGetApiV1OrgsByIdAllUsersQuery,
   useLazyGetApiV1OrgsByIdAllUsersQuery,
+  usePostApiV1OrgsByIdVerifyDomainMutation,
   useGetApiV1OrgGroupsQuery,
   useLazyGetApiV1OrgGroupsQuery,
   usePostApiV1OrgGroupsMutation,

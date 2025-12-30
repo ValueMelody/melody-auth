@@ -101,6 +101,7 @@ export type Context = {
     basic_auth_body?: typeConfig.BasicAuthBody;
     session: Session;
     session_key_rotation: boolean;
+    detectedOrgSlug?: string;
   };
 }
 

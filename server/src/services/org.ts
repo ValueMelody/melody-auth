@@ -1,4 +1,5 @@
 import { Context } from 'hono'
+import { genRandomString } from '@melody-auth/shared'
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
@@ -78,9 +79,35 @@ export const updateOrg = async (
   c: Context<typeConfig.Context>,
   orgId: number,
   dto: orgDto.PutOrgDto,
+  currentOrg?: orgModel.Record,
 ): Promise<orgModel.Record> => {
   const allowPublicRegistration = dto.allowPublicRegistration ? 1 : 0
   const onlyUseForBrandingOverride = dto.onlyUseForBrandingOverride ? 1 : 0
+
+  let customDomainUpdate: {
+    customDomain?: string | null;
+    customDomainVerified?: number;
+    customDomainVerificationToken?: string | null;
+  } = {}
+
+  if (dto.customDomain !== undefined) {
+    const existingOrg = currentOrg || await orgModel.getById(c.env.DB, orgId)
+    if (dto.customDomain !== existingOrg?.customDomain) {
+      if (dto.customDomain) {
+        customDomainUpdate = {
+          customDomain: dto.customDomain,
+          customDomainVerified: 0,
+          customDomainVerificationToken: genRandomString(32),
+        }
+      } else {
+        customDomainUpdate = {
+          customDomain: null,
+          customDomainVerified: 0,
+          customDomainVerificationToken: null,
+        }
+      }
+    }
+  }
 
   const org = await orgModel.update(
     c.env.DB,
@@ -106,8 +133,72 @@ export const updateOrg = async (
       emailSenderName: dto.emailSenderName,
       termsLink: dto.termsLink,
       privacyPolicyLink: dto.privacyPolicyLink,
+      ...customDomainUpdate,
     },
   )
+  return org
+}
+
+export const verifyCustomDomain = async (
+  c: Context<typeConfig.Context>,
+  orgId: number,
+): Promise<orgModel.Record> => {
+  const org = await orgModel.getById(c.env.DB, orgId)
+
+  if (!org) {
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoOrg)
+  }
+
+  if (!org.customDomain || !org.customDomainVerificationToken) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.NoCustomDomain)
+  }
+
+  if (org.customDomainVerified) {
+    return org
+  }
+
+  const txtRecordName = `_goauth-verify.${org.customDomain}`
+  const expectedValue = `goauth-verify=${org.customDomainVerificationToken}`
+
+  try {
+    const response = await fetch(`https://dns.google/resolve?name=${txtRecordName}&type=TXT`)
+    const data = await response.json() as { Answer?: Array<{ data: string }> }
+
+    const txtRecords = data.Answer || []
+    const verified = txtRecords.some((record) => {
+      const recordData = record.data.replace(/"/g, '')
+      return recordData === expectedValue
+    })
+
+    if (!verified) {
+      throw new errorConfig.Forbidden(messageConfig.RequestError.DomainVerificationFailed)
+    }
+
+    const updatedOrg = await orgModel.update(
+      c.env.DB,
+      orgId,
+      { customDomainVerified: 1 },
+    )
+
+    return updatedOrg
+  } catch (error) {
+    if (error instanceof errorConfig.Forbidden) {
+      throw error
+    }
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      `DNS verification error: ${error}`,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.DomainVerificationFailed)
+  }
+}
+
+export const getOrgByCustomDomain = async (
+  c: Context<typeConfig.Context>,
+  customDomain: string,
+): Promise<orgModel.Record | null> => {
+  const org = await orgModel.getByCustomDomain(c.env.DB, customDomain)
   return org
 }
 

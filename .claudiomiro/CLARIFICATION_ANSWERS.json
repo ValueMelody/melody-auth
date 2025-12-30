@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-12-30T02:36:08.882Z",
+  "answers": [
+    {
+      "questionId": 1,
+      "question": "Initial Implementation Scope",
+      "category": "Scope & Requirements",
+      "answer": "C but feel free to create a much more modern and cooler theme! and remember it gotta be skinnable/editable from the admin!"
+    },
+    {
+      "questionId": 2,
+      "question": "Project Location & Structure",
+      "category": "Architecture & Approach",
+      "answer": "A"
+    },
+    {
+      "questionId": 3,
+      "question": "Admin Panel Component Library",
+      "category": "Technical Details",
+      "answer": "A or Custom components built on top of RADIX"
+    },
+    {
+      "questionId": 4,
+      "question": "API URL Configuration",
+      "category": "Deployment & Integration",
+      "answer": "A"
+    }
+  ]
+}

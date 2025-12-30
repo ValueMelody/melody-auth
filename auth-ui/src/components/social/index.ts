@@ -1,0 +1,6 @@
+export { default as GoogleSignIn } from './GoogleSignIn.vue'
+export { default as FacebookSignIn } from './FacebookSignIn.vue'
+export { default as GithubSignIn } from './GithubSignIn.vue'
+export { default as DiscordSignIn } from './DiscordSignIn.vue'
+export { default as AppleSignIn } from './AppleSignIn.vue'
+export { default as OidcSignIn } from './OidcSignIn.vue'

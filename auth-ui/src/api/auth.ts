@@ -1,0 +1,98 @@
+import type { AuthorizeParams, FollowUpParams, Locale, View } from './types'
+import { IdentityRoute } from './types'
+
+export const parseResponse = async (response: Response) => {
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text)
+  }
+  return response.json()
+}
+
+export const parseAuthorizeBaseValues = (
+  params: AuthorizeParams,
+  locale: Locale
+) => {
+  return {
+    clientId: params.clientId,
+    redirectUri: params.redirectUri,
+    responseType: params.responseType,
+    state: params.state,
+    policy: params.policy,
+    codeChallenge: params.codeChallenge,
+    codeChallengeMethod: params.codeChallengeMethod,
+    locale,
+    org: params.org,
+    scope: params.scope,
+  }
+}
+
+export const parseAuthorizeFollowUpValues = (
+  params: FollowUpParams,
+  locale: Locale
+) => {
+  return {
+    code: params.code,
+    locale,
+    org: params.org,
+  }
+}
+
+export const handleAuthorizeStep = (
+  data: {
+    nextPage?: View
+    code?: string
+    state?: string
+    redirectUri?: string
+    org?: string
+  },
+  locale: Locale,
+  onSwitchView: (view: View) => void
+) => {
+  if (data.nextPage) {
+    const step = data.nextPage
+    if (data.code && data.state && data.redirectUri) {
+      const newUrl = new URL(`${window.location.origin}${IdentityRoute.ProcessView}`)
+      newUrl.searchParams.set('code', data.code)
+      newUrl.searchParams.set('state', data.state)
+      newUrl.searchParams.set('redirect_uri', data.redirectUri)
+      newUrl.searchParams.set('org', data.org ?? '')
+      newUrl.searchParams.set('locale', locale)
+      newUrl.searchParams.set('step', step)
+      window.history.pushState({}, '', newUrl)
+    }
+    onSwitchView(step)
+  } else {
+    if (window.opener) {
+      window.opener.postMessage(
+        {
+          state: data.state,
+          code: data.code,
+          locale,
+          org: data.org ?? '',
+          redirectUri: data.redirectUri,
+        },
+        data.redirectUri
+      )
+    } else {
+      const queryString = `?state=${data.state}&code=${data.code}&locale=${locale}&org=${data.org ?? ''}`
+      const url = `${data.redirectUri}${queryString}`
+      window.location.href = url
+    }
+  }
+}
+
+export const apiRequest = async <T>(
+  url: string,
+  options: RequestInit = {}
+): Promise<T> => {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  })
+  return parseResponse(response)
+}

@@ -28,6 +28,7 @@ export default defineConfig(async ({ mode }) => {
   }
 
   return {
+    publicDir: 'public',
     plugins: [
       tsconfigPaths({ root: './' }),
       tailwindcss(),

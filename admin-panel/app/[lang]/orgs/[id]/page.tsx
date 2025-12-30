@@ -28,6 +28,7 @@ import { useRouter } from 'i18n/navigation'
 import {
   useGetApiV1OrgsByIdQuery, usePutApiV1OrgsByIdMutation, useDeleteApiV1OrgsByIdMutation,
   useGetApiV1OrgGroupsQuery, useDeleteApiV1OrgGroupsByIdMutation, useGetApiV1OrgGroupsByIdUsersQuery,
+  usePostApiV1OrgsByIdVerifyDomainMutation,
 } from 'services/auth/api'
 import ColorInput from 'components/ColorInput'
 import LinkInput from 'components/LinkInput'
@@ -61,6 +62,7 @@ const Page = () => {
   } = useGetApiV1OrgsByIdQuery({ id: Number(id) })
   const [updateOrg, { isLoading: isUpdating }] = usePutApiV1OrgsByIdMutation()
   const [deleteOrg, { isLoading: isDeleting }] = useDeleteApiV1OrgsByIdMutation()
+  const [verifyDomain, { isLoading: isVerifying }] = usePostApiV1OrgsByIdVerifyDomainMutation()
 
   const [isCreatingOrgGroup, setIsCreatingOrgGroup] = useState(false)
   const [updatingOrgGroupId, setUpdatingOrgGroupId] = useState<number | null>(null)
@@ -114,6 +116,10 @@ const Page = () => {
     await deleteOrg({ id: Number(id) })
 
     router.push(routeTool.Internal.Orgs)
+  }
+
+  const handleVerifyDomain = async () => {
+    await verifyDomain({ id: Number(id) })
   }
 
   const switchUserView = () => {
@@ -420,6 +426,53 @@ const Page = () => {
                       )}
                       value={values.privacyPolicyLink}
                     />
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('orgs.customDomain')}</TableCell>
+                  <TableCell>
+                    <div className='flex flex-col gap-2'>
+                      <div className='flex items-center gap-2'>
+                        <Input
+                          data-testid='customDomainInput'
+                          disabled={!canWriteOrg}
+                          placeholder='auth.example.com'
+                          onChange={(e) => onChange(
+                            'customDomain',
+                            e.target.value,
+                          )}
+                          value={values.customDomain}
+                        />
+                        {org.customDomain && (
+                          <Badge variant={org.customDomainVerified ? 'default' : 'secondary'}>
+                            {org.customDomainVerified ? t('orgs.customDomainVerified') : t('orgs.customDomainNotVerified')}
+                          </Badge>
+                        )}
+                      </div>
+                      {org.customDomain && !org.customDomainVerified && org.customDomainVerificationToken && (
+                        <div className='text-sm text-gray-500 space-y-2 p-3 bg-gray-50 rounded'>
+                          <p>{t('orgs.customDomainHelp')}</p>
+                          <div>
+                            <p className='font-medium'>{t('orgs.dnsRecordName')}:</p>
+                            <code className='text-xs bg-gray-100 p-1 rounded'>_goauth-verify.{org.customDomain}</code>
+                          </div>
+                          <div>
+                            <p className='font-medium'>{t('orgs.dnsRecordValue')}:</p>
+                            <code className='text-xs bg-gray-100 p-1 rounded'>goauth-verify={org.customDomainVerificationToken}</code>
+                          </div>
+                          {canWriteOrg && (
+                            <Button
+                              size='sm'
+                              variant='outline'
+                              disabled={isVerifying}
+                              onClick={handleVerifyDomain}
+                            >
+                              {isVerifying ? t('orgs.verifying') : t('orgs.verifyDomain')}
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               </>
