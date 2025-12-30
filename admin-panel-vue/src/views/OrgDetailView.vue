@@ -150,7 +150,7 @@ async function handleVerifyDomain() {
 
           <!-- Only Use For Branding Override -->
           <TableRow>
-            <TableCell>{{ t('orgs.brandingOverrideOnly') }}</TableCell>
+            <TableCell>{{ t('orgs.onlyUseForBrandingOverride') }}</TableCell>
             <TableCell>
               <Switch
                 :checked="form.onlyUseForBrandingOverride.value"
@@ -335,15 +335,15 @@ async function handleVerifyDomain() {
                   :disabled="!canWriteOrg"
                 />
                 <Badge v-if="org.customDomainVerified" variant="default">
-                  {{ t('orgs.verified') }}
+                  {{ t('orgs.customDomainVerified') }}
                 </Badge>
                 <Badge v-else-if="org.customDomain" variant="secondary">
-                  {{ t('orgs.unverified') }}
+                  {{ t('orgs.customDomainNotVerified') }}
                 </Badge>
               </div>
               <div v-if="org.customDomain && !org.customDomainVerified" class="mt-2">
                 <p class="text-sm text-muted-foreground mb-2">
-                  {{ t('orgs.verifyDomainNote') }}
+                  {{ t('orgs.customDomainHelp') }}
                 </p>
                 <p class="text-sm font-mono bg-muted p-2 rounded">
                   TXT: {{ org.customDomainVerificationToken }}

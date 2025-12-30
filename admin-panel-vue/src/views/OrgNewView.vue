@@ -93,7 +93,7 @@ async function handleCreate() {
 
         <!-- Only Use For Branding Override -->
         <TableRow>
-          <TableCell>{{ t('orgs.brandingOverrideOnly') }}</TableCell>
+          <TableCell>{{ t('orgs.onlyUseForBrandingOverride') }}</TableCell>
           <TableCell>
             <Switch
               :checked="form.onlyUseForBrandingOverride.value"
