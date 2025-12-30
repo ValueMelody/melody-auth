@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Breadcrumb, PageTitle } from '@/components/layout'
+import { Breadcrumb } from '@/components/layout'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
@@ -46,7 +46,7 @@ async function handleCreate() {
 <template>
   <div>
     <Breadcrumb
-      :page="{ label: t('orgs.new') }"
+      :page="t('orgs.new')"
       :parent="{ href: '/orgs', label: t('layout.orgs') }"
     />
 

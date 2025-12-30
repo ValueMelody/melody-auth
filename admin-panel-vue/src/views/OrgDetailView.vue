@@ -2,8 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Breadcrumb, PageTitle } from '@/components/layout'
-import { Card, CardContent } from '@/components/ui/card'
+import { Breadcrumb } from '@/components/layout'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
@@ -97,7 +96,7 @@ async function handleVerifyDomain() {
     <LoadingPage v-if="isLoading" />
     <template v-else-if="org">
       <Breadcrumb
-        :page="{ label: org.name }"
+        :page="org.name"
         :parent="{ href: '/orgs', label: t('layout.orgs') }"
       />
 

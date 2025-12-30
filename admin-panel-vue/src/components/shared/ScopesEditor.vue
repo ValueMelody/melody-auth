@@ -7,6 +7,7 @@ import type { Scope } from '@/api/types'
 interface Props {
   scopes: Scope[]
   selectedScopes: string[]
+  disabled?: boolean
 }
 
 const props = defineProps<Props>()
@@ -39,6 +40,7 @@ const isSelected = (scopeName: string) => selectedSet.value.has(scopeName)
       <Checkbox
         :id="`scope-${scope.id}`"
         :checked="isSelected(scope.name)"
+        :disabled="disabled"
         @update:checked="toggleScope(scope.name)"
       />
       <Label

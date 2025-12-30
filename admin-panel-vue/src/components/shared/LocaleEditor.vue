@@ -10,8 +10,9 @@ interface LocaleValue {
 
 defineProps<{
   modelValue: LocaleValue[]
-  label: string
+  label?: string
   note?: string
+  disabled?: boolean
 }>()
 
 defineEmits<{
@@ -35,7 +36,7 @@ function getLocaleValue(localeValues: LocaleValue[], locale: string): string {
 
 <template>
   <Card>
-    <CardHeader>
+    <CardHeader v-if="label">
       <CardTitle class="text-base">{{ label }}</CardTitle>
     </CardHeader>
     <CardContent class="space-y-4">
@@ -45,6 +46,7 @@ function getLocaleValue(localeValues: LocaleValue[], locale: string): string {
         <Input
           :id="'locale-' + locale"
           :model-value="getLocaleValue(modelValue, locale)"
+          :disabled="disabled"
           @update:model-value="$emit('update:modelValue', updateLocale(modelValue, locale, $event as string))"
         />
       </div>
