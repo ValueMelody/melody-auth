@@ -57,6 +57,7 @@ const Page = () => {
             <TableHead>{t('userAttributes.includeInIdTokenBody')}</TableHead>
             <TableHead>{t('userAttributes.includeInUserInfo')}</TableHead>
             <TableHead>{t('userAttributes.uniqueAttribute')}</TableHead>
+            <TableHead>{t('userAttributes.validation')}</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
@@ -93,6 +94,9 @@ const Page = () => {
                   {userAttribute.unique && (
                     <Badge>{t('userAttributes.uniqueAttribute')}</Badge>
                   )}
+                  {userAttribute.validationRegex && (
+                    <Badge>{t('userAttributes.validation')}</Badge>
+                  )}
                 </div>
               </TableCell>
             </TableRow>
@@ -122,6 +126,9 @@ const Page = () => {
               </TableCell>
               <TableCell>
                 <ConfigBooleanValue config={userAttribute.unique} />
+              </TableCell>
+              <TableCell>
+                <ConfigBooleanValue config={!!userAttribute.validationRegex} />
               </TableCell>
               <TableCell>
                 <EditLink

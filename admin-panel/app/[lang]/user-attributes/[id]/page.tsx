@@ -75,6 +75,23 @@ const Page = () => {
     [values, userAttribute],
   )
 
+  const hasDifferentValidationLocales = useMemo(
+    () => {
+      if (values.validationLocales !== undefined && userAttribute?.validationLocales === undefined) return true
+      if (Array.isArray(values.validationLocales) && Array.isArray(userAttribute?.validationLocales)) {
+        if (values.validationLocales.length !== userAttribute.validationLocales.length) return true
+        if (values.validationLocales.find((validationLocale) => {
+          return userAttribute?.validationLocales?.every((attributeLocale) => {
+            return attributeLocale.locale !== validationLocale.locale ||
+            attributeLocale.value !== validationLocale.value
+          })
+        })) return true
+      }
+      return false
+    },
+    [values, userAttribute],
+  )
+
   const handleSave = async () => {
     if (Object.values(errors).some((val) => !!val)) {
       setShowErrors(true)
@@ -230,6 +247,38 @@ const Page = () => {
               </TableCell>
             </TableRow>
             <TableRow>
+              <TableCell>
+                {t('userAttributes.validation')}
+              </TableCell>
+              <TableCell>
+                <Input
+                  data-testid='validationRegexInput'
+                  disabled={!canWriteUserAttribute}
+                  onChange={(e) => onChange(
+                    'validationRegex',
+                    e.target.value,
+                  )}
+                  value={values.validationRegex}
+                />
+                {showErrors && <FieldError error={errors.validationRegex} />}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('userAttributes.validationLocales')}</TableCell>
+              <TableCell>
+                <LocaleEditor
+                  description={`* ${t('userAttributes.validationLocaleNote')}`}
+                  supportedLocales={configs.SUPPORTED_LOCALES}
+                  values={values.validationLocales}
+                  disabled={!canWriteUserAttribute}
+                  onChange={(values) => onChange(
+                    'validationLocales',
+                    values,
+                  )}
+                />
+              </TableCell>
+            </TableRow>
+            <TableRow>
               <TableCell>{t('common.createdAt')}</TableCell>
               <TableCell>{userAttribute.createdAt} UTC</TableCell>
             </TableRow>
@@ -247,12 +296,14 @@ const Page = () => {
             isLoading={isUpdating}
             disabled={!values.name || (
               values.name === userAttribute.name &&
+              values.validationRegex === userAttribute.validationRegex &&
               values.includeInSignUpForm === userAttribute.includeInSignUpForm &&
               values.requiredInSignUpForm === userAttribute.requiredInSignUpForm &&
               values.includeInIdTokenBody === userAttribute.includeInIdTokenBody &&
               values.includeInUserInfo === userAttribute.includeInUserInfo &&
               values.unique === userAttribute.unique &&
-              !hasDifferentLocales
+              !hasDifferentLocales &&
+              !hasDifferentValidationLocales
             )}
             onClick={handleSave}
           />

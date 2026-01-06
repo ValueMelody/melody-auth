@@ -91,6 +91,8 @@ describe(
             includeInIdTokenBody: false,
             includeInUserInfo: false,
             unique: false,
+            validationRegex: '',
+            validationLocales: [],
           },
         })
       },
@@ -126,6 +128,8 @@ describe(
             includeInIdTokenBody: true,
             includeInUserInfo: true,
             unique: true,
+            validationRegex: '',
+            validationLocales: [],
           },
         })
       },
@@ -167,9 +171,9 @@ describe(
         // Submit without name
         fireEvent.click(saveBtn)
 
-        // Verify error message is displayed
-        const errorMessage = await screen.findByTestId('fieldError')
-        expect(errorMessage).toBeInTheDocument()
+        const allErrorMessages = await screen.findAllByTestId('fieldError')
+        expect(allErrorMessages[0].textContent).toBe('common.fieldIsRequired')
+        expect(allErrorMessages[1].textContent).toBe('')
         expect(mockCreate).not.toHaveBeenCalled()
       },
     )
@@ -198,6 +202,8 @@ describe(
             includeInIdTokenBody: false,
             includeInUserInfo: false,
             unique: false,
+            validationRegex: '',
+            validationLocales: [],
           },
         })
       },
@@ -255,6 +261,8 @@ describe(
               includeInIdTokenBody: false,
               includeInUserInfo: false,
               unique: false,
+              validationRegex: '',
+              validationLocales: [],
             },
           })
         } else {

@@ -45,6 +45,14 @@ export class PostUserAttributeDto {
   @IsNotEmpty()
     unique: boolean
 
+  @IsString()
+  @IsOptional()
+    validationRegex?: string
+
+  @IsArray()
+  @IsOptional()
+    validationLocales?: AttributeLocale[]
+
   constructor (dto: PostUserAttributeDto) {
     this.name = dto.name?.trim()
     this.includeInSignUpForm = dto.includeInSignUpForm
@@ -53,6 +61,8 @@ export class PostUserAttributeDto {
     this.includeInUserInfo = dto.includeInUserInfo
     this.locales = dto.locales
     this.unique = dto.unique
+    this.validationRegex = dto.validationRegex
+    this.validationLocales = dto.validationLocales
   }
 }
 
@@ -89,6 +99,14 @@ export class PutUserAttributeDto {
   @IsOptional()
     unique: boolean
 
+  @IsString()
+  @IsOptional()
+    validationRegex?: string
+
+  @IsArray()
+  @IsOptional()
+    validationLocales?: AttributeLocale[]
+
   constructor (dto: PutUserAttributeDto) {
     this.name = dto.name?.trim()
     this.locales = dto.locales
@@ -97,5 +115,7 @@ export class PutUserAttributeDto {
     this.includeInIdTokenBody = dto.includeInIdTokenBody
     this.includeInUserInfo = dto.includeInUserInfo
     this.unique = dto.unique
+    this.validationRegex = dto.validationRegex
+    this.validationLocales = dto.validationLocales
   }
 }

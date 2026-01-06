@@ -171,6 +171,37 @@ const Page = () => {
                 </div>
               </TableCell>
             </TableRow>
+            <TableRow>
+              <TableCell>
+                {t('userAttributes.validation')}
+              </TableCell>
+              <TableCell>
+                <Input
+                  data-testid='validationRegexInput'
+                  placeholder={t('userAttributes.validationPlaceholder')}
+                  onChange={(e) => onChange(
+                    'validationRegex',
+                    e.target.value,
+                  )}
+                  value={values.validationRegex}
+                />
+                {showErrors && <FieldError error={errors.validationRegex} />}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{t('userAttributes.validationLocales')}</TableCell>
+              <TableCell>
+                <LocaleEditor
+                  description={`* ${t('userAttributes.validationLocaleNote')}`}
+                  supportedLocales={configs.SUPPORTED_LOCALES}
+                  values={values.validationLocales}
+                  onChange={(values) => onChange(
+                    'validationLocales',
+                    values,
+                  )}
+                />
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </section>

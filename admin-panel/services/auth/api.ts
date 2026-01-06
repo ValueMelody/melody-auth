@@ -1565,6 +1565,11 @@ export type UserAttribute = {
   includeInIdTokenBody: boolean;
   includeInUserInfo: boolean;
   unique: boolean;
+  validationRegex: string;
+  validationLocales: {
+    locale: string;
+    value: string;
+  }[];
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -1580,6 +1585,11 @@ export type PostUserAttributeReq = {
   includeInIdTokenBody: boolean;
   includeInUserInfo: boolean;
   unique: boolean;
+  validationRegex?: string;
+  validationLocales?: {
+    locale: string;
+    value: string;
+  }[];
 };
 export type PutUserAttributeReq = {
   name?: string;
@@ -1592,6 +1602,11 @@ export type PutUserAttributeReq = {
   includeInIdTokenBody?: boolean;
   includeInUserInfo?: boolean;
   unique?: boolean;
+  validationRegex?: string;
+  validationLocales?: {
+    locale: string;
+    value: string;
+  }[];
 };
 export type EmailLog = {
   id: number;

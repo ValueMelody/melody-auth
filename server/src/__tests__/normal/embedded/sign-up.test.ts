@@ -150,6 +150,8 @@ describe(
               includeInIdTokenBody: false,
               includeInUserInfo: false,
               unique: false,
+              validationRegex: '',
+              validationLocales: [],
               createdAt: expect.any(String),
               updatedAt: expect.any(String),
               deletedAt: null,
