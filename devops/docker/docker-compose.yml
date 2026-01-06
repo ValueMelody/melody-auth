@@ -8,11 +8,15 @@ services:
       POSTGRES_PASSWORD: admin
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
 
   server:
     image: melody-auth-server:latest
@@ -28,3 +32,7 @@ services:
       - postgres
       - redis
     command: sh -c "sleep 5 && npm run node:migration:apply && npx vite --host --port 8788 --config vite-node.config.ts"
+
+volumes:
+  postgres_data:
+  redis_data:
