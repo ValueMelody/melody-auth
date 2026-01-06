@@ -19,6 +19,18 @@ const UserAttribute = {
     includeInIdTokenBody: { type: 'boolean' },
     includeInUserInfo: { type: 'boolean' },
     unique: { type: 'boolean' },
+    validationRegex: { type: 'string' },
+    validationLocales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },
     deletedAt: {
@@ -27,7 +39,7 @@ const UserAttribute = {
     },
   },
   required: [
-    'id', 'name', 'includeInSignUpForm', 'requiredInSignUpForm', 'unique',
+    'id', 'name', 'includeInSignUpForm', 'requiredInSignUpForm', 'unique', 'validationRegex', 'validationLocales',
     'includeInIdTokenBody', 'includeInUserInfo', 'createdAt', 'updatedAt', 'deletedAt',
   ],
 }
@@ -56,6 +68,18 @@ const PostUserAttributeReq = {
     includeInIdTokenBody: { type: 'boolean' },
     includeInUserInfo: { type: 'boolean' },
     unique: { type: 'boolean' },
+    validationRegex: { type: 'string' },
+    validationLocales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
   },
   required: [
     'name', 'includeInSignUpForm', 'requiredInSignUpForm',
@@ -83,6 +107,18 @@ const PutUserAttributeReq = {
     includeInIdTokenBody: { type: 'boolean' },
     includeInUserInfo: { type: 'boolean' },
     unique: { type: 'boolean' },
+    validationRegex: { type: 'string' },
+    validationLocales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          locale: { type: 'string' },
+          value: { type: 'string' },
+        },
+        required: ['locale', 'value'],
+      },
+    },
   },
 }
 

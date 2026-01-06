@@ -61,6 +61,12 @@ const createNewUserAttribute2 = async (token?: string) => await app.request(
       includeInIdTokenBody: true,
       includeInUserInfo: true,
       unique: true,
+      validationRegex: 'test validation regex',
+      validationLocales: [{
+        locale: 'en', value: 'test validation regex en',
+      }, {
+        locale: 'fr', value: 'test validation regex fr',
+      }],
     }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
   },
@@ -76,6 +82,8 @@ const newUserAttribute = {
   includeInIdTokenBody: false,
   includeInUserInfo: false,
   unique: false,
+  validationRegex: '',
+  validationLocales: [],
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
@@ -94,6 +102,12 @@ const newUserAttribute2 = {
   includeInIdTokenBody: true,
   includeInUserInfo: true,
   unique: true,
+  validationRegex: 'test validation regex',
+  validationLocales: [{
+    locale: 'en', value: 'test validation regex en',
+  }, {
+    locale: 'fr', value: 'test validation regex fr',
+  }],
   createdAt: dbTime,
   updatedAt: dbTime,
   deletedAt: null,
@@ -375,6 +389,12 @@ describe(
               includeInIdTokenBody: true,
               includeInUserInfo: true,
               unique: true,
+              validationRegex: 'test validation regex',
+              validationLocales: [{
+                locale: 'en', value: 'test validation regex en',
+              }, {
+                locale: 'fr', value: 'test validation regex fr',
+              }],
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
@@ -391,6 +411,12 @@ describe(
             includeInIdTokenBody: true,
             includeInUserInfo: true,
             unique: true,
+            validationRegex: 'test validation regex',
+            validationLocales: [{
+              locale: 'en', value: 'test validation regex en',
+            }, {
+              locale: 'fr', value: 'test validation regex fr',
+            }],
           },
         })
 
@@ -414,6 +440,7 @@ describe(
               includeInIdTokenBody: true,
               includeInUserInfo: false,
               unique: false,
+              validationRegex: 'test validation regex',
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
@@ -430,6 +457,8 @@ describe(
             includeInIdTokenBody: true,
             includeInUserInfo: false,
             unique: false,
+            validationRegex: 'test validation regex',
+            validationLocales: [],
           },
         })
 
@@ -483,6 +512,12 @@ describe(
           includeInIdTokenBody: true,
           includeInUserInfo: true,
           unique: true,
+          validationRegex: 'test validation regex',
+          validationLocales: [{
+            locale: 'en', value: 'test validation regex en',
+          }, {
+            locale: 'fr', value: 'test validation regex fr',
+          }],
         }
         const res = await app.request(
           `${BaseRoute}/1`,
@@ -512,6 +547,11 @@ describe(
               }, {
                 locale: 'fr', value: 'test name fr 1',
               }],
+              validationLocales: [{
+                locale: 'en', value: 'test validation regex en 1',
+              }, {
+                locale: 'fr', value: 'test validation regex fr 1',
+              }],
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
           },
@@ -528,6 +568,11 @@ describe(
             }, {
               locale: 'fr', value: 'test name fr 1',
             }],
+            validationLocales: [{
+              locale: 'en', value: 'test validation regex en 1',
+            }, {
+              locale: 'fr', value: 'test validation regex fr 1',
+            }],
           },
         })
 
@@ -540,6 +585,11 @@ describe(
                 locale: 'en', value: 'test name en 2',
               }, {
                 locale: 'fr', value: 'test name fr 2',
+              }],
+              validationLocales: [{
+                locale: 'en', value: 'test validation regex en 2',
+              }, {
+                locale: 'fr', value: 'test validation regex fr 2',
               }],
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
@@ -557,6 +607,11 @@ describe(
             }, {
               locale: 'fr', value: 'test name fr 2',
             }],
+            validationLocales: [{
+              locale: 'en', value: 'test validation regex en 2',
+            }, {
+              locale: 'fr', value: 'test validation regex fr 2',
+            }],
           },
         })
 
@@ -567,6 +622,9 @@ describe(
             body: JSON.stringify({
               locales: [{
                 locale: 'en', value: 'test name en 3',
+              }],
+              validationLocales: [{
+                locale: 'en', value: 'test validation regex en 3',
               }],
             }),
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
@@ -581,6 +639,9 @@ describe(
             ...updateObj,
             locales: [{
               locale: 'en', value: 'test name en 3',
+            }],
+            validationLocales: [{
+              locale: 'en', value: 'test validation regex en 3',
             }],
           },
         })

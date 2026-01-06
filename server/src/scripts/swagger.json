@@ -1095,6 +1095,27 @@
           "unique": {
             "type": "boolean"
           },
+          "validationRegex": {
+            "type": "string"
+          },
+          "validationLocales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
+          },
           "createdAt": {
             "type": "string"
           },
@@ -1112,6 +1133,8 @@
           "includeInSignUpForm",
           "requiredInSignUpForm",
           "unique",
+          "validationRegex",
+          "validationLocales",
           "includeInIdTokenBody",
           "includeInUserInfo",
           "createdAt",
@@ -1159,6 +1182,27 @@
           },
           "unique": {
             "type": "boolean"
+          },
+          "validationRegex": {
+            "type": "string"
+          },
+          "validationLocales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
           }
         },
         "required": [
@@ -1208,6 +1252,27 @@
           },
           "unique": {
             "type": "boolean"
+          },
+          "validationRegex": {
+            "type": "string"
+          },
+          "validationLocales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locale": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "locale",
+                "value"
+              ]
+            }
           }
         }
       },

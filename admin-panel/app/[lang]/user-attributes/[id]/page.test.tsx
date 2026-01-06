@@ -31,6 +31,8 @@ const mockUserAttribute = {
       locale: 'fr', value: 'Prénom',
     },
   ],
+  validationRegex: '',
+  validationLocales: [],
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-02T00:00:00Z',
 }
@@ -157,6 +159,8 @@ describe(
             includeInIdTokenBody: true,
             includeInUserInfo: false,
             unique: false,
+            validationRegex: '',
+            validationLocales: [],
             locales: [
               {
                 locale: 'en', value: 'First Name',
@@ -191,6 +195,8 @@ describe(
             includeInIdTokenBody: false,
             includeInUserInfo: false,
             unique: false,
+            validationRegex: '',
+            validationLocales: [],
             locales: [
               {
                 locale: 'en', value: 'First Name',
@@ -225,6 +231,8 @@ describe(
             includeInIdTokenBody: true,
             includeInUserInfo: true,
             unique: false,
+            validationRegex: '',
+            validationLocales: [],
             locales: [
               {
                 locale: 'en', value: 'First Name',
@@ -297,8 +305,9 @@ describe(
         )
         fireEvent.click(saveBtn)
 
-        const errorMessage = await screen.findByTestId('fieldError')
-        expect(errorMessage).toBeInTheDocument()
+        const allErrorMessages = await screen.findAllByTestId('fieldError')
+        expect(allErrorMessages[0].textContent).toBe('common.fieldIsRequired')
+        expect(allErrorMessages[1].textContent).toBe('')
         expect(mockUpdate).not.toHaveBeenCalled()
       },
     )
@@ -327,6 +336,8 @@ describe(
               includeInIdTokenBody: true,
               includeInUserInfo: false,
               unique: false,
+              validationRegex: '',
+              validationLocales: [],
               locales: [
                 {
                   locale: 'en', value: 'Updated First Name',

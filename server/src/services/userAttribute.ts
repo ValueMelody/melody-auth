@@ -52,6 +52,15 @@ export const createUserAttribute = async (
     },
     {} as Record<string, string>,
   )
+  const validationLocales = dto.validationLocales?.reduce(
+    (
+      acc, locale,
+    ) => {
+      acc[locale.locale] = locale.value
+      return acc
+    },
+    {} as Record<string, string>,
+  )
   const userAttribute = await userAttributeModel.create(
     c.env.DB,
     {
@@ -62,6 +71,8 @@ export const createUserAttribute = async (
       includeInIdTokenBody: dto.includeInIdTokenBody ? 1 : 0,
       includeInUserInfo: dto.includeInUserInfo ? 1 : 0,
       unique: dto.unique ? 1 : 0,
+      validationRegex: dto.validationRegex ?? '',
+      validationLocales: validationLocales ? JSON.stringify(validationLocales) : '',
     },
   )
   return userAttribute
@@ -84,9 +95,17 @@ export const updateUserAttribute = async (
       acc[locale.locale] = locale.value
       return acc
     },
-{} as Record<string, string>,
+    {} as Record<string, string>,
   )
-
+  const validationLocales = dto.validationLocales?.reduce(
+    (
+      acc, locale,
+    ) => {
+      acc[locale.locale] = locale.value
+      return acc
+    },
+    {} as Record<string, string>,
+  )
   const userAttribute = await userAttributeModel.update(
     c.env.DB,
     id,
@@ -98,6 +117,8 @@ export const updateUserAttribute = async (
       includeInIdTokenBody: dto.includeInIdTokenBody === undefined ? undefined : includeInIdTokenBody,
       includeInUserInfo: dto.includeInUserInfo === undefined ? undefined : includeInUserInfo,
       unique: dto.unique === undefined ? undefined : unique,
+      validationRegex: dto.validationRegex === undefined ? undefined : dto.validationRegex,
+      validationLocales: validationLocales ? JSON.stringify(validationLocales) : undefined,
     },
   )
   return userAttribute

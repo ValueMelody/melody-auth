@@ -176,7 +176,12 @@
     "new": "Create an user attribute",
     "userAttribute": "User Attribute",
     "localeNote": "Name value will be displayed if locale value is empty",
-    "locales": "Locales"
+    "locales": "Locales",
+    "validation": "Validation",
+    "validationPlaceholder": "Enter a JavaScript regular expression here",
+    "validationLocales": "Validation Locales",
+    "validationLocaleNote": "This will be displayed as a tooltip on the user sign up page",
+    "invalidRegex": "Invalid regular expression."
   },
   "roles": {
     "title": "Roles",

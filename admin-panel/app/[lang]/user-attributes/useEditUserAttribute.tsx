@@ -16,6 +16,8 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
   const [includeInUserInfo, setIncludeInUserInfo] = useState(false)
   const [unique, setUnique] = useState(false)
   const [locales, setLocales] = useState<LocaleValues>([])
+  const [validationRegex, setValidationRegex] = useState('')
+  const [validationLocales, setValidationLocales] = useState<LocaleValues>([])
 
   useEffect(
     () => {
@@ -26,6 +28,8 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       setIncludeInUserInfo(userAttribute?.includeInUserInfo ?? false)
       setUnique(userAttribute?.unique ?? false)
       setLocales(userAttribute?.locales ?? [])
+      setValidationRegex(userAttribute?.validationRegex ?? '')
+      setValidationLocales(userAttribute?.validationLocales ?? [])
     },
     [userAttribute],
   )
@@ -39,6 +43,8 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       includeInUserInfo,
       unique,
       locales,
+      validationRegex,
+      validationLocales,
     }),
     [
       name,
@@ -48,11 +54,26 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       includeInUserInfo,
       unique,
       locales,
+      validationRegex,
+      validationLocales,
     ],
   )
 
   const errors = useMemo(
-    () => ({ name: values.name.trim().length ? undefined : t('common.fieldIsRequired') }),
+    () => {
+      let validationRegexError: string | undefined
+      if (values.validationRegex.trim().length) {
+        try {
+          RegExp(values.validationRegex)
+        } catch (error) {
+          validationRegexError = t('userAttributes.invalidRegex')
+        }
+      }
+      return {
+        name: values.name.trim().length ? undefined : t('common.fieldIsRequired'),
+        validationRegex: validationRegexError,
+      }
+    },
     [values, t],
   )
 
@@ -80,6 +101,12 @@ const useEditUserAttribute = (userAttribute: UserAttribute | undefined) => {
       break
     case 'locales':
       setLocales(value as LocaleValues)
+      break
+    case 'validationRegex':
+      setValidationRegex(value as string)
+      break
+    case 'validationLocales':
+      setValidationLocales(value as LocaleValues)
       break
     }
   }

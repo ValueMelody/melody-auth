@@ -6,6 +6,7 @@ import { dbUtil } from 'utils'
 export interface Common {
   id: number;
   name: string;
+  validationRegex: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -18,6 +19,7 @@ export interface Raw extends Common {
   includeInIdTokenBody: number;
   includeInUserInfo: number;
   unique: number;
+  validationLocales: string;
 }
 
 export interface Record extends Common {
@@ -30,6 +32,10 @@ export interface Record extends Common {
   includeInIdTokenBody: boolean;
   includeInUserInfo: boolean;
   unique: boolean;
+  validationLocales: {
+    locale: string;
+    value: string;
+  }[];
 }
 
 export interface Create {
@@ -40,6 +46,8 @@ export interface Create {
   includeInIdTokenBody: number;
   includeInUserInfo: number;
   unique: number;
+  validationRegex: string;
+  validationLocales: string;
 }
 
 export interface Update {
@@ -50,6 +58,8 @@ export interface Update {
   includeInIdTokenBody?: number;
   includeInUserInfo?: number;
   unique?: number;
+  validationRegex?: string;
+  validationLocales?: string;
 }
 
 const TableName = adapterConfig.TableName.UserAttribute
@@ -60,6 +70,11 @@ export const format = (raw: Raw): Record => {
     locale,
     value: localeJson[locale],
   }))
+  const validationLocaleJson = raw.validationLocales ? JSON.parse(raw.validationLocales) : {}
+  const validationLocales = Object.keys(validationLocaleJson).map((locale) => ({
+    locale,
+    value: validationLocaleJson[locale],
+  }))
   return {
     ...raw,
     locales,
@@ -68,6 +83,8 @@ export const format = (raw: Raw): Record => {
     includeInIdTokenBody: !!raw.includeInIdTokenBody,
     includeInUserInfo: !!raw.includeInUserInfo,
     unique: !!raw.unique,
+    validationRegex: raw.validationRegex,
+    validationLocales,
   }
 }
 
@@ -93,7 +110,7 @@ export const getAll = async (db: D1Database): Promise<Record[]> => {
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO "${TableName}" (name, locales, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique") values ($1, $2, $3, $4, $5, $6, $7)`
+  const query = `INSERT INTO "${TableName}" (name, locales, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique", "validationRegex", "validationLocales") values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
   const stmt = db.prepare(query).bind(
     create.name,
     create.locales,
@@ -102,6 +119,8 @@ export const create = async (
     create.includeInIdTokenBody,
     create.includeInUserInfo,
     create.unique,
+    create.validationRegex,
+    create.validationLocales,
   )
   const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()
@@ -120,7 +139,7 @@ export const update = async (
 ): Promise<Record> => {
   const updateKeys: (keyof Update)[] = [
     'name', 'locales', 'includeInSignUpForm', 'requiredInSignUpForm', 'includeInIdTokenBody', 'includeInUserInfo',
-    'unique',
+    'unique', 'validationRegex', 'validationLocales',
   ]
 
   const stmt = dbUtil.d1UpdateQuery(
