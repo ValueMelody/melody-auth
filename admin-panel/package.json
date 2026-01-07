@@ -36,7 +36,7 @@
     "clsx": "^2.1.1",
     "hono": "^4.6.14",
     "lucide-react": "^0.484.0",
-    "next": "14.2.26",
+    "next": "14.2.35",
     "next-intl": "^3.15.0",
     "react": "^18",
     "react-dom": "^18",
@@ -45,7 +45,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^0.6.6",
+    "@opennextjs/cloudflare": "^1.14.8",
     "@rtk-query/codegen-openapi": "^1.2.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
