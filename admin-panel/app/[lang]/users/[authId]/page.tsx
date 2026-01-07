@@ -891,29 +891,35 @@ const Page = () => {
                 </TableRow>
               </>
             )}
-            {enableUserAttribute && userAttributes.map((userAttribute) => (
-              <TableRow key={userAttribute.id}>
-                <TableCell>
-                  {userAttribute.locales?.find((locale) => locale.locale === appLocale)?.value ?? userAttribute.name}
-                </TableCell>
-                <TableCell>
-                  <div className='flex flex-col gap-2'>
-                    <Input
-                      disabled={!canWriteUser}
-                      data-testid={userAttribute.name}
-                      onChange={(e) => setAttributeValues({
-                        ...attributeValues,
-                        [userAttribute.name]: e.target.value,
-                      })}
-                      value={attributeValues[userAttribute.name] ?? ''}
-                    />
-                    {userAttribute.unique && (
-                      <p>{t('users.uniqueAttribute')}</p>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {enableUserAttribute && userAttributes.map((userAttribute) => {
+              const validationLocale =
+                userAttribute.validationLocales?.find((locale) => locale.locale === appLocale)?.value ||
+                userAttribute.validationLocales?.[0]?.value
+              return (
+                <TableRow key={userAttribute.id}>
+                  <TableCell>
+                    {userAttribute.locales?.find((locale) => locale.locale === appLocale)?.value ?? userAttribute.name}
+                  </TableCell>
+                  <TableCell>
+                    <div className='flex flex-col gap-2'>
+                      <Input
+                        disabled={!canWriteUser}
+                        data-testid={userAttribute.name}
+                        onChange={(e) => setAttributeValues({
+                          ...attributeValues,
+                          [userAttribute.name]: e.target.value,
+                        })}
+                        value={attributeValues[userAttribute.name] ?? ''}
+                      />
+                      {userAttribute.unique && (
+                        <p>{t('users.uniqueAttribute')}</p>
+                      )}
+                      {userAttribute.validationRegex && validationLocale && <p>* {validationLocale}</p>}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
             <TableRow>
               <TableCell>{t('common.createdAt')}</TableCell>
               <TableCell>{user.createdAt} UTC</TableCell>

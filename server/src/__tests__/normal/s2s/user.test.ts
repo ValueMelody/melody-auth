@@ -1068,6 +1068,234 @@ describe(
     )
 
     test(
+      'should fail to update user with attribute value not matching regex pattern',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create an attribute with regex validation
+        await db.exec(`
+          INSERT INTO user_attribute (name, "validationRegex")
+          values ('phone', '^\\+[1-9]\\d{1,14}$')
+        `)
+
+        // Try to update user with invalid phone format
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'invalid-phone' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe('Value for attribute "phone" does not match the validation rule')
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should successfully update user with attribute value matching regex pattern',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create an attribute with regex validation
+        await db.exec(`
+          INSERT INTO user_attribute (name, "validationRegex")
+          values ('phone', '^\\+[1-9]\\d{1,14}$')
+        `)
+
+        // Update user with valid phone format
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: '+12025551234' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should allow any value when attribute has no validationRegex',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create an attribute without regex validation
+        await db.exec(`
+          INSERT INTO user_attribute (name)
+          values ('nickname')
+        `)
+
+        // Update user with any value
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'any value !@#$%^&*()' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail to update existing attribute value with invalid regex pattern',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create an attribute with regex validation
+        await db.exec(`
+          INSERT INTO user_attribute (name, "validationRegex")
+          values ('phone', '^\\+[1-9]\\d{1,14}$')
+        `)
+
+        // User 1 has valid phone
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, '+12025551234')
+        `)
+
+        // Try to update to invalid phone format
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'invalid-phone' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe('Value for attribute "phone" does not match the validation rule')
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should successfully update existing attribute value with valid regex pattern',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create an attribute with regex validation
+        await db.exec(`
+          INSERT INTO user_attribute (name, "validationRegex")
+          values ('phone', '^\\+[1-9]\\d{1,14}$')
+        `)
+
+        // User 1 has valid phone
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, '+12025551234')
+        `)
+
+        // Update to new valid phone format
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: '+14155551234' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should handle both unique and regex validation on same attribute',
+      async () => {
+        global.process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await insertUsers(db)
+
+        // Create an attribute with both unique and regex validation
+        await db.exec(`
+          INSERT INTO user_attribute (name, "unique", "validationRegex")
+          values ('employee_code', 1, '^EMP[0-9]{4}$')
+        `)
+
+        // User 1 has valid employee code
+        await db.exec(`
+          INSERT INTO user_attribute_value ("userId", "userAttributeId", "value")
+          values (1, 1, 'EMP1234')
+        `)
+
+        // Try to update user 2 with invalid format (should fail regex)
+        const res1 = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'INVALID' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res1.status).toBe(400)
+        expect(await res1.text()).toBe('Value for attribute "employee_code" does not match the validation rule')
+
+        // Try to update user 2 with valid format but duplicate value (should fail unique)
+        const res2 = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'EMP1234' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res2.status).toBe(400)
+        expect(await res2.text()).toBe('Duplicate value "EMP1234" for attribute "employee_code"')
+
+        // Update user 2 with valid and unique code (should succeed)
+        const res3 = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ attributes: { 1: 'EMP5678' } }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res3.status).toBe(200)
+
+        global.process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
       'should update user and get org info',
       async () => {
         process.env.ENABLE_ORG = true as unknown as string

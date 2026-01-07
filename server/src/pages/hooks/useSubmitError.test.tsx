@@ -306,5 +306,37 @@ describe(
         expect(result.current.submitError).toBe('Duplicate value without proper format')
       },
     )
+
+    test(
+      'handles validation failed error',
+      () => {
+        const { result } = renderHook(() =>
+          useSubmitError({
+            onSwitchView, locale,
+          }))
+
+        act(() => {
+          result.current.handleSubmitError('Value for attribute "employee_id" does not match the validation rule')
+        })
+
+        expect(result.current.submitError).toBe('Value for attribute "employee_id" does not match the validation rule.')
+      },
+    )
+
+    test(
+      'handles validation failed error with french locale',
+      () => {
+        const { result } = renderHook(() =>
+          useSubmitError({
+            onSwitchView, locale: 'fr',
+          }))
+
+        act(() => {
+          result.current.handleSubmitError('Value for attribute "employee_id" does not match the validation rule')
+        })
+
+        expect(result.current.submitError).toBe('La valeur pour l\'attribut "employee_id" ne correspond pas à la règle de validation.')
+      },
+    )
   },
 )

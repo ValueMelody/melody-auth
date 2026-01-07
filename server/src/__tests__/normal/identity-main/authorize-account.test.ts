@@ -134,6 +134,68 @@ describe(
     )
 
     test(
+      'should get user attributes with regex validation',
+      async () => {
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique", "validationRegex", "validationLocales") values (\'phone\', 1, 1, 0, 0, 0, \'^\\+[1-9]\\d{1,14}$\', \'{"en": "Please enter a valid phone number", "fr": "Veuillez entrer un numéro de téléphone valide"}\')')
+        await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo", "unique") values (\'nickname\', 1, 0, 0, 0, 0)')
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          { method: 'GET' },
+          mock(db),
+        )
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          userAttributes: [
+            {
+              id: 1,
+              name: 'phone',
+              includeInSignUpForm: true,
+              requiredInSignUpForm: true,
+              includeInIdTokenBody: false,
+              includeInUserInfo: false,
+              unique: false,
+              locales: [],
+              validationRegex: '^\\+[1-9]\\d{1,14}$',
+              validationLocales: [
+                {
+                  locale: 'en',
+                  value: 'Please enter a valid phone number',
+                },
+                {
+                  locale: 'fr',
+                  value: 'Veuillez entrer un numéro de téléphone valide',
+                },
+              ],
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+              deletedAt: null,
+            },
+            {
+              id: 2,
+              name: 'nickname',
+              includeInSignUpForm: true,
+              requiredInSignUpForm: false,
+              includeInIdTokenBody: false,
+              includeInUserInfo: false,
+              unique: false,
+              locales: [],
+              validationRegex: '',
+              validationLocales: [],
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+              deletedAt: null,
+            },
+          ],
+        })
+
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
       'should return empty if feature is disabled',
       async () => {
         await db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "includeInIdTokenBody", "includeInUserInfo") values (\'test\', 1, 1, 1, 1)')
@@ -1158,6 +1220,314 @@ describe(
         expect(await res3.text()).toBe('Duplicate value "EMP001" for attribute "employee_id"')
 
         // Verify only two users were created
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(2)
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should successfully create user with attribute value matching regex pattern',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create an attribute with regex validation for email format
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "validationRegex") values (\'secondary_email\', 1, 1, \'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$\')')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'valid@example.com' },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const json = await res.json()
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.MfaEnroll,
+        })
+
+        const attributeValues = await db.prepare('select * from "user_attribute_value" where "userId" = 1').all() as userAttributeValueModel.Record[]
+
+        expect(attributeValues.length).toBe(1)
+        expect(attributeValues[0]).toStrictEqual({
+          id: 1,
+          userId: 1,
+          userAttributeId: 1,
+          value: 'valid@example.com',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          deletedAt: null,
+        })
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail to create user with attribute value not matching regex pattern',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create an attribute with regex validation for email format
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "validationRegex") values (\'secondary_email\', 1, 1, \'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$\')')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'invalid-email' },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe('Value for attribute "secondary_email" does not match the validation rule')
+
+        // Verify no user was created
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(0)
+
+        // Verify no attribute value exists
+        const attributeValues = await db.prepare('select * from "user_attribute_value"').all() as userAttributeValueModel.Record[]
+        expect(attributeValues.length).toBe(0)
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should allow any value when attribute has no validationRegex',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create an attribute without regex validation
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'nickname\', 1, 1)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'any value !@#$%^&*()' },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+
+        const attributeValues = await db.prepare('select * from "user_attribute_value" where "userId" = 1').all() as userAttributeValueModel.Record[]
+
+        expect(attributeValues.length).toBe(1)
+        expect(attributeValues[0].value).toBe('any value !@#$%^&*()')
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should handle mixed regex and non-regex attributes correctly',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create an attribute with regex validation and one without
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "validationRegex") values (\'phone\', 1, 1, \'^\\+[1-9]\\d{1,14}$\')')
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'nickname\', 1, 1)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: {
+            1: '+12025551234',
+            2: 'any nickname',
+          },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+
+        const attributeValues = await db.prepare('select * from "user_attribute_value" where "userId" = 1').all() as userAttributeValueModel.Record[]
+
+        expect(attributeValues.length).toBe(2)
+        expect(attributeValues[0].value).toBe('+12025551234')
+        expect(attributeValues[1].value).toBe('any nickname')
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should fail when regex attribute fails but non-regex attribute passes',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create an attribute with regex validation and one without
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "validationRegex") values (\'phone\', 1, 1, \'^\\+[1-9]\\d{1,14}$\')')
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm") values (\'nickname\', 1, 1)')
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          password: 'Password1!',
+          attributes: {
+            1: 'invalid-phone',
+            2: 'any nickname',
+          },
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe('Value for attribute "phone" does not match the validation rule')
+
+        // Verify no user was created
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(0)
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = false as unknown as string
+      },
+    )
+
+    test(
+      'should handle both unique and regex validation on same attribute',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_USER_ATTRIBUTE = true as unknown as string
+
+        // Create an attribute with both unique and regex validation
+        db.exec('insert into "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique", "validationRegex") values (\'employee_code\', 1, 1, 1, \'^EMP[0-9]{4}$\')')
+
+        const appRecord = await getApp(db)
+
+        // First user with valid employee code
+        const body1 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test1@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'EMP1234' },
+        }
+
+        const res1 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body1),
+          },
+          mock(db),
+        )
+
+        expect(res1.status).toBe(200)
+
+        // Second user with invalid format (should fail regex)
+        const body2 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test2@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'INVALID' },
+        }
+
+        const res2 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body2),
+          },
+          mock(db),
+        )
+
+        expect(res2.status).toBe(400)
+        expect(await res2.text()).toBe('Value for attribute "employee_code" does not match the validation rule')
+
+        // Third user with valid format but duplicate value (should fail unique)
+        const body3 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test3@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'EMP1234' },
+        }
+
+        const res3 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body3),
+          },
+          mock(db),
+        )
+
+        expect(res3.status).toBe(400)
+        expect(await res3.text()).toBe('Duplicate value "EMP1234" for attribute "employee_code"')
+
+        // Fourth user with valid and unique code
+        const body4 = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test4@email.com',
+          password: 'Password1!',
+          attributes: { 1: 'EMP5678' },
+        }
+
+        const res4 = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body4),
+          },
+          mock(db),
+        )
+
+        expect(res4.status).toBe(200)
+
+        // Verify two users were created
         const users = await db.prepare('select * from "user"').all()
         expect(users.length).toBe(2)
 

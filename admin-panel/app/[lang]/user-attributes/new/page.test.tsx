@@ -295,5 +295,183 @@ describe(
         expect(saveBtn).toBeDisabled()
       },
     )
+
+    it(
+      'creates user attribute with validation regex',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const validationRegexInput = screen.queryByTestId('validationRegexInput') as HTMLInputElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'phoneNumber' } },
+        )
+
+        fireEvent.change(
+          validationRegexInput,
+          { target: { value: '^\\+?[1-9]\\d{1,14}$' } },
+        )
+
+        fireEvent.click(saveBtn)
+
+        expect(mockCreate).toHaveBeenLastCalledWith({
+          postUserAttributeReq: {
+            name: 'phoneNumber',
+            locales: [],
+            includeInSignUpForm: false,
+            requiredInSignUpForm: false,
+            includeInIdTokenBody: false,
+            includeInUserInfo: false,
+            unique: false,
+            validationRegex: '^\\+?[1-9]\\d{1,14}$',
+            validationLocales: [],
+          },
+        })
+      },
+    )
+
+    it(
+      'creates user attribute with validation locales',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'customField' } },
+        )
+
+        // Get validation locale inputs (they appear after the regular locale inputs)
+        const localeInputs = screen.queryAllByTestId('localeInput')
+        // First 2 are for attribute locales, next 2 are for validation locales
+        const validationLocaleInputs = localeInputs.slice(2)
+
+        if (validationLocaleInputs.length >= 2) {
+          fireEvent.change(
+            validationLocaleInputs[0],
+            { target: { value: 'Invalid format' } },
+          )
+
+          fireEvent.change(
+            validationLocaleInputs[1],
+            { target: { value: 'Format invalide' } },
+          )
+
+          fireEvent.click(saveBtn)
+
+          expect(mockCreate).toHaveBeenLastCalledWith({
+            postUserAttributeReq: {
+              name: 'customField',
+              locales: [],
+              includeInSignUpForm: false,
+              requiredInSignUpForm: false,
+              includeInIdTokenBody: false,
+              includeInUserInfo: false,
+              unique: false,
+              validationRegex: '',
+              validationLocales: [
+                {
+                  locale: 'en', value: 'Invalid format',
+                },
+                {
+                  locale: 'fr', value: 'Format invalide',
+                },
+              ],
+            },
+          })
+        }
+      },
+    )
+
+    it(
+      'creates user attribute with both validation regex and validation locales',
+      async () => {
+        render(<Page />)
+
+        const nameInput = screen.queryByTestId('nameInput') as HTMLInputElement
+        const validationRegexInput = screen.queryByTestId('validationRegexInput') as HTMLInputElement
+        const saveBtn = screen.queryByTestId('saveButton') as HTMLButtonElement
+
+        fireEvent.change(
+          nameInput,
+          { target: { value: 'zipCode' } },
+        )
+
+        fireEvent.change(
+          validationRegexInput,
+          { target: { value: '^[0-9]{5}$' } },
+        )
+
+        // Get validation locale inputs
+        const localeInputs = screen.queryAllByTestId('localeInput')
+        const validationLocaleInputs = localeInputs.slice(2)
+
+        if (validationLocaleInputs.length >= 2) {
+          fireEvent.change(
+            validationLocaleInputs[0],
+            { target: { value: 'Please enter a valid 5-digit zip code' } },
+          )
+
+          fireEvent.change(
+            validationLocaleInputs[1],
+            { target: { value: 'Veuillez entrer un code postal à 5 chiffres valide' } },
+          )
+
+          fireEvent.click(saveBtn)
+
+          expect(mockCreate).toHaveBeenLastCalledWith({
+            postUserAttributeReq: {
+              name: 'zipCode',
+              locales: [],
+              includeInSignUpForm: false,
+              requiredInSignUpForm: false,
+              includeInIdTokenBody: false,
+              includeInUserInfo: false,
+              unique: false,
+              validationRegex: '^[0-9]{5}$',
+              validationLocales: [
+                {
+                  locale: 'en', value: 'Please enter a valid 5-digit zip code',
+                },
+                {
+                  locale: 'fr', value: 'Veuillez entrer un code postal à 5 chiffres valide',
+                },
+              ],
+            },
+          })
+        }
+      },
+    )
+
+    it(
+      'updates validation regex field value',
+      async () => {
+        render(<Page />)
+
+        const validationRegexInput = screen.queryByTestId('validationRegexInput') as HTMLInputElement
+
+        expect(validationRegexInput.value).toBe('')
+
+        fireEvent.change(
+          validationRegexInput,
+          { target: { value: '^[a-zA-Z]+$' } },
+        )
+
+        expect(validationRegexInput.value).toBe('^[a-zA-Z]+$')
+
+        // Update again
+        fireEvent.change(
+          validationRegexInput,
+          { target: { value: '^[a-zA-Z0-9]+$' } },
+        )
+
+        expect(validationRegexInput.value).toBe('^[a-zA-Z0-9]+$')
+      },
+    )
   },
 )

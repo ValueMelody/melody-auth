@@ -153,6 +153,31 @@ const checkUniqueAttribute = async (
   }
 }
 
+const checkValidationAttribute = async (
+  c: Context<typeConfig.Context>,
+  userAttribute: userAttributeModel.Record,
+  value: string,
+) => {
+  if (!userAttribute.validationRegex) return
+  const matchRegex = value.match(userAttribute.validationRegex)
+  if (!matchRegex) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.AttributeValidationFailed
+        .replace(
+          '{{attributeName}}',
+          userAttribute.name,
+        ),
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.AttributeValidationFailed
+      .replace(
+        '{{attributeName}}',
+        userAttribute.name,
+      ))
+  }
+}
+
 export const getUsers = async (
   c: Context<typeConfig.Context>,
   search: string | undefined,
@@ -544,6 +569,11 @@ export const createAccountWithPassword = async (
       throw new errorConfig.NotFound(messageConfig.RequestError.NoUserAttribute)
     }
     await checkUniqueAttribute(
+      c,
+      userAttribute,
+      value,
+    )
+    await checkValidationAttribute(
       c,
       userAttribute,
       value,
@@ -1433,11 +1463,21 @@ export const updateUser = async (
           userAttribute,
           newValue,
         )
+        await checkValidationAttribute(
+          c,
+          userAttribute,
+          newValue,
+        )
         attributeValuesToCreate.push({
           userId: updatedUser.id, userAttributeId: userAttribute.id, value: newValue,
         })
       } else if (newValue && oldValue && newValue !== oldValue.value) {
         await checkUniqueAttribute(
+          c,
+          userAttribute,
+          newValue,
+        )
+        await checkValidationAttribute(
           c,
           userAttribute,
           newValue,

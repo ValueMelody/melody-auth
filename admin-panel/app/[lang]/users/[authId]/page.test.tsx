@@ -2012,5 +2012,54 @@ describe(
         vi.mocked(configSignal).value = originalConfig
       },
     )
+
+    it(
+      'shows validationLocales as note for validation field',
+      async () => {
+        const originalConfig = vi.mocked(configSignal).value as any
+        vi.mocked(configSignal).value = {
+          ...originalConfig,
+          ENABLE_USER_ATTRIBUTE: true,
+        }
+
+        ;(useGetApiV1UserAttributesQuery as Mock).mockReturnValue({
+          data: {
+            userAttributes: [
+              {
+                id: 1,
+                name: 'phoneNumber',
+                locales: [],
+                validationRegex: '^\\+?[1-9]\\d{1,14}$',
+                validationLocales: [
+                  {
+                    locale: 'en', value: 'Please enter a valid phone number',
+                  },
+                  {
+                    locale: 'fr', value: 'Veuillez entrer un numéro de téléphone valide',
+                  },
+                ],
+              },
+            ],
+          },
+        })
+
+        ;(useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              attributes: { phoneNumber: '+1234567890' },
+            },
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('* Please enter a valid phone number')).toBeInTheDocument()
+        })
+
+        vi.mocked(configSignal).value = originalConfig
+      },
+    )
   },
 )

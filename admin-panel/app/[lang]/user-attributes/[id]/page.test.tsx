@@ -99,6 +99,13 @@ describe(
 
       vi.mocked(configSignal as unknown as { value: object }).value = { SUPPORTED_LOCALES: ['en', 'fr'] }
 
+      mockUseAuth.mockReturnValue({
+        userInfo: {
+          authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+          roles: ['super_admin'],
+        },
+      })
+
       mockUpdate.mockClear()
       mockDelete.mockClear()
       mockPush.mockClear()
@@ -446,6 +453,298 @@ describe(
 
         const { container } = render(<Page />)
         expect(container.firstChild?.firstChild).toBeNull()
+      },
+    )
+
+    it(
+      'renders user attribute with existing validation regex',
+      () => {
+        const userAttributeWithValidation = {
+          ...mockUserAttribute,
+          validationRegex: '^[0-9]{5}$',
+          validationLocales: [
+            {
+              locale: 'en', value: 'Please enter a valid zip code',
+            },
+            {
+              locale: 'fr', value: 'Veuillez entrer un code postal valide',
+            },
+          ],
+        }
+
+        ;(useGetApiV1UserAttributesByIdQuery as Mock).mockReturnValue({
+          data: { userAttribute: userAttributeWithValidation },
+          isLoading: false,
+        })
+
+        render(<Page />)
+
+        const validationRegexInput = screen.getByTestId('validationRegexInput') as HTMLInputElement
+        expect(validationRegexInput.value).toBe('^[0-9]{5}$')
+      },
+    )
+
+    it(
+      'updates validation regex field',
+      async () => {
+        render(<Page />)
+
+        const validationRegexInput = screen.getByTestId('validationRegexInput') as HTMLInputElement
+        const saveBtn = screen.getByTestId('saveButton') as HTMLButtonElement
+
+        fireEvent.change(
+          validationRegexInput,
+          { target: { value: '^[a-zA-Z]+$' } },
+        )
+        fireEvent.click(saveBtn)
+
+        expect(mockUpdate).toHaveBeenCalledWith({
+          id: 1,
+          putUserAttributeReq: {
+            name: 'firstName',
+            includeInSignUpForm: true,
+            requiredInSignUpForm: false,
+            includeInIdTokenBody: true,
+            includeInUserInfo: false,
+            unique: false,
+            validationRegex: '^[a-zA-Z]+$',
+            validationLocales: [],
+            locales: [
+              {
+                locale: 'en', value: 'First Name',
+              },
+              {
+                locale: 'fr', value: 'Prénom',
+              },
+            ],
+          },
+        })
+      },
+    )
+
+    it(
+      'updates validation locales',
+      async () => {
+        render(<Page />)
+
+        const saveBtn = screen.getByTestId('saveButton') as HTMLButtonElement
+        const localeInputs = screen.queryAllByTestId('localeInput')
+
+        // First 2 are for attribute locales, next 2 are for validation locales
+        const validationLocaleInputs = localeInputs.slice(2)
+
+        if (validationLocaleInputs.length >= 2) {
+          fireEvent.change(
+            validationLocaleInputs[0],
+            { target: { value: 'Invalid format' } },
+          )
+
+          fireEvent.change(
+            validationLocaleInputs[1],
+            { target: { value: 'Format invalide' } },
+          )
+
+          fireEvent.click(saveBtn)
+
+          expect(mockUpdate).toHaveBeenCalledWith({
+            id: 1,
+            putUserAttributeReq: {
+              name: 'firstName',
+              includeInSignUpForm: true,
+              requiredInSignUpForm: false,
+              includeInIdTokenBody: true,
+              includeInUserInfo: false,
+              unique: false,
+              validationRegex: '',
+              validationLocales: [
+                {
+                  locale: 'en', value: 'Invalid format',
+                },
+                {
+                  locale: 'fr', value: 'Format invalide',
+                },
+              ],
+              locales: [
+                {
+                  locale: 'en', value: 'First Name',
+                },
+                {
+                  locale: 'fr', value: 'Prénom',
+                },
+              ],
+            },
+          })
+        }
+      },
+    )
+
+    it(
+      'updates both validation regex and validation locales',
+      async () => {
+        render(<Page />)
+
+        const validationRegexInput = screen.getByTestId('validationRegexInput') as HTMLInputElement
+        const saveBtn = screen.getByTestId('saveButton') as HTMLButtonElement
+        const localeInputs = screen.queryAllByTestId('localeInput')
+
+        fireEvent.change(
+          validationRegexInput,
+          { target: { value: '^\\d{3}-\\d{4}$' } },
+        )
+
+        const validationLocaleInputs = localeInputs.slice(2)
+
+        if (validationLocaleInputs.length >= 2) {
+          fireEvent.change(
+            validationLocaleInputs[0],
+            { target: { value: 'Please enter format: XXX-XXXX' } },
+          )
+
+          fireEvent.change(
+            validationLocaleInputs[1],
+            { target: { value: 'Veuillez entrer le format: XXX-XXXX' } },
+          )
+
+          fireEvent.click(saveBtn)
+
+          expect(mockUpdate).toHaveBeenCalledWith({
+            id: 1,
+            putUserAttributeReq: {
+              name: 'firstName',
+              includeInSignUpForm: true,
+              requiredInSignUpForm: false,
+              includeInIdTokenBody: true,
+              includeInUserInfo: false,
+              unique: false,
+              validationRegex: '^\\d{3}-\\d{4}$',
+              validationLocales: [
+                {
+                  locale: 'en', value: 'Please enter format: XXX-XXXX',
+                },
+                {
+                  locale: 'fr', value: 'Veuillez entrer le format: XXX-XXXX',
+                },
+              ],
+              locales: [
+                {
+                  locale: 'en', value: 'First Name',
+                },
+                {
+                  locale: 'fr', value: 'Prénom',
+                },
+              ],
+            },
+          })
+        }
+      },
+    )
+
+    it(
+      'enables save button when validation regex changes',
+      () => {
+        render(<Page />)
+
+        const validationRegexInput = screen.getByTestId('validationRegexInput') as HTMLInputElement
+        const saveBtn = screen.getByTestId('saveButton') as HTMLButtonElement
+
+        expect(saveBtn).toBeDisabled()
+
+        fireEvent.change(
+          validationRegexInput,
+          { target: { value: '^[0-9]+$' } },
+        )
+
+        expect(saveBtn).not.toBeDisabled()
+      },
+    )
+
+    it(
+      'enables save button when validation locales change',
+      () => {
+        render(<Page />)
+
+        const saveBtn = screen.getByTestId('saveButton') as HTMLButtonElement
+        const localeInputs = screen.queryAllByTestId('localeInput')
+
+        expect(saveBtn).toBeDisabled()
+
+        const validationLocaleInputs = localeInputs.slice(2)
+
+        if (validationLocaleInputs.length >= 1) {
+          fireEvent.change(
+            validationLocaleInputs[0],
+            { target: { value: 'Error message' } },
+          )
+
+          expect(saveBtn).not.toBeDisabled()
+        }
+      },
+    )
+
+    it(
+      'clears existing validation regex',
+      async () => {
+        const userAttributeWithValidation = {
+          ...mockUserAttribute,
+          validationRegex: '^[0-9]{5}$',
+        }
+
+        ;(useGetApiV1UserAttributesByIdQuery as Mock).mockReturnValue({
+          data: { userAttribute: userAttributeWithValidation },
+          isLoading: false,
+        })
+
+        render(<Page />)
+
+        const validationRegexInput = screen.getByTestId('validationRegexInput') as HTMLInputElement
+        const saveBtn = screen.getByTestId('saveButton') as HTMLButtonElement
+
+        expect(validationRegexInput.value).toBe('^[0-9]{5}$')
+
+        fireEvent.change(
+          validationRegexInput,
+          { target: { value: '' } },
+        )
+
+        fireEvent.click(saveBtn)
+
+        expect(mockUpdate).toHaveBeenCalledWith({
+          id: 1,
+          putUserAttributeReq: {
+            name: 'firstName',
+            includeInSignUpForm: true,
+            requiredInSignUpForm: false,
+            includeInIdTokenBody: true,
+            includeInUserInfo: false,
+            unique: false,
+            validationRegex: '',
+            validationLocales: [],
+            locales: [
+              {
+                locale: 'en', value: 'First Name',
+              },
+              {
+                locale: 'fr', value: 'Prénom',
+              },
+            ],
+          },
+        })
+      },
+    )
+
+    it(
+      'disables validation regex input when user lacks write permission',
+      () => {
+        mockUseAuth.mockReturnValue({
+          userInfo: {
+            authId: '123', roles: ['read_only'],
+          },
+        })
+
+        render(<Page />)
+
+        const validationRegexInput = screen.getByTestId('validationRegexInput') as HTMLInputElement
+        expect(validationRegexInput).toBeDisabled()
       },
     )
   },
