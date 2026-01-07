@@ -61,6 +61,16 @@ const useSubmitError = ({
         msg = requestError.requireNewEmail[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.WrongMfaCode) !== -1) {
         msg = requestError.wrongCode[locale]
+      } else if (errorString.indexOf('does not match the validation rule') !== -1) {
+        const attributeMatch = errorString.match(/for attribute "([^"]+)"/)
+        if (attributeMatch) {
+          const attributeName = attributeMatch[1]
+          msg = requestError.validationAttributeFailed[locale]
+            .replace(
+              '{{attributeName}}',
+              attributeName,
+            )
+        }
       } else if (errorString.indexOf('Duplicate value') !== -1) {
         // Parse the error string to extract attribute value and name
         // Format: Duplicate value "123" for attribute "unique"

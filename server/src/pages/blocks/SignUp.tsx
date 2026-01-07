@@ -118,6 +118,9 @@ const SignUp = ({
               error={errors[attribute.id]}
               name={attribute.name}
               value={values[attribute.id]}
+              note={attribute.validationLocales?.find((attributeLocale) => {
+                return attributeLocale.locale === locale
+              })?.value}
               onChange={(value) => onChange(
                 attribute.id,
                 value,

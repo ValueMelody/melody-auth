@@ -10,6 +10,8 @@
 - 通过 user info 接口返回自定义数据
 - 支持属性标签的多语言
 - 在注册时强制要求必填字段
+- 在注册时强制要求唯一值
+- 在注册时强制要求验证规则
 
 ## 配置
 
@@ -42,6 +44,9 @@ ENABLE_USER_ATTRIBUTE = true
     - **Required in Sign Up Form**：用户注册时是否必须填写该属性
     - **Include in ID Token Body**：该属性是否包含在 JWT ID token 的 payload 中
     - **Include in User Info**：该属性是否通过 user info 接口返回
+    - **Unique**：该属性是否必须具有唯一的值
+    - **Validation Regex**：用于验证该属性值的正则表达式
+    - **Validation Locales**：该属性的多语言验证提示
   
 ![用户属性](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/images/user_attributes.jpg)
 
@@ -65,6 +70,8 @@ DELETE /api/v1/user-attributes/{id}: 删除用户属性
 - 标签会根据用户选择的语言进行本地化
 - 必填属性会被标记并在提交时验证
 - 属性与标准注册数据一并收集
+- 唯一属性会被验证为唯一的值
+- 验证属性会被验证为符合正则表达式
 
 合适的标签会基于以下规则显示：
 - 用户当前选择的语言

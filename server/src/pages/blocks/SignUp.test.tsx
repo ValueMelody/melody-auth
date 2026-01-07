@@ -607,6 +607,50 @@ describe(
             expect(positionField.value).toBe('Software Engineer')
           },
         )
+
+        it(
+          'renders validationLocales as note when provided',
+          () => {
+            const mockUserAttributes = [
+              {
+                id: 7,
+                name: 'phone',
+                requiredInSignUpForm: true,
+                locales: [
+                  {
+                    locale: 'en', value: 'Phone Number',
+                  },
+                ],
+                validationLocales: [
+                  {
+                    locale: 'en', value: 'Please enter a valid phone number',
+                  },
+                  {
+                    locale: 'fr', value: 'Veuillez entrer un numéro de téléphone valide',
+                  },
+                ],
+              },
+            ]
+
+            const props = {
+              ...defaultProps,
+              locale: 'en' as any,
+              userAttributes: mockUserAttributes,
+              values: {
+                ...defaultProps.values,
+                7: '',
+              },
+              errors: {
+                ...defaultProps.errors,
+                7: undefined,
+              },
+            }
+
+            const container = setup(props as any)
+
+            expect(container.textContent).toContain('Please enter a valid phone number')
+          },
+        )
       },
     )
   },

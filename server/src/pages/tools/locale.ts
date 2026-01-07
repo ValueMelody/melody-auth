@@ -832,10 +832,15 @@ export const requestError = Object.freeze({
     fr: 'Code invalide.',
     zh: '无效的验证码。',
   },
+  validationAttributeFailed: {
+    en: 'Value for attribute "{{attributeName}}" does not match the validation rule.',
+    fr: 'La valeur pour l\'attribut "{{attributeName}}" ne correspond pas à la règle de validation.',
+    zh: '属性 "{{attributeName}}" 的值不符合验证规则。',
+  },
   uniqueAttributeAlreadyExists: {
     en: 'Duplicate value "{{attributeValue}}" for attribute "{{attributeName}}".',
     fr: 'Valeur dupliquée "{{attributeValue}}" pour l\'attribut "{{attributeName}}".',
-    zh: '值 "{{attributeValue}}" 已用于属性 "{{attributeName}}"。',
+    zh: '已存在其他用户使用 "{{attributeValue}}" 作为 "{{attributeName}}"的值。',
   },
 })
 

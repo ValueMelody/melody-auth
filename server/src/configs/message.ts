@@ -118,4 +118,5 @@ export enum RequestError {
   OrgGroupNotFound = 'Organization group not found',
   NoAppBanner = 'No app banner found',
   UniqueAttributeAlreadyExists = 'Duplicate value "{{attributeValue}}" for attribute "{{attributeName}}"',
+  AttributeValidationFailed = 'Value for attribute "{{attributeName}}" does not match the validation rule',
 }

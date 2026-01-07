@@ -10,6 +10,8 @@ User attributes provide a flexible way to:
 - Return custom data through the user info endpoint
 - Support multiple languages for attribute labels
 - Enforce required fields during sign-up
+- Enforce unique values during sign-up
+- Enforce validation rules during sign-up
 
 ## Configuration
 
@@ -42,6 +44,9 @@ Once enabled, you can manage user attributes through the admin panel:
     - **Required in Sign Up Form**: Whether users must provide this value during registration
     - **Include in ID Token Body**: Whether this attribute is included in JWT ID token payload
     - **Include in User Info**: Whether this attribute is returned by the user info endpoint
+    - **Unique**: Whether this attribute must have a unique value during registration
+    - **Validation Regex**: Regular expression to validate the attribute value
+    - **Validation Locales**: Multi-language validation notes for the attribute
   
 ![User Attributes](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/images/user_attributes.jpg)
 
@@ -65,6 +70,8 @@ When `includeInSignUpForm` is enabled, user attributes automatically appear in t
 - Labels are localized based on the user's selected locale
 - Required attributes are marked and validated during form submission
 - Attributes are collected alongside standard sign-up data
+- Unique attributes are validated for uniqueness during form submission
+- Validation attributes are validated against the regular expression during form submission
 
 The appropriate label is displayed based on:
 - The user's current locale selection
