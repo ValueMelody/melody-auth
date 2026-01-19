@@ -29,10 +29,6 @@ export interface SignInProps {
   initialProps: InitialProps;
   onVerifyPasskey: () => void;
   onPasswordlessSignIn: (e: Event) => void;
-  getPasskeyOption: () => void;
-  shouldLoadPasskeyInfo: boolean;
-  passkeyOption: false | null | PublicKeyCredentialRequestOptionsJSON;
-  onResetPasskeyInfo: () => void;
   onSubmitError: (error: string) => void;
   params: AuthorizeParams;
   isSubmitting: boolean;
@@ -52,10 +48,6 @@ const SignIn = ({
   initialProps,
   onVerifyPasskey,
   onPasswordlessSignIn,
-  getPasskeyOption,
-  shouldLoadPasskeyInfo,
-  passkeyOption,
-  onResetPasskeyInfo,
   onSubmitError,
   params,
   isSubmitting,
@@ -88,26 +80,14 @@ const SignIn = ({
                 name='email'
                 autoComplete='email'
                 error={errors.email}
-                locked={passkeyOption !== null}
-                onUnlock={onResetPasskeyInfo}
                 onChange={(value) => onChange(
                   'email',
                   value,
                 )}
               />
-
-              {!!passkeyOption && (
-                <PrimaryButton
-                  type='button'
-                  className='mt-2 mb-4'
-                  title={signIn.withPasskey[locale]}
-                  onClick={onVerifyPasskey}
-                  isLoading={isVerifyingPasskey}
-                />
-              )}
             </>
           )}
-          {initialProps.enablePasswordSignIn && !shouldLoadPasskeyInfo && (
+          {initialProps.enablePasswordSignIn && (
             <PasswordField
               label={signIn.password[locale]}
               required
@@ -122,15 +102,7 @@ const SignIn = ({
             />
           )}
           <SubmitError error={submitError} />
-          {shouldLoadPasskeyInfo && (
-            <PrimaryButton
-              type='button'
-              className='mt-4'
-              title={signIn.continue[locale]}
-              onClick={getPasskeyOption}
-            />
-          )}
-          {initialProps.enablePasswordSignIn && !shouldLoadPasskeyInfo && (
+          {initialProps.enablePasswordSignIn && (
             <PrimaryButton
               className='mt-4'
               title={signIn.submit[locale]}
@@ -138,7 +110,7 @@ const SignIn = ({
               isLoading={isSubmitting}
             />
           )}
-          {initialProps.enablePasswordlessSignIn && !shouldLoadPasskeyInfo && (
+          {initialProps.enablePasswordlessSignIn && !initialProps.allowPasskey && (
             <PrimaryButton
               type='button'
               className='mt-4'
@@ -202,18 +174,30 @@ const SignIn = ({
           </section>
         )}
       </form>
-      {(initialProps.enableSignUp || initialProps.allowRecoveryCode || initialProps.enablePasswordReset) && (
+      {(
+        initialProps.enableSignUp ||
+        initialProps.allowRecoveryCode ||
+        initialProps.enablePasswordReset ||
+        initialProps.allowPasskey
+      ) && (
         <section className='flex flex-col gap-2'>
-          {initialProps.enableSignUp && (
+          {initialProps.allowPasskey && (
             <SecondaryButton
-              title={signIn.signUp[locale]}
-              onClick={() => onSwitchView(View.SignUp)}
+              title={signIn.withPasskey[locale]}
+              onClick={onVerifyPasskey}
+              isLoading={isVerifyingPasskey}
             />
           )}
           {initialProps.allowRecoveryCode && (
             <SecondaryButton
               title={signIn.recoveryCode[locale]}
               onClick={() => onSwitchView(View.RecoveryCodeSignIn)}
+            />
+          )}
+          {initialProps.enableSignUp && (
+            <SecondaryButton
+              title={signIn.signUp[locale]}
+              onClick={() => onSwitchView(View.SignUp)}
             />
           )}
           {initialProps.enablePasswordReset && (

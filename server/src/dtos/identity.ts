@@ -222,14 +222,14 @@ export class PostAuthorizePasskeyVerifyDto extends oauthDto.GetAuthorizeDto {
   @IsNotEmpty()
     passkeyInfo: AuthenticationResponseJSON
 
-  @IsEmail()
+  @IsString()
   @IsNotEmpty()
-    email: string
+    challenge: string
 
   constructor (dto: PostAuthorizePasskeyVerifyDto) {
     super(dto)
     this.passkeyInfo = dto.passkeyInfo
-    this.email = dto.email.toLowerCase()
+    this.challenge = dto.challenge
   }
 }
 

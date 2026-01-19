@@ -48,7 +48,7 @@ const Consent = ({
         </section>
       </section>
       <SubmitError error={submitError} />
-      <section class='mt-4 flex gap-8 w-full justify-center'>
+      <section class='mt-4 flex flex gap-8 w-full justify-center'>
         <SecondaryButton
           title={consent.decline[locale]}
           onClick={onDecline}

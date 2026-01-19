@@ -20,6 +20,7 @@ import {
   getSignInRequest,
 } from 'tests/identity'
 import { oauthDto } from 'dtos'
+import { GetAuthorizePasskeyVerifyRes } from 'handlers/identity/passkey'
 
 let db: Database
 
@@ -62,37 +63,26 @@ describe(
   'get /authorize-passkey-verify',
   () => {
     test(
-      'could get passkey verify options by email',
+      'could get passkey verify options',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
 
         await enrollPasskey(db)
 
         const res = await app.request(
-          `${routeConfig.IdentityRoute.AuthorizePasskeyVerify}?email=test@email.com`,
+          `${routeConfig.IdentityRoute.AuthorizePasskeyVerify}`,
           {},
           mock(db),
         )
-        const json = await res.json()
+        const json = await res.json() as GetAuthorizePasskeyVerifyRes
         expect(json).toStrictEqual({
           passkeyOption: {
             rpId: 'localhost',
             timeout: 60000,
             userVerification: 'preferred',
-            challenge: await mockedKV.get(`${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`),
-            allowCredentials: [{
-              id: passkeyEnrollMock.rawId, type: 'public-key',
-            }],
+            challenge: expect.any(String),
           },
         })
-
-        const res1 = await app.request(
-          `${routeConfig.IdentityRoute.AuthorizePasskeyVerify}?email=test1@email.com`,
-          {},
-          mock(db),
-        )
-        const json1 = await res1.json()
-        expect(json1).toStrictEqual({ passkeyOption: null })
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
       },
@@ -106,21 +96,6 @@ describe(
         expect(await res.text()).toBe(messageConfig.ConfigError.PasskeyEnrollmentNotEnabled)
       },
     )
-
-    test(
-      'should throw error if email is not provided',
-      async () => {
-        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
-        const res = await app.request(`${routeConfig.IdentityRoute.AuthorizePasskeyVerify}`)
-        expect(res.status).toBe(400)
-        const json = await res.json() as { constraints: { isEmail: string; isNotEmpty: string } }[]
-        expect(json[0].constraints).toStrictEqual({
-          isEmail: 'email must be an email',
-          isNotEmpty: 'email should not be empty',
-        })
-        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
-      },
-    )
   },
 )
 
@@ -130,16 +105,18 @@ describe(
     const passkeyVerify = async (db: Database) => {
       await enrollPasskey(db)
 
+      const challenge = 'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc'
+
       await mockedKV.put(
-        `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`,
-        'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc',
+        `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-${challenge}`,
+        '1',
       )
 
       const appRecord = await getApp(db)
       const body = {
         ...(await postAuthorizeBody(appRecord)),
-        email: 'test@email.com',
         passkeyInfo: passkeyVerifyMock,
+        challenge,
       }
 
       const res = await app.request(
@@ -160,7 +137,6 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
 
         const res = await passkeyVerify(db)
-
         const json = await res.json()
         expect(json).toStrictEqual({
           code: expect.any(String),
@@ -217,90 +193,32 @@ describe(
     )
 
     test(
-      'should throw error if wrong challenge provided',
-      async () => {
-        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
-
-        await enrollPasskey(db)
-
-        await mockedKV.put(
-          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`,
-          'abc',
-        )
-
-        const appRecord = await getApp(db)
-        const body = {
-          ...(await postAuthorizeBody(appRecord)),
-          email: 'test@email.com',
-          passkeyInfo: passkeyVerifyMock,
-        }
-
-        const res = await app.request(
-          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
-          {
-            method: 'POST', body: JSON.stringify(body),
-          },
-          mock(db),
-        )
-        expect(res.status).toBe(401)
-        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
-
-        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
-      },
-    )
-
-    test(
-      'should throw error if passkey not match',
-      async () => {
-        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
-
-        await enrollPasskey(db)
-
-        await mockedKV.put(
-          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`,
-          'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc',
-        )
-
-        const appRecord = await getApp(db)
-        const body = {
-          ...(await postAuthorizeBody(appRecord)),
-          email: 'test1@email.com',
-          passkeyInfo: passkeyVerifyMock,
-        }
-
-        const res = await app.request(
-          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
-          {
-            method: 'POST', body: JSON.stringify(body),
-          },
-          mock(db),
-        )
-        expect(res.status).toBe(400)
-        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
-
-        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
-      },
-    )
-
-    test(
       'should throw error if passkey not found',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
 
         await enrollPasskey(db)
 
-        await mockedKV.put(
-          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`,
-          'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc',
-        )
-
         await db.prepare('delete from "user_passkey" where "userId" = 1').run()
+
+        const optionRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+          {},
+          mock(db),
+        )
+        const optionJson = await optionRes.json() as GetAuthorizePasskeyVerifyRes
+        const challenge = optionJson.passkeyOption?.challenge
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-${challenge}`,
+          '1',
+        )
 
         const appRecord = await getApp(db)
         const body = {
           ...(await postAuthorizeBody(appRecord)),
-          email: 'test@email.com',
           passkeyInfo: passkeyVerifyMock,
+          challenge,
         }
 
         const res = await app.request(
@@ -324,15 +242,9 @@ describe(
 
         await enrollPasskey(db)
 
-        await mockedKV.put(
-          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`,
-          'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc',
-        )
-
         const appRecord = await getApp(db)
         const body = {
           ...(await postAuthorizeBody(appRecord)),
-          email: 'test@email.com',
           passkeyInfo: {
             ...passkeyVerifyMock,
             response: {
@@ -340,6 +252,7 @@ describe(
               clientDataJSON: '123',
             },
           },
+          challenge: '123',
         }
 
         const res = await app.request(
@@ -359,8 +272,15 @@ describe(
     test(
       'should throw error if feature not allowed',
       async () => {
-        const res = await passkeyVerify(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+          {
+            method: 'POST', body: JSON.stringify({}),
+          },
+          mock(db),
+        )
         expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.PasskeyEnrollmentNotEnabled)
       },
     )
   },

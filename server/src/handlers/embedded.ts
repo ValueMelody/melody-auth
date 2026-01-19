@@ -12,7 +12,6 @@ import {
   userService,
 } from 'services'
 import {
-  baseDto,
   embeddedDto, oauthDto,
 } from 'dtos'
 import {
@@ -796,19 +795,10 @@ export const postPasskeyEnrollDecline = async (c: Context<typeConfig.Context>) =
 }
 
 export const getPasskeyVerify = async (c: Context<typeConfig.Context>) => {
-  const dto = new baseDto.PasskeyVerifyDto({ email: c.req.query('email') ?? '' })
-  await validateUtil.dto(dto)
-
-  const options = await passkeyService.genPasskeyVerifyOptions(
-    c,
-    dto.email,
-  )
-
-  if (!options) return c.json({ passkeyOption: null })
+  const options = await passkeyService.genPasskeyVerifyOptions(c)
 
   await kvService.setPasskeyVerifyChallenge(
     c.env.KV,
-    dto.email,
     options.challenge,
   )
 
@@ -831,8 +821,8 @@ export const postPasskeyVerify = async (c: Context<typeConfig.Context>) => {
     user, newCounter, passkeyId,
   } = await passkeyService.processPasskeyVerify(
     c,
-    bodyDto.email,
     bodyDto.passkeyInfo,
+    bodyDto.challenge,
   )
 
   await passkeyService.updatePasskeyCounter(

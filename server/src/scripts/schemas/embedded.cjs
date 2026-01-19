@@ -551,9 +551,11 @@ const PostPasskeyVerifyReq = {
         },
       },
     },
-    email: { type: 'string' },
+    challenge: {
+      type: 'string', description: 'The challenge value read from the response of Get passkey verify options',
+    },
   },
-  required: ['passkeyInfo', 'email'],
+  required: ['passkeyInfo', 'challenge'],
 }
 
 const UserOrgsRes = {

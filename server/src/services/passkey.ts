@@ -52,26 +52,6 @@ export const getPasskeyByUser = async (
   return passkey
 }
 
-const getUserAndPasskeyByEmail = async (
-  c: Context<typeConfig.Context>,
-  email: string,
-) => {
-  const user = await userModel.getNormalUserByEmail(
-    c.env.DB,
-    email,
-  )
-  if (!user) return null
-
-  const passkey = await userPasskeyModel.getByUser(
-    c.env.DB,
-    user.id,
-  )
-  if (!passkey) return null
-  return {
-    user, passkey,
-  }
-}
-
 export const updatePasskeyCounter = async (
   c: Context<typeConfig.Context>,
   passkeyId: number,
@@ -125,21 +105,8 @@ export const genPasskeyEnrollOptions = async (
   return registrationOptions
 }
 
-export const genPasskeyVerifyOptions = async (
-  c: Context<typeConfig.Context>,
-  email: string,
-) => {
-  const userAndPasskey = await getUserAndPasskeyByEmail(
-    c,
-    email,
-  )
-
-  if (!userAndPasskey) return null
-
-  const options = await generateAuthenticationOptions({
-    rpID: cryptoUtil.getPasskeyRpId(c),
-    allowCredentials: [{ id: userAndPasskey.passkey.credentialId }],
-  })
+export const genPasskeyVerifyOptions = async (c: Context<typeConfig.Context>) => {
+  const options = await generateAuthenticationOptions({ rpID: cryptoUtil.getPasskeyRpId(c) })
 
   return options
 }
@@ -207,27 +174,31 @@ export const processPasskeyEnroll = async (
 
 export const processPasskeyVerify = async (
   c: Context<typeConfig.Context>,
-  email: string,
   passkeyInfo: AuthenticationResponseJSON,
+  challenge: string,
 ) => {
-  const challenge = await kvService.getPasskeyVerifyChallenge(
+  const isValidChallenge = await kvService.getPasskeyVerifyChallenge(
     c.env.KV,
-    email,
+    challenge,
   )
-  if (!challenge) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.InvalidPasskeyVerifyRequest,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
+
+  if (!isValidChallenge) {
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
   }
 
-  const userAndPasskey = await getUserAndPasskeyByEmail(
-    c,
-    email,
+  const passkey = await userPasskeyModel.getByCredentialId(
+    c.env.DB,
+    passkeyInfo.rawId,
   )
-  if (!userAndPasskey) {
+
+  const user = passkey?.userId
+    ? await userModel.getById(
+      c.env.DB,
+      passkey.userId,
+    )
+    : null
+
+  if (!passkey || !user) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -235,9 +206,6 @@ export const processPasskeyVerify = async (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
   }
-  const {
-    user, passkey,
-  } = userAndPasskey
 
   const {
     AUTH_SERVER_URL: authServerUrl, EMBEDDED_AUTH_ORIGINS: embeddedAuthOrigins,
