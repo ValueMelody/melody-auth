@@ -14,6 +14,7 @@ import { InitialProps } from './useInitialProps'
 import usePasskeyVerifyForm from 'pages/hooks/usePasskeyVerifyForm'
 import { routeConfig } from 'configs'
 import * as requestModule from 'pages/tools/request'
+import { AuthorizeParams } from 'pages/tools/param'
 
 // Mock hooks from hono/jsx.
 vi.mock(
@@ -48,7 +49,7 @@ describe(
       codeChallengeMethod: 'S256',
       org: 'test-org',
       scope: 'openid profile',
-    }
+    } as AuthorizeParams
 
     const createInitialProps = (allowPasskey: boolean): InitialProps => ({
       locales: ['en'],
