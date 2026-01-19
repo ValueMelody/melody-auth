@@ -37,17 +37,14 @@ const SignIn = ({
   })
 
   const {
-    passkeyOption,
-    handleResetPasskeyInfo,
-    getPasskeyOption,
     handleVerifyPasskey,
     isVerifyingPasskey,
   } = usePasskeyVerifyForm({
     params,
-    email: values.email,
     locale,
     onSubmitError: handleSubmitError,
     onSwitchView,
+    initialProps,
   })
 
   const { appBanners } = useAppBanners({
@@ -55,12 +52,8 @@ const SignIn = ({
     params,
   })
 
-  const shouldLoadPasskeyInfo = initialProps.allowPasskey && passkeyOption === null
-
   return (
     <SignInBlock
-      passkeyOption={passkeyOption}
-      onResetPasskeyInfo={handleResetPasskeyInfo}
       onSubmitError={handleSubmitError}
       params={params}
       locale={locale}
@@ -73,8 +66,6 @@ const SignIn = ({
       initialProps={initialProps}
       onVerifyPasskey={handleVerifyPasskey}
       onPasswordlessSignIn={handlePasswordlessSignIn}
-      getPasskeyOption={getPasskeyOption}
-      shouldLoadPasskeyInfo={shouldLoadPasskeyInfo}
       isSubmitting={isSubmitting}
       isVerifyingPasskey={isVerifyingPasskey}
       isPasswordlessSigningIn={isPasswordlessSigningIn}

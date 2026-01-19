@@ -1,25 +1,29 @@
 import {
-  expect, test, vi,
+  describe, expect, test, vi, afterEach,
+  Mock,
 } from 'vitest'
 import * as React from 'react'
 import {
-  renderHook, act,
+  renderHook, act, waitFor,
 } from '@testing-library/react'
 
-import {
-  AuthenticationResponseJSON, startAuthentication,
-} from '@simplewebauthn/browser'
+import { startAuthentication } from '@simplewebauthn/browser'
+import { AuthenticationResponseJSON } from '@simplewebauthn/server'
 import { View } from './useCurrentView'
+import { InitialProps } from './useInitialProps'
 import usePasskeyVerifyForm from 'pages/hooks/usePasskeyVerifyForm'
-import { typeConfig } from 'configs'
+import { routeConfig } from 'configs'
 import * as requestModule from 'pages/tools/request'
+import { AuthorizeParams } from 'pages/tools/param'
 
 // Mock hooks from hono/jsx.
 vi.mock(
   'hono/jsx',
   () => ({
     useCallback: React.useCallback,
+    useMemo: React.useMemo,
     useState: React.useState,
+    useEffect: React.useEffect,
   }),
 )
 
@@ -28,412 +32,524 @@ vi.mock(
   () => ({ startAuthentication: vi.fn() }),
 )
 
-// A dummy params object for testing.
-const dummyParams = {} as any
-
-test(
-  'returns initial state with null passkeyOption',
+describe(
+  'usePasskeyVerifyForm hook',
   () => {
+    const locale = 'en'
     const onSubmitError = vi.fn()
     const onSwitchView = vi.fn()
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params: dummyParams,
-      }))
+    const params = {
+      locale: 'en' as const,
+      clientId: 'test-client',
+      redirectUri: 'http://redirect.test',
+      responseType: 'code',
+      state: 'test-state',
+      policy: 'sign_in_or_sign_up' as const,
+      codeChallenge: 'test-challenge',
+      codeChallengeMethod: 'S256',
+      org: 'test-org',
+      scope: 'openid profile',
+    } as AuthorizeParams
 
-    expect(result.current.passkeyOption).toBeNull()
-    expect(typeof result.current.getPasskeyOption).toBe('function')
-    expect(typeof result.current.handleVerifyPasskey).toBe('function')
-  },
-)
+    const createInitialProps = (allowPasskey: boolean): InitialProps => ({
+      locales: ['en'],
+      logoUrl: '',
+      enableLocaleSelector: false,
+      enableSignUp: true,
+      enablePasswordReset: true,
+      enablePasswordSignIn: true,
+      enablePasswordlessSignIn: false,
+      enableMfaRememberDevice: false,
+      enableNames: false,
+      allowPasskey,
+      allowRecoveryCode: false,
+      namesIsRequired: false,
+      appName: 'Test App',
+      termsLink: '',
+      privacyPolicyLink: '',
+      googleClientId: '',
+      facebookClientId: '',
+      githubClientId: '',
+      discordClientId: '',
+      appleClientId: '',
+      oidcProviders: [],
+      enableUserAttribute: false,
+      enableAppBanner: false,
+    })
 
-test(
-  'getPasskeyOption calls onSubmitError if email validation fails',
-  async () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    // Pass an empty email to trigger validation error via emailField.
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: '',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params: dummyParams,
-      }))
-    const fetchSpy = vi.spyOn(
-      global,
-      'fetch',
+    afterEach(() => {
+      vi.resetAllMocks()
+    })
+
+    test(
+      'should return initial state correctly',
+      () => {
+        const { result } = renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(false),
+          }))
+
+        expect(result.current.isVerifyingPasskey).toBe(false)
+        expect(typeof result.current.handleVerifyPasskey).toBe('function')
+      },
     )
 
-    await act(async () => {
-      await result.current.getPasskeyOption()
-    })
+    test(
+      'should not fetch passkey options if allowPasskey is false',
+      async () => {
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        )
 
-    expect(onSubmitError).toHaveBeenCalled() // with error string from validation
-    expect(fetchSpy).not.toHaveBeenCalled()
-    fetchSpy.mockRestore()
-  },
-)
+        renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(false),
+          }))
 
-test(
-  'getPasskeyOption sets passkeyOption when response contains passkeyOption',
-  async () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params: dummyParams,
-      }))
-    const fakePasskeyOption = {
-      challenge: 'test-challenge', allowCredentials: [{ id: 'test-id' }],
-    }
-    const fakeResponse = {
-      ok: true, json: async () => ({ passkeyOption: fakePasskeyOption }),
-    }
-    const fetchSpy = vi.spyOn(
-      global,
-      'fetch',
-    ).mockResolvedValue(fakeResponse as Response)
+        await act(async () => {
+          await Promise.resolve()
+        })
 
-    await act(async () => {
-      await result.current.getPasskeyOption()
-    })
-
-    expect(result.current.passkeyOption).toEqual(fakePasskeyOption)
-    fetchSpy.mockRestore()
-  },
-)
-
-test(
-  'getPasskeyOption sets passkeyOption to false when response has no passkeyOption',
-  async () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params: dummyParams,
-      }))
-    const fakeResponse = {
-      ok: true, json: async () => ({}),
-    }
-    const fetchSpy = vi.spyOn(
-      global,
-      'fetch',
-    ).mockResolvedValue(fakeResponse as Response)
-
-    await act(async () => {
-      await result.current.getPasskeyOption()
-    })
-
-    expect(result.current.passkeyOption).toBe(false)
-    fetchSpy.mockRestore()
-  },
-)
-
-test(
-  'getPasskeyOption calls onSubmitError on fetch failure',
-  async () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params: dummyParams,
-      }))
-    const error = new Error('Network error')
-    const fetchSpy = vi.spyOn(
-      global,
-      'fetch',
-    ).mockRejectedValue(error)
-
-    await act(async () => {
-      await result.current.getPasskeyOption()
-    })
-
-    expect(onSubmitError).toHaveBeenCalledWith(error)
-    fetchSpy.mockRestore()
-  },
-)
-
-test(
-  'handleVerifyPasskey does nothing when passkeyOption is falsy',
-  () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params: dummyParams,
-      }))
-
-    // Ensure passkeyOption is still null.
-    expect(result.current.passkeyOption).toBeNull()
-
-    act(() => {
-      result.current.handleVerifyPasskey()
-    })
-
-    expect(startAuthentication).not.toHaveBeenCalled()
-  },
-)
-
-test(
-  'handleVerifyPasskey submits passkey when credentials.get succeeds',
-  async () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    // Set up a dummy params object if needed by submitPasskey.
-    const params = { dummy: 'value' } as any
-
-  // Set up a simple converter.
-  ;(window as any).SimpleWebAuthnBrowser = { base64URLStringToBuffer: (str: string) => str }
-
-    const fakePasskeyOption = {
-      challenge: 'test-challenge', allowCredentials: [{ id: 'test-id' }],
-    }
-    // Simulate GET response in getPasskeyOption.
-    const fakeGetResponse = {
-      ok: true, json: async () => ({ passkeyOption: fakePasskeyOption }),
-    }
-    const fetchSpy = vi.spyOn(
-      global,
-      'fetch',
-    ).mockResolvedValueOnce(fakeGetResponse as Response)
-
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params,
-      }))
-
-    // Set the passkeyOption state.
-    await act(async () => {
-      await result.current.getPasskeyOption()
-    })
-    expect(result.current.passkeyOption).toEqual(fakePasskeyOption)
-
-    // Override navigator.credentials.get to resolve with a fake Credential.
-    const fakeCredential = { id: 'fake-credential' }
-    const verifyModule = await import('@simplewebauthn/browser')
-    const verifyMock = vi.spyOn(
-      verifyModule,
-      'startAuthentication',
-    ).mockResolvedValue(fakeCredential as unknown as AuthenticationResponseJSON)
-
-    // Simulate the POST fetch inside submitPasskey.
-    const fakePostResponse = {
-      ok: true, json: async () => ({}),
-    }
-    // This will be used for the POST call.
-    fetchSpy.mockResolvedValueOnce(fakePostResponse as Response)
-
-    // Override handleAuthorizeStep to simulate a successful switch.
-    const handleAuthorizeSpy = vi
-      .spyOn(
-        requestModule,
-        'handleAuthorizeStep',
-      )
-      .mockImplementation((
-        response, locale, onSwitchView,
-      ) => {
-        onSwitchView(View.Consent)
-      })
-
-    await act(async () => {
-      result.current.handleVerifyPasskey()
-      await Promise.resolve()
-    })
-
-    // Check that navigator.credentials.get was called with proper parameters.
-    expect(verifyMock).toHaveBeenCalledWith({
-      optionsJSON: {
-        challenge: fakePasskeyOption.challenge,
-        allowCredentials: [{ id: fakePasskeyOption.allowCredentials[0].id }],
+        expect(fetchSpy).not.toHaveBeenCalled()
+        fetchSpy.mockRestore()
       },
-    })
+    )
 
-    // Expect that the POST fetch was triggered (total two calls: one for GET and one for POST).
-    expect(fetchSpy).toHaveBeenCalledTimes(2)
-    expect(handleAuthorizeSpy).toHaveBeenCalled()
-    expect(onSwitchView).toHaveBeenCalledWith(View.Consent)
+    test(
+      'should fetch passkey options if allowPasskey is true',
+      async () => {
+        const fakePasskeyOption = {
+          challenge: 'test-challenge',
+          rpId: 'test-rp',
+        }
+        const fakeResponse = {
+          ok: true,
+          json: async () => ({ passkeyOption: fakePasskeyOption }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
 
-    verifyMock.mockRestore()
-    fetchSpy.mockRestore()
-    handleAuthorizeSpy.mockRestore()
-  },
-)
+        renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(true),
+          }))
 
-test(
-  'handleVerifyPasskey calls onSubmitError when navigator.credentials.get fails',
-  async () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params: dummyParams,
-      }))
+        await act(async () => {
+          await Promise.resolve()
+        })
 
-  // Set up SimpleWebAuthnBrowser.
-  ;(window as any).SimpleWebAuthnBrowser = { base64URLStringToBuffer: (str: string) => str }
+        expect(fetchSpy).toHaveBeenCalledWith(routeConfig.IdentityRoute.AuthorizePasskeyVerify)
+        fetchSpy.mockRestore()
+      },
+    )
 
-    const fakePasskeyOption = {
-      challenge: 'test-challenge', allowCredentials: [{ id: 'test-id' }],
-    }
-    const fakeGetResponse = {
-      ok: true, json: async () => ({ passkeyOption: fakePasskeyOption }),
-    }
-    const fetchSpy = vi.spyOn(
-      global,
-      'fetch',
-    ).mockResolvedValueOnce(fakeGetResponse as Response)
+    test(
+      'should call onSubmitError when fetching passkey options fails',
+      async () => {
+        const error = new Error('Fetch failed')
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValue(error)
 
-    await act(async () => {
-      await result.current.getPasskeyOption()
-    })
-    expect(result.current.passkeyOption).toEqual(fakePasskeyOption)
+        renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(true),
+          }))
 
-    const error = new Error('Credential error')
-    const verifyModule = await import('@simplewebauthn/browser')
-    const verifyMock = vi.spyOn(
-      verifyModule,
-      'startAuthentication',
-    ).mockRejectedValue(error)
+        await act(async () => {
+          await Promise.resolve()
+        })
 
-    await act(async () => {
-      result.current.handleVerifyPasskey()
-      await Promise.resolve()
-    })
+        await waitFor(() => {
+          expect(onSubmitError).toHaveBeenCalledWith(error)
+        })
+        fetchSpy.mockRestore()
+      },
+    )
 
-    expect(onSubmitError).toHaveBeenCalledWith(error)
-    verifyMock.mockRestore()
-    fetchSpy.mockRestore()
-  },
-)
+    test(
+      'should set passkeyOption to false if response does not contain passkeyOption',
+      async () => {
+        const fakeResponse = {
+          ok: true,
+          json: async () => ({}),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
 
-test(
-  'submitPasskey (via handleVerifyPasskey) calls onSubmitError when POST fetch fails',
-  async () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    const params = {} as any
+        const { result } = renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(true),
+          }))
 
-  ;(window as any).SimpleWebAuthnBrowser = { base64URLStringToBuffer: (str: string) => str }
+        await act(async () => {
+          await Promise.resolve()
+        })
 
-    const fakePasskeyOption = {
-      challenge: 'test-challenge', allowCredentials: [{ id: 'test-id' }],
-    }
-    const fakeGetResponse = {
-      ok: true, json: async () => ({ passkeyOption: fakePasskeyOption }),
-    }
-    const fetchSpy = vi.spyOn(
-      global,
-      'fetch',
-    ).mockResolvedValueOnce(fakeGetResponse as Response)
+        // handleVerifyPasskey should return early since passkeyOption is false
+        act(() => {
+          result.current.handleVerifyPasskey()
+        })
 
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params,
-      }))
+        expect(startAuthentication).not.toHaveBeenCalled()
+        fetchSpy.mockRestore()
+      },
+    )
 
-    await act(async () => {
-      await result.current.getPasskeyOption()
-    })
-    expect(result.current.passkeyOption).toEqual(fakePasskeyOption)
+    test(
+      'handleVerifyPasskey does nothing if passkeyOption is null',
+      () => {
+        const { result } = renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(false),
+          }))
 
-    // Override navigator.credentials.get to resolve successfully.
-    const fakeCredential = { id: 'fake-credential' }
-    const verifyModule = await import('@simplewebauthn/browser')
-    const verifyMock = vi.spyOn(
-      verifyModule,
-      'startAuthentication',
-    ).mockResolvedValue(fakeCredential as unknown as AuthenticationResponseJSON)
+        act(() => {
+          result.current.handleVerifyPasskey()
+        })
 
-    const postError = new Error('POST fetch error')
-    // Simulate POST fetch failure.
-    fetchSpy.mockResolvedValueOnce(Promise.reject(postError) as any)
+        expect(startAuthentication).not.toHaveBeenCalled()
+      },
+    )
 
-    await act(async () => {
-      result.current.handleVerifyPasskey()
-      await Promise.resolve()
-    })
+    test(
+      'handleVerifyPasskey calls startAuthentication and submitPasskey on success',
+      async () => {
+        const fakePasskeyOption = {
+          challenge: 'test-challenge',
+          rpId: 'test-rp',
+        }
+        const fakeGetResponse = {
+          ok: true,
+          json: async () => ({ passkeyOption: fakePasskeyOption }),
+        }
+        const fetchSpyGet = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValueOnce(fakeGetResponse as Response)
 
-    expect(onSubmitError).toHaveBeenCalledWith(postError)
-    verifyMock.mockRestore()
-    fetchSpy.mockRestore()
-  },
-)
+        const { result } = renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(true),
+          }))
 
-test(
-  'handleResetPasskeyInfo resets the passkeyOption to null',
-  async () => {
-    const onSubmitError = vi.fn()
-    const onSwitchView = vi.fn()
-    // Using the already declared dummyParams from earlier in the file.
-    const dummyPasskeyOption = {
-      challenge: 'dummy-challenge',
-      allowCredentials: [{ id: 'dummy-id' }],
-    }
-    const fakeResponse = {
-      ok: true,
-      json: async () => ({ passkeyOption: dummyPasskeyOption }),
-    }
-    const fetchSpy = vi.spyOn(
-      global,
-      'fetch',
-    ).mockResolvedValue(fakeResponse as Response)
+        await act(async () => {
+          await Promise.resolve()
+        })
+        fetchSpyGet.mockRestore()
 
-    const { result } = renderHook(() =>
-      usePasskeyVerifyForm({
-        email: 'user@example.com',
-        locale: 'en' as typeConfig.Locale,
-        onSubmitError,
-        onSwitchView,
-        params: dummyParams,
-      }))
+        // Mock startAuthentication to return a credential
+        const fakeCredential = { id: 'passkey-credential-123' }
+        ;(startAuthentication as Mock).mockResolvedValueOnce(fakeCredential)
 
-    await act(async () => {
-      await result.current.getPasskeyOption()
-    })
-    // Ensure the passkeyOption has been set to our dummy value.
-    expect(result.current.passkeyOption).toEqual(dummyPasskeyOption)
+        // Mock the POST request
+        const fakePostResponse = {
+          ok: true,
+          json: async () => ({ nextPage: View.Consent }),
+        }
+        const fetchSpyPost = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValueOnce(fakePostResponse as Response)
 
-    // Call handleResetPasskeyInfo to reset the passkeyOption.
-    act(() => {
-      result.current.handleResetPasskeyInfo()
-    })
-    // Verify that passkeyOption is now reset to null.
-    expect(result.current.passkeyOption).toBeNull()
+        // Spy on handleAuthorizeStep
+        const handleAuthorizeSpy = vi.spyOn(
+          requestModule,
+          'handleAuthorizeStep',
+        ).mockImplementation((
+          response, locale, onSwitchViewFn,
+        ) => {
+          onSwitchViewFn(View.Consent)
+        })
 
-    fetchSpy.mockRestore()
+        await act(async () => {
+          result.current.handleVerifyPasskey()
+          await Promise.resolve()
+        })
+
+        expect(startAuthentication).toHaveBeenCalledWith({ optionsJSON: fakePasskeyOption })
+        expect(fetchSpyPost).toHaveBeenCalledWith(
+          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+          expect.objectContaining({
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: expect.any(String),
+          }),
+        )
+
+        // Verify body contains expected values
+        const callArgs = fetchSpyPost.mock.calls[0]
+        const body = JSON.parse((callArgs[1] as RequestInit).body as string)
+        expect(body.passkeyInfo).toEqual(fakeCredential)
+        expect(body.challenge).toBe('test-challenge')
+        expect(body.clientId).toBe(params.clientId)
+        expect(body.redirectUri).toBe(params.redirectUri)
+
+        expect(onSwitchView).toHaveBeenCalledWith(View.Consent)
+
+        fetchSpyPost.mockRestore()
+        handleAuthorizeSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handleVerifyPasskey does not continue if startAuthentication returns undefined',
+      async () => {
+        const fakePasskeyOption = {
+          challenge: 'test-challenge',
+          rpId: 'test-rp',
+        }
+        const fakeGetResponse = {
+          ok: true,
+          json: async () => ({ passkeyOption: fakePasskeyOption }),
+        }
+        const fetchSpyGet = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValueOnce(fakeGetResponse as Response)
+
+        const { result } = renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(true),
+          }))
+
+        await act(async () => {
+          await Promise.resolve()
+        })
+        fetchSpyGet.mockRestore()
+
+        // Mock startAuthentication to return undefined
+        ;(startAuthentication as Mock).mockResolvedValueOnce(null)
+
+        const fetchSpyPost = vi.spyOn(
+          global,
+          'fetch',
+        )
+
+        await act(async () => {
+          result.current.handleVerifyPasskey()
+          await Promise.resolve()
+        })
+
+        // POST should not be called since startAuthentication returned null
+        expect(fetchSpyPost).not.toHaveBeenCalled()
+        fetchSpyPost.mockRestore()
+      },
+    )
+
+    test(
+      'handleVerifyPasskey calls onSubmitError when startAuthentication fails',
+      async () => {
+        const fakePasskeyOption = {
+          challenge: 'test-challenge',
+          rpId: 'test-rp',
+        }
+        const fakeGetResponse = {
+          ok: true,
+          json: async () => ({ passkeyOption: fakePasskeyOption }),
+        }
+        const fetchSpyGet = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValueOnce(fakeGetResponse as Response)
+
+        const { result } = renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(true),
+          }))
+
+        await act(async () => {
+          await Promise.resolve()
+        })
+        fetchSpyGet.mockRestore()
+
+        // Mock startAuthentication to throw an error
+        const error = new Error('Authentication failed')
+        ;(startAuthentication as Mock).mockRejectedValueOnce(error)
+
+        await act(async () => {
+          result.current.handleVerifyPasskey()
+          await Promise.resolve()
+        })
+
+        await waitFor(() => {
+          expect(onSubmitError).toHaveBeenCalledWith(error)
+        })
+      },
+    )
+
+    test(
+      'handleVerifyPasskey calls onSubmitError when submitPasskey fails',
+      async () => {
+        const fakePasskeyOption = {
+          challenge: 'test-challenge',
+          rpId: 'test-rp',
+        }
+        const fakeGetResponse = {
+          ok: true,
+          json: async () => ({ passkeyOption: fakePasskeyOption }),
+        }
+        const fetchSpyGet = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValueOnce(fakeGetResponse as Response)
+
+        const { result } = renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(true),
+          }))
+
+        await act(async () => {
+          await Promise.resolve()
+        })
+        fetchSpyGet.mockRestore()
+
+        // Mock startAuthentication to return a credential
+        const fakeCredential = { id: 'passkey-credential-123' }
+        ;(startAuthentication as Mock).mockResolvedValueOnce(fakeCredential)
+
+        // Mock POST to fail
+        const error = new Error('Submit failed')
+        const fetchSpyPost = vi.spyOn(
+          global,
+          'fetch',
+        ).mockRejectedValueOnce(error)
+
+        await act(async () => {
+          result.current.handleVerifyPasskey()
+          await Promise.resolve()
+        })
+
+        await waitFor(() => {
+          expect(onSubmitError).toHaveBeenCalledWith(error)
+        })
+        expect(onSwitchView).not.toHaveBeenCalled()
+
+        fetchSpyPost.mockRestore()
+      },
+    )
+
+    test(
+      'isVerifyingPasskey is set to true during verification and false after',
+      async () => {
+        const fakePasskeyOption = {
+          challenge: 'test-challenge',
+          rpId: 'test-rp',
+        }
+        const fakeGetResponse = {
+          ok: true,
+          json: async () => ({ passkeyOption: fakePasskeyOption }),
+        }
+        const fetchSpyGet = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValueOnce(fakeGetResponse as Response)
+
+        const { result } = renderHook(() =>
+          usePasskeyVerifyForm({
+            locale,
+            onSubmitError,
+            onSwitchView,
+            params,
+            initialProps: createInitialProps(true),
+          }))
+
+        await act(async () => {
+          await Promise.resolve()
+        })
+        fetchSpyGet.mockRestore()
+
+        // Create a deferred promise to control timing
+        let resolveAuth: (value: AuthenticationResponseJSON) => void
+        const authPromise = new Promise<AuthenticationResponseJSON>((resolve) => {
+          resolveAuth = resolve
+        })
+        ;(startAuthentication as Mock).mockReturnValueOnce(authPromise)
+
+        const fakePostResponse = {
+          ok: true,
+          json: async () => ({ nextPage: View.Consent }),
+        }
+        const fetchSpyPost = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValueOnce(fakePostResponse as Response)
+
+        vi.spyOn(
+          requestModule,
+          'handleAuthorizeStep',
+        ).mockImplementation(() => {})
+
+        // Start verification
+        act(() => {
+          result.current.handleVerifyPasskey()
+        })
+
+        // Should be verifying now
+        expect(result.current.isVerifyingPasskey).toBe(true)
+
+        // Resolve authentication
+        await act(async () => {
+          resolveAuth!({ id: 'credential' } as unknown as AuthenticationResponseJSON)
+          await Promise.resolve()
+        })
+
+        // Should be done verifying
+        await waitFor(() => {
+          expect(result.current.isVerifyingPasskey).toBe(false)
+        })
+
+        fetchSpyPost.mockRestore()
+      },
+    )
   },
 )

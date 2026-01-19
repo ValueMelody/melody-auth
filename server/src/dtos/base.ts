@@ -58,16 +58,6 @@ export class ResetPasswordDto {
   }
 }
 
-export class PasskeyVerifyDto {
-  @IsEmail()
-  @IsNotEmpty()
-    email: string
-
-  constructor (dto: PasskeyVerifyDto) {
-    this.email = dto.email.toLowerCase()
-  }
-}
-
 export class GetAppBannersDto {
   @IsString()
   @IsNotEmpty()

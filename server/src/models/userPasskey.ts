@@ -53,6 +53,16 @@ export const getByUser = async (
   return passkey ?? null
 }
 
+export const getByCredentialId = async (
+  db: D1Database, credentialId: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "credentialId" = $1 AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query)
+    .bind(credentialId)
+  const passkey = await stmt.first() as Record | null
+  return passkey ?? null
+}
+
 export const update = async (
   db: D1Database, id: number, update: Update,
 ): Promise<boolean> => {

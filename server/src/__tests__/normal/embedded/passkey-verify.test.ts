@@ -8,7 +8,6 @@ import app from 'index'
 import {
   migrate, mock,
   mockedKV,
-  passkeyEnrollMock,
   passkeyVerifyMock,
 } from 'tests/mock'
 import {
@@ -92,7 +91,7 @@ describe(
           `${routeConfig.EmbeddedRoute.PasskeyVerify.replace(
             ':sessionId',
             sessionId,
-          )}?email=test@email.com`,
+          )}`,
           {},
           mock(db),
         )
@@ -103,23 +102,9 @@ describe(
             rpId: 'localhost',
             timeout: 60000,
             userVerification: 'preferred',
-            challenge: await mockedKV.get(`${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`),
-            allowCredentials: [{
-              id: passkeyEnrollMock.rawId, type: 'public-key',
-            }],
+            challenge: expect.any(String),
           },
         })
-
-        const res1 = await app.request(
-          `${routeConfig.EmbeddedRoute.PasskeyVerify.replace(
-            ':sessionId',
-            sessionId,
-          )}?email=test1@email.com`,
-          {},
-          mock(db),
-        )
-        const json1 = await res1.json()
-        expect(json1).toStrictEqual({ passkeyOption: null })
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
@@ -137,41 +122,13 @@ describe(
           `${routeConfig.EmbeddedRoute.PasskeyVerify.replace(
             ':sessionId',
             sessionId,
-          )}?email=test@email.com`,
+          )}`,
           {},
           mock(db),
         )
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.ConfigError.PasskeyEnrollmentNotEnabled)
 
-        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
-      },
-    )
-
-    test(
-      'should throw error if email is not provided',
-      async () => {
-        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
-        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
-
-        const { sessionId } = await sendInitialRequest(db)
-
-        const res = await app.request(
-          `${routeConfig.EmbeddedRoute.PasskeyVerify.replace(
-            ':sessionId',
-            sessionId,
-          )}`,
-          {},
-          mock(db),
-        )
-        expect(res.status).toBe(400)
-        const json = await res.json() as { constraints: { isEmail: string; isNotEmpty: string } }[]
-        expect(json[0].constraints).toStrictEqual({
-          isEmail: 'email must be an email',
-          isNotEmpty: 'email should not be empty',
-        })
-
-        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
     )
@@ -195,9 +152,11 @@ describe(
 
         const { sessionId } = await sendInitialRequest(db)
 
+        const challenge = 'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc'
+
         await mockedKV.put(
-          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`,
-          'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc',
+          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-${challenge}`,
+          '1',
         )
 
         const res = await app.request(
@@ -208,7 +167,7 @@ describe(
           {
             method: 'POST',
             body: JSON.stringify({
-              email: 'test@email.com',
+              challenge,
               passkeyInfo: passkeyVerifyMock,
             }),
           },
@@ -242,9 +201,11 @@ describe(
 
         const { sessionId } = await sendInitialRequest(db)
 
+        const challenge = 'abc'
+
         await mockedKV.put(
-          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-test@email.com`,
-          'abc',
+          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-${challenge}`,
+          '1',
         )
 
         const res = await app.request(
@@ -255,8 +216,8 @@ describe(
           {
             method: 'POST',
             body: JSON.stringify({
-              email: 'test@email.com',
               passkeyInfo: passkeyVerifyMock,
+              challenge,
             }),
           },
           mock(db),

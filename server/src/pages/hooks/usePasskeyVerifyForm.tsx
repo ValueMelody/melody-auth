@@ -1,9 +1,9 @@
 import {
-  useCallback, useState,
+  useCallback, useState, useEffect,
 } from 'hono/jsx'
-import { object } from 'yup'
 import { startAuthentication } from '@simplewebauthn/browser'
 import { View } from './useCurrentView'
+import { InitialProps } from './useInitialProps'
 import {
   routeConfig, typeConfig,
 } from 'configs'
@@ -11,45 +11,31 @@ import {
   handleAuthorizeStep, parseAuthorizeBaseValues,
   parseResponse,
 } from 'pages/tools/request'
-import {
-  validate, emailField,
-} from 'pages/tools/form'
 import { AuthorizeParams } from 'pages/tools/param'
 import { GetAuthorizePasskeyVerifyRes } from 'handlers/identity/passkey'
 
 export interface UsePasskeyVerifyFormProps {
-  email: string;
   locale: typeConfig.Locale;
   onSubmitError: (error: string | null) => void;
   onSwitchView: (view: View) => void;
   params: AuthorizeParams;
+  initialProps: InitialProps;
 }
 
 const usePasskeyVerifyForm = ({
-  email,
   locale,
   onSubmitError,
   onSwitchView,
   params,
+  initialProps,
 }: UsePasskeyVerifyFormProps) => {
   const [passkeyOption, setPasskeyOption] = useState<GetAuthorizePasskeyVerifyRes['passkeyOption'] | null | false>(null)
 
   const [isVerifyingPasskey, setIsVerifyingPasskey] = useState(false)
 
-  const signInSchema = object({ email: emailField(locale) })
-
-  const errors = validate(
-    signInSchema,
-    { email },
-  )
-
   const getPasskeyOption = useCallback(
     async () => {
-      if (errors.email) {
-        return onSubmitError(errors.email)
-      }
-
-      fetch(`${routeConfig.IdentityRoute.AuthorizePasskeyVerify}?email=${email}`)
+      fetch(`${routeConfig.IdentityRoute.AuthorizePasskeyVerify}`)
         .then(parseResponse)
         .then((response) => {
           if ((response as GetAuthorizePasskeyVerifyRes).passkeyOption) {
@@ -62,7 +48,16 @@ const usePasskeyVerifyForm = ({
           onSubmitError(error)
         })
     },
-    [email, onSubmitError, errors.email],
+    [onSubmitError],
+  )
+
+  useEffect(
+    () => {
+      if (initialProps.allowPasskey) {
+        getPasskeyOption()
+      }
+    },
+    [initialProps.allowPasskey, getPasskeyOption],
   )
 
   const submitPasskey = useCallback(
@@ -81,7 +76,7 @@ const usePasskeyVerifyForm = ({
               locale,
             ),
             passkeyInfo: res,
-            email,
+            challenge: passkeyOption ? passkeyOption.challenge : '',
           }),
         },
       )
@@ -97,7 +92,7 @@ const usePasskeyVerifyForm = ({
           onSubmitError(error)
         })
     },
-    [email, onSubmitError, params, locale, onSwitchView],
+    [onSubmitError, params, locale, onSwitchView, passkeyOption],
   )
 
   const handleVerifyPasskey = useCallback(
@@ -124,19 +119,9 @@ const usePasskeyVerifyForm = ({
     [passkeyOption, onSubmitError, submitPasskey],
   )
 
-  const handleResetPasskeyInfo = useCallback(
-    () => {
-      setPasskeyOption(null)
-    },
-    [],
-  )
-
   return {
-    passkeyOption,
-    getPasskeyOption,
     handleVerifyPasskey,
     isVerifyingPasskey,
-    handleResetPasskeyInfo,
   }
 }
 

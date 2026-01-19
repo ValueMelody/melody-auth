@@ -6,7 +6,6 @@ import {
   IsString,
   Length,
   IsOptional,
-  IsEmail,
   IsBoolean,
 } from 'class-validator'
 import * as baseDto from 'dtos/base'
@@ -181,13 +180,13 @@ export class PostPasskeyVerifyDto {
   @IsNotEmpty()
     passkeyInfo: AuthenticationResponseJSON
 
-  @IsEmail()
+  @IsString()
   @IsNotEmpty()
-    email: string
+    challenge: string
 
   constructor (dto: PostPasskeyVerifyDto) {
     this.passkeyInfo = dto.passkeyInfo
-    this.email = dto.email.toLowerCase()
+    this.challenge = dto.challenge
   }
 }
 

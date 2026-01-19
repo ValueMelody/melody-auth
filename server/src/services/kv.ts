@@ -688,26 +688,25 @@ export const getPasskeyEnrollChallenge = async (
 
 export const setPasskeyVerifyChallenge = async (
   kv: KVNamespace,
-  email: string,
   challenge: string,
 ) => {
   await kv.put(
     adapterConfig.getKVKey(
       adapterConfig.BaseKVKey.PasskeyVerifyChallenge,
-      email,
+      challenge,
     ),
-    challenge,
+    '1',
     { expirationTtl: 300 },
   )
 }
 
 export const getPasskeyVerifyChallenge = async (
   kv: KVNamespace,
-  email: string,
+  challenge: string,
 ) => {
   const key = adapterConfig.getKVKey(
     adapterConfig.BaseKVKey.PasskeyVerifyChallenge,
-    email,
+    challenge,
   )
   return await kv.get(key)
 }

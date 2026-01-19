@@ -118,23 +118,6 @@ describe(
     )
 
     it(
-      'renders PrimaryButton with withPasskey title when passkeyOption is provided and calls handleVerifyPasskey on click',
-      () => {
-        const props = {
-          ...defaultProps, passkeyOption: {} as PublicKeyCredentialRequestOptionsJSON,
-        }
-        const container = setup(props)
-        const withPasskeyButton = getByText(
-          container,
-          signIn.withPasskey.en,
-        )
-        expect(withPasskeyButton).toBeDefined()
-        fireEvent.click(withPasskeyButton)
-        expect(defaultProps.onVerifyPasskey).toHaveBeenCalledTimes(1)
-      },
-    )
-
-    it(
       'renders the PasswordField when enablePasswordSignIn is true and shouldLoadPasskeyInfo is false and calls handleChange on change',
       () => {
         const container = setup()
@@ -148,23 +131,6 @@ describe(
           'password',
           'password123',
         )
-      },
-    )
-
-    it(
-      'calls getPasskeyOption when shouldLoadPasskeyInfo is true and the continue button is clicked',
-      () => {
-        const props = {
-          ...defaultProps, shouldLoadPasskeyInfo: true,
-        }
-        const container = setup(props)
-        const continueButton = getByText(
-          container,
-          signIn.continue.en,
-        )
-        expect(continueButton).toBeDefined()
-        fireEvent.click(continueButton)
-        expect(defaultProps.getPasskeyOption).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -457,6 +423,7 @@ describe(
             ...defaultProps.initialProps,
             enablePasswordSignIn: false,
             enablePasswordlessSignIn: true,
+            allowPasskey: false,
           },
         }
         const container = setup(props)
@@ -577,73 +544,6 @@ describe(
 
         const resetPasswordButton = container.querySelector('button[title="Reset Password"]')
         expect(resetPasswordButton).toBeNull()
-      },
-    )
-
-    it(
-      'show no unlock email button when passkeyOption is not provided',
-      () => {
-        const props = {
-          ...defaultProps,
-          passkeyOption: null as false | PublicKeyCredentialRequestOptionsJSON | null,
-        }
-        const container = setup(props)
-
-        const unlockButton = container.querySelector('button[aria-label="Edit email"]')
-        expect(unlockButton).toBeNull()
-
-        const emailField = container.querySelector('input[name="email"]') as HTMLInputElement
-        expect(emailField).not.toBeNull()
-        expect(emailField.disabled).toBeFalsy()
-      },
-    )
-
-    it(
-      'triggers onResetPasskeyInfo when the unlock email button is clicked',
-      () => {
-        const props = {
-          ...defaultProps,
-          passkeyOption: {
-            challenge: 'dummy-challenge',
-            allowCredentials: [{ id: 'dummy-id' }],
-          } as PublicKeyCredentialRequestOptionsJSON,
-        }
-        const container = setup(props)
-
-        const emailField = container.querySelector('input[name="email"]') as HTMLInputElement
-        expect(emailField).not.toBeNull()
-        expect(emailField.disabled).toBeTruthy()
-
-        const unlockButton = container.querySelector('button[aria-label="Edit email"]')
-        expect(unlockButton).not.toBeNull()
-        if (unlockButton) {
-          fireEvent.click(unlockButton)
-        }
-        // Verify that the onResetPasskeyInfo callback is called.
-        expect(props.onResetPasskeyInfo).toHaveBeenCalledTimes(1)
-      },
-    )
-
-    it(
-      'triggers onResetPasskeyInfo when the unlock email button is clicked and passkeyOption is false',
-      () => {
-        const props = {
-          ...defaultProps,
-          passkeyOption: false as false | PublicKeyCredentialRequestOptionsJSON | null,
-        }
-        const container = setup(props)
-
-        const emailField = container.querySelector('input[name="email"]') as HTMLInputElement
-        expect(emailField).not.toBeNull()
-        expect(emailField.disabled).toBeTruthy()
-
-        const unlockButton = container.querySelector('button[aria-label="Edit email"]')
-        expect(unlockButton).not.toBeNull()
-        if (unlockButton) {
-          fireEvent.click(unlockButton)
-        }
-        // Verify that the onResetPasskeyInfo callback is called.
-        expect(props.onResetPasskeyInfo).toHaveBeenCalledTimes(1)
       },
     )
 
@@ -810,6 +710,119 @@ describe(
         expect(signUpButton).toBeNull()
         expect(resetPasswordButton).toBeNull()
         expect(recoveryCodeButton).toBeNull()
+      },
+    )
+
+    it(
+      'renders passkey button when allowPasskey is true',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            allowPasskey: true,
+          },
+        }
+        const container = setup(props)
+
+        const passkeyButton = getByText(
+          container,
+          signIn.withPasskey.en,
+        )
+        expect(passkeyButton).toBeDefined()
+      },
+    )
+
+    it(
+      'does not render passkey button when allowPasskey is false',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            allowPasskey: false,
+          },
+        }
+        const container = setup(props)
+
+        const passkeyButton = container.querySelector(`button[title="${signIn.withPasskey.en}"]`)
+        expect(passkeyButton).toBeNull()
+      },
+    )
+
+    it(
+      'calls onVerifyPasskey when passkey button is clicked',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            allowPasskey: true,
+          },
+        }
+        const container = setup(props)
+
+        const passkeyButton = getByText(
+          container,
+          signIn.withPasskey.en,
+        )
+        fireEvent.click(passkeyButton)
+        expect(defaultProps.onVerifyPasskey).toHaveBeenCalledTimes(1)
+      },
+    )
+
+    it(
+      'renders continue button in passwordless mode when allowPasskey is false',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            enablePasswordSignIn: false,
+            enablePasswordlessSignIn: true,
+            allowPasskey: false,
+          },
+        }
+        const container = setup(props)
+
+        // Should render continue button
+        const continueButton = getByText(
+          container,
+          signIn.continue.en,
+        )
+        expect(continueButton).toBeDefined()
+        expect(continueButton.getAttribute('type')).toBe('button')
+
+        // Should not render passkey button
+        const passkeyButton = container.querySelector(`button[title="${signIn.withPasskey.en}"]`)
+        expect(passkeyButton).toBeNull()
+      },
+    )
+
+    it(
+      'does not render continue button in passwordless mode when allowPasskey is true',
+      () => {
+        const props = {
+          ...defaultProps,
+          initialProps: {
+            ...defaultProps.initialProps,
+            enablePasswordSignIn: false,
+            enablePasswordlessSignIn: true,
+            allowPasskey: true,
+          },
+        }
+        const container = setup(props)
+
+        // Should not render continue button
+        const continueButton = container.querySelector(`button[title="${signIn.continue.en}"]`)
+        expect(continueButton).toBeNull()
+
+        // Should render passkey button
+        const passkeyButton = getByText(
+          container,
+          signIn.withPasskey.en,
+        )
+        expect(passkeyButton).toBeDefined()
       },
     )
 
