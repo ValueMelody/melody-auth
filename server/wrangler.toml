@@ -33,7 +33,7 @@ ALLOW_USER_SWITCH_ORG_ON_SIGN_IN=false
 ENABLE_USER_ATTRIBUTE=false
 BLOCKED_POLICIES=["change_org"] # A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info, change_org), preventing end users from triggering them
 ENABLE_PASSWORDLESS_SIGN_IN=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. Setting this option to true will automatically override ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT, ENABLE_RECOVERY_CODE to false. Also, make sure to disable email MFA in order to use this feature.
-EMBEDDED_AUTH_ORIGINS=['http://localhost:3000'] # List of origins that are allowed to use embedded auth APIs.
+EMBEDDED_AUTH_ORIGINS=[] # List of origins that are allowed to use embedded auth APIs.
 ENABLE_SAML_SSO_AS_SP=false # Experimental feature, only support in Node.js environment
 ENABLE_APP_BANNER=false # Enable the feature for displaying banners on the sign-in page of apps
 
@@ -51,7 +51,7 @@ EMAIL_MFA_IS_REQUIRED=false # Please set up your mailer first https://auth.value
 SMS_MFA_IS_REQUIRED=false # Please set up your sms provider first https://auth.valuemelody.com/sms-provider-setup.html
 ENFORCE_ONE_MFA_ENROLLMENT=['otp', 'email'] # Enforce one MFA type from the list. Available options are ‘email’, ‘otp’, and ‘sms’. This setting is only effective if OTP_MFA_IS_REQUIRED, SMS_MFA_IS_REQUIRED, and EMAIL_MFA_IS_REQUIRED are all set to false. An empty list means no MFA type will be enforced. You must enable email functionality for the email MFA option to work.
 ALLOW_EMAIL_MFA_AS_BACKUP=true
-ALLOW_PASSKEY_ENROLLMENT=true
+ALLOW_PASSKEY_ENROLLMENT=false
 ENABLE_RECOVERY_CODE=false
 ENABLE_MFA_REMEMBER_DEVICE=false # If true, the user can bypass MFA by remembering the device for 30 days.
 
