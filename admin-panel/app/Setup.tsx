@@ -415,7 +415,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
               <DropdownMenuItem>
                 <a
                   onClick={handleLogout}
-                  className='flex items-center gap-2 cursor-pointer'
+                  className='w-full flex items-center gap-2 cursor-pointer'
                 >
                   <ArrowRightEndOnRectangleIcon className='w-4 h-4' /> {t('layout.logout')}
                 </a>
