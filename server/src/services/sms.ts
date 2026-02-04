@@ -8,6 +8,7 @@ import {
   cryptoUtil, loggerUtil,
 } from 'utils'
 import { smsLogModel } from 'models'
+import { systemConfig } from 'configs/variable'
 
 const checkSmsSetup = (c: Context<typeConfig.Context>) => {
   const {
@@ -41,7 +42,11 @@ export const sendSms = async (
     ENABLE_SMS_LOG: enableSmsLog,
   } = env(c)
 
-  const receiver = environment === variableConfig.DefaultEnvironment.Production ? receiverPhoneNumber : devSmsReceiver
+  const receiver = (
+    environment === variableConfig.DefaultEnvironment.Production || systemConfig.sendSmsToRealReceiverOnDev
+  )
+    ? receiverPhoneNumber
+    : devSmsReceiver
 
   let success = false
   let response = null

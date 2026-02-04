@@ -25,6 +25,7 @@ import {
   errorConfig, variableConfig,
   localeConfig, messageConfig, typeConfig,
 } from 'configs'
+import { systemConfig } from 'configs/variable'
 
 const checkEmailSetup = (c: Context<typeConfig.Context>) => {
   const {
@@ -116,7 +117,11 @@ export const sendEmail = async (
   let success = false
   let response = null
 
-  const receiver = environment === variableConfig.DefaultEnvironment.Production ? receiverEmail : devEmailReceiver
+  const receiver = (
+    environment === variableConfig.DefaultEnvironment.Production || systemConfig.sendEmailToRealReceiverOnDev
+  )
+    ? receiverEmail
+    : devEmailReceiver
   const { ENABLE_EMAIL_LOG: enableEmailLog } = env(c)
 
   const mailer = buildMailer(c)
