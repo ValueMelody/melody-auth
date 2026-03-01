@@ -1,12 +1,16 @@
+import * as pg from 'pg'
 import knex from 'knex'
 
 export let _db: knex.Knex | null = null
 
-export const initConnection = () => {
+export const initConnection = (connectionString?: string) => {
   _db = knex({
     client: 'pg',
-    connection: process.env.PG_CONNECTION_STRING,
+    connection: connectionString ?? process.env.PG_CONNECTION_STRING,
   })
+  if (connectionString) {
+    _db.client.driver = pg
+  }
 }
 
 export const getConnection = (): knex.Knex => {

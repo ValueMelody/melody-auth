@@ -5,6 +5,9 @@ keep_vars = true
 # Cloudflare account id, required if your cloudflare account is sharing access with other cloudflare accounts
 # account_id = ""
 
+# Enable this if you want to use workers with postgres database
+# compatibility_flags = [ "nodejs_compat" ]
+
 [vars]
 
 # Information
@@ -94,4 +97,3 @@ directory = "./dist/static"
 
 [observability]
 enabled = false # Set to true to enable Cloudflare workers logs. https://developers.cloudflare.com/workers/observability/logs/workers-logs/
-

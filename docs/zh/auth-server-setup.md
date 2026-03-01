@@ -113,6 +113,29 @@ npm run dev:start
     npm run build && wrangler deploy --minify src/index.tsx --config [envName].wrangler.toml
     ```
 
+## Cloudflare Workers 使用 PostgreSQL
+
+默认情况下，Cloudflare Workers 使用 D1 作为数据库。如果你希望改用 PostgreSQL，请按以下步骤操作：
+
+### 1. 启用 Node.js 兼容性
+在 `server/wrangler.toml` 中添加以下配置：
+```toml
+compatibility_flags = [ "nodejs_compat" ]
+```
+
+### 2. 配置 PostgreSQL 连接
+在 `server/.dev.vars` 中定义 PostgreSQL 连接字符串：
+```
+PG_CONNECTION_STRING=your_postgres_connection_string
+```
+在生产环境中，请在 Cloudflare Worker 的 "Settings" -> "Variables and Secrets" 中将 `PG_CONNECTION_STRING` 添加为 Secret。
+
+### 3. 部署
+```
+cd server
+npm run build && npx wrangler deploy --minify src/node_compat.tsx
+```
+
 ## Node 环境设置
 
 ### 1. Node、PostgreSQL 与 Redis 设置
