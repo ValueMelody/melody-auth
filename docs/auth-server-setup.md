@@ -114,6 +114,29 @@ When managing several remote environments (e.g., dev, demo, QA, staging, product
     npm run build && wrangler deploy --minify src/index.tsx --config [envName].wrangler.toml
     ```
 
+## Cloudflare Workers with PostgreSQL
+
+By default, Cloudflare Workers use D1 as the database. If you prefer to use PostgreSQL instead, follow these steps:
+
+### 1. Enable Node.js Compatibility
+Add the following to your `server/wrangler.toml`:
+```toml
+compatibility_flags = [ "nodejs_compat" ]
+```
+
+### 2. Configure PostgreSQL Connection
+Define your PostgreSQL connection string in `server/.dev.vars`:
+```
+PG_CONNECTION_STRING=your_postgres_connection_string
+```
+For production, add `PG_CONNECTION_STRING` as a secret in your Cloudflare Worker's "Settings" -> "Variables and Secrets".
+
+### 3. Deployment
+```
+cd server
+npm run build && npx wrangler deploy --minify src/node_compat.tsx
+```
+
 ## Node Environment Setup
 
 ### 1. Node, Postgres and Redis setup

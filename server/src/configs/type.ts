@@ -92,6 +92,8 @@ export type Bindings = {
   ENABLE_SAML_SP: boolean;
   ENABLE_APP_BANNER: boolean;
   EMAIL_PROVIDER_NAME: string;
+  PG_CONNECTION_STRING: string;
+  REDIS_CONNECTION_STRING: string;
 };
 
 export type Context = {

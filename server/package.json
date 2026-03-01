@@ -67,6 +67,7 @@
     "@types/jwk-to-pem": "^2.0.3",
     "@types/node-jose": "^1.1.13",
     "@types/nodemailer": "^6.4.15",
+    "@types/pg": "^8.18.0",
     "@types/qrcode": "^1.5.5",
     "@types/qs": "^6.9.18",
     "@types/react": "^19.1.2",
