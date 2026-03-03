@@ -124,14 +124,24 @@ Add the following to your `server/wrangler.toml`:
 compatibility_flags = [ "nodejs_compat" ]
 ```
 
-### 2. Configure PostgreSQL Connection
+### 2. Comment Out D1 and KV Sections
+Since PostgreSQL replaces D1 as the database, comment out the `[[d1_databases]]` sections in your `server/wrangler.toml`:
+```toml
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "melody-auth"
+# database_id = "your_d1_database_id"
+# migrations_dir = "./migrations/sqlite"
+```
+
+### 3. Configure PostgreSQL Connection
 Define your PostgreSQL connection string in `server/.dev.vars`:
 ```
 PG_CONNECTION_STRING=your_postgres_connection_string
 ```
 For production, add `PG_CONNECTION_STRING` as a secret in your Cloudflare Worker's "Settings" -> "Variables and Secrets".
 
-### 3. Deployment
+### 4. Deployment
 ```
 cd server
 npm run build && npx wrangler deploy --minify src/node_compat.tsx

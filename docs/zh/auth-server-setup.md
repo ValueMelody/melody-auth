@@ -123,14 +123,24 @@ npm run dev:start
 compatibility_flags = [ "nodejs_compat" ]
 ```
 
-### 2. 配置 PostgreSQL 连接
+### 2. 注释掉 D1 和 KV 配置
+由于 PostgreSQL 将替代 D1 作为数据库，请在 `server/wrangler.toml` 中注释掉 `[[d1_databases]]` 部分：
+```toml
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "melody-auth"
+# database_id = "your_d1_database_id"
+# migrations_dir = "./migrations/sqlite"
+```
+
+### 3. 配置 PostgreSQL 连接
 在 `server/.dev.vars` 中定义 PostgreSQL 连接字符串：
 ```
 PG_CONNECTION_STRING=your_postgres_connection_string
 ```
 在生产环境中，请在 Cloudflare Worker 的 "Settings" -> "Variables and Secrets" 中将 `PG_CONNECTION_STRING` 添加为 Secret。
 
-### 3. 部署
+### 4. 部署
 ```
 cd server
 npm run build && npx wrangler deploy --minify src/node_compat.tsx
