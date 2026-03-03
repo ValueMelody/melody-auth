@@ -82,15 +82,17 @@ ENABLE_EMAIL_LOG=false # Specify whether email should be logged. If enabled, ens
 ENABLE_SMS_LOG=false # Specify whether SMS should be logged. If enabled, ensure that you implement your own SMS log cleanup scheduler
 ENABLE_SIGN_IN_LOG=false # Specify whether the user’s sign-in IP (only applicable in production environments) and location details (only applicable in Cloudflare environments) should be logged. If enabled, ensure that you implement your own sign-in log cleanup scheduler, clearly disclose the collection of IP and location data in your privacy policy, and comply with all relevant legal requirements.
 
-[[kv_namespaces]]
-binding = "KV"
-id = "7d9be060a7bc48919251b37caa7e1fcd" # Replace with your own KV ID
+# Uncomment the following lines to use your own KV namespace
+# [[kv_namespaces]]
+# binding = "KV"
+# id = "7d9be060a7bc48919251b37caa7e1fcd" # Replace with your own KV ID
 
-[[d1_databases]]
-binding = "DB"
-database_name = "melody-auth"
-database_id = "8dc67df2-771d-4e73-9c16-d04341b9740e" # Replace with your own D1 ID
-migrations_dir = "./migrations/sqlite"
+# Uncomment the following lines to use your own D1 database
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "melody-auth"
+# database_id = "8dc67df2-771d-4e73-9c16-d04341b9740e" # Replace with your own D1 ID
+# migrations_dir = "./migrations/sqlite"
 
 [assets]
 directory = "./dist/static"

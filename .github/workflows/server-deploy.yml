@@ -24,6 +24,13 @@ jobs:
       - name: Build Server View
         run: cd server && npm run build
 
+      - name: Uncomment wrangler.toml deploy config
+        run: |
+          grep -q '# id = "7d9be060a7bc48919251b37caa7e1fcd"' server/wrangler.toml && \
+            sed -i '/^# \[\[kv_namespaces\]\]/,/^$/s/^# //' server/wrangler.toml || true
+          grep -q '# database_id = "8dc67df2-771d-4e73-9c16-d04341b9740e"' server/wrangler.toml && \
+            sed -i '/^# \[\[d1_databases\]\]/,/^$/s/^# //' server/wrangler.toml || true
+
       - name: Run Migration
         uses: cloudflare/wrangler-action@v3
         with:
