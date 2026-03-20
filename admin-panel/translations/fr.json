@@ -263,7 +263,7 @@
     "ip": "Adresse IP",
     "detail": "Détail",
     "clean": "Nettoyer",
-    "cleanAlertTitle": "Nettoyer les journaux qui ont plus de 30 jours",
+    "cleanAlertTitle": "Nettoyer les journaux qui ont plus de {days} jours",
     "cleanAlertDescription": "Cette opération est irréversible. Veuillez vous assurer de faire une sauvegarde de vos données avant de procéder."
   }
 }
