@@ -268,7 +268,7 @@
     "ip": "IP Address",
     "detail": "detail",
     "clean": "Clean",
-    "cleanAlertTitle": "Clean logs that are older than 30 days",
+    "cleanAlertTitle": "Clean logs that are older than {days} days",
     "cleanAlertDescription": "This is a hard operation that cannot be undone. Please be sure to backup your data before proceeding."
   }
 }

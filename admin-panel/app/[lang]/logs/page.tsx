@@ -30,7 +30,7 @@ import {
 import Breadcrumb from 'components/Breadcrumb'
 import LoadingPage from 'components/LoadingPage'
 import {
-  accessTool, routeTool,
+  accessTool, routeTool, variableTool,
 } from 'tools'
 import { Button } from '@/components/ui/button'
 import {
@@ -57,7 +57,10 @@ const CleanAlert = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t('logs.cleanAlertTitle')}
+            {t(
+              'logs.cleanAlertTitle',
+              { days: variableTool.LogCleanUpDays },
+            )}
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription>
@@ -153,8 +156,8 @@ const Page = () => {
   }
 
   const handleConfirmClean = () => {
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    const dateBefore = thirtyDaysAgo.toISOString()
+    const cutoffDate = new Date(Date.now() - variableTool.LogCleanUpDays * 24 * 60 * 60 * 1000)
+    const dateBefore = cutoffDate.toISOString()
     switch (cleanTarget) {
     case 'email':
       deleteEmailLogs({ before: dateBefore })
