@@ -113,6 +113,29 @@ export const emailMfaEmail = Object.freeze({
   },
 })
 
+export const magicLinkEmail = Object.freeze({
+  subject: {
+    en: 'Your sign-in link',
+    fr: 'Votre lien de connexion',
+    zh: '您的登录链接',
+  },
+  title: {
+    en: 'Sign in to your account',
+    fr: 'Connectez-vous à votre compte',
+    zh: '登录您的账户',
+  },
+  desc: {
+    en: 'Click the button below to sign in. This link will expire after {{expiresIn}} minutes.',
+    fr: 'Cliquez sur le bouton ci-dessous pour vous connecter. Ce lien expirera après {{expiresIn}} minutes.',
+    zh: '点击下方按钮登录。此链接将在 {{expiresIn}} 分钟后过期。',
+  },
+  signIn: {
+    en: 'Sign In',
+    fr: 'Se connecter',
+    zh: '登录',
+  },
+})
+
 export const smsMfaMsg = Object.freeze({
   body: {
     en: 'Your verification code is',

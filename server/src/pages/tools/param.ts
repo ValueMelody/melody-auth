@@ -91,6 +91,27 @@ export const getAuthCodeExpiredParams = (): AuthCodeExpiredParams => {
   }
 }
 
+export interface MagicSignInParams {
+  locale: typeConfig.Locale;
+  code: string;
+  otp: string;
+  org: string;
+}
+
+export const getMagicSignInParams = (): MagicSignInParams => {
+  const params = parse(
+    window.location.search,
+    { ignoreQueryPrefix: true },
+  )
+
+  return {
+    locale: ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale,
+    code: 'code' in params ? String(params.code) : '',
+    otp: 'otp' in params ? String(params.otp) : '',
+    org: 'org' in params ? String(params.org) : '',
+  }
+}
+
 export interface VerifyEmailParams {
   locale: typeConfig.Locale;
   id: string;

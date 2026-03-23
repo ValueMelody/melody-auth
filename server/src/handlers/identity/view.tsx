@@ -134,6 +134,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+    USE_PASSWORDLESS_AS_MAGIC_LINK: usePasswordlessAsMagicLink,
     OIDC_AUTH_PROVIDERS: oidcAuthProviders,
     ENABLE_USER_ATTRIBUTE: enableUserAttribute,
     ENABLE_MFA_REMEMBER_DEVICE: enableMfaRememberDevice,
@@ -169,6 +170,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         enableSignUp: ${enableSignUp.toString()},
         enablePasswordSignIn: ${enablePasswordSignIn.toString()},
         enablePasswordlessSignIn: ${enablePasswordlessSignIn.toString()},
+        usePasswordlessAsMagicLink: ${usePasswordlessAsMagicLink.toString()},
         enableMfaRememberDevice: ${enableMfaRememberDevice.toString()},
         enableAppBanner: ${enableAppBanner.toString()},
         googleClientId: "${googleClientId}",
@@ -208,6 +210,8 @@ export const getProcessView = async (c: Context<typeConfig.Context>) => {
   const {
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,
+    ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+    USE_PASSWORDLESS_AS_MAGIC_LINK: usePasswordlessAsMagicLink,
   } = env(c)
 
   const branding = await brandingService.getBranding(
@@ -221,6 +225,8 @@ export const getProcessView = async (c: Context<typeConfig.Context>) => {
       locales: "${locales.join(',')}",
       logoUrl: "${branding.logoUrl}",
       enableLocaleSelector: ${enableLocaleSelector.toString()},
+      enablePasswordlessSignIn: ${enablePasswordlessSignIn.toString()},
+      usePasswordlessAsMagicLink: ${usePasswordlessAsMagicLink.toString()},
     }
   </script>
 `

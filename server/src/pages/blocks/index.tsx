@@ -1,4 +1,5 @@
 import VerifyEmail from './VerifyEmail'
+import MagicSignIn from './MagicSignIn'
 import UpdateInfo from './UpdateInfo'
 import SmsMfa from './SmsMfa'
 import AuthCodeExpired from './AuthCodeExpired'
@@ -23,7 +24,7 @@ import RecoveryCodeSignIn from './RecoveryCodeSignIn'
 import SwitchOrg from './SwitchOrg'
 
 export {
-  VerifyEmail, UpdateInfo, SmsMfa, AuthCodeExpired, ChangeEmail,
+  VerifyEmail, MagicSignIn, UpdateInfo, SmsMfa, AuthCodeExpired, ChangeEmail,
   ChangePassword, Consent, EmailMfa, Layout, ManagePasskey,
   MfaEnroll, OtpMfa, OtpSetup, PasskeyEnroll, PasswordlessVerify,
   ResetMfa, ResetPassword, SignUp, SignIn, RecoveryCodeEnroll,
