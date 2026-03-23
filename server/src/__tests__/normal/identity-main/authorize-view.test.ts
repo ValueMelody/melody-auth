@@ -46,6 +46,7 @@ describe(
         expect(html).toContain(`enableSignUp: ${process.env.ENABLE_SIGN_UP}`)
         expect(html).toContain(`enablePasswordSignIn: ${process.env.ENABLE_PASSWORD_SIGN_IN}`)
         expect(html).toContain(`enablePasswordlessSignIn: ${process.env.ENABLE_PASSWORDLESS_SIGN_IN}`)
+        expect(html).toContain(`usePasswordlessAsMagicLink: ${process.env.USE_PASSWORDLESS_AS_MAGIC_LINK ?? false}`)
         expect(html).toContain('googleClientId: ""')
         expect(html).toContain('facebookClientId: ""')
         expect(html).toContain('appleClientId: ""')
@@ -221,6 +222,29 @@ describe(
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
         process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+      },
+    )
+
+    test(
+      'should include usePasswordlessAsMagicLink when set to true',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = true as unknown as string
+
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.IdentityRoute.AuthorizeView,
+          appRecord,
+        )
+
+        const html = await res.text()
+
+        expect(html).toContain('enablePasswordlessSignIn: true')
+        expect(html).toContain('usePasswordlessAsMagicLink: true')
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = undefined as unknown as string
       },
     )
 

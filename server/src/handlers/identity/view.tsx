@@ -170,7 +170,7 @@ export const getAuthorizeView = async (c: Context<typeConfig.Context>) => {
         enableSignUp: ${enableSignUp.toString()},
         enablePasswordSignIn: ${enablePasswordSignIn.toString()},
         enablePasswordlessSignIn: ${enablePasswordlessSignIn.toString()},
-        usePasswordlessAsMagicLink: ${usePasswordlessAsMagicLink.toString()},
+        usePasswordlessAsMagicLink: ${(usePasswordlessAsMagicLink ?? false).toString()},
         enableMfaRememberDevice: ${enableMfaRememberDevice.toString()},
         enableAppBanner: ${enableAppBanner.toString()},
         googleClientId: "${googleClientId}",
@@ -226,7 +226,7 @@ export const getProcessView = async (c: Context<typeConfig.Context>) => {
       logoUrl: "${branding.logoUrl}",
       enableLocaleSelector: ${enableLocaleSelector.toString()},
       enablePasswordlessSignIn: ${enablePasswordlessSignIn.toString()},
-      usePasswordlessAsMagicLink: ${usePasswordlessAsMagicLink.toString()},
+      usePasswordlessAsMagicLink: ${(usePasswordlessAsMagicLink ?? false).toString()},
     }
   </script>
 `
