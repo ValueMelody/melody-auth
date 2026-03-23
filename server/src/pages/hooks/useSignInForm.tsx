@@ -20,6 +20,7 @@ export interface UseSignInFormProps {
   params: AuthorizeParams;
   onSubmitError: (error: string | null) => void;
   onSwitchView: (view: View) => void;
+  usePasswordlessAsMagicLink?: boolean;
 }
 
 const useSignInForm = ({
@@ -27,12 +28,14 @@ const useSignInForm = ({
   params,
   onSubmitError,
   onSwitchView,
+  usePasswordlessAsMagicLink = false,
 }: UseSignInFormProps) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPasswordlessSigningIn, setIsPasswordlessSigningIn] = useState(false)
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
 
   const [touched, setTouched] = useState({
     email: false,
@@ -153,7 +156,27 @@ const useSignInForm = ({
         },
       )
         .then(parseResponse)
-        .then((response) => {
+        .then((response: any) => {
+          if (usePasswordlessAsMagicLink && 'code' in response && response.code) {
+            return fetch(
+              routeConfig.IdentityRoute.SendPasswordlessCode,
+              {
+                method: 'POST',
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  code: response.code,
+                  locale,
+                }),
+              },
+            )
+              .then(parseResponse)
+              .then(() => {
+                setMagicLinkSent(true)
+              })
+          }
           handleAuthorizeStep(
             response,
             locale,
@@ -167,7 +190,7 @@ const useSignInForm = ({
           setIsPasswordlessSigningIn(false)
         })
     },
-    [params, locale, onSubmitError, onSwitchView, email, errors],
+    [params, locale, onSubmitError, onSwitchView, email, errors, usePasswordlessAsMagicLink],
   )
 
   return {
@@ -181,6 +204,7 @@ const useSignInForm = ({
     handlePasswordlessSignIn,
     isSubmitting,
     isPasswordlessSigningIn,
+    magicLinkSent,
   }
 }
 

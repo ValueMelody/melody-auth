@@ -82,6 +82,7 @@ export enum IdentityRoute {
 
 export enum View {
   SignIn = 'sign_in',
+  MagicSignIn = 'magic_sign_in',
   PasswordlessVerify = 'passwordless_verify',
   Consent = 'consent',
   MfaEnroll = 'mfa_enroll',

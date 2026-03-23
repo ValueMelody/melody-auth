@@ -8,7 +8,9 @@ import {
 } from '@testing-library/react'
 import useCurrentView, { View } from 'pages/hooks/useCurrentView'
 import { routeConfig } from 'configs'
-import { getStepFromParams } from 'pages/tools/param'
+import {
+  getStepFromParams, getMagicSignInParams,
+} from 'pages/tools/param'
 
 // Mock hooks from hono/jsx
 vi.mock(
@@ -20,10 +22,13 @@ vi.mock(
   }),
 )
 
-// Mock getStepFromParams to control its return value in tests.
+// Mock param helpers to control their return values in tests.
 vi.mock(
   'pages/tools/param',
-  () => ({ getStepFromParams: vi.fn() }),
+  () => ({
+    getStepFromParams: vi.fn(),
+    getMagicSignInParams: vi.fn(() => ({ otp: '' })),
+  }),
 )
 
 describe(
@@ -89,6 +94,36 @@ describe(
           {},
           '',
           '/random-path',
+        )
+        const { result } = renderHook(() => useCurrentView())
+        expect(result.current.view).toBe(View.SignIn)
+      },
+    )
+
+    test(
+      'returns MagicSignIn view when on ProcessView path with otp param',
+      () => {
+        (getStepFromParams as unknown as Mock).mockReturnValue(null);
+        (getMagicSignInParams as unknown as Mock).mockReturnValue({ otp: '123456' })
+        window.history.pushState(
+          {},
+          '',
+          routeConfig.IdentityRoute.ProcessView,
+        )
+        const { result } = renderHook(() => useCurrentView())
+        expect(result.current.view).toBe(View.MagicSignIn)
+      },
+    )
+
+    test(
+      'returns SignIn view when on ProcessView path without otp param',
+      () => {
+        (getStepFromParams as unknown as Mock).mockReturnValue(null);
+        (getMagicSignInParams as unknown as Mock).mockReturnValue({ otp: '' })
+        window.history.pushState(
+          {},
+          '',
+          routeConfig.IdentityRoute.ProcessView,
         )
         const { result } = renderHook(() => useCurrentView())
         expect(result.current.view).toBe(View.SignIn)

@@ -5,6 +5,7 @@ import {
 } from 'pages/hooks'
 import {
   SignIn,
+  MagicSignIn,
   SignUp,
   Consent,
   MfaEnroll,
@@ -46,6 +47,8 @@ const Main = () => {
   const CurrentView = useMemo(
     () => {
       switch (view) {
+      case View.MagicSignIn:
+        return MagicSignIn
       case View.SignUp:
         return SignUp
       case View.Consent:

@@ -357,6 +357,127 @@ describe(
     )
 
     test(
+      'handlePasswordlessSignIn sends magic link and sets magicLinkSent when usePasswordlessAsMagicLink is true',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+        const { result } = renderHook(() =>
+          useSignInForm({
+            locale: 'en',
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+            usePasswordlessAsMagicLink: true,
+          }))
+
+        act(() => {
+          result.current.handleChange(
+            'email',
+            'test@example.com',
+          )
+        })
+
+        const authorizeResponse = {
+          ok: true,
+          json: async () => ({
+            code: 'auth-code-123',
+            nextPage: 'passwordless_verify',
+          }),
+        }
+        const sendCodeResponse = {
+          ok: true,
+          json: async () => ({ success: true }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        )
+          .mockResolvedValueOnce(authorizeResponse as Response)
+          .mockResolvedValueOnce(sendCodeResponse as Response)
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+        await act(async () => {
+          result.current.handlePasswordlessSignIn(fakeEvent)
+          await Promise.resolve()
+          await Promise.resolve()
+        })
+
+        expect(fetchSpy).toHaveBeenNthCalledWith(
+          1,
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          expect.objectContaining({ method: 'POST' }),
+        )
+        expect(fetchSpy).toHaveBeenNthCalledWith(
+          2,
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          expect.objectContaining({
+            method: 'POST',
+            body: expect.stringContaining('"code":"auth-code-123"'),
+          }),
+        )
+        expect(result.current.magicLinkSent).toBe(true)
+        expect(onSwitchView).not.toHaveBeenCalled()
+
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
+      'handlePasswordlessSignIn calls handleAuthorizeStep when usePasswordlessAsMagicLink is false',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+        const { result } = renderHook(() =>
+          useSignInForm({
+            locale: 'en',
+            params: dummyParams,
+            onSubmitError,
+            onSwitchView,
+            usePasswordlessAsMagicLink: false,
+          }))
+
+        act(() => {
+          result.current.handleChange(
+            'email',
+            'test@example.com',
+          )
+        })
+
+        const fakeResponse = {
+          ok: true,
+          json: async () => ({
+            code: 'auth-code-123', nextPage: 'passwordless_verify',
+          }),
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
+
+        const handleAuthorizeSpy = vi.spyOn(
+          requestModule,
+          'handleAuthorizeStep',
+        ).mockImplementation((
+          _response, _locale, onSwitchViewFn,
+        ) => {
+          onSwitchViewFn(View.PasswordlessVerify)
+        })
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+        await act(async () => {
+          result.current.handlePasswordlessSignIn(fakeEvent)
+          await Promise.resolve()
+        })
+
+        expect(onSwitchView).toHaveBeenCalledWith(View.PasswordlessVerify)
+        expect(result.current.magicLinkSent).toBe(false)
+
+        fetchSpy.mockRestore()
+        handleAuthorizeSpy.mockRestore()
+      },
+    )
+
+    test(
       'handlePasswordlessSignIn stops execution when email validation error exists',
       async () => {
         const onSubmitError = vi.fn()

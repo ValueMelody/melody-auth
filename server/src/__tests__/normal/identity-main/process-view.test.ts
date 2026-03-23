@@ -11,7 +11,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  insertUsers, prepareFollowUpParams,
+  insertUsers, prepareFollowUpParams, getApp, postAuthorizeBody,
 } from 'tests/identity'
 
 let db: Database
@@ -45,6 +45,8 @@ describe(
         expect(html).toContain(`locales: "${(process.env.SUPPORTED_LOCALES as unknown as string[]).join(',')}"`)
         expect(html).toContain(`logoUrl: "${process.env.COMPANY_LOGO_URL}"`)
         expect(html).toContain(`enableLocaleSelector: ${process.env.ENABLE_LOCALE_SELECTOR}`)
+        expect(html).toContain(`enablePasswordlessSignIn: ${process.env.ENABLE_PASSWORDLESS_SIGN_IN}`)
+        expect(html).toContain(`usePasswordlessAsMagicLink: ${process.env.USE_PASSWORDLESS_AS_MAGIC_LINK ?? false}`)
         expect(html).toContain(`<link rel="icon" type="image/x-icon" href="${process.env.COMPANY_LOGO_URL}"/>`)
         expect(html).toContain(`<link href="${variableConfig.DefaultBranding.FontUrl?.replace(
           '&',
@@ -60,6 +62,46 @@ describe(
         expect(html).toContain(`--secondary-button-label-color:${variableConfig.DefaultBranding.SecondaryButtonLabelColor}`)
         expect(html).toContain(`--secondary-button-border-color:${variableConfig.DefaultBranding.SecondaryButtonBorderColor}`)
         expect(html).toContain(`--critical-indicator-color:${variableConfig.DefaultBranding.CriticalIndicatorColor}`)
+      },
+    )
+
+    test(
+      'should include usePasswordlessAsMagicLink when set to true',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = true as unknown as string
+
+        try {
+          await insertUsers(db)
+
+          const appRecord = await getApp(db)
+          const body = {
+            ...(await postAuthorizeBody(appRecord)),
+            email: 'test@email.com',
+          }
+          const authorizeRes = await app.request(
+            routeConfig.IdentityRoute.AuthorizePasswordless,
+            {
+              method: 'POST', body: JSON.stringify(body),
+            },
+            mock(db),
+          )
+          const json = await authorizeRes.json() as { code: string }
+          const params = `?locale=en&code=${json.code}`
+
+          const res = await app.request(
+            `${routeConfig.IdentityRoute.ProcessView}${params}`,
+            {},
+            mock(db),
+          )
+
+          const html = await res.text()
+          expect(html).toContain('enablePasswordlessSignIn: true')
+          expect(html).toContain('usePasswordlessAsMagicLink: true')
+        } finally {
+          process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+          process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = undefined as unknown as string
+        }
       },
     )
 

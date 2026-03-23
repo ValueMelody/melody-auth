@@ -14,6 +14,7 @@ import {
   ChangeEmailVerificationTemplate,
   EmailMfaTemplate,
   EmailVerificationTemplate,
+  MagicLinkTemplate,
   PasswordResetTemplate,
   WelcomeEmailTemplate,
 } from 'templates'
@@ -267,6 +268,38 @@ export const sendChangeEmailVerificationCode = async (
   )
 
   return res ? verificationCode : null
+}
+
+export const sendMagicLinkEmail = async (
+  c: Context<typeConfig.Context>,
+  email: string,
+  orgSlug: string,
+  locale: typeConfig.Locale,
+  magicLinkBaseUrl: string,
+) => {
+  checkEmailSetup(c)
+  const { SUPPORTED_LOCALES: locales } = env(c)
+
+  const displayLocale = locale || locales[0]
+
+  const mfaCode = cryptoUtil.genRandom6DigitString()
+  const magicLinkUrl = `${magicLinkBaseUrl}&otp=${mfaCode}`
+  const content = (<MagicLinkTemplate
+    magicLinkUrl={magicLinkUrl}
+    branding={await brandingService.getBranding(
+      c,
+      orgSlug,
+    )}
+    locale={displayLocale} />).toString()
+
+  const res = await sendEmail(
+    c,
+    email,
+    localeConfig.magicLinkEmail.subject[displayLocale],
+    content,
+  )
+
+  return res ? mfaCode : null
 }
 
 export const sendEmailMfa = async (

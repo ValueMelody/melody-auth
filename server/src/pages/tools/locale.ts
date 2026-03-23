@@ -384,6 +384,24 @@ export const passwordlessCode = Object.freeze({
   },
 })
 
+export const magicSignIn = Object.freeze({
+  processing: {
+    en: 'Signing you in...',
+    fr: 'Connexion en cours...',
+    zh: '正在登录...',
+  },
+  success: {
+    en: 'Sign-in successful! Redirecting...',
+    fr: 'Connexion réussie ! Redirection en cours...',
+    zh: '登录成功！正在跳转...',
+  },
+  invalid: {
+    en: 'This magic link is invalid or has expired. Please sign in again.',
+    fr: 'Ce lien de connexion est invalide ou a expiré. Veuillez vous reconnecter.',
+    zh: '此链接无效或已过期。请重新登录。',
+  },
+})
+
 export const resetMfa = Object.freeze({
   title: {
     en: 'Reset your MFA',
@@ -540,6 +558,11 @@ export const signIn = Object.freeze({
     en: 'Log in with Passkey',
     fr: 'Se connecter avec Passkey',
     zh: '使用 Passkey 登录',
+  },
+  magicLinkSent: {
+    en: 'A magic link has been sent to your email. Please check your inbox.',
+    fr: 'Un lien de connexion a été envoyé à votre adresse e-mail. Veuillez vérifier votre boîte de réception.',
+    zh: '登录链接已发送到您的邮箱，请查收。',
   },
 })
 

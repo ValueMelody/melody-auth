@@ -4,7 +4,7 @@ import { genRandomString } from '@melody-auth/shared'
 import { setCookie } from 'hono/cookie'
 import {
   adapterConfig,
-  errorConfig, messageConfig, typeConfig, variableConfig,
+  errorConfig, messageConfig, routeConfig, typeConfig, variableConfig,
 } from 'configs'
 import {
   appModel, userModel,
@@ -130,7 +130,9 @@ export const handleSendEmailMfa = async (
   const {
     EMAIL_MFA_EMAIL_THRESHOLD: threshold,
     ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+    USE_PASSWORDLESS_AS_MAGIC_LINK: usePasswordlessAsMagicLink,
     AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+    AUTH_SERVER_URL: serverUrl,
   } = env(c)
 
   const { requireEmailMfa: enableEmailMfa } = getAuthorizeMfaConfig(
@@ -185,12 +187,27 @@ export const handleSendEmailMfa = async (
     )
   }
 
-  const mfaCode = await emailService.sendEmailMfa(
-    c,
-    authCodeBody.user.email,
-    authCodeBody.user.orgSlug,
-    locale,
-  )
+  const isMagicLink = isPasswordlessCode && usePasswordlessAsMagicLink
+  let mfaCode: string | null
+  if (isMagicLink) {
+    const displayLocale = locale || 'en'
+    const magicLinkBaseUrl = `${serverUrl}${routeConfig.IdentityRoute.ProcessView}?code=${authCode}&locale=${displayLocale}`
+    mfaCode = await emailService.sendMagicLinkEmail(
+      c,
+      authCodeBody.user.email,
+      authCodeBody.user.orgSlug,
+      locale,
+      magicLinkBaseUrl,
+    )
+  } else {
+    mfaCode = await emailService.sendEmailMfa(
+      c,
+      authCodeBody.user.email,
+      authCodeBody.user.orgSlug,
+      locale,
+    )
+  }
+
   if (mfaCode) {
     if (isPasswordlessCode) {
       await kvService.storePasswordlessCode(

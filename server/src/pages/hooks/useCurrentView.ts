@@ -2,7 +2,9 @@ import {
   useCallback, useMemo, useState,
 } from 'hono/jsx'
 import { routeConfig } from 'configs'
-import { getStepFromParams } from 'pages/tools/param'
+import {
+  getStepFromParams, getMagicSignInParams,
+} from 'pages/tools/param'
 import { View } from 'configs/route'
 
 export { View }
@@ -19,6 +21,11 @@ const useCurrentView = () => {
         return View.AuthCodeExpired
       case routeConfig.IdentityRoute.VerifyEmailView:
         return View.VerifyEmail
+      case routeConfig.IdentityRoute.ProcessView: {
+        const { otp } = getMagicSignInParams()
+        if (otp) return View.MagicSignIn
+        return View.SignIn
+      }
       default:
         return View.SignIn
       }

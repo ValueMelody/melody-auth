@@ -9,6 +9,7 @@ export interface InitialProps {
   enablePasswordReset: boolean;
   enablePasswordSignIn: boolean;
   enablePasswordlessSignIn: boolean;
+  usePasswordlessAsMagicLink: boolean;
   enableMfaRememberDevice: boolean;
   enableNames: boolean;
   allowPasskey: boolean;
@@ -57,6 +58,7 @@ const useInitialProps = () => {
         enablePasswordReset: 'enablePasswordReset' in intialProps ? Boolean(intialProps.enablePasswordReset) : false,
         enablePasswordSignIn: 'enablePasswordSignIn' in intialProps ? Boolean(intialProps.enablePasswordSignIn) : false,
         enablePasswordlessSignIn: 'enablePasswordlessSignIn' in intialProps ? Boolean(intialProps.enablePasswordlessSignIn) : false,
+        usePasswordlessAsMagicLink: 'usePasswordlessAsMagicLink' in intialProps ? Boolean(intialProps.usePasswordlessAsMagicLink) : false,
         enableMfaRememberDevice: 'enableMfaRememberDevice' in intialProps ? Boolean(intialProps.enableMfaRememberDevice) : false,
         enableAppBanner: 'enableAppBanner' in intialProps ? Boolean(intialProps.enableAppBanner) : false,
         enableNames: 'enableNames' in intialProps ? Boolean(intialProps.enableNames) : false,

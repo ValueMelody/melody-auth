@@ -36,6 +36,7 @@ ALLOW_USER_SWITCH_ORG_ON_SIGN_IN=false
 ENABLE_USER_ATTRIBUTE=false
 BLOCKED_POLICIES=["change_org"] # A list of policy names that should be blocked (change_password, change_email, reset_mfa, manage_passkey, update_info, change_org), preventing end users from triggering them
 ENABLE_PASSWORDLESS_SIGN_IN=false # Please set up your mailer first https://auth.valuemelody.com/email-provider-setup.html. Setting this option to true will automatically override ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT, ENABLE_RECOVERY_CODE to false. Also, make sure to disable email MFA in order to use this feature.
+# USE_PASSWORDLESS_AS_MAGIC_LINK=false # If true and ENABLE_PASSWORDLESS_SIGN_IN is true, the passwordless sign-in email will contain a magic link. Clicking the link will automatically sign the user in without requiring them to manually enter the OTP code.
 EMBEDDED_AUTH_ORIGINS=[] # List of origins that are allowed to use embedded auth APIs.
 ENABLE_SAML_SSO_AS_SP=false # Experimental feature, only support in Node.js environment
 ENABLE_APP_BANNER=false # Enable the feature for displaying banners on the sign-in page of apps

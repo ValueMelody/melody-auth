@@ -34,6 +34,7 @@ export interface SignInProps {
   isSubmitting: boolean;
   isVerifyingPasskey: boolean;
   isPasswordlessSigningIn: boolean;
+  magicLinkSent: boolean;
   appBanners: bannerModel.Record[];
 }
 
@@ -53,8 +54,18 @@ const SignIn = ({
   isSubmitting,
   isVerifyingPasskey,
   isPasswordlessSigningIn,
+  magicLinkSent,
   appBanners,
 }: SignInProps) => {
+  if (magicLinkSent) {
+    return (
+      <>
+        <ViewTitle title={signIn.title[locale]} />
+        <p class='text-center text-sm'>{signIn.magicLinkSent[locale]}</p>
+      </>
+    )
+  }
+
   return (
     <>
       <ViewTitle title={signIn.title[locale]} />

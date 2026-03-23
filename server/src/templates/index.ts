@@ -3,6 +3,7 @@ import WelcomeEmailTemplate from 'templates/WelcomeEmail'
 import ChangeEmailVerificationTemplate from 'templates/ChangeEmailVerification'
 import PasswordResetTemplate from 'templates/PasswordReset'
 import EmailMfaTemplate from 'templates/EmailMfa'
+import MagicLinkTemplate from 'templates/MagicLink'
 import PopupRedirect from 'templates/PopupRedirect'
 
 export {
@@ -11,5 +12,6 @@ export {
   ChangeEmailVerificationTemplate,
   PasswordResetTemplate,
   EmailMfaTemplate,
+  MagicLinkTemplate,
   PopupRedirect,
 }

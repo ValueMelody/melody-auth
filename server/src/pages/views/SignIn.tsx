@@ -28,12 +28,13 @@ const SignIn = ({
 
   const {
     values, errors, handleChange, handleSubmit, handlePasswordlessSignIn,
-    isSubmitting, isPasswordlessSigningIn,
+    isSubmitting, isPasswordlessSigningIn, magicLinkSent,
   } = useSignInForm({
     locale,
     params,
     onSubmitError: handleSubmitError,
     onSwitchView,
+    usePasswordlessAsMagicLink: initialProps.usePasswordlessAsMagicLink,
   })
 
   const {
@@ -69,6 +70,7 @@ const SignIn = ({
       isSubmitting={isSubmitting}
       isVerifyingPasskey={isVerifyingPasskey}
       isPasswordlessSigningIn={isPasswordlessSigningIn}
+      magicLinkSent={magicLinkSent}
       appBanners={appBanners}
     />
   )
