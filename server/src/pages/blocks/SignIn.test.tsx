@@ -89,6 +89,26 @@ describe(
     })
 
     it(
+      'shows magic link sent message and hides form when magicLinkSent is true',
+      () => {
+        const props = {
+          ...defaultProps,
+          magicLinkSent: true,
+        }
+        const container = setup(props as any)
+
+        expect(container.textContent).toContain(signIn.title.en)
+        expect(container.textContent).toContain(signIn.magicLinkSent.en)
+
+        // Form inputs should not be rendered
+        const emailField = container.querySelector('input[name="email"]')
+        expect(emailField).toBeNull()
+        const passwordField = container.querySelector('input[name="password"]')
+        expect(passwordField).toBeNull()
+      },
+    )
+
+    it(
       'renders the title',
       () => {
         const container = setup()

@@ -5,7 +5,8 @@ import {
 import { render } from 'hono/jsx/dom'
 import Main from './Main'
 import {
-  authCodeExpired, changeEmail, changePassword, consent, emailMfa, managePasskey, manageRecoveryCode, mfaEnroll,
+  authCodeExpired, changeEmail, changePassword, consent, emailMfa,
+  magicSignIn, managePasskey, manageRecoveryCode, mfaEnroll,
   otpMfa, passkeyEnroll, passwordlessCode, recoveryCodeEnroll, recoveryCodeSignIn, resetMfa, resetPassword,
   signIn, signUp, smsMfa, updateInfo, verifyEmail, switchOrg,
 } from './tools/locale'
@@ -105,6 +106,7 @@ vi.mock(
         AuthCodeExpired: 'AuthCodeExpired',
         VerifyEmail: 'VerifyEmail',
         PasswordlessVerify: 'PasswordlessVerify',
+        MagicSignIn: 'MagicSignIn',
         SwitchOrg: 'SwitchOrg',
         ChangeOrg: 'ChangeOrg',
       },
@@ -403,6 +405,24 @@ describe(
         )
 
         expect(container.innerHTML).toContain(passwordlessCode.title.en)
+      },
+    )
+
+    it(
+      'renders MagicSignIn view',
+      () => {
+        (hooks.useCurrentView as Mock).mockReturnValue({
+          view: hooks.View.MagicSignIn,
+          handleSwitchView: mockHandleSwitchView,
+        })
+
+        const container = document.getElementById('root')!
+        render(
+          <Main />,
+          container,
+        )
+
+        expect(container.innerHTML).toContain(magicSignIn.processing.en)
       },
     )
 

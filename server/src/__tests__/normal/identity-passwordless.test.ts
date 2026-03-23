@@ -326,6 +326,50 @@ describe(
     )
 
     test(
+      'should send magic link email when USE_PASSWORDLESS_AS_MAGIC_LINK is true',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = true as unknown as string
+
+        const mockFetch = vi.fn(async () => Promise.resolve({ ok: true }))
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: body.code,
+              locale: 'en',
+            }),
+          },
+          mock(db),
+        )
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${body.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(emailBody).toContain(routeConfig.IdentityRoute.ProcessView)
+        expect(emailBody).toContain(`code=${body.code}`)
+        expect(emailBody).toContain(`otp=${mfaCode}`)
+
+        global.fetch = fetchMock
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = undefined as unknown as string
+      },
+    )
+
+    test(
       'should throw error if email mfa is locked',
       async () => {
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
@@ -457,6 +501,70 @@ describe(
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${json.code}`)).toBe('1')
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
+      },
+    )
+
+    test(
+      'could process magic link code',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        const mockFetch = vi.fn(async () => Promise.resolve({ ok: true }))
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`)
+        expect(mfaCode?.length).toBe(6)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const emailBody = (callArgs[1] as unknown as { body: string }).body
+        expect(emailBody).toContain(routeConfig.IdentityRoute.ProcessView)
+        expect(emailBody).toContain(`code=${requestBody.code}`)
+        expect(emailBody).toContain(`otp=${mfaCode}`)
+
+        global.fetch = fetchMock
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode,
+            }),
+          },
+          mock(db),
+        )
+        const json = await res.json() as { code: string }
+        expect(json).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+        })
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = undefined as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
       },

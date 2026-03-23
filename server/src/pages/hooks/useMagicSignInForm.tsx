@@ -4,7 +4,9 @@ import {
 import { View } from './useCurrentView'
 import useInitialProps from './useInitialProps'
 import { getMagicSignInParams } from 'pages/tools/param'
-import { routeConfig, typeConfig } from 'configs'
+import {
+  routeConfig, typeConfig,
+} from 'configs'
 import {
   handleAuthorizeStep, parseResponse,
 } from 'pages/tools/request'

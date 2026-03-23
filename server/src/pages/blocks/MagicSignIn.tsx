@@ -1,4 +1,6 @@
-import { SubmitError, ViewTitle } from 'pages/components'
+import {
+  SubmitError, ViewTitle,
+} from 'pages/components'
 import { magicSignIn } from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 
