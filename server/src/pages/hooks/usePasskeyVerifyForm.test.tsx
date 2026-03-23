@@ -59,6 +59,7 @@ describe(
       enablePasswordReset: true,
       enablePasswordSignIn: true,
       enablePasswordlessSignIn: false,
+      usePasswordlessAsMagicLink: false,
       enableMfaRememberDevice: false,
       enableNames: false,
       allowPasskey,

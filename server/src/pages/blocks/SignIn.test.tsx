@@ -64,6 +64,7 @@ describe(
       isSending: false,
       isVerifyingPasskey: false,
       isPasswordlessSigningIn: false,
+      magicLinkSent: false,
       params: { scope: 'openid email profile' } as any,
     }
 

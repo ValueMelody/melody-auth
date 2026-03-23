@@ -156,8 +156,8 @@ const useSignInForm = ({
         },
       )
         .then(parseResponse)
-        .then((response) => {
-          if (usePasswordlessAsMagicLink && response.code) {
+        .then((response: any) => {
+          if (usePasswordlessAsMagicLink && 'code' in response && response.code) {
             return fetch(
               routeConfig.IdentityRoute.SendPasswordlessCode,
               {

@@ -60,6 +60,11 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** false
 - **Description:** Enables passwordless sign-in. Setting this option to true will automatically override the following settings to false: ENABLE_SIGN_UP, ENABLE_PASSWORD_SIGN_IN, ENABLE_PASSWORD_RESET, ALLOW_PASSKEY_ENROLLMENT. Note that having both passwordless sign-in and Email MFA enabled at the same time may not be practical.
 
+### USE_PASSWORDLESS_AS_MAGIC_LINK
+- **Default:** false
+- **Description:** Changes the passwordless sign-in flow to use magic links instead of one-time passcodes (OTP). When enabled (requires `ENABLE_PASSWORDLESS_SIGN_IN=true`), users enter their email and receive an email containing a sign-in link. Clicking the link completes sign-in automatically, without requiring the user to enter a code. The sign-in page displays a confirmation message and stays on the same screen after the email is sent.
+- Requires [Email Provider Setup](https://auth.valuemelody.com/email-provider-setup.html)
+
 ### ENABLE_PASSWORD_RESET
 - **Default:** true
 - **Description:** Enables password reset functionality. If `false`, the "Forgot Password" option is hidden.
