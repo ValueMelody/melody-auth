@@ -164,6 +164,27 @@ export const getRefreshTokenBody = async (
   }
 }
 
+export const listActiveSessionsByUser = async (
+  kv: KVNamespace,
+  authId: string,
+) => {
+  const prefix = `${adapterConfig.BaseKVKey.RefreshToken}-${authId}.`
+  const { keys } = await kv.list({ prefix })
+  const sessions = await Promise.all(keys.map(async (key) => {
+    const value = await kv.get(key.name)
+    const body: typeConfig.RefreshTokenBody | null = value ? JSON.parse(value) : null
+    return {
+      token: key.name.replace(
+        `${adapterConfig.BaseKVKey.RefreshToken}-`,
+        '',
+      ),
+      expiredAt: key.expiration,
+      ...body,
+    }
+  }))
+  return sessions
+}
+
 export const emailMfaCodeVerified = async (
   kv: KVNamespace,
   authCode: string,

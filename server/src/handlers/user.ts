@@ -482,6 +482,15 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
   })
 }
 
+export const getUserActiveSessions = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const activeSessions = await kvService.listActiveSessionsByUser(
+    c.env.KV,
+    authId,
+  )
+  return c.json({ activeSessions })
+}
+
 export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const orgGroupId = c.req.param('orgGroupId')

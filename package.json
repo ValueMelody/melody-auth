@@ -9,7 +9,8 @@
     "lint:check": "eslint ./ --ext .ts,.tsx,.js,.cjs",
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js,.cjs",
     "docs:build": "vuepress build docs",
-    "docs:dev": "vuepress dev docs"
+    "docs:dev": "vuepress dev docs",
+    "s2s:generate": "cd server && npm run swagger:generate:s2s && cd ../admin-panel && npm run service:generate"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.15.0",

@@ -52,6 +52,7 @@ import {
   useGetApiV1OrgsQuery,
   useGetApiV1RolesQuery,
   useGetApiV1UserAttributesQuery,
+  useGetApiV1UsersByAuthIdActiveSessionsQuery,
   useGetApiV1UsersByAuthIdConsentedAppsQuery,
   useGetApiV1UsersByAuthIdLockedIpsQuery,
   useGetApiV1UsersByAuthIdOrgsQuery,
@@ -141,6 +142,11 @@ const Page = () => {
     { skip: !enableConsent },
   )
   const consentedApps = consentsData?.consentedApps ?? []
+
+  const { data: activeSessionsData } = useGetApiV1UsersByAuthIdActiveSessionsQuery(
+    { authId: String(authId) },
+  )
+  const activeSessions = activeSessionsData?.activeSessions ?? []
 
   const { data: passkeysData } = useGetApiV1UsersByAuthIdPasskeysQuery(
     { authId: String(authId) },
@@ -980,6 +986,37 @@ const Page = () => {
           </section>
         </>
       )}
+      <h2 className='font-semibold mt-8'>{t('users.activeSessions')}</h2>
+      <section className='mt-4'>
+        {activeSessions.length > 0
+          ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('users.sessionClientId')}</TableHead>
+                  <TableHead>{t('users.sessionScope')}</TableHead>
+                  <TableHead>{t('users.sessionRoles')}</TableHead>
+                  <TableHead>{t('users.sessionExpiredAt')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {activeSessions.map((session) => (
+                  <TableRow key={session.token}>
+                    <TableCell>{session.clientId}</TableCell>
+                    <TableCell>{session.scope}</TableCell>
+                    <TableCell>{session.roles?.join(', ')}</TableCell>
+                    <TableCell>
+                      {session.expiredAt
+                        ? new Date(session.expiredAt * 1000).toLocaleString()
+                        : '-'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )
+          : <p>{t('users.noActiveSessions')}</p>}
+      </section>
     </section>
   )
 }
