@@ -463,7 +463,7 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
   const scope = `${Scope.OfflineAccess} ${Scope.Profile}`
   const currentTimestamp = timeUtil.getCurrentTimestamp()
   const refreshTokenExpiresIn = 1800
-  const refreshToken = `${authId}.${genRandomString(128)}`
+  const refreshToken = `${user.id}.${genRandomString(128)}`
   const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
 
   await kvService.storeRefreshToken(
@@ -484,9 +484,13 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
 
 export const getUserActiveSessions = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
   const activeSessions = await kvService.listActiveSessionsByUser(
     c.env.KV,
-    authId,
+    user.id,
   )
   return c.json({ activeSessions })
 }

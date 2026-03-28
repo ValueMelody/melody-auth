@@ -117,12 +117,16 @@ export const storeRefreshToken = async (
   value: typeConfig.RefreshTokenBody,
   expiresIn: number,
 ) => {
+  const expiredAt = Math.floor(Date.now() / 1000) + expiresIn
   await kv.put(
     adapterConfig.getKVKey(
       adapterConfig.BaseKVKey.RefreshToken,
       refreshToken,
     ),
-    JSON.stringify(value),
+    JSON.stringify({
+      ...value,
+      expiredAt,
+    }),
     { expirationTtl: expiresIn },
   )
 }
@@ -166,9 +170,9 @@ export const getRefreshTokenBody = async (
 
 export const listActiveSessionsByUser = async (
   kv: KVNamespace,
-  authId: string,
+  userId: number,
 ) => {
-  const prefix = `${adapterConfig.BaseKVKey.RefreshToken}-${authId}.`
+  const prefix = `${adapterConfig.BaseKVKey.RefreshToken}-${userId}.`
   const { keys } = await kv.list({ prefix })
   const sessions = await Promise.all(keys.map(async (key) => {
     const value = await kv.get(key.name)
@@ -178,7 +182,6 @@ export const listActiveSessionsByUser = async (
         `${adapterConfig.BaseKVKey.RefreshToken}-`,
         '',
       ),
-      expiredAt: key.expiration,
       ...body,
     }
   }))

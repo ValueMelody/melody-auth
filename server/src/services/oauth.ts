@@ -179,7 +179,7 @@ export const handleAuthCodeTokenExchange = async (
 
   if (authInfo.request.scopes.includes(Scope.OfflineAccess)) {
     const { SPA_REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn } = env(c)
-    const refreshToken = `${authId}.${genRandomString(128)}`
+    const refreshToken = `${authInfo.user.id}.${genRandomString(128)}`
     const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
 
     result.refresh_token = refreshToken
