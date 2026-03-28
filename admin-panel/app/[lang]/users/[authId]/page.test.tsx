@@ -35,6 +35,7 @@ import {
   useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useGetApiV1UsersByAuthIdOrgsQuery,
   usePostApiV1UsersByAuthIdOrgsMutation,
+  useGetApiV1UsersByAuthIdActiveSessionsQuery,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
@@ -106,6 +107,7 @@ vi.mock(
     useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation: vi.fn(),
     useGetApiV1UsersByAuthIdOrgsQuery: vi.fn(),
     usePostApiV1UsersByAuthIdOrgsMutation: vi.fn(),
+    useGetApiV1UsersByAuthIdActiveSessionsQuery: vi.fn(),
   }),
 )
 
@@ -207,7 +209,9 @@ describe(
       (useGetApiV1UsersByAuthIdOrgsQuery as Mock).mockReturnValue({ data: { orgs: [] } });
       (usePostApiV1UsersByAuthIdOrgsMutation as Mock).mockReturnValue([
         mockPostUserOrgs, { isLoading: false },
-      ])
+      ]);
+      (useGetApiV1UsersByAuthIdActiveSessionsQuery as Mock).mockReturnValue({ data: { activeSessions: [] } });
+      (useGetApiV1AppsQuery as Mock).mockReturnValue({ data: { apps: [] } })
     })
 
     it(
@@ -2059,6 +2063,142 @@ describe(
         })
 
         vi.mocked(configSignal).value = originalConfig
+      },
+    )
+
+    it(
+      'renders active sessions heading',
+      async () => {
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('users.activeSessions')).toBeInTheDocument()
+        })
+      },
+    )
+
+    it(
+      'shows no active sessions message when there are no sessions',
+      async () => {
+        (useGetApiV1UsersByAuthIdActiveSessionsQuery as Mock).mockReturnValue({ data: { activeSessions: [] } })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('users.noActiveSessions')).toBeInTheDocument()
+        })
+      },
+    )
+
+    it(
+      'renders active sessions table with session data',
+      async () => {
+        (useGetApiV1UsersByAuthIdActiveSessionsQuery as Mock).mockReturnValue({
+          data: {
+            activeSessions: [
+              {
+                token: 'token-abc',
+                clientId: 'client-1',
+                scope: 'profile openid',
+                roles: ['super_admin'],
+                expiredAt: 1800000000,
+              },
+            ],
+          },
+        });
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({
+          data: {
+            apps: [{
+              clientId: 'client-1', name: 'Test App',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('users.sessionApp')).toBeInTheDocument()
+          expect(screen.getByText('users.sessionScope')).toBeInTheDocument()
+          expect(screen.getByText('users.sessionRoles')).toBeInTheDocument()
+          expect(screen.getByText('users.sessionExpiredAt')).toBeInTheDocument()
+          expect(screen.getByText('Test App')).toBeInTheDocument()
+          expect(screen.getByText('profile openid')).toBeInTheDocument()
+          expect(screen.getAllByText('super_admin').length).toBeGreaterThanOrEqual(1)
+        })
+      },
+    )
+
+    it(
+      'renders dash when session clientId is not found in apps map',
+      async () => {
+        (useGetApiV1UsersByAuthIdActiveSessionsQuery as Mock).mockReturnValue({
+          data: {
+            activeSessions: [
+              {
+                token: 'token-xyz',
+                clientId: 'unknown-client',
+                scope: 'profile',
+                roles: [],
+                expiredAt: null,
+              },
+            ],
+          },
+        });
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({ data: { apps: [] } })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const dashCells = screen.getAllByText('-')
+          expect(dashCells.length).toBeGreaterThanOrEqual(1)
+        })
+      },
+    )
+
+    it(
+      'renders multiple active sessions',
+      async () => {
+        (useGetApiV1UsersByAuthIdActiveSessionsQuery as Mock).mockReturnValue({
+          data: {
+            activeSessions: [
+              {
+                token: 'token-1',
+                clientId: 'client-1',
+                scope: 'profile',
+                roles: [],
+                expiredAt: 1800000000,
+              },
+              {
+                token: 'token-2',
+                clientId: 'client-2',
+                scope: 'offline_access',
+                roles: ['super_admin'],
+                expiredAt: 1900000000,
+              },
+            ],
+          },
+        });
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({
+          data: {
+            apps: [
+              {
+                clientId: 'client-1', name: 'App One',
+              },
+              {
+                clientId: 'client-2', name: 'App Two',
+              },
+            ],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          expect(screen.getByText('App One')).toBeInTheDocument()
+          expect(screen.getByText('App Two')).toBeInTheDocument()
+          expect(screen.getByText('profile')).toBeInTheDocument()
+          expect(screen.getByText('offline_access')).toBeInTheDocument()
+        })
       },
     )
   },

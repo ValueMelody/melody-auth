@@ -144,19 +144,20 @@ const Page = () => {
   )
   const consentedApps = consentsData?.consentedApps ?? []
 
-  const { data: activeSessionsData } = useGetApiV1UsersByAuthIdActiveSessionsQuery(
-    { authId: String(authId) },
-  )
+  const { data: activeSessionsData } = useGetApiV1UsersByAuthIdActiveSessionsQuery({ authId: String(authId) })
   const activeSessions = activeSessionsData?.activeSessions ?? []
 
   const { data: appsData } = useGetApiV1AppsQuery()
-  const appsByClientId = useMemo(() => {
-    const map: Record<string, string> = {}
-    for (const app of appsData?.apps ?? []) {
-      map[app.clientId] = app.name
-    }
-    return map
-  }, [appsData])
+  const appsByClientId = useMemo(
+    () => {
+      const map: Record<string, string> = {}
+      for (const app of appsData?.apps ?? []) {
+        map[app.clientId] = app.name
+      }
+      return map
+    },
+    [appsData],
+  )
 
   const { data: passkeysData } = useGetApiV1UsersByAuthIdPasskeysQuery(
     { authId: String(authId) },
