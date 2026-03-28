@@ -49,6 +49,7 @@ import {
   useDeleteApiV1UsersByAuthIdOtpMfaMutation,
   useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation,
   useDeleteApiV1UsersByAuthIdSmsMfaMutation,
+  useGetApiV1AppsQuery,
   useGetApiV1OrgsQuery,
   useGetApiV1RolesQuery,
   useGetApiV1UserAttributesQuery,
@@ -147,6 +148,15 @@ const Page = () => {
     { authId: String(authId) },
   )
   const activeSessions = activeSessionsData?.activeSessions ?? []
+
+  const { data: appsData } = useGetApiV1AppsQuery()
+  const appsByClientId = useMemo(() => {
+    const map: Record<string, string> = {}
+    for (const app of appsData?.apps ?? []) {
+      map[app.clientId] = app.name
+    }
+    return map
+  }, [appsData])
 
   const { data: passkeysData } = useGetApiV1UsersByAuthIdPasskeysQuery(
     { authId: String(authId) },
@@ -993,7 +1003,7 @@ const Page = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('users.sessionClientId')}</TableHead>
+                  <TableHead>{t('users.sessionApp')}</TableHead>
                   <TableHead>{t('users.sessionScope')}</TableHead>
                   <TableHead>{t('users.sessionRoles')}</TableHead>
                   <TableHead>{t('users.sessionExpiredAt')}</TableHead>
@@ -1002,7 +1012,7 @@ const Page = () => {
               <TableBody>
                 {activeSessions.map((session) => (
                   <TableRow key={session.token}>
-                    <TableCell>{session.clientId}</TableCell>
+                    <TableCell>{session.clientId ? (appsByClientId[session.clientId] ?? '-') : '-'}</TableCell>
                     <TableCell>{session.scope}</TableCell>
                     <TableCell>{session.roles?.join(', ')}</TableCell>
                     <TableCell>

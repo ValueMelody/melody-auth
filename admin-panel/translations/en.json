@@ -164,7 +164,7 @@
     "uniqueAttribute": "* Unique Attribute",
     "activeSessions": "Active Sessions",
     "noActiveSessions": "No active sessions.",
-    "sessionClientId": "Client ID",
+    "sessionApp": "App",
     "sessionScope": "Scope",
     "sessionRoles": "Roles",
     "sessionExpiredAt": "Expires At"
