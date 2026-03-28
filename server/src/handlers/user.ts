@@ -463,14 +463,19 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
   const scope = `${Scope.OfflineAccess} ${Scope.Profile}`
   const currentTimestamp = timeUtil.getCurrentTimestamp()
   const refreshTokenExpiresIn = 1800
-  const refreshToken = genRandomString(128)
+  const refreshToken = `${user.id}.${genRandomString(128)}`
   const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
 
   await kvService.storeRefreshToken(
     c.env.KV,
     refreshToken,
     {
-      authId, clientId: app.clientId, scope, roles: userRoles, impersonatedBy: impersonator.authId,
+      authId,
+      clientId: app.clientId,
+      scope,
+      roles: userRoles,
+      impersonatedBy: impersonator.authId,
+      expiredAt: refreshTokenExpiresAt,
     },
     refreshTokenExpiresIn,
   )
@@ -480,6 +485,19 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
     refresh_token_expires_in: refreshTokenExpiresIn,
     refresh_token_expires_on: refreshTokenExpiresAt,
   })
+}
+
+export const getUserActiveSessions = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+  const activeSessions = await kvService.listActiveSessionsByUser(
+    c.env.KV,
+    user.id,
+  )
+  return c.json({ activeSessions })
 }
 
 export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {

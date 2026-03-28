@@ -157,7 +157,13 @@
     "selectOrgGroups": "Sélectionner les groupes d'organisation à assigner à l'utilisateur",
     "manageUserAllOrgs": "Gérer les organisations de l'utilisateur",
     "selectUserOrgs": "Sélectionner les organisations à assigner à l'utilisateur",
-    "uniqueAttribute": "* Attribut unique"
+    "uniqueAttribute": "* Attribut unique",
+    "activeSessions": "Sessions actives",
+    "noActiveSessions": "Aucune session active.",
+    "sessionApp": "App",
+    "sessionScope": "Portée",
+    "sessionRoles": "Rôles",
+    "sessionExpiredAt": "Expire le"
   },
   "userAttributes": {
     "title": "Attributs utilisateur",

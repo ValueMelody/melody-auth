@@ -163,6 +163,7 @@ export interface RefreshTokenBody {
   clientId: string;
   scope: string;
   roles: string[];
+  expiredAt: number;
   impersonatedBy?: string;
 }
 

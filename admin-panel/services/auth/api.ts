@@ -511,6 +511,13 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Users'],
       }),
+      getApiV1UsersByAuthIdActiveSessions: build.query<
+        GetApiV1UsersByAuthIdActiveSessionsApiResponse,
+        GetApiV1UsersByAuthIdActiveSessionsApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/active-sessions` }),
+        providesTags: ['Users'],
+      }),
       postApiV1UsersByAuthIdOrgGroupsAndOrgGroupId: build.mutation<
         PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiResponse,
         PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiArg
@@ -1122,6 +1129,21 @@ export type PostApiV1UsersByAuthIdImpersonationAndAppIdApiArg = {
     /** The access token of the user impersonating, this user must be a super_admin */
     impersonatorToken?: string;
   };
+};
+export type GetApiV1UsersByAuthIdActiveSessionsApiResponse =
+  /** status 200 A list of active sessions */ {
+    activeSessions?: {
+      token?: string;
+      expiredAt?: number;
+      authId?: string;
+      clientId?: string;
+      scope?: string;
+      roles?: string[];
+    }[];
+  };
+export type GetApiV1UsersByAuthIdActiveSessionsApiArg = {
+  /** The authId of the user */
+  authId: string;
 };
 export type PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiResponse =
   /** status 200 undefined */ {
@@ -1740,6 +1762,8 @@ export const {
   usePostApiV1UsersByAuthIdAccountLinkingAndLinkingAuthIdMutation,
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
+  useGetApiV1UsersByAuthIdActiveSessionsQuery,
+  useLazyGetApiV1UsersByAuthIdActiveSessionsQuery,
   usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useGetApiV1UsersByAuthIdOrgsQuery,

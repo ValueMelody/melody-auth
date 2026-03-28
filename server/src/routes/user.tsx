@@ -637,6 +637,54 @@ userRoutes.post(
 
 /**
  * @swagger
+ * /api/v1/users/{authId}/active-sessions:
+ *   get:
+ *     summary: Get a list of active sessions for a user
+ *     description: Required scope - read_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *     responses:
+ *       200:
+ *         description: A list of active sessions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 activeSessions:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       token:
+ *                         type: string
+ *                       expiredAt:
+ *                         type: number
+ *                       authId:
+ *                         type: string
+ *                       clientId:
+ *                         type: string
+ *                       scope:
+ *                         type: string
+ *                       roles:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ */
+userRoutes.get(
+  `${BaseRoute}/:authId/active-sessions`,
+  authMiddleware.s2sReadUser,
+  userHandler.getUserActiveSessions,
+)
+
+/**
+ * @swagger
  * /api/v1/users/{authId}/org-groups/{orgGroupId}:
  *   post:
  *     summary: Add an existing org group to a user by authId and orgGroupId
