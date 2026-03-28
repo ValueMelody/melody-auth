@@ -3169,3 +3169,157 @@ describe(
     )
   },
 )
+
+describe(
+  'get /users/:authId/active-sessions',
+  () => {
+    const signInAndGetTokens = async () => {
+      const tokenRes = await exchangeWithAuthToken(db)
+      return tokenRes.json() as Promise<{ refresh_token: string; access_token: string }>
+    }
+
+    test(
+      'should return active sessions for a user',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenJson = await signInAndGetTokens()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json() as { activeSessions: unknown[] }
+        expect(json.activeSessions).toHaveLength(1)
+        expect(json.activeSessions[0]).toStrictEqual({
+          token: tokenJson.refresh_token,
+          authId: '1-1-1-1',
+          clientId: expect.any(String),
+          scope: 'profile openid offline_access',
+          roles: [],
+          expiredAt: expect.any(Number),
+        })
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should return multiple active sessions after multiple sign-ins',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenJson1 = await signInAndGetTokens()
+        const tokenJson2 = await signInAndGetTokens()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json() as { activeSessions: unknown[] }
+        expect(json.activeSessions).toHaveLength(2)
+        const tokens = (json.activeSessions as { token: string }[]).map((s) => s.token)
+        expect(tokens).toContain(tokenJson1.refresh_token)
+        expect(tokens).toContain(tokenJson2.refresh_token)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should return empty array for user with no active sessions',
+      async () => {
+        await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json() as { activeSessions: unknown[] }
+        expect(json.activeSessions).toStrictEqual([])
+      },
+    )
+
+    test(
+      'should return 404 for non-existent user',
+      async () => {
+        const res = await app.request(
+          `${BaseRoute}/non-existent-auth-id/active-sessions`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+      },
+    )
+
+    test(
+      'should work with read_user scope',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        await attachIndividualScopes(db)
+        await signInAndGetTokens()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json() as { activeSessions: unknown[] }
+        expect(json.activeSessions).toHaveLength(1)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should return 401 without authorization',
+      async () => {
+        await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+      },
+    )
+
+    test(
+      'should return 401 with wrong scope',
+      async () => {
+        await insertUsers(db)
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          {
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+      },
+    )
+  },
+)
