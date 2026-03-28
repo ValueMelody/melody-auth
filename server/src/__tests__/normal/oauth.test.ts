@@ -2263,12 +2263,15 @@ describe(
       )
       const tokenJson = await tokenRes.json() as { refresh_token: string; access_token: string }
 
+      expect(tokenJson.refresh_token).toMatch(/^1\./)
+
       const tokenBody = await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)
       expect(JSON.parse(tokenBody ?? '')).toStrictEqual({
         authId: '1-1-1-1',
         clientId: appRecord.clientId,
         scope: 'profile openid offline_access',
         roles: [],
+        expiredAt: expect.any(Number),
       })
 
       return tokenJson
