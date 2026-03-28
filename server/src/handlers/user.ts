@@ -470,7 +470,12 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     refreshToken,
     {
-      authId, clientId: app.clientId, scope, roles: userRoles, impersonatedBy: impersonator.authId,
+      authId,
+      clientId: app.clientId,
+      scope,
+      roles: userRoles,
+      impersonatedBy: impersonator.authId,
+      expiredAt: refreshTokenExpiresAt,
     },
     refreshTokenExpiresIn,
   )

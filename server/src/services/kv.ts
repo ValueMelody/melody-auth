@@ -117,16 +117,12 @@ export const storeRefreshToken = async (
   value: typeConfig.RefreshTokenBody,
   expiresIn: number,
 ) => {
-  const expiredAt = Math.floor(Date.now() / 1000) + expiresIn
   await kv.put(
     adapterConfig.getKVKey(
       adapterConfig.BaseKVKey.RefreshToken,
       refreshToken,
     ),
-    JSON.stringify({
-      ...value,
-      expiredAt,
-    }),
+    JSON.stringify(value),
     { expirationTtl: expiresIn },
   )
 }

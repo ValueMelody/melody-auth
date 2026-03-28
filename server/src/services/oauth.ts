@@ -190,7 +190,11 @@ export const handleAuthCodeTokenExchange = async (
       c.env.KV,
       refreshToken,
       {
-        authId, clientId: authInfo.request.clientId, scope, roles: userRoles,
+        authId,
+        clientId: authInfo.request.clientId,
+        scope,
+        roles: userRoles,
+        expiredAt: refreshTokenExpiresAt,
       },
       refreshTokenExpiresIn,
     )
