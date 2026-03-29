@@ -93,6 +93,7 @@ A consolidated reference of supported Melody Auth capabilities and notable confi
 | Role CRUD | Create, read, update, and delete roles | | ✓ | ✓ | |
 | Assign role to user | Grant a role to a specific user | | ✓ | ✓ | |
 | Remove role from user | Revoke a role from a specific user | | ✓ | ✓ | |
+| List users by role | Retrieve all users assigned to a specific role | | ✓ | ✓ | |
 | Roles in JWT | Include the user's roles as a claim in issued access and ID tokens | ✓ | | | ✓ |
 
 ---
@@ -119,6 +120,7 @@ A consolidated reference of supported Melody Auth capabilities and notable confi
 | Org group CRUD | Create, read, update, and delete groups within an organization | | ✓ | ✓ | |
 | Assign user to org group | Add a user to an org group | | ✓ | ✓ | |
 | Remove user from org group | Remove a user from an org group | | ✓ | ✓ | |
+| List users in org group | Retrieve all users belonging to a specific org group | | ✓ | ✓ | |
 
 ---
 
@@ -254,6 +256,19 @@ Policies allow you to route users to specific auth flows without changing applic
 
 ---
 
+## Extensibility
+
+Server-side hooks are async functions defined in `server/src/hooks/` that execute at key points in the auth flow. They can be used to add custom business logic, logging, or side effects without modifying core server code.
+
+| Hook | Trigger point |
+|------|---------------|
+| `preSignUp` / `postSignUp` | Before and after a new user account is created |
+| `preSignIn` / `postSignIn` | Before and after a user successfully signs in |
+| `preTokenExchangeWithAuthCode` / `postTokenExchangeWithAuthCode` | Before and after an authorization code is exchanged for tokens |
+| `preTokenClientCredentials` / `postTokenClientCredentials` | Before and after a client credentials token is issued |
+
+---
+
 ## Developer Tools
 
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
@@ -261,6 +276,8 @@ Policies allow you to route users to specific auth flows without changing applic
 | Swagger UI (S2S) | Interactive API documentation for server-to-server endpoints | | ✓ | | |
 | Swagger UI (Embedded) | Interactive API documentation for embedded auth endpoints | | | | ✓ |
 | Configuration info endpoint | Public `/info` endpoint exposing feature flags and client configuration | ✓ | | | |
+| Dashboard — config viewer | Admin panel page showing all active server configuration values and quick links to well-known, Swagger, and `/info` endpoints | | | ✓ | |
+| Admin account self-service | Admin panel page for the signed-in administrator to update profile, change password/email, reset MFA, manage passkeys, and manage recovery codes | | | ✓ | |
 
 ---
 
