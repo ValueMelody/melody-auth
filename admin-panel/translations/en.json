@@ -167,8 +167,12 @@
     "sessionApp": "App",
     "sessionScope": "Scope",
     "sessionRoles": "Roles",
+<<<<<<< HEAD
     "sessionExpiredAt": "Expires At",
     "revokeSession": "Revoke"
+=======
+    "sessionExpiredAt": "Expires At"
+>>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85
   },
   "userAttributes": {
     "title": "User Attributes",

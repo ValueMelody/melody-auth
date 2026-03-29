@@ -518,6 +518,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/active-sessions` }),
         providesTags: ['Users'],
       }),
+<<<<<<< HEAD
       deleteApiV1UsersByAuthIdActiveSessionsAndSessionId: build.mutation<
         DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiResponse,
         DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiArg
@@ -528,6 +529,8 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Users'],
       }),
+=======
+>>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85
       postApiV1UsersByAuthIdOrgGroupsAndOrgGroupId: build.mutation<
         PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiResponse,
         PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiArg
@@ -1155,6 +1158,7 @@ export type GetApiV1UsersByAuthIdActiveSessionsApiArg = {
   /** The authId of the user */
   authId: string;
 };
+<<<<<<< HEAD
 export type DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiResponse =
   unknown;
 export type DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiArg = {
@@ -1163,6 +1167,8 @@ export type DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiArg = {
   /** The session token id to delete */
   sessionId: string;
 };
+=======
+>>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85
 export type PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiResponse =
   /** status 200 undefined */ {
     success?: boolean;
@@ -1782,7 +1788,10 @@ export const {
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
   useGetApiV1UsersByAuthIdActiveSessionsQuery,
   useLazyGetApiV1UsersByAuthIdActiveSessionsQuery,
+<<<<<<< HEAD
   useDeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdMutation,
+=======
+>>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85
   usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useGetApiV1UsersByAuthIdOrgsQuery,

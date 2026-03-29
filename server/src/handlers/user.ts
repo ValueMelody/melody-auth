@@ -500,6 +500,7 @@ export const getUserActiveSessions = async (c: Context<typeConfig.Context>) => {
   return c.json({ activeSessions })
 }
 
+<<<<<<< HEAD
 export const deleteUserActiveSession = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const sessionId = c.req.param('sessionId')
@@ -525,6 +526,8 @@ export const deleteUserActiveSession = async (c: Context<typeConfig.Context>) =>
   return c.body(null)
 }
 
+=======
+>>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85
 export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const orgGroupId = c.req.param('orgGroupId')

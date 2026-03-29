@@ -1016,7 +1016,10 @@ const Page = () => {
                   <TableHead>{t('users.sessionScope')}</TableHead>
                   <TableHead>{t('users.sessionRoles')}</TableHead>
                   <TableHead>{t('users.sessionExpiredAt')}</TableHead>
+<<<<<<< HEAD
                   <TableHead />
+=======
+>>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1030,6 +1033,7 @@ const Page = () => {
                         ? new Date(session.expiredAt * 1000).toLocaleString()
                         : '-'}
                     </TableCell>
+<<<<<<< HEAD
                     <TableCell>
                       <Button
                         variant='destructive'
@@ -1039,6 +1043,8 @@ const Page = () => {
                         {t('users.revokeSession')}
                       </Button>
                     </TableCell>
+=======
+>>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85
                   </TableRow>
                 ))}
               </TableBody>
