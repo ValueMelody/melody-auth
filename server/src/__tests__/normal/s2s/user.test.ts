@@ -3323,7 +3323,6 @@ describe(
     )
   },
 )
-<<<<<<< HEAD
 
 describe(
   'delete /users/:authId/active-sessions/:sessionId',
@@ -3463,5 +3462,3 @@ describe(
     )
   },
 )
-=======
->>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85

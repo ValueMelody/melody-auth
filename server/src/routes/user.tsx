@@ -685,7 +685,6 @@ userRoutes.get(
 
 /**
  * @swagger
-<<<<<<< HEAD
  * /api/v1/users/{authId}/active-sessions/{sessionId}:
  *   delete:
  *     summary: Delete an active session for a user by authId and sessionId
@@ -716,8 +715,6 @@ userRoutes.delete(
 
 /**
  * @swagger
-=======
->>>>>>> 1842ec8a9eead681b3e5578c2d78e91a21b42f85
  * /api/v1/users/{authId}/org-groups/{orgGroupId}:
  *   post:
  *     summary: Add an existing org group to a user by authId and orgGroupId
