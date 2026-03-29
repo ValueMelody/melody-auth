@@ -42,6 +42,7 @@ import { useRouter } from 'i18n/navigation'
 import {
   PutUserReq,
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
+  useDeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdMutation,
   useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation,
   useDeleteApiV1UsersByAuthIdEmailMfaMutation,
   useDeleteApiV1UsersByAuthIdLockedIpsMutation,
@@ -188,6 +189,7 @@ const Page = () => {
   const [unenrollOtpMfa] = useDeleteApiV1UsersByAuthIdOtpMfaMutation()
   const [unlinkAccount] = useDeleteApiV1UsersByAuthIdAccountLinkingMutation()
   const [deletePasskey] = useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation()
+  const [revokeActiveSession] = useDeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdMutation()
 
   const updateObj = useMemo(
     () => {
@@ -340,6 +342,12 @@ const Page = () => {
       authId: String(authId), passkeyId: passkeys[0].id,
     })
     setIsRemovingPasskey(false)
+  }
+
+  const handleRevokeActiveSession = async (sessionId: string) => {
+    await revokeActiveSession({
+      authId: String(authId), sessionId,
+    })
   }
 
   const handleToggleUserRole = (role: string) => {
@@ -1008,6 +1016,7 @@ const Page = () => {
                   <TableHead>{t('users.sessionScope')}</TableHead>
                   <TableHead>{t('users.sessionRoles')}</TableHead>
                   <TableHead>{t('users.sessionExpiredAt')}</TableHead>
+                  <TableHead />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1020,6 +1029,15 @@ const Page = () => {
                       {session.expiredAt
                         ? new Date(session.expiredAt * 1000).toLocaleString()
                         : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant='destructive'
+                        size='sm'
+                        onClick={() => session.token && handleRevokeActiveSession(session.token)}
+                      >
+                        {t('users.revokeSession')}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -163,7 +163,8 @@
     "sessionApp": "App",
     "sessionScope": "Portée",
     "sessionRoles": "Rôles",
-    "sessionExpiredAt": "Expire le"
+    "sessionExpiredAt": "Expire le",
+    "revokeSession": "Révoquer"
   },
   "userAttributes": {
     "title": "Attributs utilisateur",

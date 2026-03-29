@@ -518,6 +518,16 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/v1/users/${queryArg.authId}/active-sessions` }),
         providesTags: ['Users'],
       }),
+      deleteApiV1UsersByAuthIdActiveSessionsAndSessionId: build.mutation<
+        DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiResponse,
+        DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/users/${queryArg.authId}/active-sessions/${queryArg.sessionId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Users'],
+      }),
       postApiV1UsersByAuthIdOrgGroupsAndOrgGroupId: build.mutation<
         PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiResponse,
         PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiArg
@@ -1145,6 +1155,14 @@ export type GetApiV1UsersByAuthIdActiveSessionsApiArg = {
   /** The authId of the user */
   authId: string;
 };
+export type DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiResponse =
+  unknown;
+export type DeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdApiArg = {
+  /** The authId of the user */
+  authId: string;
+  /** The session token id to delete */
+  sessionId: string;
+};
 export type PostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdApiResponse =
   /** status 200 undefined */ {
     success?: boolean;
@@ -1764,6 +1782,7 @@ export const {
   usePostApiV1UsersByAuthIdImpersonationAndAppIdMutation,
   useGetApiV1UsersByAuthIdActiveSessionsQuery,
   useLazyGetApiV1UsersByAuthIdActiveSessionsQuery,
+  useDeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdMutation,
   usePostApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useDeleteApiV1UsersByAuthIdOrgGroupsAndOrgGroupIdMutation,
   useGetApiV1UsersByAuthIdOrgsQuery,

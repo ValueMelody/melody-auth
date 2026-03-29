@@ -3323,3 +3323,142 @@ describe(
     )
   },
 )
+
+describe(
+  'delete /users/:authId/active-sessions/:sessionId',
+  () => {
+    const signInAndGetTokens = async () => {
+      const tokenRes = await exchangeWithAuthToken(db)
+      return tokenRes.json() as Promise<{ refresh_token: string; access_token: string }>
+    }
+
+    test(
+      'should delete an active session for a user',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenJson = await signInAndGetTokens()
+
+        const deleteRes = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions/${tokenJson.refresh_token}`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(deleteRes.status).toBe(204)
+
+        const getRes = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await getRes.json() as { activeSessions: unknown[] }
+        expect(json.activeSessions).toStrictEqual([])
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should delete only the specified session when multiple sessions exist',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenJson1 = await signInAndGetTokens()
+        const tokenJson2 = await signInAndGetTokens()
+
+        const deleteRes = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions/${tokenJson1.refresh_token}`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(deleteRes.status).toBe(204)
+
+        const getRes = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await getRes.json() as { activeSessions: { token: string }[] }
+        expect(json.activeSessions).toHaveLength(1)
+        expect(json.activeSessions[0].token).toBe(tokenJson2.refresh_token)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should return 404 for non-existent user',
+      async () => {
+        const res = await app.request(
+          `${BaseRoute}/non-existent-auth-id/active-sessions/1.sometoken`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+      },
+    )
+
+    test(
+      'should return 404 when session does not belong to user',
+      async () => {
+        await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions/999.sometoken`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+      },
+    )
+
+    test(
+      'should return 401 without authorization',
+      async () => {
+        await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions/1.sometoken`,
+          { method: 'DELETE' },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+      },
+    )
+
+    test(
+      'should return 401 with wrong scope',
+      async () => {
+        await insertUsers(db)
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions/1.sometoken`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+      },
+    )
+  },
+)
