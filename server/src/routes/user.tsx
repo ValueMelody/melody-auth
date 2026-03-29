@@ -685,6 +685,36 @@ userRoutes.get(
 
 /**
  * @swagger
+ * /api/v1/users/{authId}/active-sessions/{sessionId}:
+ *   delete:
+ *     summary: Delete an active session for a user by authId and sessionId
+ *     description: Required scope - write_user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the user
+ *       - in: path
+ *         name: sessionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The session token id to delete
+ *     responses:
+ *       204:
+ *         description: Successful operation with no content to return
+ */
+userRoutes.delete(
+  `${BaseRoute}/:authId/active-sessions/:sessionId`,
+  authMiddleware.s2sWriteUser,
+  userHandler.deleteUserActiveSession,
+)
+
+/**
+ * @swagger
  * /api/v1/users/{authId}/org-groups/{orgGroupId}:
  *   post:
  *     summary: Add an existing org group to a user by authId and orgGroupId

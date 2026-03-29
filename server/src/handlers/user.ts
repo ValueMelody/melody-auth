@@ -500,6 +500,31 @@ export const getUserActiveSessions = async (c: Context<typeConfig.Context>) => {
   return c.json({ activeSessions })
 }
 
+export const deleteUserActiveSession = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const sessionId = c.req.param('sessionId')
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  if (!sessionId.startsWith(`${user.id}.`)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.SessionNotFound,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.SessionNotFound)
+  }
+
+  await kvService.invalidRefreshToken(
+    c.env.KV,
+    sessionId,
+  )
+  c.status(204)
+  return c.body(null)
+}
+
 export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId')
   const orgGroupId = c.req.param('orgGroupId')
