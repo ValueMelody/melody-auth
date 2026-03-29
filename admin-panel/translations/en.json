@@ -163,6 +163,7 @@
     "selectUserOrgs": "Select organizations to assign to the user",
     "uniqueAttribute": "* Unique Attribute",
     "activeSessions": "Active Sessions",
+    "activeSessionsNote": "Revoking a session invalidates its refresh token. If server-side sessions are enabled, the user may still re-authenticate automatically and obtain a new token. To fully block access, set the user's status to Disabled.",
     "noActiveSessions": "No active sessions.",
     "sessionApp": "App",
     "sessionScope": "Scope",

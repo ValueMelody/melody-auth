@@ -36,6 +36,7 @@ import {
   useGetApiV1UsersByAuthIdOrgsQuery,
   usePostApiV1UsersByAuthIdOrgsMutation,
   useGetApiV1UsersByAuthIdActiveSessionsQuery,
+  useDeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdMutation,
 } from 'services/auth/api'
 import { users } from 'tests/userMock'
 import { roles } from 'tests/roleMock'
@@ -108,6 +109,7 @@ vi.mock(
     useGetApiV1UsersByAuthIdOrgsQuery: vi.fn(),
     usePostApiV1UsersByAuthIdOrgsMutation: vi.fn(),
     useGetApiV1UsersByAuthIdActiveSessionsQuery: vi.fn(),
+    useDeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdMutation: vi.fn(),
   }),
 )
 
@@ -149,6 +151,7 @@ const mockDeletePasskey = vi.fn()
 const mockAddOrgGroup = vi.fn()
 const mockDeleteOrgGroup = vi.fn()
 const mockPostUserOrgs = vi.fn()
+const mockRevokeActiveSession = vi.fn()
 
 describe(
   'user',
@@ -211,6 +214,8 @@ describe(
         mockPostUserOrgs, { isLoading: false },
       ]);
       (useGetApiV1UsersByAuthIdActiveSessionsQuery as Mock).mockReturnValue({ data: { activeSessions: [] } });
+      (useDeleteApiV1UsersByAuthIdActiveSessionsAndSessionIdMutation as Mock)
+        .mockReturnValue([mockRevokeActiveSession, { isLoading: false }]);
       (useGetApiV1AppsQuery as Mock).mockReturnValue({ data: { apps: [] } })
     })
 
@@ -2198,6 +2203,79 @@ describe(
           expect(screen.getByText('App Two')).toBeInTheDocument()
           expect(screen.getByText('profile')).toBeInTheDocument()
           expect(screen.getByText('offline_access')).toBeInTheDocument()
+        })
+      },
+    )
+
+    it(
+      'revokes active session when revoke button is clicked',
+      async () => {
+        (useGetApiV1UsersByAuthIdActiveSessionsQuery as Mock).mockReturnValue({
+          data: {
+            activeSessions: [
+              {
+                token: 'token-abc',
+                clientId: 'client-1',
+                scope: 'profile openid',
+                roles: ['super_admin'],
+                expiredAt: 1800000000,
+              },
+            ],
+          },
+        });
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({
+          data: {
+            apps: [{
+              clientId: 'client-1', name: 'Test App',
+            }],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const revokeButton = screen.getByText('users.revokeSession')
+          fireEvent.click(revokeButton)
+        })
+
+        await waitFor(() => {
+          expect(mockRevokeActiveSession).toHaveBeenCalledWith({
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            sessionId: 'token-abc',
+          })
+        })
+      },
+    )
+
+    it(
+      'renders a revoke button for each active session',
+      async () => {
+        (useGetApiV1UsersByAuthIdActiveSessionsQuery as Mock).mockReturnValue({
+          data: {
+            activeSessions: [
+              {
+                token: 'token-1',
+                clientId: 'client-1',
+                scope: 'profile',
+                roles: [],
+                expiredAt: 1800000000,
+              },
+              {
+                token: 'token-2',
+                clientId: 'client-2',
+                scope: 'offline_access',
+                roles: [],
+                expiredAt: 1900000000,
+              },
+            ],
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const revokeButtons = screen.getAllByText('users.revokeSession')
+          expect(revokeButtons).toHaveLength(2)
         })
       },
     )

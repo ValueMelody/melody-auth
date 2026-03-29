@@ -1006,6 +1006,7 @@ const Page = () => {
         </>
       )}
       <h2 className='font-semibold mt-8'>{t('users.activeSessions')}</h2>
+      <p className='mt-1 text-sm text-muted-foreground'>{t('users.activeSessionsNote')}</p>
       <section className='mt-4'>
         {activeSessions.length > 0
           ? (

@@ -159,6 +159,7 @@
     "selectUserOrgs": "Sélectionner les organisations à assigner à l'utilisateur",
     "uniqueAttribute": "* Attribut unique",
     "activeSessions": "Sessions actives",
+    "activeSessionsNote": "Révoquer une session invalide son jeton de rafraîchissement. Si les sessions côté serveur sont activées, l'utilisateur peut toujours se réauthentifier automatiquement et obtenir un nouveau jeton. Pour bloquer complètement l'accès, définissez le statut de l'utilisateur sur Désactivé.",
     "noActiveSessions": "Aucune session active.",
     "sessionApp": "App",
     "sessionScope": "Portée",
