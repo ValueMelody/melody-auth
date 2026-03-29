@@ -1,6 +1,6 @@
 # Feature Overview
 
-A comprehensive reference of all Melody Auth features, with support indicators for each access method.
+A consolidated reference of supported Melody Auth capabilities and notable configuration options, with support indicators for each access method.
 
 **Legend:** ✓ = Supported
 
@@ -26,7 +26,7 @@ A comprehensive reference of all Melody Auth features, with support indicators f
 | Social sign-in — Discord | OAuth 2.0 sign-in via Discord | ✓ | | | |
 | Social sign-in — Apple | OAuth 2.0 sign-in via Apple | ✓ | | | |
 | OIDC SSO | Sign in through an external OpenID Connect provider | ✓ | | | |
-| SAML SSO | Sign in through a SAML 2.0 identity provider | ✓ | | ✓ | |
+| SAML SSO | Sign in through a configured SAML 2.0 identity provider (Node.js deployment) | ✓ | | ✓ | |
 
 ---
 
@@ -37,11 +37,12 @@ A comprehensive reference of all Melody Auth features, with support indicators f
 | Email MFA | Send a one-time code to the user's email as a second factor | ✓ | ✓ | ✓ | ✓ |
 | OTP (TOTP) MFA | Time-based one-time password via an authenticator app | ✓ | ✓ | ✓ | ✓ |
 | SMS MFA | Send a one-time code via SMS as a second factor | ✓ | ✓ | ✓ | ✓ |
-| Passkeys (WebAuthn) | Register and verify a device-bound passkey as a second factor | ✓ | ✓ | ✓ | ✓ |
-| Recovery codes | Generate a one-time backup code to bypass MFA if locked out | ✓ | | | ✓ |
-| Remember device | Skip MFA on subsequent logins from a trusted device | ✓ | | | |
+| Passkeys (WebAuthn) | Enroll and verify a device-bound passkey for phishing-resistant sign-in and MFA bypass | ✓ | ✓ | ✓ | ✓ |
+| Recovery codes | Generate and use a one-time backup code to recover access when MFA is unavailable | ✓ | | | ✓ |
+| Remember device | Skip MFA on subsequent logins from a trusted device for 30 days | ✓ | | | ✓ |
 | Enforce one MFA enrollment | Require users to enroll at least one MFA method before completing sign-in | ✓ | | | |
-| Email MFA as backup | Allow email MFA as a fallback when the primary MFA method is unavailable | ✓ | | | |
+| Email MFA as backup | Allow email MFA as a fallback when the primary MFA method is unavailable | ✓ | | | ✓ |
+| App-level MFA configuration | Override MFA requirements and email-backup behavior per application | | ✓ | ✓ | |
 | MFA enrollment prompt | Guide users through MFA setup as part of the auth flow | ✓ | | | ✓ |
 
 ---
@@ -101,10 +102,11 @@ A comprehensive reference of all Melody Auth features, with support indicators f
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
 |---------|-------------|:---:|:---:|:---:|:---:|
 | Org CRUD | Create, read, update, and delete organizations | | ✓ | ✓ | |
-| Assign user to org | Add or update the orgs a user belongs to | | ✓ | ✓ | |
+| User org memberships — list/update | Retrieve and update the organizations a user belongs to | | ✓ | ✓ | |
+| Active org — set | Set a user's active organization from among their memberships | | ✓ | ✓ | |
 | List org users | Retrieve users belonging to an organization | | ✓ | ✓ | |
-| Org branding override | Override logo and theme colors per organization | | | ✓ | |
-| SAML SSO per org | Configure a SAML IdP that is scoped to a specific organization | | | ✓ | |
+| Org public registration | Allow or block self-service registration for a specific organization | ✓ | ✓ | ✓ | ✓ |
+| Branding-only org mode | Apply an org's branding during auth without adding the user as an org member | ✓ | ✓ | ✓ | ✓ |
 | Org switch at sign-in | Let users select which org to sign into when they belong to multiple orgs | ✓ | | | ✓ |
 | Org in JWT | Include the user's active org as a claim in issued tokens | ✓ | | | ✓ |
 
@@ -125,9 +127,12 @@ A comprehensive reference of all Melody Auth features, with support indicators f
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
 |---------|-------------|:---:|:---:|:---:|:---:|
 | Attribute definition CRUD | Define custom fields to capture on users (text, boolean, etc.) | | ✓ | ✓ | |
+| Attribute labels & validation locales | Localize attribute labels and validation notes per language | | ✓ | ✓ | |
 | Collect attributes at sign-up | Render custom attribute fields on the sign-up form | ✓ | | | ✓ |
+| Attribute validation & uniqueness | Enforce regex and unique-value rules for custom attributes during sign-up | ✓ | ✓ | ✓ | ✓ |
 | Update attribute values | Allow users to update their custom attribute values via the update_info policy | ✓ | | | |
 | Attributes in JWT | Embed user attribute values as claims in issued tokens | ✓ | | | ✓ |
+| Attributes in UserInfo | Return selected user attribute values from the `/userinfo` endpoint | ✓ | | | |
 
 ---
 
@@ -142,9 +147,9 @@ Policies allow you to route users to specific auth flows without changing applic
 | `change_password` | Let users change their password (requires `ENABLE_PASSWORD_RESET=true`) | ✓ | | | |
 | `change_email` | Let users change their email address (requires `ENABLE_EMAIL_VERIFICATION=true`) | ✓ | | | |
 | `reset_mfa` | Let users reset their enrolled MFA method | ✓ | | | |
-| `change_org` | Let users switch their active organization (requires `ENABLE_ORG=true`) | ✓ | | | |
+| `change_org` | Let users switch their active organization (requires `ENABLE_ORG=true` and the policy not be blocked) | ✓ | | | |
 | `manage_passkey` | Let users add or remove passkeys (requires `ALLOW_PASSKEY_ENROLLMENT=true`) | ✓ | | | |
-| `manage_recovery_code` | Let users view or regenerate their MFA recovery code | ✓ | | | |
+| `manage_recovery_code` | Let users view or regenerate their MFA recovery code (requires `ENABLE_RECOVERY_CODE=true`) | ✓ | | | |
 | `saml_sso_[idp_name]` | Initiate sign-in via a named SAML identity provider | ✓ | | | |
 | `oidc_sso_[provider_name]` | Initiate sign-in via a named OIDC provider | ✓ | | | |
 | Blocked policies | Disable specific policies from being triggered via configuration | ✓ | | | |
@@ -158,7 +163,7 @@ Policies allow you to route users to specific auth flows without changing applic
 | App CRUD | Register, read, update, and delete OAuth client applications | | ✓ | ✓ | |
 | Scope CRUD | Create, read, update, and delete OAuth scopes | | ✓ | ✓ | |
 | Consent toggle | Enable or disable the user consent screen globally | ✓ | | | |
-| Scope locales | Add translated display names for scopes shown on the consent screen | | | ✓ | |
+| Scope locales | Add translated display names for scopes shown on the consent screen | | ✓ | ✓ | |
 | App banners — manage | Create and configure notification banners for an application | | ✓ | ✓ | |
 | App banners — display | Retrieve active banners to display within the auth flow | ✓ | | | ✓ |
 
@@ -171,12 +176,13 @@ Policies allow you to route users to specific auth flows without changing applic
 | Company logo | Show a custom logo on all hosted auth pages and emails | ✓ | | | |
 | Email logo | Use a separate logo specifically in transactional emails | ✓ | | | |
 | Custom colors / theme | Override the primary and secondary brand colors on auth pages | ✓ | | | |
+| Custom fonts / typography | Override auth-page fonts and font asset URLs | ✓ | | | |
 | Localization | Translate all auth UI strings into supported languages | ✓ | | | |
 | Locale selector | Show a language picker on auth pages so users can switch locales | ✓ | | | |
 | Terms of Service link | Show a link to your Terms of Service on auth pages | ✓ | | | |
 | Privacy Policy link | Show a link to your Privacy Policy on auth pages | ✓ | | | |
 | Email sender name | Customize the sender name used in transactional emails | ✓ | | | ✓ |
-| Org branding override | Apply per-org logo and colors when users sign in under that org | ✓ | | ✓ | |
+| Org branding override | Apply per-org logo, email logo, colors, fonts, sender name, and legal links during org-branded auth flows | ✓ | ✓ | ✓ | |
 
 ---
 
@@ -214,7 +220,7 @@ Policies allow you to route users to specific auth flows without changing applic
 
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
 |---------|-------------|:---:|:---:|:---:|:---:|
-| SAML IdP CRUD | Configure and manage SAML 2.0 identity providers | | | ✓ | |
+| SAML IdP CRUD | Configure and manage SAML 2.0 identity providers (Node.js deployment) | | ✓ | ✓ | |
 | OIDC provider config | Configure external OpenID Connect providers via `wrangler.toml` | ✓ | | | |
 | Social provider config | Enable Google, Facebook, GitHub, Discord, and Apple via `wrangler.toml` | ✓ | | | |
 
@@ -229,8 +235,8 @@ Policies allow you to route users to specific auth flows without changing applic
 | Brevo | Send transactional emails via Brevo | ✓ | | | ✓ |
 | Resend | Send transactional emails via Resend | ✓ | | | ✓ |
 | Postmark | Send transactional emails via Postmark | ✓ | | | ✓ |
-| SMTP | Send transactional emails via any SMTP server | ✓ | | | ✓ |
-| Welcome email | Send a welcome email to new users after sign-up (separate from verification) | ✓ | | | ✓ |
+| SMTP | Send transactional emails via any SMTP server (Node.js only) | ✓ | | | ✓ |
+| Welcome email | Replace the verification email with a welcome email after sign-up when configured | ✓ | | | ✓ |
 | Twilio SMS | Send one-time codes via Twilio SMS | ✓ | | | ✓ |
 | Dev mode routing | Route all outbound emails and SMS to a designated dev address for safe testing | ✓ | | | |
 
@@ -238,13 +244,13 @@ Policies allow you to route users to specific auth flows without changing applic
 
 ## SDKs & Client Libraries
 
-| SDK | Description |
-|-----|-------------|
-| React SDK | React hooks and components for authentication flows |
-| Vue SDK | Vue composables and plugin for authentication flows |
-| Angular SDK | Angular service and module for authentication flows |
-| Web (vanilla JS) SDK | Framework-agnostic JavaScript SDK for authentication flows |
-| Next.js SDK | Next.js-optimized SDK with server and client helpers |
+| SDK | Description | Notable capabilities |
+|-----|-------------|----------------------|
+| React SDK | React hooks and provider for authentication flows | Redirect and popup login, policy/org/locale parameters, token refresh, user info helpers |
+| Vue SDK | Vue composables and plugin for authentication flows | Redirect and popup login, token refresh, user info helpers |
+| Angular SDK | Angular service and provider for authentication flows | Redirect and popup login, token refresh, user info helpers |
+| Web (vanilla JS) SDK | Framework-agnostic JavaScript SDK for browser authentication flows | Redirect and popup login, auth-code exchange, token refresh, user info, logout helpers |
+| Next.js SDK | Next.js-optimized SDK with server and client helpers | Cookie storage, middleware protection, SSR session helpers, auth wrappers |
 
 ---
 
