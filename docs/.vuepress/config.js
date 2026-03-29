@@ -44,6 +44,12 @@ export default defineUserConfig({
             text: 'Features',
             children: [
               {
+                text: 'Overview',
+                children: [
+                  { text: 'Feature Overview', link: '/feature-overview.md' },
+                ],
+              },
+              {
                 text: 'Main Features',
                 children: [
                   { text: 'Authentication', link: '/authentication.md' },
@@ -166,6 +172,12 @@ export default defineUserConfig({
           {
             text: '功能',
             children: [
+              {
+                text: '概览',
+                children: [
+                  { text: '功能概览', link: '/feature-overview.md' },
+                ],
+              },
               {
                 text: '主要功能',
                 children: [
