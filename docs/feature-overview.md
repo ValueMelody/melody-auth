@@ -216,6 +216,7 @@ Policies allow you to route users to specific auth flows without changing applic
 | Change-email rate limit | Limit how many change-email verification emails can be sent in a window | ✓ | | | |
 | View locked IPs | Inspect which IPs are currently locked for a user | | ✓ | ✓ | |
 | Unlock IPs | Clear all IP locks for a user | | ✓ | ✓ | |
+| Embedded auth origin allowlist | Restrict which browser origins can call embedded auth APIs via `EMBEDDED_AUTH_ORIGINS` | ✓ | | | ✓ |
 | Server-side sessions | Encrypted cookie sessions with configurable expiry for server-rendered flows | ✓ | | | |
 
 ---
