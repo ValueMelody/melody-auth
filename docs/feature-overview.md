@@ -13,6 +13,7 @@ A consolidated reference of supported Melody Auth product capabilities and custo
 | Password sign-in | Sign in with email and password | ✓ | | | ✓ |
 | Password sign-in toggle | Enable or disable email/password sign-in independently of other sign-in methods | ✓ | | | |
 | Passwordless sign-in | Sign in via a one-time code sent to email | ✓ | | | |
+| Passwordless sign-in toggle | Enable or disable passwordless sign-in independently of other sign-in methods | ✓ | | | |
 | Magic link sign-in | Use passwordless flow as a one-click email link instead of a code | ✓ | | | |
 | Sign-up | Register a new user account | ✓ | | | ✓ |
 | Sign-up toggle | Enable or disable user self-registration | ✓ | | | |
@@ -118,7 +119,8 @@ A consolidated reference of supported Melody Auth product capabilities and custo
 | Multiple org memberships | Allow a user to belong to more than one organization at the same time | | ✓ | ✓ | |
 | User org memberships — list/update | Retrieve and update the organizations a user belongs to | | ✓ | ✓ | |
 | Active org — set | Set a user's active organization from among their memberships | | ✓ | ✓ | |
-| List org users | Retrieve users belonging to an organization | | ✓ | ✓ | |
+| List org active users | Retrieve users who are currently active members of an organization | | ✓ | ✓ | |
+| List all org users | Retrieve all users ever associated with an organization, including inactive members | | ✓ | ✓ | |
 | Org public registration | Allow or block self-service registration for a specific organization | ✓ | ✓ | ✓ | ✓ |
 | Branding-only org mode | Apply an org's branding during auth without adding the user as an org member | ✓ | ✓ | ✓ | ✓ |
 | Org switch at sign-in | Let users select which org to sign into when they belong to multiple orgs | ✓ | | | ✓ |
