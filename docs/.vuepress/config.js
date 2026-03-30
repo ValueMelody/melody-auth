@@ -44,10 +44,7 @@ export default defineUserConfig({
             text: 'Features',
             children: [
               {
-                text: 'Overview',
-                children: [
-                  { text: 'Feature Overview', link: '/feature-overview.md' },
-                ],
+                text: 'Feature Overview', link: '/feature-overview.md'
               },
               {
                 text: 'Main Features',

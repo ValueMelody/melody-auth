@@ -1,6 +1,6 @@
 # Feature Overview
 
-A consolidated reference of supported Melody Auth capabilities and notable configuration options, with support indicators for each access method.
+A consolidated reference of supported Melody Auth product capabilities and customer-visible controls, with support indicators for each access method. This overview focuses on product-facing functionality rather than low-level SDK helper APIs or deployment mechanics.
 
 **Legend:** ✓ = Supported
 
@@ -11,6 +11,7 @@ A consolidated reference of supported Melody Auth capabilities and notable confi
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
 |---------|-------------|:---:|:---:|:---:|:---:|
 | Password sign-in | Sign in with email and password | ✓ | | | ✓ |
+| Password sign-in toggle | Enable or disable email/password sign-in independently of other sign-in methods | ✓ | | | |
 | Passwordless sign-in | Sign in via a one-time code sent to email | ✓ | | | |
 | Magic link sign-in | Use passwordless flow as a one-click email link instead of a code | ✓ | | | |
 | Sign-up | Register a new user account | ✓ | | | ✓ |
@@ -19,7 +20,7 @@ A consolidated reference of supported Melody Auth capabilities and notable confi
 | Sign-out | End the current session | ✓ | | | ✓ |
 | Email verification | Require users to verify their email address after sign-up | ✓ | ✓ | ✓ | |
 | Password reset | Send a reset code and let the user set a new password | ✓ | | | ✓ |
-| Account linking | Link or unlink multiple auth identities (e.g. social + password) to one user | | ✓ | ✓ | |
+| Account linking | Link or unlink a second auth identity (e.g. social + password) to one user account | | ✓ | ✓ | |
 | Social sign-in — Google | OAuth 2.0 sign-in via Google | ✓ | | | |
 | Social sign-in — Facebook | OAuth 2.0 sign-in via Facebook | ✓ | | | |
 | Social sign-in — GitHub | OAuth 2.0 sign-in via GitHub | ✓ | | | |
@@ -74,8 +75,10 @@ A consolidated reference of supported Melody Auth capabilities and notable confi
 |---------|-------------|:---:|:---:|:---:|:---:|
 | List users | Retrieve a paginated, searchable list of users | | ✓ | ✓ | |
 | Get user | Fetch full profile details for a single user | | ✓ | ✓ | |
-| Update user | Modify user profile fields (name, email, roles, etc.) | | ✓ | ✓ | |
+| Update user | Modify user profile fields (name, email, locale, org, roles, attributes, etc.) | | ✓ | ✓ | |
 | Delete user | Permanently remove a user account | | ✓ | ✓ | |
+| User activation | Activate or deactivate a user account to allow or block future sign-ins | | ✓ | ✓ | |
+| Verification email resend | Send a fresh verification email to an unverified user | | ✓ | ✓ | |
 | Locked IP — list | View IP addresses locked out for a user due to brute-force protection | | ✓ | ✓ | |
 | Locked IP — unlock | Clear all locked IPs for a user | | ✓ | ✓ | |
 | Consented apps — list | View the apps a user has granted consent to | | ✓ | ✓ | |
@@ -98,11 +101,21 @@ A consolidated reference of supported Melody Auth capabilities and notable confi
 
 ---
 
+## Admin Panel Access Control
+
+| Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
+|---------|-------------|:---:|:---:|:---:|:---:|
+| Admin panel role gate | Restrict admin panel sign-in to allowed roles; by default only `super_admin` can sign in | | | ✓ | |
+| Custom admin permissions | Allow custom admin roles with scoped read/write access by resource plus optional impersonation and SAML-management privileges | | | ✓ | |
+
+---
+
 ## Organizations
 
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
 |---------|-------------|:---:|:---:|:---:|:---:|
 | Org CRUD | Create, read, update, and delete organizations | | ✓ | ✓ | |
+| Multiple org memberships | Allow a user to belong to more than one organization at the same time | | ✓ | ✓ | |
 | User org memberships — list/update | Retrieve and update the organizations a user belongs to | | ✓ | ✓ | |
 | Active org — set | Set a user's active organization from among their memberships | | ✓ | ✓ | |
 | List org users | Retrieve users belonging to an organization | | ✓ | ✓ | |
@@ -120,7 +133,8 @@ A consolidated reference of supported Melody Auth capabilities and notable confi
 | Org group CRUD | Create, read, update, and delete groups within an organization | | ✓ | ✓ | |
 | Assign user to org group | Add a user to an org group | | ✓ | ✓ | |
 | Remove user from org group | Remove a user from an org group | | ✓ | ✓ | |
-| List users in org group | Retrieve all users belonging to a specific org group | | ✓ | ✓ | |
+| Multiple org-group memberships | Allow a user to belong to more than one group within an organization | | ✓ | ✓ | |
+| List users in org group | Retrieve or filter to all users belonging to a specific org group | | ✓ | ✓ | |
 
 ---
 
@@ -130,7 +144,7 @@ A consolidated reference of supported Melody Auth capabilities and notable confi
 |---------|-------------|:---:|:---:|:---:|:---:|
 | Attribute definition CRUD | Define custom fields to capture on users (text, boolean, etc.) | | ✓ | ✓ | |
 | Attribute labels & validation locales | Localize attribute labels and validation notes per language | | ✓ | ✓ | |
-| Collect attributes at sign-up | Render custom attribute fields on the sign-up form | ✓ | | | ✓ |
+| Collect attributes at sign-up | Render optional or required custom attribute fields on the sign-up form | ✓ | | | ✓ |
 | Attribute validation & uniqueness | Enforce regex and unique-value rules for custom attributes during sign-up | ✓ | ✓ | ✓ | ✓ |
 | Update attribute values | Allow users to update their custom attribute values via the update_info policy | ✓ | | | |
 | Attributes in JWT | Embed user attribute values as claims in issued tokens | ✓ | | | ✓ |
@@ -162,12 +176,12 @@ Policies allow you to route users to specific auth flows without changing applic
 
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
 |---------|-------------|:---:|:---:|:---:|:---:|
-| App CRUD | Register, read, update, and delete OAuth client applications | | ✓ | ✓ | |
+| App CRUD | Register, read, update, activate/deactivate, and delete OAuth client applications (SPA or S2S) | | ✓ | ✓ | |
 | Scope CRUD | Create, read, update, and delete OAuth scopes | | ✓ | ✓ | |
 | Consent toggle | Enable or disable the user consent screen globally | ✓ | | | |
 | Scope locales | Add translated display names for scopes shown on the consent screen | | ✓ | ✓ | |
-| App banners — manage | Create and configure notification banners for an application | | ✓ | ✓ | |
-| App banners — display | Retrieve active banners to display within the auth flow | ✓ | | | ✓ |
+| App banners — manage | Create, localize, activate, and assign typed notification banners for an application | | ✓ | ✓ | |
+| App banners — display | Retrieve active banners to display within the auth flow, with locale fallback support | ✓ | | | ✓ |
 
 ---
 
@@ -179,7 +193,7 @@ Policies allow you to route users to specific auth flows without changing applic
 | Email logo | Use a separate logo specifically in transactional emails | ✓ | | | |
 | Custom colors / theme | Override the primary and secondary brand colors on auth pages | ✓ | | | |
 | Custom fonts / typography | Override auth-page fonts and font asset URLs | ✓ | | | |
-| Localization | Translate all auth UI strings into supported languages | ✓ | | | |
+| Localization | Translate hosted auth UI strings and transactional emails into supported languages | ✓ | | | |
 | Locale selector | Show a language picker on auth pages so users can switch locales | ✓ | | | |
 | Terms of Service link | Show a link to your Terms of Service on auth pages | ✓ | | | |
 | Privacy Policy link | Show a link to your Privacy Policy on auth pages | ✓ | | | |
@@ -208,11 +222,12 @@ Policies allow you to route users to specific auth flows without changing applic
 
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
 |---------|-------------|:---:|:---:|:---:|:---:|
+| Per-log-type enablement | Enable email, SMS, and sign-in logs independently | ✓ | | | |
 | Email logs — view | List and inspect outbound email records | | ✓ | ✓ | |
 | Email logs — delete | Remove email log entries older than a given date | | ✓ | ✓ | |
 | SMS logs — view | List and inspect outbound SMS records | | ✓ | ✓ | |
 | SMS logs — delete | Remove SMS log entries older than a given date | | ✓ | ✓ | |
-| Sign-in logs — view | List and inspect user sign-in events | | ✓ | ✓ | |
+| Sign-in logs — view | List and inspect user sign-in events and related client/IP metadata | | ✓ | ✓ | |
 | Sign-in logs — delete | Remove sign-in log entries older than a given date | | ✓ | ✓ | |
 | Configurable log levels | Set the log verbosity (silent, info, warn, error) for request logging | ✓ | | | |
 
@@ -222,8 +237,8 @@ Policies allow you to route users to specific auth flows without changing applic
 
 | Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
 |---------|-------------|:---:|:---:|:---:|:---:|
-| SAML IdP CRUD | Configure and manage SAML 2.0 identity providers (Node.js deployment) | | ✓ | ✓ | |
-| OIDC provider config | Configure external OpenID Connect providers via `wrangler.toml` | ✓ | | | |
+| SAML IdP CRUD | Configure, activate/deactivate, and manage SAML 2.0 identity providers with attribute mapping (Node.js deployment) | | ✓ | ✓ | |
+| OIDC provider config | Configure one or more named external OpenID Connect providers for sign-in buttons and policy-based routing | ✓ | | | |
 | Social provider config | Enable Google, Facebook, GitHub, Discord, and Apple via `wrangler.toml` | ✓ | | | |
 
 ---
@@ -271,19 +286,26 @@ Server-side hooks are async functions defined in `server/src/hooks/` that execut
 
 ## Developer Tools
 
-| Feature | Description | OAuth Server | S2S | Admin Panel | Embedded |
-|---------|-------------|:---:|:---:|:---:|:---:|
-| Swagger UI (S2S) | Interactive API documentation for server-to-server endpoints | | ✓ | | |
-| Swagger UI (Embedded) | Interactive API documentation for embedded auth endpoints | | | | ✓ |
-| Configuration info endpoint | Public `/info` endpoint exposing feature flags and client configuration | ✓ | | | |
-| Dashboard — config viewer | Admin panel page showing all active server configuration values and quick links to well-known, Swagger, and `/info` endpoints | | | ✓ | |
-| Admin account self-service | Admin panel page for the signed-in administrator to update profile, change password/email, reset MFA, manage passkeys, and manage recovery codes | | | ✓ | |
+| Tooling | Description |
+|---------|-------------|
+| Swagger UI (S2S) | Interactive API documentation for server-to-server endpoints |
+| Swagger UI (Embedded) | Interactive API documentation for embedded auth endpoints |
+| Configuration info endpoint | Public `/info` endpoint exposing feature flags and client configuration |
+| Dashboard — config viewer | Admin panel page showing all active server configuration values and quick links to well-known, Swagger, and `/info` endpoints |
+| Admin account self-service | Admin panel page for the signed-in administrator to update profile, change password/email, reset MFA, manage passkeys, and manage recovery codes |
 
 ---
 
 ## Deployment & Infrastructure
 
-| Feature | Description |
-|---------|-------------|
-| Cloudflare Workers | Deploy on Cloudflare Workers with D1 (SQLite) and KV storage |
-| Self-hosted Node.js | Deploy as a Node.js server with PostgreSQL and Redis |
+Production deployment choices only. Local development workflows, Docker setups, and CI/CD automation are intentionally omitted here.
+
+| Production option | Description |
+|-------------------|-------------|
+| Auth server — Cloudflare Workers + D1 + KV | Default managed production deployment on Cloudflare Workers using D1 (SQLite) for data and KV for secret/runtime storage |
+| Auth server — Cloudflare Workers + PostgreSQL | Cloudflare Workers production deployment using `nodejs_compat` and PostgreSQL instead of the default D1-backed setup |
+| Auth server — Cloudflare multi-environment rollout | Separate Wrangler configs and Cloudflare resources can be used for staging, QA, demo, and production environments |
+| Auth server — Self-hosted Node.js + PostgreSQL + Redis | Production deployment of the auth server as a Node.js application outside Cloudflare |
+| Admin panel — Standard Next.js / Node.js hosting | Production deployment of the admin panel as a regular Next.js application in a Node-compatible hosting environment |
+| Admin panel — Cloudflare Workers | Production deployment of the admin panel to Cloudflare Workers via OpenNext; when both admin panel and auth server run on Cloudflare, custom domains or separate accounts may be required |
+| Admin panel — Vercel | Production deployment of the admin panel to Vercel with the documented environment-variable setup |
