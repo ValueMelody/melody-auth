@@ -379,6 +379,7 @@ identityRoutes.post(
  * - ResetPassword
  * - AuthCodeExpired
  * - AppBanners
+ * - AcceptInvitation
  */
 
 identityRoutes.get(
@@ -417,4 +418,15 @@ identityRoutes.get(
   routeConfig.IdentityRoute.AppBanners,
   configMiddleware.enableAppBanner,
   identityHandler.getAppBanners,
+)
+
+identityRoutes.get(
+  routeConfig.IdentityRoute.AcceptInvitation,
+  identityHandler.getAcceptInvitation,
+)
+
+identityRoutes.post(
+  routeConfig.IdentityRoute.AcceptInvitation,
+  setupMiddleware.validOrigin,
+  identityHandler.postAcceptInvitation,
 )

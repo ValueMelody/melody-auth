@@ -14,6 +14,7 @@ import {
   ChangeEmailVerificationTemplate,
   EmailMfaTemplate,
   EmailVerificationTemplate,
+  InvitationTemplate,
   MagicLinkTemplate,
   PasswordResetTemplate,
   WelcomeEmailTemplate,
@@ -300,6 +301,34 @@ export const sendMagicLinkEmail = async (
   )
 
   return res ? mfaCode : null
+}
+
+export const sendInvitationEmail = async (
+  c: Context<typeConfig.Context>,
+  email: string,
+  orgSlug: string,
+  locale: typeConfig.Locale,
+  invitationUrl: string,
+) => {
+  checkEmailSetup(c)
+
+  const content = (<InvitationTemplate
+    invitationUrl={invitationUrl}
+    branding={await brandingService.getBranding(
+      c,
+      orgSlug,
+    )}
+    locale={locale}
+  />).toString()
+
+  const res = await sendEmail(
+    c,
+    email,
+    localeConfig.invitationEmail.subject[locale],
+    content,
+  )
+
+  return res
 }
 
 export const sendEmailMfa = async (

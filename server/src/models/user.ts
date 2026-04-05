@@ -38,6 +38,8 @@ export interface Common {
   smsPhoneNumber: string | null;
   linkedAuthId: string | null;
   recoveryCodeHash: string | null;
+  invitationToken: string | null;
+  invitationExpiresAt: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -77,6 +79,7 @@ export interface ApiRecord {
   loginCount: number;
   mfaTypes: string[];
   isActive: boolean;
+  isInviting: boolean;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -106,6 +109,9 @@ export interface Create {
   emailVerified?: number;
   firstName: string | null;
   lastName: string | null;
+  invitationToken?: string | null;
+  invitationExpiresAt?: string | null;
+  isActive?: number;
 }
 
 export interface Update {
@@ -128,6 +134,8 @@ export interface Update {
   linkedAuthId?: string | null;
   skipPasskeyEnroll?: number;
   recoveryCodeHash?: string | null;
+  invitationToken?: string | null;
+  invitationExpiresAt?: string | null;
 }
 
 const TableName = `"${adapterConfig.TableName.User}"`
@@ -159,6 +167,7 @@ export const convertToApiRecord = (
     otpVerified: record.otpVerified,
     mfaTypes: record.mfaTypes,
     isActive: record.isActive,
+    isInviting: !!record.invitationToken,
     loginCount: record.loginCount,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
@@ -420,6 +429,7 @@ export const create = async (
   const createKeys: (keyof Create)[] = [
     'authId', 'email', 'password', 'firstName', 'lastName', 'orgSlug',
     'locale', 'otpSecret', 'socialAccountId', 'socialAccountType', 'emailVerified',
+    'invitationToken', 'invitationExpiresAt', 'isActive',
   ]
   const stmt = dbUtil.d1CreateQuery(
     db,
@@ -469,7 +479,7 @@ export const update = async (
     'password', 'firstName', 'lastName', 'deletedAt', 'updatedAt', 'isActive',
     'emailVerified', 'loginCount', 'locale', 'otpSecret', 'mfaTypes', 'otpVerified',
     'smsPhoneNumber', 'smsPhoneNumberVerified', 'email', 'linkedAuthId', 'orgSlug',
-    'skipPasskeyEnroll', 'recoveryCodeHash',
+    'skipPasskeyEnroll', 'recoveryCodeHash', 'invitationToken', 'invitationExpiresAt',
   ]
   const stmt = dbUtil.d1UpdateQuery(
     db,
@@ -513,4 +523,14 @@ export const updateOrgSlug = async (
   )
   await dbUtil.d1Run(stmt)
   return true
+}
+
+export const getByInvitationToken = async (
+  db: D1Database,
+  invitationToken: string,
+): Promise<Record | null> => {
+  const query = `SELECT * FROM ${TableName} WHERE "invitationToken" = $1 AND "deletedAt" IS NULL`
+  const stmt = db.prepare(query).bind(invitationToken)
+  const user = await stmt.first() as Raw | null
+  return user ? convertToRecord(user) : null
 }

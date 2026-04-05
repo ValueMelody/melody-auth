@@ -1,9 +1,11 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import { getAuthCodeBody } from './mfa'
-import { typeConfig } from 'configs'
 import {
-  baseDto, identityDto,
+  errorConfig, messageConfig, typeConfig,
+} from 'configs'
+import {
+  baseDto, identityDto, userDto,
 } from 'dtos'
 import {
   appBannerService,
@@ -13,9 +15,11 @@ import {
   userService,
 } from 'services'
 import {
-  requestUtil, validateUtil,
+  cryptoUtil, loggerUtil, requestUtil, timeUtil, validateUtil,
 } from 'utils'
-import { orgModel } from 'models'
+import {
+  orgModel, userModel,
+} from 'models'
 
 export const postVerifyEmail = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
@@ -199,6 +203,90 @@ export const postChangeOrg = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
     newAuthCodeStore,
     codeExpiresIn,
+  )
+
+  return c.json({ success: true })
+}
+
+export const getAcceptInvitation = async (c: Context<typeConfig.Context>) => {
+  const token = c.req.query('invitationToken')
+
+  if (!token) {
+    throw new errorConfig.NotFound(messageConfig.RequestError.InvitationNotFound)
+  }
+
+  const user = await userModel.getByInvitationToken(
+    c.env.DB,
+    token,
+  )
+
+  if (!user || !user.invitationToken) {
+    throw new errorConfig.NotFound(messageConfig.RequestError.InvitationNotFound)
+  }
+
+  if (user.isActive) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserAlreadyActive)
+  }
+
+  const now = timeUtil.getDbCurrentTime()
+  if (user.invitationExpiresAt && user.invitationExpiresAt < now) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvitationExpired)
+  }
+
+  return c.json({ success: true })
+}
+
+export const postAcceptInvitation = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+
+  const bodyDto = new userDto.PostAcceptInvitationDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const user = await userModel.getByInvitationToken(
+    c.env.DB,
+    bodyDto.token,
+  )
+
+  if (!user || !user.invitationToken) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvitationNotFound,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.InvitationNotFound)
+  }
+
+  if (user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserAlreadyActive,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserAlreadyActive)
+  }
+
+  const now = timeUtil.getDbCurrentTime()
+  if (user.invitationExpiresAt && user.invitationExpiresAt < now) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvitationExpired,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvitationExpired)
+  }
+
+  const hashedPassword = await cryptoUtil.bcryptText(bodyDto.password)
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    {
+      password: hashedPassword,
+      isActive: 1,
+      emailVerified: 1,
+      invitationToken: null,
+      invitationExpiresAt: null,
+    },
   )
 
   return c.json({ success: true })

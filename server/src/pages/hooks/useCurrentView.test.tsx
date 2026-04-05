@@ -9,7 +9,7 @@ import {
 import useCurrentView, { View } from 'pages/hooks/useCurrentView'
 import { routeConfig } from 'configs'
 import {
-  getStepFromParams, getMagicSignInParams,
+  getStepFromParams, getMagicSignInParams, getInvitationParams,
 } from 'pages/tools/param'
 
 // Mock hooks from hono/jsx
@@ -28,6 +28,7 @@ vi.mock(
   () => ({
     getStepFromParams: vi.fn(),
     getMagicSignInParams: vi.fn(() => ({ otp: '' })),
+    getInvitationParams: vi.fn(() => ({ invitationToken: '' })),
   }),
 )
 
@@ -73,7 +74,8 @@ describe(
     test(
       'returns VerifyEmail view based on pathname when no step from params',
       () => {
-        (getStepFromParams as unknown as Mock).mockReturnValue(null)
+        (getStepFromParams as unknown as Mock).mockReturnValue(null);
+        (getInvitationParams as unknown as Mock).mockReturnValue({ invitationToken: '' })
         // Set the pathname to match the VerifyEmailView.
         window.history.pushState(
           {},
@@ -82,6 +84,21 @@ describe(
         )
         const { result } = renderHook(() => useCurrentView())
         expect(result.current.view).toBe(View.VerifyEmail)
+      },
+    )
+
+    test(
+      'returns AcceptInvitation view when on VerifyEmailView path with invitationToken param',
+      () => {
+        (getStepFromParams as unknown as Mock).mockReturnValue(null);
+        (getInvitationParams as unknown as Mock).mockReturnValue({ invitationToken: 'abc123' })
+        window.history.pushState(
+          {},
+          '',
+          routeConfig.IdentityRoute.VerifyEmailView,
+        )
+        const { result } = renderHook(() => useCurrentView())
+        expect(result.current.view).toBe(View.AcceptInvitation)
       },
     )
 

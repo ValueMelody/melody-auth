@@ -1,3 +1,4 @@
+import AcceptInvitation from './AcceptInvitation'
 import SignIn from './SignIn'
 import MagicSignIn from './MagicSignIn'
 import SignUp from './SignUp'
@@ -24,7 +25,7 @@ import SwitchOrg from './SwitchOrg'
 import ChangeOrg from './ChangeOrg'
 
 export {
-  SignIn, MagicSignIn, SignUp, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
+  AcceptInvitation, SignIn, MagicSignIn, SignUp, Consent, MfaEnroll, OtpSetup, OtpMfa, SmsMfa, EmailMfa,
   PasskeyEnroll, ResetPassword, UpdateInfo, ChangePassword, ResetMfa, ManagePasskey,
   ChangeEmail, AuthCodeExpired, VerifyEmail, PasswordlessVerify, RecoveryCodeEnroll,
   RecoveryCodeSignIn, ManageRecoveryCode, SwitchOrg, ChangeOrg,

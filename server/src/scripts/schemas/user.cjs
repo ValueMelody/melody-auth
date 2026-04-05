@@ -37,6 +37,7 @@ const User = {
     otpVerified: { type: 'boolean' },
     smsPhoneNumberVerified: { type: 'boolean' },
     isActive: { type: 'boolean' },
+    isInviting: { type: 'boolean' },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },
     deletedAt: {
@@ -45,7 +46,7 @@ const User = {
     },
   },
   required: ['id', 'authId', 'email', 'socialAccountId', 'socialAccountType', 'firstName', 'lastName', 'locale',
-    'emailVerified', 'otpVerified', 'loginCount', 'mfaTypes', 'smsPhoneNumberVerified', 'isActive', 'createdAt', 'updatedAt', 'deletedAt',
+    'emailVerified', 'otpVerified', 'loginCount', 'mfaTypes', 'smsPhoneNumberVerified', 'isActive', 'isInviting', 'createdAt', 'updatedAt', 'deletedAt',
   ],
 }
 

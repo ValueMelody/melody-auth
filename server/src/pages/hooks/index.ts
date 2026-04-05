@@ -1,3 +1,4 @@
+import useAcceptInvitationForm from './useAcceptInvitationForm'
 import useInitialProps from './useInitialProps'
 import type { InitialProps } from './useInitialProps'
 import useAppBanners from './useAppBanners'
@@ -29,6 +30,7 @@ import useSwitchOrgForm from './useSwitchOrgForm'
 import useChangeOrgForm from './useChangeOrgForm'
 
 export {
+  useAcceptInvitationForm,
   useInitialProps,
   InitialProps,
   useAppBanners,

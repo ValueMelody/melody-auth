@@ -120,4 +120,8 @@ export enum RequestError {
   UniqueAttributeAlreadyExists = 'Duplicate value "{{attributeValue}}" for attribute "{{attributeName}}"',
   AttributeValidationFailed = 'Value for attribute "{{attributeName}}" does not match the validation rule',
   SessionNotFound = 'No active session found',
+  InvitationNotFound = 'Invitation not found or already used',
+  InvitationExpired = 'Invitation has expired',
+  UserAlreadyActive = 'User is already active',
+  OrgNotAllowPublicRegistration = 'Organization does not allow public registration',
 }

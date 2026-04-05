@@ -27,6 +27,7 @@
     "disable": "Désactiver",
     "disabled": "Désactivé",
     "active": "Actif",
+    "inviting": "En invitation",
     "property": "Propriété",
     "value": "Valeur",
     "createdAt": "Créé le",
@@ -165,7 +166,14 @@
     "sessionScope": "Portée",
     "sessionRoles": "Rôles",
     "sessionExpiredAt": "Expire le",
-    "revokeSession": "Révoquer"
+    "revokeSession": "Révoquer",
+    "invite": "Inviter un utilisateur",
+    "inviteUser": "Inviter un utilisateur",
+    "sendInvite": "Envoyer l'invitation",
+    "inviteRedirectApp": "Application de redirection",
+    "inviteRedirectUrl": "URL de redirection",
+    "inviteRedirectDesc": "Sélectionnez optionnellement une application et l'une de ses URLs de redirection. Après que l'utilisateur invité ait défini son mot de passe, il sera redirigé vers cette URL pour se connecter directement.",
+    "noApp": "Aucune application"
   },
   "userAttributes": {
     "title": "Attributs utilisateur",
