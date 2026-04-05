@@ -5,6 +5,7 @@ import PasswordResetTemplate from 'templates/PasswordReset'
 import EmailMfaTemplate from 'templates/EmailMfa'
 import MagicLinkTemplate from 'templates/MagicLink'
 import PopupRedirect from 'templates/PopupRedirect'
+import InvitationTemplate from 'templates/Invitation'
 
 export {
   EmailVerificationTemplate,
@@ -14,4 +15,5 @@ export {
   EmailMfaTemplate,
   MagicLinkTemplate,
   PopupRedirect,
+  InvitationTemplate,
 }

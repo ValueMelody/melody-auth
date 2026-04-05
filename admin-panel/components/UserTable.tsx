@@ -151,7 +151,10 @@ const UserTable = ({
                     {user.authId}
                     {user.authId === userInfo?.authId && <div className='flex'><IsSelfLabel /></div>}
                     {user.email}
-                    <EntityStatusLabel isEnabled={user.isActive} />
+                    <EntityStatusLabel
+                      isEnabled={user.isActive}
+                      isInviting={user.isInviting}
+                    />
                     {configs.ENABLE_NAMES && (
                       <p>
                         {`${user.firstName ?? ''} ${user.lastName ?? ''}`}
@@ -180,7 +183,10 @@ const UserTable = ({
               </TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <EntityStatusLabel isEnabled={user.isActive} />
+                <EntityStatusLabel
+                  isEnabled={user.isActive}
+                  isInviting={user.isInviting}
+                />
               </TableCell>
               {configs.ENABLE_NAMES && (
                 <TableCell>

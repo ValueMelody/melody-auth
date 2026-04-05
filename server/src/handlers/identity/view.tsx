@@ -245,8 +245,10 @@ export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
       c,
       c.req.query('locale'),
     ),
-    id: c.req.query('id') ?? '',
+    id: c.req.query('id'),
     org: c.req.query('org'),
+    invitationToken: c.req.query('invitationToken'),
+    signinUrl: c.req.query('signinUrl'),
   })
 
   await validateUtil.dto(queryDto)
@@ -267,6 +269,8 @@ export const getVerifyEmailView = async (c: Context<typeConfig.Context>) => {
       locales: "${locales.join(',')}",
       logoUrl: "${branding.logoUrl}",
       enableLocaleSelector: ${enableLocaleSelector.toString()},
+      invitationToken: "${queryDto.invitationToken ?? ''}",
+      signinUrl: "${queryDto.signinUrl ?? ''}",
     }
   </script>
 `

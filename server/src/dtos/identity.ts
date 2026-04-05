@@ -380,8 +380,8 @@ export class PostResetPasswordDto {
  */
 export class GetVerifyEmailViewDto {
   @IsString()
-  @IsNotEmpty()
-    id: string
+  @IsOptional()
+    id: string | undefined
 
   @IsString()
     locale: typeConfig.Locale
@@ -390,10 +390,20 @@ export class GetVerifyEmailViewDto {
   @IsOptional()
     org: string | undefined
 
+  @IsString()
+  @IsOptional()
+    invitationToken: string | undefined
+
+  @IsString()
+  @IsOptional()
+    signinUrl: string | undefined
+
   constructor (dto: GetVerifyEmailViewDto) {
-    this.id = dto.id.trim()
+    this.id = dto.id?.trim()
     this.locale = dto.locale
     this.org = dto.org
+    this.invitationToken = dto.invitationToken?.trim()
+    this.signinUrl = dto.signinUrl?.trim()
   }
 }
 

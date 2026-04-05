@@ -27,6 +27,7 @@
     "disable": "Disable",
     "disabled": "Disabled",
     "active": "Active",
+    "inviting": "Inviting",
     "property": "Property",
     "value": "Value",
     "createdAt": "Created At",
@@ -169,7 +170,14 @@
     "sessionScope": "Scope",
     "sessionRoles": "Roles",
     "sessionExpiredAt": "Expires At",
-    "revokeSession": "Revoke"
+    "revokeSession": "Revoke",
+    "invite": "Invite User",
+    "inviteUser": "Invite User",
+    "sendInvite": "Send Invitation",
+    "inviteRedirectApp": "Redirect App",
+    "inviteRedirectUrl": "Redirect URL",
+    "inviteRedirectDesc": "Optionally select an app and one of its redirect URLs. After the invited user sets their password, they will be redirected to this URL to sign in directly.",
+    "noApp": "No app"
   },
   "userAttributes": {
     "title": "User Attributes",

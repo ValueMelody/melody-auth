@@ -161,21 +161,6 @@ describe(
         global.process.env.ENABLE_EMAIL_VERIFICATION = true as unknown as string
       },
     )
-
-    test(
-      'should fail when no enough params provided',
-      async () => {
-        await prepareUserAccount(db)
-
-        const res = await app.request(
-          routeConfig.IdentityRoute.VerifyEmailView,
-          {},
-          mock(db),
-        )
-
-        expect(res.status).toBe(400)
-      },
-    )
   },
 )
 

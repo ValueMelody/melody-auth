@@ -17,6 +17,10 @@ vi.mock(
     useGetApiV1UsersQuery: vi.fn(),
     useGetApiV1OrgsByIdUsersQuery: vi.fn(),
     useGetApiV1OrgsByIdAllUsersQuery: vi.fn(),
+    useGetApiV1RolesQuery: vi.fn(() => ({ data: undefined })),
+    useGetApiV1OrgsQuery: vi.fn(() => ({ data: undefined })),
+    useGetApiV1AppsQuery: vi.fn(() => ({ data: undefined })),
+    usePostApiV1UsersInvitationsMutation: vi.fn(() => [vi.fn(), { isLoading: false }]),
   }),
 )
 

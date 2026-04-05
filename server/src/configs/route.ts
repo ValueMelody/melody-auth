@@ -78,6 +78,7 @@ export enum IdentityRoute {
   ResetPassword = `${InternalRoute.Identity}/reset-password`,
   AuthCodeExpiredView = `${InternalRoute.Identity}/view/auth-code-expired`,
   AppBanners = `${InternalRoute.Identity}/app-banners`,
+  AcceptInvitation = `${InternalRoute.Identity}/accept-invitation`,
 }
 
 export enum View {
@@ -105,6 +106,7 @@ export enum View {
   AuthCodeExpired = 'auth_code_expired',
   VerifyEmail = 'verify_email',
   ChangeOrg = 'change_org',
+  AcceptInvitation = 'accept_invitation',
 }
 
 export enum EmbeddedRoute {

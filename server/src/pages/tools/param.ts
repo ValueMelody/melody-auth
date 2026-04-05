@@ -130,3 +130,22 @@ export const getVerifyEmailParams = (): VerifyEmailParams => {
     org: 'org' in params ? String(params.org) : '',
   }
 }
+
+export interface InvitationParams {
+  locale: typeConfig.Locale;
+  invitationToken: string;
+  signinUrl: string;
+}
+
+export const getInvitationParams = (): InvitationParams => {
+  const params = parse(
+    window.location.search,
+    { ignoreQueryPrefix: true },
+  )
+
+  return {
+    locale: ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale,
+    invitationToken: 'invitationToken' in params ? String(params.invitationToken) : '',
+    signinUrl: 'signinUrl' in params ? String(params.signinUrl) : '',
+  }
+}

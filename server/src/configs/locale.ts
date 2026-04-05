@@ -143,3 +143,26 @@ export const smsMfaMsg = Object.freeze({
     zh: '您的验证码是',
   },
 })
+
+export const invitationEmail = Object.freeze({
+  subject: {
+    en: `You've been invited to join ${systemConfig.name}`,
+    fr: `Vous avez été invité à rejoindre ${systemConfig.name}`,
+    zh: `您已被邀请加入 ${systemConfig.name}`,
+  },
+  title: {
+    en: `You've been invited to join ${systemConfig.name}`,
+    fr: `Vous avez été invité à rejoindre ${systemConfig.name}`,
+    zh: `您已被邀请加入 ${systemConfig.name}`,
+  },
+  desc: {
+    en: 'You have been invited to create an account. Click the button below to accept your invitation and set up your password. This invitation will expire after {{expiresIn}} days.',
+    fr: "Vous avez été invité à créer un compte. Cliquez sur le bouton ci-dessous pour accepter l'invitation et définir votre mot de passe. Cette invitation expirera après {{expiresIn}} jours.",
+    zh: '您已被邀请创建账户。请点击下方按钮接受邀请并设置密码。此邀请将在 {{expiresIn}} 天后过期。',
+  },
+  accept: {
+    en: 'Accept Invitation',
+    fr: "Accepter l'invitation",
+    zh: '接受邀请',
+  },
+})

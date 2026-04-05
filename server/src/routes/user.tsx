@@ -870,3 +870,59 @@ userRoutes.post(
   authMiddleware.s2sWriteOrg,
   userHandler.postUserOrgs,
 )
+
+/**
+ * @swagger
+ * /api/v1/users/invitations:
+ *   post:
+ *     summary: Invite a user to join the platform
+ *     description: Required scope - write_user.
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: The email address to invite
+ *               firstName:
+ *                 type: string
+ *                 description: Optional first name
+ *               lastName:
+ *                 type: string
+ *                 description: Optional last name
+ *               locale:
+ *                 type: string
+ *                 description: Locale for the invitation email
+ *               orgSlug:
+ *                 type: string
+ *                 description: Organization slug to assign the user to
+ *               roles:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Roles to assign to the invited user
+ *               signinUrl:
+ *                 type: string
+ *                 description: URL to redirect the user to after accepting the invitation
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/UserDetail'
+ */
+userRoutes.post(
+  `${BaseRoute}/invitations`,
+  authMiddleware.s2sWriteUser,
+  userHandler.postUserInvitation,
+)

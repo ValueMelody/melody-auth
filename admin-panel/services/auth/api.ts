@@ -566,6 +566,17 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Users'],
       }),
+      postApiV1UsersInvitations: build.mutation<
+        PostApiV1UsersInvitationsApiResponse,
+        PostApiV1UsersInvitationsApiArg
+      >({
+        query: (queryArg) => ({
+          url: '/api/v1/users/invitations',
+          method: 'POST',
+          body: queryArg.body,
+        }),
+        invalidatesTags: ['Users'],
+      }),
       getApiV1UserAttributes: build.query<
         GetApiV1UserAttributesApiResponse,
         GetApiV1UserAttributesApiArg
@@ -1203,6 +1214,27 @@ export type PostApiV1UsersByAuthIdOrgsApiArg = {
     orgs?: number[];
   };
 };
+export type PostApiV1UsersInvitationsApiResponse = /** status 200 undefined */ {
+  user?: UserDetail;
+};
+export type PostApiV1UsersInvitationsApiArg = {
+  body: {
+    /** The email address to invite */
+    email: string;
+    /** Optional first name */
+    firstName?: string;
+    /** Optional last name */
+    lastName?: string;
+    /** Locale for the invitation email */
+    locale?: string;
+    /** Organization slug to assign the user to */
+    orgSlug?: string;
+    /** Roles to assign to the invited user */
+    roles?: string[];
+    /** URL to redirect the user to after accepting the invitation */
+    signinUrl?: string;
+  };
+};
 export type GetApiV1UserAttributesApiResponse =
   /** status 200 A list of user attributes */ {
     userAttributes?: UserAttribute[];
@@ -1410,6 +1442,7 @@ export type User = {
   otpVerified: boolean;
   smsPhoneNumberVerified: boolean;
   isActive: boolean;
+  isInviting: boolean;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -1788,6 +1821,7 @@ export const {
   useGetApiV1UsersByAuthIdOrgsQuery,
   useLazyGetApiV1UsersByAuthIdOrgsQuery,
   usePostApiV1UsersByAuthIdOrgsMutation,
+  usePostApiV1UsersInvitationsMutation,
   useGetApiV1UserAttributesQuery,
   useLazyGetApiV1UserAttributesQuery,
   usePostApiV1UserAttributesMutation,

@@ -738,6 +738,49 @@ export const updateInfo = Object.freeze({
   },
 })
 
+export const acceptInvitation = Object.freeze({
+  title: {
+    en: 'Set up your account',
+    fr: 'Configurez votre compte',
+    zh: '设置您的账户',
+  },
+  desc: {
+    en: 'You have been invited to join. Please set a password to activate your account.',
+    fr: 'Vous avez été invité à rejoindre. Veuillez définir un mot de passe pour activer votre compte.',
+    zh: '您已被邀请加入。请设置密码以激活您的账户。',
+  },
+  password: {
+    en: 'Password',
+    fr: 'Mot de passe',
+    zh: '密码',
+  },
+  confirmPassword: {
+    en: 'Confirm Password',
+    fr: 'Confirmer le mot de passe',
+    zh: '确认密码',
+  },
+  confirm: {
+    en: 'Activate Account',
+    fr: 'Activer le compte',
+    zh: '激活账户',
+  },
+  success: {
+    en: 'Account activated! You can now sign in.',
+    fr: 'Compte activé ! Vous pouvez maintenant vous connecter.',
+    zh: '账户已激活！您现在可以登录了。',
+  },
+  signIn: {
+    en: 'Sign In',
+    fr: 'Se connecter',
+    zh: '登录',
+  },
+  expired: {
+    en: 'This invitation has expired. Please contact your administrator.',
+    fr: 'Cette invitation a expiré. Veuillez contacter votre administrateur.',
+    zh: '此邀请已过期，请联系管理员。',
+  },
+})
+
 export const verifyEmail = Object.freeze({
   title: {
     en: 'Verify your email',

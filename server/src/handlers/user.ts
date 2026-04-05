@@ -16,10 +16,12 @@ import {
 } from 'services'
 import { userDto } from 'dtos'
 import {
-  loggerUtil, timeUtil, validateUtil,
+  cryptoUtil, loggerUtil, timeUtil, validateUtil,
 } from 'utils'
 import { PaginationDto } from 'dtos/common'
-import { userModel } from 'models'
+import {
+  roleModel, userModel, userRoleModel,
+} from 'models'
 
 export const getUsers = async (c: Context<typeConfig.Context>) => {
   const {
@@ -622,4 +624,114 @@ export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
   }
 
   return c.json({ success: true })
+}
+
+export const postUserInvitation = async (c: Context<typeConfig.Context>) => {
+  const reqBody = await c.req.json()
+  const bodyDto = new userDto.PostUserInvitationDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const {
+    AUTH_SERVER_URL: serverUrl,
+    SUPPORTED_LOCALES: supportedLocales,
+    ENABLE_NAMES: enableNames,
+    ENABLE_ORG: enableOrg,
+  } = env(c)
+
+  const locale = (bodyDto.locale ?? supportedLocales[0]) as typeConfig.Locale
+  const orgSlug = bodyDto.orgSlug?.trim() ?? ''
+  const requestedRoles = Array.from(new Set(bodyDto.roles ?? []))
+
+  const existingUser = await userModel.getNormalUserByEmail(
+    c.env.DB,
+    bodyDto.email,
+  )
+  if (existingUser) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.EmailTaken,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.EmailTaken)
+  }
+
+  if (orgSlug) {
+    const org = await orgService.getOrgBySlug(
+      c,
+      orgSlug,
+    )
+    if (org.onlyUseForBrandingOverride) {
+      throw new errorConfig.Forbidden(messageConfig.RequestError.OrgNotAllowInvite)
+    }
+  }
+
+  let targetRoles: roleModel.Record[] = []
+  if (requestedRoles.length) {
+    const allRoles = await roleModel.getAll(c.env.DB)
+    targetRoles = allRoles.filter((role) => requestedRoles.includes(role.name))
+
+    if (targetRoles.length !== requestedRoles.length) {
+      throw new errorConfig.NotFound(messageConfig.RequestError.RoleNotFound)
+    }
+  }
+
+  const invitationToken = genRandomString(64)
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + 7)
+  const invitationExpiresAt = timeUtil.getDbCurrentTime(expiresAt)
+
+  const newUser = await userModel.create(
+    c.env.DB,
+    {
+      authId: crypto.randomUUID(),
+      orgSlug,
+      email: bodyDto.email,
+      socialAccountId: null,
+      socialAccountType: null,
+      password: null,
+      locale,
+      otpSecret: cryptoUtil.genOtpSecret(),
+      firstName: bodyDto.firstName ?? null,
+      lastName: bodyDto.lastName ?? null,
+      emailVerified: 0,
+      isActive: 0,
+      invitationToken,
+      invitationExpiresAt,
+    },
+  )
+
+  if (targetRoles.length) {
+    for (const role of targetRoles) {
+      await userRoleModel.create(
+        c.env.DB,
+        {
+          userId: newUser.id,
+          roleId: role.id,
+        },
+      )
+    }
+  }
+
+  const invitationUrl = `${serverUrl}/identity/v1/view/verify-email?invitationToken=${invitationToken}&locale=${locale}${bodyDto.signinUrl ? `&signinUrl=${encodeURIComponent(bodyDto.signinUrl)}` : ''}`
+
+  await emailService.sendInvitationEmail(
+    c,
+    bodyDto.email,
+    orgSlug,
+    locale,
+    invitationUrl,
+  )
+
+  const roleNames = targetRoles.map((role) => role.name)
+  const apiRecord = userModel.convertToApiRecordFull(
+    newUser,
+    enableNames,
+    enableOrg,
+    roleNames,
+    null,
+    [],
+    undefined,
+  )
+
+  return c.json({ user: apiRecord })
 }

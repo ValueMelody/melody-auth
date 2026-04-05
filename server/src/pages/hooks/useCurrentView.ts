@@ -3,7 +3,7 @@ import {
 } from 'hono/jsx'
 import { routeConfig } from 'configs'
 import {
-  getStepFromParams, getMagicSignInParams,
+  getStepFromParams, getMagicSignInParams, getInvitationParams,
 } from 'pages/tools/param'
 import { View } from 'configs/route'
 
@@ -19,8 +19,11 @@ const useCurrentView = () => {
       switch (window.location.pathname) {
       case routeConfig.IdentityRoute.AuthCodeExpiredView:
         return View.AuthCodeExpired
-      case routeConfig.IdentityRoute.VerifyEmailView:
+      case routeConfig.IdentityRoute.VerifyEmailView: {
+        const { invitationToken } = getInvitationParams()
+        if (invitationToken) return View.AcceptInvitation
         return View.VerifyEmail
+      }
       case routeConfig.IdentityRoute.ProcessView: {
         const { otp } = getMagicSignInParams()
         if (otp) return View.MagicSignIn

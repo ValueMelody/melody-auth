@@ -4,6 +4,7 @@ import {
   View,
 } from 'pages/hooks'
 import {
+  AcceptInvitation,
   SignIn,
   MagicSignIn,
   SignUp,
@@ -91,6 +92,8 @@ const Main = () => {
         return AuthCodeExpired
       case View.VerifyEmail:
         return VerifyEmail
+      case View.AcceptInvitation:
+        return AcceptInvitation
       case View.RecoveryCodeSignIn:
         return RecoveryCodeSignIn
       case View.SignIn:
