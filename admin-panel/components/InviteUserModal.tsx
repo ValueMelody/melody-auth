@@ -48,7 +48,7 @@ const InviteUserModal = ({
     undefined,
     { skip: !enableOrg },
   )
-  const orgs = orgsData?.orgs?.filter((org) => org.allowPublicRegistration && !org.onlyUseForBrandingOverride) ?? []
+  const orgs = orgsData?.orgs?.filter((org) => !org.onlyUseForBrandingOverride) ?? []
 
   const { data: appsData } = useGetApiV1AppsQuery()
   const spaApps = appsData?.apps?.filter((app) => app.type === typeTool.ClientType.SPA && app.isActive) ?? []

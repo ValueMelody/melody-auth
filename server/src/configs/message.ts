@@ -123,5 +123,5 @@ export enum RequestError {
   InvitationNotFound = 'Invitation not found or already used',
   InvitationExpired = 'Invitation has expired',
   UserAlreadyActive = 'User is already active',
-  OrgNotAllowPublicRegistration = 'Organization does not allow public registration',
+  OrgNotAllowInvite = 'Organization does not allow invitation',
 }

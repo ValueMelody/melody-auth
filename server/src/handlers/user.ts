@@ -660,8 +660,8 @@ export const postUserInvitation = async (c: Context<typeConfig.Context>) => {
       c,
       orgSlug,
     )
-    if (!org.allowPublicRegistration || org.onlyUseForBrandingOverride) {
-      throw new errorConfig.Forbidden(messageConfig.RequestError.OrgNotAllowPublicRegistration)
+    if (org.onlyUseForBrandingOverride) {
+      throw new errorConfig.Forbidden(messageConfig.RequestError.OrgNotAllowInvite)
     }
   }
 
