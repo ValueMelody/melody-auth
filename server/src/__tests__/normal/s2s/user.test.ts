@@ -68,6 +68,7 @@ export const user1 = {
   mfaTypes: [],
   isActive: true,
   isInviting: false,
+  invitationExpiresAt: null,
   loginCount: 0,
   firstName: null,
   lastName: null,
@@ -90,6 +91,7 @@ export const user2 = {
   mfaTypes: [],
   isActive: true,
   isInviting: false,
+  invitationExpiresAt: null,
   loginCount: 0,
   firstName: null,
   lastName: null,
@@ -490,6 +492,37 @@ describe(
     )
 
     test(
+      'should return invitation expiry as a utc iso string',
+      async () => {
+        await insertUsers(db)
+        await db.prepare(`
+          update "user"
+          set "isActive" = ?, "invitationToken" = ?, "invitationExpiresAt" = ?
+          where "authId" = ?
+        `).run(
+          0,
+          'pending-invite-token',
+          '2099-01-01 00:00:00',
+          '1-1-1-2',
+        )
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+        expect(json.user).toStrictEqual({
+          ...user2,
+          roles: ['super_admin'],
+          isActive: false,
+          isInviting: true,
+          invitationExpiresAt: '2099-01-01T00:00:00.000Z',
+        })
+      },
+    )
+
+    test(
       'should return 404 when can not find user by id',
       async () => {
         const res = await app.request(
@@ -655,6 +688,46 @@ describe(
             ...updateObj,
             isActive: true,
           },
+        })
+      },
+    )
+
+    test(
+      'should not activate user with pending invitation',
+      async () => {
+        await insertUsers(db)
+        await db.prepare(`
+          update "user"
+          set "isActive" = ?, "invitationToken" = ?, "invitationExpiresAt" = ?
+          where "authId" = ?
+        `).run(
+          0,
+          'pending-invite-token',
+          '2099-01-01 00:00:00',
+          '1-1-1-2',
+        )
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ isActive: true }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvitationMustBeAccepted)
+
+        const userRecord = await db.prepare(`
+          select "isActive", "invitationToken"
+          from "user"
+          where "authId" = ?
+        `).get('1-1-1-2')
+        expect(userRecord).toStrictEqual({
+          isActive: 0,
+          invitationToken: 'pending-invite-token',
         })
       },
     )
@@ -1607,6 +1680,97 @@ describe(
           mock(db),
         )
         expect(res1.status).toBe(401)
+      },
+    )
+  },
+)
+
+describe(
+  'delete invitation',
+  () => {
+    const insertInvitedUser = async () => {
+      await insertUsers(db)
+      await db.prepare(`
+        update "user"
+        set "isActive" = ?, "invitationToken" = ?, "invitationExpiresAt" = ?
+        where "authId" = ?
+      `).run(
+        0,
+        'pending-invite-token',
+        '2099-01-01 00:00:00',
+        '1-1-1-2',
+      )
+    }
+
+    test(
+      'should revoke invitation',
+      async () => {
+        await insertInvitedUser()
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const userRes = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const json = await userRes.json() as { user: userModel.ApiRecordFull }
+        expect(json.user.isInviting).toBe(false)
+        expect(json.user.invitationExpiresAt).toBeNull()
+      },
+    )
+
+    test(
+      'should throw error if invitation not found',
+      async () => {
+        await insertUsers(db)
+        await db.prepare('update "user" set "isActive" = ? where "authId" = ?').run(0, '1-1-1-2')
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvitationNotFound)
+      },
+    )
+
+    test(
+      'should throw error if user already active',
+      async () => {
+        await insertUsers(db)
+        await db.prepare(`
+          update "user"
+          set "invitationToken" = ?, "invitationExpiresAt" = ?
+          where "authId" = ?
+        `).run(
+          'pending-invite-token',
+          '2099-01-01 00:00:00',
+          '1-1-1-2',
+        )
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserAlreadyActive)
       },
     )
   },

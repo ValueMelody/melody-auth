@@ -122,6 +122,7 @@ export enum RequestError {
   SessionNotFound = 'No active session found',
   InvitationNotFound = 'Invitation not found or already used',
   InvitationExpired = 'Invitation has expired',
+  InvitationMustBeAccepted = 'Invitation must be accepted before activating user',
   UserAlreadyActive = 'User is already active',
   OrgNotAllowInvite = 'Organization does not allow invitation',
 }

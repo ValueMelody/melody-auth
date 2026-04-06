@@ -6,7 +6,9 @@ import {
 import {
   orgModel, userOrgGroupModel, userOrgModel,
 } from 'models'
-import { dbUtil } from 'utils'
+import {
+  dbUtil, timeUtil,
+} from 'utils'
 
 export enum MfaType {
   Otp = 'otp',
@@ -80,6 +82,7 @@ export interface ApiRecord {
   mfaTypes: string[];
   isActive: boolean;
   isInviting: boolean;
+  invitationExpiresAt: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -168,6 +171,7 @@ export const convertToApiRecord = (
     mfaTypes: record.mfaTypes,
     isActive: record.isActive,
     isInviting: !!record.invitationToken,
+    invitationExpiresAt: timeUtil.convertDbTimeToUtcISOString(record.invitationExpiresAt),
     loginCount: record.loginCount,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,

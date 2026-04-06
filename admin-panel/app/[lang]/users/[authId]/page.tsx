@@ -10,6 +10,7 @@ import {
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/16/solid'
 import { useAuth } from '@melody-auth/react'
 import ImpersonationModal from './ImpersonationModal'
+import ResendInviteModal from './ResendInviteModal'
 import UserOrgsModal from './UserOrgsModal'
 import UserOrgGroupModal from './UserOrgGroupModal'
 import {
@@ -29,7 +30,7 @@ import {
 } from 'components/ui/table'
 import UserEmailVerified from 'components/UserEmailVerified'
 import {
-  routeTool, accessTool,
+  routeTool, accessTool, typeTool,
 } from 'tools'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import useSignalValue from 'app/useSignalValue'
@@ -50,6 +51,7 @@ import {
   useDeleteApiV1UsersByAuthIdOtpMfaMutation,
   useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation,
   useDeleteApiV1UsersByAuthIdSmsMfaMutation,
+  useDeleteApiV1UsersInvitationsByAuthIdMutation,
   useGetApiV1AppsQuery,
   useGetApiV1OrgsQuery,
   useGetApiV1RolesQuery,
@@ -64,6 +66,7 @@ import {
   usePostApiV1UsersByAuthIdOtpMfaMutation,
   usePostApiV1UsersByAuthIdSmsMfaMutation,
   usePostApiV1UsersByAuthIdVerifyEmailMutation,
+  usePostApiV1UsersInvitationsByAuthIdMutation,
   usePutApiV1UsersByAuthIdMutation,
   UserDetail,
 } from 'services/auth/api'
@@ -88,6 +91,7 @@ const Page = () => {
   const [locale, setLocale] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [emailResent, setEmailResent] = useState(false)
+  const [inviteResent, setInviteResent] = useState(false)
   const [userRoles, setUserRoles] = useState<string[] | null>([])
   const [orgSlug, setOrgSlug] = useState('')
   const [attributeValues, setAttributeValues] = useState<Record<string, string>>({})
@@ -97,7 +101,10 @@ const Page = () => {
   const [isResettingOtpMfa, setIsResettingOtpMfa] = useState(false)
   const [isResettingEmailMfa, setIsResettingEmailMfa] = useState(false)
   const [isRemovingPasskey, setIsRemovingPasskey] = useState(false)
+  const [isRevokingInvite, setIsRevokingInvite] = useState(false)
+  const [inviteRevoked, setInviteRevoked] = useState(false)
   const [showImpersonateModal, setShowImpersonateModal] = useState(false)
+  const [showResendInviteModal, setShowResendInviteModal] = useState(false)
   const [showUserOrgGroupModal, setShowUserOrgGroupModal] = useState(false)
   const [showUserOrgsModal, setShowUserOrgsModal] = useState(false)
 
@@ -149,6 +156,10 @@ const Page = () => {
   const activeSessions = activeSessionsData?.activeSessions ?? []
 
   const { data: appsData } = useGetApiV1AppsQuery()
+  const spaApps = useMemo(
+    () => appsData?.apps?.filter((app) => app.type === typeTool.ClientType.SPA && app.isActive) ?? [],
+    [appsData],
+  )
   const appsByClientId = useMemo(
     () => {
       const map: Record<string, string> = {}
@@ -180,7 +191,9 @@ const Page = () => {
   const [deleteUser, { isLoading: isDeleting }] = useDeleteApiV1UsersByAuthIdMutation()
   const [deleteUserConsent] = useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation()
   const [deleteUserLockedIps] = useDeleteApiV1UsersByAuthIdLockedIpsMutation()
+  const [revokeInvitation, { isLoading: isRevokingInvitation }] = useDeleteApiV1UsersInvitationsByAuthIdMutation()
   const [resendVerificationEmail] = usePostApiV1UsersByAuthIdVerifyEmailMutation()
+  const [resendInvitation, { isLoading: isResendingInvitation }] = usePostApiV1UsersInvitationsByAuthIdMutation()
   const [enrollEmailMfa] = usePostApiV1UsersByAuthIdEmailMfaMutation()
   const [enrollOtpMfa] = usePostApiV1UsersByAuthIdOtpMfaMutation()
   const [enrollSmsMfa] = usePostApiV1UsersByAuthIdSmsMfaMutation()
@@ -242,6 +255,16 @@ const Page = () => {
     userInfo?.roles,
   )
 
+  const invitationExpiryDate = user?.invitationExpiresAt
+    ? new Date(user.invitationExpiresAt)
+    : null
+
+  const isInvitationExpired = invitationExpiryDate
+    ? invitationExpiryDate < new Date()
+    : false
+  const isPendingInvitation = !!user?.isInviting && !inviteRevoked
+  const defaultInviteLocale = user?.locale || configs.SUPPORTED_LOCALES?.[0] || ''
+
   const handleDelete = async () => {
     await deleteUser({ authId: String(authId) })
     router.push(routeTool.Internal.Users)
@@ -283,6 +306,43 @@ const Page = () => {
   const handleResendVerifyEmail = async () => {
     const res = await resendVerificationEmail({ authId: String(authId) })
     if (res.data?.success) setEmailResent(true)
+  }
+
+  const handleClickResendInvitation = () => setShowResendInviteModal(true)
+
+  const handleCloseResendInvitation = () => setShowResendInviteModal(false)
+
+  const handleResendInvitation = async ({
+    locale,
+    signinUrl,
+  }: {
+    locale?: string;
+    signinUrl?: string;
+  }) => {
+    const res = await resendInvitation({
+      authId: String(authId),
+      body: {
+        locale: locale || user?.locale || appLocale || undefined,
+        signinUrl,
+      },
+    })
+    if (res.data?.success) {
+      setInviteResent(true)
+      setShowResendInviteModal(false)
+    }
+  }
+
+  const handleClickRevokeInvitation = () => setIsRevokingInvite(true)
+
+  const handleCancelRevokeInvitation = () => setIsRevokingInvite(false)
+
+  const handleConfirmRevokeInvitation = async () => {
+    const res = await revokeInvitation({ authId: String(authId) })
+    setIsRevokingInvite(false)
+    if (!('error' in res)) {
+      setInviteRevoked(true)
+      setInviteResent(false)
+    }
   }
 
   const handleClickResetOtpMfa = () => setIsResettingOtpMfa(true)
@@ -400,6 +460,43 @@ const Page = () => {
               variant='secondary'>{t('users.sent')}</Badge>
           </div>
         )}
+      </div>
+    )
+  }
+
+  const renderInviteButtons = (user: UserDetail) => {
+    if (!canWriteUser || inviteRevoked) return null
+
+    return (
+      <div className='flex items-center gap-4 max-md:gap-2 max-md:flex-col max-md:items-start'>
+        {!inviteResent && (
+          <Button
+            size='sm'
+            data-testid='resendInviteButton'
+            disabled={isResendingInvitation}
+            onClick={handleClickResendInvitation}
+          >
+            {t('users.resendInvite')}
+          </Button>
+        )}
+        {inviteResent && (
+          <div className='flex'>
+            <Badge
+              data-testid='inviteSentBadge'
+              variant='secondary'
+            >
+              {t('users.inviteSent')}
+            </Badge>
+          </div>
+        )}
+        <Button
+          size='sm'
+          data-testid='revokeInviteButton'
+          disabled={isRevokingInvitation}
+          onClick={handleClickRevokeInvitation}
+        >
+          {t('users.revokeInvite')}
+        </Button>
       </div>
     )
   }
@@ -749,12 +846,59 @@ const Page = () => {
                 {!isSelf && (
                   <Switch
                     checked={isActive}
-                    disabled={!canWriteUser}
+                    disabled={!canWriteUser || isPendingInvitation}
                     onClick={() => setIsActive(!isActive)}
                   />
                 )}
               </TableCell>
             </TableRow>
+            {isPendingInvitation && (
+              <>
+                <ConfirmModal
+                  title={t('users.revokeInviteTitle')}
+                  show={isRevokingInvite}
+                  onConfirm={handleConfirmRevokeInvitation}
+                  onClose={handleCancelRevokeInvitation}
+                  confirmButtonText={t('users.revokeInvite')}
+                />
+                <ResendInviteModal
+                  show={showResendInviteModal}
+                  isLoading={isResendingInvitation}
+                  defaultLocale={defaultInviteLocale}
+                  supportedLocales={configs.SUPPORTED_LOCALES ?? []}
+                  spaApps={spaApps}
+                  onClose={handleCloseResendInvitation}
+                  onConfirm={handleResendInvitation}
+                />
+                <TableRow>
+                  <TableCell>{t('users.inviteStatus')}</TableCell>
+                  <TableCell>
+                    <div className='flex items-center gap-4 max-md:flex-col max-md:items-start'>
+                      <div className='flex items-center gap-4'>
+                        {isInvitationExpired
+                          ? <Badge variant='warning'>{t('users.inviteExpired')}</Badge>
+                          : <EntityStatusLabel
+                              isEnabled={false}
+                              isInviting
+                            />
+                        }
+                        {invitationExpiryDate && (
+                          <span className='text-sm text-muted-foreground'>
+                            {t('users.inviteExpiresAt')}: {invitationExpiryDate.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                      <div className='md:hidden'>
+                        {renderInviteButtons(user)}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className='max-md:hidden'>
+                    {renderInviteButtons(user)}
+                  </TableCell>
+                </TableRow>
+              </>
+            )}
             {!user.socialAccountId && enableAccountLock && (
               <TableRow>
                 <TableCell>{t('users.lockedIPs')}</TableCell>

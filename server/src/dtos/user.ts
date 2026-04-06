@@ -41,6 +41,21 @@ export class PostUserInvitationDto {
   }
 }
 
+export class PostResendUserInvitationDto {
+  @IsString()
+  @IsOptional()
+    locale?: string
+
+  @IsString()
+  @IsOptional()
+    signinUrl?: string
+
+  constructor (dto: PostResendUserInvitationDto) {
+    this.locale = dto.locale
+    this.signinUrl = dto.signinUrl
+  }
+}
+
 export class PostAcceptInvitationDto {
   @IsString()
   @IsNotEmpty()

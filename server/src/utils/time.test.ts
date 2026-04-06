@@ -1,7 +1,31 @@
 import {
   describe, expect, test,
 } from 'vitest'
-import { isUtcString } from './time'
+import {
+  convertDbTimeToUtcISOString,
+  isUtcString,
+} from './time'
+
+describe(
+  'convertDbTimeToUtcISOString',
+  () => {
+    test(
+      'should convert db timestamps to utc iso strings',
+      () => {
+        expect(convertDbTimeToUtcISOString('2099-01-01 00:00:00'))
+          .toBe('2099-01-01T00:00:00.000Z')
+      },
+    )
+
+    test(
+      'should return null for empty values',
+      () => {
+        expect(convertDbTimeToUtcISOString(null)).toBeNull()
+        expect(convertDbTimeToUtcISOString(undefined)).toBeNull()
+      },
+    )
+  },
+)
 
 describe(
   'isUtcString',

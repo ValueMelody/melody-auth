@@ -7,6 +7,9 @@ import {
 import {
   Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue,
 } from 'components/ui/select'
+import {
+  InviteLocaleField, InviteRedirectFields,
+} from 'components/InviteDeliveryFields'
 import { Input } from 'components/ui/input'
 import { Label } from 'components/ui/label'
 import { Checkbox } from 'components/ui/checkbox'
@@ -24,7 +27,6 @@ import {
 import { typeTool } from 'tools'
 
 const NO_ORG = ' '
-const NO_APP = ' '
 
 const InviteUserModal = ({
   show,
@@ -67,19 +69,11 @@ const InviteUserModal = ({
 
   const emailError = email.trim() ? undefined : t('common.fieldIsRequired')
 
-  const selectedApp = spaApps.find((app) => app.id === selectedAppId)
-  const redirectUris = selectedApp?.redirectUris ?? []
-
   const handleToggleRole = (roleName: string) => {
     setSelectedRoles((prev) =>
       prev.includes(roleName)
         ? prev.filter((r) => r !== roleName)
         : [...prev, roleName])
-  }
-
-  const handleAppChange = (val: string) => {
-    setSelectedAppId(val === NO_APP ? null : Number(val))
-    setSigninUrl('')
   }
 
   const handleSubmit = async () => {
@@ -163,32 +157,12 @@ const InviteUserModal = ({
               </div>
             </>
           )}
-          {supportedLocales.length > 1 && (
-            <div className='flex flex-col gap-1'>
-              <Label>{t('users.locale')}</Label>
-              <Select
-                value={locale}
-                onValueChange={(val) => setLocale(val)}
-              >
-                <SelectTrigger data-testid='inviteLocale'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {supportedLocales.map((loc) => (
-                      <SelectItem
-                        key={loc}
-                        value={loc}
-                        data-testid={`inviteLocaleOption-${loc}`}
-                      >
-                        {loc.toUpperCase()}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <InviteLocaleField
+            locale={locale}
+            supportedLocales={supportedLocales}
+            testIdPrefix='invite'
+            onLocaleChange={setLocale}
+          />
           {enableOrg && orgs.length > 0 && (
             <div className='flex flex-col gap-1'>
               <Label>{t('users.org')}</Label>
@@ -236,66 +210,14 @@ const InviteUserModal = ({
               </div>
             </div>
           )}
-          {spaApps.length > 0 && (
-            <div className='flex flex-col gap-3 pt-2 border-t'>
-              <div>
-                <p className='text-sm font-medium'>{t('users.inviteRedirectApp')}</p>
-                <p className='text-sm text-muted-foreground mt-1'>{t('users.inviteRedirectDesc')}</p>
-              </div>
-              <div className='flex flex-col gap-1'>
-                <Label>{t('users.inviteRedirectApp')}</Label>
-                <Select
-                  value={selectedAppId?.toString() ?? NO_APP}
-                  onValueChange={handleAppChange}
-                >
-                  <SelectTrigger data-testid='inviteApp'>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value={NO_APP}>{t('users.noApp')}</SelectItem>
-                      {spaApps.map((app) => (
-                        <SelectItem
-                          key={app.id}
-                          value={app.id.toString()}
-                          data-testid={`inviteAppOption-${app.id}`}
-                        >
-                          {app.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-              {redirectUris.length > 0 && (
-                <div className='flex flex-col gap-1'>
-                  <Label>{t('users.inviteRedirectUrl')}</Label>
-                  <Select
-                    value={signinUrl || NO_APP}
-                    onValueChange={(val) => setSigninUrl(val === NO_APP ? '' : val)}
-                  >
-                    <SelectTrigger data-testid='inviteRedirectUrl'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value={NO_APP}>{t('users.noApp')}</SelectItem>
-                        {redirectUris.map((uri) => (
-                          <SelectItem
-                            key={uri}
-                            value={uri}
-                            data-testid={`inviteRedirectUrlOption-${uri}`}
-                          >
-                            {uri}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-          )}
+          <InviteRedirectFields
+            selectedAppId={selectedAppId}
+            signinUrl={signinUrl}
+            spaApps={spaApps}
+            testIdPrefix='invite'
+            onSelectedAppIdChange={setSelectedAppId}
+            onSigninUrlChange={setSigninUrl}
+          />
         </section>
         <SubmitError />
         <AlertDialogFooter>
