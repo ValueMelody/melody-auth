@@ -38,6 +38,10 @@ const User = {
     smsPhoneNumberVerified: { type: 'boolean' },
     isActive: { type: 'boolean' },
     isInviting: { type: 'boolean' },
+    invitationExpiresAt: {
+      type: 'string',
+      nullable: true,
+    },
     createdAt: { type: 'string' },
     updatedAt: { type: 'string' },
     deletedAt: {

@@ -566,6 +566,27 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['Users'],
       }),
+      postApiV1UsersInvitationsByAuthId: build.mutation<
+        PostApiV1UsersInvitationsByAuthIdApiResponse,
+        PostApiV1UsersInvitationsByAuthIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/users/invitations/${queryArg.authId}`,
+          method: 'POST',
+          body: queryArg.body,
+        }),
+        invalidatesTags: ['Users'],
+      }),
+      deleteApiV1UsersInvitationsByAuthId: build.mutation<
+        DeleteApiV1UsersInvitationsByAuthIdApiResponse,
+        DeleteApiV1UsersInvitationsByAuthIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/users/invitations/${queryArg.authId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Users'],
+      }),
       postApiV1UsersInvitations: build.mutation<
         PostApiV1UsersInvitationsApiResponse,
         PostApiV1UsersInvitationsApiArg
@@ -1214,6 +1235,25 @@ export type PostApiV1UsersByAuthIdOrgsApiArg = {
     orgs?: number[];
   };
 };
+export type PostApiV1UsersInvitationsByAuthIdApiResponse =
+  /** status 200 undefined */ {
+    success?: boolean;
+  };
+export type PostApiV1UsersInvitationsByAuthIdApiArg = {
+  /** The authId of the pending invited user */
+  authId: string;
+  body: {
+    /** Locale for the invitation email */
+    locale?: string;
+    /** URL to redirect the user to after accepting the invitation */
+    signinUrl?: string;
+  };
+};
+export type DeleteApiV1UsersInvitationsByAuthIdApiResponse = unknown;
+export type DeleteApiV1UsersInvitationsByAuthIdApiArg = {
+  /** The authId of the pending invited user */
+  authId: string;
+};
 export type PostApiV1UsersInvitationsApiResponse = /** status 200 undefined */ {
   user?: UserDetail;
 };
@@ -1443,6 +1483,7 @@ export type User = {
   smsPhoneNumberVerified: boolean;
   isActive: boolean;
   isInviting: boolean;
+  invitationExpiresAt?: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -1821,6 +1862,8 @@ export const {
   useGetApiV1UsersByAuthIdOrgsQuery,
   useLazyGetApiV1UsersByAuthIdOrgsQuery,
   usePostApiV1UsersByAuthIdOrgsMutation,
+  usePostApiV1UsersInvitationsByAuthIdMutation,
+  useDeleteApiV1UsersInvitationsByAuthIdMutation,
   usePostApiV1UsersInvitationsMutation,
   useGetApiV1UserAttributesQuery,
   useLazyGetApiV1UserAttributesQuery,

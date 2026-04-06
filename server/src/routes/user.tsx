@@ -873,6 +873,73 @@ userRoutes.post(
 
 /**
  * @swagger
+ * /api/v1/users/invitations/{authId}:
+ *   post:
+ *     summary: Resend invitation email to a pending user
+ *     description: Required scope - write_user.
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the pending invited user
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               locale:
+ *                 type: string
+ *                 description: Locale for the invitation email
+ *               signinUrl:
+ *                 type: string
+ *                 description: URL to redirect the user to after accepting the invitation
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ */
+userRoutes.post(
+  `${BaseRoute}/invitations/:authId`,
+  authMiddleware.s2sWriteUser,
+  userHandler.postResendUserInvitation,
+)
+
+/**
+ * @swagger
+ * /api/v1/users/invitations/{authId}:
+ *   delete:
+ *     summary: Revoke invitation for a pending user
+ *     description: Required scope - write_user.
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: authId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authId of the pending invited user
+ *     responses:
+ *       204:
+ *         description: Invitation revoked successfully
+ */
+userRoutes.delete(
+  `${BaseRoute}/invitations/:authId`,
+  authMiddleware.s2sWriteUser,
+  userHandler.deleteUserInvitation,
+)
+
+/**
+ * @swagger
  * /api/v1/users/invitations:
  *   post:
  *     summary: Invite a user to join the platform

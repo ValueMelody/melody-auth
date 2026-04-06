@@ -626,6 +626,108 @@ export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
   return c.json({ success: true })
 }
 
+export const postResendUserInvitation = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+  const reqBody = await c.req.json()
+  const bodyDto = new userDto.PostResendUserInvitationDto(reqBody)
+  await validateUtil.dto(bodyDto)
+
+  const {
+    AUTH_SERVER_URL: serverUrl,
+    SUPPORTED_LOCALES: supportedLocales,
+  } = env(c)
+
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  if (user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserAlreadyActive,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserAlreadyActive)
+  }
+
+  if (!user.invitationToken) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvitationNotFound,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvitationNotFound)
+  }
+
+  const invitationToken = genRandomString(64)
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + 7)
+  const invitationExpiresAt = timeUtil.getDbCurrentTime(expiresAt)
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    {
+      invitationToken,
+      invitationExpiresAt,
+    },
+  )
+
+  const locale = (bodyDto.locale ?? user.locale ?? supportedLocales[0]) as typeConfig.Locale
+  const invitationUrl = `${serverUrl}/identity/v1/view/verify-email?invitationToken=${invitationToken}&locale=${locale}${bodyDto.signinUrl ? `&signinUrl=${encodeURIComponent(bodyDto.signinUrl)}` : ''}`
+
+  await emailService.sendInvitationEmail(
+    c,
+    user.email ?? '',
+    user.orgSlug ?? '',
+    locale,
+    invitationUrl,
+  )
+
+  return c.json({ success: true })
+}
+
+export const deleteUserInvitation = async (c: Context<typeConfig.Context>) => {
+  const authId = c.req.param('authId')
+
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+
+  if (user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserAlreadyActive,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserAlreadyActive)
+  }
+
+  if (!user.invitationToken) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvitationNotFound,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvitationNotFound)
+  }
+
+  await userModel.update(
+    c.env.DB,
+    user.id,
+    {
+      invitationToken: null,
+      invitationExpiresAt: null,
+      isActive: 0,
+    },
+  )
+
+  c.status(204)
+  return c.body(null)
+}
+
 export const postUserInvitation = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const bodyDto = new userDto.PostUserInvitationDto(reqBody)

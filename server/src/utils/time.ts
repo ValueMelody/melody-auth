@@ -26,6 +26,15 @@ export const getDbCurrentTime = (date = new Date()) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
 
+export const convertDbTimeToUtcISOString = (value: string | null | undefined): string | null => {
+  if (!value) return null
+
+  return `${value.replace(
+    ' ',
+    'T',
+  )}.000Z`
+}
+
 export const isUtcString = (value: string | undefined): boolean => {
   if (typeof value !== 'string') return false
 

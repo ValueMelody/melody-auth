@@ -13,6 +13,7 @@ import {
   useDeleteApiV1UsersByAuthIdMutation,
   useDeleteApiV1UsersByAuthIdOtpMfaMutation,
   useDeleteApiV1UsersByAuthIdSmsMfaMutation,
+  useDeleteApiV1UsersInvitationsByAuthIdMutation,
   useGetApiV1RolesQuery,
   useGetApiV1UsersByAuthIdConsentedAppsQuery,
   useGetApiV1UsersByAuthIdLockedIpsQuery,
@@ -21,6 +22,7 @@ import {
   usePostApiV1UsersByAuthIdOtpMfaMutation,
   usePostApiV1UsersByAuthIdSmsMfaMutation,
   usePostApiV1UsersByAuthIdVerifyEmailMutation,
+  usePostApiV1UsersInvitationsByAuthIdMutation,
   usePutApiV1UsersByAuthIdMutation,
   useDeleteApiV1UsersByAuthIdAccountLinkingMutation,
   useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation,
@@ -83,6 +85,7 @@ vi.mock(
     useDeleteApiV1UsersByAuthIdMutation: vi.fn(),
     useDeleteApiV1UsersByAuthIdOtpMfaMutation: vi.fn(),
     useDeleteApiV1UsersByAuthIdSmsMfaMutation: vi.fn(),
+    useDeleteApiV1UsersInvitationsByAuthIdMutation: vi.fn(),
     useGetApiV1RolesQuery: vi.fn(),
     useGetApiV1UsersByAuthIdConsentedAppsQuery: vi.fn(),
     useGetApiV1UsersByAuthIdLockedIpsQuery: vi.fn(),
@@ -91,6 +94,7 @@ vi.mock(
     usePostApiV1UsersByAuthIdOtpMfaMutation: vi.fn(),
     usePostApiV1UsersByAuthIdSmsMfaMutation: vi.fn(),
     usePostApiV1UsersByAuthIdVerifyEmailMutation: vi.fn(),
+    usePostApiV1UsersInvitationsByAuthIdMutation: vi.fn(),
     usePutApiV1UsersByAuthIdMutation: vi.fn(),
     useDeleteApiV1UsersByAuthIdAccountLinkingMutation: vi.fn(),
     useDeleteApiV1UsersByAuthIdPasskeysAndPasskeyIdMutation: vi.fn(),
@@ -139,7 +143,9 @@ const mockUpdate = vi.fn()
 const mockDelete = vi.fn()
 const mockDeleteConsent = vi.fn()
 const mockDeleteIps = vi.fn()
+const mockRevokeInvite = vi.fn()
 const mockResendVerifyEmail = vi.fn()
+const mockResendInvite = vi.fn()
 const mockEnrollEmailMfa = vi.fn()
 const mockEnrollOtpMfa = vi.fn()
 const mockEnrollSmsMfa = vi.fn()
@@ -179,8 +185,12 @@ describe(
       (useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation as Mock)
         .mockReturnValue([mockDeleteConsent, { isLoading: false }]);
       (useDeleteApiV1UsersByAuthIdLockedIpsMutation as Mock).mockReturnValue([mockDeleteIps, { isLoading: false }]);
+      (useDeleteApiV1UsersInvitationsByAuthIdMutation as Mock)
+        .mockReturnValue([mockRevokeInvite, { isLoading: false }]);
       (usePostApiV1UsersByAuthIdVerifyEmailMutation as Mock)
         .mockReturnValue([mockResendVerifyEmail, { isLoading: false }]);
+      (usePostApiV1UsersInvitationsByAuthIdMutation as Mock)
+        .mockReturnValue([mockResendInvite, { isLoading: false }]);
       (usePostApiV1UsersByAuthIdEmailMfaMutation as Mock).mockReturnValue([mockEnrollEmailMfa, { isLoading: false }]);
       (usePostApiV1UsersByAuthIdSmsMfaMutation as Mock).mockReturnValue([mockEnrollSmsMfa, { isLoading: false }]);
       (usePostApiV1UsersByAuthIdOtpMfaMutation as Mock).mockReturnValue([mockEnrollOtpMfa, { isLoading: false }]);
@@ -653,6 +663,121 @@ describe(
     )
 
     it(
+      'shows resend invite modal and sends selected locale and redirect url',
+      async () => {
+        (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              socialAccountId: null,
+              isActive: false,
+              isInviting: true,
+              invitationExpiresAt: '2099-01-01T00:00:00.000Z',
+            },
+          },
+        });
+        (useGetApiV1AppsQuery as Mock).mockReturnValue({
+          data: {
+            apps: [{
+              id: 1,
+              clientId: 'client-1',
+              name: 'Admin Panel (SPA)',
+              isActive: true,
+              type: 'spa',
+              redirectUris: [
+                'http://localhost:3000/en/dashboard',
+                'http://localhost:3000/fr/dashboard',
+              ],
+              useSystemMfaConfig: true,
+              requireEmailMfa: false,
+              requireOtpMfa: false,
+              requireSmsMfa: false,
+              allowEmailMfaAsBackup: false,
+              createdAt: '',
+              updatedAt: '',
+              deletedAt: null,
+            }],
+          },
+        });
+
+        (usePostApiV1UsersInvitationsByAuthIdMutation as Mock)
+          .mockReturnValue([mockResendInvite, { isLoading: false }])
+        mockResendInvite.mockResolvedValue({ data: { success: true } })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const resendButton = screen.queryAllByTestId('resendInviteButton') as HTMLButtonElement[]
+          fireEvent.click(resendButton[0])
+        })
+
+        await waitFor(() => {
+          expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+        })
+
+        fireEvent.click(screen.getByTestId('resendInviteLocale'))
+        fireEvent.click(screen.getByTestId('resendInviteLocaleOption-fr'))
+        fireEvent.click(screen.getByTestId('resendInviteApp'))
+        fireEvent.click(screen.getByTestId('resendInviteAppOption-1'))
+        fireEvent.click(screen.getByTestId('resendInviteRedirectUrl'))
+        fireEvent.click(screen.getByTestId('resendInviteRedirectUrlOption-http://localhost:3000/fr/dashboard'))
+        fireEvent.click(screen.getByTestId('confirmResendInvite'))
+
+        await waitFor(() => {
+          expect(mockResendInvite).toHaveBeenCalledWith({
+            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
+            body: {
+              locale: 'fr',
+              signinUrl: 'http://localhost:3000/fr/dashboard',
+            },
+          })
+          expect(screen.queryAllByTestId('inviteSentBadge').length).toBeGreaterThan(0)
+        })
+      },
+    )
+
+    it(
+      'revokes invite',
+      async () => {
+        (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              socialAccountId: null,
+              isActive: false,
+              isInviting: true,
+              invitationExpiresAt: '2099-01-01T00:00:00.000Z',
+            },
+          },
+        });
+
+        (useDeleteApiV1UsersInvitationsByAuthIdMutation as Mock)
+          .mockReturnValue([mockRevokeInvite, { isLoading: false }])
+        mockRevokeInvite.mockResolvedValue({ data: { success: true } })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const revokeButtons = screen.queryAllByTestId('revokeInviteButton') as HTMLButtonElement[]
+          fireEvent.click(revokeButtons[0])
+        })
+
+        await waitFor(() => {
+          expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
+        })
+
+        await waitFor(() => {
+          fireEvent.click(screen.getByTestId('confirmButton'))
+        })
+
+        await waitFor(() => {
+          expect(mockRevokeInvite).toHaveBeenCalledWith({ authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865' })
+          expect(screen.queryByText('users.inviteStatus')).not.toBeInTheDocument()
+        })
+      },
+    )
+
+    it(
       'navigates to linked account page on click',
       async () => {
         (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
@@ -963,6 +1088,31 @@ describe(
             authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
             putUserReq: { isActive: false },
           })
+        })
+      },
+    )
+
+    it(
+      'disables active status toggle for invited user',
+      async () => {
+        (useGetApiV1UsersByAuthIdQuery as Mock).mockReturnValue({
+          data: {
+            user: {
+              ...users[0],
+              authId: 'different-auth-id',
+              socialAccountId: null,
+              isActive: false,
+              isInviting: true,
+              invitationExpiresAt: '2099-01-01T00:00:00.000Z',
+            },
+          },
+        })
+
+        render(<Page />)
+
+        await waitFor(() => {
+          const toggleSwitch = screen.getByRole('switch')
+          expect(toggleSwitch).toBeDisabled()
         })
       },
     )

@@ -1351,6 +1351,15 @@ export const updateUser = async (
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
 
+  if (dto.isActive && user.invitationToken) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvitationMustBeAccepted,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvitationMustBeAccepted)
+  }
+
   const updateObj: userModel.Update = {}
   if (dto.firstName !== undefined) updateObj.firstName = dto.firstName
   if (dto.lastName !== undefined) updateObj.lastName = dto.lastName
