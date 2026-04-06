@@ -42,16 +42,20 @@ const ResendInviteModal = ({
 }) => {
   const t = useTranslations()
 
-  const [locale, setLocale] = useState(
-    getDefaultLocale(supportedLocales, defaultLocale),
-  )
+  const [locale, setLocale] = useState(getDefaultLocale(
+    supportedLocales,
+    defaultLocale,
+  ))
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null)
   const [signinUrl, setSigninUrl] = useState('')
 
   useEffect(
     () => {
       if (!show) return
-      setLocale(getDefaultLocale(supportedLocales, defaultLocale))
+      setLocale(getDefaultLocale(
+        supportedLocales,
+        defaultLocale,
+      ))
       setSelectedAppId(null)
       setSigninUrl('')
     },
@@ -59,7 +63,10 @@ const ResendInviteModal = ({
   )
 
   const handleClose = () => {
-    setLocale(getDefaultLocale(supportedLocales, defaultLocale))
+    setLocale(getDefaultLocale(
+      supportedLocales,
+      defaultLocale,
+    ))
     setSelectedAppId(null)
     setSigninUrl('')
     onClose()

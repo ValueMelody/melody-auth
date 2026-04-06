@@ -464,7 +464,7 @@ const Page = () => {
     )
   }
 
-  const renderInviteButtons = (user: UserDetail) => {
+  const renderInviteButtons = () => {
     if (!canWriteUser || inviteRevoked) return null
 
     return (
@@ -877,10 +877,12 @@ const Page = () => {
                       <div className='flex items-center gap-4'>
                         {isInvitationExpired
                           ? <Badge variant='warning'>{t('users.inviteExpired')}</Badge>
-                          : <EntityStatusLabel
+                          : (
+                            <EntityStatusLabel
                               isEnabled={false}
                               isInviting
                             />
+                          )
                         }
                         {invitationExpiryDate && (
                           <span className='text-sm text-muted-foreground'>
@@ -889,12 +891,12 @@ const Page = () => {
                         )}
                       </div>
                       <div className='md:hidden'>
-                        {renderInviteButtons(user)}
+                        {renderInviteButtons()}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className='max-md:hidden'>
-                    {renderInviteButtons(user)}
+                    {renderInviteButtons()}
                   </TableCell>
                 </TableRow>
               </>

@@ -1732,7 +1732,10 @@ describe(
       'should throw error if invitation not found',
       async () => {
         await insertUsers(db)
-        await db.prepare('update "user" set "isActive" = ? where "authId" = ?').run(0, '1-1-1-2')
+        await db.prepare('update "user" set "isActive" = ? where "authId" = ?').run(
+          0,
+          '1-1-1-2',
+        )
 
         const res = await app.request(
           `${BaseRoute}/invitations/1-1-1-2`,

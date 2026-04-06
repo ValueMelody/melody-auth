@@ -10,13 +10,13 @@ import {
   useDeleteApiV1UsersByAuthIdConsentedAppsAndAppIdMutation,
   useDeleteApiV1UsersByAuthIdEmailMfaMutation,
   useDeleteApiV1UsersByAuthIdLockedIpsMutation,
-    useDeleteApiV1UsersByAuthIdMutation,
-    useDeleteApiV1UsersByAuthIdOtpMfaMutation,
-    useDeleteApiV1UsersByAuthIdSmsMfaMutation,
-    useDeleteApiV1UsersInvitationsByAuthIdMutation,
-    useGetApiV1RolesQuery,
-    useGetApiV1UsersByAuthIdConsentedAppsQuery,
-    useGetApiV1UsersByAuthIdLockedIpsQuery,
+  useDeleteApiV1UsersByAuthIdMutation,
+  useDeleteApiV1UsersByAuthIdOtpMfaMutation,
+  useDeleteApiV1UsersByAuthIdSmsMfaMutation,
+  useDeleteApiV1UsersInvitationsByAuthIdMutation,
+  useGetApiV1RolesQuery,
+  useGetApiV1UsersByAuthIdConsentedAppsQuery,
+  useGetApiV1UsersByAuthIdLockedIpsQuery,
   useGetApiV1UsersByAuthIdQuery,
   usePostApiV1UsersByAuthIdEmailMfaMutation,
   usePostApiV1UsersByAuthIdOtpMfaMutation,
@@ -771,9 +771,7 @@ describe(
         })
 
         await waitFor(() => {
-          expect(mockRevokeInvite).toHaveBeenCalledWith({
-            authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
-          })
+          expect(mockRevokeInvite).toHaveBeenCalledWith({ authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865' })
           expect(screen.queryByText('users.inviteStatus')).not.toBeInTheDocument()
         })
       },
