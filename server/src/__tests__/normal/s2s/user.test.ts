@@ -1686,6 +1686,391 @@ describe(
 )
 
 describe(
+  'post invitation',
+  () => {
+    test(
+      'should invite a user',
+      async () => {
+        emailResponseMock.mockClear()
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ email: 'new@email.com' }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+        expect(json.user.email).toBe('new@email.com')
+        expect(json.user.isActive).toBe(false)
+        expect(json.user.isInviting).toBe(true)
+        expect(json.user.invitationExpiresAt).toBeTruthy()
+        expect(json.user.roles).toStrictEqual([])
+
+        expect(mockFetch).toBeCalledTimes(1)
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(body).toContain(localeConfig.invitationEmail.subject.en)
+        expect(body).toContain('/identity/v1/view/verify-email?invitationToken=')
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should invite a user with roles',
+      async () => {
+        await db.prepare('insert into role (name) values (?)').run('test')
+
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'new@email.com',
+              roles: ['test'],
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+        expect(json.user.roles).toStrictEqual(['test'])
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should invite a user with names, locale and signinUrl',
+      async () => {
+        emailResponseMock.mockClear()
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'new@email.com',
+              firstName: 'John',
+              lastName: 'Doe',
+              locale: 'fr',
+              signinUrl: 'https://example.com/signin',
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+        expect(json.user.firstName).toBe('John')
+        expect(json.user.lastName).toBe('Doe')
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(body).toContain(localeConfig.invitationEmail.subject.fr)
+        expect(body).toContain(encodeURIComponent('https://example.com/signin'))
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should invite a user with org slug',
+      async () => {
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org1\', \'org1\', \'https://google1.com\', \'https://microsoft1.com\', 0)')
+
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'new@email.com',
+              orgSlug: 'org1',
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should throw error if email already taken',
+      async () => {
+        await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ email: 'test@email.com' }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.EmailTaken)
+      },
+    )
+
+    test(
+      'should throw error if role not found',
+      async () => {
+        const res = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'new@email.com',
+              roles: ['nonexistent'],
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.RoleNotFound)
+      },
+    )
+
+    test(
+      'should throw error if org does not allow invite',
+      async () => {
+        await db.exec('insert into "org" (name, slug, "termsLink", "privacyPolicyLink", "onlyUseForBrandingOverride") values (\'org2\', \'org2\', \'https://google2.com\', \'https://microsoft2.com\', 1)')
+
+        const res = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'new@email.com',
+              orgSlug: 'org2',
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.OrgNotAllowInvite)
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ email: 'new@email.com' }),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          `${BaseRoute}/invitations`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ email: 'new@email.com' }),
+          },
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
+      },
+    )
+  },
+)
+
+describe(
+  'post resend invitation',
+  () => {
+    const insertInvitedUser = async () => {
+      await insertUsers(db)
+      await db.prepare(`
+        update "user"
+        set "isActive" = ?, "invitationToken" = ?, "invitationExpiresAt" = ?
+        where "authId" = ?
+      `).run(
+        0,
+        'pending-invite-token',
+        '2099-01-01 00:00:00',
+        '1-1-1-2',
+      )
+    }
+
+    test(
+      'should resend invitation',
+      async () => {
+        await insertInvitedUser()
+
+        emailResponseMock.mockClear()
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'POST',
+            body: JSON.stringify({}),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        const user = await db.prepare('select * from "user" where "authId" = ?').get('1-1-1-2') as any
+        expect(user.invitationToken).not.toBe('pending-invite-token')
+        expect(user.invitationToken).toBeTruthy()
+
+        expect(mockFetch).toBeCalledTimes(1)
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(body).toContain(localeConfig.invitationEmail.subject.fr)
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should resend invitation with locale and signinUrl',
+      async () => {
+        await insertInvitedUser()
+
+        emailResponseMock.mockClear()
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              locale: 'fr',
+              signinUrl: 'https://example.com/signin',
+            }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const callArgs = mockFetch.mock.calls[0] as any[]
+        const body = (callArgs[1] as unknown as { body: string }).body
+        expect(body).toContain(localeConfig.invitationEmail.subject.fr)
+        expect(body).toContain(encodeURIComponent('https://example.com/signin'))
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should throw error if user already active',
+      async () => {
+        await insertUsers(db)
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'POST',
+            body: JSON.stringify({}),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserAlreadyActive)
+      },
+    )
+
+    test(
+      'should throw error if invitation not found',
+      async () => {
+        await insertUsers(db)
+        await db.prepare('update "user" set "isActive" = ? where "authId" = ?').run(
+          0,
+          '1-1-1-2',
+        )
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'POST',
+            body: JSON.stringify({}),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvitationNotFound)
+      },
+    )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        await insertInvitedUser()
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'POST',
+            body: JSON.stringify({}),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'POST',
+            body: JSON.stringify({}),
+          },
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
+      },
+    )
+  },
+)
+
+describe(
   'delete invitation',
   () => {
     const insertInvitedUser = async () => {
@@ -1776,6 +2161,36 @@ describe(
         expect(await res.text()).toBe(messageConfig.RequestError.UserAlreadyActive)
       },
     )
+
+    test(
+      'should return 401 without proper scope',
+      async () => {
+        await insertInvitedUser()
+        await attachIndividualScopes(db)
+
+        const res = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.ReadUser,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+
+        const res1 = await app.request(
+          `${BaseRoute}/invitations/1-1-1-2`,
+          { method: 'DELETE' },
+          mock(db),
+        )
+        expect(res1.status).toBe(401)
+      },
+    )
   },
 )
 
@@ -1787,6 +2202,7 @@ describe(
       async () => {
         await insertUsers(db)
 
+        emailResponseMock.mockClear()
         const mockFetch = emailResponseMock
         global.fetch = mockFetch as Mock
 

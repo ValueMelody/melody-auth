@@ -11,6 +11,7 @@ import {
   getFollowUpParams,
   getAuthCodeExpiredParams,
   getVerifyEmailParams,
+  getInvitationParams,
 } from './param'
 import { Policy } from 'dtos/oauth'
 
@@ -222,6 +223,40 @@ describe(
               locale: 'en',
               id: '',
               org: '',
+            })
+          },
+        )
+      },
+    )
+
+    describe(
+      'getInvitationParams',
+      () => {
+        test(
+          'returns all invitation params when present',
+          () => {
+            window.location.search = '?' +
+              'locale=fr' +
+              '&invitationToken=abc123' +
+              '&signinUrl=https%3A%2F%2Fexample.com%2Fsignin'
+
+            expect(getInvitationParams()).toEqual({
+              locale: 'fr',
+              invitationToken: 'abc123',
+              signinUrl: 'https://example.com/signin',
+            })
+          },
+        )
+
+        test(
+          'returns default values when params not present',
+          () => {
+            window.location.search = ''
+
+            expect(getInvitationParams()).toEqual({
+              locale: 'en',
+              invitationToken: '',
+              signinUrl: '',
             })
           },
         )
