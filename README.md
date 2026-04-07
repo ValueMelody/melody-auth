@@ -100,6 +100,7 @@
 ## Admin Panel & S2S REST API Features Supported
 - View Configurations
 - Manage Users
+  - [User Invite](https://auth.valuemelody.com/user-invite.html)
   - [Impersonation](https://auth.valuemelody.com/impersonation.html)
 - Manage User Attributes
 - Manage Apps
