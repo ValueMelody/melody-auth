@@ -44,9 +44,6 @@ export default defineUserConfig({
             text: 'Features',
             children: [
               {
-                text: 'Feature Overview', link: '/feature-overview.md'
-              },
-              {
                 text: 'Main Features',
                 children: [
                   { text: 'Authentication', link: '/authentication.md' },
@@ -71,6 +68,10 @@ export default defineUserConfig({
                   {
                     text: 'Organization Groups',
                     link: '/org-groups.md',
+                  },
+                  {
+                    text: 'User Invite',
+                    link: '/user-invite.md',
                   },
                   {
                     text: 'Impersonation',
@@ -170,12 +171,6 @@ export default defineUserConfig({
             text: '功能',
             children: [
               {
-                text: '概览',
-                children: [
-                  { text: '功能概览', link: '/feature-overview.md' },
-                ],
-              },
-              {
                 text: '主要功能',
                 children: [
                   { text: '身份认证', link: '/zh/authentication.md' },
@@ -192,6 +187,7 @@ export default defineUserConfig({
                   { text: '用户属性', link: '/zh/user-attributes.md' },
                   { text: '应用横幅', link: '/zh/app-banners.md' },
                   { text: '组织分组', link: '/zh/org-groups.md' },
+                  { text: '用户邀请', link: '/zh/user-invite.md' },
                   { text: '模拟登录', link: '/zh/impersonation.md' },
                   { text: '日志管理', link: '/zh/log-management.md' },
                 ],

@@ -5,7 +5,7 @@ import {
 import { render } from 'hono/jsx/dom'
 import Main from './Main'
 import {
-  authCodeExpired, changeEmail, changePassword, consent, emailMfa,
+  acceptInvitation, authCodeExpired, changeEmail, changePassword, consent, emailMfa,
   magicSignIn, managePasskey, manageRecoveryCode, mfaEnroll,
   otpMfa, passkeyEnroll, passwordlessCode, recoveryCodeEnroll, recoveryCodeSignIn, resetMfa, resetPassword,
   signIn, signUp, smsMfa, updateInfo, verifyEmail, switchOrg,
@@ -52,6 +52,22 @@ vi.mock(
       useSubmitError: vi.fn().mockReturnValue({
         submitError: null,
         handleSubmitError: vi.fn(),
+      }),
+      useAcceptInvitationForm: vi.fn().mockReturnValue({
+        success: false,
+        handleSubmit: vi.fn(),
+        handleChange: vi.fn(),
+        values: {
+          password: '',
+          confirmPassword: '',
+        },
+        errors: {
+          password: undefined,
+          confirmPassword: undefined,
+        },
+        isSubmitting: false,
+        isTokenValid: true,
+        signinUrl: null,
       }),
       useChangeOrgForm: vi.fn().mockReturnValue({
         orgs: [
@@ -109,6 +125,7 @@ vi.mock(
         MagicSignIn: 'MagicSignIn',
         SwitchOrg: 'SwitchOrg',
         ChangeOrg: 'ChangeOrg',
+        AcceptInvitation: 'AcceptInvitation',
       },
     }
   },
@@ -195,7 +212,23 @@ describe(
         handleSubmitError: mockHandleSubmitError,
       });
       (hooks.useChangeOrgForm as Mock).mockReturnValue(mockChangeOrgForm);
-      (hooks.useSwitchOrgForm as Mock).mockReturnValue(mockSwitchOrgForm)
+      (hooks.useSwitchOrgForm as Mock).mockReturnValue(mockSwitchOrgForm);
+      (hooks.useAcceptInvitationForm as Mock).mockReturnValue({
+        success: false,
+        handleSubmit: vi.fn(),
+        handleChange: vi.fn(),
+        values: {
+          password: '',
+          confirmPassword: '',
+        },
+        errors: {
+          password: undefined,
+          confirmPassword: undefined,
+        },
+        isSubmitting: false,
+        isTokenValid: true,
+        signinUrl: null,
+      })
 
       document.body.innerHTML = '<div id="root"></div>'
     })
@@ -639,6 +672,24 @@ describe(
         )
 
         expect(container.innerHTML).toContain(switchOrg.title.en)
+      },
+    )
+
+    it(
+      'renders AcceptInvitation view',
+      () => {
+        (hooks.useCurrentView as Mock).mockReturnValue({
+          view: hooks.View.AcceptInvitation,
+          handleSwitchView: mockHandleSwitchView,
+        })
+
+        const container = document.getElementById('root')!
+        render(
+          <Main />,
+          container,
+        )
+
+        expect(container.innerHTML).toContain(acceptInvitation.title.en)
       },
     )
 

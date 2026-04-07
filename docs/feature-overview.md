@@ -86,6 +86,9 @@ A consolidated reference of supported Melody Auth product capabilities and custo
 | Consented apps — revoke | Remove a user's consent for a specific app | | ✓ | ✓ | |
 | Passkey management | List and remove passkeys registered to a user | | ✓ | ✓ | |
 | MFA management | Enroll or remove email, OTP, and SMS MFA methods for a user | | ✓ | ✓ | |
+| User invite | Send an invitation email to a new user; the user sets a password to activate their account | | ✓ | ✓ | |
+| Reinvite user | Resend the invitation email with a fresh token and extended expiration | | ✓ | ✓ | |
+| Revoke invitation | Cancel a pending invitation before the user accepts it | | ✓ | ✓ | |
 | Impersonation | Generate a token that allows an admin to act as another user | | ✓ | ✓ | |
 
 ---
