@@ -190,7 +190,7 @@ jobs:
           npm run test:check
           npm run build
 
-  server:
+  server-cf:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -206,16 +206,39 @@ jobs:
         working-directory: ./server
         run: npm ci
 
-      - name: Check and test server
+      - name: Check and test server (CF)
         working-directory: ./server
         run: |
           npm run type:check
+          npm run dev:secret:generate
+          npm run dev:saml:secret:generate
+          npm run test:check:cf
+          npm run dev:secret:generate
+          npm run test:check:cf-key-rotate
+
+  server-node:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Check and test server (Node)
+        working-directory: ./server
+        run: |
           npm run node:secret:generate
           npm run node:saml:secret:generate
-          npm run test:check:cf
           npm run test:check:node
           npm run node:secret:generate
-          npm run test:check:cf-key-rotate
           npm run test:check:node-key-rotate
 
       - name: Build server
