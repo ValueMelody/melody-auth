@@ -219,6 +219,10 @@ jobs:
 
   server-node:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -234,12 +238,12 @@ jobs:
         working-directory: ./server
         run: npm ci
 
-      - name: Test server (Node)
+      - name: Test server (Node shard ${{ matrix.shard }}/2)
         working-directory: ./server
         run: |
           npm run node:secret:generate
           npm run node:saml:secret:generate
-          npm run test:check:node
+          npm run test:check:node -- --shard=${{ matrix.shard }}/2
 
   server-node-key-rotate:
     runs-on: ubuntu-latest
