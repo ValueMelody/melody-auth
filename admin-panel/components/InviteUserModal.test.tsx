@@ -80,13 +80,11 @@ describe(
     it(
       'renders modal content when show is true',
       async () => {
-        render(
-          <InviteUserModal
-            show={true}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={true}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         await waitFor(() => {
           expect(screen.getByTestId('inviteEmail')).toBeInTheDocument()
@@ -99,13 +97,11 @@ describe(
     it(
       'does not render modal content when show is false',
       () => {
-        render(
-          <InviteUserModal
-            show={false}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={false}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         expect(screen.queryByTestId('inviteEmail')).not.toBeInTheDocument()
         expect(screen.queryByTestId('confirmInvite')).not.toBeInTheDocument()
@@ -115,13 +111,11 @@ describe(
     it(
       'shows email required error when submitting without email',
       async () => {
-        render(
-          <InviteUserModal
-            show={true}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={true}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         fireEvent.click(screen.getByTestId('confirmInvite'))
 
@@ -137,13 +131,11 @@ describe(
       async () => {
         mockPostInvitation.mockResolvedValue({ data: { user: { id: 1 } } })
 
-        render(
-          <InviteUserModal
-            show={true}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={true}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         fireEvent.change(
           screen.getByTestId('inviteEmail'),
@@ -173,13 +165,11 @@ describe(
       async () => {
         mockPostInvitation.mockResolvedValue({ data: { user: { id: 1 } } })
 
-        render(
-          <InviteUserModal
-            show={true}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={true}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         fireEvent.change(
           screen.getByTestId('inviteEmail'),
@@ -218,13 +208,11 @@ describe(
       async () => {
         mockPostInvitation.mockResolvedValue({ data: { user: { id: 1 } } })
 
-        render(
-          <InviteUserModal
-            show={true}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={true}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         fireEvent.change(
           screen.getByTestId('inviteEmail'),
@@ -265,13 +253,11 @@ describe(
           },
         })
 
-        render(
-          <InviteUserModal
-            show={true}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={true}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         fireEvent.change(
           screen.getByTestId('inviteEmail'),
@@ -287,9 +273,7 @@ describe(
         fireEvent.click(screen.getByTestId('confirmInvite'))
 
         await waitFor(() => {
-          expect(mockPostInvitation).toHaveBeenCalledWith({
-            body: expect.objectContaining({ orgSlug: 'acme' }),
-          })
+          expect(mockPostInvitation).toHaveBeenCalledWith({ body: expect.objectContaining({ orgSlug: 'acme' }) })
         })
       },
     )
@@ -301,13 +285,11 @@ describe(
 
         (useGetApiV1AppsQuery as Mock).mockReturnValue({ data: { apps: [spaApp] } })
 
-        render(
-          <InviteUserModal
-            show={true}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={true}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         fireEvent.change(
           screen.getByTestId('inviteEmail'),
@@ -338,13 +320,11 @@ describe(
     it(
       'calls onClose and resets fields when cancel is clicked',
       async () => {
-        render(
-          <InviteUserModal
-            show={true}
-            onClose={mockOnClose}
-            onInvited={mockOnInvited}
-          />,
-        )
+        render(<InviteUserModal
+          show={true}
+          onClose={mockOnClose}
+          onInvited={mockOnInvited}
+        />)
 
         fireEvent.change(
           screen.getByTestId('inviteEmail'),
