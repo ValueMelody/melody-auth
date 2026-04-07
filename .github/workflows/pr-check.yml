@@ -232,18 +232,37 @@ jobs:
         working-directory: ./server
         run: npm ci
 
-      - name: Check and test server (Node)
+      - name: Test server (Node)
         working-directory: ./server
         run: |
           npm run node:secret:generate
           npm run node:saml:secret:generate
           npm run test:check:node
+
+  server-node-key-rotate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Test server (Node - key rotate) and build
+        working-directory: ./server
+        run: |
+          npm run node:secret:generate
+          npm run node:saml:secret:generate
           npm run node:secret:generate
           npm run test:check:node-key-rotate
-
-      - name: Build server
-        working-directory: ./server
-        run: npm run node:build
+          npm run node:build
 
   admin-panel:
     runs-on: ubuntu-latest
