@@ -201,6 +201,7 @@ jobs:
         with:
           node-version: 20.17.0
           cache: 'npm'
+          cache-dependency-path: ./server/package-lock.json
 
       - name: Install dependencies
         working-directory: ./server
@@ -227,6 +228,7 @@ jobs:
         with:
           node-version: 20.17.0
           cache: 'npm'
+          cache-dependency-path: ./server/package-lock.json
 
       - name: Install dependencies
         working-directory: ./server
@@ -250,6 +252,7 @@ jobs:
         with:
           node-version: 20.17.0
           cache: 'npm'
+          cache-dependency-path: ./server/package-lock.json
 
       - name: Install dependencies
         working-directory: ./server
