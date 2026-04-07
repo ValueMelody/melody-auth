@@ -210,10 +210,10 @@ jobs:
         working-directory: ./server
         run: |
           npm run type:check
-          npm run dev:secret:generate
-          npm run dev:saml:secret:generate
+          npm run node:secret:generate
+          npm run node:saml:secret:generate
           npm run test:check:cf
-          npm run dev:secret:generate
+          npm run node:secret:generate
           npm run test:check:cf-key-rotate
 
   server-node:
