@@ -662,7 +662,7 @@ export const postResendUserInvitation = async (c: Context<typeConfig.Context>) =
 
   const invitationToken = genRandomString(64)
   const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + 7)
+  expiresAt.setDate(expiresAt.getDate() + variableConfig.systemConfig.invitationExpiresIn)
   const invitationExpiresAt = timeUtil.getDbCurrentTime(expiresAt)
 
   await userModel.update(
@@ -683,6 +683,7 @@ export const postResendUserInvitation = async (c: Context<typeConfig.Context>) =
     user.orgSlug ?? '',
     locale,
     invitationUrl,
+    variableConfig.systemConfig.invitationExpiresIn,
   )
 
   return c.json({ success: true })
@@ -779,7 +780,7 @@ export const postUserInvitation = async (c: Context<typeConfig.Context>) => {
 
   const invitationToken = genRandomString(64)
   const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + 7)
+  expiresAt.setDate(expiresAt.getDate() + variableConfig.systemConfig.invitationExpiresIn)
   const invitationExpiresAt = timeUtil.getDbCurrentTime(expiresAt)
 
   const newUser = await userModel.create(
@@ -822,6 +823,7 @@ export const postUserInvitation = async (c: Context<typeConfig.Context>) => {
     orgSlug,
     locale,
     invitationUrl,
+    variableConfig.systemConfig.invitationExpiresIn,
   )
 
   const roleNames = targetRoles.map((role) => role.name)
