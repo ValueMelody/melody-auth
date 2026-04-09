@@ -309,11 +309,13 @@ export const sendInvitationEmail = async (
   orgSlug: string,
   locale: typeConfig.Locale,
   invitationUrl: string,
+  expiresIn: number,
 ) => {
   checkEmailSetup(c)
 
   const content = (<InvitationTemplate
     invitationUrl={invitationUrl}
+    expiresIn={expiresIn}
     branding={await brandingService.getBranding(
       c,
       orgSlug,

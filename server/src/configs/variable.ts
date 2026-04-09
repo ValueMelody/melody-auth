@@ -67,6 +67,7 @@ export const systemConfig = Object.freeze({
   changeEmailVerificationCodeExpiresIn: 7200, // must be x * 3600 (in seconds)
   emailMfaCodeExpiresIn: 300, // must be x * 60 (in seconds)
   smsMfaCodeExpiresIn: 300, // must be x * 60 (in seconds)
+  invitationExpiresIn: 7, // in days
   sendEmailToRealReceiverOnDev: false,
   sendSmsToRealReceiverOnDev: false,
 })

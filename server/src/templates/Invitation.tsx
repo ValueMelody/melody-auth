@@ -4,11 +4,12 @@ import {
 import Layout, { Branding } from 'templates/components/Layout'
 
 const Invitation = ({
-  branding, invitationUrl, locale,
+  branding, invitationUrl, locale, expiresIn,
 }: {
   branding: Branding;
   invitationUrl: string;
   locale: typeConfig.Locale;
+  expiresIn: number;
 }) => {
   return (
     <Layout
@@ -38,7 +39,7 @@ const Invitation = ({
                   <p style='margin: 0; padding-bottom: 20px;'>
                     {localeConfig.invitationEmail.desc[locale].replace(
                       '{{expiresIn}}',
-                      '7',
+                      String(expiresIn),
                     )}
                   </p>
                 </td>
