@@ -7,10 +7,9 @@ type Params = {
 }
 
 export async function DELETE (
-  request: Request, context: { params: Params },
+  request: Request, context: { params: Promise<Params> },
 ) {
-  const authId = context.params.authId
-  const passkeyId = context.params.passkeyId
+  const { authId, passkeyId } = await context.params
 
   return sendS2SRequest({
     method: 'DELETE',

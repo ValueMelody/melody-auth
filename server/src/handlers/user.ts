@@ -47,7 +47,7 @@ export const getUsers = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getUser = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const user = await userService.getUserDetailByAuthId(
     c,
     authId,
@@ -56,7 +56,7 @@ export const getUser = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getUserAppConsents = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const user = await userService.getUserByAuthId(
     c,
     authId,
@@ -70,7 +70,7 @@ export const getUserAppConsents = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getUserPasskeys = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const user = await userService.getUserByAuthId(
     c,
     authId,
@@ -95,7 +95,7 @@ export const getUserPasskeys = async (c: Context<typeConfig.Context>) => {
 }
 
 export const removeUserPasskey = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const passkeyId = c.req.param('passkeyId')
   const user = await userService.getUserByAuthId(
     c,
@@ -111,7 +111,7 @@ export const removeUserPasskey = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getUserLockedIPs = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const user = await userService.getUserByAuthId(
     c,
     authId,
@@ -125,7 +125,7 @@ export const getUserLockedIPs = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteUserLockedIPs = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const user = await userService.getUserByAuthId(
     c,
     authId,
@@ -140,7 +140,7 @@ export const deleteUserLockedIPs = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postUserEmailMfa = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   await userService.enrollUserMfa(
     c,
@@ -152,7 +152,7 @@ export const postUserEmailMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postUserOtpMfa = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   await userService.enrollUserMfa(
     c,
@@ -164,7 +164,7 @@ export const postUserOtpMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postUserSmsMfa = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   await userService.enrollUserMfa(
     c,
@@ -176,7 +176,7 @@ export const postUserSmsMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteUserEmailMfa = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   await userService.resetUserMfa(
     c,
@@ -188,7 +188,7 @@ export const deleteUserEmailMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteUserOtpMfa = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   await userService.resetUserMfa(
     c,
@@ -200,7 +200,7 @@ export const deleteUserOtpMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteUserSmsMfa = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   await userService.resetUserMfa(
     c,
@@ -212,7 +212,7 @@ export const deleteUserSmsMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteUserAppConsent = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const appId = c.req.param('appId')
   const user = await userService.getUserByAuthId(
     c,
@@ -229,7 +229,7 @@ export const deleteUserAppConsent = async (c: Context<typeConfig.Context>) => {
 }
 
 export const verifyEmail = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const user = await userService.getUserByAuthId(
     c,
     authId,
@@ -275,7 +275,7 @@ export const putUser = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new userDto.PutUserDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   const { ENABLE_USER_ATTRIBUTE: enableUserAttribute } = env(c)
 
@@ -290,7 +290,7 @@ export const putUser = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteUser = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   await userService.deleteUser(
     c,
@@ -302,8 +302,8 @@ export const deleteUser = async (c: Context<typeConfig.Context>) => {
 }
 
 export const linkAccount = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
-  const linkingAuthId = c.req.param('linkingAuthId')
+  const authId = c.req.param('authId') ?? ''
+  const linkingAuthId = c.req.param('linkingAuthId') ?? ''
 
   const user = await userService.getUserByAuthId(
     c,
@@ -349,7 +349,7 @@ export const linkAccount = async (c: Context<typeConfig.Context>) => {
 }
 
 export const unlinkAccount = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   const user = await userService.getUserByAuthId(
     c,
@@ -381,7 +381,7 @@ export const unlinkAccount = async (c: Context<typeConfig.Context>) => {
 }
 
 export const impersonateUser = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const appId = c.req.param('appId')
   const reqBody = await c.req.json()
   const impersonatorToken = reqBody.impersonatorToken
@@ -490,7 +490,7 @@ export const impersonateUser = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getUserActiveSessions = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const user = await userService.getUserByAuthId(
     c,
     authId,
@@ -503,8 +503,8 @@ export const getUserActiveSessions = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteUserActiveSession = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
-  const sessionId = c.req.param('sessionId')
+  const authId = c.req.param('authId') ?? ''
+  const sessionId = c.req.param('sessionId') ?? ''
   const user = await userService.getUserByAuthId(
     c,
     authId,
@@ -528,7 +528,7 @@ export const deleteUserActiveSession = async (c: Context<typeConfig.Context>) =>
 }
 
 export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const orgGroupId = c.req.param('orgGroupId')
 
   const user = await userService.getUserByAuthId(
@@ -565,7 +565,7 @@ export const postUserOrgGroup = async (c: Context<typeConfig.Context>) => {
 }
 
 export const deleteUserOrgGroup = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const orgGroupId = c.req.param('orgGroupId')
 
   const user = await userService.getUserByAuthId(
@@ -583,7 +583,7 @@ export const deleteUserOrgGroup = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getUserOrgs = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const user = await userService.getUserByAuthId(
     c,
     authId,
@@ -596,7 +596,7 @@ export const getUserOrgs = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const reqBody = await c.req.json()
   const orgIds = reqBody.orgs
   const user = await userService.getUserByAuthId(
@@ -627,7 +627,7 @@ export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postResendUserInvitation = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
   const reqBody = await c.req.json()
   const bodyDto = new userDto.PostResendUserInvitationDto(reqBody)
   await validateUtil.dto(bodyDto)
@@ -689,7 +689,7 @@ export const postResendUserInvitation = async (c: Context<typeConfig.Context>) =
 }
 
 export const deleteUserInvitation = async (c: Context<typeConfig.Context>) => {
-  const authId = c.req.param('authId')
+  const authId = c.req.param('authId') ?? ''
 
   const user = await userService.getUserByAuthId(
     c,

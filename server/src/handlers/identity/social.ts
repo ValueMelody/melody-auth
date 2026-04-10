@@ -456,7 +456,7 @@ export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
     AUTH_SERVER_URL: serverUrl,
   } = env(c)
 
-  const provider = c.req.param('provider')
+  const provider = c.req.param('provider') ?? ''
 
   const providerConfig = variableConfig.OIDCProviderConfigs[provider]
   if (!oidcProviders || !oidcProviders.includes(provider) || !providerConfig) {

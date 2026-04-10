@@ -7,15 +7,16 @@ import Setup from 'app/Setup'
 export const metadata: Metadata = { title: 'Melody Auth Admin Panel' }
 
 export default async function RootLayout ({
-  children, params: { locale },
+  children, params,
 }: {
   children: React.ReactNode;
-  params: {locale: string};
+  params: Promise<{lang: string}>;
 }) {
+  const { lang } = await params
   const messages = await getMessages()
 
   return (
-    <html lang={locale}>
+    <html lang={lang}>
       <NextIntlClientProvider messages={messages}>
         <body>
           <section className='flex flex-col min-h-screen w-full'>
