@@ -7,9 +7,9 @@ type Params = {
 }
 
 export async function GET (
-  request: NextRequest, context: { params: Params },
+  request: NextRequest, context: { params: Promise<Params> },
 ) {
-  const id = context.params.id
+  const { id } = await context.params
   const pageSize = request.nextUrl.searchParams.get('page_size') ?? undefined
   const pageNumber = request.nextUrl.searchParams.get('page_number') ?? undefined
 

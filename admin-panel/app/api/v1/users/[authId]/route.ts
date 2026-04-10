@@ -9,9 +9,9 @@ type Params = {
 }
 
 export async function GET (
-  request: Request, context: { params: Params },
+  request: Request, context: { params: Promise<Params> },
 ) {
-  const authId = context.params.authId
+  const { authId } = await context.params
 
   return sendS2SRequest({
     method: 'GET',
@@ -21,9 +21,9 @@ export async function GET (
 }
 
 export async function PUT (
-  request: Request, context: { params: Params },
+  request: Request, context: { params: Promise<Params> },
 ) {
-  const authId = context.params.authId
+  const { authId } = await context.params
 
   const reqBody = await request.json()
   if (!reqBody) return throwForbiddenError()
@@ -37,9 +37,9 @@ export async function PUT (
 }
 
 export async function DELETE (
-  request: Request, context: { params: Params },
+  request: Request, context: { params: Promise<Params> },
 ) {
-  const authId = context.params.authId
+  const { authId } = await context.params
 
   return sendS2SRequest({
     method: 'DELETE',

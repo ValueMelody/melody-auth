@@ -372,7 +372,7 @@ export const signOut = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getAppConsent = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -387,7 +387,7 @@ export const getAppConsent = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postAppConsent = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -414,7 +414,7 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getMfaEnrollment = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -432,7 +432,7 @@ export const postMfaEnrollment = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.PostMfaEnrollmentDto(await c.req.json())
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -471,7 +471,7 @@ export const postMfaEnrollment = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postEmailMfaCode = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
 
   const sessionBody = await getSessionBodyWithUser(
     c,
@@ -494,7 +494,7 @@ export const postEmailMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.MfaDto(await c.req.json())
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -528,7 +528,7 @@ export const postEmailMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getOtpMfaSetup = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -563,7 +563,7 @@ export const getOtpMfaSetup = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getOtpMfa = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -581,7 +581,7 @@ export const postOtpMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.MfaDto(await c.req.json())
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -618,7 +618,7 @@ export const postSmsMfaSetup = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.SmsMfaSetupDto(await c.req.json())
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -636,7 +636,7 @@ export const postSmsMfaSetup = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getSmsMfa = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -653,7 +653,7 @@ export const getSmsMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const postSmsMfaCode = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -673,7 +673,7 @@ export const postSmsMfa = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.MfaDto(await c.req.json())
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -707,7 +707,7 @@ export const postSmsMfa = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getPasskeyEnroll = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -725,7 +725,7 @@ export const postPasskeyEnroll = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.PostProcessPasskeyEnrollDto(await c.req.json())
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -767,7 +767,7 @@ export const postPasskeyEnrollDecline = async (c: Context<typeConfig.Context>) =
   const bodyDto = new embeddedDto.PostProcessPasskeyEnrollDeclineDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -811,7 +811,7 @@ export const postPasskeyVerify = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.PostPasskeyVerifyDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBody(
     c,
     sessionId,
@@ -849,7 +849,7 @@ export const postPasskeyVerify = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getUserOrgs = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -876,7 +876,7 @@ export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.PostSwitchUserOrgDto(await c.req.json())
   await validateUtil.dto(bodyDto)
 
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -915,7 +915,7 @@ export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getRecoveryCodeEnroll = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBodyWithUser(
     c,
     sessionId,
@@ -944,7 +944,7 @@ export const getRecoveryCodeEnroll = async (c: Context<typeConfig.Context>) => {
 }
 
 export const getAppBanners = async (c: Context<typeConfig.Context>) => {
-  const sessionId = c.req.param('sessionId')
+  const sessionId = c.req.param('sessionId') ?? ''
   const sessionBody = await getSessionBody(
     c,
     sessionId,

@@ -44,13 +44,13 @@ describe(
       'renders the layout with correct structure',
       async () => {
         const mockChildren = <div>Test Content</div>
-        const params = { locale: 'en' }
+        const params = Promise.resolve({ lang: 'en' })
 
         const {
           container, getByTestId,
         } = render(await RootLayout({
           children: mockChildren,
-          params: { locale: params.locale },
+          params,
         }))
 
         // Check if html tag has correct lang attribute
@@ -80,7 +80,7 @@ describe(
       async () => {
         await RootLayout({
           children: <div>Test</div>,
-          params: { locale: 'en' },
+          params: Promise.resolve({ lang: 'en' }),
         })
 
         expect(getMessages).toHaveBeenCalled()

@@ -6,9 +6,9 @@ type Params = {
 }
 
 export async function POST (
-  request: Request, context: { params: Params },
+  request: Request, context: { params: Promise<Params> },
 ) {
-  const authId = context.params.authId
+  const { authId } = await context.params
 
   return sendS2SRequest({
     method: 'POST',
@@ -18,9 +18,9 @@ export async function POST (
 }
 
 export async function DELETE (
-  request: Request, context: { params: Params },
+  request: Request, context: { params: Promise<Params> },
 ) {
-  const authId = context.params.authId
+  const { authId } = await context.params
 
   return sendS2SRequest({
     method: 'DELETE',

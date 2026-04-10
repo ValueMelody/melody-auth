@@ -48,7 +48,7 @@ const verifyJwtToken = async (token: string) => {
 }
 
 export const getAllowedRoles = async () => {
-  const headersList = headers()
+  const headersList = await headers()
   const authHeader = headersList.get('authorization')
   const accessToken = authHeader?.split(' ')[1]
 

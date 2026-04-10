@@ -9,10 +9,11 @@ type Params = {
 }
 
 export async function POST (
-  request: Request, context: { params: Params },
+  request: Request, context: { params: Promise<Params> },
 ) {
-  const authId = context.params.authId
-  const appId = context.params.appId
+  const {
+    authId, appId,
+  } = await context.params
 
   const reqBody = await request.json()
   if (!reqBody) return throwForbiddenError()
