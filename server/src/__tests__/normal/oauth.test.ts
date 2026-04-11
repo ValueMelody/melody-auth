@@ -1878,6 +1878,56 @@ describe(
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
+
+    test(
+      'should delete auth code from KV after successful exchange',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+
+        const appRecord = await getApp(db)
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const { code } = await res.json() as { code: string }
+
+        const kvKey = `${adapterConfig.BaseKVKey.AuthCode}-${code}`
+        expect(await mockedKV.get(kvKey)).not.toBeNull()
+
+        const body = {
+          grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+          code,
+          code_verifier: 'abc',
+        }
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        expect(await mockedKV.get(kvKey)).toBeNull()
+
+        const replayRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams(body).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(replayRes.status).toBe(400)
+        expect(await replayRes.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
   },
 )
 
