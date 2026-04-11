@@ -180,6 +180,11 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
     bodyDto,
   )
 
+  await kvService.deleteAuthCode(
+    c.env.KV,
+    bodyDto.code,
+  )
+
   await authCodeHook.postTokenExchangeWithAuthCode()
 
   return c.json(result)

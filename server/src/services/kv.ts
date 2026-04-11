@@ -82,6 +82,16 @@ export const getAuthCodeBody = async (
   return codeBody
 }
 
+export const deleteAuthCode = async (
+  kv: KVNamespace,
+  authCode: string,
+) => {
+  await kv.delete(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.AuthCode,
+    authCode,
+  ))
+}
+
 export const getEmbeddedSessionBody = async (
   kv: KVNamespace, sessionId: string,
 ): Promise<typeConfig.EmbeddedSessionBody | false> => {
