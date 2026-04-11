@@ -101,14 +101,6 @@ const UserTable = ({
     return <LoadingPage />
   }
 
-  if (data && data.count === 0) {
-    return (
-      <Alert>
-        {t('users.noUsers')}
-      </Alert>
-    )
-  }
-
   return (
     <section>
       {!loadedUsers && !isViewingAllUsers && (
@@ -121,7 +113,12 @@ const UserTable = ({
           />
         </header>
       )}
-      <Table>
+      {data && data.count === 0 && (
+        <Alert>
+          {t('users.noUsers')}
+        </Alert>
+      )}
+      {data && data.count !== 0 && <Table>
         <TableHeader className='md:hidden'>
           <TableRow>
             <TableHead>{t('users.user')}</TableHead>
@@ -202,7 +199,7 @@ const UserTable = ({
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+      </Table>}
       {!loadedUsers && totalPages > 1 && (
         <Pagination
           className='mt-8'
