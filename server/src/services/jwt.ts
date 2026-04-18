@@ -475,13 +475,36 @@ export const verifyAppleCredential = async (
   if (tokenRes.ok) {
     const tokenBody = await tokenRes.json() as object
     if ('id_token' in tokenBody) {
-      const decoded = decode(String(tokenBody.id_token))
-      const user = {
-        id: decoded.payload.sub,
-        email: decoded.payload.email,
-      } as AppleUser
-      return user
+      const idToken = String(tokenBody.id_token)
+      const decoded = decode(idToken)
+      const header = decoded.header as unknown as { kid: string }
+
+      const keysRes = await fetch('https://appleid.apple.com/auth/keys')
+      if (!keysRes.ok) return undefined
+
+      const keysBody = await keysRes.json() as { keys: { kid: string }[] }
+      const publicKey = keysBody.keys.find((key) => key.kid === header.kid)
+      if (!publicKey) return undefined
+
+      const result = await verify(
+        idToken,
+        publicKey as unknown as SignatureKey,
+        'RS256',
+      )
+
+      if (
+        'iss' in result && result.iss === 'https://appleid.apple.com' &&
+        'aud' in result && result.aud === clientId &&
+        'sub' in result
+      ) {
+        return {
+          id: String(result.sub),
+          email: 'email' in result ? String(result.email) : '',
+        } as AppleUser
+      }
     }
+  } else {
+    loggerUtil.errorLogger(`Apple token request failed: ${tokenRes.status} ${tokenRes.statusText}`)
   }
   return undefined
 }
