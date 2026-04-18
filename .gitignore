@@ -17,6 +17,7 @@ next-env.d.ts
 *.pem
 *.crt
 *.key
+*.p8
 node_session_secret
 
 coverage/

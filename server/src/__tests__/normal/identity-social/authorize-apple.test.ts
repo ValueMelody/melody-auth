@@ -1,8 +1,11 @@
+import fs from 'fs'
+import path from 'path'
 import {
   afterEach, beforeEach, describe, expect, Mock, test,
   vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { Context } from 'hono'
 import app from 'index'
 import {
   fetchMock,
@@ -10,11 +13,13 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig, typeConfig,
 } from 'configs'
 import { userModel } from 'models'
 import { oauthDto } from 'dtos'
 import { disableUser } from 'tests/util'
+import { cryptoUtil } from 'utils'
+import { jwtService } from 'services'
 import {
   getApp, postAuthorizeBody,
 } from 'tests/identity'
@@ -37,9 +42,30 @@ describe(
       url, params,
     ) => {
       if (url === 'https://appleid.apple.com/auth/token' && params.body.get('code') === 'aaa') {
+        const c = { env: { KV: mockedKV } } as unknown as Context<typeConfig.Context>
+        const idToken = await jwtService.signWithKid(
+          c,
+          {
+            iss: 'https://appleid.apple.com',
+            aud: '123',
+            sub: 'apple-123',
+            email: 'test@test.com',
+          },
+        )
         return Promise.resolve({
           ok: true,
-          json: () => ({ id_token: 'eyJhbGciOiJIUzI1NiIsImtpZCI6IjVHNUJUVlZBU1YifQ.eyJzdWIiOiJhcHBsZS0xMjMiLCJlbWFpbCI6InRlc3RAdGVzdC5jb20ifQ.2Un74pjNwWCSvA5aROWfqjISLaLQn1-IGHH0xU2cvYY' }),
+          json: () => ({ id_token: idToken }),
+        })
+      }
+      if (url === 'https://appleid.apple.com/auth/keys') {
+        const key = fs.readFileSync(
+          path.resolve(adapterConfig.FileLocation.NodePublicKey),
+          'utf8',
+        )
+        const jwk = await cryptoUtil.secretToJwk(key)
+        return Promise.resolve({
+          ok: true,
+          json: () => ({ keys: [jwk] }),
         })
       }
       return Promise.resolve({ ok: false })
