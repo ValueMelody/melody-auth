@@ -199,6 +199,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** 5
 - **Description:** Maximum password reset email requests per email/IP per day. 0 means no limit.
 
+### PASSWORD_RESET_CODE_THRESHOLD
+- **Default:** 5
+- **Description:** Number of failed password reset code verification attempts before further attempts are temporarily locked for the user/IP. 0 means no limit.
+
 ### EMAIL_MFA_EMAIL_THRESHOLD
 - **Default:** 10
 - **Description:** Maximum email MFA requests per account/IP in a 30-minute window. 0 means no limit.
@@ -206,6 +210,10 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 ### CHANGE_EMAIL_EMAIL_THRESHOLD
 - **Default:** 5
 - **Description:** Maximum change-email requests per account in a 30-minute window. 0 means no limit.
+
+### CHANGE_EMAIL_CODE_THRESHOLD
+- **Default:** 5
+- **Description:** Number of failed change-email code verification attempts before further attempts are temporarily locked for the user/IP. 0 means no limit.
 
 ### SMS_MFA_MESSAGE_THRESHOLD
 - **Default:** 5

@@ -4,6 +4,7 @@ import {
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import app from 'index'
+import { kvService } from 'services'
 import {
   fetchMock,
   migrate, mock,
@@ -158,10 +159,22 @@ describe(
         expect(await res2.text()).toBe(messageConfig.RequestError.EmailMfaLocked)
 
         process.env.EMAIL_MFA_EMAIL_THRESHOLD = 0 as unknown as string
+        const getEmailMfaEmailAttemptsByIPSpy = vi.spyOn(
+          kvService,
+          'getEmailMfaEmailAttemptsByIP',
+        )
+        const setEmailMfaEmailAttemptsSpy = vi.spyOn(
+          kvService,
+          'setEmailMfaEmailAttempts',
+        )
 
         const res3 = await sendRequest()
         expect(res3.status).toBe(200)
+        expect(getEmailMfaEmailAttemptsByIPSpy).not.toHaveBeenCalled()
+        expect(setEmailMfaEmailAttemptsSpy).not.toHaveBeenCalled()
 
+        getEmailMfaEmailAttemptsByIPSpy.mockRestore()
+        setEmailMfaEmailAttemptsSpy.mockRestore()
         process.env.EMAIL_MFA_EMAIL_THRESHOLD = 10 as unknown as string
       },
     )

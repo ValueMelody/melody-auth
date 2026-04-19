@@ -62,9 +62,11 @@ ENABLE_MFA_REMEMBER_DEVICE=false # If true, the user can bypass MFA by rememberi
 # Brute-force
 UNLOCK_ACCOUNT_VIA_PASSWORD_RESET=true
 PASSWORD_RESET_EMAIL_THRESHOLD=5 # Maximum number of password reset email requests allowed per day for a single email address based on ip address. 0 means no restriction.
+PASSWORD_RESET_CODE_THRESHOLD=5 # Number of failed password reset code verification attempts before further attempts are temporarily locked for the user/IP. 0 means no restriction.
 ACCOUNT_LOCKOUT_THRESHOLD=5 # Number of failed login attempts before the user account is locked. 0 means no restriction.
 EMAIL_MFA_EMAIL_THRESHOLD=10 # Maximum number of Email MFA email requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 CHANGE_EMAIL_EMAIL_THRESHOLD=5 # Maximum number of change email verification code requests allowed per 30 minutes for a single account. 0 means no restriction.
+CHANGE_EMAIL_CODE_THRESHOLD=5 # Number of failed change email code verification attempts before further attempts are temporarily locked for the user/IP. 0 means no restriction.
 ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual intervention.
 SMS_MFA_MESSAGE_THRESHOLD=5 # Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
 

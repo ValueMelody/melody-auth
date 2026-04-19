@@ -13,7 +13,7 @@ import {
   kvService, passkeyService, recoveryCodeService, userService,
 } from 'services'
 import {
-  cryptoUtil, validateUtil, loggerUtil,
+  cryptoUtil, validateUtil, loggerUtil, requestUtil,
 } from 'utils'
 import {
   userModel, userPasskeyModel,
@@ -154,6 +154,27 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
     authInfo.user,
   )
 
+  const { CHANGE_EMAIL_CODE_THRESHOLD: changeEmailCodeThreshold } = env(c)
+  let ip: string | undefined
+  let failedAttempts = 0
+
+  if (changeEmailCodeThreshold) {
+    ip = requestUtil.getRequestIP(c)
+    failedAttempts = await kvService.getFailedChangeEmailCodeAttemptsByIP(
+      c.env.KV,
+      authInfo.user.id,
+      ip,
+    )
+    if (failedAttempts >= changeEmailCodeThreshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.ChangeEmailCodeLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.ChangeEmailCodeLocked)
+    }
+  }
+
   const isCorrectCode = await kvService.verifyChangeEmailCode(
     c.env.KV,
     authInfo.user.id,
@@ -162,6 +183,16 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
   )
 
   if (!isCorrectCode) {
+    if (changeEmailCodeThreshold) {
+      const attempts = failedAttempts + 1
+      await kvService.setFailedChangeEmailCodeAttempts(
+        c.env.KV,
+        authInfo.user.id,
+        ip,
+        attempts,
+      )
+    }
+
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

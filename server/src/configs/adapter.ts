@@ -46,6 +46,8 @@ export enum BaseKVKey {
   PasswordResetCode = 'PRC',
   FailedLoginAttempts = 'FLA',
   FailedOtpMfaAttempts = 'FMA',
+  FailedPasswordResetCodeAttempts = 'FPRCA',
+  FailedChangeEmailCodeAttempts = 'FCECA',
   SmsMfaMessageAttempts = 'SMMA',
   EmailMfaEmailAttempts = 'EMEA',
   PasswordResetAttempts = 'PRA',
