@@ -1175,7 +1175,7 @@ export type PostApiV1UsersByAuthIdImpersonationAndAppIdApiArg = {
 export type GetApiV1UsersByAuthIdActiveSessionsApiResponse =
   /** status 200 A list of active sessions */ {
     activeSessions?: {
-      token?: string;
+      sessionId?: string;
       expiredAt?: number;
       authId?: string;
       clientId?: string;

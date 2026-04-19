@@ -1168,7 +1168,7 @@ const Page = () => {
               </TableHeader>
               <TableBody>
                 {activeSessions.map((session) => (
-                  <TableRow key={session.token}>
+                  <TableRow key={session.sessionId}>
                     <TableCell>{session.clientId ? (appsByClientId[session.clientId] ?? '-') : '-'}</TableCell>
                     <TableCell>{session.scope}</TableCell>
                     <TableCell>{session.roles?.join(', ')}</TableCell>
@@ -1181,7 +1181,7 @@ const Page = () => {
                       <Button
                         variant='destructive'
                         size='sm'
-                        onClick={() => session.token && handleRevokeActiveSession(session.token)}
+                        onClick={() => session.sessionId && handleRevokeActiveSession(session.sessionId)}
                       >
                         {t('users.revokeSession')}
                       </Button>

@@ -3779,13 +3779,14 @@ describe(
         const json = await res.json() as { activeSessions: unknown[] }
         expect(json.activeSessions).toHaveLength(1)
         expect(json.activeSessions[0]).toStrictEqual({
-          token: tokenJson.refresh_token,
+          sessionId: expect.stringMatching(/^[0-9a-f]{64}$/),
           authId: '1-1-1-1',
           clientId: expect.any(String),
           scope: 'profile openid offline_access',
           roles: [],
           expiredAt: expect.any(Number),
         })
+        expect(JSON.stringify(json.activeSessions)).not.toContain(tokenJson.refresh_token)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
@@ -3805,11 +3806,12 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(200)
-        const json = await res.json() as { activeSessions: unknown[] }
+        const json = await res.json() as { activeSessions: { sessionId: string }[] }
         expect(json.activeSessions).toHaveLength(2)
-        const tokens = (json.activeSessions as { token: string }[]).map((s) => s.token)
-        expect(tokens).toContain(tokenJson1.refresh_token)
-        expect(tokens).toContain(tokenJson2.refresh_token)
+        json.activeSessions.forEach((s) => expect(s.sessionId).toMatch(/^[0-9a-f]{64}$/))
+        const body = JSON.stringify(json.activeSessions)
+        expect(body).not.toContain(tokenJson1.refresh_token)
+        expect(body).not.toContain(tokenJson2.refresh_token)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
@@ -3922,10 +3924,18 @@ describe(
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
-        const tokenJson = await signInAndGetTokens()
+        await signInAndGetTokens()
+
+        const listRes = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const { activeSessions: sessions } = await listRes.json() as { activeSessions: { sessionId: string }[] }
+        expect(sessions).toHaveLength(1)
 
         const deleteRes = await app.request(
-          `${BaseRoute}/1-1-1-1/active-sessions/${tokenJson.refresh_token}`,
+          `${BaseRoute}/1-1-1-1/active-sessions/${sessions[0].sessionId}`,
           {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
@@ -3951,11 +3961,19 @@ describe(
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
-        const tokenJson1 = await signInAndGetTokens()
-        const tokenJson2 = await signInAndGetTokens()
+        await signInAndGetTokens()
+        await signInAndGetTokens()
+
+        const listRes = await app.request(
+          `${BaseRoute}/1-1-1-1/active-sessions`,
+          { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
+          mock(db),
+        )
+        const { activeSessions: sessions } = await listRes.json() as { activeSessions: { sessionId: string }[] }
+        expect(sessions).toHaveLength(2)
 
         const deleteRes = await app.request(
-          `${BaseRoute}/1-1-1-1/active-sessions/${tokenJson1.refresh_token}`,
+          `${BaseRoute}/1-1-1-1/active-sessions/${sessions[0].sessionId}`,
           {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
@@ -3969,9 +3987,9 @@ describe(
           { headers: { Authorization: `Bearer ${await getS2sToken(db)}` } },
           mock(db),
         )
-        const json = await getRes.json() as { activeSessions: { token: string }[] }
+        const json = await getRes.json() as { activeSessions: { sessionId: string }[] }
         expect(json.activeSessions).toHaveLength(1)
-        expect(json.activeSessions[0].token).toBe(tokenJson2.refresh_token)
+        expect(json.activeSessions[0].sessionId).toBe(sessions[1].sessionId)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },

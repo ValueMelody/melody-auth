@@ -662,7 +662,7 @@ userRoutes.post(
  *                   items:
  *                     type: object
  *                     properties:
- *                       token:
+ *                       sessionId:
  *                         type: string
  *                       expiredAt:
  *                         type: number

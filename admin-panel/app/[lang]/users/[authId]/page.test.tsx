@@ -2252,7 +2252,7 @@ describe(
           data: {
             activeSessions: [
               {
-                token: 'token-abc',
+                sessionId: 'session-abc',
                 clientId: 'client-1',
                 scope: 'profile openid',
                 roles: ['super_admin'],
@@ -2290,7 +2290,7 @@ describe(
           data: {
             activeSessions: [
               {
-                token: 'token-xyz',
+                sessionId: 'session-xyz',
                 clientId: 'unknown-client',
                 scope: 'profile',
                 roles: [],
@@ -2317,14 +2317,14 @@ describe(
           data: {
             activeSessions: [
               {
-                token: 'token-1',
+                sessionId: 'session-1',
                 clientId: 'client-1',
                 scope: 'profile',
                 roles: [],
                 expiredAt: 1800000000,
               },
               {
-                token: 'token-2',
+                sessionId: 'session-2',
                 clientId: 'client-2',
                 scope: 'offline_access',
                 roles: ['super_admin'],
@@ -2364,7 +2364,7 @@ describe(
           data: {
             activeSessions: [
               {
-                token: 'token-abc',
+                sessionId: 'session-abc',
                 clientId: 'client-1',
                 scope: 'profile openid',
                 roles: ['super_admin'],
@@ -2391,7 +2391,7 @@ describe(
         await waitFor(() => {
           expect(mockRevokeActiveSession).toHaveBeenCalledWith({
             authId: '3ed71b1e-fd0c-444b-b653-7e78731d4865',
-            sessionId: 'token-abc',
+            sessionId: 'session-abc',
           })
         })
       },
@@ -2404,14 +2404,14 @@ describe(
           data: {
             activeSessions: [
               {
-                token: 'token-1',
+                sessionId: 'session-1',
                 clientId: 'client-1',
                 scope: 'profile',
                 roles: [],
                 expiredAt: 1800000000,
               },
               {
-                token: 'token-2',
+                sessionId: 'session-2',
                 clientId: 'client-2',
                 scope: 'offline_access',
                 roles: [],
