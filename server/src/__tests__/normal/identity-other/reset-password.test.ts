@@ -9,6 +9,7 @@ import {
   routeConfig,
 } from 'configs'
 import app from 'index'
+import { kvService } from 'services'
 import {
   insertUsers,
   postSignInRequest,
@@ -172,11 +173,14 @@ describe(
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBe('1')
 
         await sendCorrectResetPasswordCodeReq()
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`)
 
         const { res } = await sendCorrectResetPasswordReq()
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
+        expect(code).toBeTruthy()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`)).toBeFalsy()
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedLoginAttempts}-test@email.com`)).toBeFalsy()
 
         const signInRes = await postSignInRequest(
@@ -202,15 +206,71 @@ describe(
     )
 
     test(
+      'should lock password reset code verification after failed attempts',
+      async () => {
+        global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 2 as unknown as string
+        await insertUsers(db)
+
+        await sendCorrectResetPasswordCodeReq()
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+
+        for (let i = 0; i < 2; i++) {
+          const { res } = await sendCorrectResetPasswordReq({ code: 'abcdef' })
+          expect(res.status).toBe(400)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`)).toBe(code)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedPasswordResetCodeAttempts}-1`)).toBe('2')
+
+        const { res } = await sendCorrectResetPasswordReq({ code })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.PasswordResetCodeLocked)
+        global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should not touch failed code attempts when password reset code threshold is disabled',
+      async () => {
+        global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 0 as unknown as string
+        await insertUsers(db)
+
+        await sendCorrectResetPasswordCodeReq()
+
+        const getFailedPasswordResetCodeAttemptsByIPSpy = vi.spyOn(
+          kvService,
+          'getFailedPasswordResetCodeAttemptsByIP',
+        )
+        const setFailedPasswordResetCodeAttemptsSpy = vi.spyOn(
+          kvService,
+          'setFailedPasswordResetCodeAttempts',
+        )
+
+        const { res } = await sendCorrectResetPasswordReq({ code: 'abcdef' })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        expect(getFailedPasswordResetCodeAttemptsByIPSpy).not.toHaveBeenCalled()
+        expect(setFailedPasswordResetCodeAttemptsSpy).not.toHaveBeenCalled()
+
+        getFailedPasswordResetCodeAttemptsByIPSpy.mockRestore()
+        setFailedPasswordResetCodeAttemptsSpy.mockRestore()
+        global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
       'should throw error when reset with same password',
       async () => {
         await insertUsers(db)
 
         await sendCorrectResetPasswordCodeReq()
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`)
 
         const { res } = await sendCorrectResetPasswordReq({ password: 'Password1!' })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.RequireDifferentPassword)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`)).toBe(code)
       },
     )
 
@@ -265,6 +325,28 @@ describe(
 
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 5 as unknown as string
         global.process.env.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET = true as unknown as string
+      },
+    )
+
+    test(
+      'should not clear failed login attempts when account lockout threshold is disabled',
+      async () => {
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 0 as unknown as string
+        global.process.env.UNLOCK_ACCOUNT_VIA_PASSWORD_RESET = true as unknown as string
+
+        await insertUsers(db)
+        await sendCorrectResetPasswordCodeReq()
+
+        const clearFailedLoginAttemptsByIPSpy = vi.spyOn(
+          kvService,
+          'clearFailedLoginAttemptsByIP',
+        )
+        const { res } = await sendCorrectResetPasswordReq()
+        expect(res.status).toBe(200)
+        expect(clearFailedLoginAttemptsByIPSpy).not.toHaveBeenCalled()
+
+        clearFailedLoginAttemptsByIPSpy.mockRestore()
+        global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 5 as unknown as string
       },
     )
 

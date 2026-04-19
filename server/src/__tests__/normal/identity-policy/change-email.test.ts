@@ -18,7 +18,9 @@ import {
   prepareFollowUpBody, postAuthorizeBody,
   insertUsers, postSignInRequest, getApp,
 } from 'tests/identity'
-import { jwtService } from 'services'
+import {
+  jwtService, kvService,
+} from 'services'
 import { cryptoUtil } from 'utils'
 import { Policy } from 'dtos/oauth'
 
@@ -292,6 +294,7 @@ describe(
         const { res } = await sendCorrectChangeEmailReq({ code: correctBody.code })
         const resJson = await res.json()
         expect(resJson).toStrictEqual({ success: true })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailCode}-1-test_new@email.com`)).toBeFalsy()
 
         const appRecord = await getApp(db)
         const reLoginRes = await postSignInRequest(
@@ -375,6 +378,68 @@ describe(
         })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+      },
+    )
+
+    test(
+      'should lock change email code verification after failed attempts',
+      async () => {
+        global.process.env.CHANGE_EMAIL_CODE_THRESHOLD = 2 as unknown as string
+
+        const { correctBody } = await sendCorrectChangeEmailCodeReq()
+        const verificationCode = await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailCode}-1-test_new@email.com`) ?? ''
+
+        for (let i = 0; i < 2; i++) {
+          const { res } = await sendCorrectChangeEmailReq({
+            code: correctBody.code,
+            verificationCode: '123456',
+          })
+          expect(res.status).toBe(400)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailCode}-1-test_new@email.com`)).toBe(verificationCode)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedChangeEmailCodeAttempts}-1`)).toBe('2')
+
+        const { res } = await sendCorrectChangeEmailReq({
+          code: correctBody.code,
+          verificationCode,
+        })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.ChangeEmailCodeLocked)
+
+        global.process.env.CHANGE_EMAIL_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should not touch failed code attempts when change email code threshold is disabled',
+      async () => {
+        global.process.env.CHANGE_EMAIL_CODE_THRESHOLD = 0 as unknown as string
+
+        const { correctBody } = await sendCorrectChangeEmailCodeReq()
+
+        const getFailedChangeEmailCodeAttemptsByIPSpy = vi.spyOn(
+          kvService,
+          'getFailedChangeEmailCodeAttemptsByIP',
+        )
+        const setFailedChangeEmailCodeAttemptsSpy = vi.spyOn(
+          kvService,
+          'setFailedChangeEmailCodeAttempts',
+        )
+
+        const { res } = await sendCorrectChangeEmailReq({
+          code: correctBody.code,
+          verificationCode: '123456',
+        })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        expect(getFailedChangeEmailCodeAttemptsByIPSpy).not.toHaveBeenCalled()
+        expect(setFailedChangeEmailCodeAttemptsSpy).not.toHaveBeenCalled()
+
+        getFailedChangeEmailCodeAttemptsByIPSpy.mockRestore()
+        setFailedChangeEmailCodeAttemptsSpy.mockRestore()
+        global.process.env.CHANGE_EMAIL_CODE_THRESHOLD = 5 as unknown as string
       },
     )
 

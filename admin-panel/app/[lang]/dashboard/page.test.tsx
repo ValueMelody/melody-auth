@@ -31,6 +31,8 @@ describe(
       ENABLE_SMS_LOG: false,
       SUPPORTED_LOCALES: ['en', 'fr'],
       AUTHORIZATION_CODE_EXPIRES_IN: 300,
+      PASSWORD_RESET_CODE_THRESHOLD: 5,
+      CHANGE_EMAIL_CODE_THRESHOLD: 5,
     }
 
     beforeEach(() => {
@@ -120,6 +122,14 @@ describe(
         const expiresInCell = screen.getByText('AUTHORIZATION_CODE_EXPIRES_IN')
           .nextElementSibling
         expect(expiresInCell).toHaveTextContent('300')
+
+        const passwordResetCodeAttemptCell = screen.getByText('PASSWORD_RESET_CODE_THRESHOLD')
+          .nextElementSibling
+        expect(passwordResetCodeAttemptCell).toHaveTextContent('5')
+
+        const changeEmailCodeAttemptCell = screen.getByText('CHANGE_EMAIL_CODE_THRESHOLD')
+          .nextElementSibling
+        expect(changeEmailCodeAttemptCell).toHaveTextContent('5')
       },
     )
   },

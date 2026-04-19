@@ -1,7 +1,8 @@
 import {
-  afterEach, beforeEach, describe, expect, test,
+  afterEach, beforeEach, describe, expect, test, vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
+import { kvService } from 'services'
 import {
   migrate,
   mockedKV,
@@ -258,6 +259,14 @@ describe(
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 0 as unknown as string
         const appRecord = await getApp(db)
         await insertUsers(db)
+        const getFailedLoginAttemptsByIPSpy = vi.spyOn(
+          kvService,
+          'getFailedLoginAttemptsByIP',
+        )
+        const setFailedLoginAttemptsSpy = vi.spyOn(
+          kvService,
+          'setFailedLoginAttempts',
+        )
         const res = await postSignInRequest(
           db,
           appRecord,
@@ -272,6 +281,10 @@ describe(
           { password: 'Password2!' },
         )
         expect(res2.status).toBe(404)
+        expect(getFailedLoginAttemptsByIPSpy).not.toHaveBeenCalled()
+        expect(setFailedLoginAttemptsSpy).not.toHaveBeenCalled()
+        getFailedLoginAttemptsByIPSpy.mockRestore()
+        setFailedLoginAttemptsSpy.mockRestore()
         global.process.env.ACCOUNT_LOCKOUT_THRESHOLD = 0 as unknown as string
       },
     )

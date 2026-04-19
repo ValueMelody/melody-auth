@@ -409,10 +409,10 @@ export const processResetPassword = async (
 ) => {
   if (!email) throw new errorConfig.Forbidden()
 
-  const ip = requestUtil.getRequestIP(c)
   const { PASSWORD_RESET_EMAIL_THRESHOLD: resetThreshold } = env(c)
 
   if (resetThreshold) {
+    const ip = requestUtil.getRequestIP(c)
     const resetAttempts = await kvService.getPasswordResetAttemptsByIP(
       c.env.KV,
       email,

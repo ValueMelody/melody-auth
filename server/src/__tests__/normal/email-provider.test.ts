@@ -9,6 +9,7 @@ import {
   routeConfig,
 } from 'configs'
 import app from 'index'
+import { kvService } from 'services'
 import { insertUsers } from 'tests/identity'
 import {
   emailLogRecord,
@@ -510,9 +511,21 @@ describe(
         expect(res2.status).toBe(400)
 
         global.process.env.PASSWORD_RESET_EMAIL_THRESHOLD = 0 as unknown as string
+        const getPasswordResetAttemptsByIPSpy = vi.spyOn(
+          kvService,
+          'getPasswordResetAttemptsByIP',
+        )
+        const setPasswordResetAttemptsByIPSpy = vi.spyOn(
+          kvService,
+          'setPasswordResetAttemptsByIP',
+        )
         const { res: res3 } = await sendCorrectResetPasswordCodeReq()
         expect(res3.status).toBe(200)
+        expect(getPasswordResetAttemptsByIPSpy).not.toHaveBeenCalled()
+        expect(setPasswordResetAttemptsByIPSpy).not.toHaveBeenCalled()
 
+        getPasswordResetAttemptsByIPSpy.mockRestore()
+        setPasswordResetAttemptsByIPSpy.mockRestore()
         global.process.env.PASSWORD_RESET_EMAIL_THRESHOLD = 5 as unknown as string
       },
     )

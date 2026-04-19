@@ -3,6 +3,7 @@ import {
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import app from 'index'
+import { kvService } from 'services'
 import {
   fetchMock,
   getSmsResponseMock,
@@ -900,6 +901,14 @@ describe(
         expect(await res3.text()).toBe(messageConfig.RequestError.SmsMfaLocked)
 
         process.env.SMS_MFA_MESSAGE_THRESHOLD = 0 as unknown as string
+        const getSmsMfaMessageAttemptsByIPSpy = vi.spyOn(
+          kvService,
+          'getSmsMfaMessageAttemptsByIP',
+        )
+        const setSmsMfaMessageAttemptsSpy = vi.spyOn(
+          kvService,
+          'setSmsMfaMessageAttempts',
+        )
 
         const res4 = await app.request(
           `${routeConfig.IdentityRoute.ResendSmsMfa}`,
@@ -910,7 +919,11 @@ describe(
           mock(db),
         )
         expect(res4.status).toBe(200)
+        expect(getSmsMfaMessageAttemptsByIPSpy).not.toHaveBeenCalled()
+        expect(setSmsMfaMessageAttemptsSpy).not.toHaveBeenCalled()
 
+        getSmsMfaMessageAttemptsByIPSpy.mockRestore()
+        setSmsMfaMessageAttemptsSpy.mockRestore()
         process.env.SMS_MFA_MESSAGE_THRESHOLD = 5 as unknown as string
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''

@@ -162,14 +162,13 @@ export const handleSendEmailMfa = async (
     throw new errorConfig.Forbidden(messageConfig.ConfigError.NotSupposeToSendEmailMfa)
   }
 
-  const ip = requestUtil.getRequestIP(c)
-  const attempts = await kvService.getEmailMfaEmailAttemptsByIP(
-    c.env.KV,
-    authCodeBody.user.id,
-    ip,
-  )
-
   if (threshold) {
+    const ip = requestUtil.getRequestIP(c)
+    const attempts = await kvService.getEmailMfaEmailAttemptsByIP(
+      c.env.KV,
+      authCodeBody.user.id,
+      ip,
+    )
     if (attempts >= threshold) {
       loggerUtil.triggerLogger(
         c,
@@ -408,14 +407,13 @@ export const handleSendSmsMfa = async (
     throw new errorConfig.Forbidden(messageConfig.ConfigError.NotSupposeToSendSmsMfa)
   }
 
-  const ip = requestUtil.getRequestIP(c)
-  const attempts = await kvService.getSmsMfaMessageAttemptsByIP(
-    c.env.KV,
-    authCodeBody.user.id,
-    ip,
-  )
-
   if (threshold) {
+    const ip = requestUtil.getRequestIP(c)
+    const attempts = await kvService.getSmsMfaMessageAttemptsByIP(
+      c.env.KV,
+      authCodeBody.user.id,
+      ip,
+    )
     if (attempts >= threshold) {
       loggerUtil.triggerLogger(
         c,
