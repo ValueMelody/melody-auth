@@ -174,6 +174,14 @@ export const getRefreshTokenBody = async (
   }
 }
 
+const hashSessionId = async (kvKeyName: string): Promise<string> => {
+  const data = new TextEncoder().encode(kvKeyName)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
 export const listActiveSessionsByUser = async (
   kv: KVNamespace,
   userId: number,
@@ -184,14 +192,27 @@ export const listActiveSessionsByUser = async (
     const value = await kv.get(key.name)
     const body: typeConfig.RefreshTokenBody | null = value ? JSON.parse(value) : null
     return {
-      token: key.name.replace(
-        `${adapterConfig.BaseKVKey.RefreshToken}-`,
-        '',
-      ),
+      sessionId: await hashSessionId(key.name),
       ...body,
     }
   }))
   return sessions
+}
+
+export const invalidRefreshTokenBySessionId = async (
+  kv: KVNamespace,
+  userId: number,
+  sessionId: string,
+): Promise<boolean> => {
+  const prefix = `${adapterConfig.BaseKVKey.RefreshToken}-${userId}.`
+  const { keys } = await kv.list({ prefix })
+  for (const key of keys) {
+    if (await hashSessionId(key.name) === sessionId) {
+      await kv.delete(key.name)
+      return true
+    }
+  }
+  return false
 }
 
 export const emailMfaCodeVerified = async (

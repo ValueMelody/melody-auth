@@ -510,7 +510,12 @@ export const deleteUserActiveSession = async (c: Context<typeConfig.Context>) =>
     authId,
   )
 
-  if (!sessionId.startsWith(`${user.id}.`)) {
+  const found = await kvService.invalidRefreshTokenBySessionId(
+    c.env.KV,
+    user.id,
+    sessionId,
+  )
+  if (!found) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -518,11 +523,6 @@ export const deleteUserActiveSession = async (c: Context<typeConfig.Context>) =>
     )
     throw new errorConfig.NotFound(messageConfig.RequestError.SessionNotFound)
   }
-
-  await kvService.invalidRefreshToken(
-    c.env.KV,
-    sessionId,
-  )
   c.status(204)
   return c.body(null)
 }
