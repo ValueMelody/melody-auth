@@ -232,7 +232,9 @@ export interface GoogleUser {
   id: string;
 }
 
-export const verifyGoogleCredential = async (clientId: string, credential: string) => {
+export const verifyGoogleCredential = async (
+  clientId: string, credential: string,
+) => {
   const decoded = decode(credential)
   const header = decoded.header as unknown as { kid: string }
 

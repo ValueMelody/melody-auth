@@ -64,7 +64,10 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
     bodyDto.redirectUri,
   )
 
-  const googleUser = await jwtService.verifyGoogleCredential(googleClientId, bodyDto.credential)
+  const googleUser = await jwtService.verifyGoogleCredential(
+    googleClientId,
+    bodyDto.credential,
+  )
   if (!googleUser) {
     loggerUtil.triggerLogger(
       c,
