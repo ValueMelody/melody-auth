@@ -93,6 +93,7 @@ describe(
         c,
         {
           sub: '1234567890',
+          aud: variableConfig.OIDCProviderConfigs.Auth0.clientId,
           kid: jwk.kid,
         },
       )

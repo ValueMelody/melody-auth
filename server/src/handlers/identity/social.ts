@@ -56,13 +56,18 @@ export const postAuthorizeGoogle = async (c: Context<typeConfig.Context>) => {
   })
   await validateUtil.dto(bodyDto)
 
+  const { GOOGLE_AUTH_CLIENT_ID: googleClientId } = env(c)
+
   const app = await appService.verifySPAClientRequest(
     c,
     bodyDto.clientId,
     bodyDto.redirectUri,
   )
 
-  const googleUser = await jwtService.verifyGoogleCredential(bodyDto.credential)
+  const googleUser = await jwtService.verifyGoogleCredential(
+    googleClientId,
+    bodyDto.credential,
+  )
   if (!googleUser) {
     loggerUtil.triggerLogger(
       c,
