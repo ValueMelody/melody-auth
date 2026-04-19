@@ -42,6 +42,7 @@ const prepareRequest = async (
     c,
     {
       iss: 'https://accounts.google.com',
+      aud: '123',
       email: 'test@gmail.com',
       sub: 'gid123',
       email_verified: emailVerified,

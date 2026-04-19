@@ -232,7 +232,7 @@ export interface GoogleUser {
   id: string;
 }
 
-export const verifyGoogleCredential = async (credential: string) => {
+export const verifyGoogleCredential = async (clientId: string, credential: string) => {
   const decoded = decode(credential)
   const header = decoded.header as unknown as { kid: string }
 
@@ -244,7 +244,15 @@ export const verifyGoogleCredential = async (credential: string) => {
     publicKey as unknown as SignatureKey,
     'RS256',
   )
-  if ('iss' in result && result.iss === 'https://accounts.google.com' && 'email' in result) {
+
+  const aud = result.aud
+  const audMatches = aud === clientId || (Array.isArray(aud) && aud.includes(clientId))
+
+  if (
+    'iss' in result && result.iss === 'https://accounts.google.com' &&
+    audMatches &&
+    'email' in result
+  ) {
     const user = {
       firstName: result.given_name,
       lastName: result.family_name,
@@ -568,7 +576,10 @@ export const verifyOidcCredential = async (
         'RS256',
       )
 
-      if (result && result.sub) {
+      const aud = result.aud
+      const audMatches = aud === clientId || (Array.isArray(aud) && aud.includes(clientId))
+
+      if (result && result.sub && audMatches) {
         const user = { id: result.sub } as OidcUser
         return user
       }
