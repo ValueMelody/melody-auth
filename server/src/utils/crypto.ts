@@ -12,7 +12,17 @@ import { typeConfig } from 'configs'
 import { cryptoUtil } from 'utils'
 
 export const genRandom6DigitString = (): string => {
-  return (Math.floor(100000 + Math.random() * 900000)).toString()
+  const min = 100000
+  const range = 900000
+  const maxUint32 = 0x100000000
+  const rejectionLimit = maxUint32 - (maxUint32 % range)
+  const randomValue = new Uint32Array(1)
+
+  do {
+    crypto.getRandomValues(randomValue)
+  } while (randomValue[0] >= rejectionLimit)
+
+  return (min + (randomValue[0] % range)).toString()
 }
 
 const genRandomBytes = (length: number) => {
