@@ -243,7 +243,29 @@ export const processEmailMfa = async (
     authCodeStore,
   )
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,
+    MFA_CODE_VERIFY_THRESHOLD: threshold,
+  } = env(c)
+
+  let ip: string | undefined
+  let failedAttempts = 0
+  if (threshold) {
+    ip = requestUtil.getRequestIP(c)
+    failedAttempts = await kvService.getFailedMfaCodeAttemptsByIP(
+      c.env.KV,
+      authCodeStore.user.id,
+      ip,
+    )
+    if (failedAttempts >= threshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.EmailMfaLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.EmailMfaLocked)
+    }
+  }
 
   const isValid = await kvService.stampEmailMfaCode(
     c.env.KV,
@@ -255,6 +277,14 @@ export const processEmailMfa = async (
   )
 
   if (!isValid) {
+    if (threshold) {
+      await kvService.setFailedMfaCodeAttempts(
+        c.env.KV,
+        authCodeStore.user.id,
+        ip,
+        failedAttempts + 1,
+      )
+    }
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -305,22 +335,29 @@ export const processOtpMfa = async (
 ) => {
   if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
 
-  const ip = requestUtil.getRequestIP(c)
-  const failedAttempts = await kvService.getFailedOtpMfaAttemptsByIP(
-    c.env.KV,
-    authCodeStore.user.id,
-    ip,
-  )
-  if (failedAttempts >= 5) {
-    loggerUtil.triggerLogger(
-      c,
-      loggerUtil.LoggerLevel.Warn,
-      messageConfig.RequestError.OtpMfaLocked,
-    )
-    throw new errorConfig.Forbidden(messageConfig.RequestError.OtpMfaLocked)
-  }
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,
+    MFA_CODE_VERIFY_THRESHOLD: threshold,
+  } = env(c)
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+  let ip: string | undefined
+  let failedAttempts = 0
+  if (threshold) {
+    ip = requestUtil.getRequestIP(c)
+    failedAttempts = await kvService.getFailedMfaCodeAttemptsByIP(
+      c.env.KV,
+      authCodeStore.user.id,
+      ip,
+    )
+    if (failedAttempts >= threshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.OtpMfaLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.OtpMfaLocked)
+    }
+  }
 
   const isValid = await kvService.stampOtpMfaCode(
     c.env.KV,
@@ -331,12 +368,14 @@ export const processOtpMfa = async (
   )
 
   if (!isValid) {
-    await kvService.setFailedOtpMfaAttempts(
-      c.env.KV,
-      authCodeStore.user.id,
-      ip,
-      failedAttempts + 1,
-    )
+    if (threshold) {
+      await kvService.setFailedMfaCodeAttempts(
+        c.env.KV,
+        authCodeStore.user.id,
+        ip,
+        failedAttempts + 1,
+      )
+    }
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -494,7 +533,29 @@ export const processSmsMfa = async (
   authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
   mfaCode: string,
 ) => {
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,
+    MFA_CODE_VERIFY_THRESHOLD: threshold,
+  } = env(c)
+
+  let ip: string | undefined
+  let failedAttempts = 0
+  if (threshold) {
+    ip = requestUtil.getRequestIP(c)
+    failedAttempts = await kvService.getFailedMfaCodeAttemptsByIP(
+      c.env.KV,
+      authCodeStore.user.id,
+      ip,
+    )
+    if (failedAttempts >= threshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.SmsMfaLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.SmsMfaLocked)
+    }
+  }
 
   const isValid = await kvService.stampSmsMfaCode(
     c.env.KV,
@@ -504,6 +565,14 @@ export const processSmsMfa = async (
   )
 
   if (!isValid) {
+    if (threshold) {
+      await kvService.setFailedMfaCodeAttempts(
+        c.env.KV,
+        authCodeStore.user.id,
+        ip,
+        failedAttempts + 1,
+      )
+    }
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

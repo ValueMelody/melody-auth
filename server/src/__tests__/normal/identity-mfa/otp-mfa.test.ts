@@ -282,6 +282,8 @@ describe(
     test(
       'should be blocked after 5 attempts',
       async () => {
+        global.process.env.MFA_CODE_VERIFY_THRESHOLD = 5 as unknown as string
+
         await insertUsers(
           db,
           false,
@@ -327,6 +329,8 @@ describe(
         const res5 = await sendRequest()
         expect(res5.status).toBe(400)
         expect(await res5.text()).toBe(messageConfig.RequestError.OtpMfaLocked)
+
+        global.process.env.MFA_CODE_VERIFY_THRESHOLD = 0 as unknown as string
       },
     )
 

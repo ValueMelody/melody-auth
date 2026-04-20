@@ -69,6 +69,8 @@ CHANGE_EMAIL_EMAIL_THRESHOLD=5 # Maximum number of change email verification cod
 CHANGE_EMAIL_CODE_THRESHOLD=5 # Number of failed change email code verification attempts before further attempts are temporarily locked for the user/IP. 0 means no restriction.
 ACCOUNT_LOCKOUT_EXPIRES_IN=86400 # Set to 0 for indefinite lockout until manual intervention.
 SMS_MFA_MESSAGE_THRESHOLD=5 # Maximum number of SMS MFA message requests allowed per 30 minutes for a single account based on ip address. 0 means no restriction.
+MFA_CODE_VERIFY_THRESHOLD=10 # Number of failed MFA code verification attempts (email/sms/otp combined) before further attempts are temporarily locked for the user/IP for 30 minutes. 0 means no restriction.
+# AUTH_CODE_VERIFIER_THRESHOLD=5 # Number of failed auth code exchange attempts with an invalid code_verifier before further attempts are temporarily locked for the user/IP for 30 minutes. 0 or unset means no restriction. Unknown auth codes are not counted.
 
 # Social Sign-in
 # GOOGLE_AUTH_CLIENT_ID="" # Google Sign-in will be suppressed if it is empty

@@ -109,6 +109,7 @@ export enum RequestError {
   PasswordResetLocked = 'Too many password reset email requests. Please try again tomorrow.',
   ChangeEmailLocked = 'Too many send email change code requests. Please try again after 30 minutes.',
   ChangeEmailCodeLocked = 'Too many failed change email code attempts. Please try again after 30 minutes.',
+  AuthCodeVerifierLocked = 'Too many failed auth code verifier attempts. Please try again after 30 minutes.',
   UniqueKey = 'Unique key constraint failed',
   UnknownScope = 'Unknown scope',
   impersonatorTokenIsRequired = 'impersonatorToken is required for impersonation',

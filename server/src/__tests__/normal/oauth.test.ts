@@ -1,11 +1,12 @@
 import {
-  afterEach, beforeEach, describe, expect, test,
+  afterEach, beforeEach, describe, expect, test, vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import {
   decode, sign,
 } from 'hono/jwt'
 import app from 'index'
+import { kvService } from 'services'
 import {
   kv,
   migrate, mock,
@@ -1349,6 +1350,100 @@ describe(
         expect(tokenRes1.status).toBe(400)
         expect(await tokenRes1.text()).toBe(messageConfig.RequestError.WrongCodeVerifier)
 
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should lock after AUTH_CODE_VERIFIER_THRESHOLD failed code_verifier attempts',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        global.process.env.AUTH_CODE_VERIFIER_THRESHOLD = 2 as unknown as string
+
+        await insertUsers(db)
+        const appRecord = await getApp(db)
+
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const json = await res.json() as { code: string }
+
+        const sendRequest = async () => app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code: json.code,
+              code_verifier: 'wrong',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+
+        const tokenRes1 = await sendRequest()
+        expect(tokenRes1.status).toBe(400)
+        expect(await tokenRes1.text()).toBe(messageConfig.RequestError.WrongCodeVerifier)
+
+        const tokenRes2 = await sendRequest()
+        expect(tokenRes2.status).toBe(400)
+        expect(await tokenRes2.text()).toBe(messageConfig.RequestError.WrongCodeVerifier)
+
+        const tokenRes3 = await sendRequest()
+        expect(tokenRes3.status).toBe(400)
+        expect(await tokenRes3.text()).toBe(messageConfig.RequestError.AuthCodeVerifierLocked)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        global.process.env.AUTH_CODE_VERIFIER_THRESHOLD = 0 as unknown as string
+      },
+    )
+
+    test(
+      'should not track auth code exchange attempts when AUTH_CODE_VERIFIER_THRESHOLD is 0',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        global.process.env.AUTH_CODE_VERIFIER_THRESHOLD = 0 as unknown as string
+
+        await insertUsers(db)
+        const appRecord = await getApp(db)
+
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const json = await res.json() as { code: string }
+
+        const getSpy = vi.spyOn(
+          kvService,
+          'getFailedAuthCodeVerifierAttemptsByIP',
+        )
+        const setSpy = vi.spyOn(
+          kvService,
+          'setFailedAuthCodeVerifierAttempts',
+        )
+
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code: json.code,
+              code_verifier: 'wrong',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(400)
+        expect(await tokenRes.text()).toBe(messageConfig.RequestError.WrongCodeVerifier)
+        expect(getSpy).not.toHaveBeenCalled()
+        expect(setSpy).not.toHaveBeenCalled()
+
+        getSpy.mockRestore()
+        setSpy.mockRestore()
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )

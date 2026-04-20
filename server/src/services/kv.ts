@@ -541,13 +541,13 @@ export const setPasswordResetAttemptsByIP = async (
   )
 }
 
-export const getFailedOtpMfaAttemptsByIP = async (
+export const getFailedMfaCodeAttemptsByIP = async (
   kv: KVNamespace,
   userId: number,
   ip?: string,
 ) => {
   const key = adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.FailedOtpMfaAttempts,
+    adapterConfig.BaseKVKey.FailedMfaCodeAttempts,
     String(userId),
     ip,
   )
@@ -555,14 +555,46 @@ export const getFailedOtpMfaAttemptsByIP = async (
   return stored ? Number(stored) : 0
 }
 
-export const setFailedOtpMfaAttempts = async (
+export const setFailedMfaCodeAttempts = async (
   kv: KVNamespace,
   userId: number,
   ip: string | undefined,
   count: number,
 ) => {
   const key = adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.FailedOtpMfaAttempts,
+    adapterConfig.BaseKVKey.FailedMfaCodeAttempts,
+    String(userId),
+    ip,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: 1800 },
+  )
+}
+
+export const getFailedAuthCodeVerifierAttemptsByIP = async (
+  kv: KVNamespace,
+  userId: number,
+  ip?: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedAuthCodeVerifierAttempts,
+    String(userId),
+    ip,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setFailedAuthCodeVerifierAttempts = async (
+  kv: KVNamespace,
+  userId: number,
+  ip: string | undefined,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedAuthCodeVerifierAttempts,
     String(userId),
     ip,
   )

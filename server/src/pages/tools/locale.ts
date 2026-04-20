@@ -888,6 +888,21 @@ export const requestError = Object.freeze({
     fr: 'Trop de demandes de modification de code de changement d\'adresse e-mail. Veuillez réessayer dans 30 minutes.',
     zh: '发送邮箱验证码请求次数过多。请在 30 分钟后重试。',
   },
+  passwordResetCodeLocked: {
+    en: 'Too many failed password reset code attempts. Please try again after 30 minutes.',
+    fr: 'Trop de tentatives échouées de code de réinitialisation de mot de passe. Veuillez réessayer dans 30 minutes.',
+    zh: '密码重置验证码失败次数过多。请在 30 分钟后重试。',
+  },
+  changeEmailCodeLocked: {
+    en: 'Too many failed change email code attempts. Please try again after 30 minutes.',
+    fr: 'Trop de tentatives échouées de code de modification d\'adresse e-mail. Veuillez réessayer dans 30 minutes.',
+    zh: '更换邮箱验证码失败次数过多。请在 30 分钟后重试。',
+  },
+  authCodeVerifierLocked: {
+    en: 'Too many failed auth code verifier attempts. Please try again after 30 minutes.',
+    fr: 'Trop de tentatives échouées de vérification du code d\'autorisation. Veuillez réessayer dans 30 minutes.',
+    zh: '授权码校验失败次数过多。请在 30 分钟后重试。',
+  },
   emailTaken: {
     en: 'The email address is already in use.',
     fr: 'Cette adresse e-mail est déjà utilisée.',
