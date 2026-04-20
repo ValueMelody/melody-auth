@@ -45,10 +45,16 @@ const useSubmitError = ({
         msg = requestError.smsMfaLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.EmailMfaLocked) !== -1) {
         msg = requestError.emailMfaLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.PasswordResetCodeLocked) !== -1) {
+        msg = requestError.passwordResetCodeLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.PasswordResetLocked) !== -1) {
         msg = requestError.passwordResetLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.ChangeEmailCodeLocked) !== -1) {
+        msg = requestError.changeEmailCodeLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.ChangeEmailLocked) !== -1) {
         msg = requestError.changeEmailLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.AuthCodeVerifierLocked) !== -1) {
+        msg = requestError.authCodeVerifierLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.EmailTaken) !== -1) {
         msg = requestError.emailTaken[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.WrongCode) !== -1) {

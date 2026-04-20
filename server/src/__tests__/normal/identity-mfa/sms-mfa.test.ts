@@ -1174,6 +1174,71 @@ describe(
     )
 
     test(
+      'should lock after MFA_CODE_VERIFY_THRESHOLD failed attempts',
+      async () => {
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 2 as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollSmsMfa(db)
+        const reqBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.SetupSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reqBody,
+              phoneNumber: '+6471112222',
+            }),
+          },
+          mock(db),
+        )
+
+        const sendRequest = async () => app.request(
+          routeConfig.IdentityRoute.ProcessSmsMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: reqBody.code,
+              locale: 'en',
+              mfaCode: 'wrong!',
+            }),
+          },
+          mock(db),
+        )
+
+        const res1 = await sendRequest()
+        expect(res1.status).toBe(401)
+        expect(await res1.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+
+        const res2 = await sendRequest()
+        expect(res2.status).toBe(401)
+        expect(await res2.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+
+        const res3 = await sendRequest()
+        expect(res3.status).toBe(400)
+        expect(await res3.text()).toBe(messageConfig.RequestError.SmsMfaLocked)
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
       'should set remember device cookie when rememberDevice is true',
       async () => {
         process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string

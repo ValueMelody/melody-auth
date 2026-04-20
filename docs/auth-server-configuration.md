@@ -223,6 +223,14 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 - **Default:** 5
 - **Description:** Number of failed login attempts before lockout. 0 means no lockout.
 
+### MFA_CODE_VERIFY_THRESHOLD
+- **Default:** 10
+- **Description:** Number of failed MFA code verification attempts (email, SMS and OTP combined) per user/IP before further attempts are temporarily locked for 30 minutes. 0 means no limit.
+
+### AUTH_CODE_VERIFIER_THRESHOLD
+- **Default:** unset (commented out)
+- **Description:** Number of failed auth code exchange attempts with an invalid `code_verifier` (for a valid auth code) per user/IP before further attempts are temporarily locked for 30 minutes. Unset or 0 means no limit. Unknown auth code values are not counted.
+
 
 ## Social Sign-in Configs
 

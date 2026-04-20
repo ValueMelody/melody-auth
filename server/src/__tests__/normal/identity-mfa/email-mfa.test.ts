@@ -270,6 +270,121 @@ describe(
     )
 
     test(
+      'should lock after MFA_CODE_VERIFY_THRESHOLD failed attempts',
+      async () => {
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 2 as unknown as string
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const sendRequest = async () => app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: 'wrong!',
+            }),
+          },
+          mock(db),
+        )
+
+        const res1 = await sendRequest()
+        expect(res1.status).toBe(401)
+        expect(await res1.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+
+        const res2 = await sendRequest()
+        expect(res2.status).toBe(401)
+        expect(await res2.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+
+        const res3 = await sendRequest()
+        expect(res3.status).toBe(400)
+        expect(await res3.text()).toBe(messageConfig.RequestError.EmailMfaLocked)
+
+        global.fetch = fetchMock
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
+      },
+    )
+
+    test(
+      'should not track failed attempts when MFA_CODE_VERIFY_THRESHOLD is 0',
+      async () => {
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 0 as unknown as string
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const getSpy = vi.spyOn(
+          kvService,
+          'getFailedMfaCodeAttemptsByIP',
+        )
+        const setSpy = vi.spyOn(
+          kvService,
+          'setFailedMfaCodeAttempts',
+        )
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: 'wrong!',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+        expect(getSpy).not.toHaveBeenCalled()
+        expect(setSpy).not.toHaveBeenCalled()
+
+        getSpy.mockRestore()
+        setSpy.mockRestore()
+        global.fetch = fetchMock
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
+      },
+    )
+
+    test(
       'should throw error if not enrolled with email mfa and fallback is not allowed',
       async () => {
         process.env.ALLOW_EMAIL_MFA_AS_BACKUP = false as unknown as string
