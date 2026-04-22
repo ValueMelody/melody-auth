@@ -306,6 +306,6 @@ export const postLogout = async (c: Context<typeConfig.Context>) => {
   return c.json({
     success: true,
     redirectUri:
-      `${redirectUri}?post_logout_redirect_uri=${bodyDto.postLogoutRedirectUri}&client_id=${refreshTokenBody.clientId}`,
+      `${redirectUri}?post_logout_redirect_uri=${encodeURIComponent(bodyDto.postLogoutRedirectUri)}&client_id=${encodeURIComponent(refreshTokenBody.clientId)}`,
   })
 }

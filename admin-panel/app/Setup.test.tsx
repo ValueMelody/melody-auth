@@ -212,7 +212,7 @@ describe(
         const logoutButton = await screen.findByText('layout.logout')
         fireEvent.click(logoutButton)
 
-        expect(mockLogoutRedirect).toHaveBeenCalledWith({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
+        expect(mockLogoutRedirect).toHaveBeenCalledWith({ postLogoutRedirectUri: `${process.env.NEXT_PUBLIC_CLIENT_URI}/en/dashboard` })
       },
     )
 

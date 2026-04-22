@@ -77,7 +77,7 @@ npm run dev
     NEXT_PUBLIC_CLIENT_ID=["Admin Panel (SPA)" 应用的 Client ID]
     ```
 4. 进入 “Workers & Pages” -> D1 -> Melody Auth database -> app 表  
-    - 在 "Admin Panel (SPA)" 条目中，将 redirectUris 更新为 Cloudflare 地址（例如 https://melody-auth-admin.[your-account-name].workers.dev）  
+    - 在 "Admin Panel (SPA)" 条目中，将 redirectUris 更新为每个受支持语言的 Cloudflare 地址，例如 `https://melody-auth-admin.[your-account-name].workers.dev/en/dashboard` 和 `https://melody-auth-admin.[your-account-name].workers.dev/fr/dashboard`。这些 URI 同时用于登录与退出重定向——管理面板的 `postLogoutRedirectUri` 必须与其中一个已注册值匹配，否则服务器会回退到第一个已注册的 redirect URI。  
 
 5. 构建项目  
     ```

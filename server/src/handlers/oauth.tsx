@@ -264,12 +264,42 @@ export const getLogout = async (c: Context<typeConfig.Context>) => {
 
   await validateUtil.dto(queryDto)
 
+  const app = await appModel.getByClientId(
+    c.env.DB,
+    queryDto.clientId,
+  )
+
+  if (!app || !app.isActive || app.type !== ClientType.SPA) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoSpaAppFound,
+    )
+    throw new errorConfig.NotFound(messageConfig.RequestError.NoSpaAppFound)
+  }
+
+  const normalizedUri = requestUtil.stripEndingSlash(queryDto.postLogoutRedirectUri)
+  const isAllowed = app.redirectUris.includes(normalizedUri)
+
+  let redirectTarget = queryDto.postLogoutRedirectUri
+  if (!isAllowed) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Error,
+      messageConfig.RequestError.WrongPostLogoutRedirectUri,
+    )
+    if (!app.redirectUris.length) {
+      throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongRedirectUri)
+    }
+    redirectTarget = app.redirectUris[0]
+  }
+
   sessionService.removeAuthInfoSession(
     c,
     queryDto.clientId,
   )
 
-  return c.redirect(queryDto.postLogoutRedirectUri)
+  return c.redirect(redirectTarget)
 }
 
 export const getUserInfo = async (c: Context<typeConfig.Context>) => {

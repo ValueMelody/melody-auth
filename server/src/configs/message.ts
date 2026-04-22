@@ -44,6 +44,7 @@ export enum RequestError {
   WrongS2sClientSecret = 'Wrong S2S client secret provided',
   WrongOrigin = 'Request from unexpected origin',
   WrongRedirectUri = 'Invalid redirect_uri provided',
+  WrongPostLogoutRedirectUri = 'Invalid post_logout_redirect_uri provided',
   WrongGrantType = 'Invalid grant_type provided',
   WrongCodeVerifier = 'Invalid code_verifier provided',
   WrongRefreshToken = 'Invalid refresh_token provided',

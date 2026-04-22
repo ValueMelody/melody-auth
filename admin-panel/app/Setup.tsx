@@ -66,7 +66,7 @@ const AuthSetup = ({ children }: PropsWithChildren) => {
   } = useAuth()
 
   const handleLogout = () => {
-    logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
+    logoutRedirect({ postLogoutRedirectUri: `${process.env.NEXT_PUBLIC_CLIENT_URI}/${locale || 'en'}/dashboard` })
   }
 
   useEffect(
@@ -195,7 +195,7 @@ const LayoutSetup = ({ children } : PropsWithChildren) => {
   )
 
   const handleLogout = () => {
-    logoutRedirect({ postLogoutRedirectUri: process.env.NEXT_PUBLIC_CLIENT_URI })
+    logoutRedirect({ postLogoutRedirectUri: `${process.env.NEXT_PUBLIC_CLIENT_URI}/${locale}/dashboard` })
   }
 
   return (

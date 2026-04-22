@@ -93,7 +93,7 @@ describe(
         )
         expect(await logoutRes.json()).toStrictEqual({
           success: true,
-          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
+          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=${encodeURIComponent('/')}&client_id=${encodeURIComponent(appRecord.clientId)}`,
         })
 
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
@@ -156,7 +156,7 @@ describe(
         )
         expect(await logoutRes.json()).toStrictEqual({
           success: true,
-          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=&client_id=${appRecord.clientId}`,
+          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=&client_id=${encodeURIComponent(appRecord.clientId)}`,
         })
 
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${tokenJson.refresh_token}`)).toBeFalsy()
@@ -219,7 +219,7 @@ describe(
         expect(logoutRes.status).toBe(200)
         expect(await logoutRes.json()).toStrictEqual({
           success: true,
-          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=/&client_id=${appRecord.clientId}`,
+          redirectUri: `http://localhost:8787${routeConfig.OauthRoute.Logout}?post_logout_redirect_uri=${encodeURIComponent('/')}&client_id=${encodeURIComponent(appRecord.clientId)}`,
         })
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
