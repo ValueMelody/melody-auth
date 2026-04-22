@@ -131,6 +131,8 @@ Triggers the logout flow.
 |-----------|------|-------------|---------|----------|
 | postLogoutRedirectUri | string | The URL to redirect users after logout | N/A | No |
 
+> **Note:** `postLogoutRedirectUri` must match one of the app's registered redirect URIs (configured in the admin panel). If it does not match, the user is still logged out, but the browser is redirected to the app's first registered redirect URI as a safe fallback.
+
 ```
 <script setup lang="ts">
 import { useAuth } from '@melody-auth/vue'

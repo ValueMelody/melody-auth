@@ -133,6 +133,8 @@ Logs the user out. When `localOnly` is false and a refresh token is present, a r
 | postLogoutRedirectUri | string | The URL to redirect users after logout |
 | localOnly | boolean | If true, only clears local tokens and redirects without remote logout |
 
+> **Note:** `postLogoutRedirectUri` must match one of the app's registered redirect URIs (configured in the admin panel). If it does not match, the user is still logged out, but the browser is redirected to the app's first registered redirect URI as a safe fallback.
+
 ```
 import { getStorage, StorageKey } from '@melody-auth/shared'
 

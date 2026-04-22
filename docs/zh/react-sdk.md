@@ -124,6 +124,8 @@ export default function Home () {
 |-----------|------|-------------|---------|----------|
 | postLogoutRedirectUri | string | 退出后跳转的 URL | N/A | 否 |
 
+> **注意：** `postLogoutRedirectUri` 必须与应用已注册的 redirect URI 之一匹配（在管理面板中配置）。如果不匹配，用户仍会退出登录，但浏览器将被重定向到应用的第一个已注册 redirect URI 作为安全回退。
+
 ```
 import { useAuth } from '@melody-auth/react'
 

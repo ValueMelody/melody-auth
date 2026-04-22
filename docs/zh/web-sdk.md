@@ -133,6 +133,8 @@ const userInfo = await getUserInfo(config, { accessToken })
 | postLogoutRedirectUri | string | 用户注销后重定向的 URL |
 | localOnly | boolean | 如果为 true，则只清除本地 token 并重定向，不进行远程注销 |
 
+> **注意：** `postLogoutRedirectUri` 必须与应用已注册的 redirect URI 之一匹配（在管理面板中配置）。如果不匹配，用户仍会退出登录，但浏览器将被重定向到应用的第一个已注册 redirect URI 作为安全回退。
+
 ```
 import { getStorage, StorageKey } from '@melody-auth/shared'
 

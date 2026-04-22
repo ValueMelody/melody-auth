@@ -214,9 +214,13 @@ Policies allow you to route users to specific auth flows without changing applic
 | Login attempt lockout | Lock a user's account after too many failed sign-in attempts | ✓ | | | |
 | Unlock via password reset | Automatically unlock a locked account when the user resets their password | ✓ | | | |
 | Password reset rate limit | Limit how many password reset emails can be sent in a window | ✓ | | | |
+| Password reset code attempt lockout | Temporarily block password reset code verification after too many failed attempts | ✓ | | | |
 | Email MFA rate limit | Limit how many email MFA codes can be sent in a window | ✓ | | | |
 | SMS MFA rate limit | Limit how many SMS MFA codes can be sent in a window | ✓ | | | |
+| MFA code attempt lockout | Temporarily block email, SMS, and OTP MFA verification after too many failed code attempts | ✓ | | | |
 | Change-email rate limit | Limit how many change-email verification emails can be sent in a window | ✓ | | | |
+| Change-email code attempt lockout | Temporarily block change-email code verification after too many failed attempts | ✓ | | | |
+| Auth-code exchange attempt lockout | Temporarily block auth-code token exchange after too many failed `code_verifier` attempts | ✓ | | | |
 | View locked IPs | Inspect which IPs are currently locked for a user | | ✓ | ✓ | |
 | Unlock IPs | Clear all IP locks for a user | | ✓ | ✓ | |
 | Embedded auth origin allowlist | Restrict which browser origins can call embedded auth APIs via `EMBEDDED_AUTH_ORIGINS` | ✓ | | | ✓ |

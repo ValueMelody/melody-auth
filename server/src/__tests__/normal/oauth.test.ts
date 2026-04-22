@@ -2069,6 +2069,101 @@ describe(
         expect(res.status).toBe(400)
       },
     )
+
+    test(
+      'should fall back to first registered redirect uri when post_logout_redirect_uri is not in the allowlist',
+      async () => {
+        const appRecord = await getApp(db)
+        const url = routeConfig.OauthRoute.Logout
+        const params = `?client_id=${appRecord.clientId}&post_logout_redirect_uri=http://evil.example.com/phishing`
+        session.set(
+          `authInfo-${appRecord.clientId}`,
+          'someInfo',
+        )
+
+        const res = await app.request(
+          `${url}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe('http://localhost:3000/en/dashboard')
+        expect(session.get(`authInfo-${appRecord.clientId}`)).toBe(null)
+      },
+    )
+
+    test(
+      'should allow any registered redirect uri, not just the first one',
+      async () => {
+        const appRecord = await getApp(db)
+        const url = routeConfig.OauthRoute.Logout
+        const params = `?client_id=${appRecord.clientId}&post_logout_redirect_uri=http://localhost:3000/fr/dashboard`
+        session.set(
+          `authInfo-${appRecord.clientId}`,
+          'someInfo',
+        )
+
+        const res = await app.request(
+          `${url}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe('http://localhost:3000/fr/dashboard')
+        expect(session.get(`authInfo-${appRecord.clientId}`)).toBe(null)
+      },
+    )
+
+    test(
+      'should return 404 when client_id is unknown',
+      async () => {
+        const url = routeConfig.OauthRoute.Logout
+        const params = '?client_id=unknown-client&post_logout_redirect_uri=http://localhost:3000/en/dashboard'
+
+        const res = await app.request(
+          `${url}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoSpaAppFound)
+      },
+    )
+
+    test(
+      'should return 404 when app is disabled',
+      async () => {
+        const appRecord = await getApp(db)
+        await db.prepare('update app set "isActive" = ?').run(0)
+        const url = routeConfig.OauthRoute.Logout
+        const params = `?client_id=${appRecord.clientId}&post_logout_redirect_uri=http://localhost:3000/en/dashboard`
+
+        const res = await app.request(
+          `${url}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoSpaAppFound)
+      },
+    )
+
+    test(
+      'should return 404 when app is not a SPA',
+      async () => {
+        const s2sApp = await db.prepare('SELECT * FROM app where id = 2').get() as appModel.Record
+        const url = routeConfig.OauthRoute.Logout
+        const params = `?client_id=${s2sApp.clientId}&post_logout_redirect_uri=http://localhost:3000/en/dashboard`
+
+        const res = await app.request(
+          `${url}${params}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoSpaAppFound)
+      },
+    )
   },
 )
 

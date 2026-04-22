@@ -77,7 +77,7 @@ Steps to Deploy:
     NEXT_PUBLIC_CLIENT_ID=[Client ID for the "Admin Panel (SPA)" app]
     ```
 4. Navigate to "Workers & Pages" -> D1 -> Melody Auth database -> app table 
-    - Update the redirectUris values in "Admin Panel (SPA)"	entry with the cloudflare  (e.g., https://melody-auth-admin.[your-account-name].workers.dev)
+    - Update the redirectUris values in "Admin Panel (SPA)" entry with the Cloudflare URL for every supported locale, e.g. `https://melody-auth-admin.[your-account-name].workers.dev/en/dashboard` and `https://melody-auth-admin.[your-account-name].workers.dev/fr/dashboard`. These URIs are used for both login and logout redirects — the admin panel's `postLogoutRedirectUri` must match one of the registered values, otherwise the server falls back to the first registered redirect URI.
 
 5. Build the project
     ```
