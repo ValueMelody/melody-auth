@@ -15,9 +15,7 @@ import {
   messageConfig, routeConfig, variableConfig, adapterConfig, typeConfig,
 } from 'configs'
 import { userModel } from 'models'
-import {
-  identityDto, oauthDto,
-} from 'dtos'
+import { oauthDto } from 'dtos'
 import { disableUser } from 'tests/util'
 import {
   getApp, postAuthorizeBody,
@@ -128,13 +126,14 @@ describe(
         )
       }
 
-      const state = JSON.stringify(new identityDto.PostAuthorizeSocialSignInDto({
-        ...requestBody,
+      const state = JSON.stringify({
+        ...new oauthDto.GetAuthorizeDto({
+          ...requestBody,
+          scopes: requestBody.scope.split(' ') ?? [],
+          locale: 'en',
+        }),
         codeVerifier: setCodeVerifierAsUndefined ? undefined : 'abcd',
-        credential: '',
-        scopes: requestBody.scope.split(' ') ?? [],
-        locale: 'en',
-      }))
+      })
       const res = await app.request(
         `${routeConfig.IdentityRoute.AuthorizeOidc}/Auth0?code=${credential}&state=${encodeURIComponent(state)}`,
         {},
@@ -204,6 +203,23 @@ describe(
 
         const res = await app.request(
           `${routeConfig.IdentityRoute.AuthorizeOidc}/Auth0?code=aaa`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
+
+        global.process.env.OIDC_AUTH_PROVIDERS = undefined as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if state is malformed json',
+      async () => {
+        global.process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeOidc}/Auth0?code=aaa&state=not-json`,
           {},
           mock(db),
         )

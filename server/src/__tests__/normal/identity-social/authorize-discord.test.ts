@@ -214,6 +214,25 @@ describe(
     )
 
     test(
+      'should throw error if state is malformed json',
+      async () => {
+        global.process.env.DISCORD_AUTH_CLIENT_ID = '123'
+        global.process.env.DISCORD_AUTH_CLIENT_SECRET = 'abc'
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeDiscord}?code=aaa&state=not-json`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidDiscordAuthorizeRequest)
+
+        global.process.env.DISCORD_AUTH_CLIENT_ID = ''
+        global.process.env.DISCORD_AUTH_CLIENT_SECRET = ''
+      },
+    )
+
+    test(
       'should redirect back to app with a new Discord account when consent not need',
       async () => {
         global.process.env.DISCORD_AUTH_CLIENT_ID = '123'

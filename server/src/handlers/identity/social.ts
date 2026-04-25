@@ -20,6 +20,23 @@ import {
   appModel, userModel,
 } from 'models'
 
+const parseSocialAuthorizeState = (
+  c: Context<typeConfig.Context>,
+  state: string,
+  message: string,
+): any => {
+  try {
+    return JSON.parse(state)
+  } catch {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      message,
+    )
+    throw new errorConfig.Forbidden(message)
+  }
+}
+
 export const prepareSocialAuthCode = async (
   c: Context<typeConfig.Context>,
   bodyDto: identityDto.PostAuthorizeSocialSignInDto,
@@ -171,8 +188,11 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidGithubAuthorizeRequest)
   }
 
-  const originRequest = JSON.parse(state)
-
+  const originRequest = parseSocialAuthorizeState(
+    c,
+    state,
+    messageConfig.RequestError.InvalidGithubAuthorizeRequest,
+  )
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
     credential: code,
@@ -249,8 +269,11 @@ export const getAuthorizeDiscord = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidDiscordAuthorizeRequest)
   }
 
-  const originRequest = JSON.parse(state)
-
+  const originRequest = parseSocialAuthorizeState(
+    c,
+    state,
+    messageConfig.RequestError.InvalidDiscordAuthorizeRequest,
+  )
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
     credential: code,
@@ -331,11 +354,14 @@ export const postAuthorizeApple = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidAppleAuthorizeRequest)
   }
 
-  const originRequest = JSON.parse(state as string)
-
+  const originRequest = parseSocialAuthorizeState(
+    c,
+    String(state),
+    messageConfig.RequestError.InvalidAppleAuthorizeRequest,
+  )
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
-    credential: code,
+    credential: String(code),
   })
   await validateUtil.dto(bodyDto)
 
@@ -473,8 +499,11 @@ export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidOidcAuthorizeRequest)
   }
 
-  const originRequest = JSON.parse(state)
-
+  const originRequest = parseSocialAuthorizeState(
+    c,
+    state,
+    messageConfig.RequestError.InvalidOidcAuthorizeRequest,
+  )
   const bodyDto = new identityDto.PostAuthorizeSocialSignInDto({
     ...originRequest,
     credential: code,
