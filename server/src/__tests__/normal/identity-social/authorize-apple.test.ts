@@ -211,6 +211,39 @@ describe(
     )
 
     test(
+      'should throw error if state is malformed json',
+      async () => {
+        global.process.env.APPLE_AUTH_CLIENT_ID = '123'
+        global.process.env.APPLE_AUTH_CLIENT_SECRET = 'abc'
+
+        const params = new URLSearchParams()
+        params.append(
+          'code',
+          'aaa',
+        )
+        params.append(
+          'state',
+          'not-json',
+        )
+
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.AuthorizeApple}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params,
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidAppleAuthorizeRequest)
+
+        global.process.env.APPLE_AUTH_CLIENT_ID = ''
+        global.process.env.APPLE_AUTH_CLIENT_SECRET = ''
+      },
+    )
+
+    test(
       'should redirect back to app with a new Apple account when consent not need',
       async () => {
         global.process.env.APPLE_AUTH_CLIENT_ID = '123'
