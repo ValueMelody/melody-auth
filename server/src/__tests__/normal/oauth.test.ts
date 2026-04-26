@@ -1258,7 +1258,7 @@ describe(
     )
 
     test(
-      'could use plain code challenge',
+      'should reject plain code challenge method',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
         await insertUsers(db)
@@ -1283,23 +1283,8 @@ describe(
           },
           mock(db),
         )
-        const json = await res.json() as { code: string }
-
-        const body = {
-          grant_type: oauthDto.TokenGrantType.AuthorizationCode,
-          code: json.code,
-          code_verifier: 'aaa',
-        }
-        const tokenRes = await app.request(
-          routeConfig.OauthRoute.Token,
-          {
-            method: 'POST',
-            body: new URLSearchParams(body).toString(),
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          },
-          mock(db),
-        )
-        expect(tokenRes.status).toBe(200)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.PlainPkceMethodNotEnabled)
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },

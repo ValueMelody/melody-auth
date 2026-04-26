@@ -90,8 +90,7 @@
           "codeChallengeMethod": {
             "type": "string",
             "enum": [
-              "S256",
-              "plain"
+              "S256"
             ]
           },
           "scopes": {

@@ -8,7 +8,7 @@ const PostInitiateReq = {
     codeChallenge: { type: 'string' },
     codeChallengeMethod: {
       type: 'string',
-      enum: ['S256', 'plain'],
+      enum: ['S256'],
     },
     scopes: {
       type: 'array',

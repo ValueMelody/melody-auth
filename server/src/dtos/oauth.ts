@@ -2,7 +2,9 @@ import {
   ArrayMinSize, IsEnum, IsString, IsNotEmpty,
   IsOptional,
 } from 'class-validator'
-import { typeConfig } from 'configs'
+import {
+  errorConfig, messageConfig, typeConfig, variableConfig,
+} from 'configs'
 import * as baseDto from 'dtos/base'
 
 enum AuthorizeResponseType {
@@ -70,6 +72,13 @@ export class CoreAuthorizeDto {
     this.scopes = parseScopes(dto.scopes)
     this.locale = dto.locale
     this.org = dto.org
+
+    if (
+      this.codeChallengeMethod === AuthorizeCodeChallengeMethod.Plain &&
+      !variableConfig.systemConfig.enablePlainPkceMethod
+    ) {
+      throw new errorConfig.Forbidden(messageConfig.ConfigError.PlainPkceMethodNotEnabled)
+    }
   }
 }
 

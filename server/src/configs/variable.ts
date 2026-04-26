@@ -70,4 +70,5 @@ export const systemConfig = Object.freeze({
   invitationExpiresIn: 7, // in days
   sendEmailToRealReceiverOnDev: false,
   sendSmsToRealReceiverOnDev: false,
+  enablePlainPkceMethod: false,
 })

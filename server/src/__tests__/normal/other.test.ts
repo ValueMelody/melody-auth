@@ -97,6 +97,7 @@ describe(
           ENABLE_ORG: false,
           ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: false,
           ENABLE_ORG_GROUP: true,
+          ENABLE_PLAIN_PKCE_METHOD: false,
           ENABLE_USER_ATTRIBUTE: false,
           BLOCKED_POLICIES: ['change_org'],
           EMBEDDED_AUTH_ORIGINS: [],
@@ -153,7 +154,7 @@ describe(
           claims_supported: ['sub', 'email', 'first_name', 'last_name', 'locale'],
           id_token_signing_alg_values_supported: ['RS256'],
           jwks_uri: `${serverUrl}/.well-known/jwks.json`,
-          code_challenge_methods_supported: ['plain', 'S256'],
+          code_challenge_methods_supported: ['S256'],
         })
       },
     )

@@ -11,6 +11,8 @@ Melody Auth 提供多种认证方式以满足不同的集成需求：
 
 PKCE 引入了一个动态生成的一次性密钥，称为 **code verifier**，用于保护授权码交换过程。这消除了公共客户端存储 client secret 的需求，同时保持了安全性。
 
+Melody Auth 默认只接受 `S256` code challenge method。安全性较弱的 `plain` method 默认禁用，只有在 `server/src/configs/variable.ts` 中显式将 `systemConfig.enablePlainPkceMethod` 设置为 `true` 时才会启用。
+
 ## 安全优势
 
 - **防止授权码拦截**：即使攻击者拦截了授权码，没有原始的 code verifier 也无法换取 token
