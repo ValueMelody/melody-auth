@@ -51,5 +51,14 @@ fetch('/oauth2/v1/token', {
 }
 ```
 
+## System Info
+
+The `/info` endpoint returns active server configuration values, including feature flags and client-facing settings. Because these values can reveal security posture and deployment details, this endpoint requires a valid server-to-server access token, but it does not require any specific scope.
+
+- HTTP Method: `GET`
+- URL: `[melody_auth_server_url]/info`
+- Required scope: none
+- Authorization: `Bearer [access_token]`
+
 ## Detailed Documentation
 For more detailed information, please see [Rest API Swagger](https://auth-server.valuemelody.com/api/v1/swagger).

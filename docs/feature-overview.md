@@ -300,8 +300,8 @@ Server-side hooks are async functions defined in `server/src/hooks/` that execut
 |---------|-------------|
 | Swagger UI (S2S) | Interactive API documentation for server-to-server endpoints |
 | Swagger UI (Embedded) | Interactive API documentation for embedded auth endpoints |
-| Configuration info endpoint | Public `/info` endpoint exposing feature flags and client configuration |
-| Dashboard — config viewer | Admin panel page showing all active server configuration values and quick links to well-known, Swagger, and `/info` endpoints |
+| Configuration info endpoint | Authenticated S2S `/info` endpoint exposing feature flags and client configuration without requiring a specific scope |
+| Dashboard — config viewer | Admin panel page showing all active server configuration values and quick links to well-known and Swagger endpoints |
 | Admin account self-service | Admin panel page for the signed-in administrator to update profile, change password/email, reset MFA, manage passkeys, and manage recovery codes |
 
 ---

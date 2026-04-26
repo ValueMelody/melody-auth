@@ -61,8 +61,7 @@
     "configSeconds": "seconds",
     "links": "System Links",
     "apiSwagger": "S2S API Swagger",
-    "embeddedSwagger": "Embedded API Swagger",
-    "systemInfo": "System Info"
+    "embeddedSwagger": "Embedded API Swagger"
   },
   "apps": {
     "title": "Apps",

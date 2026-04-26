@@ -7,6 +7,7 @@ import { Scope } from '@melody-auth/shared'
 import { typeConfig } from 'configs'
 import { jwtService } from 'services'
 import { oauthDto } from 'dtos'
+import { appModel } from 'models'
 
 const parseToken = async (
   c: Context<typeConfig.Context>, token: string,
@@ -85,6 +86,31 @@ export const spaBasicAuth = async (
     next,
   )
 }
+
+export const s2s = bearerAuth({
+  verifyToken: async (
+    token, c: Context<typeConfig.Context>,
+  ) => {
+    const accessTokenBody = await parseToken(
+      c,
+      token,
+    )
+    if (!accessTokenBody) return false
+
+    const app = await appModel.getByClientId(
+      c.env.DB,
+      accessTokenBody.azp,
+    )
+    if (!app || !app.isActive) return false
+
+    c.set(
+      'access_token_body',
+      accessTokenBody,
+    )
+
+    return true
+  },
+})
 
 const s2sScopeGuard = async (
   c: Context<typeConfig.Context>, token: string, scope: Scope,

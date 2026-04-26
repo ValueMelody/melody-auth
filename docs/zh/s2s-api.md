@@ -51,5 +51,14 @@ fetch('/oauth2/v1/token', {
 }
 ```
 
+## 系统信息
+
+`/info` 端点会返回当前服务器配置值，包括功能开关和面向客户端的配置。由于这些信息可能暴露安全策略和部署细节，该端点需要有效的服务器间访问令牌，但不要求任何特定作用域。
+
+- **HTTP 方法**：`GET`
+- **URL**：`[melody_auth_server_url]/info`
+- **必需作用域**：无
+- **Authorization**：`Bearer [access_token]`
+
 ## 详细文档
 更多信息请参阅 [REST API Swagger](https://auth-server.valuemelody.com/api/v1/swagger)。
