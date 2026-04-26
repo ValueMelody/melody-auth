@@ -111,7 +111,6 @@ const Page = () => {
         jwks: `${configs.AUTH_SERVER_URL}/.well-known/jwks.json`,
         apiSwagger: `${configs.AUTH_SERVER_URL}/api/v1/swagger`,
         embeddedSwagger: `${configs.AUTH_SERVER_URL}/api/v1/embedded-swagger`,
-        systemInfo: `${configs.AUTH_SERVER_URL}/info`,
       })
       : null,
     [configs],
@@ -183,18 +182,6 @@ const Page = () => {
                     rel='noreferrer'
                   >
                     {links.embeddedSwagger}
-                  </a>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>{t('dashboard.systemInfo')}</TableCell>
-                <TableCell>
-                  <a
-                    target='_blank'
-                    href={links.systemInfo}
-                    rel='noreferrer'
-                  >
-                    {links.systemInfo}
                   </a>
                 </TableCell>
               </TableRow>

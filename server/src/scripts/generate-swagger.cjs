@@ -115,6 +115,7 @@ const options = {
     './src/routes/userAttribute.tsx',
     './src/routes/log.tsx',
     './src/routes/saml.tsx',
+    './src/routes/other.tsx',
   ],
 }
 

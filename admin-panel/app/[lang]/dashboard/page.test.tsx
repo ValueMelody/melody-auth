@@ -57,7 +57,6 @@ describe(
           `${mockConfigs.AUTH_SERVER_URL}/.well-known/openid-configuration`,
           `${mockConfigs.AUTH_SERVER_URL}/.well-known/jwks.json`,
           `${mockConfigs.AUTH_SERVER_URL}/api/v1/swagger`,
-          `${mockConfigs.AUTH_SERVER_URL}/info`,
         ]
 
         expectedLinks.forEach((link) => {

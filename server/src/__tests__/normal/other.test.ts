@@ -12,6 +12,9 @@ import {
   messageConfig, routeConfig,
 } from 'configs'
 import { oauthDto } from 'dtos'
+import {
+  attachIndividualScopes, getS2sToken,
+} from 'tests/util'
 
 let db: Database
 
@@ -29,16 +32,24 @@ describe(
   'get system info',
   () => {
     test(
-      'should return system info',
+      'should require an s2s access token',
       async () => {
         const res = await app.request(
           `${BaseRoute}/info`,
           {},
           mock(db),
         )
-        const json = await res.json() as { configs: object }
 
-        expect(json.configs).toStrictEqual({
+        expect(res.status).toBe(401)
+      },
+    )
+
+    test(
+      'should return system info regardless of which s2s scope the token carries',
+      async () => {
+        await attachIndividualScopes(db)
+
+        const expectedConfigs = {
           AUTHORIZATION_CODE_EXPIRES_IN: 300,
           SPA_ACCESS_TOKEN_EXPIRES_IN: 1800,
           SPA_REFRESH_TOKEN_EXPIRES_IN: 604800,
@@ -91,7 +102,25 @@ describe(
           EMBEDDED_AUTH_ORIGINS: [],
           ENABLE_SAML_SSO_AS_SP: false,
           ENABLE_APP_BANNER: false,
-        })
+        }
+
+        for (const scope of [Scope.ReadUser, Scope.WriteUser]) {
+          const res = await app.request(
+            `${BaseRoute}/info`,
+            {
+              headers: {
+                Authorization: `Bearer ${await getS2sToken(
+                  db,
+                  scope,
+                )}`,
+              },
+            },
+            mock(db),
+          )
+          const json = await res.json() as { configs: object }
+
+          expect(json.configs).toStrictEqual(expectedConfigs)
+        }
       },
     )
   },

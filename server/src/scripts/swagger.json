@@ -4569,6 +4569,41 @@
           }
         }
       }
+    },
+    "/info": {
+      "get": {
+        "summary": "Get system info",
+        "description": "Requires an authenticated S2S access token. No specific scope is required.",
+        "tags": [
+          "System"
+        ],
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "System configuration values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "configs": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
     }
   },
   "tags": []
