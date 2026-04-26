@@ -69,6 +69,7 @@ export const getSystemInfo = async (c: Context<typeConfig.Context>) => {
     ENABLE_ORG: environment.ENABLE_ORG,
     ALLOW_USER_SWITCH_ORG_ON_SIGN_IN: environment.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN,
     ENABLE_ORG_GROUP: variableConfig.systemConfig.enableOrgGroup,
+    ENABLE_PLAIN_PKCE_METHOD: variableConfig.systemConfig.enablePlainPkceMethod,
     ENABLE_USER_ATTRIBUTE: environment.ENABLE_USER_ATTRIBUTE,
     EMBEDDED_AUTH_ORIGINS: environment.EMBEDDED_AUTH_ORIGINS,
     ENABLE_SAML_SSO_AS_SP: environment.ENABLE_SAML_SSO_AS_SP,
@@ -93,7 +94,9 @@ export const getOpenidConfig = async (c: Context<typeConfig.Context>) => {
     claims_supported: ['sub', 'email', 'first_name', 'last_name', 'locale'],
     id_token_signing_alg_values_supported: ['RS256'],
     jwks_uri: `${serverUrl}/.well-known/jwks.json`,
-    code_challenge_methods_supported: ['plain', 'S256'],
+    code_challenge_methods_supported: variableConfig.systemConfig.enablePlainPkceMethod
+      ? ['S256', 'plain']
+      : ['S256'],
   })
 }
 

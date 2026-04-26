@@ -179,6 +179,36 @@ describe(
     )
 
     test(
+      'should reject plain code challenge method by default',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
+        const appRecord = await getApp(db)
+        const body = await postInitiateBody(
+          appRecord,
+          {},
+        )
+        const res = await app.request(
+          routeConfig.EmbeddedRoute.Initiate,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              codeChallengeMethod: 'plain',
+              codeChallenge: 'aaa',
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.PlainPkceMethodNotEnabled)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+      },
+    )
+
+    test(
       'should throw error if wrong app used',
       async () => {
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string

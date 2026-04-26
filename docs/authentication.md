@@ -11,6 +11,8 @@ Melody Auth provides multiple authentication methods to suit different integrati
 
 PKCE introduces a dynamically generated, one-time-use secret called a **code verifier** that is used to secure the authorization code exchange process. This eliminates the need for client secrets in public clients while maintaining security.
 
+Melody Auth accepts the `S256` code challenge method by default. The weaker `plain` method is disabled unless `systemConfig.enablePlainPkceMethod` is explicitly set to `true` in `server/src/configs/variable.ts`.
+
 ## Security Benefits
 
 - **Prevents Authorization Code Interception**: Even if an attacker intercepts the authorization code, they cannot exchange it for tokens without the original code verifier

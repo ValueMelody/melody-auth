@@ -7,8 +7,10 @@ import base32Encode from 'base32-encode'
 import base32Decode from 'base32-decode'
 import { env } from 'hono/adapter'
 import { Context } from 'hono'
+import {
+  typeConfig, variableConfig,
+} from 'configs'
 import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
-import { typeConfig } from 'configs'
 import { cryptoUtil } from 'utils'
 
 export const genRandom6DigitString = (): string => {
@@ -118,11 +120,12 @@ export const isValidCodeChallenge = async (
   codeChallengeMethod: string,
 ) => {
   if (codeChallengeMethod === AuthorizeCodeChallengeMethod.Plain) {
+    if (!variableConfig.systemConfig.enablePlainPkceMethod) return false
     return codeVerifier === codeChallenge
-  } else {
-    const calculatedValue = await genCodeChallenge(codeVerifier)
-    return calculatedValue === codeChallenge
   }
+  if (codeChallengeMethod !== AuthorizeCodeChallengeMethod.S256) return false
+  const calculatedValue = await genCodeChallenge(codeVerifier)
+  return calculatedValue === codeChallenge
 }
 
 const pemToArrayBuffer = (pem: string): ArrayBuffer => {

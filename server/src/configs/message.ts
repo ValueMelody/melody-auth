@@ -36,6 +36,7 @@ export enum ConfigError {
   NoSessionSecret = 'Session secret is not configured',
   NoJwtPrivateSecret = 'JWT private secret is not configured',
   NoJwtPublicSecret = 'JWT public secret is not configured',
+  PlainPkceMethodNotEnabled = 'Plain PKCE code_challenge_method is not enabled',
 }
 
 export enum RequestError {
