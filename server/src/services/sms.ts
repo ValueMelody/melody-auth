@@ -90,8 +90,8 @@ export const sendSms = async (
       {
         success: success ? 1 : 0,
         receiver,
-        response: response ?? '',
-        content: smsBody,
+        response: cryptoUtil.redactMessageBody(response ?? ''),
+        content: cryptoUtil.redactMessageBody(smsBody),
       },
     )
   }

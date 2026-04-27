@@ -154,8 +154,8 @@ export const sendEmail = async (
       {
         success: success ? 1 : 0,
         receiver,
-        response: JSON.stringify(response),
-        content: emailBody,
+        response: cryptoUtil.redactMessageBody(JSON.stringify(response)),
+        content: cryptoUtil.redactMessageBody(emailBody),
       },
     )
   }

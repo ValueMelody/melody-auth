@@ -13,6 +13,9 @@ import {
 import { AuthorizeCodeChallengeMethod } from 'dtos/oauth'
 import { cryptoUtil } from 'utils'
 
+const redactedCode = '[REDACTED_CODE]'
+const sixDigitCodePattern = /(^|[^#\d])\d{6}(?!\d)/g
+
 export const genRandom6DigitString = (): string => {
   const min = 100000
   const range = 900000
@@ -25,6 +28,13 @@ export const genRandom6DigitString = (): string => {
   } while (randomValue[0] >= rejectionLimit)
 
   return (min + (randomValue[0] % range)).toString()
+}
+
+export const redactMessageBody = (body: string) => {
+  return body.replace(
+    sixDigitCodePattern,
+    `$1${redactedCode}`,
+  )
 }
 
 const genRandomBytes = (length: number) => {
