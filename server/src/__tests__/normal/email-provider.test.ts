@@ -201,13 +201,18 @@ describe(
         global.fetch = mockFetch as Mock
 
         await insertUsers(db)
-        const { res } = await sendCorrectResetPasswordCodeReq()
+        const {
+          res, code,
+        } = await sendCorrectResetPasswordCodeReq()
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
         const logs = await db.prepare('select * from email_log').all()
         expect(logs.length).toBe(1)
         expect(logs[0]).toStrictEqual(emailLogRecord)
+        const log = logs[0] as { content: string }
+        expect(log.content).toContain('[REDACTED_CODE]')
+        expect(log.content).not.toContain(code)
         global.fetch = fetchMock
 
         process.env.MAILGUN_API_KEY = ''

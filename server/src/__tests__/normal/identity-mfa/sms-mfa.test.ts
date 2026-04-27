@@ -771,8 +771,11 @@ describe(
           response: 'test response',
           success: 1,
           id: 1,
-          content: body.get('Body'),
+          content: expect.stringContaining('[REDACTED_CODE]'),
         })
+        const log = logs[0] as { content: string }
+        expect(log.content).not.toBe(body.get('Body'))
+        expect(log.content).not.toMatch(/\d{6}/)
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''
@@ -833,8 +836,11 @@ describe(
           response: '',
           success: 0,
           id: 1,
-          content: body.get('Body'),
+          content: expect.stringContaining('[REDACTED_CODE]'),
         })
+        const log = logs[0] as { content: string }
+        expect(log.content).not.toBe(body.get('Body'))
+        expect(log.content).not.toMatch(/\d{6}/)
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''
