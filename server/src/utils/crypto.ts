@@ -106,7 +106,7 @@ export const genTotp = async (secret: string): Promise<string> => {
 }
 
 export const bcryptText = (text: string) => {
-  const salt = bcrypt.genSaltSync(10)
+  const salt = bcrypt.genSaltSync(12)
   const hash = bcrypt.hashSync(
     text,
     salt,

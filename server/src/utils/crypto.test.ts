@@ -1,7 +1,11 @@
 import {
   describe, expect, test,
 } from 'vitest'
-import { redactMessageBody } from './crypto'
+import {
+  bcryptCompare,
+  bcryptText,
+  redactMessageBody,
+} from './crypto'
 import {
   localeConfig, typeConfig,
 } from 'configs'
@@ -35,6 +39,36 @@ const branding = {
 }
 
 const locale = 'en' as typeConfig.Locale
+
+describe(
+  'bcrypt helpers',
+  () => {
+    test(
+      'should generate password hashes with cost 12',
+      () => {
+        const hash = bcryptText('Password1!')
+
+        expect(hash.split('$')[2]).toBe('12')
+        expect(bcryptCompare(
+          'Password1!',
+          hash,
+        )).toBe(true)
+      },
+    )
+
+    test(
+      'should compare legacy cost 10 password hashes',
+      () => {
+        const legacyCostTenHash = '$2a$10$/KBURsxnGm5OClLQFPNwZ.HcaM27Gogp/mA1xRxfEbY3bs0cuu8Fm'
+
+        expect(bcryptCompare(
+          'Password1!',
+          legacyCostTenHash,
+        )).toBe(true)
+      },
+    )
+  },
+)
 
 describe(
   'redactMessageBody',
