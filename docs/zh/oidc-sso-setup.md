@@ -19,6 +19,7 @@ OIDC_AUTH_PROVIDERS = ["Auth0", "Azure"]
 export const OIDCProviderConfigs = Object.freeze({
   Auth0: {
     clientId: 'YOUR_AUTH0_CLIENT_ID',
+    issuer: 'https://YOUR_DOMAIN.auth0.com/',
     authorizeEndpoint: 'https://YOUR_DOMAIN.auth0.com/authorize',
     tokenEndpoint: 'https://YOUR_DOMAIN.auth0.com/oauth/token',
     jwksEndpoint: 'https://YOUR_DOMAIN.auth0.com/.well-known/jwks.json',
@@ -27,6 +28,7 @@ export const OIDCProviderConfigs = Object.freeze({
   },
   Azure: {
     clientId: 'YOUR_AZURE_AD_APP_CLIENT_ID',
+    issuer: 'https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0',
     authorizeEndpoint: 'https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/authorize',
     tokenEndpoint: 'https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token',
     jwksEndpoint: 'https://login.microsoftonline.com/YOUR_TENANT_ID/discovery/v2.0/keys',
@@ -37,6 +39,7 @@ export const OIDCProviderConfigs = Object.freeze({
 ```
 
 - `clientId`：你在提供商处的 OIDC 应用/客户端 ID。
+- `issuer`：该提供商 ID token 中预期的 `iss` 值，必须与提供商 issuer 完全一致。
 - `authorizeEndpoint`：提供商授权端点。
 - `tokenEndpoint`：提供商 token 端点，在交换授权码时必须返回 `id_token`。
 - `jwksEndpoint`：提供商 JWKS URL，用于公开 ID token 的签名密钥。
@@ -88,5 +91,6 @@ export default function SignIn() {
 
 - 提供商必须支持带有 PKCE 的授权码模式，并在 token 端点返回 `id_token`。
 - ID token 必须使用 RS256 签名，并可通过配置的 `jwksEndpoint` 验证。
+- ID token 必须包含与配置的 `issuer` 完全一致的 `iss` 声明。
 - 服务器会通过 KV 验证 PKCE 的 `code_verifier` 以防篡改。
 - 如果你的提供商的 token 响应与标准不同（例如缺少 `id_token`），可能需要在 `server/src/services/jwt.ts` 中调整验证逻辑。

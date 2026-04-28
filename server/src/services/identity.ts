@@ -455,7 +455,12 @@ export const prepareOidcRedirect = async (
   )
   const config = variableConfig.OIDCProviderConfigs[providerName]
 
-  if (!config || !config.enableSignInRedirect || !oidcAuthProviders?.includes(providerName)) {
+  if (
+    !config ||
+    !config.issuer ||
+    !config.enableSignInRedirect ||
+    !oidcAuthProviders?.includes(providerName)
+  ) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

@@ -77,10 +77,12 @@ describe(
   () => {
     const prepareRequest = async ({
       cred,
+      issuer = variableConfig.OIDCProviderConfigs.Auth0.issuer,
       setCodeVerifierAsUndefined = false,
       clearCodeVerifier = false,
     }: {
       cred?: string;
+      issuer?: string;
       setCodeVerifierAsUndefined?: boolean;
       clearCodeVerifier?: boolean;
     } = {}) => {
@@ -91,6 +93,7 @@ describe(
         c,
         {
           sub: '1234567890',
+          iss: issuer,
           aud: variableConfig.OIDCProviderConfigs.Auth0.clientId,
           kid: jwk.kid,
         },
@@ -272,6 +275,19 @@ describe(
 
         const credential = 'aab'
         const res = await prepareRequest({ cred: credential })
+        expect(res.status).toBe(404)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoOidcUser)
+
+        global.process.env.OIDC_AUTH_PROVIDERS = undefined as unknown as string
+      },
+    )
+
+    test(
+      'could throw error if issuer does not match provider config',
+      async () => {
+        global.process.env.OIDC_AUTH_PROVIDERS = ['Auth0'] as unknown as string
+
+        const res = await prepareRequest({ issuer: 'https://other-issuer.example.com/' })
         expect(res.status).toBe(404)
         expect(await res.text()).toBe(messageConfig.RequestError.NoOidcUser)
 

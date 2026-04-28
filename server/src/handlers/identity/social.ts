@@ -427,6 +427,7 @@ export interface OidcProviderConfig {
   name: string;
   config: {
     clientId: string;
+    issuer: string;
     authorizeEndpoint: string;
     tokenEndpoint: string;
     jwksEndpoint: string;
@@ -451,6 +452,7 @@ Promise<TypedResponse<GetAuthorizeOidcConfigsRes>> => {
     return provider.name &&
       provider.config &&
       provider.config.clientId &&
+      provider.config.issuer &&
       provider.config.authorizeEndpoint &&
       provider.config.tokenEndpoint &&
       provider.config.jwksEndpoint &&
@@ -490,7 +492,7 @@ export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
   const provider = c.req.param('provider') ?? ''
 
   const providerConfig = variableConfig.OIDCProviderConfigs[provider]
-  if (!oidcProviders || !oidcProviders.includes(provider) || !providerConfig) {
+  if (!oidcProviders || !oidcProviders.includes(provider) || !providerConfig || !providerConfig.issuer) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -531,6 +533,7 @@ export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
 
   const oidcUser = await jwtService.verifyOidcCredential(
     providerConfig.clientId,
+    providerConfig.issuer,
     providerConfig.tokenEndpoint,
     providerConfig.jwksEndpoint,
     `${serverUrl}${routeConfig.IdentityRoute.AuthorizeOidc}/${provider}`,

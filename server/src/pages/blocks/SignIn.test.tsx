@@ -580,6 +580,7 @@ describe(
               tokenEndpoint: 'https://provider1.com/token',
               jwksEndpoint: 'https://provider1.com/jwks',
               clientId: 'client-id-1',
+              issuer: 'https://provider1.com/',
             },
           },
           {
@@ -589,6 +590,7 @@ describe(
               tokenEndpoint: 'https://provider2.com/token',
               jwksEndpoint: 'https://provider2.com/jwks',
               clientId: 'client-id-2',
+              issuer: 'https://provider2.com/',
             },
           },
         ]
