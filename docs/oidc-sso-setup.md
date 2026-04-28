@@ -19,6 +19,7 @@ OIDC_AUTH_PROVIDERS = ["Auth0", "Azure"]
 export const OIDCProviderConfigs = Object.freeze({
   Auth0: {
     clientId: 'YOUR_AUTH0_CLIENT_ID',
+    issuer: 'https://YOUR_DOMAIN.auth0.com/',
     authorizeEndpoint: 'https://YOUR_DOMAIN.auth0.com/authorize',
     tokenEndpoint: 'https://YOUR_DOMAIN.auth0.com/oauth/token',
     jwksEndpoint: 'https://YOUR_DOMAIN.auth0.com/.well-known/jwks.json',
@@ -27,6 +28,7 @@ export const OIDCProviderConfigs = Object.freeze({
   },
   Azure: {
     clientId: 'YOUR_AZURE_AD_APP_CLIENT_ID',
+    issuer: 'https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0',
     authorizeEndpoint: 'https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/authorize',
     tokenEndpoint: 'https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token',
     jwksEndpoint: 'https://login.microsoftonline.com/YOUR_TENANT_ID/discovery/v2.0/keys',
@@ -37,6 +39,7 @@ export const OIDCProviderConfigs = Object.freeze({
 ```
 
 - `clientId`: Your OIDC app/client ID at the provider.
+- `issuer`: Expected `iss` value in ID tokens from this provider. This must match the provider's issuer exactly.
 - `authorizeEndpoint`: Provider authorization endpoint.
 - `tokenEndpoint`: Provider token endpoint. Must return an `id_token` when exchanging the authorization code.
 - `jwksEndpoint`: Provider JWKS URL exposing the signing keys for ID tokens.
@@ -87,6 +90,6 @@ For more details, see Q&A: “How to trigger OIDC SSO login redirect via policy 
 
 - The provider must support Authorization Code with PKCE and return an `id_token` at the token endpoint.
 - ID tokens must be signed with RS256 and verifiable via the configured `jwksEndpoint`.
+- ID tokens must include an `iss` claim exactly matching the configured `issuer`.
 - The server validates the PKCE `code_verifier` via KV to prevent tampering.
 - If your provider’s token response differs from the standard (e.g., missing `id_token`), you may need to adapt the verification logic in `server/src/services/jwt.ts`.
-

@@ -528,6 +528,7 @@ export interface OidcUser {
  */
 export const verifyOidcCredential = async (
   clientId: string,
+  issuer: string,
   tokenEndpoint: string,
   jwksEndpoint: string,
   redirectUri: string,
@@ -580,8 +581,9 @@ export const verifyOidcCredential = async (
 
       const aud = result.aud
       const audMatches = aud === clientId || (Array.isArray(aud) && aud.includes(clientId))
+      const issMatches = result.iss === issuer
 
-      if (result && result.sub && audMatches) {
+      if (result && result.sub && audMatches && issMatches) {
         const user = { id: result.sub } as OidcUser
         return user
       }
