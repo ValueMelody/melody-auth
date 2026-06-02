@@ -246,7 +246,7 @@ describe(
         const body = await prepareFollowUpBody(db)
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
-        vi.useFakeTimers()
+        vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(fixedOtpTime)
         const token = generateOtpAtTime(
           currentUser.otpSecret,
@@ -276,7 +276,7 @@ describe(
         const nextStepBody = await prepareFollowUpBody(db)
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
-        vi.useFakeTimers()
+        vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(fixedOtpTime)
         const previousStepToken = generateOtpAtTime(
           currentUser.otpSecret,
@@ -318,7 +318,7 @@ describe(
         const futureStepBody = await prepareFollowUpBody(db)
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
-        vi.useFakeTimers()
+        vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(fixedOtpTime)
         const pastStepToken = generateOtpAtTime(
           currentUser.otpSecret,
@@ -360,7 +360,7 @@ describe(
         const secondBody = await prepareFollowUpBody(db)
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
-        vi.useFakeTimers()
+        vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(fixedOtpTime)
         const token = generateOtpAtTime(
           currentUser.otpSecret,
@@ -396,7 +396,7 @@ describe(
         const secondBody = await prepareFollowUpBody(db)
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
-        vi.useFakeTimers()
+        vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(fixedOtpTime)
         const token = generateOtpAtTime(
           currentUser.otpSecret,
@@ -434,7 +434,7 @@ describe(
         const secondBody = await prepareFollowUpBody(db)
         const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
 
-        vi.useFakeTimers()
+        vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(fixedOtpTime)
         const firstToken = generateOtpAtTime(
           currentUser.otpSecret,
@@ -477,14 +477,17 @@ describe(
         await db.prepare(`
           INSERT INTO "user"
           ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName", "otpSecret", "mfaTypes")
-          values ('1-1-1-2', 'en', 'second@email.com', null, null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null, ?, 'otp')
-        `).run(firstUser.otpSecret)
+          values ('1-1-1-2', 'en', 'second@email.com', null, null, ?, null, null, ?, 'otp')
+        `).run(
+          '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C',
+          firstUser.otpSecret,
+        )
         await db.prepare('INSERT INTO user_app_consent ("userId", "appId") values (2, 1)').run()
 
         const firstBody = await prepareFollowUpBodyByEmail('test@email.com')
         const secondBody = await prepareFollowUpBodyByEmail('second@email.com')
 
-        vi.useFakeTimers()
+        vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(fixedOtpTime)
         const token = generateOtpAtTime(
           firstUser.otpSecret,
