@@ -38,6 +38,7 @@ export enum BaseKVKey {
   OtpMfaRememberDevice = 'OMRD',
   SmsMfaRememberDevice = 'SMRD',
   OtpMfaCode = 'OMC',
+  OtpMfaUsedStep = 'OMUS',
   SmsMfaCode = 'SMC',
   PasswordlessCode = 'PLC',
   EmailVerificationCode = 'EVC',

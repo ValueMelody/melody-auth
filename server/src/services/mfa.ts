@@ -364,6 +364,7 @@ export const processOtpMfa = async (
     authCode,
     mfaCode,
     authCodeStore.user.otpSecret,
+    authCodeStore.user.id,
     expiresIn,
   )
 

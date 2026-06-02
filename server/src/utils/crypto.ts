@@ -61,12 +61,22 @@ export const genRecoveryCode = async () => {
   }
 }
 
-export const genTotp = async (secret: string): Promise<string> => {
+export const totpPeriodSeconds = 30
+export const totpSkewSteps = 1
+export const totpReplayWindowSeconds = totpPeriodSeconds * ((totpSkewSteps * 2) + 1)
+
+export const getTotpTimeStep = (timestamp = Date.now()) => {
+  return Math.floor(timestamp / 1000 / totpPeriodSeconds)
+}
+
+export const genTotp = async (
+  secret: string,
+  timeStep = getTotpTimeStep(),
+): Promise<string> => {
   const decodedSecret = base32Decode(
     secret,
     'RFC4648',
   )
-  const timeStep = Math.floor(Date.now() / 1000 / 30)
   const timeBuffer = new ArrayBuffer(8)
   const timeView = new DataView(timeBuffer)
   timeView.setUint32(
@@ -103,6 +113,22 @@ export const genTotp = async (secret: string): Promise<string> => {
     '0',
   )
   return otp
+}
+
+export const verifyTotp = async (
+  secret: string,
+  otp: string,
+): Promise<number | null> => {
+  const currentStep = getTotpTimeStep()
+  for (let offset = -totpSkewSteps; offset <= totpSkewSteps; offset++) {
+    const timeStep = currentStep + offset
+    const expectedOtp = await genTotp(
+      secret,
+      timeStep,
+    )
+    if (expectedOtp === otp) return timeStep
+  }
+  return null
 }
 
 export const bcryptText = (text: string) => {
