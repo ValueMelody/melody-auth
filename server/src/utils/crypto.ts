@@ -62,8 +62,7 @@ export const genRecoveryCode = async () => {
 }
 
 export const totpPeriodSeconds = 30
-export const totpSkewSteps = 1
-export const totpReplayWindowSeconds = totpPeriodSeconds * ((totpSkewSteps * 2) + 1)
+export const totpReplayWindowSeconds = totpPeriodSeconds * 3
 
 export const getTotpTimeStep = (timestamp = Date.now()) => {
   return Math.floor(timestamp / 1000 / totpPeriodSeconds)
@@ -120,7 +119,7 @@ export const verifyTotp = async (
   otp: string,
 ): Promise<number | null> => {
   const currentStep = getTotpTimeStep()
-  for (let offset = -totpSkewSteps; offset <= totpSkewSteps; offset++) {
+  for (const offset of [0, -1, 1]) {
     const timeStep = currentStep + offset
     const expectedOtp = await genTotp(
       secret,
