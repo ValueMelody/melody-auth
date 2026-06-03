@@ -188,6 +188,17 @@ const hashSessionId = async (kvKeyName: string): Promise<string> => {
     .join('')
 }
 
+const getOtpMfaUsedStepKey = (
+  userId: number,
+  timeStep: number,
+) => {
+  return adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.OtpMfaUsedStep,
+    String(userId),
+    String(timeStep),
+  )
+}
+
 export const listActiveSessionsByUser = async (
   kv: KVNamespace,
   userId: number,
@@ -358,14 +369,30 @@ export const stampOtpMfaCode = async (
   authCode: string,
   mfaCode: string,
   otpSecret: string,
+  userId: number,
   expiresIn: number,
 ) => {
-  const otp = await cryptoUtil.genTotp(otpSecret)
-  if (otp !== mfaCode) return false
+  const timeStep = await cryptoUtil.verifyTotp(
+    otpSecret,
+    mfaCode,
+  )
+  if (timeStep === null) return false
+
+  const usedStepKey = getOtpMfaUsedStepKey(
+    userId,
+    timeStep,
+  )
+  const usedStep = await kv.get(usedStepKey)
+  if (usedStep) return false
 
   const key = adapterConfig.getKVKey(
     adapterConfig.BaseKVKey.OtpMfaCode,
     authCode,
+  )
+  await kv.put(
+    usedStepKey,
+    '1',
+    { expirationTtl: cryptoUtil.totpReplayWindowSeconds },
   )
   await kv.put(
     key,

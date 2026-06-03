@@ -1,5 +1,5 @@
 import {
-  afterEach, beforeEach, describe, expect, test,
+  afterEach, beforeEach, describe, expect, test, vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import { authenticator } from 'otplib'
@@ -14,20 +14,65 @@ import {
 import { userModel } from 'models'
 import {
   prepareFollowUpBody, insertUsers,
-  getApp,
+  getApp, postSignInRequest,
 } from 'tests/identity'
 import { enrollOtpMfa } from 'tests/util'
 
 let db: Database
+const fixedOtpTime = new Date('2026-04-28T12:00:15.000Z')
+const totpPeriodMs = 30000
 
 beforeEach(async () => {
   db = await migrate()
 })
 
 afterEach(async () => {
+  vi.useRealTimers()
   await db.close()
   await mockedKV.empty()
 })
+
+const generateOtpAtTime = (
+  secret: string,
+  timestamp: number,
+) => {
+  const timeScopedAuthenticator = authenticator.clone()
+  timeScopedAuthenticator.options = {
+    ...timeScopedAuthenticator.options,
+    epoch: timestamp,
+  }
+
+  return timeScopedAuthenticator.generate(secret)
+}
+
+const prepareFollowUpBodyByEmail = async (email: string) => {
+  const appRecord = await getApp(db)
+  const res = await postSignInRequest(
+    db,
+    appRecord,
+    { email },
+  )
+  const json = await res.json() as { code: string }
+  return {
+    code: json.code,
+    locale: 'en',
+  }
+}
+
+const postOtpMfa = (
+  body: { code: string; locale: string },
+  mfaCode: string,
+) => app.request(
+  routeConfig.IdentityRoute.ProcessOtpMfa,
+  {
+    method: 'POST',
+    body: JSON.stringify({
+      ...body,
+      mfaCode,
+    }),
+  },
+  mock(db),
+)
 
 const sendCorrectGetOtpMfaSetupReq = async ({ code }: { code?: string } = {}) => {
   const body = await prepareFollowUpBody(db)
@@ -186,6 +231,282 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
         })
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+      },
+    )
+
+    test(
+      'should accept current time-step otp mfa code',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const body = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(fixedOtpTime)
+        const token = generateOtpAtTime(
+          currentUser.otpSecret,
+          fixedOtpTime.getTime(),
+        )
+
+        const res = await postOtpMfa(
+          body,
+          token,
+        )
+        expect(res.status).toBe(200)
+        const json = await res.json() as { code: string }
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+      },
+    )
+
+    test(
+      'should accept previous and next time-step otp mfa codes',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const previousStepBody = await prepareFollowUpBody(db)
+        const nextStepBody = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(fixedOtpTime)
+        const previousStepToken = generateOtpAtTime(
+          currentUser.otpSecret,
+          fixedOtpTime.getTime() - totpPeriodMs,
+        )
+        const nextStepToken = generateOtpAtTime(
+          currentUser.otpSecret,
+          fixedOtpTime.getTime() + totpPeriodMs,
+        )
+
+        const previousStepRes = await postOtpMfa(
+          previousStepBody,
+          previousStepToken,
+        )
+        expect(previousStepRes.status).toBe(200)
+        const previousStepJson = await previousStepRes.json() as { code: string }
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${previousStepJson.code}`)).toBe('1')
+
+        const nextStepRes = await postOtpMfa(
+          nextStepBody,
+          nextStepToken,
+        )
+        expect(nextStepRes.status).toBe(200)
+        const nextStepJson = await nextStepRes.json() as { code: string }
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${nextStepJson.code}`)).toBe('1')
+      },
+    )
+
+    test(
+      'should reject otp mfa codes outside one time-step skew',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const pastStepBody = await prepareFollowUpBody(db)
+        const futureStepBody = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(fixedOtpTime)
+        const pastStepToken = generateOtpAtTime(
+          currentUser.otpSecret,
+          fixedOtpTime.getTime() - (totpPeriodMs * 2),
+        )
+        const futureStepToken = generateOtpAtTime(
+          currentUser.otpSecret,
+          fixedOtpTime.getTime() + (totpPeriodMs * 2),
+        )
+
+        const pastStepRes = await postOtpMfa(
+          pastStepBody,
+          pastStepToken,
+        )
+        expect(pastStepRes.status).toBe(401)
+        expect(await pastStepRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${pastStepBody.code}`)).toBeNull()
+
+        const futureStepRes = await postOtpMfa(
+          futureStepBody,
+          futureStepToken,
+        )
+        expect(futureStepRes.status).toBe(401)
+        expect(await futureStepRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${futureStepBody.code}`)).toBeNull()
+      },
+    )
+
+    test(
+      'should reject replay of the same user otp time step',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const firstBody = await prepareFollowUpBody(db)
+        const secondBody = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(fixedOtpTime)
+        const token = generateOtpAtTime(
+          currentUser.otpSecret,
+          fixedOtpTime.getTime(),
+        )
+
+        const firstRes = await postOtpMfa(
+          firstBody,
+          token,
+        )
+        expect(firstRes.status).toBe(200)
+
+        const secondRes = await postOtpMfa(
+          secondBody,
+          token,
+        )
+        expect(secondRes.status).toBe(401)
+        expect(await secondRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondBody.code}`)).toBeNull()
+      },
+    )
+
+    test(
+      'should reject replay of the same otp code after the current step advances within the skew window',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const firstBody = await prepareFollowUpBody(db)
+        const secondBody = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(fixedOtpTime)
+        const token = generateOtpAtTime(
+          currentUser.otpSecret,
+          fixedOtpTime.getTime(),
+        )
+
+        const firstRes = await postOtpMfa(
+          firstBody,
+          token,
+        )
+        expect(firstRes.status).toBe(200)
+
+        vi.setSystemTime(new Date(fixedOtpTime.getTime() + totpPeriodMs))
+
+        const secondRes = await postOtpMfa(
+          secondBody,
+          token,
+        )
+        expect(secondRes.status).toBe(401)
+        expect(await secondRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondBody.code}`)).toBeNull()
+      },
+    )
+
+    test(
+      'should allow the same user to verify on the next time step after succeeding on a previous one',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const firstBody = await prepareFollowUpBody(db)
+        const secondBody = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(fixedOtpTime)
+        const firstToken = generateOtpAtTime(
+          currentUser.otpSecret,
+          fixedOtpTime.getTime(),
+        )
+        const nextStepMs = fixedOtpTime.getTime() + totpPeriodMs
+        const secondToken = generateOtpAtTime(
+          currentUser.otpSecret,
+          nextStepMs,
+        )
+
+        const firstRes = await postOtpMfa(
+          firstBody,
+          firstToken,
+        )
+        expect(firstRes.status).toBe(200)
+
+        vi.setSystemTime(new Date(nextStepMs))
+
+        const secondRes = await postOtpMfa(
+          secondBody,
+          secondToken,
+        )
+        expect(secondRes.status).toBe(200)
+        const secondJson = await secondRes.json() as { code: string }
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondJson.code}`)).toBe('1')
+      },
+    )
+
+    test(
+      'should allow same time-step otp code for different users',
+      async () => {
+        await insertUsers(
+          db,
+          true,
+        )
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const firstUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        await db.prepare(`
+          INSERT INTO "user"
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName", "otpSecret", "mfaTypes")
+          values ('1-1-1-2', 'en', 'second@email.com', null, null, ?, null, null, ?, 'otp')
+        `).run(
+          '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C',
+          firstUser.otpSecret,
+        )
+        await db.prepare('INSERT INTO user_app_consent ("userId", "appId") values (2, 1)').run()
+
+        const firstBody = await prepareFollowUpBodyByEmail('test@email.com')
+        const secondBody = await prepareFollowUpBodyByEmail('second@email.com')
+
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(fixedOtpTime)
+        const token = generateOtpAtTime(
+          firstUser.otpSecret,
+          fixedOtpTime.getTime(),
+        )
+
+        const firstRes = await postOtpMfa(
+          firstBody,
+          token,
+        )
+        expect(firstRes.status).toBe(200)
+
+        const secondRes = await postOtpMfa(
+          secondBody,
+          token,
+        )
+        expect(secondRes.status).toBe(200)
+        const secondJson = await secondRes.json() as { code: string }
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondJson.code}`)).toBe('1')
       },
     )
 
