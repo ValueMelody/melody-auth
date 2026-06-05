@@ -3,7 +3,10 @@ import {
 } from 'hono'
 import { bearerAuth } from 'hono/bearer-auth'
 import { basicAuth } from 'hono/basic-auth'
-import { Scope } from '@melody-auth/shared'
+import {
+  ClientType,
+  Scope,
+} from '@melody-auth/shared'
 import { typeConfig } from 'configs'
 import { jwtService } from 'services'
 import { oauthDto } from 'dtos'
@@ -21,6 +24,19 @@ const parseToken = async (
   if (!accessTokenBody) return false
 
   return accessTokenBody
+}
+
+const verifyS2SAccessToken = async (
+  c: Context<typeConfig.Context>,
+  accessTokenBody: typeConfig.AccessTokenBody,
+) => {
+  const app = await appModel.getByClientId(
+    c.env.DB,
+    accessTokenBody.azp,
+  )
+  if (!app || !app.isActive || app.type !== ClientType.S2S) return false
+
+  return true
 }
 
 export const spa = bearerAuth({
@@ -97,11 +113,10 @@ export const s2s = bearerAuth({
     )
     if (!accessTokenBody) return false
 
-    const app = await appModel.getByClientId(
-      c.env.DB,
-      accessTokenBody.azp,
-    )
-    if (!app || !app.isActive) return false
+    if (!await verifyS2SAccessToken(
+      c,
+      accessTokenBody,
+    )) return false
 
     c.set(
       'access_token_body',
@@ -120,6 +135,11 @@ const s2sScopeGuard = async (
     token,
   )
   if (!accessTokenBody) return false
+
+  if (!await verifyS2SAccessToken(
+    c,
+    accessTokenBody,
+  )) return false
 
   const scopes = accessTokenBody.scope ? accessTokenBody.scope.split(' ') : []
 

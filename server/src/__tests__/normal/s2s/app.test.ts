@@ -15,6 +15,8 @@ import {
   adminS2sApp, adminSpaApp, attachIndividualScopes, dbTime,
   getS2sToken,
 } from 'tests/util'
+import { jwtService } from 'services'
+import { timeUtil } from 'utils'
 
 let db: Database
 
@@ -27,6 +29,24 @@ afterEach(async () => {
 })
 
 const BaseRoute = routeConfig.InternalRoute.ApiApps
+
+const getSpaTokenWithScope = async (scope: string) => {
+  const appRecord = await db.prepare('SELECT * FROM app where id = 1').get() as appModel.Record
+  const currentTimestamp = timeUtil.getCurrentTimestamp()
+
+  return jwtService.signWithKid(
+    { env: mock(db) } as never,
+    {
+      sub: '1-1-1-1',
+      azp: appRecord.clientId,
+      iss: 'http://localhost:8787',
+      scope,
+      iat: currentTimestamp,
+      exp: currentTimestamp + 1800,
+      roles: [],
+    },
+  )
+}
 
 const createNewApp = async (token?: string) => await app.request(
   BaseRoute,
@@ -63,6 +83,39 @@ const newApp = {
   requireSmsMfa: false,
   allowEmailMfaAsBackup: false,
 }
+
+describe(
+  's2s token guard',
+  () => {
+    test(
+      'should reject SPA token with privileged scope for unscoped s2s guard',
+      async () => {
+        const token = await getSpaTokenWithScope(Scope.Root)
+        const res = await app.request(
+          '/info',
+          { headers: { Authorization: `Bearer ${token}` } },
+          mock(db),
+        )
+
+        expect(res.status).toBe(401)
+      },
+    )
+
+    test(
+      'should reject SPA token with privileged scope for scoped s2s guard',
+      async () => {
+        const token = await getSpaTokenWithScope(Scope.Root)
+        const res = await app.request(
+          BaseRoute,
+          { headers: { Authorization: `Bearer ${token}` } },
+          mock(db),
+        )
+
+        expect(res.status).toBe(401)
+      },
+    )
+  },
+)
 
 describe(
   'get all',
