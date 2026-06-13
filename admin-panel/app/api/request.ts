@@ -31,6 +31,11 @@ const extractKid = (token: string) => {
   return decodedHeader.kid
 }
 
+const normalizeUrl = (url: string) => url.replace(
+  /\/+$/,
+  '',
+)
+
 const verifyJwtToken = async (token: string) => {
   const kid = extractKid(token)
   const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URI}/.well-known/jwks.json`)
@@ -43,6 +48,18 @@ const verifyJwtToken = async (token: string) => {
     publicKey as unknown as SignatureKey,
     'RS256',
   )
+
+  const {
+    iss,
+    azp,
+  } = result as { iss?: string; azp?: string }
+
+  const expectedIssuer = process.env.NEXT_PUBLIC_SERVER_URI
+  const expectedClientId = process.env.NEXT_PUBLIC_CLIENT_ID
+  if (!expectedIssuer || !expectedClientId) return null
+
+  const issuerMatches = !!iss && normalizeUrl(iss) === normalizeUrl(expectedIssuer)
+  if (!issuerMatches || azp !== expectedClientId) return null
 
   return result
 }
