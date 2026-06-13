@@ -71,6 +71,12 @@ export const postProcessPasskeyEnroll = async (c: Context<typeConfig.Context>) =
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authCodeStore,
+  )
+
   const {
     passkeyId, passkeyPublickey, passkeyCounter,
   } = await passkeyService.processPasskeyEnroll(
@@ -113,6 +119,12 @@ export const postProcessPasskeyEnrollDecline = async (c: Context<typeConfig.Cont
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
+
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authCodeStore,
+  )
 
   if (bodyDto.remember) {
     await userService.skipUserPasskeyEnroll(

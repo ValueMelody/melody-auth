@@ -11,7 +11,7 @@ import {
 } from 'configs'
 import { userModel } from 'models'
 import {
-  prepareFollowUpBody, prepareFollowUpParams, insertUsers, getCodeFromParams,
+  prepareFollowUpBody, prepareFollowUpParams, insertUsers, getCodeFromParams, markAuthCodeAsSecured,
 } from 'tests/identity'
 
 let db: Database
@@ -28,6 +28,7 @@ afterEach(async () => {
 const sendCorrectGetRecoveryCodeReq = async ({ code }: { code?: string } = {}) => {
   await insertUsers(db)
   const body = await prepareFollowUpBody(db)
+  if (!code) await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     `${routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll}?code=${code ?? body.code}`,
     {},
@@ -67,6 +68,7 @@ describe(
         expect(json.recoveryCode.length).toBe(24)
 
         const body = await prepareFollowUpBody(db)
+        await markAuthCodeAsSecured(body.code)
         const res1 = await app.request(
           `${routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll}?code=${body.code}`,
           {},
@@ -85,6 +87,53 @@ describe(
       async () => {
         const { res } = await sendCorrectGetRecoveryCodeReq()
         expect(res.status).toBe(400)
+      },
+    )
+
+    test(
+      'should throw error if consent is not completed',
+      async () => {
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll}?code=${body.code}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoConsent)
+
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if mfa is not completed',
+      async () => {
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        await insertUsers(db)
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          `${routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll}?code=${body.code}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.MfaNotVerified)
+
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 
@@ -135,11 +184,9 @@ describe(
       'should go to dashboard',
       async () => {
         process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         const params = await prepareFollowUpParams(db)
         const code = getCodeFromParams(params)
 
@@ -167,6 +214,7 @@ describe(
         })
 
         process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 

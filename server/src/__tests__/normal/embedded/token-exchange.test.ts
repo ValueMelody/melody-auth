@@ -9,7 +9,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   getApp, insertUsers,
@@ -70,7 +70,10 @@ export const sendTokenExchangeRequest = async (
     mock(db),
   )
 
-  return { res }
+  return {
+    res,
+    sessionId: sessionId ?? correctSessionId,
+  }
 }
 
 describe(
@@ -82,7 +85,9 @@ describe(
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
-        const { res } = await sendTokenExchangeRequest(
+        const {
+          res, sessionId,
+        } = await sendTokenExchangeRequest(
           db,
           {},
         )
@@ -101,6 +106,12 @@ describe(
           scope: 'profile openid offline_access',
           token_type: 'Bearer',
         })
+
+        const authCodeStore = await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${sessionId}`)
+        expect(authCodeStore).toBeNull()
+
+        const sessionStore = await mockedKV.get(`${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`)
+        expect(JSON.parse(sessionStore as string).isSecured).toBe(true)
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

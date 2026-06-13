@@ -11,7 +11,7 @@ import {
   messageConfig, routeConfig,
 } from 'configs'
 import {
-  prepareFollowUpBody, insertUsers,
+  prepareFollowUpBody, insertUsers, markAuthCodeAsSecured,
 } from 'tests/identity'
 import { Policy } from 'dtos/oauth'
 
@@ -80,6 +80,8 @@ const sendCorrectPostChangeOrgRequest = async ({
   code?: string;
 }) => {
   const body = await prepareFollowUpBody(db)
+
+  await markAuthCodeAsSecured(body.code)
 
   const res = await app.request(
     routeConfig.IdentityRoute.ChangeOrg,

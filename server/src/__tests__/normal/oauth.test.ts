@@ -5,6 +5,7 @@ import { Database } from 'better-sqlite3'
 import {
   decode, sign,
 } from 'hono/jwt'
+import { authenticator } from 'otplib'
 import app from 'index'
 import { kvService } from 'services'
 import {
@@ -775,12 +776,33 @@ describe(
         )
 
         const body = await prepareFollowUpBody(db)
-        mockedKV.put(
-          `${adapterConfig.BaseKVKey.OtpMfaCode}-${body.code}`,
+        const otpSetupRes = await app.request(
+          `${routeConfig.IdentityRoute.OtpMfaSetup}?code=${body.code}`,
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(otpSetupRes.status).toBe(200)
+        const currentUser = await db.prepare('select "otpSecret" from "user" where id = 1').get() as { otpSecret: string }
+        const otpCode = authenticator.generate(currentUser.otpSecret)
+        const otpRes = await app.request(
+          routeConfig.IdentityRoute.ProcessOtpMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              mfaCode: otpCode,
+            }),
+          },
+          mock(db),
+        )
+        expect(otpRes.status).toBe(200)
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.SmsMfaCode}-${body.code}`,
           'aaaaaaaa',
         )
-        await app.request(
-          routeConfig.IdentityRoute.ProcessOtpMfa,
+        const smsRes = await app.request(
+          routeConfig.IdentityRoute.ProcessSmsMfa,
           {
             method: 'POST',
             body: JSON.stringify({
@@ -790,12 +812,13 @@ describe(
           },
           mock(db),
         )
+        expect(smsRes.status).toBe(200)
 
-        mockedKV.put(
+        await mockedKV.put(
           `${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`,
           'bbbbbbbb',
         )
-        await app.request(
+        const emailRes = await app.request(
           routeConfig.IdentityRoute.ProcessEmailMfa,
           {
             method: 'POST',
@@ -806,6 +829,7 @@ describe(
           },
           mock(db),
         )
+        expect(emailRes.status).toBe(200)
 
         const url = routeConfig.OauthRoute.Authorize
         const res = await getSignInRequest(

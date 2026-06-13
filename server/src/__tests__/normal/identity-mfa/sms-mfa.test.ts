@@ -442,10 +442,7 @@ describe(
         const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollSmsMfa(db)
 
         const reqBody = await prepareFollowUpBody(db)
@@ -1016,10 +1013,7 @@ describe(
         const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollSmsMfa(db)
         const reqBody = await prepareFollowUpBody(db)
 
@@ -1256,10 +1250,7 @@ describe(
         const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollSmsMfa(db)
         const reqBody = await prepareFollowUpBody(db)
 
@@ -1340,10 +1331,7 @@ describe(
         const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollSmsMfa(db)
         const reqBody = await prepareFollowUpBody(db)
 
@@ -1409,10 +1397,7 @@ describe(
         const mockFetch = getSmsResponseMock()
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollSmsMfa(db)
         const reqBody = await prepareFollowUpBody(db)
 
