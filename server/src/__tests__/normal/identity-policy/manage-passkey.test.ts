@@ -14,6 +14,7 @@ import {
 import {
   prepareFollowUpBody,
   insertUsers,
+  markAuthCodeAsSecured,
 } from 'tests/identity'
 import { Policy } from 'dtos/oauth'
 import { dbTime } from 'tests/util'
@@ -57,6 +58,7 @@ const sendCorrectEnrollPasskeyReq = async ({ code }: { code?: string } = {}) => 
   )
 
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ManagePasskey,
     {
@@ -77,6 +79,7 @@ const sendCorrectDeletePasskeyReq = async ({ code }: { code?: string } = {}) => 
   await sendCorrectEnrollPasskeyReq()
 
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ManagePasskey,
     {

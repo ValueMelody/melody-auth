@@ -11,7 +11,7 @@ import {
   messageConfig, routeConfig,
 } from 'configs'
 import {
-  prepareFollowUpBody, insertUsers, postSignInRequest, getApp,
+  prepareFollowUpBody, insertUsers, postSignInRequest, getApp, markAuthCodeAsSecured,
 } from 'tests/identity'
 import {
   enrollEmailMfa, enrollOtpMfa, enrollSmsMfa,
@@ -31,6 +31,7 @@ afterEach(async () => {
 
 const sendCorrectResetMfaReq = async ({ code }: { code?: string } = {}) => {
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
 
   const res = await app.request(
     routeConfig.IdentityRoute.ResetMfa,

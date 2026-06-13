@@ -11,7 +11,7 @@ import {
   messageConfig, routeConfig,
 } from 'configs'
 import {
-  prepareFollowUpBody, insertUsers,
+  prepareFollowUpBody, insertUsers, markAuthCodeAsSecured,
 } from 'tests/identity'
 
 let db: Database
@@ -74,11 +74,14 @@ const sendCorrectGetSwitchOrgRequest = async ({ code }: {
 const sendCorrectPostSwitchOrgRequest = async ({
   org,
   code,
+  secured,
 }: {
   org: string;
   code?: string;
+  secured?: boolean;
 }) => {
   const body = await prepareFollowUpBody(db)
+  if (secured) await markAuthCodeAsSecured(code ?? body.code)
 
   const res = await app.request(
     routeConfig.IdentityRoute.ProcessSwitchOrg,
@@ -266,12 +269,10 @@ describe(
       async () => {
         process.env.ENABLE_ORG = true as unknown as string
         process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         await insertOrgs(db)
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await db.prepare('UPDATE "user" SET "orgSlug" = ? WHERE id = ?').run(
           'default-org',
           1,
@@ -298,6 +299,7 @@ describe(
 
         process.env.ENABLE_ORG = false as unknown as string
         process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -306,12 +308,10 @@ describe(
       async () => {
         process.env.ENABLE_ORG = true as unknown as string
         process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         await insertOrgs(db)
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await db.prepare('UPDATE "user" SET "orgSlug" = ? WHERE id = ?').run(
           'default-org',
           1,
@@ -338,6 +338,68 @@ describe(
 
         process.env.ENABLE_ORG = false as unknown as string
         process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if consent is not completed',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+        process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        await insertOrgs(db)
+        await insertUsers(
+          db,
+          false,
+        )
+        await db.prepare('UPDATE "user" SET "orgSlug" = ? WHERE id = ?').run(
+          'default-org',
+          1,
+        )
+        await insertUserOrgs(
+          db,
+          1,
+          [1, 2],
+        )
+
+        const { res } = await sendCorrectPostSwitchOrgRequest({ org: 'second-org' })
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoConsent)
+
+        process.env.ENABLE_ORG = false as unknown as string
+        process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if mfa is not completed',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+        process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = true as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        await insertOrgs(db)
+        await insertUsers(db)
+        await db.prepare('UPDATE "user" SET "orgSlug" = ? WHERE id = ?').run(
+          'default-org',
+          1,
+        )
+        await insertUserOrgs(
+          db,
+          1,
+          [1, 2],
+        )
+
+        const { res } = await sendCorrectPostSwitchOrgRequest({ org: 'second-org' })
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.MfaNotVerified)
+
+        process.env.ENABLE_ORG = false as unknown as string
+        process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 
@@ -362,7 +424,10 @@ describe(
           [1],
         )
 
-        const { res } = await sendCorrectPostSwitchOrgRequest({ org: 'non-existent-org' })
+        const { res } = await sendCorrectPostSwitchOrgRequest({
+          org: 'non-existent-org',
+          secured: true,
+        })
         expect(res.status).toBe(404)
         expect(await res.text()).toBe(messageConfig.RequestError.NoOrg)
 
@@ -392,7 +457,10 @@ describe(
           [1],
         )
 
-        const { res } = await sendCorrectPostSwitchOrgRequest({ org: 'second-org' })
+        const { res } = await sendCorrectPostSwitchOrgRequest({
+          org: 'second-org',
+          secured: true,
+        })
         expect(res.status).toBe(404)
         expect(await res.text()).toBe(messageConfig.RequestError.NoOrg)
 

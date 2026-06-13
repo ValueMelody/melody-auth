@@ -14,6 +14,7 @@ import {
 import { userModel } from 'models'
 import {
   prepareFollowUpBody, prepareFollowUpParams, insertUsers, getCodeFromParams,
+  markAuthCodeAsSecured,
 } from 'tests/identity'
 
 let db: Database
@@ -39,10 +40,7 @@ const sendCorrectGetEnrollPasskeyReq = async ({ code }: { code?: string } = {}) 
 }
 
 const sendCorrectEnrollPasskeyReq = async ({ code }: { code?: string } = {}) => {
-  await insertUsers(
-    db,
-    false,
-  )
+  await insertUsers(db)
 
   await mockedKV.put(
     `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
@@ -50,6 +48,7 @@ const sendCorrectEnrollPasskeyReq = async ({ code }: { code?: string } = {}) => 
   )
 
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ProcessPasskeyEnroll,
     {
@@ -186,6 +185,7 @@ describe(
       'should enroll passkey',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         const res = await sendCorrectEnrollPasskeyReq()
         const json = await res.json()
@@ -200,6 +200,7 @@ describe(
         expect(passkey).toBeTruthy()
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -207,6 +208,37 @@ describe(
       'should throw error if can not find challenge',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const body = await prepareFollowUpBody(db)
+        await markAuthCodeAsSecured(body.code)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if consent is not completed',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         await insertUsers(
           db,
@@ -226,9 +258,38 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoConsent)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if mfa is not completed',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        await insertUsers(db)
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.MfaNotVerified)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 
@@ -256,6 +317,7 @@ describe(
         )
 
         const body = await prepareFollowUpBody(db)
+        await markAuthCodeAsSecured(body.code)
         const res = await app.request(
           routeConfig.IdentityRoute.ProcessPasskeyEnroll,
           {
@@ -303,6 +365,7 @@ describe(
         )
 
         const body = await prepareFollowUpBody(db)
+        await markAuthCodeAsSecured(body.code)
         const res = await app.request(
           routeConfig.IdentityRoute.ProcessPasskeyEnroll,
           {
@@ -333,11 +396,9 @@ describe(
       'should skip passkey enroll',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         const params = await prepareFollowUpParams(db)
         const code = getCodeFromParams(params)
 
@@ -346,6 +407,8 @@ describe(
           {},
           mock(db),
         )
+
+        await markAuthCodeAsSecured(code as string)
 
         const res = await app.request(
           routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
@@ -368,6 +431,7 @@ describe(
         expect(user.skipPasskeyEnroll).toBe(0)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -375,11 +439,9 @@ describe(
       'should skip passkey enroll and remember',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         const params = await prepareFollowUpParams(db)
         const code = getCodeFromParams(params)
 
@@ -388,6 +450,8 @@ describe(
           {},
           mock(db),
         )
+
+        await markAuthCodeAsSecured(code as string)
 
         const res = await app.request(
           routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
@@ -410,6 +474,7 @@ describe(
         expect(user.skipPasskeyEnroll).toBe(1)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 

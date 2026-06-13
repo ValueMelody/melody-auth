@@ -13,6 +13,7 @@ import {
 import {
   prepareFollowUpBody,
   insertUsers,
+  markAuthCodeAsSecured,
 } from 'tests/identity'
 import { Policy } from 'dtos/oauth'
 
@@ -34,6 +35,7 @@ const sendCorrectRegenerateRecoveryCodeReq = async ({ code }: { code?: string } 
   )
 
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ManageRecoveryCode,
     {

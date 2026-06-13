@@ -16,6 +16,7 @@ import {
   insertUsers,
   prepareFollowUpBody,
   getSignInRequest,
+  markAuthCodeAsSecured,
 } from 'tests/identity'
 import { oauthDto } from 'dtos'
 
@@ -37,6 +38,7 @@ export const enrollRecoveryCode = async (db: Database) => {
   )
 
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     `${routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll}?code=${body.code}`,
     { method: 'GET' },

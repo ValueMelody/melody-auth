@@ -14,7 +14,7 @@ import {
   messageConfig, routeConfig,
 } from 'configs'
 import {
-  getApp, insertUsers,
+  getApp, insertUsers, markEmbeddedSessionAsSecured,
 } from 'tests/identity'
 import { userModel } from 'models'
 
@@ -34,11 +34,13 @@ export const sendVerifiedSignInRequest = async (
   {
     email,
     password,
+    withConsent = true,
   }: {
     email?: string;
     password?: string;
     genSecret?: boolean;
     markAsVerified?: boolean;
+    withConsent?: boolean;
   },
 ) => {
   const appRecord = await getApp(db)
@@ -50,7 +52,10 @@ export const sendVerifiedSignInRequest = async (
 
   const { sessionId } = await initiateRes.json() as { sessionId: string }
 
-  await insertUsers(db)
+  await insertUsers(
+    db,
+    withConsent,
+  )
 
   const res = await app.request(
     routeConfig.EmbeddedRoute.SignIn.replace(
@@ -74,7 +79,13 @@ export const sendVerifiedSignInRequest = async (
 
 export const sendCorrectEnrollPasskeyReq = async ({
   sessionId, challenge, db,
-}: { sessionId: string; challenge?: string; db: Database }) => {
+}: {
+  sessionId: string;
+  challenge?: string;
+  db: Database;
+}) => {
+  await markEmbeddedSessionAsSecured(sessionId)
+
   await mockedKV.put(
     `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
     challenge ?? 'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
@@ -254,6 +265,7 @@ describe(
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         const { sessionId } = await sendVerifiedSignInRequest(
           db,
@@ -275,6 +287,7 @@ describe(
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -283,6 +296,73 @@ describe(
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
+        )
+        await markEmbeddedSessionAsSecured(sessionId)
+
+        const res = await app.request(
+          routeConfig.EmbeddedRoute.PasskeyEnroll.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST',
+            body: JSON.stringify({ enrollInfo: passkeyEnrollMock }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if consent is not completed',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          { withConsent: false },
+        )
+
+        const res = await app.request(
+          routeConfig.EmbeddedRoute.PasskeyEnroll.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST',
+            body: JSON.stringify({ enrollInfo: passkeyEnrollMock }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoConsent)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if mfa is not completed',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
 
         const { sessionId } = await sendVerifiedSignInRequest(
           db,
@@ -301,10 +381,12 @@ describe(
           mock(db),
         )
         expect(res.status).toBe(401)
-        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyEnrollRequest)
+        expect(await res.text()).toBe(messageConfig.RequestError.MfaNotVerified)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 
@@ -377,6 +459,7 @@ describe(
           db,
           {},
         )
+        await markEmbeddedSessionAsSecured(sessionId)
 
         const res = await app.request(
           routeConfig.EmbeddedRoute.PasskeyEnroll.replace(
@@ -412,6 +495,7 @@ describe(
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         const { sessionId } = await sendVerifiedSignInRequest(
           db,
@@ -440,6 +524,7 @@ describe(
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 
@@ -448,6 +533,7 @@ describe(
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         const { sessionId } = await sendVerifiedSignInRequest(
           db,
@@ -476,6 +562,7 @@ describe(
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
 

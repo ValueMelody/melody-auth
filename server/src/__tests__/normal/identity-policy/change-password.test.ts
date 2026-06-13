@@ -11,7 +11,7 @@ import {
   messageConfig, routeConfig,
 } from 'configs'
 import {
-  prepareFollowUpBody, insertUsers, postSignInRequest, getApp,
+  prepareFollowUpBody, insertUsers, postSignInRequest, getApp, markAuthCodeAsSecured,
 } from 'tests/identity'
 import { Policy } from 'dtos/oauth'
 
@@ -35,6 +35,7 @@ const sendCorrectChangePasswordReq = async ({ code }: {
   )
 
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ChangePassword,
     {
@@ -86,6 +87,7 @@ describe(
         )
 
         const body = await prepareFollowUpBody(db)
+        await markAuthCodeAsSecured(body.code)
         const res = await app.request(
           routeConfig.IdentityRoute.ChangePassword,
           {
@@ -124,6 +126,7 @@ describe(
             },
           }),
         )
+        await markAuthCodeAsSecured(body.code)
 
         const res = await app.request(
           routeConfig.IdentityRoute.ChangePassword,

@@ -31,11 +31,13 @@ const sendVerifiedSignInRequest = async (
   {
     email,
     password,
+    withConsent = true,
   }: {
     email?: string;
     password?: string;
     genSecret?: boolean;
     markAsVerified?: boolean;
+    withConsent?: boolean;
   },
 ) => {
   const appRecord = await getApp(db)
@@ -47,7 +49,10 @@ const sendVerifiedSignInRequest = async (
 
   const { sessionId } = await initiateRes.json() as { sessionId: string }
 
-  await insertUsers(db)
+  await insertUsers(
+    db,
+    withConsent,
+  )
 
   const res = await app.request(
     routeConfig.EmbeddedRoute.SignIn.replace(
@@ -143,6 +148,68 @@ describe(
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
         process.env.ENABLE_RECOVERY_CODE = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if consent is not completed',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          { withConsent: false },
+        )
+
+        const recoveryCodeEnrollRes = await app.request(
+          routeConfig.EmbeddedRoute.RecoveryCodeEnroll.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(recoveryCodeEnrollRes.status).toBe(401)
+        expect(await recoveryCodeEnrollRes.text()).toBe(messageConfig.RequestError.NoConsent)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if mfa is not completed',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
+        )
+
+        const recoveryCodeEnrollRes = await app.request(
+          routeConfig.EmbeddedRoute.RecoveryCodeEnroll.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(recoveryCodeEnrollRes.status).toBe(401)
+        expect(await recoveryCodeEnrollRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 

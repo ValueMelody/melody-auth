@@ -202,10 +202,7 @@ describe(
     test(
       'should pass otp mfa',
       async () => {
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const body = await prepareFollowUpBody(db)
@@ -237,10 +234,7 @@ describe(
     test(
       'should accept current time-step otp mfa code',
       async () => {
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const body = await prepareFollowUpBody(db)
@@ -266,10 +260,7 @@ describe(
     test(
       'should accept previous and next time-step otp mfa codes',
       async () => {
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const previousStepBody = await prepareFollowUpBody(db)
@@ -350,10 +341,7 @@ describe(
     test(
       'should reject replay of the same user otp time step',
       async () => {
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const firstBody = await prepareFollowUpBody(db)
@@ -386,10 +374,7 @@ describe(
     test(
       'should reject replay of the same otp code after the current step advances within the skew window',
       async () => {
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const firstBody = await prepareFollowUpBody(db)
@@ -424,10 +409,7 @@ describe(
     test(
       'should allow the same user to verify on the next time step after succeeding on a previous one',
       async () => {
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const firstBody = await prepareFollowUpBody(db)
@@ -514,10 +496,7 @@ describe(
       'should pass mfa if requied by config',
       async () => {
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
 
         const body = await prepareFollowUpBody(db)
         await sendCorrectGetOtpMfaSetupReq({ code: body.code })
@@ -658,10 +637,7 @@ describe(
     test(
       'could fallback to email mfa',
       async () => {
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
 
         const body = await prepareFollowUpBody(db)
@@ -697,10 +673,7 @@ describe(
       async () => {
         process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const body = await prepareFollowUpBody(db)
@@ -756,10 +729,7 @@ describe(
       async () => {
         process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const body = await prepareFollowUpBody(db)
@@ -800,10 +770,7 @@ describe(
       async () => {
         process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
         await sendCorrectGetOtpMfaSetupReq()
         const body = await prepareFollowUpBody(db)

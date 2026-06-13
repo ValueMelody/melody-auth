@@ -17,6 +17,7 @@ import {
 import {
   prepareFollowUpBody, postAuthorizeBody,
   insertUsers, postSignInRequest, getApp,
+  markAuthCodeAsSecured,
 } from 'tests/identity'
 import {
   jwtService, kvService,
@@ -41,6 +42,7 @@ const sendCorrectChangeEmailCodeReq = async ({ code }: { code?: string } = {}) =
     false,
   )
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
   const correctBody = {
     ...body,
     email: 'test_new@email.com',
@@ -321,6 +323,7 @@ describe(
           false,
         )
         const body = await prepareFollowUpBody(db)
+        await markAuthCodeAsSecured(body.code)
         const correctBody = {
           ...body,
           email: 'test@email.com',

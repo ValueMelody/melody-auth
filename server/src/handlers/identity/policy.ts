@@ -10,6 +10,7 @@ import {
 import { identityDto } from 'dtos'
 import {
   emailService,
+  identityService,
   kvService, passkeyService, recoveryCodeService, userService,
 } from 'services'
 import {
@@ -57,6 +58,12 @@ export const postChangePassword = async (c: Context<typeConfig.Context>) => {
     authInfo.user,
   )
 
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authInfo,
+  )
+
   await userService.changeUserPassword(
     c,
     authInfo.user,
@@ -87,6 +94,12 @@ export const postChangeEmailCode = async (c: Context<typeConfig.Context>) => {
   const userEmail = checkAccount(
     c,
     authInfo.user,
+  )
+
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authInfo,
   )
 
   const { CHANGE_EMAIL_EMAIL_THRESHOLD: emailThreshold } = env(c)
@@ -152,6 +165,12 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
   checkAccount(
     c,
     authInfo.user,
+  )
+
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authInfo,
   )
 
   const { CHANGE_EMAIL_CODE_THRESHOLD: changeEmailCodeThreshold } = env(c)
@@ -229,6 +248,12 @@ export const postResetMfa = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authCodeBody,
+  )
+
   await userService.resetUserMfa(
     c,
     authCodeBody.user.authId,
@@ -301,6 +326,12 @@ export const postManagePasskey = async (c: Context<typeConfig.Context>) => {
     authInfo.user,
   )
 
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authInfo,
+  )
+
   const {
     passkeyId, passkeyPublickey, passkeyCounter,
   } = await passkeyService.processPasskeyEnroll(
@@ -353,6 +384,12 @@ export const postManageRecoveryCode = async (c: Context<typeConfig.Context>)
     authInfo.user,
   )
 
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authInfo,
+  )
+
   const { recoveryCode } = await recoveryCodeService.regenerateRecoveryCode(
     c,
     authInfo,
@@ -400,6 +437,12 @@ export const deleteManagePasskey = async (c: Context<typeConfig.Context>) => {
     throw new errorConfig.Forbidden(messageConfig.RequestError.PasskeyNotFound)
   }
 
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authInfo,
+  )
+
   await passkeyService.deletePasskey(
     c,
     authInfo.user.id,
@@ -430,6 +473,12 @@ export const postUpdateInfo = async (c: Context<typeConfig.Context>) => {
   checkAccount(
     c,
     authInfo.user,
+  )
+
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authInfo,
   )
 
   await userService.updateUser(

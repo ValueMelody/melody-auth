@@ -126,6 +126,7 @@ export interface AuthCodeBody {
   appId: number;
   appName: string;
   isFullyAuthorized?: boolean;
+  isSecured?: boolean;
   mfa?: AuthCodeBodyMfaConfig;
 }
 
@@ -135,6 +136,7 @@ export interface EmbeddedSessionBody {
   appName: string;
   user?: userModel.Record;
   isFullyAuthorized?: boolean;
+  isSecured?: boolean;
   mfa?: AuthCodeBodyMfaConfig;
 }
 
@@ -143,6 +145,8 @@ export interface EmbeddedSessionBodyWithUser {
   appId: number;
   appName: string;
   user: userModel.Record;
+  isFullyAuthorized?: boolean;
+  isSecured?: boolean;
   mfa?: AuthCodeBodyMfaConfig;
 }
 

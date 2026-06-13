@@ -218,10 +218,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollEmailMfa(db)
 
         const requestBody = await prepareFollowUpBody(db)
@@ -435,10 +432,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollOtpMfa(db)
 
         const requestBody = await prepareFollowUpBody(db)
@@ -488,10 +482,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
           '+16471231234',
           1,
@@ -545,10 +536,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = ?').run(
           '+16471231234',
           1,
@@ -603,10 +591,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
 
         db.prepare('update "user" set "mfaTypes" = ? where id = 1').run('sms,otp')
 
@@ -779,10 +764,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollEmailMfa(db)
 
         const requestBody = await prepareFollowUpBody(db)
@@ -855,10 +837,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollEmailMfa(db)
 
         const requestBody = await prepareFollowUpBody(db)
@@ -916,10 +895,7 @@ describe(
         })
         global.fetch = mockFetch as Mock
 
-        await insertUsers(
-          db,
-          false,
-        )
+        await insertUsers(db)
         await enrollEmailMfa(db)
 
         const requestBody = await prepareFollowUpBody(db)

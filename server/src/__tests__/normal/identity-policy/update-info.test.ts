@@ -13,6 +13,7 @@ import {
 import {
   prepareFollowUpBody,
   insertUsers,
+  markAuthCodeAsSecured,
 } from 'tests/identity'
 import { userModel } from 'models'
 import { Policy } from 'dtos/oauth'
@@ -36,6 +37,7 @@ const sendCorrectUpdateInfoReq = async ({ code }: {
     false,
   )
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
 
   const res = await app.request(
     routeConfig.IdentityRoute.UpdateInfo,

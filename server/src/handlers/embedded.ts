@@ -39,6 +39,75 @@ export const sessionBodyToAuthCodeBody = (sessionBody: typeConfig.EmbeddedSessio
   }
 }
 
+const storeEmbeddedSessionAsSecured = async <T extends typeConfig.EmbeddedSessionBody>(
+  c: Context<typeConfig.Context>,
+  sessionId: string,
+  sessionBody: T,
+): Promise<T> => {
+  if (sessionBody.isSecured) return sessionBody
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const securedSessionBody = {
+    ...sessionBody,
+    isSecured: true,
+  }
+
+  await kvService.storeEmbeddedSession(
+    c.env.KV,
+    sessionId,
+    securedSessionBody,
+    codeExpiresIn,
+  )
+
+  return securedSessionBody
+}
+
+const processPostAuthorizeForEmbedded = async (
+  c: Context<typeConfig.Context>,
+  step: identityService.AuthorizeStep,
+  sessionId: string,
+  sessionBody: typeConfig.EmbeddedSessionBodyWithUser,
+) => {
+  const authCodeBody = sessionBodyToAuthCodeBody(sessionBody)
+  const result = await identityService.processPostAuthorize(
+    c,
+    step,
+    sessionId,
+    authCodeBody,
+    { persistAuthCode: false },
+  )
+
+  if (authCodeBody.isSecured) {
+    await storeEmbeddedSessionAsSecured(
+      c,
+      sessionId,
+      sessionBody,
+    )
+  }
+
+  return result
+}
+
+const guardEmbeddedSessionIsSecured = async (
+  c: Context<typeConfig.Context>,
+  sessionId: string,
+  sessionBody: typeConfig.EmbeddedSessionBodyWithUser,
+) => {
+  const authCodeBody = sessionBodyToAuthCodeBody(sessionBody)
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    sessionId,
+    authCodeBody,
+    { persistAuthCode: false },
+  )
+
+  return storeEmbeddedSessionAsSecured(
+    c,
+    sessionId,
+    sessionBody,
+  )
+}
+
 const getSessionBody = async (
   c: Context<typeConfig.Context>,
   sessionId: string,
@@ -138,11 +207,11 @@ const processAuthorizeWithUser = async (
     codeExpiresIn,
   )
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.Password,
     sessionId,
-    sessionBodyToAuthCodeBody(sessionBodyWithUser),
+    sessionBodyWithUser,
   )
 
   return result
@@ -323,14 +392,16 @@ export const tokenExchange = async (c: Context<typeConfig.Context>) => {
     bodyDto.sessionId,
   )
 
+  const authCodeBody = sessionBodyToAuthCodeBody(sessionBody)
   const result = await oauthService.handleAuthCodeTokenExchange(
     c,
-    sessionBodyToAuthCodeBody(sessionBody),
+    authCodeBody,
     {
       ...bodyDto,
       code: bodyDto.sessionId,
       grantType: oauthDto.TokenGrantType.AuthorizationCode,
     },
+    { persistAuthCode: false },
   )
 
   await authCodeHook.postTokenExchangeWithAuthCode()
@@ -399,11 +470,11 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
     sessionBody.appId,
   )
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.Password,
     sessionId,
-    sessionBodyToAuthCodeBody(sessionBody),
+    sessionBody,
   )
 
   return c.json({
@@ -456,11 +527,11 @@ export const postMfaEnrollment = async (c: Context<typeConfig.Context>) => {
     codeExpiresIn,
   )
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.MfaEnroll,
     sessionId,
-    sessionBodyToAuthCodeBody(newSessionBody),
+    newSessionBody,
   )
 
   return c.json({
@@ -513,11 +584,11 @@ export const postEmailMfa = async (c: Context<typeConfig.Context>) => {
     sessionBody.user.id,
   )
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.EmailMfa,
     sessionId,
-    sessionBodyToAuthCodeBody(sessionBody),
+    sessionBody,
   )
 
   return c.json({
@@ -600,11 +671,11 @@ export const postOtpMfa = async (c: Context<typeConfig.Context>) => {
     sessionBody.user.id,
   )
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.OtpMfa,
     sessionId,
-    sessionBodyToAuthCodeBody(sessionBody),
+    sessionBody,
   )
 
   return c.json({
@@ -692,11 +763,11 @@ export const postSmsMfa = async (c: Context<typeConfig.Context>) => {
     sessionBody.user.id,
   )
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.SmsMfa,
     sessionId,
-    sessionBodyToAuthCodeBody(sessionBody),
+    sessionBody,
   )
 
   return c.json({
@@ -731,27 +802,33 @@ export const postPasskeyEnroll = async (c: Context<typeConfig.Context>) => {
     sessionId,
   )
 
+  const securedSessionBody = await guardEmbeddedSessionIsSecured(
+    c,
+    sessionId,
+    sessionBody,
+  )
+
   const {
     passkeyId, passkeyPublickey, passkeyCounter,
   } = await passkeyService.processPasskeyEnroll(
     c,
-    sessionBody,
+    securedSessionBody,
     bodyDto.enrollInfo,
   )
 
   await passkeyService.createUserPasskey(
     c,
-    sessionBody.user.id,
+    securedSessionBody.user.id,
     passkeyId,
     cryptoUtil.uint8ArrayToBase64(passkeyPublickey),
     passkeyCounter,
   )
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.PasskeyEnroll,
     sessionId,
-    sessionBodyToAuthCodeBody(sessionBody),
+    securedSessionBody,
   )
 
   return c.json({
@@ -773,18 +850,24 @@ export const postPasskeyEnrollDecline = async (c: Context<typeConfig.Context>) =
     sessionId,
   )
 
+  const securedSessionBody = await guardEmbeddedSessionIsSecured(
+    c,
+    sessionId,
+    sessionBody,
+  )
+
   if (bodyDto.remember) {
     await userService.skipUserPasskeyEnroll(
       c,
-      sessionBody.user,
+      securedSessionBody.user,
     )
   }
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.PasskeyEnroll,
     sessionId,
-    sessionBodyToAuthCodeBody(sessionBody),
+    securedSessionBody,
   )
 
   return c.json({
@@ -882,15 +965,21 @@ export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
     sessionId,
   )
 
+  const securedSessionBody = await guardEmbeddedSessionIsSecured(
+    c,
+    sessionId,
+    sessionBody,
+  )
+
   const user = await orgService.switchUserOrg(
     c,
-    sessionBody,
+    securedSessionBody,
     bodyDto.org,
   )
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
   const newSessionBody = {
-    ...sessionBody,
+    ...securedSessionBody,
     user,
   }
   await kvService.storeEmbeddedSession(
@@ -900,11 +989,11 @@ export const postUserOrgs = async (c: Context<typeConfig.Context>) => {
     codeExpiresIn,
   )
 
-  const result = await identityService.processPostAuthorize(
+  const result = await processPostAuthorizeForEmbedded(
     c,
     identityService.AuthorizeStep.SwitchOrg,
     sessionId,
-    sessionBodyToAuthCodeBody(newSessionBody),
+    newSessionBody,
   )
 
   return c.json({
@@ -921,16 +1010,23 @@ export const getRecoveryCodeEnroll = async (c: Context<typeConfig.Context>) => {
     sessionId,
   )
 
+  const securedSessionBody = await guardEmbeddedSessionIsSecured(
+    c,
+    sessionId,
+    sessionBody,
+  )
+  const authCodeBody = sessionBodyToAuthCodeBody(securedSessionBody)
+
   const {
     recoveryCode, user,
   } = await recoveryCodeService.getRecoveryCodeEnrollmentInfo(
     c,
-    sessionBodyToAuthCodeBody(sessionBody),
+    authCodeBody,
   )
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
   const newAuthCodeStore = {
-    ...sessionBody,
+    ...securedSessionBody,
     user,
   }
   await kvService.storeEmbeddedSession(

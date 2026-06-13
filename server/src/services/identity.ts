@@ -88,11 +88,145 @@ const getNextPageForPolicy = (
   return nextPage
 }
 
+const verifyAuthCodeMfaAndConsent = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+) => {
+  const isSocialLogin = !!authCodeBody.user.socialAccountId
+
+  const { ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn } = env(c)
+
+  const {
+    requireEmailMfa,
+    requireOtpMfa,
+    requireSmsMfa,
+    enforceOneMfaEnrollment: enforceMfa,
+  } = mfaService.getAuthorizeMfaConfig(
+    c,
+    authCodeBody,
+  )
+
+  if (!isSocialLogin && !authCodeBody.isFullyAuthorized) {
+    if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
+      if (!authCodeBody.user.mfaTypes.length) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.MfaNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      }
+    }
+
+    if (requireOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp)) {
+      const isVerified = await kvService.optMfaCodeVerified(
+        c.env.KV,
+        authCode,
+      )
+      if (!isVerified) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.MfaNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      }
+    }
+
+    if (requireSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)) {
+      const isVerified = await kvService.smsMfaCodeVerified(
+        c.env.KV,
+        authCode,
+      )
+      if (!isVerified) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.MfaNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      }
+    }
+
+    if (requireEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)) {
+      const isVerified = await kvService.emailMfaCodeVerified(
+        c.env.KV,
+        authCode,
+      )
+      if (!isVerified) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.MfaNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
+      }
+    }
+
+    if (enablePasswordlessSignIn) {
+      const isVerified = await kvService.passwordlessCodeVerified(
+        c.env.KV,
+        authCode,
+      )
+      if (!isVerified) {
+        loggerUtil.triggerLogger(
+          c,
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.PasswordlessNotVerified,
+        )
+        throw new errorConfig.UnAuthorized(messageConfig.RequestError.PasswordlessNotVerified)
+      }
+    }
+  }
+
+  const requireConsent = await consentService.shouldCollectConsent(
+    c,
+    authCodeBody.user.id,
+    authCodeBody.appId,
+  )
+  if (requireConsent) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoConsent,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.NoConsent)
+  }
+}
+
+export const ensureAuthCodeIsSecured = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+  options: { persistAuthCode?: boolean } = {},
+) => {
+  if (authCodeBody.isSecured) return
+
+  await verifyAuthCodeMfaAndConsent(
+    c,
+    authCode,
+    authCodeBody,
+  )
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  authCodeBody.isSecured = true
+  if (options.persistAuthCode === false) return
+
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    authCodeBody,
+    codeExpiresIn,
+  )
+}
+
 export const processPostAuthorize = async (
   c: Context<typeConfig.Context>,
   step: AuthorizeStep,
   authCode: string,
   authCodeBody: typeConfig.AuthCodeBody,
+  options: { persistAuthCode?: boolean } = {},
 ) => {
   const basicInfo = {
     code: authCode,
@@ -288,6 +422,13 @@ export const processPostAuthorize = async (
       }
     }
   }
+
+  await ensureAuthCodeIsSecured(
+    c,
+    authCode,
+    authCodeBody,
+    options,
+  )
 
   const requirePasskeyEnroll =
     step < 7 &&

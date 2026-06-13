@@ -26,6 +26,12 @@ export const getProcessRecoveryCodeEnroll = async (c: Context<typeConfig.Context
     queryDto.code,
   )
 
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    queryDto.code,
+    authCodeStore,
+  )
+
   const {
     recoveryCode, user,
   } = await recoveryCodeService.getRecoveryCodeEnrollmentInfo(

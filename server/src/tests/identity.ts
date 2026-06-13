@@ -1,15 +1,45 @@
 import { Database } from 'better-sqlite3'
 import { genCodeChallenge } from '@melody-auth/shared'
 import app from 'index'
-import { mock } from 'tests/mock'
+import {
+  mock, mockedKV,
+} from 'tests/mock'
 import { appModel } from 'models'
-import { routeConfig } from 'configs'
+import {
+  adapterConfig, routeConfig,
+} from 'configs'
 
 export const getCodeFromParams = (params: string) => {
   const codeParam = params.substring(1).split('&')
     .find((s) => s.includes('code='))
   const code = codeParam?.split('=')[1]
   return code
+}
+
+export const markAuthCodeAsSecured = async (code: string) => {
+  const key = `${adapterConfig.BaseKVKey.AuthCode}-${code}`
+  const authStore = await mockedKV.get(key)
+  if (!authStore) return
+  await mockedKV.put(
+    key,
+    JSON.stringify({
+      ...JSON.parse(authStore),
+      isSecured: true,
+    }),
+  )
+}
+
+export const markEmbeddedSessionAsSecured = async (sessionId: string) => {
+  const key = `${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`
+  const sessionStore = await mockedKV.get(key)
+  if (!sessionStore) return
+  await mockedKV.put(
+    key,
+    JSON.stringify({
+      ...JSON.parse(sessionStore),
+      isSecured: true,
+    }),
+  )
 }
 
 export const insertUsers = (

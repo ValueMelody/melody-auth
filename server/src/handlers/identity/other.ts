@@ -140,6 +140,12 @@ export const postProcessSwitchOrg = async (c: Context<typeConfig.Context>) => {
     bodyDto.code,
   )
 
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authCodeStore,
+  )
+
   if (authCodeStore.user.orgSlug === bodyDto.org) {
     return c.json(await identityService.processPostAuthorize(
       c,
@@ -184,6 +190,12 @@ export const postChangeOrg = async (c: Context<typeConfig.Context>) => {
   const authCodeStore = await getAuthCodeBody(
     c,
     bodyDto.code,
+  )
+
+  await identityService.ensureAuthCodeIsSecured(
+    c,
+    bodyDto.code,
+    authCodeStore,
   )
 
   if (authCodeStore.user.orgSlug === bodyDto.org) {

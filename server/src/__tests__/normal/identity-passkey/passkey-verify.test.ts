@@ -18,6 +18,7 @@ import {
   insertUsers,
   prepareFollowUpBody,
   getSignInRequest,
+  markAuthCodeAsSecured,
 } from 'tests/identity'
 import { oauthDto } from 'dtos'
 import { GetAuthorizePasskeyVerifyRes } from 'handlers/identity/passkey'
@@ -45,6 +46,7 @@ export const enrollPasskey = async (db: Database) => {
   )
 
   const body = await prepareFollowUpBody(db)
+  await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ProcessPasskeyEnroll,
     {

@@ -12,7 +12,7 @@ import {
   messageConfig, routeConfig,
 } from 'configs'
 import {
-  getApp, insertUsers,
+  getApp, insertUsers, markEmbeddedSessionAsSecured,
 } from 'tests/identity'
 
 let db: Database
@@ -56,10 +56,12 @@ const sendVerifiedSignInRequest = async (
     email,
     password,
     orgSlug,
+    withConsent = true,
   }: {
     email?: string;
     password?: string;
     orgSlug?: string;
+    withConsent?: boolean;
   } = {},
 ) => {
   const appRecord = await getApp(db)
@@ -72,7 +74,10 @@ const sendVerifiedSignInRequest = async (
 
   const { sessionId } = await initiateRes.json() as { sessionId: string }
 
-  await insertUsers(db)
+  await insertUsers(
+    db,
+    withConsent,
+  )
 
   // Update user's orgSlug
   await db.prepare('UPDATE "user" SET "orgSlug" = ? WHERE id = ?').run(
@@ -268,6 +273,7 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
         process.env.ENABLE_ORG = true as unknown as string
         process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         await insertOrgs(db)
         const { sessionId } = await sendVerifiedSignInRequest(
@@ -309,6 +315,95 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
         process.env.ENABLE_ORG = false as unknown as string
         process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if consent is not completed',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_ORG = true as unknown as string
+        process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        await insertOrgs(db)
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {
+            orgSlug: 'default-org', withConsent: false,
+          },
+        )
+
+        await insertUserOrgs(
+          db,
+          1,
+          [1, 2],
+        )
+
+        const switchOrgRes = await app.request(
+          routeConfig.EmbeddedRoute.UserOrgs.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST',
+            body: JSON.stringify({ org: 'second-org' }),
+          },
+          mock(db),
+        )
+        expect(switchOrgRes.status).toBe(401)
+        expect(await switchOrgRes.text()).toBe(messageConfig.RequestError.NoConsent)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_ORG = false as unknown as string
+        process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if mfa is not completed',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+        process.env.ENABLE_ORG = true as unknown as string
+        process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = true as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = true as unknown as string
+
+        await insertOrgs(db)
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          { orgSlug: 'default-org' },
+        )
+
+        await insertUserOrgs(
+          db,
+          1,
+          [1, 2],
+        )
+
+        const switchOrgRes = await app.request(
+          routeConfig.EmbeddedRoute.UserOrgs.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST',
+            body: JSON.stringify({ org: 'second-org' }),
+          },
+          mock(db),
+        )
+        expect(switchOrgRes.status).toBe(401)
+        expect(await switchOrgRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+        process.env.ENABLE_ORG = false as unknown as string
+        process.env.ALLOW_USER_SWITCH_ORG_ON_SIGN_IN = false as unknown as string
+        process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
     )
 
@@ -332,6 +427,7 @@ describe(
           1,
           [1],
         )
+        await markEmbeddedSessionAsSecured(sessionId)
 
         const switchOrgRes = await app.request(
           routeConfig.EmbeddedRoute.UserOrgs.replace(
@@ -375,6 +471,7 @@ describe(
           1,
           [1],
         )
+        await markEmbeddedSessionAsSecured(sessionId)
 
         const switchOrgRes = await app.request(
           routeConfig.EmbeddedRoute.UserOrgs.replace(
