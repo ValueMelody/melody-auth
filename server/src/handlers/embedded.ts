@@ -404,6 +404,11 @@ export const tokenExchange = async (c: Context<typeConfig.Context>) => {
     { persistAuthCode: false },
   )
 
+  await kvService.deleteEmbeddedSession(
+    c.env.KV,
+    bodyDto.sessionId,
+  )
+
   await authCodeHook.postTokenExchangeWithAuthCode()
 
   return c.json(result)

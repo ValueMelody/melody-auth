@@ -121,6 +121,16 @@ export const storeEmbeddedSession = async (
   )
 }
 
+export const deleteEmbeddedSession = async (
+  kv: KVNamespace,
+  sessionId: string,
+) => {
+  await kv.delete(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.EmbeddedSession,
+    sessionId,
+  ))
+}
+
 export const storeRefreshToken = async (
   kv: KVNamespace,
   refreshToken: string,
