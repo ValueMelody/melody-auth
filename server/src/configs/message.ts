@@ -114,6 +114,7 @@ export enum RequestError {
   AuthCodeVerifierLocked = 'Too many failed auth code verifier attempts. Please try again after 30 minutes.',
   UniqueKey = 'Unique key constraint failed',
   UnknownScope = 'Unknown scope',
+  NoRootScopeToAssignRoot = 'Only an app with the root scope can assign the root scope to an app',
   impersonatorTokenIsRequired = 'impersonatorToken is required for impersonation',
   impersonatorIsNotSuperAdmin = 'Only super admin can impersonate other users',
   impersonateNonSpaApp = 'Impersonate request sent to a non-SPA app',
