@@ -60,5 +60,13 @@ The `/info` endpoint returns active server configuration values, including featu
 - Required scope: none
 - Authorization: `Bearer [access_token]`
 
+## Scopes
+
+The scopes granted to a server-to-server token determine which endpoints it can call. Each endpoint's required scope is listed in the [Rest API Swagger](https://auth-server.valuemelody.com/api/v1/swagger). The `root` scope grants access to every endpoint.
+
+### Assigning the root scope
+
+When creating an app (`POST /api/v1/apps`) or updating one (`PUT /api/v1/apps/{id}`), the `root` scope can only be assigned by a caller whose own token holds the `root` scope. A `write_app` token that lacks `root` can still manage other scopes, but any request that includes `root` in the app's scope list is rejected with `400` and the message `Only an app with the root scope can assign the root scope to an app`. This prevents a `write_app` token from escalating its own privileges to `root`.
+
 ## Detailed Documentation
 For more detailed information, please see [Rest API Swagger](https://auth-server.valuemelody.com/api/v1/swagger).

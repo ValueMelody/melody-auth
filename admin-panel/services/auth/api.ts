@@ -11,6 +11,7 @@ export const addTagTypes = [
   'User Attributes',
   'Logs',
   'SAML',
+  'System',
 ] as const
 const injectedRtkApi = api
   .enhanceEndpoints({ addTagTypes })
@@ -783,6 +784,10 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['SAML'],
       }),
+      getInfo: build.query<GetInfoApiResponse, GetInfoApiArg>({
+        query: () => ({ url: '/info' }),
+        providesTags: ['System'],
+      }),
     }),
     overrideExisting: false,
   })
@@ -1413,6 +1418,12 @@ export type DeleteApiV1SamlIdpsByIdApiArg = {
   /** The unique ID of the SAML IDP */
   id: number;
 };
+export type GetInfoApiResponse = /** status 200 System configuration values */ {
+  configs?: {
+    [key: string]: any;
+  };
+};
+export type GetInfoApiArg = void;
 export type Scope = {
   id: number;
   name: string;
@@ -1894,4 +1905,6 @@ export const {
   useLazyGetApiV1SamlIdpsByIdQuery,
   usePutApiV1SamlIdpsByIdMutation,
   useDeleteApiV1SamlIdpsByIdMutation,
+  useGetInfoQuery,
+  useLazyGetInfoQuery,
 } = injectedRtkApi

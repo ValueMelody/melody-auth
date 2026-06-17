@@ -1,5 +1,7 @@
 import { Context } from 'hono'
-import { ClientType } from '@melody-auth/shared'
+import {
+  ClientType, Scope,
+} from '@melody-auth/shared'
 import { env } from 'hono/adapter'
 import {
   errorConfig,
@@ -139,10 +141,33 @@ export const getAppById = async (
   }
 }
 
+const verifyCanAssignRootScope = (
+  c: Context<typeConfig.Context>,
+  scopes: string[],
+) => {
+  if (!scopes.includes(Scope.Root)) return
+
+  const accessTokenBody = c.get('access_token_body')
+  const callerScopes = accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []
+  if (!callerScopes.includes(Scope.Root)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoRootScopeToAssignRoot,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.NoRootScopeToAssignRoot)
+  }
+}
+
 export const createApp = async (
   c: Context<typeConfig.Context>,
   dto: appDto.PostAppDto,
 ): Promise<appModel.ApiRecord> => {
+  verifyCanAssignRootScope(
+    c,
+    dto.scopes,
+  )
+
   const app = await appModel.create(
     c.env.DB,
     {
@@ -192,6 +217,13 @@ export const updateApp = async (
   )
 
   if (!app) throw new errorConfig.NotFound()
+
+  if (dto.scopes) {
+    verifyCanAssignRootScope(
+      c,
+      dto.scopes,
+    )
+  }
 
   const updatedApp = Object.values(updateDto).some((val) => val !== undefined)
     ? await appModel.update(

@@ -60,5 +60,13 @@ fetch('/oauth2/v1/token', {
 - **必需作用域**：无
 - **Authorization**：`Bearer [access_token]`
 
+## 作用域
+
+服务器间令牌被授予的作用域决定了它可以调用哪些端点。每个端点所需的作用域可在 [REST API Swagger](https://auth-server.valuemelody.com/api/v1/swagger) 中查看。`root` 作用域可访问所有端点。
+
+### 分配 root 作用域
+
+在创建应用（`POST /api/v1/apps`）或更新应用（`PUT /api/v1/apps/{id}`）时，只有自身令牌持有 `root` 作用域的调用方才能分配 `root` 作用域。不具备 `root` 的 `write_app` 令牌仍可管理其他作用域，但任何在应用作用域列表中包含 `root` 的请求都会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can assign the root scope to an app`。这可以防止 `write_app` 令牌将自身权限提升为 `root`。
+
 ## 详细文档
 更多信息请参阅 [REST API Swagger](https://auth-server.valuemelody.com/api/v1/swagger)。

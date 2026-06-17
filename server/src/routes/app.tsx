@@ -71,7 +71,8 @@ appRoutes.get(
  * /api/v1/apps:
  *   post:
  *     summary: Create a new app
- *     description: Required scope - write_app
+ *     description: Required scope - write_app.
+ *                  Assigning the root scope additionally requires the caller to hold the root scope.
  *     tags: [Apps]
  *     requestBody:
  *       required: true
@@ -100,7 +101,8 @@ appRoutes.post(
  * /api/v1/apps/{id}:
  *   put:
  *     summary: Update an existing app by ID
- *     description: Required scope - write_app
+ *     description: Required scope - write_app.
+ *                  Assigning the root scope additionally requires the caller to hold the root scope.
  *     tags: [Apps]
  *     parameters:
  *       - in: path

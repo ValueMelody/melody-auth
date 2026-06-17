@@ -373,6 +373,96 @@ describe(
 )
 
 describe(
+  'root scope assignment guard',
+  () => {
+    const createRootAppReq = async (token: string) => await app.request(
+      BaseRoute,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'root app',
+          type: 's2s',
+          scopes: ['root'],
+          redirectUris: [],
+        }),
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      mock(db),
+    )
+
+    test(
+      'should reject create with root scope from a write_app caller',
+      async () => {
+        await attachIndividualScopes(db)
+        const token = await getS2sToken(
+          db,
+          Scope.WriteApp,
+        )
+        const res = await createRootAppReq(token)
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToAssignRoot)
+      },
+    )
+
+    test(
+      'should allow create with root scope from a root caller',
+      async () => {
+        const res = await createRootAppReq(await getS2sToken(db))
+        const json = await res.json() as { app: { scopes: string[] } }
+
+        expect(res.status).toBe(201)
+        expect(json.app.scopes).toStrictEqual(['root'])
+      },
+    )
+
+    test(
+      'should reject update adding root scope from a write_app caller',
+      async () => {
+        await createNewApp()
+        await attachIndividualScopes(db)
+        const token = await getS2sToken(
+          db,
+          Scope.WriteApp,
+        )
+        const res = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ scopes: ['openid', 'root'] }),
+            headers: { Authorization: `Bearer ${token}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToAssignRoot)
+      },
+    )
+
+    test(
+      'should allow update adding root scope from a root caller',
+      async () => {
+        await createNewApp()
+        const res = await app.request(
+          `${BaseRoute}/3`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ scopes: ['root'] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        const json = await res.json() as { app: { scopes: string[] } }
+
+        expect(res.status).toBe(200)
+        expect(json.app.scopes).toStrictEqual(['root'])
+      },
+    )
+  },
+)
+
+describe(
   'update',
   () => {
     test(
