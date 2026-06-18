@@ -4169,6 +4169,10 @@ describe(
           Scope.WriteUser,
         )
 
+        emailResponseMock.mockClear()
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
         const res = await inviteWithRolesReq(
           ['super_admin'],
           token,
@@ -4176,9 +4180,12 @@ describe(
 
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToAssignPrivilegedRole)
+        expect(mockFetch).toBeCalledTimes(0)
 
-        const userRecord = await db.prepare('select * from "user" where email = ?').get('new@email.com')
-        expect(userRecord).toBeFalsy()
+        global.fetch = fetchMock
+
+        const userRecord = await db.prepare('select * from "user" where email = ?').all('new@email.com')
+        expect(userRecord.length).toBe(0)
       },
     )
 
