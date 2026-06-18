@@ -153,6 +153,94 @@ describe(
     )
 
     test(
+      'should not allow replaying a verified passkey assertion',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await enrollPasskey(db)
+
+        const challenge = 'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc'
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-${challenge}`,
+          '1',
+        )
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          passkeyInfo: passkeyVerifyMock,
+          challenge,
+        }
+
+        const firstRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(firstRes.status).toBe(200)
+
+        const replayRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(replayRes.status).toBe(401)
+        expect(await replayRes.text()).toBe(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should reject a passkey assertion whose counter regressed',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await enrollPasskey(db)
+
+        // The verify assertion reports a signature counter of 1, so a stored
+        // counter above it represents a regressed / cloned authenticator that
+        // must not be allowed to authenticate.
+        await db.prepare('update "user_passkey" set "counter" = 2 where "userId" = 1').run()
+
+        const challenge = 'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc'
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-${challenge}`,
+          '1',
+        )
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          passkeyInfo: passkeyVerifyMock,
+          challenge,
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
       'could generate session after passkey verify',
       async () => {
         process.env.OTP_MFA_IS_REQUIRED = true as unknown as string

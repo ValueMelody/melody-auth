@@ -858,7 +858,7 @@ export const setPasskeyVerifyChallenge = async (
   )
 }
 
-export const getPasskeyVerifyChallenge = async (
+export const verifyPasskeyVerifyChallenge = async (
   kv: KVNamespace,
   challenge: string,
 ) => {
@@ -866,7 +866,10 @@ export const getPasskeyVerifyChallenge = async (
     adapterConfig.BaseKVKey.PasskeyVerifyChallenge,
     challenge,
   )
-  return await kv.get(key)
+  const stored = await kv.get(key)
+  const isValid = stored && stored === '1'
+  if (isValid) await kv.delete(key)
+  return isValid
 }
 
 export const storeOidcCodeVerifier = async (
