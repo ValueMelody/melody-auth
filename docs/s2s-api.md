@@ -68,5 +68,13 @@ The scopes granted to a server-to-server token determine which endpoints it can 
 
 When creating an app (`POST /api/v1/apps`) or updating one (`PUT /api/v1/apps/{id}`), the `root` scope can only be assigned by a caller whose own token holds the `root` scope. A `write_app` token that lacks `root` can still manage other scopes, but any request that includes `root` in the app's scope list is rejected with `400` and the message `Only an app with the root scope can assign the root scope to an app`. This prevents a `write_app` token from escalating its own privileges to `root`.
 
+## Roles
+
+Roles are assigned to users and can be managed when updating a user (`PUT /api/v1/users/{authId}`) or inviting one (`POST /api/v1/users/invitations`). Both require the `write_user` scope.
+
+### Assigning privileged roles
+
+A privileged role grants elevated, cross-app trust — for example, `super_admin` is the role that gates user impersonation. To prevent a `write_user` token from escalating privileges (its own or another user's), a privileged role can only be assigned by a caller whose own token holds the `root` scope. A `write_user` token that lacks `root` can still assign non-privileged roles, but any request that includes a privileged role (e.g. `super_admin`) is rejected with `400` and the message `Only an app with the root scope can assign a privileged role`.
+
 ## Detailed Documentation
 For more detailed information, please see [Rest API Swagger](https://auth-server.valuemelody.com/api/v1/swagger).

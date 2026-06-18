@@ -68,5 +68,13 @@ fetch('/oauth2/v1/token', {
 
 在创建应用（`POST /api/v1/apps`）或更新应用（`PUT /api/v1/apps/{id}`）时，只有自身令牌持有 `root` 作用域的调用方才能分配 `root` 作用域。不具备 `root` 的 `write_app` 令牌仍可管理其他作用域，但任何在应用作用域列表中包含 `root` 的请求都会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can assign the root scope to an app`。这可以防止 `write_app` 令牌将自身权限提升为 `root`。
 
+## 角色
+
+角色被分配给用户，可在更新用户（`PUT /api/v1/users/{authId}`）或邀请用户（`POST /api/v1/users/invitations`）时进行管理。两者都需要 `write_user` 作用域。
+
+### 分配特权角色
+
+特权角色会授予跨应用的提升信任——例如，`super_admin` 是用于控制用户模拟（impersonation）的角色。为防止 `write_user` 令牌提升权限（无论是自身还是其他用户的权限），只有自身令牌持有 `root` 作用域的调用方才能分配特权角色。不具备 `root` 的 `write_user` 令牌仍可分配非特权角色，但任何包含特权角色（例如 `super_admin`）的请求都会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can assign a privileged role`。
+
 ## 详细文档
 更多信息请参阅 [REST API Swagger](https://auth-server.valuemelody.com/api/v1/swagger)。

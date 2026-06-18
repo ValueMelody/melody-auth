@@ -4065,3 +4065,173 @@ describe(
     )
   },
 )
+
+describe(
+  'privileged role assignment guard',
+  () => {
+    const updateRolesReq = async (
+      authId: string, roles: string[], token: string,
+    ) => await app.request(
+      `${BaseRoute}/${authId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ roles }),
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      mock(db),
+    )
+
+    const inviteWithRolesReq = async (
+      roles: string[], token: string,
+    ) => await app.request(
+      `${BaseRoute}/invitations`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'new@email.com',
+          roles,
+        }),
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      mock(db),
+    )
+
+    test(
+      'should reject updating a user with a privileged role from a write_user caller',
+      async () => {
+        await insertUsers(db)
+        await attachIndividualScopes(db)
+        const token = await getS2sToken(
+          db,
+          Scope.WriteUser,
+        )
+
+        const res = await updateRolesReq(
+          '1-1-1-1',
+          ['super_admin'],
+          token,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToAssignPrivilegedRole)
+
+        const userRoles = await db.prepare('select * from user_role where "userId" = 1').all()
+        expect(userRoles.length).toBe(0)
+      },
+    )
+
+    test(
+      'should allow updating a user with a privileged role from a root caller',
+      async () => {
+        await insertUsers(db)
+
+        const res = await updateRolesReq(
+          '1-1-1-1',
+          ['super_admin'],
+          await getS2sToken(db),
+        )
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+
+        expect(res.status).toBe(200)
+        expect(json.user.roles).toStrictEqual(['super_admin'])
+      },
+    )
+
+    test(
+      'should allow updating a user with a non-privileged role from a write_user caller',
+      async () => {
+        await insertUsers(db)
+        await db.prepare('insert into role (name) values (?)').run('test')
+        await attachIndividualScopes(db)
+        const token = await getS2sToken(
+          db,
+          Scope.WriteUser,
+        )
+
+        const res = await updateRolesReq(
+          '1-1-1-1',
+          ['test'],
+          token,
+        )
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+
+        expect(res.status).toBe(200)
+        expect(json.user.roles).toStrictEqual(['test'])
+      },
+    )
+
+    test(
+      'should reject inviting a user with a privileged role from a write_user caller',
+      async () => {
+        await attachIndividualScopes(db)
+        const token = await getS2sToken(
+          db,
+          Scope.WriteUser,
+        )
+
+        emailResponseMock.mockClear()
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await inviteWithRolesReq(
+          ['super_admin'],
+          token,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToAssignPrivilegedRole)
+        expect(mockFetch).toBeCalledTimes(0)
+
+        global.fetch = fetchMock
+
+        const userRecord = await db.prepare('select * from "user" where email = ?').all('new@email.com')
+        expect(userRecord.length).toBe(0)
+      },
+    )
+
+    test(
+      'should allow inviting a user with a privileged role from a root caller',
+      async () => {
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await inviteWithRolesReq(
+          ['super_admin'],
+          await getS2sToken(db),
+        )
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+
+        expect(res.status).toBe(200)
+        expect(json.user.roles).toStrictEqual(['super_admin'])
+
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
+      'should allow inviting a user with a non-privileged role from a write_user caller',
+      async () => {
+        await db.prepare('insert into role (name) values (?)').run('test')
+        await attachIndividualScopes(db)
+        const token = await getS2sToken(
+          db,
+          Scope.WriteUser,
+        )
+
+        const mockFetch = emailResponseMock
+        global.fetch = mockFetch as Mock
+
+        const res = await inviteWithRolesReq(
+          ['test'],
+          token,
+        )
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+
+        expect(res.status).toBe(200)
+        expect(json.user.roles).toStrictEqual(['test'])
+
+        global.fetch = fetchMock
+      },
+    )
+  },
+)

@@ -7,6 +7,7 @@ import {
   errorConfig,
   messageConfig,
   typeConfig,
+  variableConfig,
 } from 'configs'
 import {
   appModel, appScopeModel, scopeModel,
@@ -145,7 +146,8 @@ const verifyCanAssignRootScope = (
   c: Context<typeConfig.Context>,
   scopes: string[],
 ) => {
-  if (!scopes.includes(Scope.Root)) return
+  const includesPrivilegedScope = variableConfig.S2sConfig.privilegedScopes.some((scope) => scopes.includes(scope))
+  if (!includesPrivilegedScope) return
 
   const accessTokenBody = c.get('access_token_body')
   const callerScopes = accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []

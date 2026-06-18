@@ -115,6 +115,7 @@ export enum RequestError {
   UniqueKey = 'Unique key constraint failed',
   UnknownScope = 'Unknown scope',
   NoRootScopeToAssignRoot = 'Only an app with the root scope can assign the root scope to an app',
+  NoRootScopeToAssignPrivilegedRole = 'Only an app with the root scope can assign a privileged role',
   impersonatorTokenIsRequired = 'impersonatorToken is required for impersonation',
   impersonatorIsNotSuperAdmin = 'Only super admin can impersonate other users',
   impersonateNonSpaApp = 'Impersonate request sent to a non-SPA app',

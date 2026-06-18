@@ -1,4 +1,6 @@
-import { Role } from '@melody-auth/shared'
+import {
+  Role, Scope,
+} from '@melody-auth/shared'
 
 export enum DefaultBranding {
   FontFamily = 'Inter',
@@ -59,7 +61,13 @@ export const SmsMfaConfig = Object.freeze({
   validationRegex: /^\+[1-9]\d{1,14}$/,
 })
 
-export const S2sConfig = Object.freeze({ impersonationRoles: [Role.SuperAdmin] })
+export const S2sConfig = Object.freeze({
+  impersonationRoles: [Role.SuperAdmin],
+  // They can only be assigned to a user by a caller that holds the root scope.
+  privilegedRoles: [Role.SuperAdmin],
+  // They can only be assigned to an app by a caller that holds the root scope.
+  privilegedScopes: [Scope.Root],
+})
 
 export const systemConfig = Object.freeze({
   name: 'Melody Auth',
