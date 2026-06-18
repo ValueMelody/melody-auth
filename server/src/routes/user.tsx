@@ -150,7 +150,9 @@ userRoutes.delete(
  * /api/v1/users/{authId}:
  *   put:
  *     summary: Update an existing user by authId
- *     description: Required scope - write_user
+ *     description: Required scope - write_user.
+ *                  Assigning a privileged role (e.g. super_admin) additionally requires
+ *                  the caller to hold the root scope.
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -944,6 +946,8 @@ userRoutes.delete(
  *   post:
  *     summary: Invite a user to join the platform
  *     description: Required scope - write_user.
+ *                  Assigning a privileged role (e.g. super_admin) additionally requires
+ *                  the caller to hold the root scope.
  *     tags: [Users]
  *     requestBody:
  *       required: true

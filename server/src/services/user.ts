@@ -1,6 +1,8 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
-import { GetUserInfoRes } from '@melody-auth/shared'
+import {
+  GetUserInfoRes, Scope,
+} from '@melody-auth/shared'
 import {
   errorConfig,
   messageConfig,
@@ -1366,6 +1368,26 @@ export const markOtpAsVerified = async (
   )
 }
 
+export const verifyCanAssignRoles = (
+  c: Context<typeConfig.Context>,
+  roleNames: string[],
+) => {
+  const includesPrivilegedRole = variableConfig.S2sConfig.privilegedRoles
+    .some((role) => roleNames.includes(role))
+  if (!includesPrivilegedRole) return
+
+  const accessTokenBody = c.get('access_token_body')
+  const callerScopes = accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []
+  if (!callerScopes.includes(Scope.Root)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoRootScopeToAssignPrivilegedRole,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.NoRootScopeToAssignPrivilegedRole)
+  }
+}
+
 export const updateUser = async (
   c: Context<typeConfig.Context>,
   authId: string,
@@ -1384,6 +1406,13 @@ export const updateUser = async (
       messageConfig.RequestError.NoUser,
     )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
+  }
+
+  if (dto.roles) {
+    verifyCanAssignRoles(
+      c,
+      dto.roles,
+    )
   }
 
   if (dto.isActive && user.invitationToken) {

@@ -745,6 +745,11 @@ export const postUserInvitation = async (c: Context<typeConfig.Context>) => {
   const orgSlug = bodyDto.orgSlug?.trim() ?? ''
   const requestedRoles = Array.from(new Set(bodyDto.roles ?? []))
 
+  userService.verifyCanAssignRoles(
+    c,
+    requestedRoles,
+  )
+
   const existingUser = await userModel.getNormalUserByEmail(
     c.env.DB,
     bodyDto.email,
