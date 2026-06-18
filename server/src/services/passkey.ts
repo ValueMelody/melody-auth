@@ -177,7 +177,7 @@ export const processPasskeyVerify = async (
   passkeyInfo: AuthenticationResponseJSON,
   challenge: string,
 ) => {
-  const isValidChallenge = await kvService.getPasskeyVerifyChallenge(
+  const isValidChallenge = await kvService.verifyPasskeyVerifyChallenge(
     c.env.KV,
     challenge,
   )
@@ -243,9 +243,19 @@ export const processPasskeyVerify = async (
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
   }
 
+  const newCounter = verification.authenticationInfo?.newCounter
+  if (newCounter !== undefined && newCounter < passkey.counter) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.InvalidPasskeyVerifyRequest,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
+  }
+
   return {
     user,
     passkeyId: passkey.id,
-    newCounter: verification.authenticationInfo?.newCounter,
+    newCounter,
   }
 }
