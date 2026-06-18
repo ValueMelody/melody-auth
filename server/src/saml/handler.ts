@@ -115,16 +115,16 @@ export const postSamlSpAcs = async (c: Context) => {
       { body },
     )
 
-    const userId = extract.attributes[record.userIdAttribute]
-    const email = record.emailAttribute ? extract.attributes[record.emailAttribute] : null
-    const firstName = record.firstNameAttribute ? extract.attributes[record.firstNameAttribute] : null
-    const lastName = record.lastNameAttribute ? extract.attributes[record.lastNameAttribute] : null
+    const userId = extract.attributes?.[record.userIdAttribute]
+    const email = record.emailAttribute ? extract.attributes?.[record.emailAttribute] : null
+    const firstName = record.firstNameAttribute ? extract.attributes?.[record.firstNameAttribute] : null
+    const lastName = record.lastNameAttribute ? extract.attributes?.[record.lastNameAttribute] : null
 
     const samlUser: userService.SamlUser = {
-      userId,
-      email: email ?? null,
-      firstName: firstName ?? null,
-      lastName: lastName ?? null,
+      userId: String(userId),
+      email: email ? String(email) : null,
+      firstName: firstName ? String(firstName) : null,
+      lastName: lastName ? String(lastName) : null,
     }
 
     const user = await userService.processSamlAccount(
