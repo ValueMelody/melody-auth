@@ -994,6 +994,38 @@ export const setFailedChangeEmailCodeAttempts = async (
   )
 }
 
+export const getFailedEmailVerificationCodeAttemptsByIP = async (
+  kv: KVNamespace,
+  userId: number,
+  ip?: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedEmailVerificationCodeAttempts,
+    String(userId),
+    ip,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setFailedEmailVerificationCodeAttempts = async (
+  kv: KVNamespace,
+  userId: number,
+  ip: string | undefined,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.FailedEmailVerificationCodeAttempts,
+    String(userId),
+    ip,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: 1800 },
+  )
+}
+
 const thirtyDaysInSeconds = 2592000
 
 export const storeEmailMfaRememberDevice = async (

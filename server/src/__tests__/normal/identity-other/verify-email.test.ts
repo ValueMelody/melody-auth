@@ -10,6 +10,7 @@ import {
   routeConfig,
 } from 'configs'
 import app from 'index'
+import { kvService } from 'services'
 import { userModel } from 'models'
 import {
   getApp,
@@ -227,6 +228,57 @@ describe(
         const { res } = await sendCorrectVerifyEmailReq()
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
+      },
+    )
+
+    test(
+      'should lock after EMAIL_VERIFICATION_CODE_THRESHOLD failed attempts',
+      async () => {
+        process.env.EMAIL_VERIFICATION_CODE_THRESHOLD = 2 as unknown as string
+
+        await prepareUserAccount(db)
+
+        const { res: res1 } = await sendCorrectVerifyEmailReq({ code: 'abcdef' })
+        expect(res1.status).toBe(400)
+        expect(await res1.text()).toBe(messageConfig.RequestError.WrongCode)
+
+        const { res: res2 } = await sendCorrectVerifyEmailReq({ code: 'abcdef' })
+        expect(res2.status).toBe(400)
+        expect(await res2.text()).toBe(messageConfig.RequestError.WrongCode)
+
+        const { res: res3 } = await sendCorrectVerifyEmailReq({ code: 'abcdef' })
+        expect(res3.status).toBe(400)
+        expect(await res3.text()).toBe(messageConfig.RequestError.EmailVerificationLocked)
+
+        process.env.EMAIL_VERIFICATION_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should not track failed attempts when EMAIL_VERIFICATION_CODE_THRESHOLD is 0',
+      async () => {
+        process.env.EMAIL_VERIFICATION_CODE_THRESHOLD = 0 as unknown as string
+
+        await prepareUserAccount(db)
+
+        const getSpy = vi.spyOn(
+          kvService,
+          'getFailedEmailVerificationCodeAttemptsByIP',
+        )
+        const setSpy = vi.spyOn(
+          kvService,
+          'setFailedEmailVerificationCodeAttempts',
+        )
+
+        const { res } = await sendCorrectVerifyEmailReq({ code: 'abcdef' })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        expect(getSpy).not.toHaveBeenCalled()
+        expect(setSpy).not.toHaveBeenCalled()
+
+        getSpy.mockRestore()
+        setSpy.mockRestore()
+        process.env.EMAIL_VERIFICATION_CODE_THRESHOLD = 5 as unknown as string
       },
     )
   },

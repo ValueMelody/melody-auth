@@ -220,6 +220,7 @@ Policies allow you to route users to specific auth flows without changing applic
 | MFA code attempt lockout | Temporarily block email, SMS, and OTP MFA verification after too many failed code attempts | ✓ | | | |
 | Change-email rate limit | Limit how many change-email verification emails can be sent in a window | ✓ | | | |
 | Change-email code attempt lockout | Temporarily block change-email code verification after too many failed attempts | ✓ | | | |
+| Email-verification code attempt lockout | Temporarily block email verification after too many failed code attempts | ✓ | | | |
 | Auth-code exchange attempt lockout | Temporarily block auth-code token exchange after too many failed `code_verifier` attempts | ✓ | | | |
 | View locked IPs | Inspect which IPs are currently locked for a user | | ✓ | ✓ | |
 | Unlock IPs | Clear all IP locks for a user | | ✓ | ✓ | |
