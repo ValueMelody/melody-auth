@@ -107,6 +107,7 @@ export enum RequestError {
   OtpMfaLocked = 'Too many failed OTP verification attempts. Please try again after 30 minutes.',
   SmsMfaLocked = 'Too many SMS verification attempts. Please try again after 30 minutes.',
   EmailMfaLocked = 'Too many Email verification attempts. Please try again after 30 minutes.',
+  PasswordlessLocked = 'Too many failed passwordless verification attempts. Please try again after 30 minutes.',
   PasswordResetCodeLocked = 'Too many failed password reset code attempts. Please try again after 30 minutes.',
   PasswordResetLocked = 'Too many password reset email requests. Please try again tomorrow.',
   ChangeEmailLocked = 'Too many send email change code requests. Please try again after 30 minutes.',

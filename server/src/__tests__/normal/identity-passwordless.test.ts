@@ -17,6 +17,7 @@ import {
   insertUsers, getApp, postAuthorizeBody,
 } from 'tests/identity'
 import app from 'index'
+import { kvService } from 'services'
 import { userModel } from 'models'
 
 let db: Database
@@ -682,6 +683,113 @@ describe(
         expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
+      'should lock after MFA_CODE_VERIFY_THRESHOLD failed attempts',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 2 as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const requestBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const sendRequest = async () => app.request(
+          routeConfig.IdentityRoute.ProcessPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: 'abcdefgh',
+            }),
+          },
+          mock(db),
+        )
+
+        const res1 = await sendRequest()
+        expect(res1.status).toBe(401)
+        expect(await res1.text()).toBe(messageConfig.RequestError.WrongCode)
+
+        const res2 = await sendRequest()
+        expect(res2.status).toBe(401)
+        expect(await res2.text()).toBe(messageConfig.RequestError.WrongCode)
+
+        const res3 = await sendRequest()
+        expect(res3.status).toBe(400)
+        expect(await res3.text()).toBe(messageConfig.RequestError.PasswordlessLocked)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
+      },
+    )
+
+    test(
+      'should not track failed attempts when MFA_CODE_VERIFY_THRESHOLD is 0',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 0 as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const requestBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const getSpy = vi.spyOn(
+          kvService,
+          'getFailedMfaCodeAttemptsByIP',
+        )
+        const setSpy = vi.spyOn(
+          kvService,
+          'setFailedMfaCodeAttempts',
+        )
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode: 'abcdefgh',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        expect(getSpy).not.toHaveBeenCalled()
+        expect(setSpy).not.toHaveBeenCalled()
+
+        getSpy.mockRestore()
+        setSpy.mockRestore()
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
       },
     )
   },
