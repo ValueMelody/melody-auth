@@ -45,6 +45,8 @@ const useSubmitError = ({
         msg = requestError.smsMfaLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.EmailMfaLocked) !== -1) {
         msg = requestError.emailMfaLocked[locale]
+      } else if (errorString.indexOf(messageConfig.RequestError.PasswordlessLocked) !== -1) {
+        msg = requestError.passwordlessLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.PasswordResetCodeLocked) !== -1) {
         msg = requestError.passwordResetCodeLocked[locale]
       } else if (errorString.indexOf(messageConfig.RequestError.PasswordResetLocked) !== -1) {

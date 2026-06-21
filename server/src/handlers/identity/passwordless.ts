@@ -10,7 +10,7 @@ import {
   identityService, kvService, mfaService, userService,
 } from 'services'
 import {
-  validateUtil, loggerUtil,
+  validateUtil, loggerUtil, requestUtil,
 } from 'utils'
 
 export const postAuthorizePasswordless = async (c: Context<typeConfig.Context>) => {
@@ -93,7 +93,29 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
 
-  const { AUTHORIZATION_CODE_EXPIRES_IN: expiresIn } = env(c)
+  const {
+    AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,
+    MFA_CODE_VERIFY_THRESHOLD: threshold,
+  } = env(c)
+
+  let ip: string | undefined
+  let failedAttempts = 0
+  if (threshold) {
+    ip = requestUtil.getRequestIP(c)
+    failedAttempts = await kvService.getFailedMfaCodeAttemptsByIP(
+      c.env.KV,
+      authCodeStore.user.id,
+      ip,
+    )
+    if (failedAttempts >= threshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.PasswordlessLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordlessLocked)
+    }
+  }
 
   const isValid = await kvService.stampPasswordlessCode(
     c.env.KV,
@@ -103,6 +125,14 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
   )
 
   if (!isValid) {
+    if (threshold) {
+      await kvService.setFailedMfaCodeAttempts(
+        c.env.KV,
+        authCodeStore.user.id,
+        ip,
+        failedAttempts + 1,
+      )
+    }
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

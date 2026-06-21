@@ -878,6 +878,11 @@ export const requestError = Object.freeze({
     fr: 'Trop de tentatives de vérification par email. Veuillez réessayer dans 30 minutes.',
     zh: '邮箱验证失败次数过多。请在 30 分钟后重试。',
   },
+  passwordlessLocked: {
+    en: 'Too many failed passwordless verification attempts. Please try again after 30 minutes.',
+    fr: 'Trop de tentatives échouées de vérification sans mot de passe. Veuillez réessayer dans 30 minutes.',
+    zh: '免密验证失败次数过多。请在 30 分钟后重试。',
+  },
   passwordResetLocked: {
     en: 'Too many password reset requests. Please try again tomorrow.',
     fr: 'Trop de demandes de réinitialisation de mot de passe. Veuillez réessayer demain.',
