@@ -951,12 +951,43 @@ export const verifyUserEmail = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
 
+  const { EMAIL_VERIFICATION_CODE_THRESHOLD: emailVerificationCodeThreshold } = env(c)
+  let ip: string | undefined
+  let failedAttempts = 0
+  if (emailVerificationCodeThreshold) {
+    ip = requestUtil.getRequestIP(c)
+    failedAttempts = await kvService.getFailedEmailVerificationCodeAttemptsByIP(
+      c.env.KV,
+      user.id,
+      ip,
+    )
+
+    if (failedAttempts >= emailVerificationCodeThreshold) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.EmailVerificationLocked,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.EmailVerificationLocked)
+    }
+  }
+
   const isValid = await kvService.verifyEmailVerificationCode(
     c.env.KV,
     user.id,
     bodyDto.code,
   )
   if (!isValid) {
+    if (emailVerificationCodeThreshold) {
+      const attempts = failedAttempts + 1
+      await kvService.setFailedEmailVerificationCodeAttempts(
+        c.env.KV,
+        user.id,
+        ip,
+        attempts,
+      )
+    }
+
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,

@@ -33,6 +33,7 @@ describe(
       AUTHORIZATION_CODE_EXPIRES_IN: 300,
       PASSWORD_RESET_CODE_THRESHOLD: 5,
       CHANGE_EMAIL_CODE_THRESHOLD: 5,
+      EMAIL_VERIFICATION_CODE_THRESHOLD: 5,
     }
 
     beforeEach(() => {
@@ -129,6 +130,10 @@ describe(
         const changeEmailCodeAttemptCell = screen.getByText('CHANGE_EMAIL_CODE_THRESHOLD')
           .nextElementSibling
         expect(changeEmailCodeAttemptCell).toHaveTextContent('5')
+
+        const emailVerificationCodeAttemptCell = screen.getByText('EMAIL_VERIFICATION_CODE_THRESHOLD')
+          .nextElementSibling
+        expect(emailVerificationCodeAttemptCell).toHaveTextContent('5')
       },
     )
   },

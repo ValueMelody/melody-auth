@@ -87,6 +87,7 @@ describe(
       [messageConfig.RequestError.OtpMfaLocked, requestError.optMfaLocked.en],
       [messageConfig.RequestError.SmsMfaLocked, requestError.smsMfaLocked.en],
       [messageConfig.RequestError.EmailMfaLocked, requestError.emailMfaLocked.en],
+      [messageConfig.RequestError.EmailVerificationLocked, requestError.emailVerificationLocked.en],
       [messageConfig.RequestError.PasswordResetLocked, requestError.passwordResetLocked.en],
       [messageConfig.RequestError.PasswordResetCodeLocked, requestError.passwordResetCodeLocked.en],
       [messageConfig.RequestError.ChangeEmailLocked, requestError.changeEmailLocked.en],

@@ -91,6 +91,7 @@
   - SMS MFA attempts
   - Email MFA attempts
   - Change Email attempts
+  - Email Verification attempts
 - <b>Logging</b>:
   - Logger Level
   - Email Logs
