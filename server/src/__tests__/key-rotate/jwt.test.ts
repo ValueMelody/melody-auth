@@ -122,6 +122,7 @@ describe(
         const payload = {
           sub: appRecord.clientId,
           azp: appRecord.clientId,
+          iss: 'http://localhost:8787',
           scope: 'root',
           iat: timeUtil.getCurrentTimestamp(),
           exp: timeUtil.getCurrentTimestamp() + 100,
