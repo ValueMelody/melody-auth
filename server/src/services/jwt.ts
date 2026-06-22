@@ -129,14 +129,30 @@ export const getAccessTokenBody = async (
     }
   }
 
+  const { AUTH_SERVER_URL: serverUrl } = env(context)
+
   let accessTokenBody: typeConfig.AccessTokenBody
   try {
     accessTokenBody = await verify(
       accessToken,
       key,
-      'RS256',
+      {
+        alg: 'RS256',
+        iss: serverUrl,
+      },
     ) as unknown as typeConfig.AccessTokenBody
   } catch (e) {
+    loggerUtil.triggerLogger(
+      context,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongAccessToken,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongAccessToken)
+  }
+
+  if (
+    typeof accessTokenBody.scope !== 'string'
+  ) {
     loggerUtil.triggerLogger(
       context,
       loggerUtil.LoggerLevel.Warn,
