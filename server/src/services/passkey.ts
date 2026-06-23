@@ -207,6 +207,15 @@ export const processPasskeyVerify = async (
     throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidPasskeyVerifyRequest)
   }
 
+  if (!user.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
+  }
+
   const {
     AUTH_SERVER_URL: authServerUrl, EMBEDDED_AUTH_ORIGINS: embeddedAuthOrigins,
   } = env(c)
