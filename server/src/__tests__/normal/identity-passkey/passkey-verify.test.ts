@@ -153,6 +153,44 @@ describe(
     )
 
     test(
+      'should reject passkey verification for a disabled user',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await enrollPasskey(db)
+        await db.prepare('update "user" set "isActive" = 0 where id = 1').run()
+
+        const challenge = 'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc'
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyVerifyChallenge}-${challenge}`,
+          '1',
+        )
+
+        const appRecord = await getApp(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          passkeyInfo: passkeyVerifyMock,
+          challenge,
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasskeyVerify,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.UserDisabled)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
       'should not allow replaying a verified passkey assertion',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
