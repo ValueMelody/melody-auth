@@ -86,7 +86,63 @@ describe(
           redirectUri: 'http://localhost:3000/en/dashboard',
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
+          recoveryCode: expect.any(String),
         })
+
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'rotates the recovery code so a used code cannot be reused',
+      async () => {
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        const { res: enrollRes } = await enrollRecoveryCode(db)
+        const enrollJson = await enrollRes.json() as { recoveryCode: string }
+
+        const appRecord = await getApp(db)
+        const buildBody = async (recoveryCode: string) => ({
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          recoveryCode,
+        })
+
+        // First sign-in with the enrolled code succeeds and returns a fresh code
+        const firstRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizeRecoveryCode,
+          {
+            method: 'POST', body: JSON.stringify(await buildBody(enrollJson.recoveryCode)),
+          },
+          mock(db),
+        )
+        expect(firstRes.status).toBe(200)
+        const firstJson = await firstRes.json() as { recoveryCode: string }
+        expect(firstJson.recoveryCode).toEqual(expect.any(String))
+        expect(firstJson.recoveryCode).not.toBe(enrollJson.recoveryCode)
+
+        // Reusing the original (now consumed) code is rejected
+        const reuseRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizeRecoveryCode,
+          {
+            method: 'POST', body: JSON.stringify(await buildBody(enrollJson.recoveryCode)),
+          },
+          mock(db),
+        )
+        expect(reuseRes.status).toBe(404)
+        expect(await reuseRes.text()).toBe(messageConfig.RequestError.NoUser)
+
+        // The freshly issued code works
+        const newCodeRes = await app.request(
+          routeConfig.IdentityRoute.AuthorizeRecoveryCode,
+          {
+            method: 'POST', body: JSON.stringify(await buildBody(firstJson.recoveryCode)),
+          },
+          mock(db),
+        )
+        expect(newCodeRes.status).toBe(200)
 
         process.env.ENABLE_RECOVERY_CODE = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string

@@ -319,6 +319,69 @@ describe(
     )
 
     test(
+      'handleSubmit surfaces a rotated recovery code and defers the redirect until continue',
+      async () => {
+        const onSubmitError = vi.fn()
+        const onSwitchView = vi.fn()
+
+        const validateSpy = vi.mocked(formModule.validate)
+        validateSpy.mockReturnValue({})
+
+        const { result } = renderHook(() =>
+          useRecoveryCodeForm({
+            locale: 'en',
+            params: mockParams,
+            onSubmitError,
+            onSwitchView,
+          }))
+
+        const fakeResponseData = {
+          code: 'auth-code',
+          state: 'test-state',
+          redirectUri: 'http://localhost:3000/callback',
+          recoveryCode: 'NEW-RECOVERY-CODE-123',
+        }
+        const fakeResponse = {
+          ok: true,
+          json: async () => fakeResponseData,
+        }
+        const fetchSpy = vi.spyOn(
+          global,
+          'fetch',
+        ).mockResolvedValue(fakeResponse as Response)
+
+        const parseResponseSpy = vi.mocked(requestModule.parseResponse)
+        parseResponseSpy.mockResolvedValue(fakeResponseData)
+
+        const handleAuthorizeSpy = vi.mocked(requestModule.handleAuthorizeStep)
+        handleAuthorizeSpy.mockReset()
+
+        const fakeEvent = { preventDefault: vi.fn() } as unknown as Event
+
+        await act(async () => {
+          result.current.handleSubmit(fakeEvent)
+          await Promise.resolve()
+        })
+
+        // The new code is surfaced and the redirect is NOT triggered yet
+        expect(result.current.newRecoveryCode).toBe('NEW-RECOVERY-CODE-123')
+        expect(handleAuthorizeSpy).not.toHaveBeenCalled()
+
+        // Continuing from the display step proceeds with the stored response
+        act(() => {
+          result.current.handleContinue()
+        })
+        expect(handleAuthorizeSpy).toHaveBeenCalledWith(
+          fakeResponseData,
+          'en',
+          onSwitchView,
+        )
+
+        fetchSpy.mockRestore()
+      },
+    )
+
+    test(
       'handleSubmit calls onSubmitError when fetch fails',
       async () => {
         const onSubmitError = vi.fn()

@@ -512,7 +512,7 @@ export const verifyPasswordSignIn = async (
 export const verifyRecoveryCodeSignIn = async (
   c: Context<typeConfig.Context>,
   bodyDto: baseDto.SignInWithRecoveryCodeDto,
-): Promise<userModel.Record> => {
+): Promise<{ user: userModel.Record; recoveryCode: string }> => {
   const user = await verifySignIn(
     c,
     bodyDto.email,
@@ -524,7 +524,18 @@ export const verifyRecoveryCodeSignIn = async (
     },
   )
 
-  return user
+  const {
+    recoveryCode, recoveryHash,
+  } = await cryptoUtil.genRecoveryCode()
+  const updatedUser = await userModel.update(
+    c.env.DB,
+    user.id,
+    { recoveryCodeHash: recoveryHash },
+  )
+
+  return {
+    user: updatedUser, recoveryCode,
+  }
 }
 
 interface CreateAccountBody {

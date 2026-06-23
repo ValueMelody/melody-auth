@@ -655,6 +655,16 @@ export const recoveryCodeSignIn = Object.freeze({
     fr: 'Confirmer',
     zh: '确认',
   },
+  newCodeTitle: {
+    en: 'Your new recovery code',
+    fr: 'Votre nouveau code de récupération',
+    zh: '您的新恢复码',
+  },
+  newCodeDesc: {
+    en: 'The recovery code you just used is no longer valid. Save this new code in a safe place — it can be used to recover your account.',
+    fr: 'Le code de récupération que vous venez d’utiliser n’est plus valide. Conservez ce nouveau code dans un endroit sûr — il peut être utilisé pour récupérer votre compte.',
+    zh: '您刚刚使用的恢复码已失效。请将此新恢复码保存在安全的地方——它可用于恢复您的账户。',
+  },
 })
 
 export const smsMfa = Object.freeze({

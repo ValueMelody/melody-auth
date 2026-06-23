@@ -7,7 +7,9 @@ import {
   Mock,
 } from 'vitest'
 import RecoveryCodeSignIn, { RecoveryCodeSignInProps } from './RecoveryCodeSignIn'
-import { recoveryCodeSignIn } from 'pages/tools/locale'
+import {
+  recoveryCodeSignIn, recoveryCodeEnroll,
+} from 'pages/tools/locale'
 import { View } from 'pages/hooks'
 
 beforeAll(() => {
@@ -37,6 +39,8 @@ describe(
       submitError: null,
       onSwitchView: vi.fn(),
       isSubmitting: false,
+      newRecoveryCode: null,
+      handleContinue: vi.fn(),
     }
 
     const setup = (props: RecoveryCodeSignInProps = defaultProps) => {
@@ -52,7 +56,8 @@ describe(
     beforeEach(() => {
       (defaultProps.onSubmit as Mock).mockReset();
       (defaultProps.onChange as Mock).mockReset();
-      (defaultProps.onSwitchView as Mock).mockReset()
+      (defaultProps.onSwitchView as Mock).mockReset();
+      (defaultProps.handleContinue as Mock).mockReset()
     })
 
     it(
@@ -364,6 +369,43 @@ describe(
 
         expect(container.textContent).toContain(recoveryCodeSignIn.email.en)
         expect(container.textContent).toContain(recoveryCodeSignIn.recoveryCode.en)
+      },
+    )
+
+    it(
+      'shows the new recovery code and hides the form when newRecoveryCode is provided',
+      () => {
+        const props = {
+          ...defaultProps,
+          newRecoveryCode: 'NEW-RECOVERY-CODE-123',
+        }
+        const container = setup(props)
+
+        // Form inputs are no longer rendered
+        expect(container.querySelector('input[name="email"]')).toBeNull()
+        expect(container.querySelector('input[name="recoveryCode"]')).toBeNull()
+
+        // The new code and the replacement-notice title are shown
+        expect(container.textContent).toContain('NEW-RECOVERY-CODE-123')
+        expect(container.textContent).toContain(recoveryCodeSignIn.newCodeTitle.en)
+        expect(container.textContent).toContain(recoveryCodeSignIn.newCodeDesc.en)
+      },
+    )
+
+    it(
+      'calls handleContinue when the continue button is clicked on the new code view',
+      () => {
+        const props = {
+          ...defaultProps,
+          newRecoveryCode: 'NEW-RECOVERY-CODE-123',
+        }
+        const container = setup(props)
+        const continueButton = getByText(
+          container,
+          recoveryCodeEnroll.continue.en,
+        )
+        fireEvent.click(continueButton)
+        expect(props.handleContinue).toHaveBeenCalledTimes(1)
       },
     )
   },
