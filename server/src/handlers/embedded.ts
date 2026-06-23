@@ -357,7 +357,9 @@ export const signInWithRecoveryCode = async (c: Context<typeConfig.Context>) => 
     bodyDto.sessionId,
   )
 
-  const user = await userService.verifyRecoveryCodeSignIn(
+  const {
+    user, recoveryCode,
+  } = await userService.verifyRecoveryCodeSignIn(
     c,
     bodyDto,
   )
@@ -376,6 +378,7 @@ export const signInWithRecoveryCode = async (c: Context<typeConfig.Context>) => 
     sessionId: bodyDto.sessionId,
     nextStep: result.nextPage,
     success: !result.nextPage,
+    recoveryCode,
   })
 }
 

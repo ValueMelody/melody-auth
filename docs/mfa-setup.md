@@ -45,6 +45,7 @@ Passkeys provide secure, phishing-resistant sign-in without passwords and allow 
 Recovery codes let users regain access when they forget their password or cannot complete MFA.
 
 - Enable via ENABLE_RECOVERY_CODE=true
+- Each recovery code is single-use. When a user signs in with one, it is immediately invalidated and replaced by a freshly generated code, which is shown once at the end of the sign-in (both the hosted pages and the embedded auth API) — prompt the user to save it.
 
 ## Remember this device (30 days)
 

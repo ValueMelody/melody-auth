@@ -695,11 +695,11 @@ embeddedRoutes.get(
  *             $ref: '#/components/schemas/PostSignInWithRecoveryCodeReq'
  *     responses:
  *       200:
- *         description: Next step of the auth flow
+ *         description: Next step of the auth flow, plus a freshly issued recovery code that replaces the consumed one
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AuthRes'
+ *               $ref: '#/components/schemas/SignInWithRecoveryCodeRes'
  */
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.RecoveryCode,

@@ -116,6 +116,7 @@ describe(
         expect(json).toStrictEqual({
           sessionId,
           success: true,
+          recoveryCode: expect.any(String),
         })
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string

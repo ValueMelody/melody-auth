@@ -25,6 +25,7 @@ const RecoveryCodeSignIn = ({
 
   const {
     values, errors, handleChange, handleSubmit, isSubmitting,
+    newRecoveryCode, handleContinue,
   } = useRecoveryCodeForm({
     locale,
     params,
@@ -42,6 +43,8 @@ const RecoveryCodeSignIn = ({
       submitError={submitError}
       onSwitchView={onSwitchView}
       isSubmitting={isSubmitting}
+      newRecoveryCode={newRecoveryCode}
+      handleContinue={handleContinue}
     />
   )
 }

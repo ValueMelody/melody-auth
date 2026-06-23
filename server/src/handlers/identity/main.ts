@@ -79,7 +79,9 @@ export const postAuthorizeRecoveryCode = async (c: Context<typeConfig.Context>) 
     bodyDto.redirectUri,
   )
 
-  const user = await userService.verifyRecoveryCodeSignIn(
+  const {
+    user, recoveryCode,
+  } = await userService.verifyRecoveryCodeSignIn(
     c,
     bodyDto,
   )
@@ -109,7 +111,9 @@ export const postAuthorizeRecoveryCode = async (c: Context<typeConfig.Context>) 
     authCodeBody,
   )
 
-  return c.json(result)
+  return c.json({
+    ...result, recoveryCode,
+  })
 }
 
 export interface GetAuthorizeAccountRes {

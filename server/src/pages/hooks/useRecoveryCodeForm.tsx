@@ -37,6 +37,9 @@ const useRecoveryCodeForm = ({
   const [email, setEmail] = useState('')
   const [recoveryCode, setRecoveryCode] = useState('')
 
+  const [newRecoveryCode, setNewRecoveryCode] = useState<string | null>(null)
+  const [pendingResponse, setPendingResponse] = useState<unknown>(null)
+
   const [touched, setTouched] = useState({
     email: false,
     recoveryCode: false,
@@ -108,7 +111,12 @@ const useRecoveryCodeForm = ({
         },
       )
         .then(parseResponse)
-        .then((response) => {
+        .then((response: any) => {
+          if (response?.recoveryCode) {
+            setNewRecoveryCode(response.recoveryCode)
+            setPendingResponse(response)
+            return
+          }
           handleAuthorizeStep(
             response,
             locale,
@@ -133,6 +141,17 @@ const useRecoveryCodeForm = ({
     ],
   )
 
+  const handleContinue = useCallback(
+    () => {
+      handleAuthorizeStep(
+        pendingResponse,
+        locale,
+        onSwitchView,
+      )
+    },
+    [pendingResponse, locale, onSwitchView],
+  )
+
   return {
     values,
     errors: {
@@ -142,6 +161,8 @@ const useRecoveryCodeForm = ({
     handleChange,
     handleSubmit,
     isSubmitting,
+    newRecoveryCode,
+    handleContinue,
   }
 }
 

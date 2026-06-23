@@ -603,6 +603,23 @@ const AuthRes = {
   required: ['sessionId', 'success'],
 }
 
+const SignInWithRecoveryCodeRes = {
+  type: 'object',
+  properties: {
+    sessionId: { type: 'string' },
+    nextStep: {
+      type: 'string',
+      enum: ['consent', 'mfa_enroll', 'email_mfa', 'sms_mfa', 'otp_setup', 'otp_mfa', 'passkey_enroll'],
+    },
+    success: { type: 'boolean' },
+    recoveryCode: {
+      type: 'string',
+      description: 'A freshly issued recovery code that replaces the one just consumed. Display it to the user once; it cannot be retrieved again.',
+    },
+  },
+  required: ['sessionId', 'success', 'recoveryCode'],
+}
+
 const TokenExchangeReq = {
   type: 'object',
   properties: {
@@ -742,6 +759,7 @@ module.exports = {
   PostPasskeyVerifyReq,
   RecoveryCodeEnrollRes,
   AuthRes,
+  SignInWithRecoveryCodeRes,
   TokenExchangeRes,
   TokenRefreshRes,
   SignOutReq,

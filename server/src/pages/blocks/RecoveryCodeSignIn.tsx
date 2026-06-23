@@ -1,9 +1,12 @@
 import {
   Field, SecondaryButton, PrimaryButton, SubmitError, ViewTitle,
+  RecoveryCodeContainer,
 } from 'pages/components'
 
 import { View } from 'pages/hooks'
-import { recoveryCodeSignIn } from 'pages/tools/locale'
+import {
+  recoveryCodeSignIn, recoveryCodeEnroll,
+} from 'pages/tools/locale'
 import { typeConfig } from 'configs'
 
 export interface RecoveryCodeSignInProps {
@@ -21,6 +24,8 @@ export interface RecoveryCodeSignInProps {
   submitError: string | null;
   onSwitchView: (view: View) => void;
   isSubmitting: boolean;
+  newRecoveryCode: string | null;
+  handleContinue: () => void;
 }
 
 const RecoveryCodeSignIn = ({
@@ -32,7 +37,35 @@ const RecoveryCodeSignIn = ({
   submitError,
   onSwitchView,
   isSubmitting,
+  newRecoveryCode,
+  handleContinue,
 }: RecoveryCodeSignInProps) => {
+  if (newRecoveryCode) {
+    return (
+      <>
+        <ViewTitle title={recoveryCodeSignIn.newCodeTitle[locale]} />
+        <section class='flex flex-col justify-around w-full gap-4 mt-4'>
+          <p class='w-(--text-width) text-center'>
+            {recoveryCodeSignIn.newCodeDesc[locale]}
+          </p>
+          <RecoveryCodeContainer
+            recoveryCode={newRecoveryCode}
+            copyTitle={recoveryCodeEnroll.copy[locale]}
+            downloadTitle={recoveryCodeEnroll.download[locale]}
+            title={recoveryCodeEnroll.title[locale]}
+            desc={recoveryCodeSignIn.newCodeDesc[locale]}
+          />
+          <PrimaryButton
+            type='button'
+            title={recoveryCodeEnroll.continue[locale]}
+            onClick={handleContinue}
+          />
+        </section>
+        <SubmitError error={submitError} />
+      </>
+    )
+  }
+
   return (
     <>
       <ViewTitle title={recoveryCodeSignIn.title[locale]} />
