@@ -139,6 +139,7 @@ export interface EmbeddedSessionBody {
   isFullyAuthorized?: boolean;
   isSecured?: boolean;
   mfa?: AuthCodeBodyMfaConfig;
+  samlRequestId?: string;
 }
 
 export interface EmbeddedSessionBodyWithUser {
@@ -149,6 +150,7 @@ export interface EmbeddedSessionBodyWithUser {
   isFullyAuthorized?: boolean;
   isSecured?: boolean;
   mfa?: AuthCodeBodyMfaConfig;
+  samlRequestId?: string;
 }
 
 export interface AccessTokenBody {

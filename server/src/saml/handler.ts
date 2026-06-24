@@ -15,6 +15,28 @@ import {
 import { oauthDto } from 'dtos'
 import { loggerUtil } from 'utils'
 
+const firstStringValue = (value?: string | string[]): string => {
+  if (Array.isArray(value)) return value.length ? String(value[0]) : ''
+  return value === undefined || value === null ? '' : String(value)
+}
+
+const toStringArray = (value?: string | string[]): string[] => {
+  if (Array.isArray(value)) return value.map((item) => String(item))
+  return value === undefined || value === null ? [] : [String(value)]
+}
+
+const getSamlReplayTtl = (
+  notOnOrAfter: string, fallback: number,
+): number => {
+  if (!notOnOrAfter) return fallback
+  const remainingMs = new Date(notOnOrAfter).getTime() - Date.now()
+  if (Number.isNaN(remainingMs)) return fallback
+  return Math.max(
+    Math.ceil(remainingMs / 1000),
+    60,
+  )
+}
+
 export const getSamlSpLogin = async (c: Context) => {
   const policy = c.req.query('policy')
   const {
@@ -42,7 +64,9 @@ export const getSamlSpLogin = async (c: Context) => {
     name,
   )
 
-  const { context } = await sp.createLoginRequest(
+  const {
+    id: requestId, context,
+  } = await sp.createLoginRequest(
     idp,
     'redirect',
   )
@@ -54,6 +78,7 @@ export const getSamlSpLogin = async (c: Context) => {
     appId: app.id,
     appName: app.name,
     request: queryDto,
+    samlRequestId: requestId,
   }
   await kvService.storeEmbeddedSession(
     c.env.KV,
@@ -115,6 +140,59 @@ export const postSamlSpAcs = async (c: Context) => {
       { body },
     )
 
+    const inResponseTo = firstStringValue(extract.response?.inResponseTo)
+    if (!session.samlRequestId || inResponseTo !== session.samlRequestId) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.InvalidSamlInResponseTo,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidSamlInResponseTo)
+    }
+
+    const audiences = toStringArray(extract.audience)
+    if (!audiences.includes(samlService.getSpEntityId(c))) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.InvalidSamlAudience,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidSamlAudience)
+    }
+
+    const destination = firstStringValue(extract.response?.destination)
+    if (destination && destination !== samlService.getSpAcsUrl(c)) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.InvalidSamlDestination,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidSamlDestination)
+    }
+
+    const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+
+    const responseId = firstStringValue(extract.response?.id)
+    if (!responseId || await kvService.isSamlResponseConsumed(
+      c.env.KV,
+      responseId,
+    )) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.SamlResponseReplayed,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.SamlResponseReplayed)
+    }
+    await kvService.markSamlResponseConsumed(
+      c.env.KV,
+      responseId,
+      getSamlReplayTtl(
+        firstStringValue(extract.conditions?.notOnOrAfter),
+        codeExpiresIn,
+      ),
+    )
+
     const userId = extract.attributes?.[record.userIdAttribute]
     const email = record.emailAttribute ? extract.attributes?.[record.emailAttribute] : null
     const firstName = record.firstNameAttribute ? extract.attributes?.[record.firstNameAttribute] : null
@@ -134,7 +212,6 @@ export const postSamlSpAcs = async (c: Context) => {
       'en',
     )
 
-    const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
     const authCodeBody = embeddedHandler.sessionBodyToAuthCodeBody({
       ...session,
       user,
