@@ -13,6 +13,16 @@ import { loggerUtil } from 'utils'
 
 setSchemaValidator(validator)
 
+export const getSpEntityId = (c: Context<typeConfig.Context>) => {
+  const { AUTH_SERVER_URL: serverUri } = env(c)
+  return `${serverUri}${routeConfig.InternalRoute.SamlSp}/metadata`
+}
+
+export const getSpAcsUrl = (c: Context<typeConfig.Context>) => {
+  const { AUTH_SERVER_URL: serverUri } = env(c)
+  return `${serverUri}${routeConfig.InternalRoute.SamlSp}/acs`
+}
+
 export const createSp = async (c: Context<typeConfig.Context>) => {
   const spCrt = await c.env.KV.get(adapterConfig.BaseKVKey.SamlSpCert)
   const spKey = await c.env.KV.get(adapterConfig.BaseKVKey.SamlSpKey)
@@ -24,11 +34,11 @@ export const createSp = async (c: Context<typeConfig.Context>) => {
   const { AUTH_SERVER_URL: serverUri } = env(c)
 
   return ServiceProvider({
-    entityID: `${serverUri}${routeConfig.InternalRoute.SamlSp}/metadata`,
+    entityID: getSpEntityId(c),
     assertionConsumerService: [
       {
         Binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-        Location: `${serverUri}${routeConfig.InternalRoute.SamlSp}/acs`,
+        Location: getSpAcsUrl(c),
       },
     ],
     singleLogoutService: [

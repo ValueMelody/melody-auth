@@ -900,6 +900,32 @@ export const verifyOidcCodeVerifier = async (
   return isValid
 }
 
+export const isSamlResponseConsumed = async (
+  kv: KVNamespace,
+  responseId: string,
+): Promise<boolean> => {
+  const stored = await kv.get(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.SamlResponseId,
+    responseId,
+  ))
+  return stored === '1'
+}
+
+export const markSamlResponseConsumed = async (
+  kv: KVNamespace,
+  responseId: string,
+  expiresIn: number,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.SamlResponseId,
+      responseId,
+    ),
+    '1',
+    { expirationTtl: expiresIn },
+  )
+}
+
 export const storeChangeEmailCode = async (
   kv: KVNamespace,
   userId: number,

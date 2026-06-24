@@ -57,6 +57,7 @@ export enum BaseKVKey {
   ChangeEmailCode = 'CEC',
   ChangeEmailAttempts = 'CEA',
   OidcCodeVerifier = 'OVC',
+  SamlResponseId = 'SAMLR',
 }
 
 export const getKVKey = (
