@@ -44,6 +44,7 @@ describe(
           json: () => ({
             data: {
               is_valid: true,
+              app_id: '123',
               user_id: 'fb001',
             },
           }),
@@ -106,6 +107,36 @@ describe(
         global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
         await postFacebookRequest()
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
+      },
+    )
+
+    test(
+      'should reject a token issued to another Facebook app',
+      async () => {
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = '123'
+        global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = 'abc'
+        mockFbFetch.mockClear()
+        mockFbFetch.mockImplementationOnce(async () => ({
+          ok: true,
+          json: () => ({ access_token: 'token123' }),
+        }))
+        mockFbFetch.mockImplementationOnce(async () => ({
+          ok: true,
+          json: () => ({
+            data: {
+              is_valid: true,
+              app_id: 'other-app',
+              user_id: 'fb001',
+            },
+          }),
+        }))
+
+        const res = await prepareRequest()
+
+        expect(res.status).toBe(404)
+        expect(mockFbFetch).toHaveBeenCalledTimes(2)
+        global.process.env.FACEBOOK_AUTH_CLIENT_ID = ''
         global.process.env.FACEBOOK_AUTH_CLIENT_SECRET = ''
       },
     )
