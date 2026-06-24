@@ -190,6 +190,30 @@ npm run node:build
 npm run node:start
 ```
 
+### Client IP & trusted proxy headers
+
+Melody Auth scopes its brute-force protections — account lockout, MFA, and password-reset rate limits — by client IP. On Cloudflare this is automatic: the runtime exposes the real client IP through the `cf-connecting-ip` header, which Cloudflare sets itself and a caller cannot spoof.
+
+When self-hosting on Node, the app sits behind your own reverse proxy or cloud load balancer, and the real client IP arrives in a forwarding header that *your host* injects. By default Melody Auth trusts **no** forwarding header, so every rate limit falls back to per-user. To enable per-IP scoping, list the header your host sets in `server/src/configs/variable.ts`:
+
+```ts
+export const RequestIPConfig = Object.freeze({
+  trustedHeaders: ['x-real-ip'],
+})
+```
+
+Use whichever header your hosting vendor / proxy injects, for example:
+
+| Host / proxy | Client IP header |
+|---|---|
+| AWS ELB/ALB, Heroku, Render, DigitalOcean | `x-forwarded-for` |
+| Nginx (with `proxy_set_header X-Real-IP $remote_addr`) | `x-real-ip` |
+| Fastly | `fastly-client-ip` |
+| Akamai / "True-Client-IP" | `true-client-ip` |
+| Google App Engine | `x-appengine-user-ip` |
+| Azure Front Door | `x-azure-clientip` |
+
+
 ## Node Dev Environment with Docker
 - Set required env vars in server/.dev.vars
 ```

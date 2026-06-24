@@ -189,6 +189,30 @@ npm run node:build
 npm run node:start
 ```
 
+### 客户端 IP 与可信代理头
+
+Melody Auth 会基于客户端 IP 来限定其暴力破解防护——账户锁定、MFA 以及密码重置的限流。在 Cloudflare 上这是自动完成的：运行时会通过 `cf-connecting-ip` 头暴露真实的客户端 IP，该头由 Cloudflare 自行设置，调用方无法伪造。
+
+当你在 Node 上自托管时，应用位于你自己的反向代理或云负载均衡器之后，真实的客户端 IP 会通过*你的主机*注入的转发头到达。默认情况下，Melody Auth **不信任任何**转发头，因此所有限流都会回退为按用户（per-user）维度。若要启用按 IP（per-IP）维度，请在 `server/src/configs/variable.ts` 中列出你的主机所设置的头：
+
+```ts
+export const RequestIPConfig = Object.freeze({
+  trustedHeaders: ['x-real-ip'],
+})
+```
+
+请使用你的托管服务商 / 代理所注入的头，例如：
+
+| 主机 / 代理 | 客户端 IP 头 |
+|---|---|
+| AWS ELB/ALB、Heroku、Render、DigitalOcean | `x-forwarded-for` |
+| Nginx（配置了 `proxy_set_header X-Real-IP $remote_addr`） | `x-real-ip` |
+| Fastly | `fastly-client-ip` |
+| Akamai / “True-Client-IP” | `true-client-ip` |
+| Google App Engine | `x-appengine-user-ip` |
+| Azure Front Door | `x-azure-clientip` |
+
+
 ## Node 开发环境（Docker）
 - 在 `server/.dev.vars` 中设置所需的环境变量
 ```
