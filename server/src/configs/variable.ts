@@ -69,6 +69,12 @@ export const S2sConfig = Object.freeze({
   privilegedScopes: [Scope.Root],
 })
 
+export const RequestIPConfig = Object.freeze({
+  // Node deployments only. Add headers only when a trusted proxy removes them
+  // from incoming requests and then sets them itself; otherwise leave this empty.
+  trustedHeaders: [] as string[],
+})
+
 export const systemConfig = Object.freeze({
   name: 'Melody Auth',
   enableOrgGroup: true,
