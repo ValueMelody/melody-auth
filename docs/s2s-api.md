@@ -68,6 +68,10 @@ The scopes granted to a server-to-server token determine which endpoints it can 
 
 When creating an app (`POST /api/v1/apps`) or updating one (`PUT /api/v1/apps/{id}`), the `root` scope can only be assigned by a caller whose own token holds the `root` scope. A `write_app` token that lacks `root` can still manage other scopes, but any request that includes `root` in the app's scope list is rejected with `400` and the message `Only an app with the root scope can assign the root scope to an app`. This prevents a `write_app` token from escalating its own privileges to `root`.
 
+### Built-in scopes
+
+The built-in scope names in `systemConfig.builtInScopeNames` are reserved: `openid`, `profile`, `offline_access`, `root`, `read_user`, `write_user`, `read_app`, `write_app`, `read_role`, `write_role`, `read_scope`, `write_scope`, `read_org`, and `write_org`. `POST /api/v1/scopes` cannot create one of these scopes, and `DELETE /api/v1/scopes/{id}` cannot delete one. `PUT /api/v1/scopes/{id}` can update a built-in scope's note or localized labels, but it cannot rename a built-in scope or rename a custom scope to a built-in name. Prohibited requests return `400` with `Built-in scopes cannot be created, deleted, or renamed`.
+
 ## Roles
 
 Roles are assigned to users and can be managed when updating a user (`PUT /api/v1/users/{authId}`) or inviting one (`POST /api/v1/users/invitations`). Both require the `write_user` scope.

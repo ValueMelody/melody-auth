@@ -68,6 +68,10 @@ fetch('/oauth2/v1/token', {
 
 在创建应用（`POST /api/v1/apps`）或更新应用（`PUT /api/v1/apps/{id}`）时，只有自身令牌持有 `root` 作用域的调用方才能分配 `root` 作用域。不具备 `root` 的 `write_app` 令牌仍可管理其他作用域，但任何在应用作用域列表中包含 `root` 的请求都会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can assign the root scope to an app`。这可以防止 `write_app` 令牌将自身权限提升为 `root`。
 
+### 内置作用域
+
+`systemConfig.builtInScopeNames` 中的内置作用域名称为保留且不可更改：`openid`、`profile`、`offline_access`、`root`、`read_user`、`write_user`、`read_app`、`write_app`、`read_role`、`write_role`、`read_scope`、`write_scope`、`read_org` 和 `write_org`。`POST /api/v1/scopes` 不能创建这些作用域，`DELETE /api/v1/scopes/{id}` 也不能删除它们。`PUT /api/v1/scopes/{id}` 可以更新内置作用域的说明或本地化标签，但不能重命名内置作用域，也不能将自定义作用域重命名为内置作用域名称。受限请求会返回 `400`，并附带消息 `Built-in scopes cannot be created, deleted, or renamed`。
+
 ## 角色
 
 角色被分配给用户，可在更新用户（`PUT /api/v1/users/{authId}`）或邀请用户（`POST /api/v1/users/invitations`）时进行管理。两者都需要 `write_user` 作用域。

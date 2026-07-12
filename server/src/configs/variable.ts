@@ -77,6 +77,22 @@ export const RequestIPConfig = Object.freeze({
 
 export const systemConfig = Object.freeze({
   name: 'Melody Auth',
+  builtInScopeNames: Object.freeze<string[]>([
+    Scope.OpenId,
+    Scope.Profile,
+    Scope.OfflineAccess,
+    Scope.Root,
+    Scope.ReadUser,
+    Scope.WriteUser,
+    Scope.ReadApp,
+    Scope.WriteApp,
+    Scope.ReadRole,
+    Scope.WriteRole,
+    Scope.ReadScope,
+    Scope.WriteScope,
+    Scope.ReadOrg,
+    Scope.WriteOrg,
+  ]),
   enableOrgGroup: true,
   emailVerificationCodeExpiresIn: 7200, // must be x * 3600 (in seconds)
   passwordResetCodeExpiresIn: 7200, // must be x * 3600 (in seconds)
