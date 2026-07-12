@@ -7,7 +7,7 @@ import {
   appScopeModel, scopeLocaleModel, scopeModel,
 } from 'models'
 
-const isBuiltInScopeName = (name: string) => variableConfig.systemConfig.builtInScopeNames.includes(name)
+const isBuiltInScopeName = (name: string) => variableConfig.S2sConfig.builtInScopes.includes(name)
 
 const throwImmutableScopeError = () => {
   throw new errorConfig.Forbidden(messageConfig.RequestError.ImmutableScope)

@@ -9,7 +9,9 @@ import {
   user1, user2, insertUsers,
 } from './user.test'
 import app from 'index'
-import { routeConfig } from 'configs'
+import {
+  messageConfig, routeConfig,
+} from 'configs'
 import {
   migrate, mock,
 } from 'tests/mock'
@@ -33,12 +35,15 @@ afterEach(async () => {
 
 const BaseRoute = routeConfig.InternalRoute.ApiRoles
 
-const createNewRole = async (token?: string) => await app.request(
+const createNewRole = async (
+  token?: string,
+  name = 'test name',
+) => await app.request(
   BaseRoute,
   {
     method: 'POST',
     body: JSON.stringify({
-      name: 'test name',
+      name,
       note: 'test note',
     }),
     headers: token === '' ? undefined : { Authorization: `Bearer ${token ?? await getS2sToken(db)}` },
@@ -166,6 +171,23 @@ describe(
   'create',
   () => {
     test(
+      'should not create a system role',
+      async () => {
+        await attachIndividualScopes(db)
+        const res = await createNewRole(
+          await getS2sToken(
+            db,
+            Scope.WriteRole,
+          ),
+          Role.SuperAdmin,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.BuiltInRoleImmutable)
+      },
+    )
+
+    test(
       'should create role',
       async () => {
         const res = await createNewRole()
@@ -241,6 +263,59 @@ describe(
   'update',
   () => {
     test(
+      'should not update a system role',
+      async () => {
+        await attachIndividualScopes(db)
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              name: 'former_super_admin',
+              note: 'updated note',
+            }),
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteRole,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.BuiltInRoleImmutable)
+        const systemRole = await db.prepare('select name from role where id = ?').get(1)
+        expect(systemRole).toStrictEqual({ name: Role.SuperAdmin })
+      },
+    )
+
+    test(
+      'should not rename a custom role to a system role name',
+      async () => {
+        await attachIndividualScopes(db)
+        const token = await getS2sToken(
+          db,
+          Scope.WriteRole,
+        )
+        await createNewRole(token)
+        const res = await app.request(
+          `${BaseRoute}/2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ name: Role.SuperAdmin }),
+            headers: { Authorization: `Bearer ${token}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.BuiltInRoleImmutable)
+      },
+    )
+
+    test(
       'should update role',
       async () => {
         await createNewRole()
@@ -273,6 +348,31 @@ describe(
 describe(
   'delete',
   () => {
+    test(
+      'should not delete a system role',
+      async () => {
+        await attachIndividualScopes(db)
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${await getS2sToken(
+                db,
+                Scope.WriteRole,
+              )}`,
+            },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.BuiltInRoleImmutable)
+        const systemRole = await db.prepare('select name from role where id = ?').get(1)
+        expect(systemRole).toStrictEqual({ name: Role.SuperAdmin })
+      },
+    )
+
     test(
       'should delete role',
       async () => {

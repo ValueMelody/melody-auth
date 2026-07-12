@@ -1,12 +1,19 @@
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
 import {
-  errorConfig, messageConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig, variableConfig,
 } from 'configs'
 import {
   roleModel, userModel, userRoleModel,
 } from 'models'
 import { roleDto } from 'dtos'
+
+const isBuiltInRoleName = (name: string) =>
+  variableConfig.S2sConfig.builtInRoles.some((role) => role === name)
+
+const throwBuiltInRoleImmutableError = () => {
+  throw new errorConfig.Forbidden(messageConfig.RequestError.BuiltInRoleImmutable)
+}
 
 export const getRoles = async (c: Context<typeConfig.Context>): Promise<roleModel.Record[]> => {
   const roles = await roleModel.getAll(c.env.DB)
@@ -42,6 +49,8 @@ export const createRole = async (
   c: Context<typeConfig.Context>,
   dto: roleDto.PostRoleDto,
 ): Promise<roleModel.Record> => {
+  if (isBuiltInRoleName(dto.name)) throwBuiltInRoleImmutableError()
+
   const role = await roleModel.create(
     c.env.DB,
     {
@@ -56,20 +65,35 @@ export const updateRole = async (
   roleId: number,
   dto: roleDto.PutRoleDto,
 ): Promise<roleModel.Record> => {
-  const role = await roleModel.update(
+  const role = await roleModel.getById(
+    c.env.DB,
+    roleId,
+  )
+  if (!role) throw new errorConfig.NotFound(messageConfig.RequestError.RoleNotFound)
+  if (isBuiltInRoleName(role.name) || (dto.name !== undefined && isBuiltInRoleName(dto.name))) {
+    throwBuiltInRoleImmutableError()
+  }
+
+  const updatedRole = await roleModel.update(
     c.env.DB,
     roleId,
     {
       name: dto.name, note: dto.note,
     },
   )
-  return role
+  return updatedRole
 }
 
 export const deleteRole = async (
   c: Context<typeConfig.Context>,
   roleId: number,
 ): Promise<true> => {
+  const role = await roleModel.getById(
+    c.env.DB,
+    roleId,
+  )
+  if (role && isBuiltInRoleName(role.name)) throwBuiltInRoleImmutableError()
+
   await roleModel.remove(
     c.env.DB,
     roleId,
