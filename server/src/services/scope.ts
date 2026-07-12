@@ -1,11 +1,17 @@
 import { Context } from 'hono'
 import {
-  errorConfig, typeConfig,
+  errorConfig, messageConfig, typeConfig, variableConfig,
 } from 'configs'
 import { scopeDto } from 'dtos'
 import {
   appScopeModel, scopeLocaleModel, scopeModel,
 } from 'models'
+
+const isBuiltInScopeName = (name: string) => variableConfig.systemConfig.builtInScopeNames.includes(name)
+
+const throwImmutableScopeError = () => {
+  throw new errorConfig.Forbidden(messageConfig.RequestError.ImmutableScope)
+}
 
 export const getScopes = async (c: Context<typeConfig.Context>): Promise<scopeModel.Record[]> => {
   const scopes = await scopeModel.getAll(c.env.DB)
@@ -62,6 +68,8 @@ export const createScope = async (
   c: Context<typeConfig.Context>,
   dto: scopeDto.PostScopeDto,
 ): Promise<scopeModel.ApiRecord> => {
+  if (isBuiltInScopeName(dto.name)) throwImmutableScopeError()
+
   const scope = await scopeModel.create(
     c.env.DB,
     {
@@ -104,6 +112,12 @@ export const updateScope = async (
   )
 
   if (!scope) throw new errorConfig.NotFound()
+
+  if (
+    dto.name !== undefined &&
+    dto.name !== scope.name &&
+    (isBuiltInScopeName(scope.name) || isBuiltInScopeName(dto.name))
+  ) throwImmutableScopeError()
 
   const updatedScope = shouldUpdateScope
     ? await scopeModel.update(
@@ -151,6 +165,12 @@ export const deleteScope = async (
   c: Context<typeConfig.Context>,
   scopeId: number,
 ): Promise<true> => {
+  const scope = await scopeModel.getById(
+    c.env.DB,
+    scopeId,
+  )
+  if (scope && isBuiltInScopeName(scope.name)) throwImmutableScopeError()
+
   await scopeModel.remove(
     c.env.DB,
     scopeId,
