@@ -70,15 +70,19 @@ fetch('/oauth2/v1/token', {
 
 ### 内置作用域
 
-`systemConfig.builtInScopeNames` 中的内置作用域名称为保留且不可更改：`openid`、`profile`、`offline_access`、`root`、`read_user`、`write_user`、`read_app`、`write_app`、`read_role`、`write_role`、`read_scope`、`write_scope`、`read_org` 和 `write_org`。`POST /api/v1/scopes` 不能创建这些作用域，`DELETE /api/v1/scopes/{id}` 也不能删除它们。`PUT /api/v1/scopes/{id}` 可以更新内置作用域的说明或本地化标签，但不能重命名内置作用域，也不能将自定义作用域重命名为内置作用域名称。受限请求会返回 `400`，并附带消息 `Built-in scopes cannot be created, deleted, or renamed`。
+`S2sConfig.builtInScopes` 中的内置作用域名称为保留且不可更改：`openid`、`profile`、`offline_access`、`root`、`read_user`、`write_user`、`read_app`、`write_app`、`read_role`、`write_role`、`read_scope`、`write_scope`、`read_org` 和 `write_org`。`POST /api/v1/scopes` 不能创建这些作用域，`DELETE /api/v1/scopes/{id}` 也不能删除它们。`PUT /api/v1/scopes/{id}` 可以更新内置作用域的说明或本地化标签，但不能重命名内置作用域，也不能将自定义作用域重命名为内置作用域名称。受限请求会返回 `400`，并附带消息 `Built-in scopes cannot be created, deleted, or renamed`。
 
 ## 角色
 
 角色被分配给用户，可在更新用户（`PUT /api/v1/users/{authId}`）或邀请用户（`POST /api/v1/users/invitations`）时进行管理。两者都需要 `write_user` 作用域。
 
+### 内置角色
+
+包括 `super_admin` 在内的内置角色在 `S2sConfig.builtInRoles` 中配置。内置角色记录不能通过角色 API 创建、更新或删除；受限请求会返回 `400`，并附带消息 `Built-in roles cannot be created, deleted, or updated`。授权使用这些不可变的角色名称。
+
 ### 分配特权角色
 
-特权角色会授予跨应用的提升信任——例如，`super_admin` 是用于控制用户模拟（impersonation）的角色。为防止 `write_user` 令牌提升权限（无论是自身还是其他用户的权限），只有自身令牌持有 `root` 作用域的调用方才能分配特权角色。不具备 `root` 的 `write_user` 令牌仍可分配非特权角色，但任何包含特权角色（例如 `super_admin`）的请求都会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can assign a privileged role`。
+内置角色会授予跨应用的提升信任——例如，`super_admin` 是用于控制用户模拟（impersonation）的角色。为防止 `write_user` 令牌提升权限（无论是自身还是其他用户的权限），只有自身令牌持有 `root` 作用域的调用方才能分配特权角色。不具备 `root` 的 `write_user` 令牌仍可分配非特权角色，但任何包含特权角色（例如 `super_admin`）的请求都会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can assign a privileged role`。
 
 ## 详细文档
 更多信息请参阅 [REST API Swagger](https://auth-server.valuemelody.com/api/v1/swagger)。

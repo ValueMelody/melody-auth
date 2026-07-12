@@ -1414,7 +1414,7 @@ export const verifyCanAssignRoles = (
   c: Context<typeConfig.Context>,
   roleNames: string[],
 ) => {
-  const includesPrivilegedRole = variableConfig.S2sConfig.privilegedRoles
+  const includesPrivilegedRole = variableConfig.S2sConfig.builtInRoles
     .some((role) => roleNames.includes(role))
   if (!includesPrivilegedRole) return
 
