@@ -51,6 +51,9 @@ export const SocialSignInConfig = Object.freeze({
   DiscordScope: 'identity+email',
   FacebookScope: 'public_profile',
   AppleScope: 'name email',
+  // Keep true only when external providers supply MFA assurance equivalent to local MFA.
+  // Set to false to require configured local MFA after social, OIDC, and SAML sign-in.
+  ExternalSignInCanBypassLocalMfa: true,
 })
 
 export const SmsMfaConfig = Object.freeze({

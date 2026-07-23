@@ -94,6 +94,8 @@ const verifyAuthCodeMfaAndConsent = async (
   authCodeBody: typeConfig.AuthCodeBody,
 ) => {
   const isSocialLogin = !!authCodeBody.user.socialAccountId
+  const bypassLocalMfa = isSocialLogin &&
+    variableConfig.SocialSignInConfig.ExternalSignInCanBypassLocalMfa
 
   const { ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn } = env(c)
 
@@ -107,7 +109,7 @@ const verifyAuthCodeMfaAndConsent = async (
     authCodeBody,
   )
 
-  if (!isSocialLogin && !authCodeBody.isFullyAuthorized) {
+  if (!bypassLocalMfa && !authCodeBody.isFullyAuthorized) {
     if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
       if (!authCodeBody.user.mfaTypes.length) {
         loggerUtil.triggerLogger(
@@ -164,7 +166,7 @@ const verifyAuthCodeMfaAndConsent = async (
       }
     }
 
-    if (enablePasswordlessSignIn) {
+    if (enablePasswordlessSignIn && !isSocialLogin) {
       const isVerified = await kvService.passwordlessCodeVerified(
         c.env.KV,
         authCode,
@@ -256,6 +258,8 @@ export const processPostAuthorize = async (
   } = env(c)
 
   const isSocialLogin = !!authCodeBody.user.socialAccountId
+  const bypassLocalMfa = isSocialLogin &&
+    variableConfig.SocialSignInConfig.ExternalSignInCanBypassLocalMfa
 
   const requirePasswordlessVerify =
     step < 1 &&
@@ -300,7 +304,7 @@ export const processPostAuthorize = async (
 
   const requireMfaEnroll =
     step < 3 &&
-    !isSocialLogin &&
+    !bypassLocalMfa &&
     !!enforceMfa?.length &&
     !enableEmailMfa &&
     !enableOtpMfa &&
@@ -314,7 +318,7 @@ export const processPostAuthorize = async (
 
   const requireOtpMfa =
     step < 4 &&
-    !isSocialLogin &&
+    !bypassLocalMfa &&
     (enableOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp))
   const requireOtpSetup = requireOtpMfa && !authCodeBody.user.otpVerified
   if (requireOtpSetup) {
@@ -355,7 +359,7 @@ export const processPostAuthorize = async (
 
   const requireSmsMfa =
     step < 5 &&
-    !isSocialLogin &&
+    !bypassLocalMfa &&
     (enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms))
   if (requireSmsMfa) {
     if (!enableMfaRememberDevice) {
@@ -390,7 +394,7 @@ export const processPostAuthorize = async (
 
   const requireEmailMfa =
     step < 6 &&
-    !isSocialLogin &&
+    !bypassLocalMfa &&
     (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
   if (requireEmailMfa) {
     if (!enableMfaRememberDevice) {
