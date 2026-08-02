@@ -278,6 +278,7 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
     c,
     authCodeBody.user.id,
     authCodeBody.appId,
+    authCodeBody.request.scopes,
   )
 
   return c.json(await identityService.processPostAuthorize(

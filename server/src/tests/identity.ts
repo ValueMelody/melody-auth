@@ -53,8 +53,8 @@ export const insertUsers = (
   if (withConsent) {
     db.exec(`
       INSERT INTO user_app_consent
-      ("userId", "appId")
-      values (1, 1)
+      ("userId", "appId", "scopes")
+      values (1, 1, '["profile","openid","offline_access"]')
     `)
   }
 }

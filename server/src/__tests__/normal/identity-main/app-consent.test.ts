@@ -197,8 +197,46 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
           nextPage: routeConfig.View.MfaEnroll,
         })
-        const consent = db.prepare('SELECT * from user_app_consent WHERE "userId" = 1 AND "appId" = 1').get()
-        expect(consent).toBeTruthy()
+        const consent = await db.prepare('SELECT * from user_app_consent WHERE "userId" = 1 AND "appId" = 1').get() as { scopes: string }
+        expect(JSON.parse(consent.scopes)).toStrictEqual([
+          'offline_access',
+          'openid',
+          'profile',
+        ])
+      },
+    )
+
+    test(
+      'should extend an existing consent with newly approved scopes',
+      async () => {
+        await insertUsers(db)
+        await db.prepare(`
+          UPDATE user_app_consent
+          SET "scopes" = ?
+          WHERE "userId" = 1 AND "appId" = 1
+        `).run('["profile"]')
+        const body = await prepareFollowUpBody(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AppConsent,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(200)
+        const consents = await db.prepare(`
+          SELECT "scopes"
+          FROM user_app_consent
+          WHERE "userId" = 1 AND "appId" = 1 AND "deletedAt" IS NULL
+        `).all() as { scopes: string }[]
+        expect(consents).toHaveLength(1)
+        expect(JSON.parse(consents[0].scopes)).toStrictEqual([
+          'offline_access',
+          'openid',
+          'profile',
+        ])
       },
     )
 

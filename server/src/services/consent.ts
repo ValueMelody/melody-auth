@@ -4,7 +4,7 @@ import { typeConfig } from 'configs'
 import { userAppConsentModel } from 'models'
 
 export const shouldCollectConsent = async (
-  c: Context<typeConfig.Context>, userId: number, appId: number,
+  c: Context<typeConfig.Context>, userId: number, appId: number, scopes: string[],
 ): Promise<boolean> => {
   const { ENABLE_USER_APP_CONSENT: enableConsent } = env(c)
   if (!enableConsent) return false
@@ -13,7 +13,10 @@ export const shouldCollectConsent = async (
     userId,
     appId,
   )
-  return !consent
+  if (!consent) return true
+
+  const consentedScopes = new Set(consent.scopes)
+  return scopes.some((scope) => !consentedScopes.has(scope))
 }
 
 export const getUserConsentedApps = async (
@@ -44,15 +47,35 @@ export const deleteUserAppConsent = async (
 }
 
 export const createUserAppConsent = async (
-  c: Context<typeConfig.Context>, userId: number, appId: number,
+  c: Context<typeConfig.Context>, userId: number, appId: number, scopes: string[],
 ): Promise<boolean> => {
-  await userAppConsentModel.create(
+  const consent = await userAppConsentModel.getByUserAndApp(
     c.env.DB,
-    {
+    userId,
+    appId,
+  )
+  const normalizedScopes = [...new Set([
+    ...(consent?.scopes ?? []),
+    ...scopes,
+  ])].sort()
+
+  if (consent) {
+    await userAppConsentModel.updateScopesByUserAndApp(
+      c.env.DB,
       userId,
       appId,
-    },
-  )
+      normalizedScopes,
+    )
+  } else {
+    await userAppConsentModel.create(
+      c.env.DB,
+      {
+        userId,
+        appId,
+        scopes: normalizedScopes,
+      },
+    )
+  }
 
   return true
 }

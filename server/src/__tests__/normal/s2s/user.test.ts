@@ -44,8 +44,8 @@ export const insertUsers = async (db: Database) => {
   `)
   await db.exec(`
     INSERT INTO user_app_consent
-    ("userId", "appId")
-    values (1, 1)
+    ("userId", "appId", "scopes")
+    values (1, 1, '["profile","openid","offline_access"]')
   `)
   await db.exec(`
     INSERT INTO user_role
