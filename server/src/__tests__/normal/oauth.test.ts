@@ -1148,6 +1148,53 @@ describe(
     )
 
     test(
+      'filters unassigned scopes again before minting tokens',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+
+        const appRecord = await getApp(db)
+        const authorizeRes = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const { code } = await authorizeRes.json() as { code: string }
+        const kvKey = `${adapterConfig.BaseKVKey.AuthCode}-${code}`
+        const codeStore = JSON.parse(await mockedKV.get(kvKey) ?? '')
+        await mockedKV.put(
+          kvKey,
+          JSON.stringify({
+            ...codeStore,
+            request: {
+              ...codeStore.request,
+              scopes: ['profile', 'root'],
+            },
+          }),
+        )
+
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        const tokenJson = await tokenRes.json() as { access_token: string; scope: string }
+
+        expect(tokenJson.scope).toBe('profile')
+        expect(decode(tokenJson.access_token).payload.scope).toBe('profile')
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
       'could get token use auth code with attributes',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

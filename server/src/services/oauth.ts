@@ -14,6 +14,7 @@ import {
   jwtService,
   kvService,
   roleService,
+  scopeService,
   userService,
 } from 'services'
 import { oauthDto } from 'dtos'
@@ -82,12 +83,25 @@ export const handleAuthCodeTokenExchange = async (
     options,
   )
 
+  const authorizedScopes = await scopeService.verifyAppScopes(
+    c,
+    authInfo.appId,
+    authInfo.request.scopes,
+  )
+  const scopedAuthInfo = {
+    ...authInfo,
+    request: {
+      ...authInfo.request,
+      scopes: authorizedScopes,
+    },
+  }
+
   const userRoles = await roleService.getUserRoles(
     c,
     authInfo.user.id,
   )
   const authId = authInfo.user.authId
-  const scope = authInfo.request.scopes.join(' ')
+  const scope = authorizedScopes.join(' ')
   const currentTimestamp = timeUtil.getCurrentTimestamp()
 
   const {
@@ -110,10 +124,10 @@ export const handleAuthCodeTokenExchange = async (
     expires_on: accessTokenExpiresAt,
     not_before: currentTimestamp,
     token_type: 'Bearer',
-    scope: authInfo.request.scopes.join(' '),
+    scope,
   }
 
-  if (authInfo.request.scopes.includes(Scope.OfflineAccess)) {
+  if (authorizedScopes.includes(Scope.OfflineAccess)) {
     const { SPA_REFRESH_TOKEN_EXPIRES_IN: refreshTokenExpiresIn } = env(c)
     const refreshToken = `${authInfo.user.id}.${genRandomString(128)}`
     const refreshTokenExpiresAt = currentTimestamp + refreshTokenExpiresIn
@@ -136,7 +150,7 @@ export const handleAuthCodeTokenExchange = async (
     )
   }
 
-  if (authInfo.request.scopes.includes(Scope.OpenId)) {
+  if (authorizedScopes.includes(Scope.OpenId)) {
     let attributes: Record<string, string> | undefined
     if (enableUserAttribute) {
       attributes = {}
@@ -156,7 +170,7 @@ export const handleAuthCodeTokenExchange = async (
     const { idToken } = await jwtService.genIdToken(
       c,
       currentTimestamp,
-      authInfo,
+      scopedAuthInfo,
       userRoles,
       attributes,
     )

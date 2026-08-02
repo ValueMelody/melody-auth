@@ -104,7 +104,10 @@ describe(
 describe(
   'post /authorize-passkey-verify',
   () => {
-    const passkeyVerify = async (db: Database) => {
+    const passkeyVerify = async (
+      db: Database,
+      scope = 'profile openid offline_access',
+    ) => {
       await enrollPasskey(db)
 
       const challenge = 'hJ95J5Tc52hkJlWaWdBXqPUhnLGkGR3Nqkn2VwPjAXc'
@@ -119,6 +122,7 @@ describe(
         ...(await postAuthorizeBody(appRecord)),
         passkeyInfo: passkeyVerifyMock,
         challenge,
+        scope,
       }
 
       const res = await app.request(
@@ -146,6 +150,27 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'filters scopes that are not assigned to the app',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        const res = await passkeyVerify(
+          db,
+          'profile root',
+        )
+        const json = await res.json() as { code: string; scopes: string[] }
+
+        expect(json.scopes).toStrictEqual(['profile'])
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${json.code}`) ?? '')
+        expect(codeStore.request.scopes).toStrictEqual(['profile'])
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string

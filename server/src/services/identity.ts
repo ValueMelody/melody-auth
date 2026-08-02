@@ -504,7 +504,11 @@ export const processSignIn = async (
 
   const mfaConfig = mfaService.getAppMfaConfig(app)
 
-  const request = new oauthDto.GetAuthorizeDto(bodyDto)
+  const request = await getAppAuthorizedRequest(
+    c,
+    app.id,
+    bodyDto,
+  )
   const authCode = genRandomString(128)
   const authCodeBody = {
     appId: app.id,
@@ -524,6 +528,23 @@ export const processSignIn = async (
     authCode,
     authCodeBody,
   }
+}
+
+export const getAppAuthorizedRequest = async (
+  c: Context<typeConfig.Context>,
+  appId: number,
+  request: oauthDto.GetAuthorizeDto,
+): Promise<oauthDto.GetAuthorizeDto> => {
+  const scopes = await scopeService.verifyAppScopes(
+    c,
+    appId,
+    request.scopes,
+  )
+
+  return new oauthDto.GetAuthorizeDto({
+    ...request,
+    scopes,
+  })
 }
 
 export const processGetAppConsent = async (

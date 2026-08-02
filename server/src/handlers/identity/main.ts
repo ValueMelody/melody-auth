@@ -9,9 +9,7 @@ import {
   errorConfig,
   messageConfig,
 } from 'configs'
-import {
-  identityDto, oauthDto,
-} from 'dtos'
+import { identityDto } from 'dtos'
 import {
   appService, consentService, emailService,
   identityService, kvService, mfaService, sessionService, userAttributeService, userService,
@@ -86,11 +84,17 @@ export const postAuthorizeRecoveryCode = async (c: Context<typeConfig.Context>) 
     bodyDto,
   )
 
+  const request = await identityService.getAppAuthorizedRequest(
+    c,
+    app.id,
+    bodyDto,
+  )
+
   const authCodeBody = {
     appId: app.id,
     appName: app.name,
     user,
-    request: bodyDto,
+    request,
     isFullyAuthorized: true,
   }
 
@@ -190,7 +194,11 @@ export const postAuthorizeAccount = async (c: Context<typeConfig.Context>) => {
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
   const mfaConfig = mfaService.getAppMfaConfig(app)
 
-  const request = new oauthDto.GetAuthorizeDto(bodyDto)
+  const request = await identityService.getAppAuthorizedRequest(
+    c,
+    app.id,
+    bodyDto,
+  )
   const authCode = genRandomString(128)
   const authCodeBody = {
     appId: app.id,

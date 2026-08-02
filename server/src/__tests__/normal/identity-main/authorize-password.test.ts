@@ -56,6 +56,25 @@ describe(
     )
 
     test(
+      'filters scopes that are not assigned to the app',
+      async () => {
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+          { scopes: 'profile root' },
+        )
+        const json = await res.json() as { code: string; scopes: string[] }
+
+        expect(json.scopes).toStrictEqual(['profile'])
+        const codeStore = JSON.parse(await mockedKV.get(`AC-${json.code}`) ?? '')
+        expect(codeStore.request.scopes).toStrictEqual(['profile'])
+      },
+    )
+
+    test(
       'redirect to passkey enroll if required',
       async () => {
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

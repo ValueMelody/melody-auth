@@ -5,9 +5,7 @@ import { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/server'
 import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
-import {
-  identityDto, oauthDto,
-} from 'dtos'
+import { identityDto } from 'dtos'
 import {
   appService,
   identityService,
@@ -185,7 +183,11 @@ export const postAuthorizePasskeyVerify = async (c: Context<typeConfig.Context>)
     newCounter,
   )
 
-  const request = new oauthDto.GetAuthorizeDto(bodyDto)
+  const request = await identityService.getAppAuthorizedRequest(
+    c,
+    app.id,
+    bodyDto,
+  )
 
   const authCodeBody = {
     appId: app.id,
