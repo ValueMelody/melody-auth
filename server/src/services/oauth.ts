@@ -83,10 +83,6 @@ export const handleAuthCodeTokenExchange = async (
     options,
   )
 
-  // Treat the app's current scope grants as the final authority at the token
-  // boundary. Authorization requests are filtered when they are created, but
-  // this also protects token minting from stale or otherwise malformed auth
-  // code state.
   const authorizedScopes = await scopeService.verifyAppScopes(
     c,
     authInfo.appId,
