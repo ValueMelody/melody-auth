@@ -82,6 +82,21 @@ export const getAuthCodeBody = async (
   return codeBody
 }
 
+export const getAuthCodeBodyForPolicy = async (
+  kv: KVNamespace,
+  authCode: string,
+  policy: string,
+): Promise<typeConfig.AuthCodeBody | false> => {
+  const authCodeBody = await getAuthCodeBody(
+    kv,
+    authCode,
+  )
+
+  if (!authCodeBody || authCodeBody.request.policy !== policy) return false
+
+  return authCodeBody
+}
+
 export const deleteAuthCode = async (
   kv: KVNamespace,
   authCode: string,

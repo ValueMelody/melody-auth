@@ -136,11 +136,14 @@ export const prepareFollowUpParams = async (db: Database) => {
   return `?locale=en&code=${json.code}`
 }
 
-export const prepareFollowUpBody = async (db: Database) => {
+export const prepareFollowUpBody = async (
+  db: Database, policy?: string,
+) => {
   const appRecord = await getApp(db)
   const res = await postSignInRequest(
     db,
     appRecord,
+    policy ? { policy } : undefined,
   )
   const json = await res.json() as { code: string }
   return {
