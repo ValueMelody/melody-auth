@@ -97,6 +97,36 @@ describe(
     )
 
     test(
+      'filters scopes that are not assigned to the app',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        const body = {
+          ...(await postAuthorizeBody(appRecord)),
+          email: 'test@email.com',
+          scope: 'profile root',
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+        const json = await res.json() as { code: string; scopes: string[] }
+
+        expect(json.scopes).toStrictEqual(['profile'])
+        const codeStore = JSON.parse(await mockedKV.get(`AC-${json.code}`) ?? '')
+        expect(codeStore.request.scopes).toStrictEqual(['profile'])
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
       'should create a new user if user does not exist',
       async () => {
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string

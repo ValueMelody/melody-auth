@@ -33,7 +33,9 @@ afterEach(async () => {
 })
 
 const prepareRequest = async (
-  emailVerified: boolean, orgSlug?: string,
+  emailVerified: boolean,
+  orgSlug?: string,
+  scope = 'profile openid offline_access',
 ) => {
   const publicKey = await mockedKV.get(adapterConfig.BaseKVKey.JwtPublicSecret)
   const jwk = await cryptoUtil.secretToJwk(publicKey ?? '')
@@ -61,6 +63,7 @@ const prepareRequest = async (
         ...(await postAuthorizeBody(appRecord)),
         org: orgSlug,
         credential,
+        scope,
       }),
     },
     mock(db),
@@ -101,6 +104,26 @@ describe(
       async () => {
         global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
         await postGoogleRequest(true)
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
+      },
+    )
+
+    test(
+      'filters scopes that are not assigned to the app',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
+
+        const res = await prepareRequest(
+          true,
+          undefined,
+          'profile root',
+        )
+        const json = await res.json() as { code: string; scopes: string[] }
+
+        expect(json.scopes).toStrictEqual(['profile'])
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${json.code}`) ?? '')
+        expect(codeStore.request.scopes).toStrictEqual(['profile'])
+
         global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
       },
     )

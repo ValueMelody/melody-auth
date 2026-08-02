@@ -8,7 +8,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   postAuthorizeBody,
@@ -50,7 +50,10 @@ export const enrollRecoveryCode = async (db: Database) => {
 describe(
   'post /authorize-recovery-code-verify',
   () => {
-    const recoveryCodeVerify = async (db: Database) => {
+    const recoveryCodeVerify = async (
+      db: Database,
+      scope = 'profile openid offline_access',
+    ) => {
       const { res: enrollRes } = await enrollRecoveryCode(db)
       const enrollJson = await enrollRes.json() as { recoveryCode: string }
 
@@ -59,6 +62,7 @@ describe(
         ...(await postAuthorizeBody(appRecord)),
         email: 'test@email.com',
         recoveryCode: enrollJson.recoveryCode,
+        scope,
       }
 
       const res = await app.request(
@@ -88,6 +92,27 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
           recoveryCode: expect.any(String),
         })
+
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'filters scopes that are not assigned to the app',
+      async () => {
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        const res = await recoveryCodeVerify(
+          db,
+          'profile root',
+        )
+        const json = await res.json() as { code: string; scopes: string[] }
+
+        expect(json.scopes).toStrictEqual(['profile'])
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${json.code}`) ?? '')
+        expect(codeStore.request.scopes).toStrictEqual(['profile'])
 
         process.env.ENABLE_RECOVERY_CODE = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string

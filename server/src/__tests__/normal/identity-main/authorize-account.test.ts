@@ -32,12 +32,13 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const postAuthorizeAccount = async () => {
+const postAuthorizeAccount = async (scope = 'profile openid offline_access') => {
   const appRecord = await getApp(db)
   const body = {
     ...(await postAuthorizeBody(appRecord)),
     email: 'test@email.com',
     password: 'Password1!',
+    scope,
   }
 
   const res = await app.request(
@@ -253,6 +254,22 @@ describe(
         expect(body).toContain(`${routeConfig.IdentityRoute.VerifyEmailView}?id=${codeStore.user.authId}&amp;locale=en`)
 
         global.fetch = fetchMock
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'filters scopes that are not assigned to the app',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        const res = await postAuthorizeAccount('profile root')
+        const json = await res.json() as { code: string; scopes: string[] }
+
+        expect(json.scopes).toStrictEqual(['profile'])
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${json.code}`) ?? '') as AuthCodeBody
+        expect(codeStore.request.scopes).toStrictEqual(['profile'])
+
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )

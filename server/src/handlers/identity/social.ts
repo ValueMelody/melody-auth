@@ -7,9 +7,7 @@ import {
   errorConfig, messageConfig, routeConfig, typeConfig,
   variableConfig,
 } from 'configs'
-import {
-  identityDto, oauthDto,
-} from 'dtos'
+import { identityDto } from 'dtos'
 import {
   appService, jwtService, kvService, userService, identityService,
 } from 'services'
@@ -46,7 +44,11 @@ export const prepareSocialAuthCode = async (
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
 
   const authCode = genRandomString(128)
-  const request = new oauthDto.GetAuthorizeDto(bodyDto)
+  const request = await identityService.getAppAuthorizedRequest(
+    c,
+    app.id,
+    bodyDto,
+  )
   const authCodeBody = {
     appId: app.id,
     appName: app.name,
