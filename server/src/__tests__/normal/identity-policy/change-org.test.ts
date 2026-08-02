@@ -50,10 +50,16 @@ const insertUserOrgs = (
   `)
 }
 
-const sendCorrectGetChangeOrgRequest = async ({ code }: {
+const sendCorrectGetChangeOrgRequest = async ({
+  code, policy = Policy.ChangeOrg,
+}: {
   code?: string;
+  policy?: Policy;
 } = {}) => {
-  const body = await prepareFollowUpBody(db)
+  const body = await prepareFollowUpBody(
+    db,
+    policy,
+  )
 
   // Update user's orgSlug
   await db.prepare('UPDATE "user" SET "orgSlug" = ? WHERE id = ?').run(
@@ -75,11 +81,16 @@ const sendCorrectGetChangeOrgRequest = async ({ code }: {
 const sendCorrectPostChangeOrgRequest = async ({
   org,
   code,
+  policy = Policy.ChangeOrg,
 }: {
   org: string;
   code?: string;
+  policy?: Policy;
 }) => {
-  const body = await prepareFollowUpBody(db)
+  const body = await prepareFollowUpBody(
+    db,
+    policy,
+  )
 
   await markAuthCodeAsSecured(body.code)
 
@@ -203,6 +214,25 @@ describe(
           1,
         )
         const { res } = await sendCorrectGetChangeOrgRequest({ code: 'invalid-code' })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        process.env.ENABLE_ORG = false as unknown as string
+        global.process.env.BLOCKED_POLICIES = [Policy.ChangeOrg] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if auth code has the wrong policy',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const { res } = await sendCorrectGetChangeOrgRequest({ policy: Policy.SignInOrSignUp })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
@@ -414,6 +444,28 @@ describe(
         const { res } = await sendCorrectPostChangeOrgRequest({
           org: 'second-org',
           code: 'invalid-code',
+        })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        process.env.ENABLE_ORG = false as unknown as string
+        global.process.env.BLOCKED_POLICIES = [Policy.ChangeOrg] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if auth code has the wrong policy',
+      async () => {
+        process.env.ENABLE_ORG = true as unknown as string
+        global.process.env.BLOCKED_POLICIES = [] as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        const { res } = await sendCorrectPostChangeOrgRequest({
+          org: 'second-org',
+          policy: Policy.SignInOrSignUp,
         })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)

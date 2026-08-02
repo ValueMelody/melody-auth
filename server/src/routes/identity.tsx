@@ -363,7 +363,7 @@ identityRoutes.get(
   routeConfig.IdentityRoute.ChangeOrg,
   configMiddleware.enableOrg,
   configMiddleware.enableChangeOrgPolicy,
-  identityHandler.getProcessSwitchOrg,
+  identityHandler.getChangeOrg,
 )
 
 identityRoutes.post(

@@ -5,7 +5,7 @@ import {
   errorConfig, messageConfig, typeConfig,
 } from 'configs'
 import {
-  baseDto, identityDto, userDto,
+  baseDto, identityDto, oauthDto, userDto,
 } from 'dtos'
 import {
   appBannerService,
@@ -104,13 +104,16 @@ export interface GetProcessSwitchOrgRes {
   orgs: orgModel.AuthInfo[];
   activeOrgSlug: string;
 }
-export const getProcessSwitchOrg = async (c: Context<typeConfig.Context>) => {
+const getSwitchOrg = async (
+  c: Context<typeConfig.Context>, policy?: oauthDto.Policy,
+) => {
   const queryDto = await identityDto.parseGetProcess(c)
   await validateUtil.dto(queryDto)
 
   const authCodeStore = await getAuthCodeBody(
     c,
     queryDto.code,
+    policy,
   )
 
   const orgs = await orgService.getUserOrgs(
@@ -128,6 +131,13 @@ export const getProcessSwitchOrg = async (c: Context<typeConfig.Context>) => {
     orgs: authOrgInfos, activeOrgSlug: authCodeStore.user.orgSlug,
   })
 }
+
+export const getProcessSwitchOrg = async (c: Context<typeConfig.Context>) => getSwitchOrg(c)
+
+export const getChangeOrg = async (c: Context<typeConfig.Context>) => getSwitchOrg(
+  c,
+  oauthDto.Policy.ChangeOrg,
+)
 
 export const postProcessSwitchOrg = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
@@ -190,6 +200,7 @@ export const postChangeOrg = async (c: Context<typeConfig.Context>) => {
   const authCodeStore = await getAuthCodeBody(
     c,
     bodyDto.code,
+    oauthDto.Policy.ChangeOrg,
   )
 
   await identityService.ensureAuthCodeIsSecured(

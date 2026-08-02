@@ -28,13 +28,21 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const sendCorrectRegenerateRecoveryCodeReq = async ({ code }: { code?: string } = {}) => {
+const sendCorrectRegenerateRecoveryCodeReq = async ({
+  code, policy = Policy.ManageRecoveryCode,
+}: {
+  code?: string;
+  policy?: Policy;
+} = {}) => {
   await insertUsers(
     db,
     false,
   )
 
-  const body = await prepareFollowUpBody(db)
+  const body = await prepareFollowUpBody(
+    db,
+    policy,
+  )
   await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ManageRecoveryCode,
@@ -77,6 +85,19 @@ describe(
         process.env.ENABLE_RECOVERY_CODE = true as unknown as string
 
         const { res } = await sendCorrectRegenerateRecoveryCodeReq({ code: 'abc' })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        process.env.ENABLE_RECOVERY_CODE = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if auth code has the wrong policy',
+      async () => {
+        process.env.ENABLE_RECOVERY_CODE = true as unknown as string
+
+        const { res } = await sendCorrectRegenerateRecoveryCodeReq({ policy: Policy.SignInOrSignUp })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 

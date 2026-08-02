@@ -29,14 +29,20 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const sendCorrectUpdateInfoReq = async ({ code }: {
+const sendCorrectUpdateInfoReq = async ({
+  code, policy = Policy.UpdateInfo,
+}: {
   code?: string;
+  policy?: Policy;
 } = {}) => {
   await insertUsers(
     db,
     false,
   )
-  const body = await prepareFollowUpBody(db)
+  const body = await prepareFollowUpBody(
+    db,
+    policy,
+  )
   await markAuthCodeAsSecured(body.code)
 
   const res = await app.request(
@@ -76,6 +82,15 @@ describe(
       'should throw 400 if use wrong auth code',
       async () => {
         const { res } = await sendCorrectUpdateInfoReq({ code: 'abc' })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+      },
+    )
+
+    test(
+      'should throw 400 if auth code has the wrong policy',
+      async () => {
+        const { res } = await sendCorrectUpdateInfoReq({ policy: Policy.SignInOrSignUp })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },

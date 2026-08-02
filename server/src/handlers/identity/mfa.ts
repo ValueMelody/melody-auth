@@ -17,12 +17,18 @@ import {
 import { userModel } from 'models'
 
 export const getAuthCodeBody = async (
-  c: Context<typeConfig.Context>, code: string,
+  c: Context<typeConfig.Context>, code: string, policy?: string,
 ) => {
-  const authCodeStore = await kvService.getAuthCodeBody(
-    c.env.KV,
-    code,
-  )
+  const authCodeStore = policy
+    ? await kvService.getAuthCodeBodyForPolicy(
+      c.env.KV,
+      code,
+      policy,
+    )
+    : await kvService.getAuthCodeBody(
+      c.env.KV,
+      code,
+    )
   if (!authCodeStore) {
     loggerUtil.triggerLogger(
       c,

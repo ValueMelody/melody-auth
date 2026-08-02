@@ -30,13 +30,21 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
-const sendCorrectGetManagePasskeyReq = async ({ code }: { code?: string } = {}) => {
+const sendCorrectGetManagePasskeyReq = async ({
+  code, policy = Policy.ManagePasskey,
+}: {
+  code?: string;
+  policy?: Policy;
+} = {}) => {
   await insertUsers(
     db,
     false,
   )
 
-  const body = await prepareFollowUpBody(db)
+  const body = await prepareFollowUpBody(
+    db,
+    policy,
+  )
   const res = await app.request(
     `${routeConfig.IdentityRoute.ManagePasskey}?code=${code ?? body.code}`,
     { method: 'GET' },
@@ -46,7 +54,12 @@ const sendCorrectGetManagePasskeyReq = async ({ code }: { code?: string } = {}) 
   return { res }
 }
 
-const sendCorrectEnrollPasskeyReq = async ({ code }: { code?: string } = {}) => {
+const sendCorrectEnrollPasskeyReq = async ({
+  code, policy = Policy.ManagePasskey,
+}: {
+  code?: string;
+  policy?: Policy;
+} = {}) => {
   await insertUsers(
     db,
     false,
@@ -57,7 +70,10 @@ const sendCorrectEnrollPasskeyReq = async ({ code }: { code?: string } = {}) => 
     'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
   )
 
-  const body = await prepareFollowUpBody(db)
+  const body = await prepareFollowUpBody(
+    db,
+    policy,
+  )
   await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ManagePasskey,
@@ -75,10 +91,18 @@ const sendCorrectEnrollPasskeyReq = async ({ code }: { code?: string } = {}) => 
   return { res }
 }
 
-const sendCorrectDeletePasskeyReq = async ({ code }: { code?: string } = {}) => {
+const sendCorrectDeletePasskeyReq = async ({
+  code, policy = Policy.ManagePasskey,
+}: {
+  code?: string;
+  policy?: Policy;
+} = {}) => {
   await sendCorrectEnrollPasskeyReq()
 
-  const body = await prepareFollowUpBody(db)
+  const body = await prepareFollowUpBody(
+    db,
+    policy,
+  )
   await markAuthCodeAsSecured(body.code)
   const res = await app.request(
     routeConfig.IdentityRoute.ManagePasskey,
@@ -155,7 +179,10 @@ describe(
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
 
         await sendCorrectEnrollPasskeyReq()
-        const body = await prepareFollowUpBody(db)
+        const body = await prepareFollowUpBody(
+          db,
+          Policy.ManagePasskey,
+        )
         const res = await app.request(
           `${routeConfig.IdentityRoute.ManagePasskey}?code=${body.code}`,
           { method: 'GET' },
@@ -230,6 +257,19 @@ describe(
     )
 
     test(
+      'should throw error if auth code has the wrong policy',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        const { res } = await sendCorrectGetManagePasskeyReq({ policy: Policy.SignInOrSignUp })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if feature not enabled',
       async () => {
         const { res } = await sendCorrectGetManagePasskeyReq()
@@ -281,6 +321,19 @@ describe(
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
 
         const { res } = await sendCorrectEnrollPasskeyReq({ code: 'abc' })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if auth code has the wrong policy',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        const { res } = await sendCorrectEnrollPasskeyReq({ policy: Policy.SignInOrSignUp })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
@@ -342,6 +395,19 @@ describe(
     )
 
     test(
+      'should throw error if auth code has the wrong policy',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        const { res } = await sendCorrectDeletePasskeyReq({ policy: Policy.SignInOrSignUp })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if user has no passkey',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
@@ -351,7 +417,10 @@ describe(
           false,
         )
 
-        const body = await prepareFollowUpBody(db)
+        const body = await prepareFollowUpBody(
+          db,
+          Policy.ManagePasskey,
+        )
         const res = await app.request(
           routeConfig.IdentityRoute.ManagePasskey,
           {
