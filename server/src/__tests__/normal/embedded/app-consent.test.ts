@@ -268,6 +268,16 @@ describe(
           sessionId,
           success: true,
         })
+        const consent = await db.prepare(`
+          SELECT "scopes"
+          FROM user_app_consent
+          WHERE "userId" = 2 AND "appId" = 1 AND "deletedAt" IS NULL
+        `).get() as { scopes: string }
+        expect(JSON.parse(consent.scopes)).toStrictEqual([
+          'offline_access',
+          'openid',
+          'profile',
+        ])
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string

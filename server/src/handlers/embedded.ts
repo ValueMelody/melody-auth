@@ -476,6 +476,7 @@ export const postAppConsent = async (c: Context<typeConfig.Context>) => {
     c,
     sessionBody.user.id,
     sessionBody.appId,
+    sessionBody.request.scopes,
   )
 
   const result = await processPostAuthorizeForEmbedded(

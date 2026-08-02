@@ -464,7 +464,7 @@ describe(
           '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C',
           firstUser.otpSecret,
         )
-        await db.prepare('INSERT INTO user_app_consent ("userId", "appId") values (2, 1)').run()
+        await db.prepare('INSERT INTO user_app_consent ("userId", "appId", "scopes") values (2, 1, \'["profile","openid","offline_access"]\')').run()
 
         const firstBody = await prepareFollowUpBodyByEmail('test@email.com')
         const secondBody = await prepareFollowUpBodyByEmail('second@email.com')

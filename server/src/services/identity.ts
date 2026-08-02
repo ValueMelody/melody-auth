@@ -186,6 +186,7 @@ const verifyAuthCodeMfaAndConsent = async (
     c,
     authCodeBody.user.id,
     authCodeBody.appId,
+    authCodeBody.request.scopes,
   )
   if (requireConsent) {
     loggerUtil.triggerLogger(
@@ -276,6 +277,7 @@ export const processPostAuthorize = async (
     c,
     authCodeBody.user.id,
     authCodeBody.appId,
+    authCodeBody.request.scopes,
   )
   if (requireConsent) {
     return {
