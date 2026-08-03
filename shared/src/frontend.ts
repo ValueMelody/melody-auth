@@ -44,6 +44,17 @@ export const loadRefreshTokenStorageFromParams = (storageType?: StorageType): Re
   return null
 }
 
+/**
+ * Checks the expiry metadata that was stored alongside each token.
+ *
+ * This is a client-side scheduling hint only: it decides when a token should be refreshed.
+ * It reads `expiresOn` out of storage, which is fully controlled by whoever controls the
+ * browser, and it never verifies a token signature, issuer or audience.
+ *
+ * Never use it to decide whether a request is authenticated. Anything running on a server
+ * (middleware, server components, route handlers) must verify the token JWT against the auth
+ * server signing keys instead.
+ */
 export const isValidTokens = (
   accessTokenStorage: AccessTokenStorage | null,
   refreshTokenStorage: RefreshTokenStorage | null,

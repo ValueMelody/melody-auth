@@ -2,18 +2,29 @@ import {
   StorageKey, isValidTokens, IdTokenStorage, AccessTokenStorage, RefreshTokenStorage,
 } from '@melody-auth/shared'
 import { exchangeTokenByRefreshToken } from '@melody-auth/web'
+import { JWTPayload } from 'jose'
 import { CookieStorage } from '../storage/cookieAdapter'
+import {
+  ResolvedTokenVerifierConfig, isExpiredTokenError, resolveTokenVerifierConfig,
+  verifyAccessToken, verifyIdToken,
+} from './tokenVerifier'
 
 /**
  * Configuration options for server-side authentication
  */
 export interface ServerAuthOptions {
-  /** OAuth client ID */
+  /** OAuth client ID. Tokens issued to any other client are rejected. */
   clientId: string;
-  /** Melody Auth server URL */
+  /** Melody Auth server URL. Used as the expected token issuer and to derive the JWKS URI. */
   serverUrl: string;
   /** OAuth redirect URI (used for token refresh) */
   redirectUri: string;
+  /** Overrides the JWKS URI derived from `serverUrl` (`${serverUrl}/.well-known/jwks.json`) */
+  jwksUri?: string;
+  /** PEM-encoded RSA public key, used instead of a JWKS URI for offline verification */
+  publicKey?: string;
+  /** Clock skew tolerance in seconds when validating `exp`/`nbf` (default: 5) */
+  clockTolerance?: number;
   /** Cookie configuration for storing tokens */
   cookieOptions?: {
     httpOnly?: boolean;
@@ -28,26 +39,61 @@ export interface ServerAuthOptions {
  * Authenticated user session information
  */
 export interface AuthSession {
-  /** User ID from the JWT subject claim (if ID token available) */
-  userId?: string;
-  /** User email (if available in JWT claims) */
+  /** User ID, taken from the verified access token subject claim */
+  userId: string;
+  /** User email (if available in the verified ID token claims) */
   email?: string;
-  /** Full JWT payload with all claims (if ID token available) */
+  /** Verified ID token payload with all claims (only present if an ID token is available) */
   account?: any;
   /** Access token for API calls */
   accessToken: string;
-  /** ID token (JWT) - only present if openid scope was requested */
+  /** ID token (JWT) - only present if openid scope was requested and the token is still valid */
   idToken?: string;
   /** Always true for authenticated sessions */
   isAuthenticated: boolean;
 }
 
 /**
+ * Reads the ID token from storage and returns its verified payload alongside the raw token.
+ *
+ * Returns null when no ID token is stored or when the stored one has expired: the session still
+ * stands on the verified access token, it simply carries no identity claims. Any other
+ * verification failure is rethrown so the session is rejected.
+ */
+async function getVerifiedIdToken (
+  idTokenStr: string | null, config: ResolvedTokenVerifierConfig, userId: string,
+): Promise<{ idToken: string; account: JWTPayload } | null> {
+  if (!idTokenStr) return null
+
+  const idTokenStorage: IdTokenStorage = JSON.parse(idTokenStr)
+  if (!idTokenStorage?.idToken) return null
+
+  try {
+    const account = await verifyIdToken(
+      idTokenStorage.idToken,
+      config,
+      userId,
+    )
+    return {
+      idToken: idTokenStorage.idToken, account,
+    }
+  } catch (error) {
+    if (isExpiredTokenError(error)) return null
+    throw error
+  }
+}
+
+/**
  * Retrieves the current user session from cookies
  * Automatically refreshes expired access tokens if a valid refresh token exists
  *
+ * The session is established from the access token JWT, which is verified against the auth
+ * server signing keys on every call. Token metadata stored in cookies is client controlled
+ * and is never used to decide whether a session is authenticated.
+ *
  * @param options - Server authentication options
  * @returns AuthSession if authenticated, null otherwise
+ * @throws Error when the verification configuration is missing or malformed
  *
  * @example
  * ```ts
@@ -64,6 +110,10 @@ export interface AuthSession {
  * ```
  */
 export async function getServerSession (options: ServerAuthOptions): Promise<AuthSession | null> {
+  // Resolved outside of the try block: a misconfigured app has to fail loudly instead of
+  // reporting every visitor as signed out.
+  const verifierConfig = resolveTokenVerifierConfig(options)
+
   const storage = new CookieStorage({ ...options.cookieOptions })
 
   try {
@@ -77,21 +127,43 @@ export async function getServerSession (options: ServerAuthOptions): Promise<Aut
       return null
     }
 
-    const idTokenStorage: IdTokenStorage | null = idTokenStr ? JSON.parse(idTokenStr) : null
     const accessTokenStorage: AccessTokenStorage = JSON.parse(accessTokenStr)
     const refreshTokenStorage: RefreshTokenStorage | null = refreshTokenStr ? JSON.parse(refreshTokenStr) : null
 
-    // Check token validity
-    const {
-      hasValidIdToken, hasValidAccessToken, hasValidRefreshToken,
-    } = isValidTokens(
-      accessTokenStorage,
-      refreshTokenStorage,
-      idTokenStorage,
-    )
+    let accessToken = accessTokenStorage?.accessToken
+    let accessTokenBody: JWTPayload | null = null
 
-    // If access token is expired but refresh token is valid, try to refresh
-    if (!hasValidAccessToken && hasValidRefreshToken && refreshTokenStorage) {
+    try {
+      accessTokenBody = await verifyAccessToken(
+        accessToken,
+        verifierConfig,
+      )
+    } catch (error) {
+      // Only an expired token may be refreshed. Anything else means the token was tampered
+      // with or was issued elsewhere, so the session is dropped.
+      if (!isExpiredTokenError(error)) {
+        console.error(
+          'Access token verification failed:',
+          error,
+        )
+        return null
+      }
+    }
+
+    // If the access token is expired but a refresh token is available, try to refresh.
+    // The stored refresh token expiry is only a hint that saves a round trip, the auth
+    // server remains the authority on whether the refresh token is still usable.
+    if (!accessTokenBody) {
+      const { hasValidRefreshToken } = isValidTokens(
+        null,
+        refreshTokenStorage,
+        null,
+      )
+
+      if (!hasValidRefreshToken || !refreshTokenStorage) {
+        return null
+      }
+
       try {
         const newTokens = await exchangeTokenByRefreshToken(
           {
@@ -101,6 +173,13 @@ export async function getServerSession (options: ServerAuthOptions): Promise<Aut
           },
           refreshTokenStorage.refreshToken,
         )
+
+        // The freshly issued token is verified as well, it is what the session will rely on
+        accessTokenBody = await verifyAccessToken(
+          newTokens.accessToken,
+          verifierConfig,
+        )
+        accessToken = newTokens.accessToken
 
         // Update storage with new tokens
         const newAccessTokenStorage: AccessTokenStorage = {
@@ -113,15 +192,6 @@ export async function getServerSession (options: ServerAuthOptions): Promise<Aut
           StorageKey.AccessToken,
           JSON.stringify(newAccessTokenStorage),
         )
-
-        return {
-          userId: idTokenStorage?.account.sub,
-          email: idTokenStorage?.account.email ?? undefined,
-          account: idTokenStorage?.account,
-          accessToken: newTokens.accessToken,
-          idToken: idTokenStorage?.idToken,
-          isAuthenticated: true,
-        }
       } catch (error) {
         console.error(
           'Failed to refresh token:',
@@ -131,22 +201,24 @@ export async function getServerSession (options: ServerAuthOptions): Promise<Aut
       }
     }
 
-    // Access token is required, ID token is optional
-    if (!hasValidAccessToken) {
-      return null
-    }
+    const userId = accessTokenBody.sub as string
 
-    // If ID token exists, it must be valid
-    if (idTokenStorage && !hasValidIdToken) {
-      return null
-    }
+    // Identity claims come from the verified ID token, never from the cookie payload
+    const verifiedIdToken = await getVerifiedIdToken(
+      idTokenStr,
+      verifierConfig,
+      userId,
+    )
+    const account = verifiedIdToken?.account
+    const emailClaim = account?.email
+    const email = typeof emailClaim === 'string' ? emailClaim : undefined
 
     return {
-      userId: idTokenStorage?.account.sub,
-      email: idTokenStorage?.account.email ?? undefined,
-      account: idTokenStorage?.account,
-      accessToken: accessTokenStorage.accessToken,
-      idToken: idTokenStorage?.idToken,
+      userId,
+      email,
+      account,
+      accessToken,
+      idToken: verifiedIdToken?.idToken,
       isAuthenticated: true,
     }
   } catch (error) {

@@ -16,6 +16,14 @@ export type {
   MelodyAuthMiddlewareConfig, AuthenticatedRequest,
 } from './middleware'
 
+// Token verification
+export {
+  resolveTokenVerifierConfig, verifyAccessToken, verifyIdToken,
+} from './middleware/tokenVerifier'
+export type {
+  TokenVerifierConfig, ResolvedTokenVerifierConfig,
+} from './middleware/tokenVerifier'
+
 // Server Auth
 export {
   getServerSession, requireAuth,

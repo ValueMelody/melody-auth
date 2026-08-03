@@ -10,6 +10,11 @@ Next.js SDK for Melody Auth with full SSR support, middleware protection, and co
 - **React hooks** - `useNextAuth()` for client components
 - **TypeScript** - Full type safety included
 
+Every server-side entry point (`createMelodyAuthMiddleware`, `withAuth`, `getServerSession`,
+`requireAuth`) verifies the access token JWT against your auth server signing keys, and checks
+its algorithm, issuer, client binding and expiry. `serverUrl` and `clientId` are therefore
+required, and signing keys are fetched from `${serverUrl}/.well-known/jwks.json` by default.
+
 ## Installation
 
 ```bash
@@ -35,7 +40,8 @@ import { NextAuthProvider } from '@melody-auth/nextjs';
 import { createMelodyAuthMiddleware } from '@melody-auth/nextjs';
 
 export default createMelodyAuthMiddleware({
-  jwksUri: 'https://your-auth-server.com/.well-known/jwks.json',
+  serverUrl: 'https://your-auth-server.com',
+  clientId: 'your-client-id',
   publicPaths: ['/login']
 });
 

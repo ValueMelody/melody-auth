@@ -1,22 +1,20 @@
 import {
   NextRequest, NextResponse,
 } from 'next/server'
+import { JWTPayload } from 'jose'
 import {
-  jwtVerify, importSPKI, importX509, importJWK, JWTPayload,
-} from 'jose'
-import {
-  StorageKey, isValidTokens, IdTokenStorage, AccessTokenStorage,
+  StorageKey, IdTokenStorage, AccessTokenStorage,
 } from '@melody-auth/shared'
 import { CookieStorage } from '../storage/cookieAdapter'
+import {
+  ResolvedTokenVerifierConfig, TokenVerifierConfig, isExpiredTokenError, resolveTokenVerifierConfig,
+  verifyAccessToken, verifyIdToken,
+} from './tokenVerifier'
 
 /**
  * Configuration options for the Melody Auth middleware
  */
-export interface MelodyAuthMiddlewareConfig {
-  /** PEM-encoded RSA public key for JWT verification */
-  publicKey?: string;
-  /** URI to fetch JWKS (JSON Web Key Set) for JWT verification */
-  jwksUri?: string;
+export interface MelodyAuthMiddlewareConfig extends TokenVerifierConfig {
   /** Array of path prefixes that don't require authentication */
   publicPaths?: string[];
   /** Path to redirect unauthenticated users (default: '/login') */
@@ -37,119 +35,68 @@ export interface MelodyAuthMiddlewareConfig {
 export interface AuthenticatedRequest extends NextRequest {
   /** Authentication information attached to the request */
   auth?: {
-    /** User ID from the JWT subject claim */
+    /** User ID from the verified access token subject claim */
     userId: string;
-    /** Decoded JWT payload containing user account information */
+    /** Verified ID token payload containing user account information, empty when no ID token is present */
     account: JWTPayload;
     /** Access token for API calls */
     accessToken: string;
   };
 }
 
-// Cache for public keys to avoid repeated imports/fetches
-let cachedPublicKey: CryptoKey | null = null
-let jwksCache: { keys: any[]; timestamp: number } | null = null
-const JWKS_CACHE_DURATION = 24 * 60 * 60 * 1000 // 24 hours
-
 /**
- * Imports a JWK key using the appropriate method based on available data
+ * Reads the ID token from storage and returns its verified payload.
+ *
+ * Returns null when no ID token is stored or when the stored one has expired: the session
+ * still stands on the verified access token, it simply carries no identity claims. Any other
+ * verification failure is rethrown so the session is rejected.
  */
-async function importJWKKey (jwk: any): Promise<CryptoKey> {
-  // First try to import directly as JWK
-  if (jwk.n && jwk.e) {
-    const key = await importJWK(
-      jwk,
-      'RS256',
+async function getVerifiedAccount (
+  idTokenStr: string | null, config: ResolvedTokenVerifierConfig, userId: string,
+): Promise<JWTPayload | null> {
+  if (!idTokenStr) return null
+
+  const idTokenStorage: IdTokenStorage = JSON.parse(idTokenStr)
+  if (!idTokenStorage?.idToken) return null
+
+  try {
+    return await verifyIdToken(
+      idTokenStorage.idToken,
+      config,
+      userId,
     )
-    return key as CryptoKey
+  } catch (error) {
+    if (isExpiredTokenError(error)) return null
+    throw error
   }
-
-  // If x5c is available, use X.509 certificate
-  if (jwk.x5c && jwk.x5c[0]) {
-    // x5c[0] contains the base64-encoded X.509 certificate
-    const certPEM = `-----BEGIN CERTIFICATE-----\n${jwk.x5c[0]}\n-----END CERTIFICATE-----`
-    const key = await importX509(
-      certPEM,
-      'RS256',
-    )
-    return key as CryptoKey
-  }
-
-  throw new Error('JWK key format not supported - missing n/e or x5c')
-}
-
-/**
- * Retrieves the public key for JWT verification
- * Supports both direct public key configuration and JWKS URI
- * Implements caching to improve performance
- */
-async function getPublicKey (config: MelodyAuthMiddlewareConfig): Promise<CryptoKey> {
-  if (cachedPublicKey) return cachedPublicKey
-
-  if (config.publicKey) {
-    const spki = await importSPKI(
-      config.publicKey,
-      'RS256',
-    )
-    cachedPublicKey = spki as CryptoKey
-    return spki as CryptoKey
-  }
-
-  if (config.jwksUri) {
-    // Check cache first
-    if (jwksCache && Date.now() - jwksCache.timestamp < JWKS_CACHE_DURATION) {
-      const rsaKey = jwksCache.keys.find((key) => key.kty === 'RSA' && key.use === 'sig')
-      if (rsaKey) {
-        return await importJWKKey(rsaKey)
-      }
-    }
-
-    // Fetch JWKS
-    try {
-      const response = await fetch(config.jwksUri)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch JWKS: ${response.statusText}`)
-      }
-
-      const jwks = await response.json()
-      jwksCache = {
-        keys: jwks.keys, timestamp: Date.now(),
-      }
-
-      // Find RSA signing key
-      const rsaKey = jwks.keys.find((key: any) => key.kty === 'RSA' && key.use === 'sig')
-      if (!rsaKey) {
-        throw new Error('No RSA signing key found in JWKS')
-      }
-
-      // Import the public key
-      cachedPublicKey = await importJWKKey(rsaKey)
-      return cachedPublicKey
-    } catch (error) {
-      throw new Error(`Failed to fetch or parse JWKS: ${error instanceof Error ? error.message : String(error)}`)
-    }
-  }
-
-  throw new Error('Either publicKey or jwksUri must be provided')
 }
 
 /**
  * Creates a Next.js middleware for Melody Auth authentication
  *
+ * Every request is authenticated against the access token JWT, which is verified with the
+ * auth server signing keys. Token metadata kept in cookies is never trusted.
+ *
  * @param config - Middleware configuration options
  * @returns Middleware function that validates JWT tokens and protects routes
+ * @throws Error at creation time when the verification configuration is missing or malformed
  *
  * @example
  * ```ts
  * // middleware.ts
  * export default createMelodyAuthMiddleware({
- *   publicKey: process.env.MELODY_PUBLIC_KEY,
+ *   serverUrl: process.env.AUTH_SERVER_URL!,
+ *   clientId: process.env.AUTH_CLIENT_ID!,
  *   publicPaths: ['/login', '/api/public'],
  *   redirectPath: '/login'
  * });
  * ```
  */
 export function createMelodyAuthMiddleware (config: MelodyAuthMiddlewareConfig) {
+  // Resolved eagerly so a misconfigured deployment fails at startup rather than
+  // falling back to unverified tokens at request time.
+  const verifierConfig = resolveTokenVerifierConfig(config)
+
   return async function middleware (request: NextRequest) {
     const pathname = request.nextUrl.pathname
 
@@ -176,61 +123,32 @@ export function createMelodyAuthMiddleware (config: MelodyAuthMiddlewareConfig) 
         )
       }
 
-      const idTokenStorage: IdTokenStorage | null = idTokenStr ? JSON.parse(idTokenStr) : null
       const accessTokenStorage: AccessTokenStorage = JSON.parse(accessTokenStr)
 
-      // Validate tokens
-      const {
-        hasValidIdToken, hasValidAccessToken,
-      } = isValidTokens(
-        accessTokenStorage,
-        null,
-        idTokenStorage,
+      // The access token is the only thing that grants access, so it is always verified
+      const accessTokenBody = await verifyAccessToken(
+        accessTokenStorage?.accessToken,
+        verifierConfig,
       )
+      const userId = accessTokenBody.sub as string
 
-      // Access token is required, ID token is optional
-      if (!hasValidAccessToken) {
-        return redirectToLogin(
-          request,
-          config.redirectPath,
-        )
-      }
-
-      // If ID token exists, it must be valid
-      if (idTokenStorage && !hasValidIdToken) {
-        return redirectToLogin(
-          request,
-          config.redirectPath,
-        )
-      }
-
-      // Verify JWT signature if ID token exists and public key is configured
-      let userId: string | undefined
-      let account: any | undefined
-
-      if (idTokenStorage && (config.publicKey || config.jwksUri)) {
-        const publicKey = await getPublicKey(config)
-        const { payload } = await jwtVerify(
-          idTokenStorage.idToken,
-          publicKey,
-        )
-        userId = payload.sub
-        account = payload
-      } else if (idTokenStorage) {
-        // If no public key configured but ID token exists, use the stored account info
-        userId = idTokenStorage.account.sub
-        account = idTokenStorage.account
-      }
+      // Identity claims come from the verified ID token, never from the cookie payload
+      const account = await getVerifiedAccount(
+        idTokenStr,
+        verifierConfig,
+        userId,
+      )
 
       // Add auth info to request headers
       const response = NextResponse.next()
 
-      // Only set user ID and account if we have ID token info
-      if (userId && account) {
-        response.headers.set(
-          'x-auth-user-id',
-          userId,
-        )
+      response.headers.set(
+        'x-auth-user-id',
+        userId,
+      )
+
+      // Only set the account if an ID token was present and verified
+      if (account) {
         response.headers.set(
           'x-auth-account',
           JSON.stringify(account),
@@ -291,7 +209,10 @@ function redirectToLogin (
  *     console.log('User ID:', request.auth?.userId);
  *     return NextResponse.next();
  *   },
- *   { publicKey: process.env.MELODY_PUBLIC_KEY }
+ *   {
+ *     serverUrl: process.env.AUTH_SERVER_URL!,
+ *     clientId: process.env.AUTH_CLIENT_ID!,
+ *   }
  * );
  * ```
  */
@@ -314,11 +235,11 @@ export function withAuth (
     const accountStr = authResponse.headers.get('x-auth-account')
     const accessToken = authResponse.headers.get('x-auth-access-token')
 
-    // Access token is required, user info is optional
-    if (accessToken) {
+    // Both are set together once the access token has been verified
+    if (accessToken && userId) {
       const authenticatedRequest = request as AuthenticatedRequest
       authenticatedRequest.auth = {
-        userId: userId || 'unknown',
+        userId,
         account: accountStr ? JSON.parse(accountStr) : {},
         accessToken,
       }
@@ -329,3 +250,10 @@ export function withAuth (
     return authResponse
   }
 }
+
+export {
+  resolveTokenVerifierConfig, verifyAccessToken, verifyIdToken,
+} from './tokenVerifier'
+export type {
+  TokenVerifierConfig, ResolvedTokenVerifierConfig,
+} from './tokenVerifier'

@@ -42,25 +42,64 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
+## Token verification
+
+Every server-side entry point of this SDK (`createMelodyAuthMiddleware`, `withAuth`,
+`getServerSession`, `getCachedServerSession`, `requireAuth`) establishes the session from the
+**access token JWT**, which is cryptographically verified on every request against your auth
+server signing keys. The verification covers:
+
+- the RS256 signature, with the algorithm pinned so a token cannot be re-signed with another one
+- the `iss` claim, which must equal your `serverUrl`
+- the client binding: `azp` is required and must equal your `clientId`, and `aud` (when present)
+  must contain it, so a token issued to another application cannot be replayed against yours
+- the token type: an access token must carry a string `scope` claim, so an ID token signed by the
+  same issuer cannot be swapped into the access token cookie
+- `exp` and `nbf`, with a 5 second clock skew allowance
+
+The token metadata stored in cookies (`expiresOn`, and the cached `account` payload) is
+controlled by the browser and is never used to decide whether a request is authenticated. All
+identity claims come from the verified JWT payload.
+
+Because of this, `serverUrl` and `clientId` are **required** by all server-side entry points.
+Signing keys are fetched from `${serverUrl}/.well-known/jwks.json` and selected by the token
+`kid`, so auth server key rotation is handled automatically. A misconfigured app throws at
+startup rather than falling back to unverified tokens.
+
+| Parameter | Type | Description | Default | Required |
+|-----------|------|-------------|---------|----------|
+| serverUrl | string | The URL where you host the melody auth server. Expected token issuer | N/A | Yes |
+| clientId | string | The auth clientId your app connects to. Tokens issued to other clients are rejected | N/A | Yes |
+| jwksUri | string | Overrides the JWKS URI derived from `serverUrl` | `${serverUrl}/.well-known/jwks.json` | No |
+| publicKey | string | PEM-encoded RSA public key, used instead of a JWKS URI for offline verification | N/A | No |
+| clockTolerance | number | Clock skew tolerance in seconds when validating `exp`/`nbf` | 5 | No |
+
+The ID token is optional (it depends on the `openid` scope). When one is stored it is verified
+the same way, plus its `aud` and its subject, which has to match the access token subject. An
+ID token that fails verification invalidates the session; an ID token that has merely expired
+is ignored, and the session continues on the access token without identity claims.
+
 ## createMelodyAuthMiddleware
 
 Creates a Next.js middleware function that protects routes with JWT verification.
 
 | Parameter | Type | Description | Default | Required |
 |-----------|------|-------------|---------|----------|
-| publicKey | string | PEM-encoded RSA public key for JWT verification | N/A | No* |
-| jwksUri | string | URI to fetch JWKS for JWT verification | N/A | No* |
+| serverUrl | string | The URL where you host the melody auth server | N/A | Yes |
+| clientId | string | The auth clientId your app connects to | N/A | Yes |
+| jwksUri | string | Overrides the JWKS URI derived from `serverUrl` | `${serverUrl}/.well-known/jwks.json` | No |
+| publicKey | string | PEM-encoded RSA public key for JWT verification | N/A | No |
+| clockTolerance | number | Clock skew tolerance in seconds | 5 | No |
 | publicPaths | string[] | Array of path prefixes that don't require authentication | [] | No |
 | redirectPath | string | Path to redirect unauthenticated users | '/login' | No |
 | cookieOptions | CookieOptions | Cookie configuration options | {} | No |
-
-*Either `publicKey` or `jwksUri` is required.
 
 ```ts
 import { createMelodyAuthMiddleware } from '@melody-auth/nextjs';
 
 export default createMelodyAuthMiddleware({
-  jwksUri: process.env.AUTH_JWKS_URI,
+  serverUrl: process.env.NEXT_PUBLIC_AUTH_SERVER_URL!,
+  clientId: process.env.NEXT_PUBLIC_AUTH_CLIENT_ID!,
   publicPaths: ['/login', '/register', '/api/public'],
   redirectPath: '/login',
 });
@@ -212,7 +251,8 @@ export async function GET() {
 import { createMelodyAuthMiddleware } from '@melody-auth/nextjs';
 
 export default createMelodyAuthMiddleware({
-  jwksUri: process.env.AUTH_JWKS_URI,
+  serverUrl: process.env.NEXT_PUBLIC_AUTH_SERVER_URL!,
+  clientId: process.env.NEXT_PUBLIC_AUTH_CLIENT_ID!,
   publicPaths: [
     '/login',
     '/register',
@@ -246,7 +286,8 @@ export default withAuth(
     return NextResponse.next();
   },
   {
-    jwksUri: process.env.AUTH_JWKS_URI,
+    serverUrl: process.env.NEXT_PUBLIC_AUTH_SERVER_URL!,
+    clientId: process.env.NEXT_PUBLIC_AUTH_CLIENT_ID!,
     publicPaths: ['/login']
   }
 );
@@ -336,8 +377,11 @@ interface NextAuthHook {
 
 | Option | Type | Description |
 |--------|------|-------------|
-| publicKey | string | PEM-encoded RSA public key |
-| jwksUri | string | JWKS endpoint URL (recommended) |
+| serverUrl | string | Auth server URL, required. Expected token issuer |
+| clientId | string | OAuth client ID, required. Expected token `azp`/`aud` |
+| jwksUri | string | JWKS endpoint URL, defaults to `${serverUrl}/.well-known/jwks.json` |
+| publicKey | string | PEM-encoded RSA public key, used instead of a JWKS URI |
+| clockTolerance | number | Clock skew tolerance in seconds (default 5) |
 | publicPaths | string[] | Paths that don't require auth |
 | redirectPath | string | Where to redirect unauthenticated users |
 | cookieOptions | CookieOptions | Cookie configuration |
@@ -359,9 +403,12 @@ getCachedServerSession(options: ServerAuthOptions): Promise<AuthSession | null>
 
 ```typescript
 interface ServerAuthOptions {
-  clientId: string;
-  serverUrl: string;
+  clientId: string;         // Expected token azp/aud
+  serverUrl: string;        // Expected token issuer, and JWKS source
   redirectUri: string;
+  jwksUri?: string;         // Defaults to `${serverUrl}/.well-known/jwks.json`
+  publicKey?: string;       // PEM-encoded RSA public key, used instead of a JWKS URI
+  clockTolerance?: number;  // Seconds, default 5
   cookieOptions?: CookieOptions;
 }
 ```
@@ -370,11 +417,11 @@ interface ServerAuthOptions {
 
 ```typescript
 interface AuthSession {
-  userId: string;
-  email?: string;
-  account: any;          // Full JWT payload
+  userId: string;           // Verified access token `sub`
+  email?: string;           // From the verified ID token, when one is available
+  account?: any;            // Verified ID token payload, when one is available
   accessToken: string;
-  idToken: string;
+  idToken?: string;
   isAuthenticated: boolean; // Always true for valid sessions
 }
 ```
@@ -400,9 +447,14 @@ The SDK uses cookies by default for server-side compatibility. Key features:
 ### Common Issues
 
 **Middleware not working**
-- Ensure `AUTH_JWKS_URI` or `AUTH_PUBLIC_KEY` is set
+- Ensure `serverUrl` and `clientId` are set, the middleware throws at startup without them
 - Check that middleware matcher includes the protected routes
 - Verify JWKS endpoint is accessible from your deployment environment
+
+**Everyone is redirected to login**
+- `serverUrl` must match your auth server `AUTH_SERVER_URL` exactly, it is the expected `iss` claim
+- `clientId` must be the same client the tokens were issued to, tokens from another app are rejected
+- Check the server logs for the underlying verification error
 
 **Session not persisting**
 - Make sure you're using cookie storage for SSR
