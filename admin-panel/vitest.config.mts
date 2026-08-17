@@ -1,15 +1,18 @@
 import { defineConfig } from 'vitest/config'
-import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-  plugins: [tsconfigPaths({ root: './' })],
-  esbuild: {
-    jsxInject: `import React from 'react'`,
+  resolve: {
+    tsconfigPaths: true,
   },
   test: {
     globals: true,
     setupFiles: './vitest.setup.tsx',
     environment: 'jsdom',
+    server: {
+      deps: {
+        inline: ['next-intl'],
+      },
+    },
     coverage: {
       exclude: [
         'node_modules/**',

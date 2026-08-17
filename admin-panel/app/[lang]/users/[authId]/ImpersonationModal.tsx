@@ -83,7 +83,7 @@ const ImpersonationModal = ({
         <AlertDialogHeader>
           <AlertDialogTitle>{t(
             'impersonateTitle',
-            { user: user.email },
+            { user: user.email || user.authId },
           )}</AlertDialogTitle>
         </AlertDialogHeader>
         <section>

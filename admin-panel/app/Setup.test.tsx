@@ -24,7 +24,14 @@ import {
   configSignal,
   errorSignal,
 } from 'signals'
-import { typeTool } from 'tools'
+import {
+  proxyTool, typeTool,
+} from 'tools'
+
+const mockSendNextRequest = vi.spyOn(
+  proxyTool,
+  'sendNextRequest',
+)
 
 // Mock all required hooks and modules
 vi.mock(
@@ -54,6 +61,8 @@ vi.mock(
   () => ({
     useRouter: vi.fn(() => ({ push: vi.fn() })),
     usePathname: vi.fn(),
+    redirect: vi.fn(),
+    permanentRedirect: vi.fn(),
   }),
 )
 
@@ -82,6 +91,7 @@ describe(
 
     beforeEach(() => {
       vi.clearAllMocks()
+      mockSendNextRequest.mockResolvedValue({ configs: {} })
       errorSignal.value = ''
       configSignal.value = null
 

@@ -10,7 +10,7 @@
     "plugin:react-hooks/recommended"
   ],
   "parser": "@typescript-eslint/parser",
-  "ignorePatterns": ["**/dist/*"],
+  "ignorePatterns": ["**/dist/*", "**/next-env.d.ts"],
   "plugins": [
     "@typescript-eslint"
   ],
