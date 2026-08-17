@@ -10,8 +10,6 @@ const customRender = (ui: React.ReactElement) => {
   )
 }
 
-global.URL = vi.fn().mockImplementation((url) => ({ href: url })) as any
-
 Object.defineProperty(
   window,
   'matchMedia',

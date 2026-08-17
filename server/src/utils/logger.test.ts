@@ -24,9 +24,18 @@ const originalEnv = process.env
 
 beforeEach(() => {
   vi.clearAllMocks()
-  global.console.info = mockConsoleInfo
-  global.console.warn = mockConsoleWarn
-  global.console.error = mockConsoleError
+  vi.spyOn(
+    console,
+    'info',
+  ).mockImplementation(mockConsoleInfo)
+  vi.spyOn(
+    console,
+    'warn',
+  ).mockImplementation(mockConsoleWarn)
+  vi.spyOn(
+    console,
+    'error',
+  ).mockImplementation(mockConsoleError)
 })
 
 afterEach(() => {

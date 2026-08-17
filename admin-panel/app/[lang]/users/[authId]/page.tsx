@@ -1115,7 +1115,7 @@ const Page = () => {
             disabled={isUpdating}
             confirmDeleteTitle={t(
               'common.deleteConfirm',
-              { item: user.email },
+              { item: user.email || user.authId },
             )}
             onConfirmDelete={handleDelete}
           />

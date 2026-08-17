@@ -34,10 +34,10 @@
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
-    "hono": "^4.6.14",
+    "hono": "^4.13.0",
     "lucide-react": "^0.484.0",
-    "next": "15.5.18",
-    "next-intl": "^3.15.0",
+    "next": "16.3.0",
+    "next-intl": "^4.13.5",
     "react": "^18",
     "react-dom": "^18",
     "react-redux": "^9.1.2",
@@ -45,21 +45,20 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.19.11",
+    "@opennextjs/cloudflare": "^1.20.2",
     "@rtk-query/codegen-openapi": "^1.2.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
-    "@types/node": "^20",
+    "@types/node": "^22.12.0",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@vitest/coverage-v8": "^3.1.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "jsdom": "^26.1.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5",
-    "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^3.1.1",
-    "wrangler": "^4.12.0"
+    "vitest": "^4.1.0",
+    "wrangler": "^4.122.0"
   }
 }
