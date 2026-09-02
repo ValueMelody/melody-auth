@@ -11,6 +11,18 @@ export const getLocaleFromParams = () => {
   return ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale
 }
 
+export const parseRedirectUri = (redirectUri: unknown): string => {
+  const uri = redirectUri ? String(redirectUri) : ''
+  if (!uri) return ''
+
+  try {
+    const { protocol } = new URL(uri)
+    return protocol === 'http:' || protocol === 'https:' ? uri : ''
+  } catch (e) {
+    return ''
+  }
+}
+
 export const getStepFromParams = () => {
   const params = parse(
     window.location.search,
@@ -42,7 +54,7 @@ export const getAuthorizeParams = (): AuthorizeParams => {
   return {
     locale: ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale,
     clientId: 'client_id' in params ? String(params.client_id) : '',
-    redirectUri: 'redirect_uri' in params ? String(params.redirect_uri) : '',
+    redirectUri: parseRedirectUri(params.redirect_uri),
     responseType: 'response_type' in params ? String(params.response_type) : '',
     state: 'state' in params ? String(params.state) : '',
     policy: ('policy' in params ? String(params.policy) : Policy.SignInOrSignUp) as Policy,
@@ -69,7 +81,7 @@ export const getFollowUpParams = (): FollowUpParams => {
   return {
     code: 'code' in params ? String(params.code) : '',
     state: 'state' in params ? String(params.state) : '',
-    redirectUri: 'redirect_uri' in params ? String(params.redirect_uri) : '',
+    redirectUri: parseRedirectUri(params.redirect_uri),
     org: 'org' in params ? String(params.org) : '',
   }
 }
@@ -87,7 +99,7 @@ export const getAuthCodeExpiredParams = (): AuthCodeExpiredParams => {
 
   return {
     locale: ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale,
-    redirectUri: 'redirect_uri' in params ? String(params.redirect_uri) : '',
+    redirectUri: parseRedirectUri(params.redirect_uri),
   }
 }
 
@@ -146,6 +158,6 @@ export const getInvitationParams = (): InvitationParams => {
   return {
     locale: ('locale' in params ? String(params.locale) : 'en') as typeConfig.Locale,
     invitationToken: 'invitationToken' in params ? String(params.invitationToken) : '',
-    signinUrl: 'signinUrl' in params ? String(params.signinUrl) : '',
+    signinUrl: parseRedirectUri(params.signinUrl),
   }
 }

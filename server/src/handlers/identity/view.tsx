@@ -293,6 +293,8 @@ export const getAuthCodeExpiredView = async (c: Context<typeConfig.Context>) => 
     org: c.req.query('org'),
   })
 
+  await validateUtil.dto(queryDto)
+
   const {
     SUPPORTED_LOCALES: locales,
     ENABLE_LOCALE_SELECTOR: enableLocaleSelector,

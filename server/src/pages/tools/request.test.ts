@@ -231,6 +231,57 @@ describe(
         )
 
         test(
+          'does not navigate when the redirect uri is not http(s)',
+          () => {
+            const postMessage = vi.fn()
+            Object.defineProperty(
+              window,
+              'opener',
+              {
+                value: { postMessage },
+                writable: true,
+              },
+            )
+
+            handleAuthorizeStep(
+              {
+                state: 'state123',
+                code: 'code123',
+                redirectUri: 'javascript:alert(1)',
+                org: 'org123',
+              },
+              locale,
+              onSwitchView,
+            )
+
+            expect(postMessage).not.toHaveBeenCalled()
+            expect(window.location.href).toBe('')
+
+            Object.defineProperty(
+              window,
+              'opener',
+              {
+                value: null,
+                writable: true,
+              },
+            )
+
+            handleAuthorizeStep(
+              {
+                state: 'state123',
+                code: 'code123',
+                redirectUri: 'javascript:alert(1)',
+                org: 'org123',
+              },
+              locale,
+              onSwitchView,
+            )
+
+            expect(window.location.href).toBe('')
+          },
+        )
+
+        test(
           'handles direct redirect when no window.opener',
           () => {
             const data = {

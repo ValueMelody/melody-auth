@@ -12,6 +12,7 @@ import {
   getAuthCodeExpiredParams,
   getVerifyEmailParams,
   getInvitationParams,
+  parseRedirectUri,
 } from './param'
 import { Policy } from 'dtos/oauth'
 
@@ -73,6 +74,42 @@ describe(
     )
 
     describe(
+      'parseRedirectUri',
+      () => {
+        test(
+          'keeps absolute http and https uris',
+          () => {
+            expect(parseRedirectUri('http://example.com')).toBe('http://example.com')
+            expect(parseRedirectUri('https://example.com/callback?a=1')).toBe('https://example.com/callback?a=1')
+            expect(parseRedirectUri('http://localhost:3000/callback')).toBe('http://localhost:3000/callback')
+          },
+        )
+
+        test(
+          'drops script bearing schemes',
+          () => {
+            expect(parseRedirectUri('javascript:alert(1)')).toBe('')
+            expect(parseRedirectUri('JaVaScRiPt:alert(1)')).toBe('')
+            expect(parseRedirectUri('\tjavascript:alert(1)')).toBe('')
+            expect(parseRedirectUri('java\tscript:alert(1)')).toBe('')
+            expect(parseRedirectUri('  javascript:alert(1)')).toBe('')
+            expect(parseRedirectUri('data:text/html,<script>alert(1)</script>')).toBe('')
+            expect(parseRedirectUri('vbscript:msgbox(1)')).toBe('')
+          },
+        )
+
+        test(
+          'drops non absolute and empty values',
+          () => {
+            expect(parseRedirectUri('')).toBe('')
+            expect(parseRedirectUri('/callback')).toBe('')
+            expect(parseRedirectUri('not a uri')).toBe('')
+          },
+        )
+      },
+    )
+
+    describe(
       'getAuthorizeParams',
       () => {
         test(
@@ -124,6 +161,15 @@ describe(
             })
           },
         )
+
+        test(
+          'drops a redirect uri that is not http(s)',
+          () => {
+            window.location.search = '?redirect_uri=javascript%3Aalert(1)'
+
+            expect(getAuthorizeParams().redirectUri).toBe('')
+          },
+        )
       },
     )
 
@@ -161,6 +207,15 @@ describe(
             })
           },
         )
+
+        test(
+          'drops a redirect uri that is not http(s)',
+          () => {
+            window.location.search = '?code=test-code&redirect_uri=javascript%3Aalert(1)'
+
+            expect(getFollowUpParams().redirectUri).toBe('')
+          },
+        )
       },
     )
 
@@ -190,6 +245,15 @@ describe(
               locale: 'en',
               redirectUri: '',
             })
+          },
+        )
+
+        test(
+          'drops a redirect uri that is not http(s)',
+          () => {
+            window.location.search = '?locale=en&redirect_uri=javascript%3Aalert(1)'
+
+            expect(getAuthCodeExpiredParams().redirectUri).toBe('')
           },
         )
       },
@@ -258,6 +322,15 @@ describe(
               invitationToken: '',
               signinUrl: '',
             })
+          },
+        )
+
+        test(
+          'drops a signin url that is not http(s)',
+          () => {
+            window.location.search = '?invitationToken=abc123&signinUrl=javascript%3Aalert(1)'
+
+            expect(getInvitationParams().signinUrl).toBe('')
           },
         )
       },

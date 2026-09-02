@@ -1,5 +1,5 @@
 import {
-  FollowUpParams, AuthorizeParams,
+  FollowUpParams, AuthorizeParams, parseRedirectUri,
 } from './param'
 import { View } from 'pages/hooks'
 import {
@@ -83,6 +83,9 @@ export const handleAuthorizeStep = (
     }
     onSwitchView(step)
   } else {
+    const redirectUri = parseRedirectUri(data.redirectUri)
+    if (!redirectUri) return
+
     if (window.opener) {
       window.opener.postMessage(
         {
@@ -90,13 +93,13 @@ export const handleAuthorizeStep = (
           code: data.code,
           locale,
           org: data.org ?? '',
-          redirectUri: data.redirectUri,
+          redirectUri,
         },
-        data.redirectUri,
+        redirectUri,
       )
     } else {
       const queryString = `?state=${data.state}&code=${data.code}&locale=${locale}&org=${data.org ?? ''}`
-      const url = `${data.redirectUri}${queryString}`
+      const url = `${redirectUri}${queryString}`
       window.location.href = url
     }
   }

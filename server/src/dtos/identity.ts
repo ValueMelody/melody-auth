@@ -1,6 +1,6 @@
 import {
   IsBoolean,
-  IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length,
+  IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword, Length, Matches,
 } from 'class-validator'
 import { Context } from 'hono'
 import {
@@ -14,6 +14,8 @@ import {
   requestUtil, validateUtil,
 } from 'utils'
 import { userModel } from 'models'
+
+const httpUriRegex = /^https?:\/\//i
 
 export class PostAuthorizeWithPasswordDto
   extends oauthDto.GetAuthorizeDto
@@ -396,6 +398,7 @@ export class GetVerifyEmailViewDto {
 
   @IsString()
   @IsOptional()
+  @Matches(httpUriRegex)
     signinUrl: string | undefined
 
   constructor (dto: GetVerifyEmailViewDto) {
@@ -403,7 +406,7 @@ export class GetVerifyEmailViewDto {
     this.locale = dto.locale
     this.org = dto.org
     this.invitationToken = dto.invitationToken?.trim()
-    this.signinUrl = dto.signinUrl?.trim()
+    this.signinUrl = dto.signinUrl?.trim() || undefined
   }
 }
 
@@ -413,6 +416,7 @@ export class GetAuthCodeExpiredViewDto {
 
   @IsString()
   @IsOptional()
+  @Matches(httpUriRegex)
     redirect_uri: string | undefined
 
   @IsString()
@@ -421,7 +425,7 @@ export class GetAuthCodeExpiredViewDto {
 
   constructor (dto: GetAuthCodeExpiredViewDto) {
     this.locale = dto.locale
-    this.redirect_uri = dto.redirect_uri
+    this.redirect_uri = dto.redirect_uri?.trim() || undefined
     this.org = dto.org
   }
 }
