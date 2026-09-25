@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { env } from 'hono/adapter'
 import {
@@ -9,7 +8,7 @@ import {
 } from 'routes'
 import { setupMiddleware } from 'middlewares'
 import {
-  typeConfig, variableConfig,
+  routeConfig, typeConfig, variableConfig,
 } from 'configs'
 import { loggerUtil } from 'utils'
 
@@ -31,7 +30,26 @@ export const loadRouters = (app: Hono<typeConfig.Context>) => {
       }
       await next()
     },
-    cors(),
+  )
+
+  const publicCorsRoutes = [
+    '/.well-known/*',
+    routeConfig.OauthRoute.Token,
+    routeConfig.OauthRoute.Userinfo,
+    routeConfig.OauthRoute.Revoke,
+    routeConfig.IdentityRoute.Logout,
+  ]
+  publicCorsRoutes.forEach((route) => app.use(
+    route,
+    setupMiddleware.publicCors,
+  ))
+  app.use(
+    `${routeConfig.InternalRoute.Embedded}/*`,
+    setupMiddleware.embeddedCors,
+  )
+
+  app.use(
+    '/*',
     setupMiddleware.session,
   )
 
