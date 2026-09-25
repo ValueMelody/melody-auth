@@ -2,6 +2,7 @@ import {
   Context, Next,
 } from 'hono'
 import { env } from 'hono/adapter'
+import { cors } from 'hono/cors'
 import {
   CookieStore, sessionMiddleware,
 } from 'hono-sessions'
@@ -41,6 +42,17 @@ export const session = async (
     next,
   )
 }
+
+export const publicCors = cors()
+
+export const embeddedCors = cors({
+  origin: (
+    origin, c,
+  ) => {
+    const { EMBEDDED_AUTH_ORIGINS: origins } = env<typeConfig.Bindings>(c)
+    return origins.includes(origin) ? origin : null
+  },
+})
 
 export const validOrigin = async (
   c: Context<typeConfig.Context>, next: Next,

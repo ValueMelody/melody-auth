@@ -88,3 +88,89 @@ describe(
     )
   },
 )
+
+const sendPreflight = async (
+  route: string, origin: string,
+) => app.request(
+  route,
+  {
+    method: 'OPTIONS',
+    headers: {
+      Origin: origin,
+      'Access-Control-Request-Method': 'POST',
+      'Access-Control-Request-Headers': 'authorization,content-type',
+    },
+  },
+  mock(db),
+)
+
+describe(
+  'cors',
+  () => {
+    test(
+      'should allow any origin on public routes',
+      async () => {
+        const routes = [
+          routeConfig.OauthRoute.Token,
+          routeConfig.OauthRoute.Userinfo,
+          routeConfig.OauthRoute.Revoke,
+          routeConfig.IdentityRoute.Logout,
+          '/.well-known/openid-configuration',
+          '/.well-known/jwks.json',
+        ]
+        for (const route of routes) {
+          const res = await sendPreflight(
+            route,
+            'http://localhost:3000',
+          )
+          expect(res.status).toBe(204)
+          expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
+        }
+      },
+    )
+
+    test(
+      'should not allow cross origin on s2s and identity routes',
+      async () => {
+        const routes = [
+          routeConfig.InternalRoute.ApiUsers,
+          routeConfig.InternalRoute.ApiApps,
+          '/info',
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          routeConfig.IdentityRoute.ChangePassword,
+          routeConfig.OauthRoute.Authorize,
+        ]
+        for (const route of routes) {
+          const res = await sendPreflight(
+            route,
+            'http://localhost:3000',
+          )
+          expect(res.headers.get('Access-Control-Allow-Origin')).toBeNull()
+          expect(res.headers.get('Access-Control-Allow-Headers')).toBeNull()
+        }
+      },
+    )
+
+    test(
+      'should only allow embedded auth origins on embedded routes',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
+        const allowed = await sendPreflight(
+          routeConfig.EmbeddedRoute.Initiate,
+          'http://localhost:3000',
+        )
+        expect(allowed.status).toBe(204)
+        expect(allowed.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000')
+
+        const blocked = await sendPreflight(
+          routeConfig.EmbeddedRoute.Initiate,
+          'http://localhost:3001',
+        )
+        expect(blocked.headers.get('Access-Control-Allow-Origin')).toBeNull()
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+      },
+    )
+  },
+)
