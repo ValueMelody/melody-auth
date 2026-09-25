@@ -1554,3 +1554,86 @@ describe(
     )
   },
 )
+
+describe(
+  'post /authorize-account validation errors',
+  () => {
+    const postWeakPassword = async (password: string) => {
+      const appRecord = await getApp(db)
+      const body = {
+        ...(await postAuthorizeBody(appRecord)),
+        email: 'victim@email.com',
+        password,
+      }
+
+      return app.request(
+        routeConfig.IdentityRoute.AuthorizeAccount,
+        {
+          method: 'POST', body: JSON.stringify(body),
+        },
+        mock(db),
+      )
+    }
+
+    test(
+      'should only return property and constraints',
+      async () => {
+        const res = await postWeakPassword('weak')
+
+        expect(res.status).toBe(400)
+        expect(await res.json()).toStrictEqual([
+          {
+            property: 'password',
+            constraints: { isStrongPassword: 'password is not strong enough' },
+          },
+        ])
+      },
+    )
+
+    test(
+      'should not echo the submitted password back',
+      async () => {
+        const res = await postWeakPassword('SuperSecret123')
+
+        expect(res.status).toBe(400)
+        const text = await res.text()
+        expect(text).not.toContain('SuperSecret123')
+        expect(text).not.toContain('victim@email.com')
+        expect(text).not.toContain('target')
+        expect(text).not.toContain('value')
+
+        const users = await db.prepare('select * from "user"').all()
+        expect(users.length).toBe(0)
+      },
+    )
+
+    test(
+      'should not leak the code challenge of the sign up request',
+      async () => {
+        const appRecord = await getApp(db)
+        const authorizeBody = await postAuthorizeBody(appRecord)
+        const body = {
+          ...authorizeBody,
+          email: 'not-an-email',
+          password: 'weak',
+        }
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizeAccount,
+          {
+            method: 'POST', body: JSON.stringify(body),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(400)
+        const text = await res.text()
+        expect(text).not.toContain(authorizeBody.codeChallenge)
+        expect(text).not.toContain(appRecord.clientId)
+
+        const json = await JSON.parse(text) as { property: string }[]
+        expect(json.map((error) => error.property).sort()).toStrictEqual(['email', 'password'])
+      },
+    )
+  },
+)

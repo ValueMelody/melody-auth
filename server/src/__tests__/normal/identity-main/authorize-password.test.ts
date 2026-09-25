@@ -337,3 +337,34 @@ describe(
     )
   },
 )
+
+describe(
+  'post /authorize-password validation errors',
+  () => {
+    test(
+      'should not echo the submitted password back',
+      async () => {
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        const res = await postSignInRequest(
+          db,
+          appRecord,
+          { password: 'SuperSecret123' },
+        )
+
+        expect(res.status).toBe(400)
+        const text = await res.text()
+        expect(text).not.toContain('SuperSecret123')
+        expect(text).not.toContain('target')
+        expect(text).not.toContain('value')
+        expect(JSON.parse(text)).toStrictEqual([
+          {
+            property: 'password',
+            constraints: { isStrongPassword: 'password is not strong enough' },
+          },
+        ])
+      },
+    )
+  },
+)
