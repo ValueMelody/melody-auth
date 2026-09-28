@@ -53,6 +53,37 @@ describe(
         expect(await res.text()).toBe(messageConfig.RequestError.WrongOrigin)
       },
     )
+
+    test.each([
+      ['POST', routeConfig.IdentityRoute.ProcessMfaEnroll],
+      ['POST', routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll],
+      ['POST', routeConfig.IdentityRoute.ProcessSwitchOrg],
+      ['POST', routeConfig.IdentityRoute.ChangeEmailCode],
+      ['POST', routeConfig.IdentityRoute.ChangeEmail],
+      ['POST', routeConfig.IdentityRoute.ResetMfa],
+      ['POST', routeConfig.IdentityRoute.ManagePasskey],
+      ['DELETE', routeConfig.IdentityRoute.ManagePasskey],
+      ['POST', routeConfig.IdentityRoute.ManageRecoveryCode],
+      ['POST', routeConfig.IdentityRoute.UpdateInfo],
+      ['POST', routeConfig.IdentityRoute.ChangeOrg],
+    ])(
+      'should throw error if origin does not match for %s %s',
+      async (
+        method, route,
+      ) => {
+        const res = await app.request(
+          route,
+          {
+            method,
+            body: JSON.stringify({}),
+            headers: { Origin: 'http://localhost:3000' },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongOrigin)
+      },
+    )
   },
 )
 
