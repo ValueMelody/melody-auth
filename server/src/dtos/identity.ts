@@ -258,7 +258,7 @@ export class PostAuthorizeSocialSignInDto extends oauthDto.GetAuthorizeDto {
  * DTO for policies
  */
 export class PostChangePasswordDto extends GetProcessDto {
-  @IsString()
+  @IsStrongPassword()
   @IsNotEmpty()
     password: string
 
