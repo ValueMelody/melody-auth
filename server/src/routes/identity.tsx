@@ -165,6 +165,7 @@ identityRoutes.get(
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ProcessMfaEnroll,
+  setupMiddleware.validOrigin,
   configMiddleware.enableMfaEnroll,
   identityHandler.postProcessMfaEnroll,
 )
@@ -272,6 +273,7 @@ identityRoutes.get(
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll,
+  setupMiddleware.validOrigin,
   configMiddleware.enableRecoveryCode,
   identityHandler.postProcessRecoveryCodeEnroll,
 )
@@ -289,6 +291,7 @@ identityRoutes.get(
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ProcessSwitchOrg,
+  setupMiddleware.validOrigin,
   configMiddleware.enableOrg,
   configMiddleware.enableSwitchOrg,
   identityHandler.postProcessSwitchOrg,
@@ -313,18 +316,21 @@ identityRoutes.post(
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ChangeEmailCode,
+  setupMiddleware.validOrigin,
   configMiddleware.enableChangeEmailPolicy,
   identityHandler.postChangeEmailCode,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ChangeEmail,
+  setupMiddleware.validOrigin,
   configMiddleware.enableChangeEmailPolicy,
   identityHandler.postChangeEmail,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ResetMfa,
+  setupMiddleware.validOrigin,
   configMiddleware.enableResetMfaPolicy,
   identityHandler.postResetMfa,
 )
@@ -337,24 +343,28 @@ identityRoutes.get(
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ManagePasskey,
+  setupMiddleware.validOrigin,
   configMiddleware.enableManagePasskeyPolicy,
   identityHandler.postManagePasskey,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ManageRecoveryCode,
+  setupMiddleware.validOrigin,
   configMiddleware.enableManageRecoveryCodePolicy,
   identityHandler.postManageRecoveryCode,
 )
 
 identityRoutes.delete(
   routeConfig.IdentityRoute.ManagePasskey,
+  setupMiddleware.validOrigin,
   configMiddleware.enableManagePasskeyPolicy,
   identityHandler.deleteManagePasskey,
 )
 
 identityRoutes.post(
   routeConfig.IdentityRoute.UpdateInfo,
+  setupMiddleware.validOrigin,
   configMiddleware.enableUpdateInfoPolicy,
   identityHandler.postUpdateInfo,
 )
@@ -368,6 +378,7 @@ identityRoutes.get(
 
 identityRoutes.post(
   routeConfig.IdentityRoute.ChangeOrg,
+  setupMiddleware.validOrigin,
   configMiddleware.enableOrg,
   configMiddleware.enableChangeOrgPolicy,
   identityHandler.postChangeOrg,
