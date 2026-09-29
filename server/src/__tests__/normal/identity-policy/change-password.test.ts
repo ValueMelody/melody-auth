@@ -115,6 +115,41 @@ describe(
     )
 
     test(
+      'should throw error if password is weak',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const body = await prepareFollowUpBody(
+          db,
+          Policy.ChangePassword,
+        )
+        await markAuthCodeAsSecured(body.code)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ChangePassword,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              code: body.code,
+              password: 'a',
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.json()).toStrictEqual([
+          {
+            property: 'password',
+            constraints: { isStrongPassword: 'password is not strong enough' },
+          },
+        ])
+      },
+    )
+
+    test(
       'should throw error if user does not have password',
       async () => {
         await insertUsers(
