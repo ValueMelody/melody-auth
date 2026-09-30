@@ -10,6 +10,7 @@
     "lint:fix": "eslint ./ --fix --ext .ts,.tsx,.js,.cjs",
     "docs:build": "vuepress build docs",
     "docs:dev": "vuepress dev docs",
+    "node:dev": "concurrently --kill-others-on-fail --names server,admin --prefix-colors blue,magenta \"npm --prefix server run node:dev\" \"npm --prefix admin-panel run dev\"",
     "s2s:generate": "cd server && npm run swagger:generate:s2s && cd ../admin-panel && npm run service:generate"
   },
   "devDependencies": {
@@ -17,6 +18,7 @@
     "@typescript-eslint/parser": "^7.15.0",
     "@vuepress/bundler-vite": "^2.0.0-rc.24",
     "@vuepress/theme-default": "^2.0.0-rc.112",
+    "concurrently": "^10.0.5",
     "eslint": "^8.52.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-import-resolver-typescript": "^3.6.1",
