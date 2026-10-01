@@ -157,6 +157,7 @@ export const initiate = async (c: Context<typeConfig.Context>) => {
     c,
     queryDto.clientId,
     queryDto.redirectUri,
+    { allowEmbeddedAuthOrigins: true },
   )
 
   const validScopes = await scopeService.verifyAppScopes(
@@ -460,6 +461,7 @@ export const getAppConsent = async (c: Context<typeConfig.Context>) => {
   const result = await identityService.processGetAppConsent(
     c,
     sessionBody.request,
+    { allowEmbeddedAuthOrigins: true },
   )
 
   return c.json(result)
