@@ -549,6 +549,29 @@ describe(
     )
 
     test(
+      'should throw error if redirect uri is only allowed as embedded auth origin',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:4000'] as unknown as string
+
+        const appRecord = await getApp(db)
+        const params = await getAuthorizeParams(appRecord)
+
+        const res = await app.request(
+          `${routeConfig.OauthRoute.Authorize}${params.replace(
+            'http://localhost:3000/en/dashboard',
+            'http://localhost:4000',
+          )}`,
+          {},
+          mock(db),
+        )
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongRedirectUri)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+      },
+    )
+
+    test(
       'could login through session',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

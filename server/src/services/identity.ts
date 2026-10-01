@@ -552,11 +552,13 @@ export const getAppAuthorizedRequest = async (
 export const processGetAppConsent = async (
   c: Context<typeConfig.Context>,
   request: oauthDto.CoreAuthorizeDto,
+  options: { allowEmbeddedAuthOrigins?: boolean } = {},
 ) => {
   const app = await appService.verifySPAClientRequest(
     c,
     request.clientId,
     request.redirectUri,
+    options,
   )
 
   const scopes = await scopeService.getScopesByName(

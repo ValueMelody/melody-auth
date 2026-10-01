@@ -22,6 +22,7 @@ export const verifySPAClientRequest = async (
   c: Context<typeConfig.Context>,
   clientId: string,
   redirectUri: string,
+  options: { allowEmbeddedAuthOrigins?: boolean } = {},
 ): Promise<appModel.Record> => {
   const app = await appModel.getByClientId(
     c.env.DB,
@@ -54,12 +55,14 @@ export const verifySPAClientRequest = async (
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.NotSpaTypeApp)
   }
 
-  const { EMBEDDED_AUTH_ORIGINS: allowedOrigins } = env(c)
+  const normalizedRedirectUri = requestUtil.stripEndingSlash(redirectUri)
+  const isAppRedirectUri = app.redirectUris.includes(normalizedRedirectUri)
 
-  if (
-    !app.redirectUris.includes(requestUtil.stripEndingSlash(redirectUri)) &&
-    !allowedOrigins.includes(requestUtil.stripEndingSlash(redirectUri))
-  ) {
+  const { EMBEDDED_AUTH_ORIGINS: embeddedAuthOrigins } = env(c)
+  const isEmbeddedAuthOrigin = !!options.allowEmbeddedAuthOrigins &&
+    embeddedAuthOrigins.includes(normalizedRedirectUri)
+
+  if (!isAppRedirectUri && !isEmbeddedAuthOrigin) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
