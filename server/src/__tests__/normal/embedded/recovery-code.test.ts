@@ -74,10 +74,17 @@ const sendSignInRequest = async (
   )
   const recoveryCodeEnrollJson = await recoveryCodeEnrollRes.json() as { recoveryCode: string }
 
+  const recoveryInitiateRes = await sendInitiateRequest(
+    db,
+    appRecord,
+  )
+
+  const { sessionId: recoverySessionId } = await recoveryInitiateRes.json() as { sessionId: string }
+
   const res = await app.request(
     routeConfig.EmbeddedRoute.RecoveryCode.replace(
       ':sessionId',
-      sessionId,
+      recoverySessionId,
     ),
     {
       method: 'POST',
@@ -90,7 +97,7 @@ const sendSignInRequest = async (
   )
   return {
     res,
-    sessionId,
+    sessionId: recoverySessionId,
   }
 }
 

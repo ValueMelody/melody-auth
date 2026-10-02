@@ -172,7 +172,7 @@ describe(
           mock(db),
         )
 
-        expect(secondRes.status).toBe(403)
+        expect(secondRes.status).toBe(400)
         expect(await secondRes.text()).toStrictEqual(messageConfig.RequestError.SessionAlreadyHasUser)
 
         const sessionStore = await mockedKV.get(`${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`)
