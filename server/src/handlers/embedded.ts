@@ -148,6 +148,37 @@ const getSessionBodyWithUser = async (
   return sessionBody as typeConfig.EmbeddedSessionBodyWithUser
 }
 
+const ensureSessionHasNoUser = (
+  c: Context<typeConfig.Context>,
+  sessionBody: typeConfig.EmbeddedSessionBody | false,
+) => {
+  if (sessionBody && sessionBody.user) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.SessionAlreadyHasUser,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.SessionAlreadyHasUser)
+  }
+}
+
+const getSessionBodyWithoutUser = async (
+  c: Context<typeConfig.Context>,
+  sessionId: string,
+) => {
+  const sessionBody = await getSessionBody(
+    c,
+    sessionId,
+  )
+
+  ensureSessionHasNoUser(
+    c,
+    sessionBody,
+  )
+
+  return sessionBody
+}
+
 export const initiate = async (c: Context<typeConfig.Context>) => {
   const reqBody = await c.req.json()
   const queryDto = new oauthDto.CoreAuthorizeDto(reqBody)
@@ -195,6 +226,14 @@ const processAuthorizeWithUser = async (
   sessionBody: typeConfig.EmbeddedSessionBody,
   user: userModel.Record,
 ) => {
+  ensureSessionHasNoUser(
+    c,
+    await kvService.getEmbeddedSessionBody(
+      c.env.KV,
+      sessionId,
+    ),
+  )
+
   const sessionBodyWithUser = {
     ...sessionBody,
     user,
@@ -248,7 +287,7 @@ export const signUp = async (c: Context<typeConfig.Context>) => {
     : new embeddedDto.SignUpDtoWithNames(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionBody = await getSessionBody(
+  const sessionBody = await getSessionBodyWithoutUser(
     c,
     bodyDto.sessionId,
   )
@@ -316,7 +355,7 @@ export const signIn = async (c: Context<typeConfig.Context>) => {
   const bodyDto = new embeddedDto.SignInDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionBody = await getSessionBody(
+  const sessionBody = await getSessionBodyWithoutUser(
     c,
     bodyDto.sessionId,
   )
@@ -353,7 +392,7 @@ export const signInWithRecoveryCode = async (c: Context<typeConfig.Context>) => 
   const bodyDto = new embeddedDto.SignInWithRecoveryCodeDto(reqBody)
   await validateUtil.dto(bodyDto)
 
-  const sessionBody = await getSessionBody(
+  const sessionBody = await getSessionBodyWithoutUser(
     c,
     bodyDto.sessionId,
   )
@@ -906,7 +945,7 @@ export const postPasskeyVerify = async (c: Context<typeConfig.Context>) => {
   await validateUtil.dto(bodyDto)
 
   const sessionId = c.req.param('sessionId') ?? ''
-  const sessionBody = await getSessionBody(
+  const sessionBody = await getSessionBodyWithoutUser(
     c,
     sessionId,
   )

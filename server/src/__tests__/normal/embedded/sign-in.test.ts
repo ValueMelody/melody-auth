@@ -9,7 +9,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   getApp, insertUsers,
@@ -133,6 +133,50 @@ describe(
 
         expect(res.status).toBe(404)
         expect(await res.text()).toStrictEqual(messageConfig.RequestError.NoUser)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if session already has a user',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
+        const {
+          res, sessionId,
+        } = await sendSignInRequest(
+          db,
+          {},
+        )
+        expect(res.status).toBe(200)
+
+        db.exec(`
+          INSERT INTO "user"
+          ("authId", locale, email, "socialAccountId", "socialAccountType", password, "firstName", "lastName")
+          values ('1-1-1-2', 'en', 'test1@email.com', null, null, '$2a$10$3HtEAf8YcN94V4GOR6ZBNu9tmoIflmEOqb9hUf0iqS4OjYVKe.9/C', null, null)
+        `)
+
+        const secondRes = await app.request(
+          routeConfig.EmbeddedRoute.SignIn.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'test1@email.com',
+              password: 'Password1!',
+            }),
+          },
+          mock(db),
+        )
+
+        expect(secondRes.status).toBe(403)
+        expect(await secondRes.text()).toStrictEqual(messageConfig.RequestError.SessionAlreadyHasUser)
+
+        const sessionStore = await mockedKV.get(`${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`)
+        expect(JSON.parse(sessionStore ?? '').user.email).toBe('test@email.com')
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
       },
