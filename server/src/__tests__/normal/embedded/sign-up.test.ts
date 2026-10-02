@@ -81,7 +81,6 @@ const sendSignUpRequest = async (
 
 const sendSignUpRequestWithoutInsertUsers = async (
   db: Database,
-  sessionId: string,
   {
     email,
     password,
@@ -96,6 +95,15 @@ const sendSignUpRequestWithoutInsertUsers = async (
     attributes?: Record<number, string>;
   },
 ) => {
+  const appRecord = await getApp(db)
+
+  const initiateRes = await sendInitiateRequest(
+    db,
+    appRecord,
+  )
+
+  const { sessionId } = await initiateRes.json() as { sessionId: string }
+
   const res = await app.request(
     routeConfig.EmbeddedRoute.SignUp.replace(
       ':sessionId',
@@ -682,18 +690,11 @@ describe(
           INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('employee_id', 1, 1, 1)
         `)
 
-        const appRecord = await getApp(db)
-        const initiateRes = await sendInitiateRequest(
-          db,
-          appRecord,
-        )
-        const { sessionId } = await initiateRes.json() as { sessionId: string }
         await insertUsers(db)
 
         // Create first user with employee_id = 'EMP001'
         const res1 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test1@email.com',
             password: 'Password1!',
@@ -706,7 +707,6 @@ describe(
         // Try to create second user with same employee_id = 'EMP001'
         const res2 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test2@email.com',
             password: 'Password1!',
@@ -746,18 +746,11 @@ describe(
           INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('department', 1, 1, 0)
         `)
 
-        const appRecord = await getApp(db)
-        const initiateRes = await sendInitiateRequest(
-          db,
-          appRecord,
-        )
-        const { sessionId } = await initiateRes.json() as { sessionId: string }
         await insertUsers(db)
 
         // Create first user with department = 'Engineering'
         const res1 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test1@email.com',
             password: 'Password1!',
@@ -770,7 +763,6 @@ describe(
         // Create second user with same department = 'Engineering'
         const res2 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test2@email.com',
             password: 'Password1!',
@@ -813,18 +805,11 @@ describe(
           INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('department', 1, 1, 0)
         `)
 
-        const appRecord = await getApp(db)
-        const initiateRes = await sendInitiateRequest(
-          db,
-          appRecord,
-        )
-        const { sessionId } = await initiateRes.json() as { sessionId: string }
         await insertUsers(db)
 
         // Create first user
         const res1 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test1@email.com',
             password: 'Password1!',
@@ -840,7 +825,6 @@ describe(
         // Create second user with different employee_id but same department
         const res2 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test2@email.com',
             password: 'Password1!',
@@ -856,7 +840,6 @@ describe(
         // Try to create third user with duplicate employee_id
         const res3 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test3@email.com',
             password: 'Password1!',
@@ -894,18 +877,11 @@ describe(
           INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique") values ('employee_id', 1, 1, 1)
         `)
 
-        const appRecord = await getApp(db)
-        const initiateRes = await sendInitiateRequest(
-          db,
-          appRecord,
-        )
-        const { sessionId } = await initiateRes.json() as { sessionId: string }
         await insertUsers(db)
 
         // Create first user with employee_id = 'EMP001'
         const res1 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test1@email.com',
             password: 'Password1!',
@@ -918,7 +894,6 @@ describe(
         // Create second user with different employee_id = 'EMP002'
         const res2 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test2@email.com',
             password: 'Password1!',
@@ -1187,18 +1162,11 @@ describe(
           INSERT INTO "user_attribute" (name, "includeInSignUpForm", "requiredInSignUpForm", "unique", "validationRegex") values ('employee_code', 1, 1, 1, '^EMP[0-9]{4}$')
         `)
 
-        const appRecord = await getApp(db)
-        const initiateRes = await sendInitiateRequest(
-          db,
-          appRecord,
-        )
-        const { sessionId } = await initiateRes.json() as { sessionId: string }
         await insertUsers(db)
 
         // First user with valid employee code
         const res1 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test1@email.com',
             password: 'Password1!',
@@ -1211,7 +1179,6 @@ describe(
         // Second user with invalid format (should fail regex)
         const res2 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test2@email.com',
             password: 'Password1!',
@@ -1225,7 +1192,6 @@ describe(
         // Third user with valid format but duplicate value (should fail unique)
         const res3 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test3@email.com',
             password: 'Password1!',
@@ -1239,7 +1205,6 @@ describe(
         // Fourth user with valid and unique code
         const res4 = await sendSignUpRequestWithoutInsertUsers(
           db,
-          sessionId,
           {
             email: 'test4@email.com',
             password: 'Password1!',

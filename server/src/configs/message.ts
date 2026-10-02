@@ -53,6 +53,7 @@ export enum RequestError {
   WrongAccessToken = 'Invalid access_token provided',
   WrongAuthCode = 'Invalid auth code provided',
   WrongSessionId = 'Invalid session id provided',
+  SessionAlreadyHasUser = 'A user has already signed in with this session id, please initiate a new session',
   WrongCode = 'Invalid code provided',
   WrongChangeEmailCode = 'Invalid change email code provided',
   WrongEmailVerificationCode = 'Invalid email verification code provided',
