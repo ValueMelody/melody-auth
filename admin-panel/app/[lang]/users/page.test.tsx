@@ -106,6 +106,12 @@ describe(
           }
 
           expect(row.querySelectorAll('td')[1]?.innerHTML).toContain(users[index].email)
+          const socialAccountType = row.querySelectorAll('td')[1]?.querySelector('[data-testid="socialAccountType"]')
+          if (users[index].socialAccountType) {
+            expect(socialAccountType?.innerHTML).toBe(users[index].socialAccountType)
+          } else {
+            expect(socialAccountType).toBeNull()
+          }
           expect(row.querySelectorAll('td')[2]?.innerHTML).toContain(users[index].isActive ? 'common.active' : 'common.disabled')
           expect(row.querySelectorAll('td')[3]?.innerHTML).toContain(`${users[index].firstName} ${users[index].lastName}`)
           const editLink = row.querySelectorAll('td')[4]?.getElementsByTagName('a')
