@@ -9,6 +9,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from 'components/ui/table'
 import { Alert } from 'components/ui/alert'
+import { Badge } from 'components/ui/badge'
 import EntityStatusLabel from 'components/EntityStatusLabel'
 import EditLink from 'components/EditLink'
 import useSignalValue from 'app/useSignalValue'
@@ -147,7 +148,17 @@ const UserTable = ({
                   <section className='flex flex-col gap-2'>
                     {user.authId}
                     {user.authId === userInfo?.authId && <div className='flex'><IsSelfLabel /></div>}
-                    {user.email}
+                    <div className='flex items-center gap-2'>
+                      {user.email}
+                      {user.socialAccountType && (
+                        <Badge
+                          variant='outline'
+                          data-testid='socialAccountType'
+                        >
+                          {user.socialAccountType}
+                        </Badge>
+                      )}
+                    </div>
                     <EntityStatusLabel
                       isEnabled={user.isActive}
                       isInviting={user.isInviting}
@@ -178,7 +189,19 @@ const UserTable = ({
                   {user.authId === userInfo?.authId && <IsSelfLabel />}
                 </div>
               </TableCell>
-              <TableCell>{user.email}</TableCell>
+              <TableCell>
+                <div className='flex items-center gap-2'>
+                  {user.email}
+                  {user.socialAccountType && (
+                    <Badge
+                      variant='outline'
+                      data-testid='socialAccountType'
+                    >
+                      {user.socialAccountType}
+                    </Badge>
+                  )}
+                </div>
+              </TableCell>
               <TableCell>
                 <EntityStatusLabel
                   isEnabled={user.isActive}
