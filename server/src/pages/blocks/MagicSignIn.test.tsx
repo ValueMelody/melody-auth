@@ -13,6 +13,7 @@ describe(
       isProcessing: boolean;
       isSuccess: boolean;
       error: string | null;
+      submitError: string | null;
     }) => {
       const container = document.createElement('div')
       render(
@@ -31,6 +32,7 @@ describe(
           isProcessing: true,
           isSuccess: false,
           error: null,
+          submitError: null,
         })
         expect(container.textContent).toContain(magicSignIn.processing.en)
         expect(container.textContent).not.toContain(magicSignIn.success.en)
@@ -46,6 +48,7 @@ describe(
           isProcessing: false,
           isSuccess: true,
           error: null,
+          submitError: null,
         })
         expect(container.textContent).toContain(magicSignIn.success.en)
         expect(container.textContent).not.toContain(magicSignIn.processing.en)
@@ -60,19 +63,21 @@ describe(
           isProcessing: false,
           isSuccess: false,
           error: 'invalid',
+          submitError: null,
         })
         expect(container.textContent).toContain(magicSignIn.invalid.en)
       },
     )
 
     it(
-      'shows custom error message when error is not "invalid"',
+      'shows submit error message when request fails',
       () => {
         const container = setup({
           locale: 'en',
           isProcessing: false,
           isSuccess: false,
-          error: 'Something went wrong',
+          error: null,
+          submitError: 'Something went wrong',
         })
         expect(container.textContent).toContain('Something went wrong')
         expect(container.textContent).toContain(magicSignIn.invalid.en)
@@ -87,6 +92,7 @@ describe(
           isProcessing: true,
           isSuccess: false,
           error: 'invalid',
+          submitError: null,
         })
         expect(container.textContent).toContain(magicSignIn.processing.en)
         expect(container.textContent).not.toContain(magicSignIn.invalid.en)

@@ -93,6 +93,7 @@ describe(
       [messageConfig.RequestError.ChangeEmailLocked, requestError.changeEmailLocked.en],
       [messageConfig.RequestError.ChangeEmailCodeLocked, requestError.changeEmailCodeLocked.en],
       [messageConfig.RequestError.AuthCodeVerifierLocked, requestError.authCodeVerifierLocked.en],
+      [messageConfig.RequestError.PasswordlessBrowserMismatch, requestError.passwordlessBrowserMismatch.en],
       [messageConfig.RequestError.EmailTaken, requestError.emailTaken.en],
       [messageConfig.RequestError.WrongCode, requestError.wrongCode.en],
       [messageConfig.RequestError.RequireDifferentPassword, requestError.requireNewPassword.en],

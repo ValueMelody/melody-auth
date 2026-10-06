@@ -58,6 +58,7 @@ describe(
         const { result } = renderHook(() =>
           useMagicSignInForm({
             locale: 'en',
+            onSubmitError: vi.fn(),
             onSwitchView,
           }))
 
@@ -79,6 +80,7 @@ describe(
         const { result } = renderHook(() =>
           useMagicSignInForm({
             locale: 'en',
+            onSubmitError: vi.fn(),
             onSwitchView,
           }))
 
@@ -108,6 +110,7 @@ describe(
         const { result } = renderHook(() =>
           useMagicSignInForm({
             locale: 'en',
+            onSubmitError: vi.fn(),
             onSwitchView,
           }))
 
@@ -136,6 +139,7 @@ describe(
         const { result } = renderHook(() =>
           useMagicSignInForm({
             locale: 'en',
+            onSubmitError: vi.fn(),
             onSwitchView,
           }))
 
@@ -181,6 +185,7 @@ describe(
         const { result } = renderHook(() =>
           useMagicSignInForm({
             locale: 'en',
+            onSubmitError: vi.fn(),
             onSwitchView,
           }))
 
@@ -237,6 +242,7 @@ describe(
         const { result } = renderHook(() =>
           useMagicSignInForm({
             locale: 'en',
+            onSubmitError: vi.fn(),
             onSwitchView: vi.fn(),
           }))
 
@@ -253,7 +259,7 @@ describe(
     )
 
     test(
-      'sets error message when fetch fails',
+      'passes request error to onSubmitError when fetch fails',
       async () => {
         setInitialProps()
         vi.spyOn(
@@ -266,23 +272,27 @@ describe(
           org: '',
         })
 
+        const fetchError = new Error('Network error')
         const fetchSpy = vi.spyOn(
           global,
           'fetch',
-        ).mockRejectedValue(new Error('Network error'))
+        ).mockRejectedValue(fetchError)
 
+        const onSubmitError = vi.fn()
         const onSwitchView = vi.fn()
         const { result } = renderHook(() =>
           useMagicSignInForm({
             locale: 'en',
+            onSubmitError,
             onSwitchView,
           }))
 
         await act(async () => { await Promise.resolve() })
 
         expect(result.current.isProcessing).toBe(false)
-        expect(result.current.error).toBe('Network error')
+        expect(result.current.error).toBeNull()
         expect(result.current.isSuccess).toBe(false)
+        expect(onSubmitError).toHaveBeenCalledWith(fetchError)
         expect(onSwitchView).not.toHaveBeenCalled()
 
         fetchSpy.mockRestore()

@@ -13,11 +13,13 @@ import {
 
 export interface UseMagicSignInFormProps {
   locale: typeConfig.Locale;
+  onSubmitError: (error: string | null) => void;
   onSwitchView: (view: View) => void;
 }
 
 const useMagicSignInForm = ({
   locale,
+  onSubmitError,
   onSwitchView,
 }: UseMagicSignInFormProps) => {
   const { initialProps } = useInitialProps()
@@ -68,14 +70,17 @@ const useMagicSignInForm = ({
             onSwitchView,
           )
         })
-        .catch((err) => {
-          setError(err.message || 'error')
+        .catch((error) => {
+          onSubmitError(error)
         })
         .finally(() => {
           setIsProcessing(false)
         })
     },
-    [locale, onSwitchView, initialProps.enablePasswordlessSignIn, initialProps.usePasswordlessAsMagicLink],
+    [
+      locale, onSubmitError, onSwitchView,
+      initialProps.enablePasswordlessSignIn, initialProps.usePasswordlessAsMagicLink,
+    ],
   )
 
   useEffect(

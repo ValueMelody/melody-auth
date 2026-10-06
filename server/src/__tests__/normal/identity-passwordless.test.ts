@@ -31,6 +31,13 @@ afterEach(async () => {
   await mockedKV.empty()
 })
 
+const getBindingCookieValue = (res: Response) => {
+  const cookieMatch = res.headers.get('Set-Cookie')?.match(new RegExp(`${adapterConfig.getPasswordlessBrowserBindingCookieKey(1)}=([^;]+)`))
+  return cookieMatch?.[1]
+}
+
+let lastBindingCookieValue: string | undefined
+
 export const prepareFollowUpBody = async (db: Database) => {
   const appRecord = await getApp(db)
   const body = {
@@ -47,6 +54,7 @@ export const prepareFollowUpBody = async (db: Database) => {
   )
 
   const json = await res.json() as { code: string }
+  lastBindingCookieValue = getBindingCookieValue(res)
   return {
     code: json.code,
     locale: 'en',
@@ -93,6 +101,72 @@ describe(
         expect(codeStore.request.clientId).toBe(appRecord.clientId)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
+      'should not bind browser when USE_PASSWORDLESS_AS_MAGIC_LINK is false',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              email: 'test@email.com',
+            }),
+          },
+          mock(db),
+        )
+
+        const { code } = await res.json() as { code: string }
+        expect(res.headers.get('Set-Cookie') ?? '').not.toContain(`${adapterConfig.getPasswordlessBrowserBindingCookieKey(1)}=`)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessBrowserBinding}-${code}`)).toBeNull()
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
+      'should bind browser with cookie when USE_PASSWORDLESS_AS_MAGIC_LINK is true',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = true as unknown as string
+
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.AuthorizePasswordless,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...(await postAuthorizeBody(appRecord)),
+              email: 'test@email.com',
+            }),
+          },
+          mock(db),
+        )
+
+        const { code } = await res.json() as { code: string }
+
+        const setCookieHeader = res.headers.get('Set-Cookie')
+        expect(setCookieHeader).toContain(`${adapterConfig.getPasswordlessBrowserBindingCookieKey(1)}=`)
+        expect(setCookieHeader).toContain('HttpOnly')
+        expect(setCookieHeader).toContain('Secure')
+        expect(setCookieHeader).toContain('SameSite=Strict')
+
+        const cookieValue = getBindingCookieValue(res)
+        expect(cookieValue).toHaveLength(128)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessBrowserBinding}-${code}`)).toBe(cookieValue)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = undefined as unknown as string
       },
     )
 
@@ -583,6 +657,7 @@ describe(
               locale: requestBody.locale,
               mfaCode,
             }),
+            headers: { Cookie: `${adapterConfig.getPasswordlessBrowserBindingCookieKey(1)}=${lastBindingCookieValue}` },
           },
           mock(db),
         )
@@ -598,6 +673,63 @@ describe(
         process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = undefined as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['otp', 'email'] as unknown as string
+      },
+    )
+
+    test.each([
+      ['without browser binding cookie', undefined],
+      ['with browser binding cookie from another browser', 'attacker-browser-cookie'],
+    ])(
+      'should reject magic link code %s',
+      async (
+        _, cookieValue,
+      ) => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = true as unknown as string
+
+        global.fetch = vi.fn(async () => Promise.resolve({ ok: true })) as Mock
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const requestBody = await prepareFollowUpBody(db)
+        await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        global.fetch = fetchMock
+
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`)
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode,
+            }),
+            headers: cookieValue
+              ? { Cookie: `${adapterConfig.getPasswordlessBrowserBindingCookieKey(1)}=${cookieValue}` }
+              : undefined,
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.PasswordlessBrowserMismatch)
+        // Code must not be stamped as verified
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`)).toBe(mfaCode)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = undefined as unknown as string
       },
     )
 

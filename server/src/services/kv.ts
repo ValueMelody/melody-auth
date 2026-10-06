@@ -491,6 +491,35 @@ export const passwordlessCodeVerified = async (
   return storedCode && storedCode === '1'
 }
 
+export const storePasswordlessBrowserBinding = async (
+  kv: KVNamespace,
+  authCode: string,
+  bindingValue: string,
+  expiresIn: number,
+) => {
+  await kv.put(
+    adapterConfig.getKVKey(
+      adapterConfig.BaseKVKey.PasswordlessBrowserBinding,
+      authCode,
+    ),
+    bindingValue,
+    { expirationTtl: expiresIn },
+  )
+}
+
+export const verifyPasswordlessBrowserBinding = async (
+  kv: KVNamespace,
+  authCode: string,
+  bindingValue: string | undefined,
+) => {
+  if (!bindingValue) return false
+  const storedValue = await kv.get(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.PasswordlessBrowserBinding,
+    authCode,
+  ))
+  return !!storedValue && storedValue === bindingValue
+}
+
 export const storeEmailVerificationCode = async (
   kv: KVNamespace,
   userId: number,

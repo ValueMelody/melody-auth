@@ -9,6 +9,7 @@ export interface MagicSignInProps {
   isProcessing: boolean;
   isSuccess: boolean;
   error: string | null;
+  submitError: string | null;
 }
 
 const MagicSignIn = ({
@@ -16,6 +17,7 @@ const MagicSignIn = ({
   isProcessing,
   isSuccess,
   error,
+  submitError,
 }: MagicSignInProps) => {
   const title = isProcessing
     ? magicSignIn.processing[locale]
@@ -26,8 +28,8 @@ const MagicSignIn = ({
   return (
     <>
       <ViewTitle title={title} />
-      {error && !isProcessing && (
-        <SubmitError error={error === 'invalid' ? magicSignIn.invalid[locale] : error} />
+      {!isProcessing && (
+        <SubmitError error={error === 'invalid' ? magicSignIn.invalid[locale] : submitError} />
       )}
     </>
   )
