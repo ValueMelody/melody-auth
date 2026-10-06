@@ -129,6 +129,46 @@ describe(
     )
 
     test(
+      'should store app level mfa config in auth code',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
+        db.prepare('update app set "useSystemMfaConfig" = ?, "requireOtpMfa" = ? where id = ?').run(
+          0,
+          1,
+          1,
+        )
+
+        const res = await prepareRequest(true)
+        const json = await res.json() as { code: string }
+
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${json.code}`) ?? '')
+        expect(codeStore.mfa).toStrictEqual({
+          e: false,
+          o: true,
+          s: false,
+          b: false,
+        })
+
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
+      },
+    )
+
+    test(
+      'should not store mfa config in auth code when app uses system mfa config',
+      async () => {
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = '123'
+
+        const res = await prepareRequest(true)
+        const json = await res.json() as { code: string }
+
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${json.code}`) ?? '')
+        expect(codeStore.mfa).toBeUndefined()
+
+        global.process.env.GOOGLE_AUTH_CLIENT_ID = ''
+      },
+    )
+
+    test(
       'should be blocked if not enable in config',
       async () => {
         const privateSecret = await mockedKV.get(adapterConfig.BaseKVKey.JwtPrivateSecret) ?? ''
