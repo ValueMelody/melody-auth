@@ -41,6 +41,7 @@ export enum BaseKVKey {
   OtpMfaUsedStep = 'OMUS',
   SmsMfaCode = 'SMC',
   PasswordlessCode = 'PLC',
+  PasswordlessBrowserBinding = 'PLBB',
   EmailVerificationCode = 'EVC',
   PasskeyEnrollChallenge = 'PEC',
   PasskeyVerifyChallenge = 'PVC',
@@ -85,6 +86,10 @@ export const getOtpMfaRememberDeviceCookieKey = (userId: number) => {
 
 export const getSmsMfaRememberDeviceCookieKey = (userId: number) => {
   return `${BaseKVKey.SmsMfaRememberDevice}-${userId}`
+}
+
+export const getPasswordlessBrowserBindingCookieKey = (userId: number) => {
+  return `${BaseKVKey.PasswordlessBrowserBinding}-${userId}`
 }
 
 export enum FileLocation {

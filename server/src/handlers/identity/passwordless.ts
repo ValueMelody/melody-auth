@@ -35,6 +35,12 @@ export const postAuthorizePasswordless = async (c: Context<typeConfig.Context>) 
     user,
   )
 
+  await identityService.bindPasswordlessToBrowser(
+    c,
+    authCode,
+    authCodeBody.user.id,
+  )
+
   return c.json(await identityService.processPostAuthorize(
     c,
     identityService.AuthorizeStep.Passwordless,
@@ -92,6 +98,12 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
+
+  await identityService.verifyPasswordlessBrowser(
+    c,
+    bodyDto.code,
+    authCodeStore.user.id,
+  )
 
   const {
     AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,

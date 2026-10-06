@@ -898,6 +898,11 @@ export const requestError = Object.freeze({
     fr: 'Trop de tentatives échouées de vérification sans mot de passe. Veuillez réessayer dans 30 minutes.',
     zh: '免密验证失败次数过多。请在 30 分钟后重试。',
   },
+  passwordlessBrowserMismatch: {
+    en: 'For your security, please open this magic link in the same browser where you started signing in.',
+    fr: 'Pour votre sécurité, veuillez ouvrir ce lien de connexion dans le même navigateur que celui où vous avez commencé à vous connecter.',
+    zh: '为了您的安全，请在您开始登录的同一浏览器中打开此链接。',
+  },
   passwordResetLocked: {
     en: 'Too many password reset requests. Please try again tomorrow.',
     fr: 'Trop de demandes de réinitialisation de mot de passe. Veuillez réessayer demain.',

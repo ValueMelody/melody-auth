@@ -1,6 +1,6 @@
 import { typeConfig } from 'configs'
 import {
-  useMagicSignInForm, View,
+  useMagicSignInForm, useSubmitError, View,
 } from 'pages/hooks'
 import { MagicSignIn as MagicSignInBlock } from 'pages/blocks'
 
@@ -14,11 +14,19 @@ const MagicSignIn = ({
   onSwitchView,
 }: MagicSignInProps) => {
   const {
+    submitError, handleSubmitError,
+  } = useSubmitError({
+    locale,
+    onSwitchView,
+  })
+
+  const {
     isProcessing,
     isSuccess,
     error,
   } = useMagicSignInForm({
     locale,
+    onSubmitError: handleSubmitError,
     onSwitchView,
   })
 
@@ -28,6 +36,7 @@ const MagicSignIn = ({
       isProcessing={isProcessing}
       isSuccess={isSuccess}
       error={error}
+      submitError={submitError}
     />
   )
 }

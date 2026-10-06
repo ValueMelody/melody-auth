@@ -62,7 +62,7 @@ Melody Auth 提供了一系列可自定义选项，以便您根据实际需求�
 
 ### USE_PASSWORDLESS_AS_MAGIC_LINK
 - **默认值：** false
-- **说明：** 将无密码登录流程改为使用登录链接（Magic Link）代替一次性验证码（OTP）。启用后（需同时设置 `ENABLE_PASSWORDLESS_SIGN_IN=true`），用户输入邮箱后将收到一封包含登录链接的邮件，点击链接即可自动完成登录，无需手动输入验证码。邮件发送后，登录页面将停留在原页面并显示确认提示。
+- **说明：** 将无密码登录流程改为使用登录链接（Magic Link）代替一次性验证码（OTP）。启用后（需同时设置 `ENABLE_PASSWORDLESS_SIGN_IN=true`），用户输入邮箱后将收到一封包含登录链接的邮件，点击链接即可自动完成登录，无需手动输入验证码。邮件发送后，登录页面将停留在原页面并显示确认提示。出于安全考虑，该链接仅能在发起登录的同一浏览器中使用，在其他浏览器或设备中打开将被拒绝。
 - 需要先完成 [邮件服务商配置](https://auth.valuemelody.com/zh/email-provider-setup.html)
 
 ### ENABLE_PASSWORD_RESET

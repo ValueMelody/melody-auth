@@ -67,6 +67,7 @@ export enum RequestError {
   WrongSmsMfaCode = 'Invalid SMS MFA code provided',
   WrongOtpMfaCode = 'Invalid OTP MFA code provided',
   WrongPasswordlessCode = 'Invalid passwordless code provided',
+  PasswordlessBrowserMismatch = 'Magic link must be opened in the same browser that started the sign-in',
   RequireDifferentPassword = 'A change password request triggered but the new password is the same as the old password',
   RequireDifferentEmail = 'A change email request triggered but the new email address is the same as the old email address',
   NoSpaAppFound = 'No SPA app found',

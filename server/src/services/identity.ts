@@ -3,7 +3,9 @@ import { env } from 'hono/adapter'
 import {
   genCodeChallenge, genRandomString,
 } from '@melody-auth/shared'
-import { getCookie } from 'hono/cookie'
+import {
+  getCookie, setCookie,
+} from 'hono/cookie'
 import {
   adapterConfig,
   errorConfig,
@@ -529,6 +531,72 @@ export const processSignIn = async (
   return {
     authCode,
     authCodeBody,
+  }
+}
+
+export const bindPasswordlessToBrowser = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  userId: number,
+) => {
+  const {
+    USE_PASSWORDLESS_AS_MAGIC_LINK: usePasswordlessAsMagicLink,
+    AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+  } = env(c)
+
+  if (!usePasswordlessAsMagicLink) return
+
+  const bindingValue = genRandomString(128)
+
+  await kvService.storePasswordlessBrowserBinding(
+    c.env.KV,
+    authCode,
+    bindingValue,
+    codeExpiresIn,
+  )
+
+  const cookieKey = adapterConfig.getPasswordlessBrowserBindingCookieKey(userId)
+  setCookie(
+    c,
+    cookieKey,
+    bindingValue,
+    {
+      httpOnly: true,
+      secure: true,
+      path: '/',
+      maxAge: codeExpiresIn,
+      sameSite: 'strict',
+    },
+  )
+}
+
+export const verifyPasswordlessBrowser = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  userId: number,
+) => {
+  const { USE_PASSWORDLESS_AS_MAGIC_LINK: usePasswordlessAsMagicLink } = env(c)
+
+  if (!usePasswordlessAsMagicLink) return
+
+  const cookieKey = adapterConfig.getPasswordlessBrowserBindingCookieKey(userId)
+  const cookieValue = getCookie(
+    c,
+    cookieKey,
+  )
+  const isValid = await kvService.verifyPasswordlessBrowserBinding(
+    c.env.KV,
+    authCode,
+    cookieValue,
+  )
+
+  if (!isValid) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.PasswordlessBrowserMismatch,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordlessBrowserMismatch)
   }
 }
 
