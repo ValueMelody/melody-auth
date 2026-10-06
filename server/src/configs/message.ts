@@ -89,6 +89,7 @@ export enum RequestError {
   InvalidSamlAudience = 'SAML assertion audience does not match the service provider',
   InvalidSamlDestination = 'SAML response destination does not match the assertion consumer service',
   SamlResponseReplayed = 'SAML response has already been used',
+  InvalidSamlUserId = 'SAML assertion must contain exactly one non-empty user ID value',
   InvalidPolicy = 'Invalid policy',
   NoUserAttribute = 'No user attribute found',
   OrgHasUsers = 'Can not delete organization with users',

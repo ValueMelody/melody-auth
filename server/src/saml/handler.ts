@@ -25,6 +25,14 @@ const toStringArray = (value?: string | string[]): string[] => {
   return value === undefined || value === null ? [] : [String(value)]
 }
 
+const singleStringValue = (value?: string | string[]): string | null => {
+  const values = Array.isArray(value) ? value : [value]
+  if (values.length !== 1) return null
+  const [item] = values
+  if (typeof item !== 'string' || !item.trim()) return null
+  return item
+}
+
 const getSamlReplayTtl = (
   notOnOrAfter: string, fallback: number,
 ): number => {
@@ -195,13 +203,22 @@ export const postSamlSpAcs = async (c: Context) => {
       ),
     )
 
-    const userId = extract.attributes?.[record.userIdAttribute]
+    const userId = singleStringValue(extract.attributes?.[record.userIdAttribute])
+    if (!userId) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.InvalidSamlUserId,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidSamlUserId)
+    }
+
     const email = record.emailAttribute ? extract.attributes?.[record.emailAttribute] : null
     const firstName = record.firstNameAttribute ? extract.attributes?.[record.firstNameAttribute] : null
     const lastName = record.lastNameAttribute ? extract.attributes?.[record.lastNameAttribute] : null
 
     const samlUser: userService.SamlUser = {
-      userId: String(userId),
+      userId,
       email: email ? String(email) : null,
       firstName: firstName ? String(firstName) : null,
       lastName: lastName ? String(lastName) : null,

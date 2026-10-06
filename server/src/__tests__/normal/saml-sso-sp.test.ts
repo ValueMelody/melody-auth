@@ -507,6 +507,73 @@ describe(
       },
     )
 
+    test.each([
+      ['missing', {}],
+      ['empty', { [USER_ID_ATTRIBUTE]: '' }],
+      ['whitespace only', { [USER_ID_ATTRIBUTE]: '   ' }],
+      ['an empty list', { [USER_ID_ATTRIBUTE]: [] }],
+      ['multi-valued', { [USER_ID_ATTRIBUTE]: ['saml-user-1', 'saml-user-2'] }],
+    ])(
+      'should reject a response whose user ID attribute is %s',
+      async (
+        _, attributes,
+      ) => {
+        await insertSamlIdp()
+        const sessionId = await seedAcsSession('_req_match')
+
+        const extract = buildValidExtract('_req_match') as Record<string, unknown>
+        extract.attributes = attributes
+        mockParseLoginResponse(extract)
+        const processSamlAccountSpy = vi.spyOn(
+          userService,
+          'processSamlAccount',
+        )
+        const loggerSpy = vi.spyOn(
+          loggerUtil,
+          'triggerLogger',
+        )
+
+        const res = await postAcs(sessionId)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidSamlResponse)
+        expect(loggerSpy).toHaveBeenCalledWith(
+          expect.anything(),
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.InvalidSamlUserId,
+        )
+        expect(processSamlAccountSpy).not.toHaveBeenCalled()
+      },
+    )
+
+    test(
+      'should accept a user ID attribute provided as a single-item list',
+      async () => {
+        await insertSamlIdp()
+        const sessionId = await seedAcsSession('_req_match')
+
+        const extract = buildValidExtract('_req_match') as Record<string, unknown>
+        extract.attributes = { [USER_ID_ATTRIBUTE]: ['saml-user-1'] }
+        mockParseLoginResponse(extract)
+        const processSamlAccountSpy = vi.spyOn(
+          userService,
+          'processSamlAccount',
+        ).mockResolvedValue({ id: 1 } as unknown as Awaited<ReturnType<typeof userService.processSamlAccount>>)
+        vi.spyOn(
+          identityService,
+          'processPostAuthorize',
+        ).mockResolvedValue({
+          state: '123',
+          code: 'test-code',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          nextPage: routeConfig.View.SignIn,
+        } as unknown as Awaited<ReturnType<typeof identityService.processPostAuthorize>>)
+
+        const res = await postAcs(sessionId)
+        expect(res.status).toBe(302)
+        expect(processSamlAccountSpy.mock.calls[0][1].userId).toBe('saml-user-1')
+      },
+    )
+
     test(
       'should accept a valid response and record it to block replay',
       async () => {
