@@ -76,7 +76,9 @@ const insertSamlIdp = async () => {
   `).run(samlIdpMetaDataMock)
 }
 
-const seedAcsSession = async (samlRequestId?: string) => {
+const seedAcsSession = async (
+  samlRequestId?: string, mfa?: EmbeddedSessionBody['mfa'],
+) => {
   const sessionId = 'saml-acs-session'
   const session = {
     appId: 1,
@@ -87,6 +89,7 @@ const seedAcsSession = async (samlRequestId?: string) => {
       redirectUri: 'http://localhost:3000/en/dashboard',
     },
     ...(samlRequestId === undefined ? {} : { samlRequestId }),
+    ...(mfa === undefined ? {} : { mfa }),
   }
   await mockedKV.put(
     `${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`,
@@ -198,6 +201,50 @@ describe(
         const session = JSON.parse(sessionStr) as EmbeddedSessionBody
         expect(typeof session.samlRequestId).toBe('string')
         expect((session.samlRequestId ?? '').length).toBeGreaterThan(0)
+
+        process.env.ENABLE_SAML_SSO_AS_SP = false as unknown as string
+      },
+    )
+
+    test(
+      'should store app level mfa config on the session',
+      async () => {
+        process.env.ENABLE_SAML_SSO_AS_SP = true as unknown as string
+        db.prepare('update app set "useSystemMfaConfig" = ?, "requireOtpMfa" = ? where id = ?').run(
+          0,
+          1,
+          1,
+        )
+
+        const { res } = await prepareLoginRequest()
+        const url = new URL(res.headers.get('Location') ?? '')
+        const sessionId = url.searchParams.get('RelayState')
+
+        const sessionStr = await mockedKV.get(`${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`) as string
+        const session = JSON.parse(sessionStr) as EmbeddedSessionBody
+        expect(session.mfa).toStrictEqual({
+          e: false,
+          o: true,
+          s: false,
+          b: false,
+        })
+
+        process.env.ENABLE_SAML_SSO_AS_SP = false as unknown as string
+      },
+    )
+
+    test(
+      'should not store mfa config on the session when app uses system mfa config',
+      async () => {
+        process.env.ENABLE_SAML_SSO_AS_SP = true as unknown as string
+
+        const { res } = await prepareLoginRequest()
+        const url = new URL(res.headers.get('Location') ?? '')
+        const sessionId = url.searchParams.get('RelayState')
+
+        const sessionStr = await mockedKV.get(`${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`) as string
+        const session = JSON.parse(sessionStr) as EmbeddedSessionBody
+        expect(session.mfa).toBeUndefined()
 
         process.env.ENABLE_SAML_SSO_AS_SP = false as unknown as string
       },
@@ -528,6 +575,44 @@ describe(
 
         const res = await postAcs(sessionId)
         expect(res.status).toBe(302)
+      },
+    )
+
+    test(
+      'should carry the session mfa config into the auth code',
+      async () => {
+        await insertSamlIdp()
+        const mfa = {
+          e: false,
+          o: true,
+          s: false,
+          b: false,
+        }
+        const sessionId = await seedAcsSession(
+          '_req_match',
+          mfa,
+        )
+
+        mockParseLoginResponse(buildValidExtract('_req_match'))
+        vi.spyOn(
+          userService,
+          'processSamlAccount',
+        ).mockResolvedValue({ id: 1 } as unknown as Awaited<ReturnType<typeof userService.processSamlAccount>>)
+        vi.spyOn(
+          identityService,
+          'processPostAuthorize',
+        ).mockResolvedValue({
+          state: '123',
+          code: 'test-code',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          nextPage: routeConfig.View.SignIn,
+        } as unknown as Awaited<ReturnType<typeof identityService.processPostAuthorize>>)
+
+        const res = await postAcs(sessionId)
+        expect(res.status).toBe(302)
+
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${sessionId}`) ?? '')
+        expect(codeStore.mfa).toStrictEqual(mfa)
       },
     )
   },

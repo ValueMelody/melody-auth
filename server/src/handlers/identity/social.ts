@@ -9,7 +9,7 @@ import {
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
-  appService, jwtService, kvService, userService, identityService,
+  appService, jwtService, kvService, userService, identityService, mfaService,
 } from 'services'
 import {
   validateUtil, loggerUtil,
@@ -43,6 +43,8 @@ export const prepareSocialAuthCode = async (
 ) => {
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
 
+  const mfaConfig = mfaService.getAppMfaConfig(app)
+
   const authCode = genRandomString(128)
   const request = await identityService.getAppAuthorizedRequest(
     c,
@@ -54,6 +56,7 @@ export const prepareSocialAuthCode = async (
     appName: app.name,
     user,
     request,
+    mfa: mfaConfig ? mfaService.getAuthCodeBodyMfaConfig(mfaConfig) : undefined,
   }
   await kvService.storeAuthCode(
     c.env.KV,

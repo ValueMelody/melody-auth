@@ -6,7 +6,7 @@ import {
   routeConfig,
 } from 'configs'
 import {
-  identityService, kvService, userService,
+  identityService, kvService, mfaService, userService,
 } from 'services'
 import * as samlService from 'saml/service'
 import {
@@ -72,6 +72,7 @@ export const getSamlSpLogin = async (c: Context) => {
   )
 
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  const mfaConfig = mfaService.getAppMfaConfig(app)
 
   const authCode = genRandomString(128)
   const authCodeBody = {
@@ -79,6 +80,7 @@ export const getSamlSpLogin = async (c: Context) => {
     appName: app.name,
     request: queryDto,
     samlRequestId: requestId,
+    mfa: mfaConfig ? mfaService.getAuthCodeBodyMfaConfig(mfaConfig) : undefined,
   }
   await kvService.storeEmbeddedSession(
     c.env.KV,
