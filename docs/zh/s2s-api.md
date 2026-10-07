@@ -68,6 +68,10 @@ fetch('/oauth2/v1/token', {
 
 在创建应用（`POST /api/v1/apps`）或更新应用（`PUT /api/v1/apps/{id}`）时，只有自身令牌持有 `root` 作用域的调用方才能分配 `root` 作用域。不具备 `root` 的 `write_app` 令牌仍可管理其他作用域，但任何在应用作用域列表中包含 `root` 的请求都会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can assign the root scope to an app`。这可以防止 `write_app` 令牌将自身权限提升为 `root`。
 
+### 默认管理面板应用
+
+管理面板通过默认的 `Admin Panel (SPA)` 应用（ID `1`）让超级管理员登录，并通过默认的 `Admin Panel (S2S)` 应用（ID `2`）调用 API。颁发给这两个应用的令牌都拥有完整的管理权限。例如，能够向 SPA 应用添加自己重定向 URI 的调用方就可以拿到超级管理员的授权码。因此，只有自身令牌持有 `root` 的调用方才能更新（`PUT /api/v1/apps/{id}`）或删除（`DELETE /api/v1/apps/{id}`）这两个应用。不具备 `root` 的 `write_app` 令牌会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can update or delete a default admin panel app`。其他应用不受影响。
+
 ### 内置作用域
 
 `S2sConfig.builtInScopes` 中的内置作用域名称为保留且不可更改：`openid`、`profile`、`offline_access`、`root`、`read_user`、`write_user`、`read_app`、`write_app`、`read_role`、`write_role`、`read_scope`、`write_scope`、`read_org` 和 `write_org`。`POST /api/v1/scopes` 不能创建这些作用域，`DELETE /api/v1/scopes/{id}` 也不能删除它们。`PUT /api/v1/scopes/{id}` 可以更新内置作用域的说明或本地化标签，但不能重命名内置作用域，也不能将自定义作用域重命名为内置作用域名称。受限请求会返回 `400`，并附带消息 `Built-in scopes cannot be created, deleted, or renamed`。
