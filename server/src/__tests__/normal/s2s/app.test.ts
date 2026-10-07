@@ -463,6 +463,163 @@ describe(
 )
 
 describe(
+  'admin panel app guard',
+  () => {
+    const getWriteAppToken = async () => {
+      await attachIndividualScopes(db)
+      return getS2sToken(
+        db,
+        Scope.WriteApp,
+      )
+    }
+
+    const updateAppReq = async (
+      id: number, body: object, token: string,
+    ) => await app.request(
+      `${BaseRoute}/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(body),
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      mock(db),
+    )
+
+    const deleteAppReq = async (
+      id: number, token: string,
+    ) => await app.request(
+      `${BaseRoute}/${id}`,
+      {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      mock(db),
+    )
+
+    test(
+      'should reject adding a redirect uri to the admin panel spa app from a write_app caller',
+      async () => {
+        const token = await getWriteAppToken()
+        const res = await updateAppReq(
+          1,
+          { redirectUris: [...adminSpaApp.redirectUris, 'https://attacker.example.com/callback'] },
+          token,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToModifyAdminPanelApp)
+
+        const appRecord = await db.prepare('SELECT * FROM app where id = 1').get() as appModel.Raw
+        expect(appRecord.redirectUris).toBe(adminSpaApp.redirectUris.join(','))
+      },
+    )
+
+    test.each([
+      ['spa', 1],
+      ['s2s', 2],
+    ])(
+      'should reject any update to the admin panel %s app from a write_app caller',
+      async (
+        _, id,
+      ) => {
+        const token = await getWriteAppToken()
+        const res = await updateAppReq(
+          id,
+          { name: 'renamed' },
+          token,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToModifyAdminPanelApp)
+
+        const appRecord = await db.prepare('SELECT * FROM app where id = ?').get(id) as appModel.Raw
+        expect(appRecord.name).not.toBe('renamed')
+      },
+    )
+
+    test(
+      'should allow updating the admin panel spa app from a root caller',
+      async () => {
+        const res = await updateAppReq(
+          1,
+          {
+            redirectUris: ['http://localhost:3000/en/dashboard'],
+            requireOtpMfa: true,
+          },
+          await getS2sToken(db),
+        )
+        const json = await res.json() as { app: { redirectUris: string[]; requireOtpMfa: boolean } }
+
+        expect(res.status).toBe(200)
+        expect(json.app.redirectUris).toStrictEqual(['http://localhost:3000/en/dashboard'])
+        expect(json.app.requireOtpMfa).toBe(true)
+      },
+    )
+
+    test(
+      'should allow updating other apps from a write_app caller',
+      async () => {
+        await createNewApp()
+        const token = await getWriteAppToken()
+        const res = await updateAppReq(
+          3,
+          {
+            redirectUris: ['https://example.com/callback'],
+            isActive: false,
+            requireOtpMfa: true,
+          },
+          token,
+        )
+        const json = await res.json() as {
+          app: { redirectUris: string[]; isActive: boolean; requireOtpMfa: boolean };
+        }
+
+        expect(res.status).toBe(200)
+        expect(json.app.redirectUris).toStrictEqual(['https://example.com/callback'])
+        expect(json.app.isActive).toBe(false)
+        expect(json.app.requireOtpMfa).toBe(true)
+      },
+    )
+
+    test.each([
+      ['spa', 1],
+      ['s2s', 2],
+    ])(
+      'should reject deleting the admin panel %s app from a write_app caller',
+      async (
+        _, id,
+      ) => {
+        const token = await getWriteAppToken()
+        const res = await deleteAppReq(
+          id,
+          token,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToModifyAdminPanelApp)
+
+        const appRecord = await db.prepare('SELECT * FROM app where id = ?').get(id) as appModel.Raw
+        expect(appRecord.deletedAt).toBeNull()
+      },
+    )
+
+    test(
+      'should allow deleting other apps from a write_app caller',
+      async () => {
+        await createNewApp()
+        const token = await getWriteAppToken()
+        const res = await deleteAppReq(
+          3,
+          token,
+        )
+
+        expect(res.status).toBe(204)
+      },
+    )
+  },
+)
+
+describe(
   'update',
   () => {
     test(

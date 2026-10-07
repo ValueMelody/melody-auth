@@ -90,6 +90,9 @@ export const S2sConfig = Object.freeze({
   builtInRoles: [Role.SuperAdmin],
   // They can only be assigned to an app by a caller that holds the root scope.
   privilegedScopes: [Scope.Root],
+  // Default apps seeded for the admin panel. They can only be updated or deleted by a caller that holds the root scope.
+  adminPanelSpaAppId: 1,
+  adminPanelS2sAppId: 2,
   builtInScopes: Object.freeze<string[]>([
     Scope.OpenId,
     Scope.Profile,

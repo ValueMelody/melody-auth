@@ -2521,7 +2521,7 @@
       },
       "put": {
         "summary": "Update an existing app by ID",
-        "description": "Required scope - write_app. Assigning the root scope additionally requires the caller to hold the root scope.",
+        "description": "Required scope - write_app. Assigning the root scope or updating a default admin panel app additionally requires the caller to hold the root scope.",
         "tags": [
           "Apps"
         ],
@@ -2565,7 +2565,7 @@
       },
       "delete": {
         "summary": "Delete an existing app by ID",
-        "description": "Required scope - write_app",
+        "description": "Required scope - write_app. Deleting a default admin panel app additionally requires the caller to hold the root scope.",
         "tags": [
           "Apps"
         ],

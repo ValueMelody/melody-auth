@@ -145,6 +145,12 @@ export const getAppById = async (
   }
 }
 
+const callerHasRootScope = (c: Context<typeConfig.Context>): boolean => {
+  const accessTokenBody = c.get('access_token_body')
+  const callerScopes = accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []
+  return callerScopes.includes(Scope.Root)
+}
+
 const verifyCanAssignRootScope = (
   c: Context<typeConfig.Context>,
   scopes: string[],
@@ -152,15 +158,32 @@ const verifyCanAssignRootScope = (
   const includesPrivilegedScope = variableConfig.S2sConfig.privilegedScopes.some((scope) => scopes.includes(scope))
   if (!includesPrivilegedScope) return
 
-  const accessTokenBody = c.get('access_token_body')
-  const callerScopes = accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []
-  if (!callerScopes.includes(Scope.Root)) {
+  if (!callerHasRootScope(c)) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.NoRootScopeToAssignRoot,
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.NoRootScopeToAssignRoot)
+  }
+}
+
+const verifyCanModifyAdminPanelApp = (
+  c: Context<typeConfig.Context>,
+  appId: number,
+) => {
+  const {
+    adminPanelSpaAppId, adminPanelS2sAppId,
+  } = variableConfig.S2sConfig
+  if (appId !== adminPanelSpaAppId && appId !== adminPanelS2sAppId) return
+
+  if (!callerHasRootScope(c)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoRootScopeToModifyAdminPanelApp,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.NoRootScopeToModifyAdminPanelApp)
   }
 }
 
@@ -230,6 +253,11 @@ export const updateApp = async (
     )
   }
 
+  verifyCanModifyAdminPanelApp(
+    c,
+    app.id,
+  )
+
   const updatedApp = Object.values(updateDto).some((val) => val !== undefined)
     ? await appModel.update(
       c.env.DB,
@@ -289,6 +317,11 @@ export const deleteApp = async (
   c: Context<typeConfig.Context>,
   appId: number,
 ): Promise<true> => {
+  verifyCanModifyAdminPanelApp(
+    c,
+    appId,
+  )
+
   await appModel.remove(
     c.env.DB,
     appId,
