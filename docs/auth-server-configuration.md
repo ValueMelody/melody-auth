@@ -201,7 +201,7 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 
 ### PASSWORD_RESET_CODE_THRESHOLD
 - **Default:** 5
-- **Description:** Number of failed password reset code verification attempts before further attempts are temporarily locked for the user/IP. 0 means no limit.
+- **Description:** Number of failed password reset code verification attempts before further attempts are temporarily locked for the user/IP. The code is also invalidated after 5 times this many failed attempts from any IP, so a new code must be requested. 0 means no limit.
 
 ### EMAIL_MFA_EMAIL_THRESHOLD
 - **Default:** 10
@@ -213,11 +213,11 @@ Melody Auth offers a range of customizable options to tailor the authentication 
 
 ### CHANGE_EMAIL_CODE_THRESHOLD
 - **Default:** 5
-- **Description:** Number of failed change-email code verification attempts before further attempts are temporarily locked for the user/IP. 0 means no limit.
+- **Description:** Number of failed change-email code verification attempts before further attempts are temporarily locked for the user/IP. The code is also invalidated after 5 times this many failed attempts from any IP, so a new code must be requested. 0 means no limit.
 
 ### EMAIL_VERIFICATION_CODE_THRESHOLD
 - **Default:** 5
-- **Description:** Number of failed email verification code attempts before further attempts are temporarily locked for the user/IP for 30 minutes. 0 means no limit.
+- **Description:** Number of failed email verification code attempts before further attempts are temporarily locked for the user/IP for 30 minutes. The code is also invalidated after 5 times this many failed attempts from any IP, so a new code must be requested. 0 means no limit.
 
 ### SMS_MFA_MESSAGE_THRESHOLD
 - **Default:** 5

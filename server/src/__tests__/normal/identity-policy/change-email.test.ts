@@ -464,6 +464,39 @@ describe(
     )
 
     test(
+      'should reject change email code after total failed attempts from different IPs',
+      async () => {
+        global.process.env.CHANGE_EMAIL_CODE_THRESHOLD = 2 as unknown as string
+
+        const { correctBody } = await sendCorrectChangeEmailCodeReq()
+        const verificationCode = await mockedKV.get(`${adapterConfig.BaseKVKey.ChangeEmailCode}-1-test_new@email.com`) ?? ''
+
+        for (let i = 0; i < 10; i++) {
+          // Simulate a fresh IP for each guess
+          await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedChangeEmailCodeAttempts}-1`)
+          const { res } = await sendCorrectChangeEmailReq({
+            code: correctBody.code,
+            verificationCode: '123456',
+          })
+          expect(res.status).toBe(400)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedChangeEmailCodeAttempts}-1-test_new@email.com`)).toBe('10')
+
+        await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedChangeEmailCodeAttempts}-1`)
+        const { res } = await sendCorrectChangeEmailReq({
+          code: correctBody.code,
+          verificationCode,
+        })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+
+        global.process.env.CHANGE_EMAIL_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
       'should not touch failed code attempts when change email code threshold is disabled',
       async () => {
         global.process.env.CHANGE_EMAIL_CODE_THRESHOLD = 0 as unknown as string

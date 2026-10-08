@@ -231,6 +231,53 @@ describe(
     )
 
     test(
+      'should reject password reset code after total failed attempts from different IPs',
+      async () => {
+        global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 2 as unknown as string
+        await insertUsers(db)
+
+        await sendCorrectResetPasswordCodeReq()
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordResetCode}-1`) ?? ''
+
+        for (let i = 0; i < 10; i++) {
+          // Simulate a fresh IP for each guess
+          await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedPasswordResetCodeAttempts}-1`)
+          const { res } = await sendCorrectResetPasswordReq({ code: 'abcdef' })
+          expect(res.status).toBe(400)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`)).toBe('10')
+
+        await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedPasswordResetCodeAttempts}-1`)
+        const { res } = await sendCorrectResetPasswordReq({ code })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should reset failed code attempts when a new password reset code is sent',
+      async () => {
+        global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 2 as unknown as string
+        await insertUsers(db)
+
+        await sendCorrectResetPasswordCodeReq()
+        const { res: wrongRes } = await sendCorrectResetPasswordReq({ code: 'abcdef' })
+        expect(wrongRes.status).toBe(400)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`)).toBe('1')
+
+        await sendCorrectResetPasswordCodeReq()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`)).toBeFalsy()
+
+        const { res } = await sendCorrectResetPasswordReq()
+        expect(await res.json()).toStrictEqual({ success: true })
+        global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
       'should not touch failed code attempts when password reset code threshold is disabled',
       async () => {
         global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 0 as unknown as string

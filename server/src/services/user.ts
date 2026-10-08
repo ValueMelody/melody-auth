@@ -965,6 +965,7 @@ export const verifyUserEmail = async (
   const { EMAIL_VERIFICATION_CODE_THRESHOLD: emailVerificationCodeThreshold } = env(c)
   let ip: string | undefined
   let failedAttempts = 0
+  let totalFailedAttempts = 0
   if (emailVerificationCodeThreshold) {
     ip = requestUtil.getRequestIP(c)
     failedAttempts = await kvService.getFailedEmailVerificationCodeAttemptsByIP(
@@ -981,6 +982,22 @@ export const verifyUserEmail = async (
       )
       throw new errorConfig.Forbidden(messageConfig.RequestError.EmailVerificationLocked)
     }
+
+    totalFailedAttempts = await kvService.getTotalFailedEmailVerificationCodeAttempts(
+      c.env.KV,
+      user.id,
+    )
+
+    if (
+      totalFailedAttempts >= emailVerificationCodeThreshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier
+    ) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.WrongEmailVerificationCode,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+    }
   }
 
   const isValid = await kvService.verifyEmailVerificationCode(
@@ -996,6 +1013,11 @@ export const verifyUserEmail = async (
         user.id,
         ip,
         attempts,
+      )
+      await kvService.setTotalFailedEmailVerificationCodeAttempts(
+        c.env.KV,
+        user.id,
+        totalFailedAttempts + 1,
       )
     }
 
@@ -1073,6 +1095,7 @@ export const resetUserPassword = async (
   const { PASSWORD_RESET_CODE_THRESHOLD: failedPasswordResetCodeAttemptThreshold } = env(c)
   let ip: string | undefined
   let failedAttempts = 0
+  let totalFailedAttempts = 0
   if (failedPasswordResetCodeAttemptThreshold) {
     ip = requestUtil.getRequestIP(c)
     failedAttempts = await kvService.getFailedPasswordResetCodeAttemptsByIP(
@@ -1091,6 +1114,23 @@ export const resetUserPassword = async (
       )
       throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordResetCodeLocked)
     }
+
+    totalFailedAttempts = await kvService.getTotalFailedPasswordResetCodeAttempts(
+      c.env.KV,
+      user.id,
+    )
+
+    if (
+      totalFailedAttempts >=
+        failedPasswordResetCodeAttemptThreshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier
+    ) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.WrongPasswordResetCode,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+    }
   }
 
   const isValid = await kvService.verifyPasswordResetCode(
@@ -1107,6 +1147,11 @@ export const resetUserPassword = async (
         user.id,
         ip,
         attempts,
+      )
+      await kvService.setTotalFailedPasswordResetCodeAttempts(
+        c.env.KV,
+        user.id,
+        totalFailedAttempts + 1,
       )
     }
 
