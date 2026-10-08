@@ -6,6 +6,7 @@ import {
   errorConfig,
   messageConfig,
   typeConfig,
+  variableConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
@@ -181,6 +182,7 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
   const { CHANGE_EMAIL_CODE_THRESHOLD: changeEmailCodeThreshold } = env(c)
   let ip: string | undefined
   let failedAttempts = 0
+  let totalFailedAttempts = 0
 
   if (changeEmailCodeThreshold) {
     ip = requestUtil.getRequestIP(c)
@@ -196,6 +198,20 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
         messageConfig.RequestError.ChangeEmailCodeLocked,
       )
       throw new errorConfig.Forbidden(messageConfig.RequestError.ChangeEmailCodeLocked)
+    }
+
+    totalFailedAttempts = await kvService.getTotalFailedChangeEmailCodeAttempts(
+      c.env.KV,
+      authInfo.user.id,
+      bodyDto.email,
+    )
+    if (totalFailedAttempts >= changeEmailCodeThreshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.WrongChangeEmailCode,
+      )
+      throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
     }
   }
 
@@ -214,6 +230,12 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
         authInfo.user.id,
         ip,
         attempts,
+      )
+      await kvService.setTotalFailedChangeEmailCodeAttempts(
+        c.env.KV,
+        authInfo.user.id,
+        bodyDto.email,
+        totalFailedAttempts + 1,
       )
     }
 

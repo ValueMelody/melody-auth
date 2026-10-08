@@ -255,6 +255,33 @@ describe(
     )
 
     test(
+      'should reject email verification code after total failed attempts from different IPs',
+      async () => {
+        process.env.EMAIL_VERIFICATION_CODE_THRESHOLD = 2 as unknown as string
+
+        await prepareUserAccount(db)
+        const code = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailVerificationCode}-1`) ?? ''
+
+        for (let i = 0; i < 10; i++) {
+          // Simulate a fresh IP for each guess
+          await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedEmailVerificationCodeAttempts}-1`)
+          const { res } = await sendCorrectVerifyEmailReq({ code: 'abcdef' })
+          expect(res.status).toBe(400)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedEmailVerificationCodeAttempts}-1`)).toBe('10')
+
+        await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedEmailVerificationCodeAttempts}-1`)
+        const { res } = await sendCorrectVerifyEmailReq({ code })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+
+        process.env.EMAIL_VERIFICATION_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
       'should not track failed attempts when EMAIL_VERIFICATION_CODE_THRESHOLD is 0',
       async () => {
         process.env.EMAIL_VERIFICATION_CODE_THRESHOLD = 0 as unknown as string
