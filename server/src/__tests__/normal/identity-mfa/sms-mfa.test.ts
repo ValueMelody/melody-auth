@@ -1239,6 +1239,79 @@ describe(
     )
 
     test(
+      'should reject sms mfa code after total failed attempts from different IPs',
+      async () => {
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 2 as unknown as string
+        process.env.SMS_MFA_IS_REQUIRED = true as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = '123'
+        process.env.TWILIO_AUTH_TOKEN = 'abc'
+        process.env.TWILIO_SENDER_NUMBER = '+1231231234'
+
+        const mockFetch = getSmsResponseMock()
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        await enrollSmsMfa(db)
+        const reqBody = await prepareFollowUpBody(db)
+
+        const sendCode = async () => app.request(
+          `${routeConfig.IdentityRoute.SetupSmsMfa}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...reqBody,
+              phoneNumber: '+6471112222',
+            }),
+          },
+          mock(db),
+        )
+        const sendRequest = async (mfaCode: string) => app.request(
+          routeConfig.IdentityRoute.ProcessSmsMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: reqBody.code,
+              locale: 'en',
+              mfaCode,
+            }),
+          },
+          mock(db),
+        )
+
+        await sendCode()
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+
+        for (let i = 0; i < 10; i++) {
+          // Simulate a fresh IP for each guess
+          await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`)
+          const res = await sendRequest('wrong!')
+          expect(res.status).toBe(401)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedSmsMfaCodeAttempts}-${reqBody.code}`)).toBe('10')
+
+        await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`)
+        const lockedRes = await sendRequest(mfaCode)
+        expect(lockedRes.status).toBe(401)
+        expect(await lockedRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+
+        await sendCode()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedSmsMfaCodeAttempts}-${reqBody.code}`)).toBeFalsy()
+        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        const res = await sendRequest(newMfaCode)
+        expect(res.status).toBe(200)
+
+        process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
+        process.env.TWILIO_ACCOUNT_ID = ''
+        process.env.TWILIO_AUTH_TOKEN = ''
+        process.env.TWILIO_SENDER_NUMBER = ''
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
+        global.fetch = fetchMock
+      },
+    )
+
+    test(
       'should set remember device cookie when rememberDevice is true',
       async () => {
         process.env.ENABLE_MFA_REMEMBER_DEVICE = true as unknown as string

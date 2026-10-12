@@ -901,6 +901,68 @@ describe(
     )
 
     test(
+      'should reject passwordless code after total failed attempts from different IPs',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 2 as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+
+        const requestBody = await prepareFollowUpBody(db)
+        const sendCode = async () => app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+        const sendRequest = async (mfaCode: string) => app.request(
+          routeConfig.IdentityRoute.ProcessPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode,
+            }),
+          },
+          mock(db),
+        )
+
+        await sendCode()
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`) ?? ''
+
+        for (let i = 0; i < 10; i++) {
+          // Simulate a fresh IP for each guess
+          await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`)
+          const res = await sendRequest('abcdefgh')
+          expect(res.status).toBe(401)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordlessCodeAttempts}-${requestBody.code}`)).toBe('10')
+
+        await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`)
+        const lockedRes = await sendRequest(mfaCode)
+        expect(lockedRes.status).toBe(401)
+        expect(await lockedRes.text()).toBe(messageConfig.RequestError.WrongCode)
+
+        await sendCode()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordlessCodeAttempts}-${requestBody.code}`)).toBeFalsy()
+        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`) ?? ''
+        const res = await sendRequest(newMfaCode)
+        expect(res.status).toBe(200)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
+      },
+    )
+
+    test(
       'should not track failed attempts when MFA_CODE_VERIFY_THRESHOLD is 0',
       async () => {
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
