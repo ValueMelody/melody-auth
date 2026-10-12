@@ -5,6 +5,7 @@ import { Database } from 'better-sqlite3'
 import {
   Role, Scope,
 } from '@melody-auth/shared'
+import { exchangeWithAuthToken } from '../oauth.test'
 import {
   user1, user2, insertUsers,
 } from './user.test'
@@ -22,6 +23,7 @@ import {
 import {
   roleModel, userModel,
 } from 'models'
+import { oauthDto } from 'dtos'
 
 let db: Database
 
@@ -460,6 +462,107 @@ describe(
 
         expect(json.users.length).toBe(0)
         expect(json).toStrictEqual({ users: [] })
+      },
+    )
+  },
+)
+
+describe(
+  'revoke refresh tokens on role change',
+  () => {
+    const prepareUserWithRole = async () => {
+      global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+      await createNewRole()
+      await insertUsers(db)
+      await db.exec(`
+        insert into "user_role" ("userId", "roleId")
+        values (1, 2)
+      `)
+      const tokenRes = await exchangeWithAuthToken(db)
+      const tokenJson = await tokenRes.json() as { refresh_token: string }
+      return tokenJson.refresh_token
+    }
+
+    const refreshReq = async (refreshToken: string) => await app.request(
+      routeConfig.OauthRoute.Token,
+      {
+        method: 'POST',
+        body: new URLSearchParams({
+          grant_type: oauthDto.TokenGrantType.RefreshToken,
+          refresh_token: refreshToken,
+        }).toString(),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      },
+      mock(db),
+    )
+
+    test(
+      'should revoke refresh tokens of users with the role when the role is renamed',
+      async () => {
+        const refreshToken = await prepareUserWithRole()
+
+        const res = await app.request(
+          `${BaseRoute}/2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ name: 'test name 1' }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const refreshRes = await refreshReq(refreshToken)
+        expect(refreshRes.status).toBe(400)
+        expect(await refreshRes.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should keep refresh tokens when only the role note changes',
+      async () => {
+        const refreshToken = await prepareUserWithRole()
+
+        const res = await app.request(
+          `${BaseRoute}/2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ note: 'updated note' }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const refreshRes = await refreshReq(refreshToken)
+        expect(refreshRes.status).toBe(200)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should revoke refresh tokens of users with the role when the role is deleted',
+      async () => {
+        const refreshToken = await prepareUserWithRole()
+
+        const res = await app.request(
+          `${BaseRoute}/2`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const refreshRes = await refreshReq(refreshToken)
+        expect(refreshRes.status).toBe(400)
+        expect(await refreshRes.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },
     )
   },

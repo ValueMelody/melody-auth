@@ -4235,3 +4235,133 @@ describe(
     )
   },
 )
+
+describe(
+  'revoke refresh tokens on role change',
+  () => {
+    const signInAndGetRefreshToken = async () => {
+      const tokenRes = await exchangeWithAuthToken(db)
+      const tokenJson = await tokenRes.json() as { refresh_token: string }
+      return tokenJson.refresh_token
+    }
+
+    const refreshReq = async (refreshToken: string) => await app.request(
+      routeConfig.OauthRoute.Token,
+      {
+        method: 'POST',
+        body: new URLSearchParams({
+          grant_type: oauthDto.TokenGrantType.RefreshToken,
+          refresh_token: refreshToken,
+        }).toString(),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      },
+      mock(db),
+    )
+
+    const expectRevoked = async (refreshToken: string) => {
+      const res = await refreshReq(refreshToken)
+      expect(res.status).toBe(400)
+      expect(await res.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
+    }
+
+    const updateUserReq = async (body: object) => await app.request(
+      `${BaseRoute}/1-1-1-1`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(body),
+        headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+      },
+      mock(db),
+    )
+
+    test(
+      'should revoke all refresh tokens of a user when roles are added',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        await db.prepare('insert into role (name) values (?)').run('test')
+        const refreshToken1 = await signInAndGetRefreshToken()
+        const refreshToken2 = await signInAndGetRefreshToken()
+
+        const res = await updateUserReq({ roles: ['test'] })
+        expect(res.status).toBe(200)
+
+        await expectRevoked(refreshToken1)
+        await expectRevoked(refreshToken2)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should revoke refresh tokens of a demoted super_admin',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        await updateUserReq({ roles: ['super_admin'] })
+        const refreshToken = await signInAndGetRefreshToken()
+
+        const refreshRes = await refreshReq(refreshToken)
+        expect(refreshRes.status).toBe(200)
+        const refreshJson = await refreshRes.json() as { access_token: string }
+        const accessTokenBody = await decode(refreshJson.access_token)
+        expect(accessTokenBody.payload.roles).toStrictEqual(['super_admin'])
+
+        const res = await updateUserReq({ roles: [] })
+        expect(res.status).toBe(200)
+
+        await expectRevoked(refreshToken)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should keep refresh tokens when roles are unchanged',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        await db.prepare('insert into role (name) values (?)').run('test')
+        await updateUserReq({ roles: ['test'] })
+        const refreshToken = await signInAndGetRefreshToken()
+
+        const res = await updateUserReq({
+          firstName: 'First',
+          roles: ['test'],
+        })
+        expect(res.status).toBe(200)
+
+        const refreshRes = await refreshReq(refreshToken)
+        expect(refreshRes.status).toBe(200)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should not revoke refresh tokens of other users',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        await db.prepare('insert into role (name) values (?)').run('test')
+        const refreshToken = await signInAndGetRefreshToken()
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-2`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ roles: ['test'] }),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+
+        const refreshRes = await refreshReq(refreshToken)
+        expect(refreshRes.status).toBe(200)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+  },
+)
