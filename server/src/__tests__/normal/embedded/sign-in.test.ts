@@ -183,6 +183,55 @@ describe(
     )
 
     test(
+      'should throw error if session was created by saml sign in',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+
+        const appRecord = await getApp(db)
+        const initiateRes = await sendInitiateRequest(
+          db,
+          appRecord,
+        )
+        const { sessionId } = await initiateRes.json() as { sessionId: string }
+
+        const sessionKey = `${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`
+        const sessionBody = JSON.parse(await mockedKV.get(sessionKey) ?? '')
+        await mockedKV.put(
+          sessionKey,
+          JSON.stringify({
+            ...sessionBody,
+            samlRequestId: 'saml-request-id',
+          }),
+        )
+
+        await insertUsers(db)
+
+        const res = await app.request(
+          routeConfig.EmbeddedRoute.SignIn.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              email: 'test@email.com',
+              password: 'Password1!',
+            }),
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(404)
+        expect(await res.text()).toStrictEqual(messageConfig.RequestError.WrongSessionId)
+
+        const sessionStore = await mockedKV.get(sessionKey)
+        expect(JSON.parse(sessionStore ?? '').user).toBeUndefined()
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+      },
+    )
+
+    test(
       'should throw error if feature not enabled',
       async () => {
         process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string

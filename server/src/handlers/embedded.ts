@@ -116,7 +116,7 @@ const getSessionBody = async (
     c.env.KV,
     sessionId,
   )
-  if (!sessionBody) {
+  if (!sessionBody || sessionBody.samlRequestId) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -131,12 +131,12 @@ const getSessionBody = async (
 const getSessionBodyWithUser = async (
   c: Context<typeConfig.Context>, sessionId: string,
 ) => {
-  const sessionBody = await kvService.getEmbeddedSessionBody(
-    c.env.KV,
+  const sessionBody = await getSessionBody(
+    c,
     sessionId,
   )
 
-  if (!sessionBody || !sessionBody.user) {
+  if (!sessionBody.user) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
