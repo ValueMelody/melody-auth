@@ -7,12 +7,29 @@ import {
   roleModel, userModel, userRoleModel,
 } from 'models'
 import { roleDto } from 'dtos'
+import { kvService } from 'services'
 
 const isBuiltInRoleName = (name: string) =>
   variableConfig.S2sConfig.builtInRoles.some((role) => role === name)
 
 const throwBuiltInRoleImmutableError = () => {
   throw new errorConfig.Forbidden(messageConfig.RequestError.BuiltInRoleImmutable)
+}
+
+const invalidRefreshTokensByRole = async (
+  c: Context<typeConfig.Context>,
+  roleId: number,
+) => {
+  const userRoles = await userRoleModel.getAllByRole(
+    c.env.DB,
+    roleId,
+  )
+  for (const userRole of userRoles) {
+    await kvService.invalidRefreshTokensByUser(
+      c.env.KV,
+      userRole.userId,
+    )
+  }
 }
 
 export const getRoles = async (c: Context<typeConfig.Context>): Promise<roleModel.Record[]> => {
@@ -81,6 +98,14 @@ export const updateRole = async (
       name: dto.name, note: dto.note,
     },
   )
+
+  if (dto.name !== undefined && dto.name !== role.name) {
+    await invalidRefreshTokensByRole(
+      c,
+      roleId,
+    )
+  }
+
   return updatedRole
 }
 
@@ -93,6 +118,11 @@ export const deleteRole = async (
     roleId,
   )
   if (role && isBuiltInRoleName(role.name)) throwBuiltInRoleImmutableError()
+
+  await invalidRefreshTokensByRole(
+    c,
+    roleId,
+  )
 
   await roleModel.remove(
     c.env.DB,

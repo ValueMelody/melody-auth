@@ -1581,6 +1581,13 @@ export const updateUser = async (
         },
       )
     }
+
+    if (recordsToDisable.length || recordsToCreate.length) {
+      await kvService.invalidRefreshTokensByUser(
+        c.env.KV,
+        user.id,
+      )
+    }
   }
 
   const roleNames = dto.roles ?? (userRoles).map((userRole) => userRole.roleName)

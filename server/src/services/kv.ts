@@ -257,6 +257,21 @@ export const invalidRefreshTokenBySessionId = async (
   return false
 }
 
+export const invalidRefreshTokensByUser = async (
+  kv: KVNamespace,
+  userId: number,
+) => {
+  const prefix = `${adapterConfig.BaseKVKey.RefreshToken}-${userId}.`
+  let cursor: string | undefined
+  do {
+    const result = await kv.list({
+      prefix, cursor,
+    })
+    await Promise.all(result.keys.map((key) => kv.delete(key.name)))
+    cursor = result.list_complete ? undefined : result.cursor
+  } while (cursor)
+}
+
 export const emailMfaCodeVerified = async (
   kv: KVNamespace,
   authCode: string,
