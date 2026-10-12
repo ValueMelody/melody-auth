@@ -375,6 +375,10 @@ export const storeSmsMfaCode = async (
     mfaCode,
     { expirationTtl: variableConfig.systemConfig.smsMfaCodeExpiresIn },
   )
+  await kv.delete(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedSmsMfaCodeAttempts,
+    authCode,
+  ))
 }
 
 export const storeEmailMfaCode = async (
@@ -390,6 +394,10 @@ export const storeEmailMfaCode = async (
     mfaCode,
     { expirationTtl: variableConfig.systemConfig.emailMfaCodeExpiresIn },
   )
+  await kv.delete(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedEmailMfaCodeAttempts,
+    authCode,
+  ))
 }
 
 export const smsMfaCodeVerified = async (
@@ -468,6 +476,10 @@ export const storePasswordlessCode = async (
     mfaCode,
     { expirationTtl: expiresIn },
   )
+  await kv.delete(adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedPasswordlessCodeAttempts,
+    authCode,
+  ))
 }
 
 export const stampPasswordlessCode = async (
@@ -669,6 +681,120 @@ export const setFailedMfaCodeAttempts = async (
     adapterConfig.BaseKVKey.FailedMfaCodeAttempts,
     String(userId),
     ip,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: 1800 },
+  )
+}
+
+export const getTotalFailedEmailMfaCodeAttempts = async (
+  kv: KVNamespace,
+  authCode: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedEmailMfaCodeAttempts,
+    authCode,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setTotalFailedEmailMfaCodeAttempts = async (
+  kv: KVNamespace,
+  authCode: string,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedEmailMfaCodeAttempts,
+    authCode,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: variableConfig.systemConfig.emailMfaCodeExpiresIn },
+  )
+}
+
+export const getTotalFailedSmsMfaCodeAttempts = async (
+  kv: KVNamespace,
+  authCode: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedSmsMfaCodeAttempts,
+    authCode,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setTotalFailedSmsMfaCodeAttempts = async (
+  kv: KVNamespace,
+  authCode: string,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedSmsMfaCodeAttempts,
+    authCode,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: variableConfig.systemConfig.smsMfaCodeExpiresIn },
+  )
+}
+
+export const getTotalFailedPasswordlessCodeAttempts = async (
+  kv: KVNamespace,
+  authCode: string,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedPasswordlessCodeAttempts,
+    authCode,
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setTotalFailedPasswordlessCodeAttempts = async (
+  kv: KVNamespace,
+  authCode: string,
+  count: number,
+  expiresIn: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedPasswordlessCodeAttempts,
+    authCode,
+  )
+  await kv.put(
+    key,
+    String(count),
+    { expirationTtl: expiresIn },
+  )
+}
+
+// OTP MFA has no per-sign-in code to invalidate, so failures are counted per user instead.
+export const getTotalFailedOtpMfaCodeAttempts = async (
+  kv: KVNamespace,
+  userId: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedOtpMfaCodeAttempts,
+    String(userId),
+  )
+  const stored = await kv.get(key)
+  return stored ? Number(stored) : 0
+}
+
+export const setTotalFailedOtpMfaCodeAttempts = async (
+  kv: KVNamespace,
+  userId: number,
+  count: number,
+) => {
+  const key = adapterConfig.getKVKey(
+    adapterConfig.BaseKVKey.TotalFailedOtpMfaCodeAttempts,
+    String(userId),
   )
   await kv.put(
     key,

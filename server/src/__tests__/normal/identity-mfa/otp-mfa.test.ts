@@ -635,6 +635,44 @@ describe(
     )
 
     test(
+      'should lock otp mfa for user after total failed attempts from different IPs',
+      async () => {
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 2 as unknown as string
+
+        await insertUsers(db)
+        await enrollOtpMfa(db)
+        await sendCorrectGetOtpMfaSetupReq()
+        const body = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+
+        for (let i = 0; i < 10; i++) {
+          // Simulate a fresh IP for each guess
+          await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`)
+          const res = await postOtpMfa(
+            body,
+            'abcdefgh',
+          )
+          expect(res.status).toBe(401)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedOtpMfaCodeAttempts}-1`)).toBe('10')
+
+        // A new sign-in session for the same user is locked as well
+        await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`)
+        const newBody = await prepareFollowUpBody(db)
+        const res = await postOtpMfa(
+          newBody,
+          authenticator.generate(currentUser.otpSecret),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.OtpMfaLocked)
+
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
+      },
+    )
+
+    test(
       'could fallback to email mfa',
       async () => {
         await insertUsers(db)

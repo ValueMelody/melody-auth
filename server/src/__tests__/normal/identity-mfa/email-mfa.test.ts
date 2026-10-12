@@ -323,6 +323,70 @@ describe(
     )
 
     test(
+      'should reject email mfa code after total failed attempts from different IPs',
+      async () => {
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 2 as unknown as string
+
+        const mockFetch = vi.fn(async () => {
+          return Promise.resolve({ ok: true })
+        })
+        global.fetch = mockFetch as Mock
+
+        await insertUsers(db)
+        await enrollEmailMfa(db)
+
+        const requestBody = await prepareFollowUpBody(db)
+        const sendCode = async () => app.request(
+          routeConfig.IdentityRoute.SendEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+        const sendRequest = async (mfaCode: string) => app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: requestBody.code,
+              locale: requestBody.locale,
+              mfaCode,
+            }),
+          },
+          mock(db),
+        )
+
+        await sendCode()
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`) ?? ''
+
+        for (let i = 0; i < 10; i++) {
+          // Simulate a fresh IP for each guess
+          await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`)
+          const res = await sendRequest('wrong!')
+          expect(res.status).toBe(401)
+          expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+        }
+
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedEmailMfaCodeAttempts}-${requestBody.code}`)).toBe('10')
+
+        await mockedKV.delete(`${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`)
+        const lockedRes = await sendRequest(mfaCode)
+        expect(lockedRes.status).toBe(401)
+        expect(await lockedRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
+
+        await sendCode()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedEmailMfaCodeAttempts}-${requestBody.code}`)).toBeFalsy()
+        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`) ?? ''
+        const res = await sendRequest(newMfaCode)
+        expect(res.status).toBe(200)
+
+        global.fetch = fetchMock
+        process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
+      },
+    )
+
+    test(
       'should not track failed attempts when MFA_CODE_VERIFY_THRESHOLD is 0',
       async () => {
         process.env.MFA_CODE_VERIFY_THRESHOLD = 0 as unknown as string
