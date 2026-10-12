@@ -665,7 +665,7 @@ describe(
           userService,
           'processSamlAccount',
         ).mockResolvedValue({ id: 1 } as unknown as Awaited<ReturnType<typeof userService.processSamlAccount>>)
-        vi.spyOn(
+        const processPostAuthorizeSpy = vi.spyOn(
           identityService,
           'processPostAuthorize',
         ).mockResolvedValue({
@@ -678,8 +678,46 @@ describe(
         const res = await postAcs(sessionId)
         expect(res.status).toBe(302)
 
-        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${sessionId}`) ?? '')
+        const authCode = processPostAuthorizeSpy.mock.calls[0][2]
+        const codeStore = JSON.parse(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${authCode}`) ?? '')
         expect(codeStore.mfa).toStrictEqual(mfa)
+      },
+    )
+
+    test(
+      'should issue a fresh auth code instead of reusing the relay state',
+      async () => {
+        await insertSamlIdp()
+        const sessionId = await seedAcsSession('_req_match')
+
+        mockParseLoginResponse(buildValidExtract('_req_match'))
+        vi.spyOn(
+          userService,
+          'processSamlAccount',
+        ).mockResolvedValue({ id: 1 } as unknown as Awaited<ReturnType<typeof userService.processSamlAccount>>)
+        const processPostAuthorizeSpy = vi.spyOn(
+          identityService,
+          'processPostAuthorize',
+        ).mockResolvedValue({
+          state: '123',
+          code: 'test-code',
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          nextPage: routeConfig.View.SignIn,
+        } as unknown as Awaited<ReturnType<typeof identityService.processPostAuthorize>>)
+
+        const res = await postAcs(sessionId)
+        expect(res.status).toBe(302)
+
+        const authCode = processPostAuthorizeSpy.mock.calls[0][2]
+        expect(authCode).not.toBe(sessionId)
+        expect(authCode.length).toBe(128)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${authCode}`)).toBeTruthy()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.AuthCode}-${sessionId}`)).toBeFalsy()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmbeddedSession}-${sessionId}`)).toBeFalsy()
+
+        const replayRes = await postAcs(sessionId)
+        expect(replayRes.status).toBe(400)
+        expect(await replayRes.text()).toBe(messageConfig.RequestError.WrongSessionId)
       },
     )
   },
