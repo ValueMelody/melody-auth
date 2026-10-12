@@ -82,8 +82,8 @@ export const getSamlSpLogin = async (c: Context) => {
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
   const mfaConfig = mfaService.getAppMfaConfig(app)
 
-  const authCode = genRandomString(128)
-  const authCodeBody = {
+  const sessionId = genRandomString(128)
+  const sessionBody = {
     appId: app.id,
     appName: app.name,
     request: queryDto,
@@ -92,15 +92,15 @@ export const getSamlSpLogin = async (c: Context) => {
   }
   await kvService.storeEmbeddedSession(
     c.env.KV,
-    authCode,
-    authCodeBody,
+    sessionId,
+    sessionBody,
     codeExpiresIn,
   )
 
   const url = new URL(context)
   url.searchParams.set(
     'RelayState',
-    authCode,
+    sessionId,
   )
 
   return c.redirect(
@@ -231,13 +231,19 @@ export const postSamlSpAcs = async (c: Context) => {
       'en',
     )
 
+    await kvService.deleteEmbeddedSession(
+      c.env.KV,
+      sessionId,
+    )
+
+    const authCode = genRandomString(128)
     const authCodeBody = embeddedHandler.sessionBodyToAuthCodeBody({
       ...session,
       user,
     })
     await kvService.storeAuthCode(
       c.env.KV,
-      sessionId,
+      authCode,
       authCodeBody,
       codeExpiresIn,
     )
@@ -245,7 +251,7 @@ export const postSamlSpAcs = async (c: Context) => {
     const detail = await identityService.processPostAuthorize(
       c,
       identityService.AuthorizeStep.Social,
-      sessionId,
+      authCode,
       authCodeBody,
     )
 
