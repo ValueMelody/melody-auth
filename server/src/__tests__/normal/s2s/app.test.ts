@@ -463,6 +463,190 @@ describe(
 )
 
 describe(
+  's2s app scope assignment guard',
+  () => {
+    const getWriteAppToken = async (scope: string = Scope.WriteApp) => {
+      await attachIndividualScopes(db)
+      return getS2sToken(
+        db,
+        scope,
+      )
+    }
+
+    const createS2sAppReq = async (
+      scopes: string[], token: string,
+    ) => await app.request(
+      BaseRoute,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 's2s app',
+          type: 's2s',
+          scopes,
+          redirectUris: [],
+        }),
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      mock(db),
+    )
+
+    const updateAppReq = async (
+      body: object, token: string,
+    ) => await app.request(
+      `${BaseRoute}/3`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(body),
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      mock(db),
+    )
+
+    const getAppScopeNames = async (appId: number) => {
+      const rows = await db.prepare(`
+        SELECT scope.name FROM app_scope
+        JOIN scope ON scope.id = app_scope."scopeId"
+        WHERE app_scope."appId" = ? AND app_scope."deletedAt" IS NULL
+      `).all(appId) as { name: string }[]
+      return rows.map((row) => row.name).sort()
+    }
+
+    test.each([
+      ['write_user', [Scope.WriteUser]],
+      ['write_org', [Scope.WriteOrg]],
+      ['write_app and write_role', [Scope.WriteApp, Scope.WriteRole]],
+    ])(
+      'should reject creating an s2s app with %s from a write_app caller',
+      async (
+        _, scopes,
+      ) => {
+        const token = await getWriteAppToken()
+        const res = await createS2sAppReq(
+          scopes,
+          token,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoScopeToAssignToS2sApp)
+
+        const appRecord = await db.prepare('SELECT * FROM app where id = 3').get()
+        expect(appRecord).toBeUndefined()
+      },
+    )
+
+    test(
+      'should allow creating an s2s app with scopes the write_app caller holds',
+      async () => {
+        const token = await getWriteAppToken(`${Scope.WriteApp} ${Scope.ReadUser}`)
+        const res = await createS2sAppReq(
+          [Scope.ReadUser, Scope.WriteApp],
+          token,
+        )
+        const json = await res.json() as { app: { scopes: string[] } }
+
+        expect(res.status).toBe(201)
+        expect([...json.app.scopes].sort()).toStrictEqual([Scope.ReadUser, Scope.WriteApp])
+      },
+    )
+
+    test(
+      'should allow creating an spa app with scopes the write_app caller does not hold',
+      async () => {
+        const token = await getWriteAppToken()
+        const res = await createNewApp(token)
+        const json = await res.json()
+
+        expect(res.status).toBe(201)
+        expect(json).toStrictEqual({
+          app: {
+            ...newApp, secret: expect.any(String),
+          },
+        })
+      },
+    )
+
+    test(
+      'should allow creating an s2s app with any non-root scope from a root caller',
+      async () => {
+        const res = await createS2sAppReq(
+          [Scope.WriteUser, Scope.WriteOrg],
+          await getS2sToken(db),
+        )
+        const json = await res.json() as { app: { scopes: string[] } }
+
+        expect(res.status).toBe(201)
+        expect([...json.app.scopes].sort()).toStrictEqual([Scope.WriteOrg, Scope.WriteUser])
+      },
+    )
+
+    test(
+      'should reject adding a scope the write_app caller does not hold to an s2s app',
+      async () => {
+        await createS2sAppReq(
+          [Scope.ReadUser],
+          await getS2sToken(db),
+        )
+        const token = await getWriteAppToken()
+        const res = await updateAppReq(
+          {
+            name: 'renamed',
+            scopes: [Scope.ReadUser, Scope.WriteUser],
+          },
+          token,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoScopeToAssignToS2sApp)
+
+        const appRecord = await db.prepare('SELECT * FROM app where id = 3').get() as appModel.Raw
+        expect(appRecord.name).toBe('s2s app')
+        expect(await getAppScopeNames(3)).toStrictEqual([Scope.ReadUser])
+      },
+    )
+
+    test(
+      'should allow keeping or removing existing scopes of an s2s app from a write_app caller',
+      async () => {
+        await createS2sAppReq(
+          [Scope.ReadUser, Scope.WriteUser],
+          await getS2sToken(db),
+        )
+        const token = await getWriteAppToken()
+        const res = await updateAppReq(
+          { scopes: [Scope.WriteUser] },
+          token,
+        )
+        const json = await res.json() as { app: { scopes: string[] } }
+
+        expect(res.status).toBe(200)
+        expect(json.app.scopes).toStrictEqual([Scope.WriteUser])
+        expect(await getAppScopeNames(3)).toStrictEqual([Scope.WriteUser])
+      },
+    )
+
+    test(
+      'should allow adding a scope the write_app caller holds to an s2s app',
+      async () => {
+        await createS2sAppReq(
+          [Scope.WriteUser],
+          await getS2sToken(db),
+        )
+        const token = await getWriteAppToken()
+        const res = await updateAppReq(
+          { scopes: [Scope.WriteUser, Scope.WriteApp] },
+          token,
+        )
+        const json = await res.json() as { app: { scopes: string[] } }
+
+        expect(res.status).toBe(200)
+        expect(json.app.scopes).toStrictEqual([Scope.WriteUser, Scope.WriteApp])
+        expect(await getAppScopeNames(3)).toStrictEqual([Scope.WriteApp, Scope.WriteUser])
+      },
+    )
+  },
+)
+
+describe(
   'admin panel app guard',
   () => {
     const getWriteAppToken = async () => {

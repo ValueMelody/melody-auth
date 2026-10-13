@@ -145,10 +145,13 @@ export const getAppById = async (
   }
 }
 
-const callerHasRootScope = (c: Context<typeConfig.Context>): boolean => {
+const getCallerScopes = (c: Context<typeConfig.Context>): string[] => {
   const accessTokenBody = c.get('access_token_body')
-  const callerScopes = accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []
-  return callerScopes.includes(Scope.Root)
+  return accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []
+}
+
+const callerHasRootScope = (c: Context<typeConfig.Context>): boolean => {
+  return getCallerScopes(c).includes(Scope.Root)
 }
 
 const verifyCanAssignRootScope = (
@@ -166,6 +169,27 @@ const verifyCanAssignRootScope = (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.NoRootScopeToAssignRoot)
   }
+}
+
+const verifyCanAssignS2sScopes = (
+  c: Context<typeConfig.Context>,
+  appType: ClientType,
+  scopes: string[],
+) => {
+  if (appType !== ClientType.S2S || !scopes.length) return
+
+  const callerScopes = getCallerScopes(c)
+  if (callerScopes.includes(Scope.Root)) return
+
+  const includesUnheldScope = scopes.some((scope) => !callerScopes.includes(scope))
+  if (!includesUnheldScope) return
+
+  loggerUtil.triggerLogger(
+    c,
+    loggerUtil.LoggerLevel.Warn,
+    messageConfig.RequestError.NoScopeToAssignToS2sApp,
+  )
+  throw new errorConfig.Forbidden(messageConfig.RequestError.NoScopeToAssignToS2sApp)
 }
 
 const verifyCanModifyAdminPanelApp = (
@@ -193,6 +217,12 @@ export const createApp = async (
 ): Promise<appModel.ApiRecord> => {
   verifyCanAssignRootScope(
     c,
+    dto.scopes,
+  )
+
+  verifyCanAssignS2sScopes(
+    c,
+    dto.type,
     dto.scopes,
   )
 
@@ -258,6 +288,21 @@ export const updateApp = async (
     app.id,
   )
 
+  const appScopes = await appScopeModel.getAllByAppId(
+    c.env.DB,
+    app.id,
+  )
+
+  const scopeNamesToCreate = dto.scopes
+    ? dto.scopes.filter((scope) => appScopes.every((appScope) => appScope.scopeName !== scope))
+    : []
+
+  verifyCanAssignS2sScopes(
+    c,
+    app.type,
+    scopeNamesToCreate,
+  )
+
   const updatedApp = Object.values(updateDto).some((val) => val !== undefined)
     ? await appModel.update(
       c.env.DB,
@@ -266,16 +311,10 @@ export const updateApp = async (
     )
     : app
 
-  const appScopes = await appScopeModel.getAllByAppId(
-    c.env.DB,
-    app.id,
-  )
-
   if (dto.scopes) {
     const scopesToDelete = appScopes.filter((appScope) => !dto.scopes?.includes(appScope.scopeName))
 
     const allScopes = await scopeModel.getAll(c.env.DB)
-    const scopeNamesToCreate = dto.scopes.filter((scope) => appScopes.every((appScope) => appScope.scopeName !== scope))
     const scopesToCreate = scopeNamesToCreate.map((name) => {
       const matched = allScopes.find((scope) => scope.name === name)
       if (!matched) {
