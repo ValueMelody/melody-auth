@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import {
-  ClientType, Scope,
+  ClientType, Scope, genRandomString,
 } from '@melody-auth/shared'
 import { env } from 'hono/adapter'
 import {
@@ -202,6 +202,8 @@ export const createApp = async (
       name: dto.name,
       type: dto.type,
       redirectUris: dto.redirectUris.join(','),
+      clientId: genRandomString(64),
+      secret: genRandomString(128),
     },
   )
 
