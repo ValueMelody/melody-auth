@@ -43,6 +43,8 @@ export interface Create {
   name: string;
   type: ClientType;
   redirectUris: string;
+  clientId: string;
+  secret: string;
 }
 
 export interface Update {
@@ -104,11 +106,13 @@ export const getById = async (
 export const create = async (
   db: D1Database, create: Create,
 ): Promise<Record> => {
-  const query = `INSERT INTO ${TableName} (name, type, "redirectUris") values ($1, $2, $3)`
+  const query = `INSERT INTO ${TableName} (name, type, "redirectUris", "clientId", secret) values ($1, $2, $3, $4, $5)`
   const stmt = db.prepare(query).bind(
     create.name,
     create.type,
     create.redirectUris,
+    create.clientId,
+    create.secret,
   )
   const result = await dbUtil.d1Run(stmt)
   if (!result.success) throw new errorConfig.InternalServerError()

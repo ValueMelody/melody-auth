@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 exports.up = function (knex) {
   return knex.schema.createTable(
     'app',
@@ -15,12 +17,10 @@ exports.up = function (knex) {
         'clientId',
         64,
       ).notNullable()
-        .defaultTo(knex.raw('concat(md5(random()::text), md5(random()::text))'))
       table.string(
         'secret',
         128,
       ).notNullable()
-        .defaultTo(knex.raw('concat(md5(random()::text), md5(random()::text), md5(random()::text), md5(random()::text))'))
       table.text('redirectUris').notNullable()
         .defaultTo('')
       table.smallint('isActive').notNullable()
@@ -54,11 +54,15 @@ exports.up = function (knex) {
           name: 'Admin Panel (SPA)',
           type: 'spa',
           redirectUris: 'http://localhost:3000/en/dashboard,http://localhost:3000/fr/dashboard',
+          clientId: crypto.randomBytes(32).toString('hex'),
+          secret: crypto.randomBytes(64).toString('hex'),
         },
         {
           name: 'Admin Panel (S2S)',
           type: 's2s',
           redirectUris: '',
+          clientId: crypto.randomBytes(32).toString('hex'),
+          secret: crypto.randomBytes(64).toString('hex'),
         },
       ])
     })
