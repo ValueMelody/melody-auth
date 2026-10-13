@@ -68,6 +68,10 @@ fetch('/oauth2/v1/token', {
 
 在创建应用（`POST /api/v1/apps`）或更新应用（`PUT /api/v1/apps/{id}`）时，只有自身令牌持有 `root` 作用域的调用方才能分配 `root` 作用域。不具备 `root` 的 `write_app` 令牌仍可管理其他作用域，但任何在应用作用域列表中包含 `root` 的请求都会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can assign the root scope to an app`。这可以防止 `write_app` 令牌将自身权限提升为 `root`。
 
+### 为 S2S 应用分配作用域
+
+颁发给 S2S 应用的令牌可以使用该应用持有的全部作用域调用 S2S API。为防止 `write_app` 令牌创建权限更高的应用（例如持有 `write_user` 或 `write_org` 的应用），自身令牌不具备 `root` 的调用方只能为 S2S 应用分配其令牌已持有的作用域。该限制适用于创建 S2S 应用（`POST /api/v1/apps`）以及为其添加作用域（`PUT /api/v1/apps/{id}`）。更新时只检查新增的作用域，因此调用方可以保留或移除应用已有的作用域。分配其他作用域的请求会被拒绝，返回 `400` 以及消息 `An app without the root scope can only assign scopes it holds to an s2s app`。SPA 应用不受影响，因为 SPA 令牌无法调用 S2S API。
+
 ### 默认管理面板应用
 
 管理面板通过默认的 `Admin Panel (SPA)` 应用（ID `1`）让超级管理员登录，并通过默认的 `Admin Panel (S2S)` 应用（ID `2`）调用 API。颁发给这两个应用的令牌都拥有完整的管理权限。例如，能够向 SPA 应用添加自己重定向 URI 的调用方就可以拿到超级管理员的授权码。因此，只有自身令牌持有 `root` 的调用方才能更新（`PUT /api/v1/apps/{id}`）或删除（`DELETE /api/v1/apps/{id}`）这两个应用。不具备 `root` 的 `write_app` 令牌会被拒绝，返回 `400` 以及消息 `Only an app with the root scope can update or delete a default admin panel app`。其他应用不受影响。

@@ -73,6 +73,7 @@ appRoutes.get(
  *     summary: Create a new app
  *     description: Required scope - write_app.
  *                  Assigning the root scope additionally requires the caller to hold the root scope.
+ *                  A caller without the root scope can only assign scopes it holds to an s2s app.
  *     tags: [Apps]
  *     requestBody:
  *       required: true
@@ -104,6 +105,7 @@ appRoutes.post(
  *     description: Required scope - write_app.
  *                  Assigning the root scope or updating a default admin panel app
  *                  additionally requires the caller to hold the root scope.
+ *                  A caller without the root scope can only add scopes it holds to an s2s app.
  *     tags: [Apps]
  *     parameters:
  *       - in: path

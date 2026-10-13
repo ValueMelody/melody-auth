@@ -68,6 +68,10 @@ The scopes granted to a server-to-server token determine which endpoints it can 
 
 When creating an app (`POST /api/v1/apps`) or updating one (`PUT /api/v1/apps/{id}`), the `root` scope can only be assigned by a caller whose own token holds the `root` scope. A `write_app` token that lacks `root` can still manage other scopes, but any request that includes `root` in the app's scope list is rejected with `400` and the message `Only an app with the root scope can assign the root scope to an app`. This prevents a `write_app` token from escalating its own privileges to `root`.
 
+### Assigning scopes to S2S apps
+
+A token issued to an S2S app can call the S2S API with every scope that app holds. To prevent a `write_app` token from minting a more powerful app, such as one with `write_user` or `write_org`, a caller whose own token lacks `root` can only assign scopes its token already holds to an S2S app. This applies to creating an S2S app (`POST /api/v1/apps`) and to adding scopes to one (`PUT /api/v1/apps/{id}`). On update, only newly added scopes are checked, so the caller can keep or remove scopes the app already has. A request that assigns any other scope is rejected with `400` and the message `An app without the root scope can only assign scopes it holds to an s2s app`. SPA apps are not affected, because SPA tokens cannot call the S2S API.
+
 ### Default admin panel apps
 
 The admin panel signs super admins in through the default `Admin Panel (SPA)` app (ID `1`) and calls the API with the default `Admin Panel (S2S)` app (ID `2`). A token issued to either app grants full admin access. For example, a caller that could add its own redirect URI to the SPA app could receive a super admin's authorization code. So these two apps can only be updated (`PUT /api/v1/apps/{id}`) or deleted (`DELETE /api/v1/apps/{id}`) by a caller whose own token holds `root`. A `write_app` token that lacks `root` is rejected with `400` and the message `Only an app with the root scope can update or delete a default admin panel app`. Other apps are not affected.
