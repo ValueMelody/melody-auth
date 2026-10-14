@@ -65,7 +65,9 @@ export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Prom
 }
 
 export const createFullAuthorize = async (
-  c: Context<typeConfig.Context>, authInfo: typeConfig.AuthCodeBody,
+  c: Context<typeConfig.Context>,
+  authInfo: typeConfig.AuthCodeBody,
+  options: { isDelivered?: boolean } = {},
 ) => {
   const authCode = genRandomString(128)
   const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
@@ -78,6 +80,7 @@ export const createFullAuthorize = async (
       user: authInfo.user,
       request: authInfo.request,
       isFullyAuthorized: true,
+      isDelivered: options.isDelivered,
     },
     codeExpiresIn,
   )
@@ -93,6 +96,12 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   )
 
   if (stored && stored.request.clientId === queryDto.clientId) {
+    const redirectToClient =
+      !queryDto.policy ||
+      queryDto.policy === oauthDto.Policy.SignInOrSignUp ||
+      queryDto.policy.startsWith(oauthDto.Policy.SamSso) ||
+      queryDto.policy.startsWith(oauthDto.Policy.Oidc)
+
     const authCode = await createFullAuthorize(
       c,
       {
@@ -101,14 +110,10 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
         user: stored.user,
         request: queryDto,
       },
+      { isDelivered: redirectToClient },
     )
 
-    if (
-      !queryDto.policy ||
-      queryDto.policy === oauthDto.Policy.SignInOrSignUp ||
-      queryDto.policy.startsWith(oauthDto.Policy.SamSso) ||
-      queryDto.policy.startsWith(oauthDto.Policy.Oidc)
-    ) {
+    if (redirectToClient) {
       if (queryDto.authorizeMethod === 'popup') {
         return c.html(<PopupRedirect
           code={authCode}
@@ -163,6 +168,7 @@ export const postTokenAuthCode = async (c: Context<typeConfig.Context>) => {
   const authInfo = await kvService.getAuthCodeBody(
     c.env.KV,
     bodyDto.code,
+    { allowDelivered: true },
   )
 
   if (!authInfo) {

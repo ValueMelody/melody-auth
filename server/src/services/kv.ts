@@ -70,7 +70,9 @@ export const storeAuthCode = async (
 }
 
 export const getAuthCodeBody = async (
-  kv: KVNamespace, authCode: string,
+  kv: KVNamespace,
+  authCode: string,
+  options: { allowDelivered?: boolean } = {},
 ): Promise<typeConfig.AuthCodeBody | false> => {
   const codeInKv = await kv.get(adapterConfig.getKVKey(
     adapterConfig.BaseKVKey.AuthCode,
@@ -79,6 +81,7 @@ export const getAuthCodeBody = async (
   if (!codeInKv) return false
   const codeBody = JSON.parse(codeInKv)
   if (!codeBody) return false
+  if (codeBody.isDelivered && !options.allowDelivered) return false
   return codeBody
 }
 

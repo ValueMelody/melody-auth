@@ -3,7 +3,6 @@ import { env } from 'hono/adapter'
 import { genRandomString } from '@melody-auth/shared'
 import {
   errorConfig, messageConfig,
-  routeConfig,
 } from 'configs'
 import {
   identityService, kvService, mfaService, userService,
@@ -255,10 +254,13 @@ export const postSamlSpAcs = async (c: Context) => {
       authCodeBody,
     )
 
-    const qs = `?state=${detail.state}&code=${detail.code}&locale=${session.request.locale}`
-    const url = detail.nextPage === routeConfig.View.Consent
-      ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
-      : `${detail.redirectUri}${qs}`
+    const url = await identityService.getRedirectUrlAfterAuthorize(
+      c,
+      authCode,
+      authCodeBody,
+      detail,
+      session.request.locale,
+    )
     return c.redirect(url)
   } catch (error) {
     loggerUtil.triggerLogger(

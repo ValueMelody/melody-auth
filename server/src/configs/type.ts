@@ -128,6 +128,7 @@ export interface AuthCodeBody {
   appName: string;
   isFullyAuthorized?: boolean;
   isSecured?: boolean;
+  isDelivered?: boolean;
   mfa?: AuthCodeBodyMfaConfig;
 }
 
