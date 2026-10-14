@@ -401,7 +401,7 @@ describe(
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
 
-        const passkey = db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "credentialId" = ?').get(passkeyEnrollMock.rawId)
+        const passkey = await db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "credentialId" = ?').get(passkeyEnrollMock.rawId)
         expect(passkey).toBeFalsy()
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
