@@ -350,6 +350,66 @@ describe(
     )
 
     test(
+      'should throw error if code is already delivered to the client',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        await insertUsers(db)
+        const params = await prepareFollowUpParams(db)
+        const code = getCodeFromParams(params)
+
+        await app.request(
+          `${routeConfig.IdentityRoute.ProcessPasskeyEnroll}${params}`,
+          {},
+          mock(db),
+        )
+
+        await markAuthCodeAsSecured(code as string)
+
+        const declineRes = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnrollDecline,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code, locale: 'en', remember: false,
+            }),
+          },
+          mock(db),
+        )
+        const declineJson = await declineRes.json() as { code: string; nextPage?: string }
+        expect(declineJson.code).toBe(code)
+        expect(declineJson.nextPage).toBeUndefined()
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
+          'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
+        )
+
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code,
+              locale: 'en',
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        const passkey = await db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "credentialId" = ?').get(passkeyEnrollMock.rawId)
+        expect(passkey).toBeFalsy()
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
       'should throw error if can not verify passkey',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string

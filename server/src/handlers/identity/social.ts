@@ -254,10 +254,13 @@ export const getAuthorizeGithub = async (c: Context<typeConfig.Context>) => {
     authCodeBody,
   )
 
-  const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
-  const url = detail.nextPage === routeConfig.View.Consent
-    ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
-    : `${detail.redirectUri}${qs}`
+  const url = await identityService.getRedirectUrlAfterAuthorize(
+    c,
+    authCode,
+    authCodeBody,
+    detail,
+    bodyDto.locale,
+  )
   return c.redirect(url)
 }
 
@@ -338,10 +341,13 @@ export const getAuthorizeDiscord = async (c: Context<typeConfig.Context>) => {
     authCodeBody,
   )
 
-  const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
-  const url = detail.nextPage === routeConfig.View.Consent
-    ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
-    : `${detail.redirectUri}${qs}`
+  const url = await identityService.getRedirectUrlAfterAuthorize(
+    c,
+    authCode,
+    authCodeBody,
+    detail,
+    bodyDto.locale,
+  )
   return c.redirect(url)
 }
 
@@ -421,10 +427,13 @@ export const postAuthorizeApple = async (c: Context<typeConfig.Context>) => {
     authCodeBody,
   )
 
-  const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
-  const url = detail.nextPage === routeConfig.View.Consent
-    ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
-    : `${detail.redirectUri}${qs}`
+  const url = await identityService.getRedirectUrlAfterAuthorize(
+    c,
+    authCode,
+    authCodeBody,
+    detail,
+    bodyDto.locale,
+  )
   return c.redirect(url)
 }
 
@@ -579,9 +588,12 @@ export const getAuthorizeOidc = async (c: Context<typeConfig.Context>) => {
     authCodeBody,
   )
 
-  const qs = `?state=${detail.state}&code=${detail.code}&locale=${bodyDto.locale}`
-  const url = detail.nextPage === routeConfig.View.Consent
-    ? `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
-    : `${detail.redirectUri}${qs}`
+  const url = await identityService.getRedirectUrlAfterAuthorize(
+    c,
+    authCode,
+    authCodeBody,
+    detail,
+    bodyDto.locale,
+  )
   return c.redirect(url)
 }

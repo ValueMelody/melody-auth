@@ -612,6 +612,56 @@ describe(
     )
 
     test(
+      'should not accept code issued through session on identity endpoints',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        const res = await getSignInRequest(
+          db,
+          routeConfig.OauthRoute.Authorize,
+          appRecord,
+        )
+        expect(res.status).toBe(302)
+        const path = res.headers.get('Location')
+        expect(path).toContain('http://localhost:3000/en/dashboard?code')
+        const code = path!.split('?')[1].split('&')[0].split('=')[1]
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        const enrollRes = await app.request(
+          `${routeConfig.IdentityRoute.ProcessPasskeyEnroll}?code=${code}&locale=en`,
+          {},
+          mock(db),
+        )
+        expect(enrollRes.status).toBe(400)
+        expect(await enrollRes.text()).toBe(messageConfig.RequestError.WrongAuthCode)
+
+        const tokenRes = await app.request(
+          routeConfig.OauthRoute.Token,
+          {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: oauthDto.TokenGrantType.AuthorizationCode,
+              code,
+              code_verifier: 'abc',
+            }).toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+          mock(db),
+        )
+        expect(tokenRes.status).toBe(200)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
       'could redirect to update info through session',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string

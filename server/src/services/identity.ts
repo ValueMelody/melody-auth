@@ -226,6 +226,26 @@ export const ensureAuthCodeIsSecured = async (
   )
 }
 
+export const markAuthCodeAsDelivered = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+  options: { persistAuthCode?: boolean } = {},
+) => {
+  if (authCodeBody.isDelivered) return
+
+  const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
+  authCodeBody.isDelivered = true
+  if (options.persistAuthCode === false) return
+
+  await kvService.storeAuthCode(
+    c.env.KV,
+    authCode,
+    authCodeBody,
+    codeExpiresIn,
+  )
+}
+
 export const processPostAuthorize = async (
   c: Context<typeConfig.Context>,
   step: AuthorizeStep,
@@ -301,6 +321,14 @@ export const processPostAuthorize = async (
       authCodeBody,
       isSocialLogin,
     )
+    if (!nextPage) {
+      await markAuthCodeAsDelivered(
+        c,
+        authCode,
+        authCodeBody,
+        options,
+      )
+    }
     return {
       ...authorizedResult, nextPage,
     }
@@ -490,7 +518,35 @@ export const processPostAuthorize = async (
     authCodeBody,
   )
 
+  await markAuthCodeAsDelivered(
+    c,
+    authCode,
+    authCodeBody,
+    options,
+  )
+
   return authorizedResult
+}
+
+export const getRedirectUrlAfterAuthorize = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+  detail: Awaited<ReturnType<typeof processPostAuthorize>>,
+  locale: string,
+) => {
+  const qs = `?state=${detail.state}&code=${detail.code}&locale=${locale}`
+  if (detail.nextPage === routeConfig.View.Consent) {
+    return `${routeConfig.IdentityRoute.ProcessView}${qs}&redirect_uri=${detail.redirectUri}&step=consent`
+  }
+
+  await markAuthCodeAsDelivered(
+    c,
+    authCode,
+    authCodeBody,
+  )
+
+  return `${detail.redirectUri}${qs}`
 }
 
 export const processSignIn = async (
