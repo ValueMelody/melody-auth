@@ -1,5 +1,5 @@
 import {
-  afterEach, beforeEach, describe, expect, test,
+  afterEach, beforeEach, describe, expect, test, vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import { sendInitiateRequest } from './initiate.test'
@@ -15,6 +15,7 @@ import {
   getApp, insertUsers,
 } from 'tests/identity'
 import { cryptoUtil } from 'utils'
+import { userModel } from 'models'
 
 let db: Database
 
@@ -25,6 +26,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await db.close()
   await mockedKV.empty()
+  vi.unstubAllEnvs()
 })
 
 const sendVerifiedSignInRequest = async (
@@ -142,6 +144,75 @@ describe(
 describe(
   'post /mfa-enrollment',
   () => {
+    test.each([
+      [0, 'otp_mfa'],
+      [1, 'mfa_enroll'],
+    ])(
+      'should keep verified otp when enrolling otp with useSystemMfaConfig %i',
+      async (
+        useSystemMfaConfig, signInNextStep,
+      ) => {
+        vi.stubEnv(
+          'EMBEDDED_AUTH_ORIGINS',
+          ['http://localhost:3000'] as unknown as string,
+        )
+        vi.stubEnv(
+          'ENABLE_USER_APP_CONSENT',
+          false as unknown as string,
+        )
+        await db.prepare('UPDATE app SET "useSystemMfaConfig" = ?, "requireOtpMfa" = ? WHERE id = 1').run(
+          useSystemMfaConfig,
+          Number(!useSystemMfaConfig),
+        )
+
+        const {
+          res, sessionId, otpSecret,
+        } = await sendVerifiedSignInRequest(
+          db,
+          { markAsVerified: true },
+        )
+        expect(res.status).toBe(200)
+        expect(await res.json()).toStrictEqual({
+          sessionId,
+          nextStep: signInNextStep,
+          success: false,
+        })
+
+        const enrollRes = await app.request(
+          routeConfig.EmbeddedRoute.MfaEnrollment.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST', body: JSON.stringify({ type: 'otp' }),
+          },
+          mock(db),
+        )
+        expect(enrollRes.status).toBe(200)
+        expect(await enrollRes.json()).toStrictEqual({
+          sessionId,
+          nextStep: 'otp_mfa',
+          success: false,
+        })
+
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 1').get() as userModel.Raw
+        expect(user.mfaTypes).toBe(userModel.MfaType.Otp)
+        expect(user.otpVerified).toBe(1)
+        expect(user.otpSecret).toBe(otpSecret)
+
+        const setupRes = await app.request(
+          routeConfig.EmbeddedRoute.OtpMfaSetup.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(setupRes.status).toBe(400)
+        expect(await setupRes.text()).toBe(messageConfig.RequestError.OtpAlreadySet)
+      },
+    )
+
     test(
       'should enroll otp mfa',
       async () => {
@@ -236,6 +307,57 @@ describe(
         )
         expect(mfaEnrollmentRes.status).toBe(404)
         expect(await mfaEnrollmentRes.text()).toContain(messageConfig.RequestError.WrongSessionId)
+      },
+    )
+  },
+)
+
+describe.each(['GET', 'POST'])(
+  '%s /mfa-enrollment configuration',
+  (method) => {
+    test.each([
+      ['ENFORCE_ONE_MFA_ENROLLMENT', []],
+      ['OTP_MFA_IS_REQUIRED', true],
+      ['EMAIL_MFA_IS_REQUIRED', true],
+      ['SMS_MFA_IS_REQUIRED', true],
+    ])(
+      'should reject enrollment when disabled by %s',
+      async (
+        setting, value,
+      ) => {
+        vi.stubEnv(
+          'EMBEDDED_AUTH_ORIGINS',
+          ['http://localhost:3000'] as unknown as string,
+        )
+        vi.stubEnv(
+          'ENABLE_USER_APP_CONSENT',
+          false as unknown as string,
+        )
+        vi.stubEnv(
+          setting as string,
+          value as unknown as string,
+        )
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
+        )
+        const res = await app.request(
+          routeConfig.EmbeddedRoute.MfaEnrollment.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method,
+            ...(method === 'POST' ? { body: JSON.stringify({ type: 'otp' }) } : {}),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.ConfigError.MfaEnrollNotEnabled)
+
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 1').get() as userModel.Raw
+        expect(user.mfaTypes).toBe('')
       },
     )
   },

@@ -9,6 +9,8 @@ async function cleanSecrets () {
   const isProd = argv[2] === 'prod'
   const isNode = argv[2] === 'node'
 
+  const configPath = argv[3] || ''
+
   if (isNode) {
     if (fs.existsSync(NODE_DEPRECATED_PRIVATE_KEY_FILE)) {
       fs.rmSync(NODE_DEPRECATED_PRIVATE_KEY_FILE)
@@ -20,7 +22,7 @@ async function cleanSecrets () {
 
     console.info('Secrets cleaned for node env')
   } else {
-    const condition = isProd ? '' : '--local'
+    const condition = isProd ? (configPath ? `--config ${configPath} --remote` : '--remote') : '--local'
 
     const [hasDeprecatedPublicKey] = JSON.parse(execSync(`wrangler kv key list --prefix=deprecatedJwtPublicSecret --binding=KV ${condition}`).toString())
     const [hasDeprecatedPrivateKey] = JSON.parse(execSync(`wrangler kv key list --prefix=deprecatedJwtPrivateSecret --binding=KV ${condition}`).toString())
