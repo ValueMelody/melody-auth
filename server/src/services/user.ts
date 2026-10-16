@@ -1303,10 +1303,7 @@ export const enrollUserMfa = async (
     return userModel.update(
       c.env.DB,
       user.id,
-      {
-        mfaTypes: [...user.mfaTypes, mfaType].join(','),
-        otpVerified: 0,
-      },
+      { mfaTypes: [...user.mfaTypes, mfaType].join(',') },
     )
   } else if (mfaType === userModel.MfaType.Email && !emailMfaRequired) {
     return userModel.update(
