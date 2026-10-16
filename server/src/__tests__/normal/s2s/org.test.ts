@@ -479,6 +479,145 @@ describe(
     )
 
     test(
+      'should update org branding urls',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+
+        const updateObj = {
+          companyLogoUrl: 'https://test.com/logo.png',
+          companyEmailLogoUrl: 'http://test.com/email-logo.png',
+          fontUrl: 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
+          termsLink: 'https://test.com/terms',
+          privacyPolicyLink: 'https://test.com/privacy',
+        }
+        const res = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(updateObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(await res.json()).toStrictEqual({
+          org: {
+            ...newOrg,
+            ...updateObj,
+          },
+        })
+
+        const clearObj = {
+          companyLogoUrl: '',
+          companyEmailLogoUrl: '',
+          fontUrl: '',
+          termsLink: '',
+          privacyPolicyLink: '',
+        }
+        const res1 = await app.request(
+          `${BaseRoute}/1`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(clearObj),
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(await res1.json()).toStrictEqual({ org: newOrg })
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should reject fontUrl outside the allowed font providers',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+        await attachIndividualScopes(db)
+
+        const fontUrls = [
+          'https://evil.com/font.css',
+          'http://fonts.googleapis.com/css2?family=Roboto',
+          'https://fonts.googleapis.com.evil.com/font.css',
+          'https://fonts.googleapis.com@evil.com/font.css',
+          '//evil.com/font.css',
+          'javascript:alert(1)',
+        ]
+        for (const fontUrl of fontUrls) {
+          const res = await app.request(
+            `${BaseRoute}/1`,
+            {
+              method: 'PUT',
+              body: JSON.stringify({ fontUrl }),
+              headers: {
+                Authorization: `Bearer ${await getS2sToken(
+                  db,
+                  Scope.WriteOrg,
+                )}`,
+              },
+            },
+            mock(db),
+          )
+          expect(res.status).toBe(400)
+          expect(await res.json()).toStrictEqual([
+            {
+              property: 'fontUrl',
+              constraints: { isAllowedFontUrlOrEmpty: 'fontUrl must start with one of: https://fonts.googleapis.com/' },
+            },
+          ])
+        }
+
+        const org = await db.prepare('select * from "org" where id = 1').get() as orgModel.Raw
+        expect(org.fontUrl).toBe('')
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
+      'should reject branding links that are not http or https',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        await createNewOrg()
+
+        const keys = ['companyLogoUrl', 'companyEmailLogoUrl', 'termsLink', 'privacyPolicyLink']
+        const values = ['javascript:alert(1)', 'data:text/html,<script>alert(1)</script>', '//evil.com', 'evil.com']
+        for (const key of keys) {
+          for (const value of values) {
+            const res = await app.request(
+              `${BaseRoute}/1`,
+              {
+                method: 'PUT',
+                body: JSON.stringify({ [key]: value }),
+                headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+              },
+              mock(db),
+            )
+            expect(res.status).toBe(400)
+            expect(await res.json()).toStrictEqual([
+              {
+                property: key,
+                constraints: { isHttpUrlOrEmpty: `${key} must be an http or https url` },
+              },
+            ])
+          }
+        }
+
+        const org = await db.prepare('select * from "org" where id = 1').get() as orgModel.Raw
+        expect(org.companyLogoUrl).toBe('')
+        expect(org.companyEmailLogoUrl).toBe('')
+        expect(org.termsLink).toBe('')
+        expect(org.privacyPolicyLink).toBe('')
+
+        global.process.env.ENABLE_ORG = false as unknown as string
+      },
+    )
+
+    test(
       'should return 401 without proper scope',
       async () => {
         global.process.env.ENABLE_ORG = true as unknown as string
