@@ -42,6 +42,9 @@ Override branding for specific organizations (tenants/clients):
 - Go to the `Orgs` tab.
 - Create a new organization with a unique slug.
 - Configure the org's branding (logo, colors, fonts, links).
+- Logo URLs, `termsLink` and `privacyPolicyLink` must start with `http://` or `https://`.
+- `fontUrl` is loaded as a stylesheet on the identity pages, so it must start with one of the prefixes in `OrgBrandingConfig.AllowedFontUrlPrefixes` in `server/src/configs/variable.ts`. By default only Google Fonts (`https://fonts.googleapis.com/`) is allowed. Add a prefix there if you serve fonts from another provider you trust.
+- An org value that does not meet these rules is rejected with `400`. A value saved before these rules existed is ignored on the identity pages and emails, and the global default is used instead.
 
 3) Route users to the org-branded pages
 - Add the organization slug to your authorization redirect URL as a query string: `org=<slug>`
