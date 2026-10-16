@@ -2717,6 +2717,30 @@ describe(
 describe(
   'enroll otp mfa',
   () => {
+    test(
+      'should preserve verified otp and its secret when enrolling',
+      async () => {
+        await insertUsers(db)
+        const otpSecret = 'JBSWY3DPEHPK3PXP'
+        await db.prepare('UPDATE "user" SET "otpSecret" = ?, "otpVerified" = 1 WHERE id = 1').run(otpSecret)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/otp-mfa`,
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(204)
+
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 1').get() as userModel.Raw
+        expect(user.mfaTypes).toBe(userModel.MfaType.Otp)
+        expect(user.otpVerified).toBe(1)
+        expect(user.otpSecret).toBe(otpSecret)
+      },
+    )
+
     const enrollAndCheckUser = async () => {
       await insertUsers(db)
 

@@ -141,6 +141,53 @@ describe(
 describe(
   'post /process-mfa-enroll',
   () => {
+    test.each([0, 1])(
+      'should keep verified otp when enrolling otp with useSystemMfaConfig %i',
+      async (useSystemMfaConfig) => {
+        await insertUsers(db)
+        const otpSecret = 'JBSWY3DPEHPK3PXP'
+        await db.prepare('UPDATE app SET "useSystemMfaConfig" = ?, "requireOtpMfa" = ? WHERE id = 1').run(
+          useSystemMfaConfig,
+          Number(!useSystemMfaConfig),
+        )
+        await db.prepare('UPDATE "user" SET "otpSecret" = ?, "otpVerified" = 1 WHERE id = 1').run(otpSecret)
+
+        const body = await prepareFollowUpBody(db)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ProcessMfaEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              type: userModel.MfaType.Otp,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(200)
+        expect(await res.json()).toStrictEqual({
+          code: expect.any(String),
+          redirectUri: 'http://localhost:3000/en/dashboard',
+          state: '123',
+          scopes: ['profile', 'openid', 'offline_access'],
+          nextPage: routeConfig.View.OtpMfa,
+        })
+
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 1').get() as userModel.Raw
+        expect(user.mfaTypes).toBe(userModel.MfaType.Otp)
+        expect(user.otpVerified).toBe(1)
+        expect(user.otpSecret).toBe(otpSecret)
+
+        const setupRes = await app.request(
+          `${routeConfig.IdentityRoute.OtpMfaSetup}?code=${body.code}&locale=en`,
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(setupRes.status).toBe(400)
+        expect(await setupRes.text()).toBe(messageConfig.RequestError.OtpAlreadySet)
+      },
+    )
+
     test(
       'should enroll email mfa',
       async () => {

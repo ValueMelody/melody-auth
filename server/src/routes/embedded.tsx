@@ -209,6 +209,7 @@ embeddedRoutes.post(
 embeddedRoutes.get(
   routeConfig.EmbeddedRoute.MfaEnrollment,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableMfaEnroll,
   embeddedHandler.getMfaEnrollment,
 )
 
@@ -241,6 +242,7 @@ embeddedRoutes.get(
 embeddedRoutes.post(
   routeConfig.EmbeddedRoute.MfaEnrollment,
   setupMiddleware.validEmbeddedOrigin,
+  configMiddleware.enableMfaEnroll,
   embeddedHandler.postMfaEnrollment,
 )
 
