@@ -1,7 +1,25 @@
 import {
   IsBoolean,
-  IsNotEmpty, IsOptional, IsString, Length,
+  IsNotEmpty, IsOptional, IsString, Length, ValidateBy,
 } from 'class-validator'
+import { variableConfig } from 'configs'
+import { validateUtil } from 'utils'
+
+const IsHttpUrlOrEmpty = () => ValidateBy({
+  name: 'isHttpUrlOrEmpty',
+  validator: {
+    validate: (value: unknown) => value === '' || (typeof value === 'string' && validateUtil.isHttpUrl(value)),
+    defaultMessage: () => '$property must be an http or https url',
+  },
+})
+
+const IsAllowedFontUrlOrEmpty = () => ValidateBy({
+  name: 'isAllowedFontUrlOrEmpty',
+  validator: {
+    validate: (value: unknown) => value === '' || (typeof value === 'string' && validateUtil.isAllowedOrgFontUrl(value)),
+    defaultMessage: () => `$property must start with one of: ${variableConfig.OrgBrandingConfig.AllowedFontUrlPrefixes.join(', ')}`,
+  },
+})
 
 export class PostOrgDto {
   @IsString()
@@ -67,6 +85,7 @@ export class PutOrgDto {
     250,
   )
   @IsOptional()
+  @IsHttpUrlOrEmpty()
     companyLogoUrl: string
 
   @IsString()
@@ -75,6 +94,7 @@ export class PutOrgDto {
     250,
   )
   @IsOptional()
+  @IsHttpUrlOrEmpty()
     companyEmailLogoUrl: string
 
   @IsString()
@@ -91,6 +111,7 @@ export class PutOrgDto {
     250,
   )
   @IsOptional()
+  @IsAllowedFontUrlOrEmpty()
     fontUrl: string
 
   @IsString()
@@ -179,6 +200,7 @@ export class PutOrgDto {
     250,
   )
   @IsOptional()
+  @IsHttpUrlOrEmpty()
     termsLink: string
 
   @IsString()
@@ -187,6 +209,7 @@ export class PutOrgDto {
     250,
   )
   @IsOptional()
+  @IsHttpUrlOrEmpty()
     privacyPolicyLink: string
 
   constructor (dto: PutOrgDto) {

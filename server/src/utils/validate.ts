@@ -1,7 +1,9 @@
 import {
   ValidationError, validateOrReject,
 } from 'class-validator'
-import { errorConfig } from 'configs'
+import {
+  errorConfig, variableConfig,
+} from 'configs'
 
 interface SanitizedValidationError {
   property: string;
@@ -26,3 +28,10 @@ export const dto = async (dto: object) => {
     throw new errorConfig.Forbidden(JSON.stringify(sanitize(e)))
   }
 }
+
+const httpUrlRegex = /^https?:\/\//i
+
+export const isHttpUrl = (value: string): boolean => httpUrlRegex.test(value)
+
+export const isAllowedOrgFontUrl = (value: string): boolean => variableConfig.OrgBrandingConfig.AllowedFontUrlPrefixes
+  .some((prefix) => value.startsWith(prefix))

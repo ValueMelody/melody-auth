@@ -16,6 +16,13 @@ export enum DefaultBranding {
   CriticalIndicatorColor = '#e00',
 }
 
+export const OrgBrandingConfig = Object.freeze({
+  // An org's fontUrl is loaded as a stylesheet on the identity pages,
+  // so it can only point at these trusted font providers.
+  // Each prefix must be a full https origin followed by "/".
+  AllowedFontUrlPrefixes: ['https://fonts.googleapis.com/'],
+})
+
 export enum DefaultEnvironment {
   Development = 'dev',
   Production = 'prod',

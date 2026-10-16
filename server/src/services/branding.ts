@@ -4,6 +4,7 @@ import {
   variableConfig, typeConfig,
 } from 'configs'
 import { orgModel } from 'models'
+import { validateUtil } from 'utils'
 
 export interface Branding {
   logoUrl: string;
@@ -64,12 +65,16 @@ export const getBranding = async (
   const org = orgData && orgData.allowPublicRegistration ? orgData : null
 
   const defaultBranding = getDefaultBranding(c)
+
+  const httpUrlOrUndefined = (value?: string) => (value && validateUtil.isHttpUrl(value) ? value : undefined)
+  const fontUrl = org?.fontUrl && validateUtil.isAllowedOrgFontUrl(org.fontUrl) ? org.fontUrl : undefined
+
   return {
     ...defaultBranding,
     fontFamily: org?.fontFamily || defaultBranding.fontFamily,
-    fontUrl: org?.fontUrl || defaultBranding.fontUrl,
-    logoUrl: org?.companyLogoUrl || defaultBranding.logoUrl,
-    emailLogoUrl: org?.companyEmailLogoUrl || defaultBranding.emailLogoUrl,
+    fontUrl: fontUrl || defaultBranding.fontUrl,
+    logoUrl: httpUrlOrUndefined(org?.companyLogoUrl) || defaultBranding.logoUrl,
+    emailLogoUrl: httpUrlOrUndefined(org?.companyEmailLogoUrl) || defaultBranding.emailLogoUrl,
     layoutColor: org?.layoutColor || defaultBranding.layoutColor,
     labelColor: org?.labelColor || defaultBranding.labelColor,
     primaryButtonColor: org?.primaryButtonColor || defaultBranding.primaryButtonColor,
@@ -79,7 +84,7 @@ export const getBranding = async (
     secondaryButtonLabelColor: org?.secondaryButtonLabelColor || defaultBranding.secondaryButtonLabelColor,
     secondaryButtonBorderColor: org?.secondaryButtonBorderColor || defaultBranding.secondaryButtonBorderColor,
     criticalIndicatorColor: org?.criticalIndicatorColor || defaultBranding.criticalIndicatorColor,
-    termsLink: org?.termsLink || defaultBranding.termsLink,
-    privacyPolicyLink: org?.privacyPolicyLink || defaultBranding.privacyPolicyLink,
+    termsLink: httpUrlOrUndefined(org?.termsLink) || defaultBranding.termsLink,
+    privacyPolicyLink: httpUrlOrUndefined(org?.privacyPolicyLink) || defaultBranding.privacyPolicyLink,
   }
 }

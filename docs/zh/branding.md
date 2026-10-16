@@ -42,6 +42,9 @@
 - 转到 `Orgs` 标签页。
 - 创建一个具有唯一 slug 的新组织。
 - 配置该组织的品牌化（logo、颜色、字体、链接）。
+- Logo URL、`termsLink` 和 `privacyPolicyLink` 必须以 `http://` 或 `https://` 开头。
+- `fontUrl` 会作为样式表加载到身份页面上，因此必须以 `server/src/configs/variable.ts` 中 `OrgBrandingConfig.AllowedFontUrlPrefixes` 列出的某个前缀开头。默认只允许 Google Fonts（`https://fonts.googleapis.com/`）。如果你使用其他可信的字体服务，请在此处添加对应前缀。
+- 不符合这些规则的组织配置会被拒绝并返回 `400`。在这些规则生效之前保存的值，在身份页面和邮件中会被忽略，并改用全局默认值。
 
 3) 将用户路由到该组织的品牌页面
 - 在授权重定向 URL 中将组织 slug 作为查询参数添加：`org=<slug>`

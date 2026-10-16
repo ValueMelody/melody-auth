@@ -289,7 +289,7 @@ describe(
           "allowPublicRegistration", "onlyUseForBrandingOverride"
         ) values (
           'test', 'default', 'https://test.com', 'red', 'green', 'black', 'gray', 'orange', 'darkred', 'darkgray', 'blue', 'yellow',
-          'http://font.com', 'Arial', 'https://terms.com', 'https://privacy.com', 1, 0
+          'https://fonts.googleapis.com/css2?family=Arial', 'Arial', 'https://terms.com', 'https://privacy.com', 1, 0
         )
       `)
 
@@ -306,7 +306,7 @@ describe(
         expect(html).toContain('termsLink: "https://terms.com"')
         expect(html).toContain('privacyPolicyLink: "https://privacy.com"')
         expect(html).toContain('<link rel="icon" type="image/x-icon" href="https://test.com"/>')
-        expect(html).toContain('<link href="http://font.com" rel="stylesheet"/>')
+        expect(html).toContain('<link href="https://fonts.googleapis.com/css2?family=Arial" rel="stylesheet"/>')
         expect(html).toContain('--layout-color:red')
         expect(html).toContain('--label-color:green')
         expect(html).toContain('--font-default:Arial')
@@ -317,6 +317,42 @@ describe(
         expect(html).toContain('--secondary-button-label-color:darkgray')
         expect(html).toContain('--secondary-button-border-color:blue')
         expect(html).toContain('--critical-indicator-color:yellow')
+      },
+    )
+
+    test(
+      'should not use unsafe org urls saved before url validation',
+      async () => {
+        global.process.env.ENABLE_ORG = true as unknown as string
+
+        db.exec(`
+        insert into "org" (
+          name, slug, "companyLogoUrl", "fontUrl", "termsLink", "privacyPolicyLink",
+          "allowPublicRegistration", "onlyUseForBrandingOverride"
+        ) values (
+          'test', 'default', 'javascript:alert(1)', 'https://evil.com/font.css', 'javascript:alert(2)', 'javascript:alert(3)', 1, 0
+        )
+      `)
+
+        const appRecord = await getApp(db)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.IdentityRoute.AuthorizeView,
+          appRecord,
+          '&org=default',
+        )
+
+        const html = await res.text()
+        expect(html).toContain(`logoUrl: "${process.env.COMPANY_LOGO_URL}"`)
+        expect(html).toContain(`termsLink: "${process.env.TERMS_LINK}"`)
+        expect(html).toContain(`privacyPolicyLink: "${process.env.PRIVACY_POLICY_LINK}"`)
+        expect(html).toContain(`<link rel="icon" type="image/x-icon" href="${process.env.COMPANY_LOGO_URL}"/>`)
+        expect(html).toContain(`<link href="${variableConfig.DefaultBranding.FontUrl?.replace(
+          '&',
+          '&amp;',
+        )}" rel="stylesheet"/>`)
+        expect(html).not.toContain('evil.com')
+        expect(html).not.toContain('javascript:')
       },
     )
 
