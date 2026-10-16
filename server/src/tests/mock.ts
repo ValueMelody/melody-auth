@@ -267,7 +267,11 @@ export const migrate = async () => {
           return records
         },
       }),
-      exec: async (query: string) => db.raw(query),
+      // exec takes no bindings, so escape "?" to stop knex from rewriting literal ones into $n placeholders
+      exec: async (query: string) => db.raw(query.replace(
+        /\?/g,
+        '\\?',
+      )),
       close: async () => db.destroy(),
     } as unknown as Database
 
