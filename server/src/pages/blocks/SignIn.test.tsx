@@ -5,6 +5,7 @@ import { render } from 'hono/jsx/dom'
 import {
   expect, describe, it, beforeEach, vi, beforeAll,
 } from 'vitest'
+import { genCodeChallenge } from '@melody-auth/shared'
 import SignIn from './SignIn'
 import { signIn } from 'pages/tools/locale'
 import {
@@ -570,7 +571,7 @@ describe(
 
     it(
       'renders OIDC sign in buttons when oidcProviders are provided',
-      () => {
+      async () => {
         // Mock the useSocialSignIn hook result
         const mockOidcConfigs = [
           {
@@ -641,6 +642,12 @@ describe(
         expect(oidcProvider2).not.toBeNull()
         expect(oidcProvider2?.getAttribute('href')).toContain('redirect_uri=http://localhost:3000/identity/v1/authorize-oidc/provider2')
         expect(oidcProvider2?.getAttribute('href')).toContain('"codeVerifier":"test-code-verifier"')
+
+        const expectedCodeChallenge = await genCodeChallenge('test-code-verifier')
+        await vi.waitFor(() => {
+          expect(container.querySelector('#oidc-provider1')?.getAttribute('href')).toContain(`code_challenge=${expectedCodeChallenge}&`)
+          expect(container.querySelector('#oidc-provider2')?.getAttribute('href')).toContain(`code_challenge=${expectedCodeChallenge}&`)
+        })
 
         // Other social sign-in buttons should not be present
         const googleSignIn = container.querySelector('#g_id_onload')
