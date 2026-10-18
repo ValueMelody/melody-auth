@@ -37,6 +37,13 @@ export const getAuthCodeBody = async (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongAuthCode)
   }
+
+  await identityService.ensureFirstFactorVerified(
+    c,
+    code,
+    authCodeStore,
+  )
+
   return authCodeStore
 }
 
