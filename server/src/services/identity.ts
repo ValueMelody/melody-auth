@@ -90,6 +90,30 @@ const getNextPageForPolicy = (
   return nextPage
 }
 
+export const ensureFirstFactorVerified = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+) => {
+  const { ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn } = env(c)
+  const isSocialLogin = !!authCodeBody.user.socialAccountId
+
+  if (!enablePasswordlessSignIn || isSocialLogin || authCodeBody.isFullyAuthorized) return
+
+  const isVerified = await kvService.passwordlessCodeVerified(
+    c.env.KV,
+    authCode,
+  )
+  if (!isVerified) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.PasswordlessNotVerified,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.PasswordlessNotVerified)
+  }
+}
+
 const verifyAuthCodeMfaAndConsent = async (
   c: Context<typeConfig.Context>,
   authCode: string,
@@ -98,8 +122,6 @@ const verifyAuthCodeMfaAndConsent = async (
   const isSocialLogin = !!authCodeBody.user.socialAccountId
   const bypassLocalMfa = isSocialLogin &&
     variableConfig.SocialSignInConfig.ExternalSignInCanBypassLocalMfa
-
-  const { ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn } = env(c)
 
   const {
     requireEmailMfa,
@@ -168,20 +190,11 @@ const verifyAuthCodeMfaAndConsent = async (
       }
     }
 
-    if (enablePasswordlessSignIn && !isSocialLogin) {
-      const isVerified = await kvService.passwordlessCodeVerified(
-        c.env.KV,
-        authCode,
-      )
-      if (!isVerified) {
-        loggerUtil.triggerLogger(
-          c,
-          loggerUtil.LoggerLevel.Warn,
-          messageConfig.RequestError.PasswordlessNotVerified,
-        )
-        throw new errorConfig.UnAuthorized(messageConfig.RequestError.PasswordlessNotVerified)
-      }
-    }
+    await ensureFirstFactorVerified(
+      c,
+      authCode,
+      authCodeBody,
+    )
   }
 
   const requireConsent = await consentService.shouldCollectConsent(

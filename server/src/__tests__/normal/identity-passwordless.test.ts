@@ -1018,3 +1018,122 @@ describe(
     )
   },
 )
+
+describe(
+  'mfa setup with passwordless code',
+  () => {
+    test(
+      'should reject mfa setup before passwordless code is verified',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
+        await insertUsers(db)
+
+        const requestBody = await prepareFollowUpBody(db)
+
+        const enrollRes = await app.request(
+          routeConfig.IdentityRoute.ProcessMfaEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...requestBody,
+              type: userModel.MfaType.Otp,
+            }),
+          },
+          mock(db),
+        )
+        expect(enrollRes.status).toBe(401)
+        expect(await enrollRes.text()).toBe(messageConfig.RequestError.PasswordlessNotVerified)
+
+        const otpSetupRes = await app.request(
+          `${routeConfig.IdentityRoute.OtpMfaSetup}?code=${requestBody.code}&locale=en`,
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(otpSetupRes.status).toBe(401)
+        expect(await otpSetupRes.text()).toBe(messageConfig.RequestError.PasswordlessNotVerified)
+
+        const smsSetupRes = await app.request(
+          routeConfig.IdentityRoute.SetupSmsMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...requestBody,
+              phoneNumber: '+6471111111',
+            }),
+          },
+          mock(db),
+        )
+        expect(smsSetupRes.status).toBe(401)
+        expect(await smsSetupRes.text()).toBe(messageConfig.RequestError.PasswordlessNotVerified)
+
+        const user = await db.prepare('SELECT * FROM "user" WHERE "id" = 1').get() as userModel.Raw
+        expect(user.mfaTypes).toBe('')
+        expect(user.otpSecret).toBe('')
+        expect(user.smsPhoneNumber).toBeNull()
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+
+    test(
+      'should allow mfa setup after passwordless code is verified',
+      async () => {
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = true as unknown as string
+
+        await insertUsers(db)
+
+        const requestBody = await prepareFollowUpBody(db)
+
+        await app.request(
+          routeConfig.IdentityRoute.SendPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({ ...requestBody }),
+          },
+          mock(db),
+        )
+
+        const verifyRes = await app.request(
+          routeConfig.IdentityRoute.ProcessPasswordlessCode,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...requestBody,
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`),
+            }),
+          },
+          mock(db),
+        )
+        expect(verifyRes.status).toBe(200)
+        expect((await verifyRes.json() as { nextPage: string }).nextPage).toBe(routeConfig.View.MfaEnroll)
+
+        const enrollRes = await app.request(
+          routeConfig.IdentityRoute.ProcessMfaEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...requestBody,
+              type: userModel.MfaType.Otp,
+            }),
+          },
+          mock(db),
+        )
+        expect(enrollRes.status).toBe(200)
+        expect((await enrollRes.json() as { nextPage: string }).nextPage).toBe(routeConfig.View.OtpSetup)
+
+        const otpSetupRes = await app.request(
+          `${routeConfig.IdentityRoute.OtpMfaSetup}?code=${requestBody.code}&locale=en`,
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(otpSetupRes.status).toBe(200)
+
+        const user = await db.prepare('SELECT * FROM "user" WHERE "id" = 1').get() as userModel.Raw
+        expect(user.mfaTypes).toBe(userModel.MfaType.Otp)
+
+        process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
+      },
+    )
+  },
+)
