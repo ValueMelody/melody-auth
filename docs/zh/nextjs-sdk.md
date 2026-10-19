@@ -50,6 +50,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 |------|------|------|--------|------|
 | publicKey | string | 用于 JWT 验证的 PEM 编码 RSA 公钥 | N/A | 否* |
 | jwksUri | string | 获取 JWKS 进行 JWT 验证的 URI | N/A | 否* |
+| issuer | string | 预期的 Melody Auth 令牌签发者（推荐） | N/A | 否 |
+| clientId | string | 预期的令牌客户端及 ID 令牌受众 | N/A | 是 |
 | publicPaths | string[] | 不需要身份认证的路径前缀数组 | [] | 否 |
 | redirectPath | string | 重定向未认证用户的路径 | '/login' | 否 |
 | cookieOptions | CookieOptions | Cookie 配置选项 | {} | 否 |
@@ -61,6 +63,8 @@ import { createMelodyAuthMiddleware } from '@melody-auth/nextjs';
 
 export default createMelodyAuthMiddleware({
   jwksUri: process.env.AUTH_JWKS_URI,
+  issuer: process.env.NEXT_PUBLIC_AUTH_SERVER_URL,
+  clientId: process.env.NEXT_PUBLIC_AUTH_CLIENT_ID,
   publicPaths: ['/login', '/register', '/api/public'],
   redirectPath: '/login',
 });

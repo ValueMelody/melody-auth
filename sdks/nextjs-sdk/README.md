@@ -36,6 +36,8 @@ import { createMelodyAuthMiddleware } from '@melody-auth/nextjs';
 
 export default createMelodyAuthMiddleware({
   jwksUri: 'https://your-auth-server.com/.well-known/jwks.json',
+  issuer: 'https://your-auth-server.com',
+  clientId: 'your-client-id',
   publicPaths: ['/login']
 });
 
@@ -44,6 +46,8 @@ import { useNextAuth } from '@melody-auth/nextjs';
 
 const { isAuthenticated, loginRedirect } = useNextAuth();
 ```
+
+Protected routes require verified, unexpired RS256 access tokens. Configure `clientId` and either `publicKey` or `jwksUri` for middleware; missing verification configuration rejects authentication. Server session helpers default to the JWKS endpoint at `serverUrl` and also validate issuer and client claims. ID tokens, when present, must verify and match the access-token identity; an expired ID token still supplies identity for a valid access token, since refreshes do not issue a new ID token. Cookie `account` and `expiresOn` fields are never trusted for authentication, including after token refresh.
 
 ## Documentation
 

@@ -50,17 +50,23 @@ Creates a Next.js middleware function that protects routes with JWT verification
 |-----------|------|-------------|---------|----------|
 | publicKey | string | PEM-encoded RSA public key for JWT verification | N/A | No* |
 | jwksUri | string | URI to fetch JWKS for JWT verification | N/A | No* |
+| issuer | string | Expected Melody Auth token issuer (recommended) | N/A | No |
+| clientId | string | Expected token client and ID-token audience | N/A | Yes |
 | publicPaths | string[] | Array of path prefixes that don't require authentication | [] | No |
 | redirectPath | string | Path to redirect unauthenticated users | '/login' | No |
 | cookieOptions | CookieOptions | Cookie configuration options | {} | No |
 
 *Either `publicKey` or `jwksUri` is required.
 
+Protected routes reject requests when verification is unavailable or fails, including when `clientId` is missing. Every access token must be an RS256-signed Melody Auth JWT issued to `clientId` with valid signed expiry. An ID token is optional, but when present its signature, issuer, audience, and authorized party must verify. Its own expiry does not end the session, because refreshes do not issue a new ID token; it only supplies identity for a valid access token. Cookie `expiresOn` and `account` values are never authentication evidence. Identity comes only from verified ID-token claims, and the access and ID tokens must have matching subjects, issuers, and authorized parties.
+
 ```ts
 import { createMelodyAuthMiddleware } from '@melody-auth/nextjs';
 
 export default createMelodyAuthMiddleware({
   jwksUri: process.env.AUTH_JWKS_URI,
+  issuer: process.env.NEXT_PUBLIC_AUTH_SERVER_URL,
+  clientId: process.env.NEXT_PUBLIC_AUTH_CLIENT_ID,
   publicPaths: ['/login', '/register', '/api/public'],
   redirectPath: '/login',
 });
@@ -114,6 +120,10 @@ export default function Profile() {
 ## getServerSession
 
 Retrieves the current user session from cookies in server components. Returns null if not authenticated.
+
+Token signatures are verified using `publicKey`, an explicit `jwksUri`, or `${serverUrl}/.well-known/jwks.json` by default. The SDK validates the issuer against `serverUrl`, the authorized party against `clientId`, and the ID-token audience against `clientId`. Configure these values on the server, never from request cookies or token claims.
+
+Expired access tokens can be refreshed, but the replacement token must pass verification before it is stored or returned. An ID token that fails verification rejects the session before any refresh. An ID token that has only expired still supplies identity, including after refresh, because refreshes do not issue a new ID token; its subject must match the verified access token. Access-token-only sessions remain supported and do not expose ID-token identity fields.
 
 | Parameter | Type | Description | Required |
 |-----------|------|-------------|----------|
@@ -213,6 +223,8 @@ import { createMelodyAuthMiddleware } from '@melody-auth/nextjs';
 
 export default createMelodyAuthMiddleware({
   jwksUri: process.env.AUTH_JWKS_URI,
+  issuer: process.env.NEXT_PUBLIC_AUTH_SERVER_URL,
+  clientId: process.env.NEXT_PUBLIC_AUTH_CLIENT_ID,
   publicPaths: [
     '/login',
     '/register',
@@ -247,6 +259,8 @@ export default withAuth(
   },
   {
     jwksUri: process.env.AUTH_JWKS_URI,
+    issuer: process.env.NEXT_PUBLIC_AUTH_SERVER_URL,
+    clientId: process.env.NEXT_PUBLIC_AUTH_CLIENT_ID,
     publicPaths: ['/login']
   }
 );
@@ -338,6 +352,8 @@ interface NextAuthHook {
 |--------|------|-------------|
 | publicKey | string | PEM-encoded RSA public key |
 | jwksUri | string | JWKS endpoint URL (recommended) |
+| issuer | string | Expected token issuer (recommended) |
+| clientId | string | Expected authorized party and ID-token audience (required) |
 | publicPaths | string[] | Paths that don't require auth |
 | redirectPath | string | Where to redirect unauthenticated users |
 | cookieOptions | CookieOptions | Cookie configuration |
@@ -362,6 +378,8 @@ interface ServerAuthOptions {
   clientId: string;
   serverUrl: string;
   redirectUri: string;
+  publicKey?: string;
+  jwksUri?: string; // Defaults to serverUrl + '/.well-known/jwks.json'
   cookieOptions?: CookieOptions;
 }
 ```
@@ -370,11 +388,11 @@ interface ServerAuthOptions {
 
 ```typescript
 interface AuthSession {
-  userId: string;
+  userId?: string;
   email?: string;
-  account: any;          // Full JWT payload
+  account?: any;         // Verified ID-token payload, when present
   accessToken: string;
-  idToken: string;
+  idToken?: string;
   isAuthenticated: boolean; // Always true for valid sessions
 }
 ```
