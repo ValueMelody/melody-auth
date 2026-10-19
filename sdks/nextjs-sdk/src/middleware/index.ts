@@ -1,22 +1,19 @@
 import {
   NextRequest, NextResponse,
 } from 'next/server'
+import { JWTPayload } from 'jose'
 import {
-  jwtVerify, importSPKI, importX509, importJWK, JWTPayload,
-} from 'jose'
-import {
-  StorageKey, isValidTokens, IdTokenStorage, AccessTokenStorage,
+  StorageKey, IdTokenStorage, AccessTokenStorage,
 } from '@melody-auth/shared'
 import { CookieStorage } from '../storage/cookieAdapter'
+import {
+  verifyToken, assertMatchingIdentity, TokenVerificationOptions,
+} from './verifyTokens'
 
 /**
  * Configuration options for the Melody Auth middleware
  */
-export interface MelodyAuthMiddlewareConfig {
-  /** PEM-encoded RSA public key for JWT verification */
-  publicKey?: string;
-  /** URI to fetch JWKS (JSON Web Key Set) for JWT verification */
-  jwksUri?: string;
+export interface MelodyAuthMiddlewareConfig extends TokenVerificationOptions {
   /** Array of path prefixes that don't require authentication */
   publicPaths?: string[];
   /** Path to redirect unauthenticated users (default: '/login') */
@@ -46,93 +43,6 @@ export interface AuthenticatedRequest extends NextRequest {
   };
 }
 
-// Cache for public keys to avoid repeated imports/fetches
-let cachedPublicKey: CryptoKey | null = null
-let jwksCache: { keys: any[]; timestamp: number } | null = null
-const JWKS_CACHE_DURATION = 24 * 60 * 60 * 1000 // 24 hours
-
-/**
- * Imports a JWK key using the appropriate method based on available data
- */
-async function importJWKKey (jwk: any): Promise<CryptoKey> {
-  // First try to import directly as JWK
-  if (jwk.n && jwk.e) {
-    const key = await importJWK(
-      jwk,
-      'RS256',
-    )
-    return key as CryptoKey
-  }
-
-  // If x5c is available, use X.509 certificate
-  if (jwk.x5c && jwk.x5c[0]) {
-    // x5c[0] contains the base64-encoded X.509 certificate
-    const certPEM = `-----BEGIN CERTIFICATE-----\n${jwk.x5c[0]}\n-----END CERTIFICATE-----`
-    const key = await importX509(
-      certPEM,
-      'RS256',
-    )
-    return key as CryptoKey
-  }
-
-  throw new Error('JWK key format not supported - missing n/e or x5c')
-}
-
-/**
- * Retrieves the public key for JWT verification
- * Supports both direct public key configuration and JWKS URI
- * Implements caching to improve performance
- */
-async function getPublicKey (config: MelodyAuthMiddlewareConfig): Promise<CryptoKey> {
-  if (cachedPublicKey) return cachedPublicKey
-
-  if (config.publicKey) {
-    const spki = await importSPKI(
-      config.publicKey,
-      'RS256',
-    )
-    cachedPublicKey = spki as CryptoKey
-    return spki as CryptoKey
-  }
-
-  if (config.jwksUri) {
-    // Check cache first
-    if (jwksCache && Date.now() - jwksCache.timestamp < JWKS_CACHE_DURATION) {
-      const rsaKey = jwksCache.keys.find((key) => key.kty === 'RSA' && key.use === 'sig')
-      if (rsaKey) {
-        return await importJWKKey(rsaKey)
-      }
-    }
-
-    // Fetch JWKS
-    try {
-      const response = await fetch(config.jwksUri)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch JWKS: ${response.statusText}`)
-      }
-
-      const jwks = await response.json()
-      jwksCache = {
-        keys: jwks.keys, timestamp: Date.now(),
-      }
-
-      // Find RSA signing key
-      const rsaKey = jwks.keys.find((key: any) => key.kty === 'RSA' && key.use === 'sig')
-      if (!rsaKey) {
-        throw new Error('No RSA signing key found in JWKS')
-      }
-
-      // Import the public key
-      cachedPublicKey = await importJWKKey(rsaKey)
-      return cachedPublicKey
-    } catch (error) {
-      throw new Error(`Failed to fetch or parse JWKS: ${error instanceof Error ? error.message : String(error)}`)
-    }
-  }
-
-  throw new Error('Either publicKey or jwksUri must be provided')
-}
-
 /**
  * Creates a Next.js middleware for Melody Auth authentication
  *
@@ -144,6 +54,7 @@ async function getPublicKey (config: MelodyAuthMiddlewareConfig): Promise<Crypto
  * // middleware.ts
  * export default createMelodyAuthMiddleware({
  *   publicKey: process.env.MELODY_PUBLIC_KEY,
+ *   clientId: process.env.MELODY_CLIENT_ID,
  *   publicPaths: ['/login', '/api/public'],
  *   redirectPath: '/login'
  * });
@@ -179,48 +90,24 @@ export function createMelodyAuthMiddleware (config: MelodyAuthMiddlewareConfig) 
       const idTokenStorage: IdTokenStorage | null = idTokenStr ? JSON.parse(idTokenStr) : null
       const accessTokenStorage: AccessTokenStorage = JSON.parse(accessTokenStr)
 
-      // Validate tokens
-      const {
-        hasValidIdToken, hasValidAccessToken,
-      } = isValidTokens(
-        accessTokenStorage,
-        null,
-        idTokenStorage,
+      // Cookie metadata is untrusted. Authenticate using signed token claims only.
+      const access = await verifyToken(
+        accessTokenStorage.accessToken,
+        config,
+        'access',
       )
-
-      // Access token is required, ID token is optional
-      if (!hasValidAccessToken) {
-        return redirectToLogin(
-          request,
-          config.redirectPath,
+      const account = idTokenStr !== null
+        ? await verifyToken(
+          idTokenStorage?.idToken,
+          config,
+          'id',
         )
-      }
-
-      // If ID token exists, it must be valid
-      if (idTokenStorage && !hasValidIdToken) {
-        return redirectToLogin(
-          request,
-          config.redirectPath,
-        )
-      }
-
-      // Verify JWT signature if ID token exists and public key is configured
-      let userId: string | undefined
-      let account: any | undefined
-
-      if (idTokenStorage && (config.publicKey || config.jwksUri)) {
-        const publicKey = await getPublicKey(config)
-        const { payload } = await jwtVerify(
-          idTokenStorage.idToken,
-          publicKey,
-        )
-        userId = payload.sub
-        account = payload
-      } else if (idTokenStorage) {
-        // If no public key configured but ID token exists, use the stored account info
-        userId = idTokenStorage.account.sub
-        account = idTokenStorage.account
-      }
+        : undefined
+      assertMatchingIdentity(
+        access,
+        account,
+      )
+      const userId = account?.sub
 
       // Add auth info to request headers
       const response = NextResponse.next()
@@ -291,7 +178,7 @@ function redirectToLogin (
  *     console.log('User ID:', request.auth?.userId);
  *     return NextResponse.next();
  *   },
- *   { publicKey: process.env.MELODY_PUBLIC_KEY }
+ *   { publicKey: process.env.MELODY_PUBLIC_KEY, clientId: process.env.MELODY_CLIENT_ID }
  * );
  * ```
  */

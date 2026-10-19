@@ -1,13 +1,19 @@
 import {
-  StorageKey, isValidTokens, IdTokenStorage, AccessTokenStorage, RefreshTokenStorage,
+  errors, JWTPayload,
+} from 'jose'
+import {
+  StorageKey, IdTokenStorage, AccessTokenStorage, RefreshTokenStorage,
 } from '@melody-auth/shared'
 import { exchangeTokenByRefreshToken } from '@melody-auth/web'
 import { CookieStorage } from '../storage/cookieAdapter'
+import {
+  verifyToken, assertMatchingIdentity, TokenVerificationOptions,
+} from './verifyTokens'
 
 /**
  * Configuration options for server-side authentication
  */
-export interface ServerAuthOptions {
+export interface ServerAuthOptions extends Pick<TokenVerificationOptions, 'publicKey' | 'jwksUri'> {
   /** OAuth client ID */
   clientId: string;
   /** Melody Auth server URL */
@@ -81,71 +87,70 @@ export async function getServerSession (options: ServerAuthOptions): Promise<Aut
     const accessTokenStorage: AccessTokenStorage = JSON.parse(accessTokenStr)
     const refreshTokenStorage: RefreshTokenStorage | null = refreshTokenStr ? JSON.parse(refreshTokenStr) : null
 
-    // Check token validity
-    const {
-      hasValidIdToken, hasValidAccessToken, hasValidRefreshToken,
-    } = isValidTokens(
-      accessTokenStorage,
-      refreshTokenStorage,
-      idTokenStorage,
+    const verificationOptions: TokenVerificationOptions = {
+      publicKey: options.publicKey,
+      jwksUri: options.jwksUri ?? `${options.serverUrl.replace(
+        /\/$/,
+        '',
+      )}/.well-known/jwks.json`,
+      issuer: options.serverUrl,
+      clientId: options.clientId,
+    }
+
+    // Verify identity before any refresh, and never use the cookie's account field.
+    const account = idTokenStr !== null
+      ? await verifyToken(
+        idTokenStorage?.idToken,
+        verificationOptions,
+        'id',
+      )
+      : undefined
+    let accessToken = accessTokenStorage.accessToken
+    let refreshedTokens: AccessTokenStorage | undefined
+    let access: JWTPayload
+    try {
+      access = await verifyToken(
+        accessToken,
+        verificationOptions,
+        'access',
+      )
+    } catch (error) {
+      // Only signed expiration can trigger refresh; cookie expiresOn is not proof.
+      if (!(error instanceof errors.JWTExpired) || error.claim !== 'exp' || !refreshTokenStorage?.refreshToken) {
+        throw error
+      }
+      refreshedTokens = await exchangeTokenByRefreshToken(
+        {
+          clientId: options.clientId,
+          serverUri: options.serverUrl,
+          redirectUri: options.redirectUri,
+        },
+        refreshTokenStorage.refreshToken,
+      )
+      accessToken = refreshedTokens.accessToken
+      access = await verifyToken(
+        accessToken,
+        verificationOptions,
+        'access',
+      )
+    }
+    assertMatchingIdentity(
+      access,
+      account,
     )
 
-    // If access token is expired but refresh token is valid, try to refresh
-    if (!hasValidAccessToken && hasValidRefreshToken && refreshTokenStorage) {
-      try {
-        const newTokens = await exchangeTokenByRefreshToken(
-          {
-            clientId: options.clientId,
-            serverUri: options.serverUrl,
-            redirectUri: options.redirectUri,
-          },
-          refreshTokenStorage.refreshToken,
-        )
-
-        // Update storage with new tokens
-        const newAccessTokenStorage: AccessTokenStorage = {
-          accessToken: newTokens.accessToken,
-          expiresIn: newTokens.expiresIn,
-          expiresOn: newTokens.expiresOn,
-        }
-
-        storage.setItem(
-          StorageKey.AccessToken,
-          JSON.stringify(newAccessTokenStorage),
-        )
-
-        return {
-          userId: idTokenStorage?.account.sub,
-          email: idTokenStorage?.account.email ?? undefined,
-          account: idTokenStorage?.account,
-          accessToken: newTokens.accessToken,
-          idToken: idTokenStorage?.idToken,
-          isAuthenticated: true,
-        }
-      } catch (error) {
-        console.error(
-          'Failed to refresh token:',
-          error,
-        )
-        return null
-      }
-    }
-
-    // Access token is required, ID token is optional
-    if (!hasValidAccessToken) {
-      return null
-    }
-
-    // If ID token exists, it must be valid
-    if (idTokenStorage && !hasValidIdToken) {
-      return null
+    if (refreshedTokens) {
+      storage.setItem(
+        StorageKey.AccessToken,
+        JSON.stringify(refreshedTokens),
+      )
     }
 
     return {
-      userId: idTokenStorage?.account.sub,
-      email: idTokenStorage?.account.email ?? undefined,
-      account: idTokenStorage?.account,
-      accessToken: accessTokenStorage.accessToken,
+      userId: account?.sub,
+      email: typeof account?.email === 'string' ? account.email : undefined,
+      account,
+      accessToken,
       idToken: idTokenStorage?.idToken,
       isAuthenticated: true,
     }
