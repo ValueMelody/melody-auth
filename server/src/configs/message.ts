@@ -99,6 +99,7 @@ export enum RequestError {
   EmailTaken = 'The email address is already in use',
   EmailAlreadyVerified = 'Email already verified',
   PasskeyNotFound = 'No passkey found',
+  PasskeyAlreadyEnrolled = 'User already enrolled with passkey',
   InvalidPasskeyEnrollRequest = 'Invalid passkey enroll request',
   InvalidPasskeyVerifyRequest = 'Invalid passkey verify request',
   PasswordlessNotVerified = 'Passwordless code not verified',

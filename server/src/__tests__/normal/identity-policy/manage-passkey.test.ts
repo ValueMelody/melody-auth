@@ -316,6 +316,43 @@ describe(
     )
 
     test(
+      'should throw error if user already has a passkey',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+
+        await sendCorrectEnrollPasskeyReq()
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
+          'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
+        )
+        const body = await prepareFollowUpBody(
+          db,
+          Policy.ManagePasskey,
+        )
+        await markAuthCodeAsSecured(body.code)
+        const res = await app.request(
+          routeConfig.IdentityRoute.ManagePasskey,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              ...body,
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.PasskeyAlreadyEnrolled)
+
+        const passkeys = db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "deletedAt" IS NULL').all()
+        expect(passkeys.length).toBe(1)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+      },
+    )
+
+    test(
       'should throw error if use wrong auth code',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
