@@ -345,7 +345,7 @@ describe(
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.PasskeyAlreadyEnrolled)
 
-        const passkeys = db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "deletedAt" IS NULL').all()
+        const passkeys = await db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "deletedAt" IS NULL').all()
         expect(passkeys.length).toBe(1)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string

@@ -211,7 +211,7 @@ describe(
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         await insertUsers(db)
-        db.prepare('insert into user_passkey ("userId", "credentialId", "publicKey", "counter") values (?, ?, ?, ?)').run(
+        await db.prepare('insert into user_passkey ("userId", "credentialId", "publicKey", "counter") values (?, ?, ?, ?)').run(
           1,
           'existing',
           'existing',
@@ -239,7 +239,7 @@ describe(
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.PasskeyAlreadyEnrolled)
 
-        const passkeys = db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "deletedAt" IS NULL').all()
+        const passkeys = await db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "deletedAt" IS NULL').all()
         expect(passkeys.length).toBe(1)
 
         process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
