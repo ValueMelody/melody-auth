@@ -612,6 +612,42 @@ describe(
     )
 
     test(
+      'should not login through session if user is disabled',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        const appRecord = await getApp(db)
+        await insertUsers(db)
+        await postSignInRequest(
+          db,
+          appRecord,
+        )
+
+        await disableUser(db)
+
+        const params = await getAuthorizeParams(appRecord)
+        const res = await getSignInRequest(
+          db,
+          routeConfig.OauthRoute.Authorize,
+          appRecord,
+        )
+        expect(res.status).toBe(302)
+        expect(res.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizeView}${params}`)
+
+        await db.prepare('update "user" set "isActive" = 1').run()
+
+        const reEnabledRes = await getSignInRequest(
+          db,
+          routeConfig.OauthRoute.Authorize,
+          appRecord,
+        )
+        expect(reEnabledRes.status).toBe(302)
+        expect(reEnabledRes.headers.get('Location')).toBe(`${routeConfig.IdentityRoute.AuthorizeView}${params}`)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
       'should not accept code issued through session on identity endpoints',
       async () => {
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
@@ -1133,6 +1169,21 @@ describe(
       },
     )
   },
+)
+
+const exchangeWithRefreshToken = async (
+  db: Database, refreshToken: string,
+) => await app.request(
+  routeConfig.OauthRoute.Token,
+  {
+    method: 'POST',
+    body: new URLSearchParams({
+      grant_type: oauthDto.TokenGrantType.RefreshToken,
+      refresh_token: refreshToken,
+    }).toString(),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  },
+  mock(db),
 )
 
 export const exchangeWithAuthToken = async (db: Database) => {
@@ -1703,6 +1754,103 @@ describe(
         )
         expect(refreshTokenRes.status).toBe(401)
         expect(await refreshTokenRes.text()).toBe(messageConfig.RequestError.UserDisabled)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should revoke refresh token if app is disabled',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken(db)
+        const { refresh_token: refreshToken } = await tokenRes.json() as { refresh_token: string }
+
+        await db.prepare('update "app" set "isActive" = 0 where id = 1').run()
+
+        const refreshTokenRes = await exchangeWithRefreshToken(
+          db,
+          refreshToken,
+        )
+        expect(refreshTokenRes.status).toBe(401)
+        expect(await refreshTokenRes.text()).toBe(messageConfig.RequestError.SpaAppDisabled)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${refreshToken}`)).toBeFalsy()
+
+        await db.prepare('update "app" set "isActive" = 1 where id = 1').run()
+        const reEnabledRes = await exchangeWithRefreshToken(
+          db,
+          refreshToken,
+        )
+        expect(reEnabledRes.status).toBe(400)
+        expect(await reEnabledRes.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should revoke refresh token if offline_access is removed from app',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken(db)
+        const { refresh_token: refreshToken } = await tokenRes.json() as { refresh_token: string }
+
+        await db.prepare('delete from "app_scope" where "appId" = 1 and "scopeId" = 3').run()
+
+        const refreshTokenRes = await exchangeWithRefreshToken(
+          db,
+          refreshToken,
+        )
+        expect(refreshTokenRes.status).toBe(400)
+        expect(await refreshTokenRes.text()).toBe(messageConfig.RequestError.WrongRefreshToken)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${refreshToken}`)).toBeFalsy()
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should drop scopes removed from app when refresh',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken(db)
+        const { refresh_token: refreshToken } = await tokenRes.json() as { refresh_token: string }
+
+        await db.prepare('delete from "app_scope" where "appId" = 1 and "scopeId" = 2').run()
+
+        const refreshTokenRes = await exchangeWithRefreshToken(
+          db,
+          refreshToken,
+        )
+        expect(refreshTokenRes.status).toBe(200)
+        const refreshTokenJson = await refreshTokenRes.json() as { access_token: string }
+        const tokenBody = decode(refreshTokenJson.access_token)
+        expect(tokenBody.payload.scope).toBe('openid offline_access')
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should revoke refresh token if user consent is withdrawn',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const tokenRes = await exchangeWithAuthToken(db)
+        const { refresh_token: refreshToken } = await tokenRes.json() as { refresh_token: string }
+
+        await db.prepare('delete from "user_app_consent" where "userId" = 1 and "appId" = 1').run()
+
+        const refreshTokenRes = await exchangeWithRefreshToken(
+          db,
+          refreshToken,
+        )
+        expect(refreshTokenRes.status).toBe(401)
+        expect(await refreshTokenRes.text()).toBe(messageConfig.RequestError.NoConsent)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.RefreshToken}-${refreshToken}`)).toBeFalsy()
 
         global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
       },

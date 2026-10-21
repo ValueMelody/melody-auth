@@ -2674,6 +2674,36 @@ describe(
     )
 
     test(
+      'should clear remembered devices of email mfa only',
+      async () => {
+        await insertUsers(db)
+        await enrollEmailMfa(db)
+
+        const emailDeviceKey = `${adapterConfig.BaseKVKey.EmailMfaRememberDevice}-1-device1`
+        const otpDeviceKey = `${adapterConfig.BaseKVKey.OtpMfaRememberDevice}-1-device2`
+        const otherUserDeviceKey = `${adapterConfig.BaseKVKey.EmailMfaRememberDevice}-2-device3`
+        await mockedKV.put(
+          emailDeviceKey,
+          'code1',
+        )
+        await mockedKV.put(
+          otpDeviceKey,
+          'code2',
+        )
+        await mockedKV.put(
+          otherUserDeviceKey,
+          'code3',
+        )
+
+        await handleUnenrollRequest()
+
+        expect(await mockedKV.get(emailDeviceKey)).toBeFalsy()
+        expect(await mockedKV.get(otpDeviceKey)).toBe('code2')
+        expect(await mockedKV.get(otherUserDeviceKey)).toBe('code3')
+      },
+    )
+
+    test(
       'should throw error for wrong id',
       async () => {
         await insertUsers(db)
@@ -4353,6 +4383,42 @@ describe(
           firstName: 'First',
           roles: ['test'],
         })
+        expect(res.status).toBe(200)
+
+        const refreshRes = await refreshReq(refreshToken)
+        expect(refreshRes.status).toBe(200)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should revoke all refresh tokens of a user when user is disabled',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const refreshToken = await signInAndGetRefreshToken()
+
+        const disableRes = await updateUserReq({ isActive: false })
+        expect(disableRes.status).toBe(200)
+
+        const enableRes = await updateUserReq({ isActive: true })
+        expect(enableRes.status).toBe(200)
+
+        await expectRevoked(refreshToken)
+
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
+      'should keep refresh tokens when user stays active',
+      async () => {
+        global.process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        await insertUsers(db)
+        const refreshToken = await signInAndGetRefreshToken()
+
+        const res = await updateUserReq({ isActive: true })
         expect(res.status).toBe(200)
 
         const refreshRes = await refreshReq(refreshToken)

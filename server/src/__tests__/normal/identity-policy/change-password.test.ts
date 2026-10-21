@@ -8,7 +8,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   prepareFollowUpBody, insertUsers, postSignInRequest, getApp, markAuthCodeAsSecured,
@@ -81,6 +81,28 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
           nextPage: routeConfig.View.Consent,
         })
+      },
+    )
+
+    test(
+      'should revoke refresh tokens of the user',
+      async () => {
+        const userTokenKey = `${adapterConfig.BaseKVKey.RefreshToken}-1.token1`
+        const otherUserTokenKey = `${adapterConfig.BaseKVKey.RefreshToken}-2.token2`
+        await mockedKV.put(
+          userTokenKey,
+          '{}',
+        )
+        await mockedKV.put(
+          otherUserTokenKey,
+          '{}',
+        )
+
+        const { res } = await sendCorrectChangePasswordReq()
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        expect(await mockedKV.get(userTokenKey)).toBeFalsy()
+        expect(await mockedKV.get(otherUserTokenKey)).toBe('{}')
       },
     )
 

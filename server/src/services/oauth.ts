@@ -10,6 +10,7 @@ import {
   cryptoUtil, loggerUtil, requestUtil, timeUtil,
 } from 'utils'
 import {
+  consentService,
   identityService,
   jwtService,
   kvService,
@@ -19,7 +20,7 @@ import {
 } from 'services'
 import { oauthDto } from 'dtos'
 import {
-  signInLogModel, userAttributeModel, userAttributeValueModel,
+  appModel, signInLogModel, userAttributeModel, userAttributeValueModel,
 } from 'models'
 
 export const handleAuthCodeTokenExchange = async (
@@ -240,6 +241,60 @@ export const handleRefreshTokenTokenExchange = async (
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.UserDisabled)
   }
 
+  const app = await appModel.getByClientId(
+    c.env.DB,
+    refreshTokenBody.clientId,
+  )
+  if (!app || !app.isActive || app.type !== ClientType.SPA) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.SpaAppDisabled,
+    )
+    await kvService.invalidRefreshToken(
+      c.env.KV,
+      bodyDto.refreshToken,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.SpaAppDisabled)
+  }
+
+  const scopes = await scopeService.verifyAppScopes(
+    c,
+    app.id,
+    refreshTokenBody.scope.split(' '),
+  )
+  if (!scopes.includes(Scope.OfflineAccess)) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.WrongRefreshToken,
+    )
+    await kvService.invalidRefreshToken(
+      c.env.KV,
+      bodyDto.refreshToken,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.WrongRefreshToken)
+  }
+
+  const requireConsent = await consentService.shouldCollectConsent(
+    c,
+    user.id,
+    app.id,
+    scopes,
+  )
+  if (requireConsent) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.NoConsent,
+    )
+    await kvService.invalidRefreshToken(
+      c.env.KV,
+      bodyDto.refreshToken,
+    )
+    throw new errorConfig.UnAuthorized(messageConfig.RequestError.NoConsent)
+  }
+
   const {
     accessToken,
     accessTokenExpiresIn,
@@ -250,7 +305,7 @@ export const handleRefreshTokenTokenExchange = async (
     timeUtil.getCurrentTimestamp(),
     refreshTokenBody.authId,
     refreshTokenBody.clientId,
-    refreshTokenBody.scope,
+    scopes.join(' '),
     refreshTokenBody.roles,
     refreshTokenBody.impersonatedBy,
   )

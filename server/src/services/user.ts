@@ -1189,6 +1189,11 @@ export const resetUserPassword = async (
     user.id,
   )
 
+  await kvService.invalidRefreshTokensByUser(
+    c.env.KV,
+    user.id,
+  )
+
   return true
 }
 
@@ -1226,6 +1231,12 @@ export const changeUserPassword = async (
     user.id,
     { password },
   )
+
+  await kvService.invalidRefreshTokensByUser(
+    c.env.KV,
+    user.id,
+  )
+
   return true
 }
 
@@ -1348,6 +1359,12 @@ export const resetUserMfa = async (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.UserDisabled)
   }
+
+  await kvService.invalidMfaRememberDevicesByUser(
+    c.env.KV,
+    user.id,
+    mfaType,
+  )
 
   if (mfaType === userModel.MfaType.Otp) {
     if (
@@ -1544,6 +1561,13 @@ export const updateUser = async (
       updateObj,
     )
     : user
+
+  if (user.isActive && !updatedUser.isActive) {
+    await kvService.invalidRefreshTokensByUser(
+      c.env.KV,
+      user.id,
+    )
+  }
 
   const {
     ENABLE_NAMES: enableNames, ENABLE_ORG: enableOrg,

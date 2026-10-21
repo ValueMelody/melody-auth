@@ -8,7 +8,7 @@ import {
   mockedKV,
 } from 'tests/mock'
 import {
-  messageConfig, routeConfig,
+  adapterConfig, messageConfig, routeConfig,
 } from 'configs'
 import {
   prepareFollowUpBody, insertUsers, postSignInRequest, getApp, markAuthCodeAsSecured,
@@ -156,6 +156,47 @@ describe(
           scopes: ['profile', 'openid', 'offline_access'],
           nextPage: routeConfig.View.MfaEnroll,
         })
+
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should clear remembered mfa devices of all types',
+      async () => {
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        await insertUsers(
+          db,
+          false,
+        )
+        await enrollEmailMfa(db)
+
+        const deviceKeys = [
+          `${adapterConfig.BaseKVKey.EmailMfaRememberDevice}-1-device1`,
+          `${adapterConfig.BaseKVKey.OtpMfaRememberDevice}-1-device2`,
+          `${adapterConfig.BaseKVKey.SmsMfaRememberDevice}-1-device3`,
+        ]
+        const otherUserDeviceKey = `${adapterConfig.BaseKVKey.EmailMfaRememberDevice}-2-device4`
+        for (const key of deviceKeys) {
+          await mockedKV.put(
+            key,
+            'code',
+          )
+        }
+        await mockedKV.put(
+          otherUserDeviceKey,
+          'code',
+        )
+
+        const { res } = await sendCorrectResetMfaReq()
+        const json = await res.json()
+        expect(json).toStrictEqual({ success: true })
+
+        for (const key of deviceKeys) {
+          expect(await mockedKV.get(key)).toBeFalsy()
+        }
+        expect(await mockedKV.get(otherUserDeviceKey)).toBe('code')
 
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
