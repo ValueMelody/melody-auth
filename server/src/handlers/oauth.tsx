@@ -18,7 +18,9 @@ import { PopupRedirect } from 'templates'
 import {
   authCodeHook, clientCredentialsHook,
 } from 'hooks'
-import { appModel } from 'models'
+import {
+  appModel, userModel,
+} from 'models'
 import { prepareOidcRedirect } from 'services/identity'
 
 export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<{
@@ -95,7 +97,26 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
     queryDto.clientId,
   )
 
-  if (stored && stored.request.clientId === queryDto.clientId) {
+  const sessionUser = stored && stored.request.clientId === queryDto.clientId
+    ? await userModel.getByAuthId(
+      c.env.DB,
+      stored.user.authId,
+    )
+    : null
+
+  if (stored && !sessionUser?.isActive) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.UserDisabled,
+    )
+    sessionService.removeAuthInfoSession(
+      c,
+      queryDto.clientId,
+    )
+  }
+
+  if (stored && sessionUser?.isActive) {
     const redirectToClient =
       !queryDto.policy ||
       queryDto.policy === oauthDto.Policy.SignInOrSignUp ||
@@ -107,7 +128,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
       {
         appId: stored.appId,
         appName: stored.appName,
-        user: stored.user,
+        user: sessionUser,
         request: queryDto,
       },
       { isDelivered: redirectToClient },

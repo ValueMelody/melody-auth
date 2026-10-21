@@ -8,6 +8,7 @@ import {
 import {
   cryptoUtil, loggerUtil,
 } from 'utils'
+import { userModel } from 'models'
 
 export const getSessionSecret = async (c: Context<typeConfig.Context>): Promise<string> => {
   const secretInKv = await c.env.KV.get(adapterConfig.BaseKVKey.SessionSecret)
@@ -260,11 +261,10 @@ export const invalidRefreshTokenBySessionId = async (
   return false
 }
 
-export const invalidRefreshTokensByUser = async (
+const deleteKeysByPrefix = async (
   kv: KVNamespace,
-  userId: number,
+  prefix: string,
 ) => {
-  const prefix = `${adapterConfig.BaseKVKey.RefreshToken}-${userId}.`
   let cursor: string | undefined
   do {
     const result = await kv.list({
@@ -273,6 +273,16 @@ export const invalidRefreshTokensByUser = async (
     await Promise.all(result.keys.map((key) => kv.delete(key.name)))
     cursor = result.list_complete ? undefined : result.cursor
   } while (cursor)
+}
+
+export const invalidRefreshTokensByUser = async (
+  kv: KVNamespace,
+  userId: number,
+) => {
+  await deleteKeysByPrefix(
+    kv,
+    `${adapterConfig.BaseKVKey.RefreshToken}-${userId}.`,
+  )
 }
 
 export const emailMfaCodeVerified = async (
@@ -1490,6 +1500,28 @@ export const verifySmsMfaRememberDevice = async (
   const storedCode = await kv.get(key)
   const isValid = storedCode && storedCode === cookieCode
   return isValid
+}
+
+export const invalidMfaRememberDevicesByUser = async (
+  kv: KVNamespace,
+  userId: number,
+  mfaType?: userModel.MfaType,
+) => {
+  const baseKeys = {
+    [userModel.MfaType.Email]: adapterConfig.BaseKVKey.EmailMfaRememberDevice,
+    [userModel.MfaType.Otp]: adapterConfig.BaseKVKey.OtpMfaRememberDevice,
+    [userModel.MfaType.Sms]: adapterConfig.BaseKVKey.SmsMfaRememberDevice,
+  }
+  const targetBaseKeys = mfaType ? [baseKeys[mfaType]] : Object.values(baseKeys)
+  for (const baseKey of targetBaseKeys) {
+    await deleteKeysByPrefix(
+      kv,
+      `${adapterConfig.getKVKey(
+        baseKey,
+        String(userId),
+      )}-`,
+    )
+  }
 }
 
 export const bypassSmsMfa = async (

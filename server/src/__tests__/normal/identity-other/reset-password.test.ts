@@ -194,6 +194,31 @@ describe(
     )
 
     test(
+      'should revoke refresh tokens of the user',
+      async () => {
+        await insertUsers(db)
+
+        const userTokenKey = `${adapterConfig.BaseKVKey.RefreshToken}-1.token1`
+        const otherUserTokenKey = `${adapterConfig.BaseKVKey.RefreshToken}-2.token2`
+        await mockedKV.put(
+          userTokenKey,
+          '{}',
+        )
+        await mockedKV.put(
+          otherUserTokenKey,
+          '{}',
+        )
+
+        await sendCorrectResetPasswordCodeReq()
+        const { res } = await sendCorrectResetPasswordReq()
+        expect(await res.json()).toStrictEqual({ success: true })
+
+        expect(await mockedKV.get(userTokenKey)).toBeFalsy()
+        expect(await mockedKV.get(otherUserTokenKey)).toBe('{}')
+      },
+    )
+
+    test(
       'should throw error with wrong code',
       async () => {
         await insertUsers(db)
