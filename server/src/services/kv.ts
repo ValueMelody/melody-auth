@@ -1134,26 +1134,26 @@ export const verifyOidcCodeVerifier = async (
   return isValid
 }
 
-export const isSamlResponseConsumed = async (
+export const isSamlAssertionConsumed = async (
   kv: KVNamespace,
-  responseId: string,
+  assertionId: string,
 ): Promise<boolean> => {
   const stored = await kv.get(adapterConfig.getKVKey(
-    adapterConfig.BaseKVKey.SamlResponseId,
-    responseId,
+    adapterConfig.BaseKVKey.SamlAssertionId,
+    assertionId,
   ))
   return stored === '1'
 }
 
-export const markSamlResponseConsumed = async (
+export const markSamlAssertionConsumed = async (
   kv: KVNamespace,
-  responseId: string,
+  assertionId: string,
   expiresIn: number,
 ) => {
   await kv.put(
     adapterConfig.getKVKey(
-      adapterConfig.BaseKVKey.SamlResponseId,
-      responseId,
+      adapterConfig.BaseKVKey.SamlAssertionId,
+      assertionId,
     ),
     '1',
     { expirationTtl: expiresIn },
