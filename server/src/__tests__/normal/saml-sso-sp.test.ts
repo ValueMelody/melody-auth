@@ -2,7 +2,9 @@ import {
   afterEach, beforeEach, describe, expect, test, vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
-import { ServiceProviderInstance } from 'samlify'
+import {
+  SamlLib, ServiceProviderInstance,
+} from 'samlify'
 import app from 'saml/index'
 import {
   migrate, mock,
@@ -111,10 +113,32 @@ const buildValidExtract = (samlRequestId: string) => ({
   attributes: { [USER_ID_ATTRIBUTE]: 'saml-user-1' },
 })
 
-const mockParseLoginResponse = (extract: Record<string, unknown>) => vi.spyOn(
-  ServiceProviderInstance.prototype,
-  'parseLoginResponse',
-).mockResolvedValue({ extract } as unknown as Awaited<ReturnType<ServiceProviderInstance['parseLoginResponse']>>)
+const buildSignedAssertion = (
+  inResponseTo: string, id = '_assertion_1',
+) => `<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"${id ? ` ID="${id}"` : ''}>
+  <saml:Subject>
+    <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+      <saml:SubjectConfirmationData InResponseTo="${inResponseTo}" Recipient="${SP_ACS_URL}"/>
+    </saml:SubjectConfirmation>
+  </saml:Subject>
+</saml:Assertion>`
+
+const mockParseLoginResponse = (
+  extract: Record<string, unknown>,
+  signedAssertion = buildSignedAssertion('_req_match'),
+) => {
+  vi.spyOn(
+    SamlLib,
+    'verifySignature',
+  ).mockReturnValue([true, signedAssertion])
+  return vi.spyOn(
+    ServiceProviderInstance.prototype,
+    'parseLoginResponse',
+  ).mockResolvedValue({
+    samlContent: 'mocked-saml-content',
+    extract,
+  } as unknown as Awaited<ReturnType<ServiceProviderInstance['parseLoginResponse']>>)
+}
 
 const postAcs = (sessionId: string) => app.request(
   `${routeConfig.InternalRoute.SamlSp}/acs`,
@@ -485,12 +509,122 @@ describe(
 
         await mockedKV.put(
           adapterConfig.getKVKey(
-            adapterConfig.BaseKVKey.SamlResponseId,
-            '_response_1',
+            adapterConfig.BaseKVKey.SamlAssertionId,
+            '_assertion_1',
           ),
           '1',
         )
         mockParseLoginResponse(buildValidExtract('_req_match'))
+        const loggerSpy = vi.spyOn(
+          loggerUtil,
+          'triggerLogger',
+        )
+
+        const res = await postAcs(sessionId)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidSamlResponse)
+        expect(loggerSpy).toHaveBeenCalledWith(
+          expect.anything(),
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.SamlResponseReplayed,
+        )
+      },
+    )
+
+    test(
+      'should reject a captured assertion rewrapped in a response for a new request',
+      async () => {
+        await insertSamlIdp()
+        const sessionId = await seedAcsSession('_req_match')
+
+        mockParseLoginResponse(
+          buildValidExtract('_req_match'),
+          buildSignedAssertion('_captured_request'),
+        )
+        const loggerSpy = vi.spyOn(
+          loggerUtil,
+          'triggerLogger',
+        )
+
+        const res = await postAcs(sessionId)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidSamlResponse)
+        expect(loggerSpy).toHaveBeenCalledWith(
+          expect.anything(),
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.InvalidSamlInResponseTo,
+        )
+      },
+    )
+
+    test(
+      'should reject a response when the signature does not cover an assertion',
+      async () => {
+        await insertSamlIdp()
+        const sessionId = await seedAcsSession('_req_match')
+
+        mockParseLoginResponse(buildValidExtract('_req_match'))
+        vi.spyOn(
+          SamlLib,
+          'verifySignature',
+        ).mockReturnValue([true, null])
+        const processSamlAccountSpy = vi.spyOn(
+          userService,
+          'processSamlAccount',
+        )
+
+        const res = await postAcs(sessionId)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidSamlResponse)
+        expect(processSamlAccountSpy).not.toHaveBeenCalled()
+      },
+    )
+
+    test(
+      'should reject a consumed assertion even when wrapped in a new response id',
+      async () => {
+        await insertSamlIdp()
+        const sessionId = await seedAcsSession('_req_match')
+
+        await mockedKV.put(
+          adapterConfig.getKVKey(
+            adapterConfig.BaseKVKey.SamlAssertionId,
+            '_assertion_1',
+          ),
+          '1',
+        )
+        const extract = buildValidExtract('_req_match')
+        extract.response.id = '_fresh_response'
+        mockParseLoginResponse(extract)
+        const loggerSpy = vi.spyOn(
+          loggerUtil,
+          'triggerLogger',
+        )
+
+        const res = await postAcs(sessionId)
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.InvalidSamlResponse)
+        expect(loggerSpy).toHaveBeenCalledWith(
+          expect.anything(),
+          loggerUtil.LoggerLevel.Warn,
+          messageConfig.RequestError.SamlResponseReplayed,
+        )
+      },
+    )
+
+    test(
+      'should reject a signed assertion without an ID',
+      async () => {
+        await insertSamlIdp()
+        const sessionId = await seedAcsSession('_req_match')
+
+        mockParseLoginResponse(
+          buildValidExtract('_req_match'),
+          buildSignedAssertion(
+            '_req_match',
+            '',
+          ),
+        )
         const loggerSpy = vi.spyOn(
           loggerUtil,
           'triggerLogger',
@@ -610,8 +744,8 @@ describe(
         })
 
         const consumed = await mockedKV.get(adapterConfig.getKVKey(
-          adapterConfig.BaseKVKey.SamlResponseId,
-          '_response_1',
+          adapterConfig.BaseKVKey.SamlAssertionId,
+          '_assertion_1',
         ))
         expect(consumed).toBe('1')
       },

@@ -143,14 +143,25 @@ export const postSamlSpAcs = async (c: Context) => {
   )
 
   try {
-    const { extract } = await sp.parseLoginResponse(
+    const {
+      samlContent, extract,
+    } = await sp.parseLoginResponse(
       idp,
       'post',
       { body },
     )
 
+    const assertion = samlService.getSignedAssertion(
+      idp,
+      samlContent,
+    )
+
     const inResponseTo = firstStringValue(extract.response?.inResponseTo)
-    if (!session.samlRequestId || inResponseTo !== session.samlRequestId) {
+    if (
+      !session.samlRequestId ||
+      inResponseTo !== session.samlRequestId ||
+      assertion.inResponseTo !== session.samlRequestId
+    ) {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -181,10 +192,9 @@ export const postSamlSpAcs = async (c: Context) => {
 
     const { AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn } = env(c)
 
-    const responseId = firstStringValue(extract.response?.id)
-    if (!responseId || await kvService.isSamlResponseConsumed(
+    if (!assertion.id || await kvService.isSamlAssertionConsumed(
       c.env.KV,
-      responseId,
+      assertion.id,
     )) {
       loggerUtil.triggerLogger(
         c,
@@ -193,9 +203,9 @@ export const postSamlSpAcs = async (c: Context) => {
       )
       throw new errorConfig.Forbidden(messageConfig.RequestError.SamlResponseReplayed)
     }
-    await kvService.markSamlResponseConsumed(
+    await kvService.markSamlAssertionConsumed(
       c.env.KV,
-      responseId,
+      assertion.id,
       getSamlReplayTtl(
         firstStringValue(extract.conditions?.notOnOrAfter),
         codeExpiresIn,

@@ -1,5 +1,5 @@
 import {
-  ServiceProvider, IdentityProvider, setSchemaValidator,
+  ServiceProvider, IdentityProvider, IdentityProviderInstance, SamlLib, Extractor, setSchemaValidator,
 } from 'samlify'
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
@@ -77,5 +77,41 @@ export const loadIdp = async (
   return {
     provider,
     record: idpRecord,
+  }
+}
+
+export const getSignedAssertion = (
+  idp: IdentityProviderInstance, samlContent: string,
+) => {
+  const [verified, assertion] = SamlLib.verifySignature(
+    samlContent,
+    {
+      metadata: idp.entityMeta,
+      signatureAlgorithm: idp.entitySetting.requestSignatureAlgorithm,
+    },
+  )
+  if (!verified || !assertion) {
+    throw new errorConfig.Forbidden(messageConfig.RequestError.InvalidSamlResponse)
+  }
+
+  const extract = Extractor.extract(
+    assertion,
+    [
+      {
+        key: 'id',
+        localPath: ['Assertion'],
+        attributes: ['ID'],
+      },
+      {
+        key: 'inResponseTo',
+        localPath: ['Assertion', 'Subject', 'SubjectConfirmation', 'SubjectConfirmationData'],
+        attributes: ['InResponseTo'],
+      },
+    ],
+  )
+
+  return {
+    id: typeof extract.id === 'string' ? extract.id : '',
+    inResponseTo: typeof extract.inResponseTo === 'string' ? extract.inResponseTo : '',
   }
 }
