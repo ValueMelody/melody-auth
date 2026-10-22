@@ -951,11 +951,13 @@ describe(
         expect(lockedRes.status).toBe(401)
         expect(await lockedRes.text()).toBe(messageConfig.RequestError.WrongCode)
 
+        // Sending a new code does not reset the total failed attempts
         await sendCode()
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordlessCodeAttempts}-${requestBody.code}`)).toBeFalsy()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordlessCodeAttempts}-${requestBody.code}`)).toBe('10')
         const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`) ?? ''
         const res = await sendRequest(newMfaCode)
-        expect(res.status).toBe(200)
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
         process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
@@ -984,13 +986,9 @@ describe(
           mock(db),
         )
 
-        const getSpy = vi.spyOn(
+        const recordCodeAttemptSpy = vi.spyOn(
           kvService,
-          'getFailedMfaCodeAttemptsByIP',
-        )
-        const setSpy = vi.spyOn(
-          kvService,
-          'setFailedMfaCodeAttempts',
+          'recordCodeAttempt',
         )
 
         const res = await app.request(
@@ -1007,11 +1005,9 @@ describe(
         )
         expect(res.status).toBe(401)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
-        expect(getSpy).not.toHaveBeenCalled()
-        expect(setSpy).not.toHaveBeenCalled()
+        expect(recordCodeAttemptSpy).not.toHaveBeenCalled()
 
-        getSpy.mockRestore()
-        setSpy.mockRestore()
+        recordCodeAttemptSpy.mockRestore()
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
         process.env.MFA_CODE_VERIFY_THRESHOLD = 10 as unknown as string
       },

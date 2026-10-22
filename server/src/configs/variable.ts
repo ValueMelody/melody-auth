@@ -87,6 +87,9 @@ export const systemConfig = Object.freeze({
   // this multiple of the corresponding per user/IP threshold failed attempts from any IP.
   // OTP MFA is locked for the user after the same number of failed attempts from any IP.
   codeFailedAttemptsMultiplier: 5,
+  // Total failed code attempts are kept for this multiple of the 30-minute per user/IP lock after the latest attempt.
+  // Sending a new code does not reset them; only a successful verification does.
+  codeFailedAttemptsWindowMultiplier: 24,
   emailMfaCodeExpiresIn: 300, // must be x * 60 (in seconds)
   smsMfaCodeExpiresIn: 300, // must be x * 60 (in seconds)
   invitationExpiresIn: 7, // in days

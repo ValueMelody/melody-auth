@@ -135,6 +135,10 @@ export const deleteUserLockedIPs = async (c: Context<typeConfig.Context>) => {
     c.env.KV,
     user.email ?? '',
   )
+  await kvService.deleteCodeAttemptsByUser(
+    c.env.KV,
+    user.id,
+  )
   c.status(204)
   return c.body(null)
 }

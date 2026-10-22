@@ -6,7 +6,6 @@ import {
   errorConfig,
   messageConfig,
   typeConfig,
-  variableConfig,
 } from 'configs'
 import {
   identityDto, oauthDto,
@@ -180,18 +179,21 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
   )
 
   const { CHANGE_EMAIL_CODE_THRESHOLD: changeEmailCodeThreshold } = env(c)
-  let ip: string | undefined
-  let failedAttempts = 0
-  let totalFailedAttempts = 0
-
-  if (changeEmailCodeThreshold) {
-    ip = requestUtil.getRequestIP(c)
-    failedAttempts = await kvService.getFailedChangeEmailCodeAttemptsByIP(
-      c.env.KV,
+  const attemptKeys = changeEmailCodeThreshold
+    ? kvService.getChangeEmailCodeAttemptKeys(
       authInfo.user.id,
-      ip,
+      bodyDto.email,
+      requestUtil.getRequestIP(c),
     )
-    if (failedAttempts >= changeEmailCodeThreshold) {
+    : null
+
+  if (attemptKeys) {
+    const lock = await kvService.recordCodeAttempt(
+      c.env.KV,
+      attemptKeys,
+      changeEmailCodeThreshold,
+    )
+    if (lock === 'ip') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -200,12 +202,7 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
       throw new errorConfig.Forbidden(messageConfig.RequestError.ChangeEmailCodeLocked)
     }
 
-    totalFailedAttempts = await kvService.getTotalFailedChangeEmailCodeAttempts(
-      c.env.KV,
-      authInfo.user.id,
-      bodyDto.email,
-    )
-    if (totalFailedAttempts >= changeEmailCodeThreshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier) {
+    if (lock === 'total') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -223,28 +220,19 @@ export const postChangeEmail = async (c: Context<typeConfig.Context>) => {
   )
 
   if (!isCorrectCode) {
-    if (changeEmailCodeThreshold) {
-      const attempts = failedAttempts + 1
-      await kvService.setFailedChangeEmailCodeAttempts(
-        c.env.KV,
-        authInfo.user.id,
-        ip,
-        attempts,
-      )
-      await kvService.setTotalFailedChangeEmailCodeAttempts(
-        c.env.KV,
-        authInfo.user.id,
-        bodyDto.email,
-        totalFailedAttempts + 1,
-      )
-    }
-
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.WrongChangeEmailCode,
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  }
+
+  if (attemptKeys) {
+    await kvService.clearCodeAttempts(
+      c.env.KV,
+      attemptKeys,
+    )
   }
 
   await userService.changeUserEmail(

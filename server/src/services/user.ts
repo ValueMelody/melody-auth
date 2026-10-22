@@ -963,18 +963,20 @@ export const verifyUserEmail = async (
   }
 
   const { EMAIL_VERIFICATION_CODE_THRESHOLD: emailVerificationCodeThreshold } = env(c)
-  let ip: string | undefined
-  let failedAttempts = 0
-  let totalFailedAttempts = 0
-  if (emailVerificationCodeThreshold) {
-    ip = requestUtil.getRequestIP(c)
-    failedAttempts = await kvService.getFailedEmailVerificationCodeAttemptsByIP(
-      c.env.KV,
+  const attemptKeys = emailVerificationCodeThreshold
+    ? kvService.getEmailVerificationCodeAttemptKeys(
       user.id,
-      ip,
+      requestUtil.getRequestIP(c),
+    )
+    : null
+  if (attemptKeys) {
+    const lock = await kvService.recordCodeAttempt(
+      c.env.KV,
+      attemptKeys,
+      emailVerificationCodeThreshold,
     )
 
-    if (failedAttempts >= emailVerificationCodeThreshold) {
+    if (lock === 'ip') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -983,14 +985,7 @@ export const verifyUserEmail = async (
       throw new errorConfig.Forbidden(messageConfig.RequestError.EmailVerificationLocked)
     }
 
-    totalFailedAttempts = await kvService.getTotalFailedEmailVerificationCodeAttempts(
-      c.env.KV,
-      user.id,
-    )
-
-    if (
-      totalFailedAttempts >= emailVerificationCodeThreshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier
-    ) {
+    if (lock === 'total') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -1006,27 +1001,19 @@ export const verifyUserEmail = async (
     bodyDto.code,
   )
   if (!isValid) {
-    if (emailVerificationCodeThreshold) {
-      const attempts = failedAttempts + 1
-      await kvService.setFailedEmailVerificationCodeAttempts(
-        c.env.KV,
-        user.id,
-        ip,
-        attempts,
-      )
-      await kvService.setTotalFailedEmailVerificationCodeAttempts(
-        c.env.KV,
-        user.id,
-        totalFailedAttempts + 1,
-      )
-    }
-
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.WrongEmailVerificationCode,
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  }
+
+  if (attemptKeys) {
+    await kvService.clearCodeAttempts(
+      c.env.KV,
+      attemptKeys,
+    )
   }
 
   await userModel.update(
@@ -1093,20 +1080,20 @@ export const resetUserPassword = async (
   }
 
   const { PASSWORD_RESET_CODE_THRESHOLD: failedPasswordResetCodeAttemptThreshold } = env(c)
-  let ip: string | undefined
-  let failedAttempts = 0
-  let totalFailedAttempts = 0
-  if (failedPasswordResetCodeAttemptThreshold) {
-    ip = requestUtil.getRequestIP(c)
-    failedAttempts = await kvService.getFailedPasswordResetCodeAttemptsByIP(
-      c.env.KV,
+  const attemptKeys = failedPasswordResetCodeAttemptThreshold
+    ? kvService.getPasswordResetCodeAttemptKeys(
       user.id,
-      ip,
+      requestUtil.getRequestIP(c),
+    )
+    : null
+  if (attemptKeys) {
+    const lock = await kvService.recordCodeAttempt(
+      c.env.KV,
+      attemptKeys,
+      failedPasswordResetCodeAttemptThreshold,
     )
 
-    if (
-      failedAttempts >= failedPasswordResetCodeAttemptThreshold
-    ) {
+    if (lock === 'ip') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -1115,15 +1102,7 @@ export const resetUserPassword = async (
       throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordResetCodeLocked)
     }
 
-    totalFailedAttempts = await kvService.getTotalFailedPasswordResetCodeAttempts(
-      c.env.KV,
-      user.id,
-    )
-
-    if (
-      totalFailedAttempts >=
-        failedPasswordResetCodeAttemptThreshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier
-    ) {
+    if (lock === 'total') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -1140,27 +1119,19 @@ export const resetUserPassword = async (
   )
 
   if (!isValid) {
-    if (failedPasswordResetCodeAttemptThreshold) {
-      const attempts = failedAttempts + 1
-      await kvService.setFailedPasswordResetCodeAttempts(
-        c.env.KV,
-        user.id,
-        ip,
-        attempts,
-      )
-      await kvService.setTotalFailedPasswordResetCodeAttempts(
-        c.env.KV,
-        user.id,
-        totalFailedAttempts + 1,
-      )
-    }
-
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.WrongPasswordResetCode,
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.WrongCode)
+  }
+
+  if (attemptKeys) {
+    await kvService.clearCodeAttempts(
+      c.env.KV,
+      attemptKeys,
+    )
   }
 
   const isSame = cryptoUtil.bcryptCompare(

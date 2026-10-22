@@ -503,13 +503,9 @@ describe(
 
         const { correctBody } = await sendCorrectChangeEmailCodeReq()
 
-        const getFailedChangeEmailCodeAttemptsByIPSpy = vi.spyOn(
+        const recordCodeAttemptSpy = vi.spyOn(
           kvService,
-          'getFailedChangeEmailCodeAttemptsByIP',
-        )
-        const setFailedChangeEmailCodeAttemptsSpy = vi.spyOn(
-          kvService,
-          'setFailedChangeEmailCodeAttempts',
+          'recordCodeAttempt',
         )
 
         const { res } = await sendCorrectChangeEmailReq({
@@ -518,11 +514,9 @@ describe(
         })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
-        expect(getFailedChangeEmailCodeAttemptsByIPSpy).not.toHaveBeenCalled()
-        expect(setFailedChangeEmailCodeAttemptsSpy).not.toHaveBeenCalled()
+        expect(recordCodeAttemptSpy).not.toHaveBeenCalled()
 
-        getFailedChangeEmailCodeAttemptsByIPSpy.mockRestore()
-        setFailedChangeEmailCodeAttemptsSpy.mockRestore()
+        recordCodeAttemptSpy.mockRestore()
         global.process.env.CHANGE_EMAIL_CODE_THRESHOLD = 5 as unknown as string
       },
     )

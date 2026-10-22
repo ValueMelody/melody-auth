@@ -248,17 +248,20 @@ export const processEmailMfa = async (
     MFA_CODE_VERIFY_THRESHOLD: threshold,
   } = env(c)
 
-  let ip: string | undefined
-  let failedAttempts = 0
-  let totalFailedAttempts = 0
-  if (threshold) {
-    ip = requestUtil.getRequestIP(c)
-    failedAttempts = await kvService.getFailedMfaCodeAttemptsByIP(
-      c.env.KV,
+  const attemptKeys = threshold
+    ? kvService.getEmailMfaCodeAttemptKeys(
       authCodeStore.user.id,
-      ip,
+      authCode,
+      requestUtil.getRequestIP(c),
     )
-    if (failedAttempts >= threshold) {
+    : null
+  if (attemptKeys) {
+    const lock = await kvService.recordCodeAttempt(
+      c.env.KV,
+      attemptKeys,
+      threshold,
+    )
+    if (lock === 'ip') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -267,11 +270,7 @@ export const processEmailMfa = async (
       throw new errorConfig.Forbidden(messageConfig.RequestError.EmailMfaLocked)
     }
 
-    totalFailedAttempts = await kvService.getTotalFailedEmailMfaCodeAttempts(
-      c.env.KV,
-      authCode,
-    )
-    if (totalFailedAttempts >= threshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier) {
+    if (lock === 'total') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -291,25 +290,19 @@ export const processEmailMfa = async (
   )
 
   if (!isValid) {
-    if (threshold) {
-      await kvService.setFailedMfaCodeAttempts(
-        c.env.KV,
-        authCodeStore.user.id,
-        ip,
-        failedAttempts + 1,
-      )
-      await kvService.setTotalFailedEmailMfaCodeAttempts(
-        c.env.KV,
-        authCode,
-        totalFailedAttempts + 1,
-      )
-    }
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.WrongEmailMfaCode,
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
+  }
+
+  if (attemptKeys) {
+    await kvService.clearCodeAttempts(
+      c.env.KV,
+      attemptKeys,
+    )
   }
 }
 
@@ -359,24 +352,19 @@ export const processOtpMfa = async (
     MFA_CODE_VERIFY_THRESHOLD: threshold,
   } = env(c)
 
-  let ip: string | undefined
-  let failedAttempts = 0
-  let totalFailedAttempts = 0
-  if (threshold) {
-    ip = requestUtil.getRequestIP(c)
-    failedAttempts = await kvService.getFailedMfaCodeAttemptsByIP(
-      c.env.KV,
+  const attemptKeys = threshold
+    ? kvService.getOtpMfaCodeAttemptKeys(
       authCodeStore.user.id,
-      ip,
+      requestUtil.getRequestIP(c),
     )
-    totalFailedAttempts = await kvService.getTotalFailedOtpMfaCodeAttempts(
+    : null
+  if (attemptKeys) {
+    const lock = await kvService.recordCodeAttempt(
       c.env.KV,
-      authCodeStore.user.id,
+      attemptKeys,
+      threshold,
     )
-    if (
-      failedAttempts >= threshold ||
-      totalFailedAttempts >= threshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier
-    ) {
+    if (lock) {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -396,25 +384,19 @@ export const processOtpMfa = async (
   )
 
   if (!isValid) {
-    if (threshold) {
-      await kvService.setFailedMfaCodeAttempts(
-        c.env.KV,
-        authCodeStore.user.id,
-        ip,
-        failedAttempts + 1,
-      )
-      await kvService.setTotalFailedOtpMfaCodeAttempts(
-        c.env.KV,
-        authCodeStore.user.id,
-        totalFailedAttempts + 1,
-      )
-    }
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.WrongOtpMfaCode,
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
+  }
+
+  if (attemptKeys) {
+    await kvService.clearCodeAttempts(
+      c.env.KV,
+      attemptKeys,
+    )
   }
 
   if (!authCodeStore.user.otpVerified) {
@@ -571,17 +553,20 @@ export const processSmsMfa = async (
     MFA_CODE_VERIFY_THRESHOLD: threshold,
   } = env(c)
 
-  let ip: string | undefined
-  let failedAttempts = 0
-  let totalFailedAttempts = 0
-  if (threshold) {
-    ip = requestUtil.getRequestIP(c)
-    failedAttempts = await kvService.getFailedMfaCodeAttemptsByIP(
-      c.env.KV,
+  const attemptKeys = threshold
+    ? kvService.getSmsMfaCodeAttemptKeys(
       authCodeStore.user.id,
-      ip,
+      authCode,
+      requestUtil.getRequestIP(c),
     )
-    if (failedAttempts >= threshold) {
+    : null
+  if (attemptKeys) {
+    const lock = await kvService.recordCodeAttempt(
+      c.env.KV,
+      attemptKeys,
+      threshold,
+    )
+    if (lock === 'ip') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -590,11 +575,7 @@ export const processSmsMfa = async (
       throw new errorConfig.Forbidden(messageConfig.RequestError.SmsMfaLocked)
     }
 
-    totalFailedAttempts = await kvService.getTotalFailedSmsMfaCodeAttempts(
-      c.env.KV,
-      authCode,
-    )
-    if (totalFailedAttempts >= threshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier) {
+    if (lock === 'total') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -612,25 +593,19 @@ export const processSmsMfa = async (
   )
 
   if (!isValid) {
-    if (threshold) {
-      await kvService.setFailedMfaCodeAttempts(
-        c.env.KV,
-        authCodeStore.user.id,
-        ip,
-        failedAttempts + 1,
-      )
-      await kvService.setTotalFailedSmsMfaCodeAttempts(
-        c.env.KV,
-        authCode,
-        totalFailedAttempts + 1,
-      )
-    }
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.WrongSmsMfaCode,
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongMfaCode)
+  }
+
+  if (attemptKeys) {
+    await kvService.clearCodeAttempts(
+      c.env.KV,
+      attemptKeys,
+    )
   }
 
   if (!authCodeStore.user.smsPhoneNumberVerified) {

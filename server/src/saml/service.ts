@@ -1,5 +1,6 @@
+import * as samlify from 'samlify'
 import {
-  ServiceProvider, IdentityProvider, IdentityProviderInstance, SamlLib, Extractor, setSchemaValidator,
+  ServiceProvider, IdentityProvider, IdentityProviderInstance, Extractor, setSchemaValidator,
 } from 'samlify'
 import { Context } from 'hono'
 import { env } from 'hono/adapter'
@@ -12,6 +13,9 @@ import { samlIdpModel } from 'models'
 import { loggerUtil } from 'utils'
 
 setSchemaValidator(validator)
+
+// Node's ESM loader can't detect samlify's SamlLib named export, so read it from the CommonJS default when present
+const { SamlLib } = (samlify as typeof samlify & { default?: typeof samlify }).default ?? samlify
 
 export const getSpEntityId = (c: Context<typeConfig.Context>) => {
   const { AUTH_SERVER_URL: serverUri } = env(c)
