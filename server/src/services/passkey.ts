@@ -29,6 +29,19 @@ export const createUserPasskey = async (
   publicKey: string,
   counter: number,
 ) => {
+  const existingPasskey = await userPasskeyModel.getByUser(
+    c.env.DB,
+    userId,
+  )
+  if (existingPasskey) {
+    loggerUtil.triggerLogger(
+      c,
+      loggerUtil.LoggerLevel.Warn,
+      messageConfig.RequestError.PasskeyAlreadyEnrolled,
+    )
+    throw new errorConfig.Forbidden(messageConfig.RequestError.PasskeyAlreadyEnrolled)
+  }
+
   const isCreated = await userPasskeyModel.create(
     c.env.DB,
     {

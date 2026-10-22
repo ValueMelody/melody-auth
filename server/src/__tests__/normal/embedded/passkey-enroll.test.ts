@@ -292,6 +292,40 @@ describe(
     )
 
     test(
+      'should throw error if user already has a passkey',
+      async () => {
+        process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
+        )
+
+        await db.prepare('insert into user_passkey ("userId", "credentialId", "publicKey", "counter") values (?, ?, ?, ?)').run(
+          1,
+          'existing',
+          'existing',
+          0,
+        )
+
+        const { res } = await sendCorrectEnrollPasskeyReq({
+          sessionId, db,
+        })
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.PasskeyAlreadyEnrolled)
+
+        const passkeys = await db.prepare('SELECT * from user_passkey WHERE "userId" = 1 AND "deletedAt" IS NULL').all()
+        expect(passkeys.length).toBe(1)
+
+        process.env.ALLOW_PASSKEY_ENROLLMENT = false as unknown as string
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+      },
+    )
+
+    test(
       'should throw error if can not find challenge',
       async () => {
         process.env.ALLOW_PASSKEY_ENROLLMENT = true as unknown as string
