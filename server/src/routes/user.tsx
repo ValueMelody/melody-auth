@@ -125,7 +125,7 @@ userRoutes.get(
  * @swagger
  * /api/v1/users/{authId}/locked-ips:
  *   delete:
- *     summary: Unlock all locked IP addresses for a user
+ *     summary: Unlock all locked IP addresses and verification code attempts for a user
  *     description: Required scope - write_user
  *     tags: [Users]
  *     parameters:

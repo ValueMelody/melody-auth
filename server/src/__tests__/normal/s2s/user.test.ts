@@ -618,6 +618,50 @@ describe(
     )
 
     test(
+      'should delete code attempt counters for the user only',
+      async () => {
+        await insertUsers(db)
+        const userKeys = [
+          `${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-1`,
+          `${adapterConfig.BaseKVKey.FailedPasswordResetCodeAttempts}-1-1.1.1.1`,
+          `${adapterConfig.BaseKVKey.FailedChangeEmailCodeAttempts}-1-1.1.1.2`,
+          `${adapterConfig.BaseKVKey.FailedEmailVerificationCodeAttempts}-1`,
+          `${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`,
+          `${adapterConfig.BaseKVKey.TotalFailedChangeEmailCodeAttempts}-1-test_new@email.com`,
+          `${adapterConfig.BaseKVKey.TotalFailedEmailVerificationCodeAttempts}-1`,
+          `${adapterConfig.BaseKVKey.TotalFailedOtpMfaCodeAttempts}-1`,
+        ]
+        const otherUserKeys = [
+          `${adapterConfig.BaseKVKey.FailedMfaCodeAttempts}-11`,
+          `${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-11`,
+        ]
+        for (const key of [...userKeys, ...otherUserKeys]) {
+          await mockedKV.put(
+            key,
+            '10',
+          )
+        }
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/locked-ips`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getS2sToken(db)}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(204)
+        for (const key of userKeys) {
+          expect(await mockedKV.get(key)).toBeFalsy()
+        }
+        for (const key of otherUserKeys) {
+          expect(await mockedKV.get(key)).toBe('10')
+        }
+      },
+    )
+
+    test(
       'placeholder test for user has no email',
       async () => {
         await insertUsers(db)

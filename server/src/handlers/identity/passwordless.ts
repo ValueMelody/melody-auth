@@ -4,7 +4,6 @@ import {
   typeConfig,
   errorConfig,
   messageConfig,
-  variableConfig,
 } from 'configs'
 import { identityDto } from 'dtos'
 import {
@@ -111,17 +110,20 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
     MFA_CODE_VERIFY_THRESHOLD: threshold,
   } = env(c)
 
-  let ip: string | undefined
-  let failedAttempts = 0
-  let totalFailedAttempts = 0
-  if (threshold) {
-    ip = requestUtil.getRequestIP(c)
-    failedAttempts = await kvService.getFailedMfaCodeAttemptsByIP(
-      c.env.KV,
+  const attemptKeys = threshold
+    ? kvService.getPasswordlessCodeAttemptKeys(
       authCodeStore.user.id,
-      ip,
+      bodyDto.code,
+      requestUtil.getRequestIP(c),
     )
-    if (failedAttempts >= threshold) {
+    : null
+  if (attemptKeys) {
+    const lock = await kvService.recordCodeAttempt(
+      c.env.KV,
+      attemptKeys,
+      threshold,
+    )
+    if (lock === 'ip') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -130,11 +132,7 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
       throw new errorConfig.Forbidden(messageConfig.RequestError.PasswordlessLocked)
     }
 
-    totalFailedAttempts = await kvService.getTotalFailedPasswordlessCodeAttempts(
-      c.env.KV,
-      bodyDto.code,
-    )
-    if (totalFailedAttempts >= threshold * variableConfig.systemConfig.codeFailedAttemptsMultiplier) {
+    if (lock === 'total') {
       loggerUtil.triggerLogger(
         c,
         loggerUtil.LoggerLevel.Warn,
@@ -152,26 +150,19 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
   )
 
   if (!isValid) {
-    if (threshold) {
-      await kvService.setFailedMfaCodeAttempts(
-        c.env.KV,
-        authCodeStore.user.id,
-        ip,
-        failedAttempts + 1,
-      )
-      await kvService.setTotalFailedPasswordlessCodeAttempts(
-        c.env.KV,
-        bodyDto.code,
-        totalFailedAttempts + 1,
-        expiresIn,
-      )
-    }
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
       messageConfig.RequestError.WrongPasswordlessCode,
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.WrongCode)
+  }
+
+  if (attemptKeys) {
+    await kvService.clearCodeAttempts(
+      c.env.KV,
+      attemptKeys,
+    )
   }
 
   return c.json(await identityService.processPostAuthorize(

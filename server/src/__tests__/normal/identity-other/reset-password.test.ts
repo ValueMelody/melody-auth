@@ -278,12 +278,19 @@ describe(
         const { res } = await sendCorrectResetPasswordReq({ code })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
+
+        // Sending a new code does not reset the total failed attempts
+        await sendCorrectResetPasswordCodeReq()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`)).toBe('10')
+        const { res: newCodeRes } = await sendCorrectResetPasswordReq()
+        expect(newCodeRes.status).toBe(400)
+        expect(await newCodeRes.text()).toBe(messageConfig.RequestError.WrongCode)
         global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 5 as unknown as string
       },
     )
 
     test(
-      'should reset failed code attempts when a new password reset code is sent',
+      'should keep failed code attempts when a new password reset code is sent and clear them on success',
       async () => {
         global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 2 as unknown as string
         await insertUsers(db)
@@ -294,11 +301,49 @@ describe(
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`)).toBe('1')
 
         await sendCorrectResetPasswordCodeReq()
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`)).toBeFalsy()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`)).toBe('1')
 
         const { res } = await sendCorrectResetPasswordReq()
         expect(await res.json()).toStrictEqual({ success: true })
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.FailedPasswordResetCodeAttempts}-1`)).toBeFalsy()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordResetCodeAttempts}-1`)).toBeFalsy()
         global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 5 as unknown as string
+      },
+    )
+
+    test(
+      'should reject password reset code without checking it when the attempt cannot be recorded',
+      async () => {
+        await insertUsers(db)
+        await sendCorrectResetPasswordCodeReq()
+
+        const kv = mockedKV as { put: (key: string, ...args: unknown[]) => unknown }
+        const originalPut = kv.put
+        const putSpy = vi.spyOn(
+          kv,
+          'put',
+        ).mockImplementation(async (
+          key: string, ...args: unknown[]
+        ) => {
+          if (key.startsWith(adapterConfig.BaseKVKey.FailedPasswordResetCodeAttempts)) {
+            throw new Error('KV write failed')
+          }
+          return originalPut(
+            key,
+            ...args,
+          )
+        })
+        const verifyPasswordResetCodeSpy = vi.spyOn(
+          kvService,
+          'verifyPasswordResetCode',
+        )
+
+        const { res } = await sendCorrectResetPasswordReq()
+        expect(res.status).toBe(500)
+        expect(verifyPasswordResetCodeSpy).not.toHaveBeenCalled()
+
+        putSpy.mockRestore()
+        verifyPasswordResetCodeSpy.mockRestore()
       },
     )
 
@@ -310,23 +355,17 @@ describe(
 
         await sendCorrectResetPasswordCodeReq()
 
-        const getFailedPasswordResetCodeAttemptsByIPSpy = vi.spyOn(
+        const recordCodeAttemptSpy = vi.spyOn(
           kvService,
-          'getFailedPasswordResetCodeAttemptsByIP',
-        )
-        const setFailedPasswordResetCodeAttemptsSpy = vi.spyOn(
-          kvService,
-          'setFailedPasswordResetCodeAttempts',
+          'recordCodeAttempt',
         )
 
         const { res } = await sendCorrectResetPasswordReq({ code: 'abcdef' })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
-        expect(getFailedPasswordResetCodeAttemptsByIPSpy).not.toHaveBeenCalled()
-        expect(setFailedPasswordResetCodeAttemptsSpy).not.toHaveBeenCalled()
+        expect(recordCodeAttemptSpy).not.toHaveBeenCalled()
 
-        getFailedPasswordResetCodeAttemptsByIPSpy.mockRestore()
-        setFailedPasswordResetCodeAttemptsSpy.mockRestore()
+        recordCodeAttemptSpy.mockRestore()
         global.process.env.PASSWORD_RESET_CODE_THRESHOLD = 5 as unknown as string
       },
     )

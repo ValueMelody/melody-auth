@@ -1296,11 +1296,13 @@ describe(
         expect(lockedRes.status).toBe(401)
         expect(await lockedRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
 
+        // Sending a new code does not reset the total failed attempts
         await sendCode()
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedSmsMfaCodeAttempts}-${reqBody.code}`)).toBeFalsy()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedSmsMfaCodeAttempts}-${reqBody.code}`)).toBe('10')
         const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
         const res = await sendRequest(newMfaCode)
-        expect(res.status).toBe(200)
+        expect(res.status).toBe(401)
+        expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         process.env.TWILIO_ACCOUNT_ID = ''

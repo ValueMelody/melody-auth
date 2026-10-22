@@ -288,23 +288,17 @@ describe(
 
         await prepareUserAccount(db)
 
-        const getSpy = vi.spyOn(
+        const recordCodeAttemptSpy = vi.spyOn(
           kvService,
-          'getFailedEmailVerificationCodeAttemptsByIP',
-        )
-        const setSpy = vi.spyOn(
-          kvService,
-          'setFailedEmailVerificationCodeAttempts',
+          'recordCodeAttempt',
         )
 
         const { res } = await sendCorrectVerifyEmailReq({ code: 'abcdef' })
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
-        expect(getSpy).not.toHaveBeenCalled()
-        expect(setSpy).not.toHaveBeenCalled()
+        expect(recordCodeAttemptSpy).not.toHaveBeenCalled()
 
-        getSpy.mockRestore()
-        setSpy.mockRestore()
+        recordCodeAttemptSpy.mockRestore()
         process.env.EMAIL_VERIFICATION_CODE_THRESHOLD = 5 as unknown as string
       },
     )
