@@ -211,12 +211,6 @@ describe(
         process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
 
         await insertUsers(db)
-        await db.prepare('insert into user_passkey ("userId", "credentialId", "publicKey", "counter") values (?, ?, ?, ?)').run(
-          1,
-          'existing',
-          'existing',
-          0,
-        )
 
         await mockedKV.put(
           `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
@@ -225,6 +219,15 @@ describe(
 
         const body = await prepareFollowUpBody(db)
         await markAuthCodeAsSecured(body.code)
+
+        // Insert after sign-in, otherwise sign-in skips the passkey enroll step and delivers the auth code
+        await db.prepare('insert into user_passkey ("userId", "credentialId", "publicKey", "counter") values (?, ?, ?, ?)').run(
+          1,
+          'existing',
+          'existing',
+          0,
+        )
+
         const res = await app.request(
           routeConfig.IdentityRoute.ProcessPasskeyEnroll,
           {
