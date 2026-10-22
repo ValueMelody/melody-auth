@@ -81,7 +81,7 @@ A consolidated reference of supported Melody Auth product capabilities and custo
 | User activation | Activate or deactivate a user account to allow or block future sign-ins | | ✓ | ✓ | |
 | Verification email resend | Send a fresh verification email to an unverified user | | ✓ | ✓ | |
 | Locked IP — list | View IP addresses locked out for a user due to brute-force protection | | ✓ | ✓ | |
-| Locked IP — unlock | Clear all locked IPs for a user | | ✓ | ✓ | |
+| Locked IP — unlock | Clear all locked IPs and verification code attempt locks for a user | | ✓ | ✓ | |
 | Consented apps — list | View the apps a user has granted consent to | | ✓ | ✓ | |
 | Consented apps — revoke | Remove a user's consent for a specific app | | ✓ | ✓ | |
 | Passkey management | List and remove passkeys registered to a user | | ✓ | ✓ | |
@@ -223,7 +223,7 @@ Policies allow you to route users to specific auth flows without changing applic
 | Email-verification code attempt lockout | Temporarily block email verification after too many failed code attempts | ✓ | | | |
 | Auth-code exchange attempt lockout | Temporarily block auth-code token exchange after too many failed `code_verifier` attempts | ✓ | | | |
 | View locked IPs | Inspect which IPs are currently locked for a user | | ✓ | ✓ | |
-| Unlock IPs | Clear all IP locks for a user | | ✓ | ✓ | |
+| Unlock IPs | Clear all IP locks and verification code attempt locks for a user | | ✓ | ✓ | |
 | Embedded auth origin allowlist | Restrict which browser origins can call embedded auth APIs via `EMBEDDED_AUTH_ORIGINS` | ✓ | | | ✓ |
 | Server-side sessions | Encrypted cookie sessions with configurable expiry for server-rendered flows | ✓ | | | |
 
