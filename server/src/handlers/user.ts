@@ -101,6 +101,10 @@ export const removeUserPasskey = async (c: Context<typeConfig.Context>) => {
     c,
     authId,
   )
+  await userService.verifyCanManagePrivilegedUser(
+    c,
+    user.id,
+  )
   await passkeyService.deletePasskey(
     c,
     user.id,
@@ -129,6 +133,10 @@ export const deleteUserLockedIPs = async (c: Context<typeConfig.Context>) => {
   const user = await userService.getUserByAuthId(
     c,
     authId,
+  )
+  await userService.verifyCanManagePrivilegedUser(
+    c,
+    user.id,
   )
 
   await kvService.deleteLockedIPsByEmail(
@@ -181,6 +189,14 @@ export const postUserSmsMfa = async (c: Context<typeConfig.Context>) => {
 
 export const deleteUserEmailMfa = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId') ?? ''
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+  await userService.verifyCanManagePrivilegedUser(
+    c,
+    user.id,
+  )
 
   await userService.resetUserMfa(
     c,
@@ -193,6 +209,14 @@ export const deleteUserEmailMfa = async (c: Context<typeConfig.Context>) => {
 
 export const deleteUserOtpMfa = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId') ?? ''
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+  await userService.verifyCanManagePrivilegedUser(
+    c,
+    user.id,
+  )
 
   await userService.resetUserMfa(
     c,
@@ -205,6 +229,14 @@ export const deleteUserOtpMfa = async (c: Context<typeConfig.Context>) => {
 
 export const deleteUserSmsMfa = async (c: Context<typeConfig.Context>) => {
   const authId = c.req.param('authId') ?? ''
+  const user = await userService.getUserByAuthId(
+    c,
+    authId,
+  )
+  await userService.verifyCanManagePrivilegedUser(
+    c,
+    user.id,
+  )
 
   await userService.resetUserMfa(
     c,
