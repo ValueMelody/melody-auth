@@ -130,6 +130,7 @@ export enum RequestError {
   NoRootScopeToModifyAdminPanelApp = 'Only an app with the root scope can update or delete a default admin panel app',
   NoScopeToAssignToS2sApp = 'An app without the root scope can only assign scopes it holds to an s2s app',
   NoRootScopeToAssignPrivilegedRole = 'Only an app with the root scope can assign a privileged role',
+  NoRootScopeToManagePrivilegedUser = 'Only an app with the root scope can manage a user with a privileged role',
   impersonatorTokenIsRequired = 'impersonatorToken is required for impersonation',
   impersonatorIsNotSuperAdmin = 'Only super admin can impersonate other users',
   impersonateNonSpaApp = 'Impersonate request sent to a non-SPA app',

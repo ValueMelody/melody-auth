@@ -126,7 +126,9 @@ userRoutes.get(
  * /api/v1/users/{authId}/locked-ips:
  *   delete:
  *     summary: Unlock all locked IP addresses and verification code attempts for a user
- *     description: Required scope - write_user
+ *     description: Required scope - write_user.
+ *                  Targeting a user with a privileged role (e.g. super_admin) additionally
+ *                  requires the caller to hold the root scope.
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -153,6 +155,8 @@ userRoutes.delete(
  *     description: Required scope - write_user.
  *                  Assigning a privileged role (e.g. super_admin) additionally requires
  *                  the caller to hold the root scope.
+ *                  Changing the roles of, or deactivating, a user with a privileged role
+ *                  also requires the root scope.
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -219,7 +223,9 @@ userRoutes.post(
  * /api/v1/users/{authId}:
  *   delete:
  *     summary: Delete an existing user by authId
- *     description: Required scope - write_user
+ *     description: Required scope - write_user.
+ *                  Targeting a user with a privileged role (e.g. super_admin) additionally
+ *                  requires the caller to hold the root scope.
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -339,7 +345,9 @@ userRoutes.get(
  * /api/v1/users/{authId}/passkeys/{passkeyId}:
  *   delete:
  *     summary: Remove a passkey for a user
- *     description: Required scope - write_user
+ *     description: Required scope - write_user.
+ *                  Targeting a user with a privileged role (e.g. super_admin) additionally
+ *                  requires the caller to hold the root scope.
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -400,7 +408,9 @@ userRoutes.post(
  * /api/v1/users/{authId}/email-mfa:
  *   delete:
  *     summary: Unenroll user from email MFA.
- *     description: Required scope - write_user
+ *     description: Required scope - write_user.
+ *                  Targeting a user with a privileged role (e.g. super_admin) additionally
+ *                  requires the caller to hold the root scope.
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -448,7 +458,9 @@ userRoutes.post(
  * /api/v1/users/{authId}/otp-mfa:
  *   delete:
  *     summary: Remove user's current OTP MFA setup.
- *     description: Required scope - write_user
+ *     description: Required scope - write_user.
+ *                  Targeting a user with a privileged role (e.g. super_admin) additionally
+ *                  requires the caller to hold the root scope.
  *     tags: [Users]
  *     parameters:
  *       - in: path
@@ -496,7 +508,9 @@ userRoutes.post(
  * /api/v1/users/{authId}/sms-mfa:
  *   delete:
  *     summary: Remove user's current SMS MFA setup.
- *     description: Required scope - write_user
+ *     description: Required scope - write_user.
+ *                  Targeting a user with a privileged role (e.g. super_admin) additionally
+ *                  requires the caller to hold the root scope.
  *     tags: [Users]
  *     parameters:
  *       - in: path

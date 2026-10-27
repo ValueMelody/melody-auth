@@ -101,6 +101,7 @@ export const systemConfig = Object.freeze({
 export const S2sConfig = Object.freeze({
   impersonationRoles: [Role.SuperAdmin],
   // Built-in roles are immutable and can only be assigned by a caller that holds the root scope.
+  // Users holding them can only have credentials reset, be deactivated, demoted or deleted by a root caller.
   builtInRoles: [Role.SuperAdmin],
   // They can only be assigned to an app by a caller that holds the root scope.
   privilegedScopes: [Scope.Root],

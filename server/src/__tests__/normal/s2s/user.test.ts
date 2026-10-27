@@ -4335,6 +4335,152 @@ describe(
 )
 
 describe(
+  'privileged user management guard',
+  () => {
+    // insertUsers gives 1-1-1-2 the privileged super_admin role
+    const superAdminReq = async (
+      method: string, path: string, token: string, body?: object,
+    ) => await app.request(
+      `${BaseRoute}/1-1-1-2${path}`,
+      {
+        method,
+        body: body ? JSON.stringify(body) : undefined,
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      mock(db),
+    )
+
+    const getWriteUserToken = async () => {
+      await attachIndividualScopes(db)
+      return await getS2sToken(
+        db,
+        Scope.WriteUser,
+      )
+    }
+
+    test.each([
+      ['resetting OTP MFA', 'DELETE', '/otp-mfa', undefined],
+      ['resetting email MFA', 'DELETE', '/email-mfa', undefined],
+      ['resetting SMS MFA', 'DELETE', '/sms-mfa', undefined],
+      ['deleting a passkey', 'DELETE', '/passkeys/1', undefined],
+      ['unlocking locked IPs', 'DELETE', '/locked-ips', undefined],
+      ['deleting', 'DELETE', '', undefined],
+      ['removing roles from', 'PUT', '', { roles: [] }],
+      ['deactivating', 'PUT', '', { isActive: false }],
+    ])(
+      'should reject %s a user with a privileged role from a write_user caller',
+      async (
+        _, method, path, body,
+      ) => {
+        await insertUsers(db)
+        await db.prepare('update "user" set "mfaTypes" = ? where id = 2').run('otp')
+        await db.exec(`
+          INSERT INTO "user_passkey"
+          ("userId", "credentialId", "publicKey", "counter")
+          values (2, 'abc', 'def', 1)
+        `)
+
+        const res = await superAdminReq(
+          method,
+          path,
+          await getWriteUserToken(),
+          body,
+        )
+
+        expect(res.status).toBe(400)
+        expect(await res.text()).toBe(messageConfig.RequestError.NoRootScopeToManagePrivilegedUser)
+
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 2').get() as userModel.Raw
+        expect(user.deletedAt).toBeNull()
+        expect(user.isActive).toBe(1)
+        expect(user.mfaTypes).toBe('otp')
+
+        const passkeys = await db.prepare('SELECT * FROM "user_passkey" WHERE "userId" = 2 AND "deletedAt" IS NULL').all()
+        expect(passkeys.length).toBe(1)
+
+        const userRoles = await db.prepare('SELECT * FROM "user_role" WHERE "userId" = 2 AND "deletedAt" IS NULL').all()
+        expect(userRoles.length).toBe(1)
+      },
+    )
+
+    test(
+      'should allow updating the name of a user with a privileged role from a write_user caller',
+      async () => {
+        await insertUsers(db)
+
+        const res = await superAdminReq(
+          'PUT',
+          '',
+          await getWriteUserToken(),
+          { firstName: 'First' },
+        )
+        const json = await res.json() as { user: userModel.ApiRecordFull }
+
+        expect(res.status).toBe(200)
+        expect(json.user.firstName).toBe('First')
+        expect(json.user.roles).toStrictEqual(['super_admin'])
+      },
+    )
+
+    test(
+      'should allow resetting MFA of a user without a privileged role from a write_user caller',
+      async () => {
+        await insertUsers(db)
+        await enrollOtpMfa(db)
+
+        const res = await app.request(
+          `${BaseRoute}/1-1-1-1/otp-mfa`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${await getWriteUserToken()}` },
+          },
+          mock(db),
+        )
+
+        expect(res.status).toBe(204)
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 1').get() as userModel.Raw
+        expect(user.mfaTypes).toBe('')
+      },
+    )
+
+    test(
+      'should allow resetting MFA of a user with a privileged role from a root caller',
+      async () => {
+        await insertUsers(db)
+        await db.prepare('update "user" set "mfaTypes" = ? where id = 2').run('otp')
+
+        const res = await superAdminReq(
+          'DELETE',
+          '/otp-mfa',
+          await getS2sToken(db),
+        )
+
+        expect(res.status).toBe(204)
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 2').get() as userModel.Raw
+        expect(user.mfaTypes).toBe('')
+      },
+    )
+
+    test(
+      'should allow deleting a user with a privileged role from a root caller',
+      async () => {
+        await insertUsers(db)
+
+        const res = await superAdminReq(
+          'DELETE',
+          '',
+          await getS2sToken(db),
+        )
+
+        expect(res.status).toBe(204)
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 2').get() as userModel.Raw
+        expect(user.deletedAt).not.toBeNull()
+      },
+    )
+  },
+)
+
+describe(
   'revoke refresh tokens on role change',
   () => {
     const signInAndGetRefreshToken = async () => {

@@ -1440,17 +1440,22 @@ export const markOtpAsVerified = async (
   )
 }
 
+const callerHasRootScope = (c: Context<typeConfig.Context>) => {
+  const accessTokenBody = c.get('access_token_body')
+  const callerScopes = accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []
+  return callerScopes.includes(Scope.Root)
+}
+
+const includesPrivilegedRole = (roleNames: string[]) => variableConfig.S2sConfig.builtInRoles
+  .some((role) => roleNames.includes(role))
+
 export const verifyCanAssignRoles = (
   c: Context<typeConfig.Context>,
   roleNames: string[],
 ) => {
-  const includesPrivilegedRole = variableConfig.S2sConfig.builtInRoles
-    .some((role) => roleNames.includes(role))
-  if (!includesPrivilegedRole) return
+  if (!includesPrivilegedRole(roleNames)) return
 
-  const accessTokenBody = c.get('access_token_body')
-  const callerScopes = accessTokenBody?.scope ? accessTokenBody.scope.split(' ') : []
-  if (!callerScopes.includes(Scope.Root)) {
+  if (!callerHasRootScope(c)) {
     loggerUtil.triggerLogger(
       c,
       loggerUtil.LoggerLevel.Warn,
@@ -1458,6 +1463,26 @@ export const verifyCanAssignRoles = (
     )
     throw new errorConfig.Forbidden(messageConfig.RequestError.NoRootScopeToAssignPrivilegedRole)
   }
+}
+
+export const verifyCanManagePrivilegedUser = async (
+  c: Context<typeConfig.Context>,
+  userId: number,
+) => {
+  if (callerHasRootScope(c)) return
+
+  const userRoles = await userRoleModel.getAllByUserId(
+    c.env.DB,
+    userId,
+  )
+  if (!includesPrivilegedRole(userRoles.map((userRole) => userRole.roleName))) return
+
+  loggerUtil.triggerLogger(
+    c,
+    loggerUtil.LoggerLevel.Warn,
+    messageConfig.RequestError.NoRootScopeToManagePrivilegedUser,
+  )
+  throw new errorConfig.Forbidden(messageConfig.RequestError.NoRootScopeToManagePrivilegedUser)
 }
 
 export const updateUser = async (
@@ -1484,6 +1509,13 @@ export const updateUser = async (
     verifyCanAssignRoles(
       c,
       dto.roles,
+    )
+  }
+
+  if (dto.roles || dto.isActive === false) {
+    await verifyCanManagePrivilegedUser(
+      c,
+      user.id,
     )
   }
 
@@ -1707,6 +1739,10 @@ export const deleteUser = async (
     )
     throw new errorConfig.NotFound(messageConfig.RequestError.NoUser)
   }
+  await verifyCanManagePrivilegedUser(
+    c,
+    user.id,
+  )
   await userModel.remove(
     c.env.DB,
     user.id,
