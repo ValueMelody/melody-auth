@@ -65,7 +65,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
@@ -109,7 +109,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         expect(mockFetch).toBeCalledTimes(1)
@@ -231,7 +231,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -250,7 +250,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -262,7 +262,7 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}-1`)).toBe('1')
       },
     )
 
@@ -358,7 +358,7 @@ describe(
         )
 
         await sendCode()
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`) ?? ''
 
         for (let i = 0; i < 10; i++) {
           // Simulate a fresh IP for each guess
@@ -378,7 +378,7 @@ describe(
         // Sending a new code does not reset the total failed attempts
         await sendCode()
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedEmailMfaCodeAttempts}-${requestBody.code}`)).toBe('10')
-        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`) ?? ''
+        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`) ?? ''
         const res = await sendRequest(newMfaCode)
         expect(res.status).toBe(401)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
@@ -463,7 +463,7 @@ describe(
         )
         expect(res.status).toBe(400)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode).toBeFalsy()
 
         const postRes = await app.request(
@@ -505,7 +505,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -518,7 +518,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -530,7 +530,7 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
       },
     )
 
@@ -559,7 +559,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -572,7 +572,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -584,7 +584,7 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBe('1')
       },
     )
 
@@ -613,7 +613,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -626,7 +626,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -638,8 +638,8 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
       },
     )
 
@@ -665,7 +665,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -678,7 +678,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -690,8 +690,8 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
       },
     )
 
@@ -719,7 +719,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -738,7 +738,7 @@ describe(
             body: JSON.stringify({
               code: 'abc',
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -772,7 +772,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBeFalsy()
         global.fetch = fetchMock
       },
@@ -837,7 +837,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const res = await app.request(
@@ -847,7 +847,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
               rememberDevice: true,
             }),
           },
@@ -910,7 +910,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const res = await app.request(
@@ -920,7 +920,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
               rememberDevice: false,
             }),
           },
@@ -968,7 +968,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const res = await app.request(
@@ -978,7 +978,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
               rememberDevice: true,
             }),
           },
@@ -1028,7 +1028,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const mfaRes = await app.request(
@@ -1038,7 +1038,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
               rememberDevice: true,
             }),
           },
@@ -1165,7 +1165,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const mfaRes = await app.request(
@@ -1175,7 +1175,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${requestBody.code}-1`),
               rememberDevice: true,
             }),
           },

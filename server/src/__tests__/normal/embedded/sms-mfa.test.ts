@@ -119,7 +119,7 @@ describe(
         expect(user.smsPhoneNumber).toBe('+16471231234')
         expect(user.smsPhoneNumberVerified).toBe(0)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const otpRes = await app.request(
@@ -462,7 +462,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const otpRes = await app.request(
@@ -616,7 +616,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         const otpRes = await app.request(
@@ -701,7 +701,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         const otpRes = await app.request(
@@ -771,7 +771,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         const otpRes = await app.request(
@@ -842,7 +842,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         // Complete SMS MFA with rememberDevice: true
@@ -1023,7 +1023,7 @@ describe(
 
         expect(otpRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${sessionId}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string

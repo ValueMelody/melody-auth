@@ -103,6 +103,7 @@ export const ensureFirstFactorVerified = async (
   const isVerified = await kvService.passwordlessCodeVerified(
     c.env.KV,
     authCode,
+    authCodeBody.user.id,
   )
   if (!isVerified) {
     loggerUtil.triggerLogger(
@@ -149,6 +150,7 @@ const verifyAuthCodeMfaAndConsent = async (
       const isVerified = await kvService.optMfaCodeVerified(
         c.env.KV,
         authCode,
+        authCodeBody.user.id,
       )
       if (!isVerified) {
         loggerUtil.triggerLogger(
@@ -164,6 +166,7 @@ const verifyAuthCodeMfaAndConsent = async (
       const isVerified = await kvService.smsMfaCodeVerified(
         c.env.KV,
         authCode,
+        authCodeBody.user.id,
       )
       if (!isVerified) {
         loggerUtil.triggerLogger(
@@ -179,6 +182,7 @@ const verifyAuthCodeMfaAndConsent = async (
       const isVerified = await kvService.emailMfaCodeVerified(
         c.env.KV,
         authCode,
+        authCodeBody.user.id,
       )
       if (!isVerified) {
         loggerUtil.triggerLogger(
@@ -393,6 +397,7 @@ export const processPostAuthorize = async (
       await kvService.bypassOtpMfa(
         c.env.KV,
         authCode,
+        authCodeBody.user.id,
         codeExpiresIn,
       )
     } else {
@@ -428,6 +433,7 @@ export const processPostAuthorize = async (
       await kvService.bypassSmsMfa(
         c.env.KV,
         authCode,
+        authCodeBody.user.id,
         codeExpiresIn,
       )
     } else {
@@ -463,6 +469,7 @@ export const processPostAuthorize = async (
       await kvService.bypassEmailMfa(
         c.env.KV,
         authCode,
+        authCodeBody.user.id,
         codeExpiresIn,
       )
     } else {

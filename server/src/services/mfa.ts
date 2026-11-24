@@ -212,6 +212,7 @@ export const handleSendEmailMfa = async (
       await kvService.storePasswordlessCode(
         c.env.KV,
         authCode,
+        authCodeBody.user.id,
         mfaCode,
         codeExpiresIn,
       )
@@ -219,6 +220,7 @@ export const handleSendEmailMfa = async (
       await kvService.storeEmailMfaCode(
         c.env.KV,
         authCode,
+        authCodeBody.user.id,
         mfaCode,
       )
     }
@@ -283,6 +285,7 @@ export const processEmailMfa = async (
   const isValid = await kvService.stampEmailMfaCode(
     c.env.KV,
     authCode,
+    authCodeStore.user.id,
     mfaCode,
     expiresIn,
     isOtpFallback,
@@ -494,6 +497,7 @@ export const handleSendSmsMfa = async (
     await kvService.storeSmsMfaCode(
       c.env.KV,
       authCode,
+      authCodeBody.user.id,
       mfaCode,
     )
   }
@@ -588,6 +592,7 @@ export const processSmsMfa = async (
   const isValid = await kvService.stampSmsMfaCode(
     c.env.KV,
     authCode,
+    authCodeStore.user.id,
     mfaCode,
     expiresIn,
   )

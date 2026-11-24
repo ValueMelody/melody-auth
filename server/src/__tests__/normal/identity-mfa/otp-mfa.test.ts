@@ -227,7 +227,7 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
       },
     )
 
@@ -253,7 +253,7 @@ describe(
         )
         expect(res.status).toBe(200)
         const json = await res.json() as { code: string }
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
       },
     )
 
@@ -284,7 +284,7 @@ describe(
         )
         expect(previousStepRes.status).toBe(200)
         const previousStepJson = await previousStepRes.json() as { code: string }
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${previousStepJson.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${previousStepJson.code}-1`)).toBe('1')
 
         const nextStepRes = await postOtpMfa(
           nextStepBody,
@@ -292,7 +292,7 @@ describe(
         )
         expect(nextStepRes.status).toBe(200)
         const nextStepJson = await nextStepRes.json() as { code: string }
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${nextStepJson.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${nextStepJson.code}-1`)).toBe('1')
       },
     )
 
@@ -326,7 +326,7 @@ describe(
         )
         expect(pastStepRes.status).toBe(401)
         expect(await pastStepRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${pastStepBody.code}`)).toBeNull()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${pastStepBody.code}-1`)).toBeNull()
 
         const futureStepRes = await postOtpMfa(
           futureStepBody,
@@ -334,7 +334,7 @@ describe(
         )
         expect(futureStepRes.status).toBe(401)
         expect(await futureStepRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${futureStepBody.code}`)).toBeNull()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${futureStepBody.code}-1`)).toBeNull()
       },
     )
 
@@ -367,7 +367,7 @@ describe(
         )
         expect(secondRes.status).toBe(401)
         expect(await secondRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondBody.code}`)).toBeNull()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondBody.code}-1`)).toBeNull()
       },
     )
 
@@ -402,7 +402,7 @@ describe(
         )
         expect(secondRes.status).toBe(401)
         expect(await secondRes.text()).toBe(messageConfig.RequestError.WrongMfaCode)
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondBody.code}`)).toBeNull()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondBody.code}-1`)).toBeNull()
       },
     )
 
@@ -442,7 +442,7 @@ describe(
         )
         expect(secondRes.status).toBe(200)
         const secondJson = await secondRes.json() as { code: string }
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondJson.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondJson.code}-1`)).toBe('1')
       },
     )
 
@@ -488,7 +488,7 @@ describe(
         )
         expect(secondRes.status).toBe(200)
         const secondJson = await secondRes.json() as { code: string }
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondJson.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${secondJson.code}-2`)).toBe('1')
       },
     )
 
@@ -521,7 +521,7 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
 
         process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
       },
@@ -695,14 +695,14 @@ describe(
             body: JSON.stringify({
               code: body.code,
               locale: body.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}-1`),
             }),
           },
           mock(db),
         )
 
         const json = await res.json() as { code: string }
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
       },
     )
 

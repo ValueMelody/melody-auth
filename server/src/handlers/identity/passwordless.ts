@@ -145,6 +145,7 @@ export const postProcessPasswordlessCode = async (c: Context<typeConfig.Context>
   const isValid = await kvService.stampPasswordlessCode(
     c.env.KV,
     bodyDto.code,
+    authCodeStore.user.id,
     bodyDto.mfaCode,
     expiresIn,
   )

@@ -113,7 +113,7 @@ describe(
         )
         expect(consentRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}-2`)
         expect(mfaCode?.length).toBe(6)
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
@@ -142,7 +142,7 @@ describe(
         expect(consentRes.status).toBe(404)
         expect(await consentRes.text()).toStrictEqual(messageConfig.RequestError.WrongSessionId)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-abc`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-abc-1`)
         expect(mfaCode).toBeNull()
 
         process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
@@ -194,7 +194,7 @@ describe(
         )
         expect(consentRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}-2`)
         expect(mfaCode?.length).toBe(6)
 
         const processRes = await app.request(
@@ -259,7 +259,7 @@ describe(
         )
         expect(consentRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}-2`)
         expect(mfaCode?.length).toBe(6)
 
         const processRes = await app.request(
@@ -319,7 +319,7 @@ describe(
         )
         expect(consentRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}-2`)
         expect(mfaCode?.length).toBe(6)
 
         const processRes = await app.request(
@@ -380,7 +380,7 @@ describe(
         )
         expect(consentRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}-2`)
         expect(mfaCode?.length).toBe(6)
 
         const processRes = await app.request(
@@ -468,7 +468,7 @@ describe(
         )
         expect(consentRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}-2`)
         expect(mfaCode?.length).toBe(6)
 
         const processRes = await app.request(
@@ -541,7 +541,7 @@ describe(
         )
         expect(consentRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}-2`)
         expect(mfaCode?.length).toBe(6)
 
         const processRes = await app.request(
@@ -615,7 +615,7 @@ describe(
         )
         expect(consentRes.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${sessionId}-2`)
         expect(mfaCode?.length).toBe(6)
 
         // Complete MFA with rememberDevice: true
