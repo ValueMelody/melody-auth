@@ -450,7 +450,7 @@ describe(
             body: JSON.stringify({
               code: json.code,
               locale: 'en',
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${json.code}-1`),
             }),
           },
           mock(db),
@@ -907,7 +907,7 @@ describe(
         expect(otpRes.status).toBe(200)
 
         await mockedKV.put(
-          `${adapterConfig.BaseKVKey.SmsMfaCode}-${body.code}`,
+          `${adapterConfig.BaseKVKey.SmsMfaCode}-${body.code}-1`,
           'aaaaaaaa',
         )
         const smsRes = await app.request(
@@ -924,7 +924,7 @@ describe(
         expect(smsRes.status).toBe(200)
 
         await mockedKV.put(
-          `${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}`,
+          `${adapterConfig.BaseKVKey.EmailMfaCode}-${body.code}-1`,
           'bbbbbbbb',
         )
         const emailRes = await app.request(
@@ -1057,7 +1057,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -1069,7 +1069,7 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${json.code}-1`)).toBe('1')
 
         const url = routeConfig.OauthRoute.Authorize
         const res1 = await getSignInRequest(

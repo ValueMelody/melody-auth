@@ -395,7 +395,7 @@ describe(
         const json = await res.json()
         expect(json).toStrictEqual({ success: true })
 
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${body.code}`) ?? '').length).toBe(6)
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${body.code}-1`) ?? '').length).toBe(6)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
       },
@@ -458,7 +458,7 @@ describe(
         )
         expect(await res.json()).toStrictEqual({ success: true })
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${body.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${body.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -573,7 +573,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -591,7 +591,7 @@ describe(
             body: JSON.stringify({
               code: requestBody.code,
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -603,7 +603,7 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${json.code}-1`)).toBe('1')
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
@@ -637,7 +637,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -706,7 +706,7 @@ describe(
 
         global.fetch = fetchMock
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`)
 
         const res = await app.request(
           routeConfig.IdentityRoute.ProcessPasswordlessCode,
@@ -726,7 +726,7 @@ describe(
         expect(res.status).toBe(400)
         expect(await res.text()).toBe(messageConfig.RequestError.PasswordlessBrowserMismatch)
         // Code must not be stamped as verified
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`)).toBe(mfaCode)
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`)).toBe(mfaCode)
 
         process.env.ENABLE_PASSWORDLESS_SIGN_IN = false as unknown as string
         process.env.USE_PASSWORDLESS_AS_MAGIC_LINK = undefined as unknown as string
@@ -796,7 +796,7 @@ describe(
             body: JSON.stringify({
               code: 'abc',
               locale: requestBody.locale,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),
@@ -934,7 +934,7 @@ describe(
         )
 
         await sendCode()
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`) ?? ''
 
         for (let i = 0; i < 10; i++) {
           // Simulate a fresh IP for each guess
@@ -954,7 +954,7 @@ describe(
         // Sending a new code does not reset the total failed attempts
         await sendCode()
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedPasswordlessCodeAttempts}-${requestBody.code}`)).toBe('10')
-        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`) ?? ''
+        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`) ?? ''
         const res = await sendRequest(newMfaCode)
         expect(res.status).toBe(401)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongCode)
@@ -1096,7 +1096,7 @@ describe(
             method: 'POST',
             body: JSON.stringify({
               ...requestBody,
-              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}`),
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.PasswordlessCode}-${requestBody.code}-1`),
             }),
           },
           mock(db),

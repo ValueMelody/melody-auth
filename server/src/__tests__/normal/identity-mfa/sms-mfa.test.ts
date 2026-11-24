@@ -62,7 +62,7 @@ describe(
 
         expect(mockFetch).toBeCalledTimes(0)
         const code = getCodeFromParams(params)
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}`) ?? '').length).toBeFalsy()
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}-1`) ?? '').length).toBeFalsy()
       },
     )
 
@@ -95,7 +95,7 @@ describe(
 
         expect(mockFetch).toBeCalledTimes(0)
         const code = getCodeFromParams(params)
-        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}`) ?? '').length).toBeFalsy()
+        expect((await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}-1`) ?? '').length).toBeFalsy()
 
         process.env.SMS_MFA_IS_REQUIRED = false as unknown as string
         global.fetch = fetchMock
@@ -138,7 +138,7 @@ describe(
         })
 
         const code = getCodeFromParams(params)
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -242,7 +242,7 @@ describe(
         })
 
         const code = getCodeFromParams(params)
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${code}-1`) ?? ''
         expect(mfaCode.length).toBe(0)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -359,7 +359,7 @@ describe(
         expect(user.smsPhoneNumber).toBe('+6471111111')
         expect(user.smsPhoneNumberVerified).toBe(0)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -412,7 +412,7 @@ describe(
         expect(user.smsPhoneNumber).toBe('+6471111111')
         expect(user.smsPhoneNumberVerified).toBe(0)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -459,7 +459,7 @@ describe(
         )
         expect(res.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`) ?? ''
 
         const res1 = await app.request(
           routeConfig.IdentityRoute.ProcessSmsMfa,
@@ -573,7 +573,7 @@ describe(
         )
         expect(res.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -630,7 +630,7 @@ describe(
         )
         expect(res.status).toBe(200)
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`) ?? ''
         expect(mfaCode.length).toBe(6)
 
         const callArgs = mockFetch.mock.calls[0] as any[]
@@ -1029,7 +1029,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
         expect(mockFetch).toBeCalledTimes(1)
 
@@ -1052,7 +1052,7 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBe('1')
 
         const user = await db.prepare('select * from "user" where id = 1').get() as userModel.Record
         expect(user.smsPhoneNumber).toBe('+6471112222')
@@ -1096,7 +1096,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`)
         const res = await app.request(
           routeConfig.IdentityRoute.ProcessSmsMfa,
           {
@@ -1279,7 +1279,7 @@ describe(
         )
 
         await sendCode()
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`) ?? ''
 
         for (let i = 0; i < 10; i++) {
           // Simulate a fresh IP for each guess
@@ -1299,7 +1299,7 @@ describe(
         // Sending a new code does not reset the total failed attempts
         await sendCode()
         expect(await mockedKV.get(`${adapterConfig.BaseKVKey.TotalFailedSmsMfaCodeAttempts}-${reqBody.code}`)).toBe('10')
-        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`) ?? ''
+        const newMfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`) ?? ''
         const res = await sendRequest(newMfaCode)
         expect(res.status).toBe(401)
         expect(await res.text()).toBe(messageConfig.RequestError.WrongMfaCode)
@@ -1341,7 +1341,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const res = await app.request(
@@ -1422,7 +1422,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const res = await app.request(
@@ -1488,7 +1488,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const res = await app.request(
@@ -1558,7 +1558,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const mfaRes = await app.request(
@@ -1706,7 +1706,7 @@ describe(
           mock(db),
         )
 
-        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}`)
+        const mfaCode = await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${reqBody.code}-1`)
         expect(mfaCode?.length).toBe(6)
 
         const mfaRes = await app.request(
