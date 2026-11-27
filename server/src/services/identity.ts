@@ -126,6 +126,7 @@ const areMfaFactorsVerified = async (
     requireOtpMfa,
     requireSmsMfa,
     enforceOneMfaEnrollment: enforceMfa,
+    allowEmailMfaAsBackup,
   } = mfaConfig
 
   if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
@@ -137,6 +138,7 @@ const areMfaFactorsVerified = async (
       c.env.KV,
       authCode,
       authCodeBody.user.id,
+      allowEmailMfaAsBackup,
     )
     if (!isVerified) return false
   }
@@ -146,6 +148,7 @@ const areMfaFactorsVerified = async (
       c.env.KV,
       authCode,
       authCodeBody.user.id,
+      allowEmailMfaAsBackup,
     )
     if (!isVerified) return false
   }

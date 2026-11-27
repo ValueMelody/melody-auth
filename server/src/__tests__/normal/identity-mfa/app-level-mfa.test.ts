@@ -1,5 +1,5 @@
 import {
-  afterEach, beforeEach, describe, expect, test,
+  afterEach, beforeEach, describe, expect, Mock, test, vi,
 } from 'vitest'
 import { Database } from 'better-sqlite3'
 import { authenticator } from 'otplib'
@@ -1134,6 +1134,140 @@ describe(
         expect(passkeys.length).toBe(0)
         const user = await db.prepare('SELECT * FROM "user" WHERE id = 1').get() as userModel.Raw
         expect(user.recoveryCodeHash).toBeNull()
+      },
+    )
+  },
+)
+
+describe(
+  'email fallback stamped under app-level config',
+  () => {
+    test.each([
+      ['reject', false],
+      ['accept', true],
+    ])(
+      'should %s app-level email fallback for account MFA when system ALLOW_EMAIL_MFA_AS_BACKUP is %s',
+      async (
+        _label, systemAllowsFallback,
+      ) => {
+        setEnv(
+          'ALLOW_EMAIL_MFA_AS_BACKUP',
+          systemAllowsFallback as unknown as string,
+        )
+        setEnv(
+          'ENFORCE_ONE_MFA_ENROLLMENT',
+          [] as unknown as string,
+        )
+        setEnv(
+          'ALLOW_PASSKEY_ENROLLMENT',
+          true as unknown as string,
+        )
+        setEnv(
+          'ENABLE_RECOVERY_CODE',
+          true as unknown as string,
+        )
+        setEnv(
+          'ENABLE_USER_APP_CONSENT',
+          false as unknown as string,
+        )
+        // Keeps the auth code undelivered after email MFA so enrollment endpoints can be exercised directly.
+        setEnv(
+          'ENABLE_ORG',
+          true as unknown as string,
+        )
+        setEnv(
+          'ALLOW_USER_SWITCH_ORG_ON_SIGN_IN',
+          true as unknown as string,
+        )
+
+        await db.prepare('update app set "useSystemMfaConfig" = 0, "requireEmailMfa" = 0, "requireOtpMfa" = 1, "requireSmsMfa" = 0, "allowEmailMfaAsBackup" = 1 where id = 1').run()
+        await insertUsers(db)
+        await db.prepare('update "user" set "otpSecret" = ?, "otpVerified" = 1 where id = 1').run(cryptoUtil.genOtpSecret())
+
+        const appRecord = await getApp(db)
+        const signInRes = await postSignInRequest(
+          db,
+          appRecord,
+        )
+        const signInJson = await signInRes.json() as { code: string; nextPage?: string }
+        expect(signInJson.nextPage).toBe(routeConfig.View.OtpMfa)
+
+        global.fetch = vi.fn(async () => Promise.resolve({ ok: true })) as Mock
+        try {
+          const sendRes = await app.request(
+            routeConfig.IdentityRoute.SendEmailMfa,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                code: signInJson.code,
+                locale: 'en',
+              }),
+            },
+            mock(db),
+          )
+          expect(sendRes.status).toBe(200)
+        } finally {
+          global.fetch = fetchMock
+        }
+
+        const emailMfaRes = await app.request(
+          routeConfig.IdentityRoute.ProcessEmailMfa,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: signInJson.code,
+              locale: 'en',
+              mfaCode: await mockedKV.get(`${adapterConfig.BaseKVKey.EmailMfaCode}-${signInJson.code}-1`),
+            }),
+          },
+          mock(db),
+        )
+        expect(emailMfaRes.status).toBe(200)
+        const emailMfaJson = await emailMfaRes.json() as { code: string; nextPage?: string }
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaEmailFallback}-${signInJson.code}-1`)).toBe('1')
+        // Without system fallback, account MFA is unmet, so passkey/recovery enrollment steps are skipped.
+        const expectedNextPage = systemAllowsFallback ? routeConfig.View.PasskeyEnroll : routeConfig.View.SwitchOrg
+        expect(emailMfaJson.nextPage).toBe(expectedNextPage)
+
+        await mockedKV.put(
+          `${adapterConfig.BaseKVKey.PasskeyEnrollChallenge}-1`,
+          'Gu09HnxTsc01smwaCtC6yHE0MEg_d-qKUSpKi5BbLgU',
+        )
+        const passkeyRes = await app.request(
+          routeConfig.IdentityRoute.ProcessPasskeyEnroll,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              code: signInJson.code,
+              locale: 'en',
+              enrollInfo: passkeyEnrollMock,
+            }),
+          },
+          mock(db),
+        )
+
+        const recoveryRes = await app.request(
+          `${routeConfig.IdentityRoute.ProcessRecoveryCodeEnroll}?code=${signInJson.code}`,
+          { method: 'GET' },
+          mock(db),
+        )
+
+        const passkeys = await db.prepare('SELECT * FROM user_passkey WHERE "userId" = 1').all()
+        const user = await db.prepare('SELECT * FROM "user" WHERE id = 1').get() as userModel.Raw
+
+        if (systemAllowsFallback) {
+          expect(passkeyRes.status).toBe(200)
+          expect(recoveryRes.status).toBe(200)
+          expect(passkeys.length).toBe(1)
+          expect(user.recoveryCodeHash).not.toBeNull()
+        } else {
+          expect(passkeyRes.status).toBe(401)
+          expect(await passkeyRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
+          expect(recoveryRes.status).toBe(401)
+          expect(await recoveryRes.text()).toBe(messageConfig.RequestError.MfaNotVerified)
+          expect(passkeys.length).toBe(0)
+          expect(user.recoveryCodeHash).toBeNull()
+        }
       },
     )
   },

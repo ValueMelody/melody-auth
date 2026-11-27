@@ -714,7 +714,8 @@ describe(
         )
 
         const json = await res.json() as { code: string }
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaEmailFallback}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBeNull()
       },
     )
 

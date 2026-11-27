@@ -530,7 +530,8 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaEmailFallback}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBeNull()
       },
     )
 
@@ -584,7 +585,8 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaEmailFallback}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBeNull()
       },
     )
 
@@ -638,8 +640,10 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBe('1')
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaEmailFallback}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBeNull()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaEmailFallback}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBeNull()
       },
     )
 
@@ -690,8 +694,10 @@ describe(
           state: '123',
           scopes: ['profile', 'openid', 'offline_access'],
         })
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBe('1')
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaEmailFallback}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.SmsMfaCode}-${json.code}-1`)).toBeNull()
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaEmailFallback}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBeNull()
       },
     )
 
