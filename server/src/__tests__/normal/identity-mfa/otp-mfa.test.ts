@@ -147,6 +147,18 @@ describe(
         expect(await res.text()).toBe(messageConfig.RequestError.WrongAuthCode)
       },
     )
+
+    test(
+      'should throw error if otp mfa is not required or enrolled',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        const { res } = await sendCorrectGetOtpMfaSetupReq()
+        expect(res.status).toBe(400)
+      },
+    )
   },
 )
 
@@ -702,7 +714,8 @@ describe(
         )
 
         const json = await res.json() as { code: string }
-        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaEmailFallback}-${json.code}-1`)).toBe('1')
+        expect(await mockedKV.get(`${adapterConfig.BaseKVKey.OtpMfaCode}-${json.code}-1`)).toBeNull()
       },
     )
 
@@ -1063,6 +1076,28 @@ describe(
 
         process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if otp mfa is not required or enrolled when verifying',
+      async () => {
+        await insertUsers(
+          db,
+          false,
+        )
+        const body = await prepareFollowUpBody(db)
+        const currentUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        const token = authenticator.generate(currentUser.otpSecret)
+
+        const res = await postOtpMfa(
+          body,
+          token,
+        )
+        expect(res.status).toBe(400)
+
+        const updatedUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(updatedUser.otpVerified).toBe(0)
       },
     )
   },

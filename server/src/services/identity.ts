@@ -115,83 +115,80 @@ export const ensureFirstFactorVerified = async (
   }
 }
 
-const verifyAuthCodeMfaAndConsent = async (
+const areMfaFactorsVerified = async (
   c: Context<typeConfig.Context>,
   authCode: string,
   authCodeBody: typeConfig.AuthCodeBody,
-) => {
-  const isSocialLogin = !!authCodeBody.user.socialAccountId
-  const bypassLocalMfa = isSocialLogin &&
-    variableConfig.SocialSignInConfig.ExternalSignInCanBypassLocalMfa
-
+  mfaConfig: mfaService.MfaConfig,
+): Promise<boolean> => {
   const {
     requireEmailMfa,
     requireOtpMfa,
     requireSmsMfa,
     enforceOneMfaEnrollment: enforceMfa,
-  } = mfaService.getAuthorizeMfaConfig(
-    c,
-    authCodeBody,
-  )
+    allowEmailMfaAsBackup,
+  } = mfaConfig
+
+  if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
+    if (!authCodeBody.user.mfaTypes.length) return false
+  }
+
+  if (requireOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp)) {
+    const isVerified = await kvService.optMfaCodeVerified(
+      c.env.KV,
+      authCode,
+      authCodeBody.user.id,
+      allowEmailMfaAsBackup,
+    )
+    if (!isVerified) return false
+  }
+
+  if (requireSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)) {
+    const isVerified = await kvService.smsMfaCodeVerified(
+      c.env.KV,
+      authCode,
+      authCodeBody.user.id,
+      allowEmailMfaAsBackup,
+    )
+    if (!isVerified) return false
+  }
+
+  if (requireEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)) {
+    const isVerified = await kvService.emailMfaCodeVerified(
+      c.env.KV,
+      authCode,
+      authCodeBody.user.id,
+    )
+    if (!isVerified) return false
+  }
+
+  return true
+}
+
+const verifyAuthCodeMfa = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+  mfaConfig: mfaService.MfaConfig,
+) => {
+  const isSocialLogin = !!authCodeBody.user.socialAccountId
+  const bypassLocalMfa = isSocialLogin &&
+    variableConfig.SocialSignInConfig.ExternalSignInCanBypassLocalMfa
 
   if (!bypassLocalMfa && !authCodeBody.isFullyAuthorized) {
-    if (enforceMfa?.length && !requireEmailMfa && !requireOtpMfa && !requireSmsMfa) {
-      if (!authCodeBody.user.mfaTypes.length) {
-        loggerUtil.triggerLogger(
-          c,
-          loggerUtil.LoggerLevel.Warn,
-          messageConfig.RequestError.MfaNotVerified,
-        )
-        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
-      }
-    }
-
-    if (requireOtpMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp)) {
-      const isVerified = await kvService.optMfaCodeVerified(
-        c.env.KV,
-        authCode,
-        authCodeBody.user.id,
+    const isVerified = await areMfaFactorsVerified(
+      c,
+      authCode,
+      authCodeBody,
+      mfaConfig,
+    )
+    if (!isVerified) {
+      loggerUtil.triggerLogger(
+        c,
+        loggerUtil.LoggerLevel.Warn,
+        messageConfig.RequestError.MfaNotVerified,
       )
-      if (!isVerified) {
-        loggerUtil.triggerLogger(
-          c,
-          loggerUtil.LoggerLevel.Warn,
-          messageConfig.RequestError.MfaNotVerified,
-        )
-        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
-      }
-    }
-
-    if (requireSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)) {
-      const isVerified = await kvService.smsMfaCodeVerified(
-        c.env.KV,
-        authCode,
-        authCodeBody.user.id,
-      )
-      if (!isVerified) {
-        loggerUtil.triggerLogger(
-          c,
-          loggerUtil.LoggerLevel.Warn,
-          messageConfig.RequestError.MfaNotVerified,
-        )
-        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
-      }
-    }
-
-    if (requireEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email)) {
-      const isVerified = await kvService.emailMfaCodeVerified(
-        c.env.KV,
-        authCode,
-        authCodeBody.user.id,
-      )
-      if (!isVerified) {
-        loggerUtil.triggerLogger(
-          c,
-          loggerUtil.LoggerLevel.Warn,
-          messageConfig.RequestError.MfaNotVerified,
-        )
-        throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
-      }
+      throw new errorConfig.UnAuthorized(messageConfig.RequestError.MfaNotVerified)
     }
 
     await ensureFirstFactorVerified(
@@ -200,6 +197,22 @@ const verifyAuthCodeMfaAndConsent = async (
       authCodeBody,
     )
   }
+}
+
+const verifyAuthCodeMfaAndConsent = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+) => {
+  await verifyAuthCodeMfa(
+    c,
+    authCode,
+    authCodeBody,
+    mfaService.getAuthorizeMfaConfig(
+      c,
+      authCodeBody,
+    ),
+  )
 
   const requireConsent = await consentService.shouldCollectConsent(
     c,
@@ -215,6 +228,55 @@ const verifyAuthCodeMfaAndConsent = async (
     )
     throw new errorConfig.UnAuthorized(messageConfig.RequestError.NoConsent)
   }
+}
+
+const needsExtraAccountMfaCheck = (authCodeBody: typeConfig.AuthCodeBody): boolean => {
+  const hasUnlistedOtp = authCodeBody.user.otpVerified && !authCodeBody.user.mfaTypes.includes(userModel.MfaType.Otp)
+  const hasUnlistedSms = Boolean(authCodeBody.user.smsPhoneNumber) &&
+    authCodeBody.user.smsPhoneNumberVerified &&
+    !authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms)
+  return Boolean(authCodeBody.mfa) || hasUnlistedOtp || hasUnlistedSms
+}
+
+export const ensureAccountMfaIsSecured = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+) => {
+  if (!needsExtraAccountMfaCheck(authCodeBody)) return
+
+  await verifyAuthCodeMfa(
+    c,
+    authCode,
+    authCodeBody,
+    mfaService.getAccountMfaConfig(
+      c,
+      authCodeBody.user,
+    ),
+  )
+}
+
+const hasVerifiedAccountMfa = async (
+  c: Context<typeConfig.Context>,
+  authCode: string,
+  authCodeBody: typeConfig.AuthCodeBody,
+): Promise<boolean> => {
+  if (!needsExtraAccountMfaCheck(authCodeBody)) return true
+
+  const isSocialLogin = !!authCodeBody.user.socialAccountId
+  const bypassLocalMfa = isSocialLogin &&
+    variableConfig.SocialSignInConfig.ExternalSignInCanBypassLocalMfa
+  if (bypassLocalMfa || authCodeBody.isFullyAuthorized) return true
+
+  return areMfaFactorsVerified(
+    c,
+    authCode,
+    authCodeBody,
+    mfaService.getAccountMfaConfig(
+      c,
+      authCodeBody.user,
+    ),
+  )
 }
 
 export const ensureAuthCodeIsSecured = async (
@@ -268,7 +330,7 @@ export const processPostAuthorize = async (
   step: AuthorizeStep,
   authCode: string,
   authCodeBody: typeConfig.AuthCodeBody,
-  options: { persistAuthCode?: boolean } = {},
+  options: { persistAuthCode?: boolean; skipDeliver?: boolean } = {},
 ) => {
   const basicInfo = {
     code: authCode,
@@ -300,6 +362,8 @@ export const processPostAuthorize = async (
   const isSocialLogin = !!authCodeBody.user.socialAccountId
   const bypassLocalMfa = isSocialLogin &&
     variableConfig.SocialSignInConfig.ExternalSignInCanBypassLocalMfa
+  const isSensitivePolicy = mfaService.isSensitiveAuthCode(authCodeBody)
+  const allowRememberDevice = enableMfaRememberDevice && !isSensitivePolicy
 
   const requirePasswordlessVerify =
     step < 1 &&
@@ -376,7 +440,7 @@ export const processPostAuthorize = async (
     }
   }
   if (requireOtpMfa) {
-    if (!enableMfaRememberDevice) {
+    if (!allowRememberDevice) {
       return {
         ...basicInfo, nextPage: routeConfig.View.OtpMfa,
       }
@@ -412,7 +476,7 @@ export const processPostAuthorize = async (
     !bypassLocalMfa &&
     (enableSmsMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Sms))
   if (requireSmsMfa) {
-    if (!enableMfaRememberDevice) {
+    if (!allowRememberDevice) {
       return {
         ...basicInfo, nextPage: routeConfig.View.SmsMfa,
       }
@@ -448,7 +512,7 @@ export const processPostAuthorize = async (
     !bypassLocalMfa &&
     (enableEmailMfa || authCodeBody.user.mfaTypes.includes(userModel.MfaType.Email))
   if (requireEmailMfa) {
-    if (!enableMfaRememberDevice) {
+    if (!allowRememberDevice) {
       return {
         ...basicInfo, nextPage: routeConfig.View.EmailMfa,
       }
@@ -495,7 +559,11 @@ export const processPostAuthorize = async (
       c,
       authCodeBody.user.id,
     )
-    if (!passkey) {
+    if (!passkey && await hasVerifiedAccountMfa(
+      c,
+      authCode,
+      authCodeBody,
+    )) {
       return {
         ...basicInfo, nextPage: routeConfig.View.PasskeyEnroll,
       }
@@ -507,7 +575,11 @@ export const processPostAuthorize = async (
     !isSocialLogin &&
     enableRecoveryCode &&
     !authCodeBody.user.recoveryCodeHash
-  if (requireRecoveryCodeEnroll) {
+  if (requireRecoveryCodeEnroll && await hasVerifiedAccountMfa(
+    c,
+    authCode,
+    authCodeBody,
+  )) {
     return {
       ...basicInfo, nextPage: routeConfig.View.RecoveryCodeEnroll,
     }
@@ -533,17 +605,19 @@ export const processPostAuthorize = async (
     }
   }
 
-  sessionService.setAuthInfoSession(
-    c,
-    authCodeBody,
-  )
+  if (!options.skipDeliver) {
+    sessionService.setAuthInfoSession(
+      c,
+      authCodeBody,
+    )
 
-  await markAuthCodeAsDelivered(
-    c,
-    authCode,
-    authCodeBody,
-    options,
-  )
+    await markAuthCodeAsDelivered(
+      c,
+      authCode,
+      authCodeBody,
+      options,
+    )
+  }
 
   return authorizedResult
 }

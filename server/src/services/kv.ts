@@ -320,7 +320,7 @@ export const stampEmailMfaCode = async (
   if (isValid) {
     if (isOtpFallback) {
       const stampKey = adapterConfig.getKVKey(
-        adapterConfig.BaseKVKey.OtpMfaCode,
+        adapterConfig.BaseKVKey.OtpMfaEmailFallback,
         authCode,
         String(userId),
       )
@@ -334,7 +334,7 @@ export const stampEmailMfaCode = async (
 
     if (isSmsFallback) {
       const stampKey = adapterConfig.getKVKey(
-        adapterConfig.BaseKVKey.SmsMfaCode,
+        adapterConfig.BaseKVKey.SmsMfaEmailFallback,
         authCode,
         String(userId),
       )
@@ -417,18 +417,39 @@ export const storeEmailMfaCode = async (
   )
 }
 
+const isMfaStamped = async (
+  kv: KVNamespace,
+  baseKey: adapterConfig.BaseKVKey,
+  authCode: string,
+  userId: number,
+): Promise<boolean> => {
+  const storedCode = await kv.get(adapterConfig.getKVKey(
+    baseKey,
+    authCode,
+    String(userId),
+  ))
+  return storedCode === '1'
+}
+
 export const smsMfaCodeVerified = async (
   kv: KVNamespace,
   authCode: string,
   userId: number,
-) => {
-  const key = adapterConfig.getKVKey(
+  allowEmailFallback: boolean,
+): Promise<boolean> => {
+  if (await isMfaStamped(
+    kv,
     adapterConfig.BaseKVKey.SmsMfaCode,
     authCode,
-    String(userId),
+    userId,
+  )) return true
+
+  return allowEmailFallback && isMfaStamped(
+    kv,
+    adapterConfig.BaseKVKey.SmsMfaEmailFallback,
+    authCode,
+    userId,
   )
-  const storedCode = await kv.get(key)
-  return storedCode && storedCode === '1'
 }
 
 export const stampOtpMfaCode = async (
@@ -474,14 +495,21 @@ export const optMfaCodeVerified = async (
   kv: KVNamespace,
   authCode: string,
   userId: number,
-) => {
-  const key = adapterConfig.getKVKey(
+  allowEmailFallback: boolean,
+): Promise<boolean> => {
+  if (await isMfaStamped(
+    kv,
     adapterConfig.BaseKVKey.OtpMfaCode,
     authCode,
-    String(userId),
+    userId,
+  )) return true
+
+  return allowEmailFallback && isMfaStamped(
+    kv,
+    adapterConfig.BaseKVKey.OtpMfaEmailFallback,
+    authCode,
+    userId,
   )
-  const storedCode = await kv.get(key)
-  return storedCode && storedCode === '1'
 }
 
 export const storePasswordlessCode = async (

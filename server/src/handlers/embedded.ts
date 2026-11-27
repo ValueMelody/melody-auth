@@ -858,6 +858,12 @@ export const postPasskeyEnroll = async (c: Context<typeConfig.Context>) => {
     sessionBody,
   )
 
+  await identityService.ensureAccountMfaIsSecured(
+    c,
+    sessionId,
+    sessionBodyToAuthCodeBody(securedSessionBody),
+  )
+
   const {
     passkeyId, passkeyPublickey, passkeyCounter,
   } = await passkeyService.processPasskeyEnroll(
@@ -1065,7 +1071,14 @@ export const getRecoveryCodeEnroll = async (c: Context<typeConfig.Context>) => {
     sessionId,
     sessionBody,
   )
+
   const authCodeBody = sessionBodyToAuthCodeBody(securedSessionBody)
+
+  await identityService.ensureAccountMfaIsSecured(
+    c,
+    sessionId,
+    authCodeBody,
+  )
 
   const {
     recoveryCode, user,

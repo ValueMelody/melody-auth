@@ -15,6 +15,7 @@ import {
 import {
   requestUtil, loggerUtil,
 } from 'utils'
+import { oauthDto } from 'dtos'
 
 export interface MfaConfig {
   requireEmailMfa: boolean;
@@ -22,6 +23,27 @@ export interface MfaConfig {
   requireSmsMfa: boolean;
   enforceOneMfaEnrollment: string[];
   allowEmailMfaAsBackup: boolean;
+}
+
+const SensitiveAccountPolicies = new Set<string>([
+  oauthDto.Policy.ResetMfa,
+  oauthDto.Policy.ManageRecoveryCode,
+  oauthDto.Policy.ManagePasskey,
+  oauthDto.Policy.ChangeEmail,
+  oauthDto.Policy.ChangePassword,
+])
+
+export const isSensitiveAccountPolicy = (policy?: string): boolean => {
+  return !!policy && SensitiveAccountPolicies.has(policy)
+}
+
+type AuthCodeOrSession = typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser
+
+export const isSensitiveAuthCode = (authCodeBody: AuthCodeOrSession): boolean => {
+  const policy = authCodeBody.request && 'policy' in authCodeBody.request
+    ? authCodeBody.request.policy
+    : undefined
+  return isSensitiveAccountPolicy(policy)
 }
 
 const getSystemMfaConfig = (c: Context<typeConfig.Context>): MfaConfig => {
@@ -39,6 +61,20 @@ const getSystemMfaConfig = (c: Context<typeConfig.Context>): MfaConfig => {
     requireSmsMfa,
     enforceOneMfaEnrollment,
     allowEmailMfaAsBackup,
+  }
+}
+
+export const getAccountMfaConfig = (
+  c: Context<typeConfig.Context>,
+  user: userModel.Record,
+): MfaConfig => {
+  const systemConfig = getSystemMfaConfig(c)
+
+  return {
+    ...systemConfig,
+    // Factors verified under a stricter app may not be listed in user.mfaTypes; enforce them account-wide.
+    requireOtpMfa: systemConfig.requireOtpMfa || !!user.otpVerified,
+    requireSmsMfa: systemConfig.requireSmsMfa || Boolean(user.smsPhoneNumber && user.smsPhoneNumberVerified),
   }
 }
 
@@ -69,6 +105,13 @@ export const getAuthorizeMfaConfig = (
   c: Context<typeConfig.Context>,
   authCodeBody: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
 ): MfaConfig => {
+  if (isSensitiveAuthCode(authCodeBody)) {
+    return getAccountMfaConfig(
+      c,
+      authCodeBody.user,
+    )
+  }
+
   if (authCodeBody.mfa) {
     return {
       requireEmailMfa: authCodeBody.mfa.e,
@@ -313,6 +356,15 @@ export const handleGetOtpMfaSetup = async (
   c: Context<typeConfig.Context>,
   authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
 ) => {
+  const { requireOtpMfa: enableOtpMfa } = getAuthorizeMfaConfig(
+    c,
+    authCodeStore,
+  )
+  const requireOtpMfa = enableOtpMfa || !!authCodeStore.user.mfaTypes?.includes(userModel.MfaType.Otp)
+  if (!requireOtpMfa) {
+    throw new errorConfig.Forbidden()
+  }
+
   if (authCodeStore.user.otpVerified) {
     loggerUtil.triggerLogger(
       c,
@@ -348,7 +400,13 @@ export const processOtpMfa = async (
   authCodeStore: typeConfig.AuthCodeBody | typeConfig.EmbeddedSessionBodyWithUser,
   mfaCode: string,
 ) => {
-  if (!authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
+  const { requireOtpMfa: enableOtpMfa } = getAuthorizeMfaConfig(
+    c,
+    authCodeStore,
+  )
+  const requireOtpMfa = enableOtpMfa || !!authCodeStore.user.mfaTypes?.includes(userModel.MfaType.Otp)
+
+  if (!requireOtpMfa || !authCodeStore.user.otpSecret) throw new errorConfig.Forbidden()
 
   const {
     AUTHORIZATION_CODE_EXPIRES_IN: expiresIn,

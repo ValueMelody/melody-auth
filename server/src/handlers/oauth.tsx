@@ -9,7 +9,15 @@ import {
 } from 'configs'
 import { oauthDto } from 'dtos'
 import {
-  appService, jwtService, kvService, oauthService, scopeService, sessionService, userService,
+  appService,
+  identityService,
+  jwtService,
+  kvService,
+  mfaService,
+  oauthService,
+  scopeService,
+  sessionService,
+  userService,
 } from 'services'
 import {
   loggerUtil, requestUtil, timeUtil, validateUtil,
@@ -21,7 +29,6 @@ import {
 import {
   appModel, userModel,
 } from 'models'
-import { prepareOidcRedirect } from 'services/identity'
 
 export const parseGetAuthorizeDto = async (c: Context<typeConfig.Context>): Promise<{
   queryDto: oauthDto.GetAuthorizeDto;
@@ -117,36 +124,69 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   }
 
   if (stored && sessionUser?.isActive) {
-    const redirectToClient =
-      !queryDto.policy ||
-      queryDto.policy === oauthDto.Policy.SignInOrSignUp ||
-      queryDto.policy.startsWith(oauthDto.Policy.SamSso) ||
-      queryDto.policy.startsWith(oauthDto.Policy.Oidc)
+    if (mfaService.isSensitiveAccountPolicy(queryDto.policy)) {
+      const {
+        ENABLE_PASSWORDLESS_SIGN_IN: enablePasswordlessSignIn,
+        AUTHORIZATION_CODE_EXPIRES_IN: codeExpiresIn,
+      } = env(c)
 
-    const authCode = await createFullAuthorize(
-      c,
-      {
-        appId: stored.appId,
-        appName: stored.appName,
-        user: sessionUser,
-        request: queryDto,
-      },
-      { isDelivered: redirectToClient },
-    )
-
-    if (redirectToClient) {
-      if (queryDto.authorizeMethod === 'popup') {
-        return c.html(<PopupRedirect
-          code={authCode}
-          queryDto={queryDto}
-        />)
-      } else {
-        const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
-        return c.redirect(url)
+      if (!enablePasswordlessSignIn || sessionUser.socialAccountId) {
+        const authCode = genRandomString(128)
+        const authCodeBody: typeConfig.AuthCodeBody = {
+          appId: stored.appId,
+          appName: stored.appName,
+          user: sessionUser,
+          request: queryDto,
+        }
+        await kvService.storeAuthCode(
+          c.env.KV,
+          authCode,
+          authCodeBody,
+          codeExpiresIn,
+        )
+        const detail = await identityService.processPostAuthorize(
+          c,
+          identityService.AuthorizeStep.Password,
+          authCode,
+          authCodeBody,
+          { skipDeliver: true },
+        )
+        const nextStep = detail.nextPage ?? queryDto.policy
+        const queryString = `step=${nextStep}&state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
+        return c.redirect(`${routeConfig.IdentityRoute.ProcessView}?${queryString}`)
       }
     } else {
-      const queryString = `step=${queryDto.policy}&state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
-      return c.redirect(`${routeConfig.IdentityRoute.ProcessView}?${queryString}`)
+      const redirectToClient =
+        !queryDto.policy ||
+        queryDto.policy === oauthDto.Policy.SignInOrSignUp ||
+        queryDto.policy.startsWith(oauthDto.Policy.SamSso) ||
+        queryDto.policy.startsWith(oauthDto.Policy.Oidc)
+
+      const authCode = await createFullAuthorize(
+        c,
+        {
+          appId: stored.appId,
+          appName: stored.appName,
+          user: sessionUser,
+          request: queryDto,
+        },
+        { isDelivered: redirectToClient },
+      )
+
+      if (redirectToClient) {
+        if (queryDto.authorizeMethod === 'popup') {
+          return c.html(<PopupRedirect
+            code={authCode}
+            queryDto={queryDto}
+          />)
+        } else {
+          const url = `${queryDto.redirectUri}?code=${authCode}&state=${queryDto.state}`
+          return c.redirect(url)
+        }
+      } else {
+        const queryString = `step=${queryDto.policy}&state=${queryDto.state}&code=${authCode}&locale=${queryDto.locale}&redirect_uri=${queryDto.redirectUri}&org=${queryDto.org}`
+        return c.redirect(`${routeConfig.IdentityRoute.ProcessView}?${queryString}`)
+      }
     }
   }
 
@@ -162,7 +202,7 @@ export const getAuthorize = async (c: Context<typeConfig.Context>) => {
   }
 
   if (oidcAuthProviders?.length && queryDto.policy?.startsWith(oauthDto.Policy.Oidc)) {
-    const url = await prepareOidcRedirect(
+    const url = await identityService.prepareOidcRedirect(
       c,
       queryDto.policy,
       queryDto,

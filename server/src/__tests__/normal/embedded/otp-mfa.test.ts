@@ -226,6 +226,34 @@ describe(
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
+
+    test(
+      'should throw error if otp mfa is not required or enrolled',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        const { sessionId } = await sendVerifiedSignInRequest(
+          db,
+          {},
+        )
+
+        const otpRes = await app.request(
+          routeConfig.EmbeddedRoute.OtpMfaSetup.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          { method: 'GET' },
+          mock(db),
+        )
+        expect(otpRes.status).toBe(400)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
+      },
+    )
   },
 )
 
@@ -802,6 +830,43 @@ describe(
         process.env.OTP_MFA_IS_REQUIRED = false as unknown as string
         process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
         process.env.ENABLE_MFA_REMEMBER_DEVICE = false as unknown as string
+      },
+    )
+
+    test(
+      'should throw error if otp mfa is not required or enrolled when verifying',
+      async () => {
+        process.env.EMBEDDED_AUTH_ORIGINS = ['http://localhost:3000'] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = [] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = false as unknown as string
+
+        const {
+          sessionId, otpSecret,
+        } = await sendVerifiedSignInRequest(
+          db,
+          {},
+        )
+
+        const mfaCode = authenticator.generate(otpSecret)
+        const otpRes = await app.request(
+          routeConfig.EmbeddedRoute.OtpMfa.replace(
+            ':sessionId',
+            sessionId,
+          ),
+          {
+            method: 'POST',
+            body: JSON.stringify({ mfaCode }),
+          },
+          mock(db),
+        )
+        expect(otpRes.status).toBe(400)
+
+        const updatedUser = await db.prepare('select * from "user" where id = 1').get() as userModel.Raw
+        expect(updatedUser.otpVerified).toBe(0)
+
+        process.env.EMBEDDED_AUTH_ORIGINS = [] as unknown as string
+        process.env.ENFORCE_ONE_MFA_ENROLLMENT = ['email', 'otp'] as unknown as string
+        process.env.ENABLE_USER_APP_CONSENT = true as unknown as string
       },
     )
   },
