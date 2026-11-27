@@ -63,6 +63,8 @@ Override MFA behavior per application (client) rather than globally.
 This is useful when different apps require different assurance levels (e.g., stricter MFA for internal admin apps). However, it will be conflicting with the ENFORCE_ONE_MFA_ENROLLMENT setting, so you need to carefully consider the impact.
 ![App-level MFA](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/images/app_level_mfa.jpg)
 
+Sensitive account policies (`reset_mfa`, `manage_recovery_code`, `manage_passkey`, `change_email`, `change_password`) ignore app-level MFA. They always enforce the server-level MFA settings plus any OTP or SMS factor the user has already verified, and Remember Device does not skip MFA for them. Passkey and recovery code enrollment also require those account-level factors to be verified first.
+
 ## Related policies (shortcuts)
 
 You can route directly to certain flows via policies:

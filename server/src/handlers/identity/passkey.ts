@@ -75,6 +75,12 @@ export const postProcessPasskeyEnroll = async (c: Context<typeConfig.Context>) =
     authCodeStore,
   )
 
+  await identityService.ensureAccountMfaIsSecured(
+    c,
+    bodyDto.code,
+    authCodeStore,
+  )
+
   const {
     passkeyId, passkeyPublickey, passkeyCounter,
   } = await passkeyService.processPasskeyEnroll(

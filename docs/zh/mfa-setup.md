@@ -63,6 +63,8 @@ Recovery codes 允许用户在忘记密码或无法完成 MFA 时重新获得访
 当不同应用需要不同的安全等级时（例如，内部管理应用需要更严格的 MFA）非常有用。然而，这项设置与 ENFORCE_ONE_MFA_ENROLLMENT 设置冲突，因此你需要仔细考虑其影响。
 ![App-level MFA](https://raw.githubusercontent.com/ValueMelody/melody-auth/main/docs/images/app_level_mfa.jpg)
 
+敏感账户 policy（`reset_mfa`、`manage_recovery_code`、`manage_passkey`、`change_email`、`change_password`）不受应用层面 MFA 配置影响。它们始终执行服务器层面的 MFA 设置，以及用户已验证的 OTP 或 SMS 方式，且记住此设备不会为这些 policy 跳过 MFA。注册 Passkey 和恢复代码之前，同样需要先完成这些账户层面的 MFA 验证。
+
 ## 相关 policy（快捷方式）
 
 你可以通过 policy 直接跳转到特定流程：

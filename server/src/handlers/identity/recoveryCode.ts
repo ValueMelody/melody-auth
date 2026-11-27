@@ -32,6 +32,12 @@ export const getProcessRecoveryCodeEnroll = async (c: Context<typeConfig.Context
     authCodeStore,
   )
 
+  await identityService.ensureAccountMfaIsSecured(
+    c,
+    queryDto.code,
+    authCodeStore,
+  )
+
   const {
     recoveryCode, user,
   } = await recoveryCodeService.getRecoveryCodeEnrollmentInfo(
