@@ -1272,3 +1272,96 @@ describe(
     )
   },
 )
+
+describe(
+  'email fallback option on sensitive policies',
+  () => {
+    test.each([
+      ['otp', false, true],
+      ['otp', true, false],
+      ['sms', false, true],
+      ['sms', true, false],
+    ] as const)(
+      'should follow system setting for %s fallback when system allows = %s and app allows = %s',
+      async (
+        factor, systemAllowsFallback, appAllowsFallback,
+      ) => {
+        setEnv(
+          'ALLOW_EMAIL_MFA_AS_BACKUP',
+          systemAllowsFallback,
+        )
+        setEnv(
+          'ENFORCE_ONE_MFA_ENROLLMENT',
+          [],
+        )
+        setEnv(
+          'ENABLE_USER_APP_CONSENT',
+          false,
+        )
+        setEnv(
+          'TWILIO_ACCOUNT_ID',
+          '123',
+        )
+        setEnv(
+          'TWILIO_AUTH_TOKEN',
+          'abc',
+        )
+        setEnv(
+          'TWILIO_SENDER_NUMBER',
+          '+1231231234',
+        )
+
+        await db.prepare('update app set "useSystemMfaConfig" = 0, "requireEmailMfa" = 0, "requireOtpMfa" = 0, "requireSmsMfa" = 0, "allowEmailMfaAsBackup" = ? where id = 1').run(appAllowsFallback ? 1 : 0)
+        await insertUsers(db)
+        await db.prepare('update "user" set "skipPasskeyEnroll" = 1, "recoveryCodeHash" = ? where id = 1').run('123')
+        if (factor === 'otp') {
+          await db.prepare('update "user" set "otpSecret" = ?, "otpVerified" = 1 where id = 1').run(cryptoUtil.genOtpSecret())
+        } else {
+          await db.prepare('update "user" set "smsPhoneNumber" = ?, "smsPhoneNumberVerified" = 1 where id = 1').run('+16471231234')
+        }
+
+        const appRecord = await getApp(db)
+        const signInRes = await postSignInRequest(
+          db,
+          appRecord,
+          { policy: Policy.ResetMfa },
+        )
+        const {
+          code, nextPage,
+        } = await signInRes.json() as { code: string; nextPage?: string }
+        expect(nextPage).toBe(factor === 'otp' ? routeConfig.View.OtpMfa : routeConfig.View.SmsMfa)
+
+        // Covers both the SMS code sent on page load and the email MFA code.
+        global.fetch = getSmsResponseMock()
+        try {
+          const processRoute = factor === 'otp'
+            ? routeConfig.IdentityRoute.ProcessOtpMfa
+            : routeConfig.IdentityRoute.ProcessSmsMfa
+          const processRes = await app.request(
+            `${processRoute}?locale=en&code=${code}`,
+            {},
+            mock(db),
+          )
+          expect(processRes.status).toBe(200)
+          const processJson = await processRes.json() as { allowFallbackToEmailMfa: boolean }
+          expect(processJson.allowFallbackToEmailMfa).toBe(systemAllowsFallback)
+
+          const sendRes = await app.request(
+            routeConfig.IdentityRoute.SendEmailMfa,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                code,
+                locale: 'en',
+              }),
+            },
+            mock(db),
+          )
+          expect(sendRes.status).toBe(systemAllowsFallback ? 200 : 400)
+        } finally {
+          global.fetch = fetchMock
+        }
+      },
+    )
+  },
+)
